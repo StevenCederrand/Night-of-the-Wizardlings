@@ -1,5 +1,8 @@
 .vs
-bin
+*.exe
+*.iobj
+*.ipdb
+*.pdb
 bin-intermediate
 imgui.ini
 Release/
