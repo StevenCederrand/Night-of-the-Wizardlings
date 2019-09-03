@@ -3,7 +3,7 @@
 *.iobj
 *.ipdb
 *.pdb
+*.ilk
 bin-intermediate
 imgui.ini
-Release/
 
