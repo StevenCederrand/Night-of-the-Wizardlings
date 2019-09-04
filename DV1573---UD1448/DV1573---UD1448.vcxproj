@@ -154,13 +154,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="States\PlayState.cpp" />
     <ClCompile Include="System\Application.cpp" />
+    <ClCompile Include="System\Input.cpp" />
     <ClCompile Include="System\Log.cpp" />
-    <ClCompile Include="System\Source.cpp" />
+    <ClCompile Include="System\Main.cpp" />
+    <ClCompile Include="System\StateManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="States\PlayState.h" />
     <ClInclude Include="System\Application.h" />
+    <ClInclude Include="System\Input.h" />
     <ClInclude Include="System\Log.h" />
+    <ClInclude Include="System\PersistentData.h" />
+    <ClInclude Include="System\State.h" />
+    <ClInclude Include="System\StateManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

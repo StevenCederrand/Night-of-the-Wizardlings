@@ -1,21 +1,93 @@
 #include "Application.h"
-#include <GLFW/glfw3.h>
+#include "Log.h"
+#include "States/PlayState.h"
+
 Application::Application() {
 }
 
 Application::~Application() {
-
+	delete m_input;
+	delete m_stateManager;
+	glfwTerminate();
 }
 
 bool Application::init() {
 
-	bool x = glfwInit();
+	bool statusOK = false;
 
+	statusOK = glfwInit();
 
+	if (!statusOK) {
+		logError("Failed to initialize GLFW!");
+		return false;
+	}
 
-	return x;
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+
+	m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", NULL, NULL);
+
+	if (m_window == nullptr) {
+		glfwTerminate();
+		logError("Failed to create GLFW window");
+		return false;
+	}
+
+	// Opengl context
+	glfwMakeContextCurrent(m_window);
+
+	GLenum status = glewInit();
+
+	if (status != GLEW_OK) {
+		glfwTerminate();
+		logError("Failed to initialize GLEW!");
+	}
+
+	// Vsync
+	m_vsync = true;
+	glfwSwapInterval(1);
+	
+	m_input = new Input();
+
+	/*
+		Initialize all persisten data here
+	*/
+	
+
+	m_stateManager = new StateManager(&m_pd);
+
+	m_stateManager->pushState(new PlayState());
+
+	logTrace("Application successfully initialized");
+	return statusOK;
 }
 
-void Application::update()
+void Application::run()
 {
+	
+	logInfo("Running Application loop");
+
+	while (!glfwWindowShouldClose(m_window)) {
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+		m_input->clearKeys();
+		glfwPollEvents();
+
+		// Quick way to close the app
+		if (Input::isKeyReleased(GLFW_KEY_ESCAPE))
+		{
+			glfwSetWindowShouldClose(m_window, true);
+		}
+
+
+		glfwSwapBuffers(m_window);
+	}
+
+	logInfo("Exiting application loop");
+
 }

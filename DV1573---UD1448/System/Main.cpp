@@ -8,16 +8,11 @@ int main() {
 	Log::initialize();
 	
 	Application* m_app = new Application();
-	bool m_init = m_app->init();
-
-	if (m_init) {
-		m_app->update();
+	
+	if (m_app->init()) {
+		m_app->run();
 	}
-	else {
-		LOG_ERROR("Failed to init application");
-		system("pause");
-	}
-
+	
 	delete m_app;
 
 	return 0;

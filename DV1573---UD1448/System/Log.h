@@ -19,16 +19,16 @@ private:
 };
 
 #ifdef _DEBUG
-#define LOG_TRACE(...)    ::Log::getLogger()->trace(__VA_ARGS__)
-#define LOG_INFO(...)     ::Log::getLogger()->info(__VA_ARGS__)
-#define LOG_WARNING(...)  ::Log::getLogger()->warn(__VA_ARGS__)
-#define LOG_ERROR(...)    ::Log::getLogger()->error(__VA_ARGS__)
-#define LOG_FATAL(...)    ::Log::getLogger()->fatal(__VA_ARGS__)
+#define logTrace(...)    ::Log::getLogger()->trace(__VA_ARGS__)
+#define logInfo(...)     ::Log::getLogger()->info(__VA_ARGS__)
+#define logWarning(...)  ::Log::getLogger()->warn(__VA_ARGS__)
+#define logError(...)    ::Log::getLogger()->error(__VA_ARGS__)
+#define logFatal(...)    ::Log::getLogger()->fatal(__VA_ARGS__)
 #else
-#define LOG_TRACE
-#define LOG_INFO
-#define LOG_WARNING
-#define LOG_ERROR
-#define LOG_FATAL
+#define logTrace
+#define logInfo
+#define logWarning
+#define logError
+#define logFatal
 #endif
 #endif
