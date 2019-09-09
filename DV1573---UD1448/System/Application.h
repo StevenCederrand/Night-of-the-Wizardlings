@@ -10,7 +10,7 @@ public:
 	Application();
 	~Application();
 	
-	/* Init GLFW & GL */
+	/* Init GLFW & GL HEHEH */
 	bool init();
 	
 	/* Runs the application */
