@@ -1,7 +1,6 @@
 #ifndef _INPUT_H
 #define _INPUT_H
-#include <GLFW/glfw3.h>
-#include <GLM/glm.hpp>
+#include <Pch/Pch.h>
 
 /* 
 	This is a static class and is initialized in application.

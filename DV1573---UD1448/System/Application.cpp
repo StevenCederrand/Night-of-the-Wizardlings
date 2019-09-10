@@ -1,5 +1,5 @@
+#include <Pch/Pch.h>
 #include "Application.h"
-#include "Log.h"
 #include "States/PlayState.h"
 
 Application::Application() {

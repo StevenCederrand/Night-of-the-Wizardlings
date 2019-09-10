@@ -1,6 +1,6 @@
 #ifndef _APPLICATION_h
 #define _APPLICATION_h
-#include <GL/glew.h>
+#include <Pch/Pch.h>
 #include "Input.h"
 #include "StateManager.h"
 

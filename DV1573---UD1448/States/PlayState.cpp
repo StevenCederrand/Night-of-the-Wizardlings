@@ -1,5 +1,5 @@
+#include <Pch/Pch.h>
 #include "PlayState.h"
-#include "System/Log.h"
 
 PlayState::PlayState()
 {
@@ -14,6 +14,7 @@ PlayState::~PlayState()
 
 void PlayState::update(float dt)
 {
+	
 }
 
 void PlayState::render()

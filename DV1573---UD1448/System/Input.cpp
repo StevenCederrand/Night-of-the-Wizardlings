@@ -1,5 +1,6 @@
+#include <Pch/Pch.h>
 #include "Input.h"
-#include <stdio.h>
+
 
 bool Input::m_keysPressed[MAX_KEYS];
 bool Input::m_keysHeldDown[MAX_KEYS];

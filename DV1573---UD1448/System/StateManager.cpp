@@ -1,5 +1,6 @@
+#include <Pch/Pch.h>
 #include "StateManager.h"
-#include "Log.h"
+
 
 StateManager::StateManager(PersistentData* pd)
 {
