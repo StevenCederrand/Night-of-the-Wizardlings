@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <memory>
 #include <limits.h>
 #include <time.h>
