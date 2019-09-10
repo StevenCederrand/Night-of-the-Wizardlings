@@ -4,6 +4,7 @@
 PlayState::PlayState()
 {
 	logTrace("Playstate created");
+
 }
 
 PlayState::~PlayState()
