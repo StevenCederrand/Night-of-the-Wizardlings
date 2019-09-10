@@ -87,85 +87,139 @@ void Shader::unuse()
 //uniform mat3
 void Shader::setMat3(std::string name, glm::mat3 mat)
 {
-	GLint uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
-	if (uniformLoc != -1)
-	{
+	GLint uniformLoc = getUniformLocation(name);
+	//If we have already aquired the location in out hashmap
+	if (uniformLoc != -1) {
+		//Set the location value
 		glUniformMatrix3fv(uniformLoc, 1, GL_FALSE, &mat[0][0]);
 	}
-	else
-	{
-		logWarning("ERROR MAT3: ");
-		logWarning(name);
+	else { //if the location doesn't exist in the hashmap
+		uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
+		if (uniformLoc != -1)
+		{
+			glUniformMatrix3fv(uniformLoc, 1, GL_FALSE, &mat[0][0]);
+			m_IDMap[name] = uniformLoc; //Save the ID to the hashmap
+		}
+		else
+		{
+			logWarning("ERROR MAT3: ");
+			logWarning(name);
+		}
 	}
 }
 //uniform mat4
 void Shader::setMat4(std::string name, glm::mat4 mat)
 {
-	GLint uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
-	if (uniformLoc != -1)
-	{
-		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &mat[0][0]);
+	GLint uniformLoc = getUniformLocation(name);
+	//If we have already aquired the location in out hashmap
+	if (uniformLoc != -1) {
+		//Set the location value
+		glUniformMatrix3fv(uniformLoc, 1, GL_FALSE, &mat[0][0]);
 	}
-	else
-	{
-		logWarning("ERROR MAT4: ");
-		logWarning(name);
+	else { //if the location doesn't exist in the hashmap
+		uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
+		if (uniformLoc != -1)
+		{
+			glUniformMatrix3fv(uniformLoc, 1, GL_FALSE, &mat[0][0]);
+			m_IDMap[name] = uniformLoc; //Save the ID to the hashmap
+		}
+		else
+		{
+			logWarning("ERROR MAT3: ");
+			logWarning(name);
+		}
 	}
 }
 //uniform vec3
 void Shader::setVec3(std::string name, glm::vec3 vec)
 {
-	GLint uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
-	if (uniformLoc != -1)
-	{
+	GLint uniformLoc = getUniformLocation(name);
+	//If we have already aquired the location in out hashmap
+	if (uniformLoc != -1) {
+		//Set the location value
 		glUniform3fv(uniformLoc, 1, &vec[0]);
 	}
-	else
-	{
-		logWarning("ERROR VEC3: ");
-		logWarning(name);
+	else { //if the location doesn't exist in the hashmap
+		uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
+		if (uniformLoc != -1)
+		{
+			glUniform3fv(uniformLoc, 1, &vec[0]);
+			m_IDMap[name] = uniformLoc; //Save the ID to the hashmap
+		}
+		else
+		{
+			logWarning("ERROR MAT3: ");
+			logWarning(name);
+		}
 	}
 }
 //uniform vec4
 void Shader::setVec4(std::string name, glm::vec4 vec)
 {
-	GLint uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
-	if (uniformLoc != -1)
-	{
-		glUniform4fv(uniformLoc, 1, &vec[0]);
+	GLint uniformLoc = getUniformLocation(name);
+	//If we have already aquired the location in out hashmap
+	if (uniformLoc != -1) {
+		//Set the location value
+		glUniform3fv(uniformLoc, 1, &vec[0]);
 	}
-	else
-	{
-		logWarning("ERROR VEC4: ");
-		logWarning(name);
+	else { //if the location doesn't exist in the hashmap
+		uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
+		if (uniformLoc != -1)
+		{
+			glUniform3fv(uniformLoc, 1, &vec[0]);
+			m_IDMap[name] = uniformLoc; //Save the ID to the hashmap
+		}
+		else
+		{
+			logWarning("ERROR MAT3: ");
+			logWarning(name);
+		}
 	}
 }
 //uniform float
 void Shader::setFloat(std::string name, float num)
 {
-	GLint uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
-	if (uniformLoc != -1)
-	{
+	GLint uniformLoc = getUniformLocation(name);
+	//If we have already aquired the location in out hashmap
+	if (uniformLoc != -1) {
+		//Set the location value
 		glUniform1f(uniformLoc, num);
 	}
-	else
-	{
-		logWarning("ERROR FLOAT: ");
-		logWarning(name);
+	else { //if the location doesn't exist in the hashmap
+		uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
+		if (uniformLoc != -1)
+		{
+			glUniform1f(uniformLoc, num);
+			m_IDMap[name] = uniformLoc; //Save the ID to the hashmap
+		}
+		else
+		{
+			logWarning("ERROR MAT3: ");
+			logWarning(name);
+		}
 	}
 }
 //uniform int
 void Shader::setInt(std::string name, int num)
 {
-	GLint uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
-	if (uniformLoc != -1)
-	{
+	GLint uniformLoc = getUniformLocation(name);
+	//If we have already aquired the location in out hashmap
+	if (uniformLoc != -1) {
+		//Set the location value
 		glUniform1i(uniformLoc, num);
 	}
-	else
-	{
-		logWarning("ERROR INT: ");
-		logWarning(name);
+	else { //if the location doesn't exist in the hashmap
+		uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
+		if (uniformLoc != -1)
+		{
+			glUniform1i(uniformLoc, num);
+			m_IDMap[name] = uniformLoc; //Save the ID to the hashmap
+		}
+		else
+		{
+			logWarning("ERROR MAT3: ");
+			logWarning(name);
+		}
 	}
 }
 
@@ -182,6 +236,17 @@ void Shader::setName(std::string name)
 std::string Shader::getName() const
 {
 	return m_name;
+}
+
+GLint Shader::getUniformLocation(std::string locationName)
+{
+	GLint location = -1;
+
+	if (m_IDMap.find(locationName) != m_IDMap.end()) {
+		location = m_IDMap[locationName];
+	}
+
+	return location;
 }
 
 //one function for all the shaders instead of one for each

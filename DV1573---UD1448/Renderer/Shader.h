@@ -22,12 +22,14 @@ public:
 	void setName(std::string name);
 	std::string getName() const;
 
+	GLint getUniformLocation(std::string locationName);
+
 private:
 
 	std::string m_name;
 	int m_shaderProg;
+	std::map<std::string, GLint> m_IDMap;
 	void shaderSetup(std::string shaderName, unsigned int& shader);
-
 };
 
 #endif
