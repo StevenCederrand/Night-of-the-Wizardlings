@@ -86,7 +86,13 @@ void Application::run()
 		{
 			glfwSetWindowShouldClose(m_window, true);
 		}
-		
+		/*
+		if (Input::isKeyPressed(GLFW_KEY_R)) {
+
+			//glfwMakeContextCurrent(NULL);
+			ShaderMap::reload();
+			glfwMakeContextCurrent(m_window);
+		}*/
 		//Deltatime
 		float deltaTime = timeNow - timeThen;
 		timeThen = timeNow;

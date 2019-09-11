@@ -1,35 +1,13 @@
 #include <Pch/Pch.h>
 #include "Shader.h"
 
+Shader::Shader() {
+
+}
+
 Shader::Shader(std::string vertex, std::string fragment)
 {
-	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-	GLint compileResult;
-	char buffer[1024];
-	shaderSetup(vertex, vertexShader);
-	shaderSetup(fragment, fragmentShader);
-
-	m_shaderProg = glCreateProgram();
-	glAttachShader(m_shaderProg, vertexShader);
-	glAttachShader(m_shaderProg, fragmentShader);
-	glLinkProgram(m_shaderProg);
-
-	glGetProgramiv(m_shaderProg, GL_LINK_STATUS, &compileResult);
-	if (compileResult == GL_FALSE)
-	{
-		memset(buffer, 0, 1024);
-		glGetProgramInfoLog(m_shaderProg, 1024, nullptr, buffer);
-		logError("ERROR WITH SHADER");
-		logInfo(buffer);
-		system("pause");
-	}
-
-	glDetachShader(m_shaderProg, vertexShader);
-	glDetachShader(m_shaderProg, fragmentShader);
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+	this->createShader(vertex, fragment);
 
 }
 
@@ -69,6 +47,38 @@ Shader::Shader(std::string vertex, std::string geometry, std::string fragment)
 	glDeleteShader(fragmentShader);
 }
 
+bool Shader::createShader(std::string vertex, std::string fragment)
+{
+	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+
+	GLint compileResult;
+	char buffer[1024];
+	shaderSetup(vertex, vertexShader);
+	shaderSetup(fragment, fragmentShader);
+
+	m_shaderProg = glCreateProgram();
+	glAttachShader(m_shaderProg, vertexShader);
+	glAttachShader(m_shaderProg, fragmentShader);
+	glLinkProgram(m_shaderProg);
+
+	glGetProgramiv(m_shaderProg, GL_LINK_STATUS, &compileResult);
+	if (compileResult == GL_FALSE)
+	{
+		memset(buffer, 0, 1024);
+		glGetProgramInfoLog(m_shaderProg, 1024, nullptr, buffer);
+		logError("ERROR WITH SHADER");
+		logInfo(buffer);
+		return false;
+	}
+
+	glDetachShader(m_shaderProg, vertexShader);
+	glDetachShader(m_shaderProg, fragmentShader);
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+	
+	return true;
+}
 Shader::~Shader()
 {
 	glDeleteProgram(m_shaderProg);
@@ -256,8 +266,6 @@ GLint Shader::getUniformLocation(std::string locationName)
 //one function for all the shaders instead of one for each
 void Shader::shaderSetup(std::string shaderName, unsigned int& shader)
 {
-
-
 	std::string Code;
 	std::ifstream Shader;
 	Shader.open(SHADERPATH + shaderName);
@@ -282,11 +290,51 @@ void Shader::shaderSetup(std::string shaderName, unsigned int& shader)
 
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &compileResult);
 
+	m_shaderNames.push_back(shaderName);
+
 	if (compileResult == GL_FALSE)
 	{
 		glGetShaderInfoLog(shader, 1024, nullptr, buffer);
 		logWarning("ERROR COMPILING: ");
 		logWarning(shaderName);
 		logInfo(buffer);
+	}
+}
+
+void Shader::reload() {
+	//Create a temp shaderprogram.
+	//If this fucks up then we can just output that to the console,
+
+			//Clear and remove the shader program
+	glDeleteProgram(m_shaderProg);
+	clearIDs();
+	Shader tempShader;
+	//If temp shader creation fails, output to the console that the latest itteration failed
+	if (!tempShader.createShader(m_shaderNames[0], m_shaderNames[1])) 
+	{
+		logError("ERROR RE-COMPILING SHADER", m_shaderNames[0], m_shaderNames[1]);
+	}
+	else {
+		*this = tempShader;
+		logTrace("WIT WORDKS");
+	}
+}
+
+
+Shader& Shader::operator=(const Shader& other) {
+
+	if (&other == this) {
+		return *this;
+	}
+	else {
+		//Clear and remove the shader program
+		glDeleteProgram(m_shaderProg);
+		clearIDs();
+
+		m_shaderProg = other.m_shaderProg;
+		m_IDMap = other.m_IDMap;
+		m_name = other.m_name;
+		m_shaderNames = other.m_shaderNames;
+		return *this;
 	}
 }

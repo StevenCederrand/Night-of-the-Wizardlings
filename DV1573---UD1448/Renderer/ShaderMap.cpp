@@ -44,3 +44,17 @@ bool ShaderMap::existsWithName(std::string name)
 	return false;
 }
 
+void ShaderMap::reload() {
+	std::map<std::string, Shader*>::iterator it;
+
+	for (it = m_shaderMap.begin(); it != m_shaderMap.end(); it++) {
+		it->second->reload();
+	}
+}
+
+void ShaderMap::useByName(std::string name) {
+
+	if (existsWithName(name)) {
+		m_shaderMap[name]->use();
+	}
+}

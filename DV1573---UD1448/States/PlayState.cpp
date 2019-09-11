@@ -4,7 +4,7 @@
 PlayState::PlayState()
 {
 	logTrace("Playstate created");
-
+	ShaderMap::createShader("Basic_Forward", "VertexShader.vs", "FragShader.fs");
 }
 
 PlayState::~PlayState()
@@ -19,5 +19,7 @@ void PlayState::update(float dt)
 
 void PlayState::render()
 {
+	ShaderMap::useByName("Basic_Forward");
+
 	m_pd->Renderer.render();
 }

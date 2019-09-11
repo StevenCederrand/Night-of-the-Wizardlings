@@ -5,6 +5,7 @@
 class Shader
 {
 public:
+	Shader();
 	Shader(std::string vertex, std::string fragment);
 	Shader(std::string vertex, std::string geometry, std::string fragment);
 	~Shader();
@@ -21,16 +22,22 @@ public:
 	void clearIDs();
 	int getShaderID() const;
 	void setName(std::string name);
+	void reload();
 	std::string getName() const;
 
 	GLint getUniformLocation(std::string locationName);
 
+	Shader& operator=(const Shader& other);
+	bool createShader(std::string vertex, std::string fragment);
+
 private:
+
+	void shaderSetup(std::string shaderName, unsigned int& shader);
 
 	std::string m_name;
 	int m_shaderProg;
 	std::map<std::string, GLint> m_IDMap;
-	void shaderSetup(std::string shaderName, unsigned int& shader);
+	std::vector<std::string> m_shaderNames; //We need to save the name of the shaders. 
 };
 
 #endif

@@ -43,5 +43,6 @@ void Renderer::drawQuad() {
 
 
 void Renderer::render() {
+
 	drawQuad();
 }

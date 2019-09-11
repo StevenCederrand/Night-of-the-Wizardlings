@@ -13,6 +13,8 @@ public:
 
 private:
 
+	int key = 1;
+
 };
 
 
