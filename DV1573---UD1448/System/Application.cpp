@@ -84,6 +84,9 @@ void Application::run()
 			glfwSetWindowShouldClose(m_window, true);
 		}
 
+		m_stateManager->update(1.0f);
+		m_stateManager->render();
+
 
 		glfwSwapBuffers(m_window);
 	}

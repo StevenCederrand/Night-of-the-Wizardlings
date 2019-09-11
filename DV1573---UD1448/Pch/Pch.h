@@ -30,6 +30,7 @@
 #include <raknet/RakSleep.h>
 #include <raknet/GetTime.h>
 #include <raknet/BitStream.h>
-
+#include <Networking/NetworkGlobals.h>
+#include <Networking/NetworkPackets.h>
 
 #endif
