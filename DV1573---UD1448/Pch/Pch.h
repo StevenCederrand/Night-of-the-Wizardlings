@@ -38,7 +38,7 @@
 
 //Custom
 #include <Renderer/Shader.h>
-
+#include <Renderer/ShaderMap.h>
 const std::string SHADERPATH = "Assets/Shaders/";
 
 #endif

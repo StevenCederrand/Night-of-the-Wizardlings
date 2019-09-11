@@ -23,7 +23,6 @@ private:
 	StateManager* m_stateManager;
 	PersistentData m_pd;
 	bool m_vsync;
-
 };
 
 

@@ -9,6 +9,7 @@ Application::~Application() {
 	delete m_input;
 	delete m_stateManager;
 	glfwTerminate();
+	ShaderMap::cleanUp();
 }
 
 bool Application::init() {

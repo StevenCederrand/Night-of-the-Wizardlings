@@ -6,7 +6,7 @@ in vec3 f_WorldPosition;
 
 out vec4 color;
 
-int main() {
+void main() {
     color = vec4(1);
 
 }

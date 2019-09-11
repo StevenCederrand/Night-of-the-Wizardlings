@@ -13,7 +13,7 @@ out vec3 f_Normal;
 out vec3 f_WorldPosition;
 
 
-int main() {
+void main() {
     gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1);
     f_UV = uv;
     f_WorldPosition = vec3(modelMatrix * vec4(position, 1));
