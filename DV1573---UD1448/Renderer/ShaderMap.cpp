@@ -48,7 +48,9 @@ void ShaderMap::reload() {
 	std::map<std::string, Shader*>::iterator it;
 
 	for (it = m_shaderMap.begin(); it != m_shaderMap.end(); it++) {
-		it->second->reload();
+		Shader* tempShader = new Shader(it->second->getShaderNames()[0], it->second->getShaderNames()[1]);
+		delete it->second;
+		it->second = tempShader;
 	}
 }
 

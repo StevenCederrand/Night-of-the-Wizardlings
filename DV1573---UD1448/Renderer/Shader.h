@@ -19,16 +19,18 @@ public:
 	void setVec4(std::string name, glm::vec4 vec);
 	void setFloat(std::string name, float num);
 	void setInt(std::string name, int num);
-	void clearIDs();
-	int getShaderID() const;
 	void setName(std::string name);
-	void reload();
-	std::string getName() const;
 
+	int getShaderID() const;
+	std::string getName() const;
+	std::vector<std::string> getShaderNames() const;
 	GLint getUniformLocation(std::string locationName);
 
+
+	void clearIDs();
+
+
 	Shader& operator=(const Shader& other);
-	bool createShader(std::string vertex, std::string fragment);
 
 private:
 

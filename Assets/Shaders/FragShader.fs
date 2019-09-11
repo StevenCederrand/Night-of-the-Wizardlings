@@ -3,5 +3,6 @@
 out vec4 color;
 
 void main() {
-    color = vec4(0.1f, 1.0f, 0.2f, 1);
+    vec2 xy = vec2(0.2f, 0.1f);
+    color = vec4(xy, 1.2f, 1);
 }

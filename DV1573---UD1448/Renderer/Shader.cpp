@@ -7,7 +7,33 @@ Shader::Shader() {
 
 Shader::Shader(std::string vertex, std::string fragment)
 {
-	this->createShader(vertex, fragment);
+
+	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+
+	GLint compileResult;
+	char buffer[1024];
+	shaderSetup(vertex, vertexShader);
+	shaderSetup(fragment, fragmentShader);
+
+	m_shaderProg = glCreateProgram();
+	glAttachShader(m_shaderProg, vertexShader);
+	glAttachShader(m_shaderProg, fragmentShader);
+	glLinkProgram(m_shaderProg);
+
+	glGetProgramiv(m_shaderProg, GL_LINK_STATUS, &compileResult);
+	if (compileResult == GL_FALSE)
+	{
+		memset(buffer, 0, 1024);
+		glGetProgramInfoLog(m_shaderProg, 1024, nullptr, buffer);
+		logError("ERROR WITH SHADER");
+		logInfo(buffer);
+	}
+
+	glDetachShader(m_shaderProg, vertexShader);
+	glDetachShader(m_shaderProg, fragmentShader);
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
 
 }
 
@@ -47,41 +73,11 @@ Shader::Shader(std::string vertex, std::string geometry, std::string fragment)
 	glDeleteShader(fragmentShader);
 }
 
-bool Shader::createShader(std::string vertex, std::string fragment)
-{
-	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-	GLint compileResult;
-	char buffer[1024];
-	shaderSetup(vertex, vertexShader);
-	shaderSetup(fragment, fragmentShader);
-
-	m_shaderProg = glCreateProgram();
-	glAttachShader(m_shaderProg, vertexShader);
-	glAttachShader(m_shaderProg, fragmentShader);
-	glLinkProgram(m_shaderProg);
-
-	glGetProgramiv(m_shaderProg, GL_LINK_STATUS, &compileResult);
-	if (compileResult == GL_FALSE)
-	{
-		memset(buffer, 0, 1024);
-		glGetProgramInfoLog(m_shaderProg, 1024, nullptr, buffer);
-		logError("ERROR WITH SHADER");
-		logInfo(buffer);
-		return false;
-	}
-
-	glDetachShader(m_shaderProg, vertexShader);
-	glDetachShader(m_shaderProg, fragmentShader);
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-	
-	return true;
-}
 Shader::~Shader()
 {
 	glDeleteProgram(m_shaderProg);
+	clearIDs();
 }
 
 void Shader::use()
@@ -252,6 +248,11 @@ std::string Shader::getName() const
 	return m_name;
 }
 
+std::vector<std::string> Shader::getShaderNames() const
+{
+	return m_shaderNames;
+}
+
 GLint Shader::getUniformLocation(std::string locationName)
 {
 	GLint location = -1;
@@ -300,26 +301,6 @@ void Shader::shaderSetup(std::string shaderName, unsigned int& shader)
 		logInfo(buffer);
 	}
 }
-
-void Shader::reload() {
-	//Create a temp shaderprogram.
-	//If this fucks up then we can just output that to the console,
-
-			//Clear and remove the shader program
-	glDeleteProgram(m_shaderProg);
-	clearIDs();
-	Shader tempShader;
-	//If temp shader creation fails, output to the console that the latest itteration failed
-	if (!tempShader.createShader(m_shaderNames[0], m_shaderNames[1])) 
-	{
-		logError("ERROR RE-COMPILING SHADER", m_shaderNames[0], m_shaderNames[1]);
-	}
-	else {
-		*this = tempShader;
-		logTrace("WIT WORDKS");
-	}
-}
-
 
 Shader& Shader::operator=(const Shader& other) {
 
