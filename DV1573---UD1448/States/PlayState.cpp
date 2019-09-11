@@ -19,4 +19,5 @@ void PlayState::update(float dt)
 
 void PlayState::render()
 {
+	m_pd->Renderer.render();
 }

@@ -39,6 +39,8 @@
 //Custom
 #include <Renderer/Shader.h>
 #include <Renderer/ShaderMap.h>
+#include <Renderer/Camera.h>	
+#include <Renderer/Renderer.h>
 const std::string SHADERPATH = "Assets/Shaders/";
 
 #endif

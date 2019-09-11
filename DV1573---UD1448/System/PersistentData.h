@@ -1,5 +1,6 @@
 #ifndef _PERSISTENTDATA_H
 #define _PERSISTENTDATA_H
+#include <Pch/Pch.h>
 
 /* 
 	Every class that is supposed to exist
@@ -11,6 +12,8 @@
 struct PersistentData {
 
 
+	Renderer Renderer;
+	
 
 };
 

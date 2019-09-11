@@ -19,6 +19,7 @@ public:
 
 private:
 	GLFWwindow* m_window;
+	Camera* m_camera;
 	Input* m_input;
 	StateManager* m_stateManager;
 	PersistentData m_pd;

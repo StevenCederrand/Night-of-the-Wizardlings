@@ -56,8 +56,8 @@ bool Application::init() {
 	/*
 		Initialize all persisten data here
 	*/
+	m_pd.Renderer = Renderer(m_camera, m_window);
 	
-
 	m_stateManager = new StateManager(&m_pd);
 
 	m_stateManager->pushState(new PlayState());
@@ -68,7 +68,9 @@ bool Application::init() {
 
 void Application::run()
 {
-	
+	float timeNow = 0.0f;
+	float timeThen = 0.0f;
+
 	logInfo("Running Application loop");
 
 	while (!glfwWindowShouldClose(m_window)) {
@@ -84,7 +86,14 @@ void Application::run()
 		{
 			glfwSetWindowShouldClose(m_window, true);
 		}
+		
+		//Deltatime
+		float deltaTime = timeNow - timeThen;
+		timeThen = timeNow;
 
+
+		m_stateManager->update(deltaTime);
+		m_stateManager->render();	
 
 		glfwSwapBuffers(m_window);
 	}
