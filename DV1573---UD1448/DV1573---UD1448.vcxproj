@@ -189,6 +189,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Renderer\Shader.cpp" />
+    <ClCompile Include="Renderer\ShaderMap.cpp" />
     <ClCompile Include="States\PlayState.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pch/Pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pch/Pch.h</PrecompiledHeaderFile>
@@ -215,9 +216,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Renderer\Shader.h" />
-    <ClInclude Include="Renderer\ShaderMap.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
+    <ClInclude Include="Renderer\ShaderMap.h" />
     <ClInclude Include="States\PlayState.h" />
     <ClInclude Include="System\Application.h" />
     <ClInclude Include="System\Input.h" />

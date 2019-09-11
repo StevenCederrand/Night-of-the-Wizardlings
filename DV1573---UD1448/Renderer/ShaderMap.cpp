@@ -1,7 +1,7 @@
-#include "Pch/Pch.h"
+#include <Pch/Pch.h>
 #include "ShaderMap.h"
 
-std::map<std::string, Shader*> m_shaderMap;
+std::map<std::string, Shader*> ShaderMap::m_shaderMap;
 
 Shader* ShaderMap::createShader(std::string name, std::string vsName, std::string fsName)
 {
