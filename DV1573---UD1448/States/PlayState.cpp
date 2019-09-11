@@ -9,8 +9,11 @@ PlayState::PlayState()
 	char s; std::cin >> s;
 
 	if (s == 's')
-	{
-		m_server.startup("My server");
+	{	
+		std::string name;
+		std::cout << "\nEnter server name: ";
+		std::cin >> name;
+		m_server.startup(name);
 		m_isServer = true;
 
 		m_client.startup();
