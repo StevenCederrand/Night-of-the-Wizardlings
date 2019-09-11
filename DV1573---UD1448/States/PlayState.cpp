@@ -5,7 +5,7 @@ PlayState::PlayState()
 {
 	logTrace("Playstate created");
 
-	printf("s or c?: ");
+	printf("Start server? (s) or connect as a client? (c): ");
 	char s; std::cin >> s;
 
 	if (s == 's')
