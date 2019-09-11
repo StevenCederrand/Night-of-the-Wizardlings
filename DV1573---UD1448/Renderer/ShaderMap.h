@@ -1,27 +1,21 @@
-#ifndef _SHADERMAP_h
-#define _SHADERMAP_h
+#ifndef _SHADERMAP_H
+#define _SHADERMAP_H
+#include <Pch/Pch.h>
 
-#include <map>
-#include <string>
-
-class ShaderMap
-{
+class ShaderMap {
 public:
-	static Shader* createShader(std::string name, std::string vertex,
-		std::string fragment);
-
-	static Shader* createShader(std::string name, std::string vertex,
-		std::string geometry, std::string fragment);
-
-	static void addShader(std::string name, Shader* shader);
+	//@ vsName & fsName enter just the name of the shader.
+	static Shader* createShader(std::string name, std::string vsName, std::string fsName);
 	static Shader* getShader(std::string name);
 	static void cleanUp();
-	static bool existShaderWithName(std::string name);
+	static bool existsWithName(std::string name);
 
 
 private:
-
 	static std::map<std::string, Shader*> m_shaderMap;
+
 };
+
+
 
 #endif

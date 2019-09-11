@@ -223,6 +223,10 @@ void Shader::setInt(std::string name, int num)
 	}
 }
 
+void Shader::clearIDs() {
+	m_IDMap.clear();
+}
+
 int Shader::getShaderID() const
 {
 	return m_shaderProg;
@@ -256,7 +260,7 @@ void Shader::shaderSetup(std::string shaderName, unsigned int& shader)
 
 	std::string Code;
 	std::ifstream Shader;
-	Shader.open(shaderName);
+	Shader.open(SHADERPATH + shaderName);
 
 	if (!Shader.is_open())
 	{

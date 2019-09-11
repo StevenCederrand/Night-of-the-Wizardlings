@@ -1,6 +1,9 @@
 #ifndef _PCH_H
 #define _PCH_H
 
+
+
+//Standard includes
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -16,6 +19,7 @@
 #include <string>
 #include <stdio.h>
 
+//GL related includes
 #include <GL/glew.h>
 #include <glfw/glfw3.h>
 #include <glm/glm.hpp>
@@ -24,7 +28,7 @@
 #include <glm/common.hpp>
 
 #include "System/Log.h"
-
+//Raknet
 #include <raknet/MessageIdentifiers.h>
 #include <raknet/RakPeerInterface.h>
 #include <raknet/RakNetTypes.h>
@@ -32,5 +36,9 @@
 #include <raknet/GetTime.h>
 #include <raknet/BitStream.h>
 
+//Custom
+#include <Renderer/Shader.h>
+
+const std::string SHADERPATH = "Assets/Shaders/";
 
 #endif

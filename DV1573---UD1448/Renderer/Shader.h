@@ -18,6 +18,7 @@ public:
 	void setVec4(std::string name, glm::vec4 vec);
 	void setFloat(std::string name, float num);
 	void setInt(std::string name, int num);
+	void clearIDs();
 	int getShaderID() const;
 	void setName(std::string name);
 	std::string getName() const;
