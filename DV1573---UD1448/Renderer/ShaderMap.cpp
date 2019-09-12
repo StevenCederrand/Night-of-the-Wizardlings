@@ -64,6 +64,10 @@ void ShaderMap::reload() {
 		delete it->second;
 		it->second = tempShader;
 	}
+
+	for (it = m_shaderMap.begin(); it != m_shaderMap.end(); it++) {
+		logTrace("Shader ID: {0}",it->second->getShaderID());
+	}
 }
 
 void ShaderMap::useByName(std::string name) {
