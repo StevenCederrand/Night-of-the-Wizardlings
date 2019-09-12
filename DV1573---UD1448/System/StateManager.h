@@ -6,7 +6,7 @@
 class StateManager
 {
 public:
-	StateManager(PersistentData* pd);
+	StateManager();
 	~StateManager();
 
 	void popState();
@@ -21,7 +21,6 @@ private:
 
 private:
 	std::vector<State*> m_states;
-	PersistentData* m_pd;
 };
 
 #endif

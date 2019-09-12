@@ -2,9 +2,8 @@
 #include "StateManager.h"
 
 
-StateManager::StateManager(PersistentData* pd)
+StateManager::StateManager()
 {
-	m_pd = pd;
 }
 
 
@@ -27,7 +26,6 @@ void StateManager::popState()
 void StateManager::pushState(State* newState)
 {
 	newState->assignManager(this);
-	newState->assignPersistentData(m_pd);
 	m_states.emplace_back(newState);
 	
 }
@@ -37,7 +35,6 @@ void StateManager::clearAllAndSetState(State* newState)
 	if (newState != nullptr) {
 		clearStates();
 		newState->assignManager(this);
-		newState->assignPersistentData(m_pd);
 		m_states.emplace_back(newState);
 		
 	}

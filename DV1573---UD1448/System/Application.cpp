@@ -10,6 +10,8 @@ Application::~Application() {
 	delete m_stateManager;
 	glfwTerminate();
 	ShaderMap::cleanUp();
+	ShaderMap::destroy();
+	Renderer::destroy();
 }
 
 bool Application::init() {
@@ -30,7 +32,7 @@ bool Application::init() {
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
 	m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", NULL, NULL);
-
+	
 	if (m_window == nullptr) {
 		glfwTerminate();
 		logError("Failed to create GLFW window");
@@ -56,10 +58,18 @@ bool Application::init() {
 	/*
 		Initialize all persisten data here
 	*/
+	ShaderMap* shaderMap = ShaderMap::getInstance();
+	if (!shaderMap) {
+		logError("Shader Map instancing failed");
+	}
+	Renderer* renderer = Renderer::getInstance();
+	if (!renderer) {
+		logError("Rendererer failed");
+	}
 
-	m_pd.Renderer = Renderer(m_camera, m_window);
-	
-	m_stateManager = new StateManager(&m_pd);
+	renderer->init(m_camera, m_window);
+
+	m_stateManager = new StateManager();
 
 	m_stateManager->pushState(new PlayState());
 
@@ -90,17 +100,11 @@ void Application::run()
 		
 		if (Input::isKeyPressed(GLFW_KEY_R)) {
 			ShaderMap::reload();
-			logTrace("Recompile");
 		}
 		//Deltatime
 		float deltaTime = timeNow - timeThen;
 		timeThen = timeNow;
 
-		//Set projection matrix
-		//glm::mat4 projection = m_camera->setProjMat();
-		
-		//Set view matrix
-		//glm::mat4 view = m_camera->getViewMat();
 
 		m_stateManager->update(deltaTime);
 		m_stateManager->render();	

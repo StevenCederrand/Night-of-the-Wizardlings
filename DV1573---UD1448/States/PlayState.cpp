@@ -20,6 +20,5 @@ void PlayState::update(float dt)
 void PlayState::render()
 {
 	ShaderMap::useByName("Basic_Forward");
-
-	m_pd->Renderer.render();
+	Renderer::render();
 }
