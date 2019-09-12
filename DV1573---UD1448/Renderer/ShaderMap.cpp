@@ -61,8 +61,15 @@ void ShaderMap::reload() {
 
 	for (it = m_shaderMap.begin(); it != m_shaderMap.end(); it++) {
 		Shader* tempShader = new Shader(it->second->getShaderNames()[0], it->second->getShaderNames()[1]);
-		delete it->second;
-		it->second = tempShader;
+		if (tempShader->getValid()) {
+			delete it->second;
+			it->second = tempShader;
+
+			logInfo("Recompile Shader Completed");
+		}
+		else {
+			delete tempShader;
+		}
 	}
 
 	for (it = m_shaderMap.begin(); it != m_shaderMap.end(); it++) {

@@ -1,6 +1,5 @@
 #ifndef _STATE_H
 #define _STATE_H
-#include "PersistentData.h"
 class StateManager; // Empty
 
 class State {
@@ -27,13 +26,9 @@ public:
 		m_pd->...
 		Read what persistenData is in the PersistentData.h
 	*/
-	inline void assignPersistentData(PersistentData* pd) {
-		m_pd = pd;
-	}
 
 protected:
 	StateManager* m_stateManager;
-	PersistentData* m_pd;
 };
 
 

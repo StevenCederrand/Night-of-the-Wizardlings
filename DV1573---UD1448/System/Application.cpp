@@ -66,12 +66,10 @@ bool Application::init() {
 	if (!renderer) {
 		logError("Rendererer failed");
 	}
+
 	renderer->init(m_camera, m_window);
 
-
-	
-	
-	m_stateManager = new StateManager(&m_pd);
+	m_stateManager = new StateManager();
 
 	m_stateManager->pushState(new PlayState());
 
@@ -102,7 +100,6 @@ void Application::run()
 		
 		if (Input::isKeyPressed(GLFW_KEY_R)) {
 			ShaderMap::reload();
-			logTrace("Recompile");
 		}
 		//Deltatime
 		float deltaTime = timeNow - timeThen;
