@@ -1,34 +1,18 @@
+#pragma once
 #include <Pch/Pch.h>
-
 #include "MeshFormat.h"
 
-
-struct MeshSkeleton
+// Temporary Mesh Data
+struct BGMesh
 {
-	std::vector<BGLoading::Joint> joint;
-};
+	std::string name;
 
-struct MeshAnis
-{
-	struct MeshAnimation
-	{
-		struct KeyFrameL
-		{
-			struct TransformL
-			{
-				BGLoading::Transform t;
-			};
+	float translation[3];
+	float rotation[3];
+	float scale[3];
 
-			BGLoading::KeyFrame key;
-			std::vector<TransformL> transforms;
-		};
-
-
-		BGLoading::Animation ani;
-		std::vector<KeyFrameL> keyFrames;
-	};
-
-	std::vector<MeshAnimation> animations;
+	std::vector<BGLoading::Vertex> vertices;
+	std::vector<BGLoading::Face> faces;
 };
 
 class BGLoader
@@ -37,32 +21,39 @@ private:
 	std::string	fileName;
 	std::string errorMessage;
 
+	std::vector<BGMesh> Meshes;
+
 
 	// Temporary paths to load data into
-	BGLoading::BGHeader		fileHeader;
+	BGLoading::BGHeader	fileHeader;
 	BGLoading::MeshGroup* meshGroup;
 	BGLoading::PhongMaterial* material;
 	BGLoading::LoaderMesh* mesh;
 	BGLoading::DirLight* dirLight;
 	BGLoading::PointLight* pointLight;
 	BGLoading::MeshVert* meshVert;
+	BGLoading::MeshFace* meshFace;
 
-	std::vector<MeshAnis> animationsD;
-	std::vector<MeshSkeleton> skeletonsD;
+	std::vector<BGLoading::MeshAnis> animationsD;
+	std::vector<BGLoading::MeshSkeleton> skeletonsD;
 
 public:
 	BGLoader();
 	BGLoader(std::string filesName);
 	~BGLoader();
+	void Unload();
 
 	std::string GetLastError();
 	bool LoadMesh(std::string fileName);
 
 	int GetMeshCount() { return fileHeader.meshCount; }
-	char* GetMeshName(int meshID);
+	char* GetMeshName(int meshId);
 
-	float* GetVertices(int meshID);
-	int GetVertexCount(int meshID) { return mesh[meshID].vertexCount; }
+	float* GetVertices(int meshId);
+	int GetVertexCount(int meshId) { return mesh[meshId].vertexCount; }
+
+	float* GetFaces(int meshId);
+	int GetFaceCount(int meshId)  { return mesh[meshId].faceCount; }
 
 
 
@@ -81,7 +72,7 @@ public:
 	int GetHeader() { return fileHeader.meshCount; }
 	std::string GetFileName() { return fileName; }
 
-	BGLoading::Vertex* GetVerticies(int meshID) { return meshVert[meshID].vertices; }
+	BGLoading::Vertex* GetVerticies(int meshId) { return meshVert[meshId].vertices; }
 
 	int GetType(int index) const { return mesh[index].type; }
 	int GetLink(int index) const { return mesh[index].link; }

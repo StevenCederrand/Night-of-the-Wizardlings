@@ -1,55 +1,87 @@
 #include <Pch/Pch.h>
-
 #include "BGLoader.h"
 
 BGLoader::BGLoader()
 {
-	this->fileName = "";
+	fileName = "";
 
-	this->meshGroup = nullptr;
-	this->material = nullptr;
-	this->mesh = nullptr;
-	this->dirLight = nullptr;
-	this->pointLight = nullptr;
-	this->meshVert = nullptr;
-
+	meshGroup = nullptr;
+	material = nullptr;
+	mesh = nullptr;
+	dirLight = nullptr;
+	pointLight = nullptr;
+	meshVert = nullptr;
+	meshFace = nullptr;
 }
 
 BGLoader::BGLoader(std::string fileName)
 {
 	this->fileName = fileName;
 
-	this->meshGroup = nullptr;
-	this->material = nullptr;
-	this->mesh = nullptr;
-	this->dirLight = nullptr;
-	this->pointLight = nullptr;
-	this->meshVert = nullptr;
-
+	meshGroup = nullptr;
+	material = nullptr;
+	mesh = nullptr;
+	dirLight = nullptr;
+	pointLight = nullptr;
+	meshVert = nullptr;
+	meshFace = nullptr;
 
 	LoadMesh(fileName);
 }
 
 BGLoader::~BGLoader()
 {
-	// NEEDS TO BE LOOKED OVER AND CONFIRMED FOR NO MEMORY LEAKS
+	Unload();
+}
+
+void BGLoader::Unload()
+{	
+	Meshes.clear();
+	animationsD.clear();
+	skeletonsD.clear();
+
+
 	if (meshGroup)
 		delete[] meshGroup;
 	if (material)
 		delete[] material;
 	if (mesh)
+	{
+		for (int i = 0; i < fileHeader.meshCount; i++)
+		{
+			delete[] meshVert[i].vertices;
+			delete[] meshFace[i].faces;
+		}
+			
 		delete[] mesh;
+	}
 	if (dirLight)
 		delete[] dirLight;
 	if (pointLight)
 		delete[] pointLight;
-
-	for (int i = 0; i < this->fileHeader.meshCount; i++)
-		if (meshVert[i].vertices)
-			delete[] meshVert[i].vertices;
-
-	if (meshVert)
+	if(meshVert)
 		delete[] meshVert;
+	if(meshFace)
+		delete[] meshFace;
+
+
+	meshGroup = nullptr;
+	material = nullptr;
+	mesh = nullptr;
+	dirLight = nullptr;
+	pointLight = nullptr;
+	meshVert = nullptr;
+	meshFace = nullptr;
+
+	fileHeader.meshCount = 0;
+	fileHeader.groupCount = 0;
+	fileHeader.materialCount = 0;
+	fileHeader.pointLightCount = 0;
+	fileHeader.dirLightCount = 0;
+
+
+	fileName = "";
+	errorMessage = "";
 }
 
 char* BGLoader::GetMeshName(int meshID)
@@ -63,11 +95,12 @@ float* BGLoader::GetVertices(int meshNr)
 {
 	BGLoading::LoaderMesh tempMesh = mesh[meshNr];
 	int vertexCount = tempMesh.vertexCount;
+	size_t vertexSize = vertexCount * 8 + 1;
 
-	float* vertices = new float[(vertexCount * 8) + 1];
+	float* vertices = new float[vertexSize];
 	int vertexOffset = 0;
 
-	vertices[0] = vertexCount;
+	vertices[0] = (float)vertexCount;
 	vertices += 1;
 
 	for (int i = 1; i < vertexCount; i++)
@@ -96,6 +129,11 @@ float* BGLoader::GetVertices(int meshNr)
 	return vertices;
 }
 
+float* BGLoader::GetFaces(int meshId)
+{
+	return nullptr;
+}
+
 std::string BGLoader::GetLastError()
 {
 	return errorMessage;
@@ -103,16 +141,9 @@ std::string BGLoader::GetLastError()
 
 bool BGLoader::LoadMesh(std::string fileName)
 {
-	// =========================================
-	// Create input stream variable for the file,
-	// Open the file as binary
-	// =========================================
-	std::ifstream binFile(this->fileName, std::ios::binary);
+	Unload();
 
-
-	// =========================================
-	// Error handling, if file can't be opened
-	// =========================================
+	std::ifstream binFile(fileName, std::ios::binary);
 	if (!binFile)
 	{
 		std::cout << "Error! Could not find importer file: " << (char*)& fileName << std::endl;
@@ -121,36 +152,61 @@ bool BGLoader::LoadMesh(std::string fileName)
 	}
 	else
 	{
-		//Mesh
-		binFile.read((char*)& this->fileHeader, sizeof(BGLoading::BGHeader));
+		// Allocate memory based on header
+		binFile.read((char*)&fileHeader, sizeof(BGLoading::BGHeader));
+		meshGroup = new BGLoading::MeshGroup[fileHeader.groupCount];
+		mesh = new BGLoading::LoaderMesh[fileHeader.meshCount];
+		meshVert = new BGLoading::MeshVert[fileHeader.meshCount];
+		meshFace = new BGLoading::MeshFace[fileHeader.meshCount];
+		material = new BGLoading::PhongMaterial[fileHeader.materialCount];
+		dirLight = new BGLoading::DirLight[fileHeader.dirLightCount];
+		pointLight = new BGLoading::PointLight[fileHeader.pointLightCount];
 
-		this->meshGroup		= new BGLoading::MeshGroup[fileHeader.groupCount];
-		this->mesh			= new BGLoading::LoaderMesh[fileHeader.meshCount];
-		this->meshVert		= new BGLoading::MeshVert[fileHeader.meshCount];
-		this->material		= new BGLoading::PhongMaterial[fileHeader.materialCount];
-		this->dirLight		= new BGLoading::DirLight[fileHeader.dirLightCount];
-		this->pointLight	= new BGLoading::PointLight[fileHeader.pointLightCount];
-			
+		
+		Meshes.resize(fileHeader.meshCount);
+
+		// Fill data
 		for (int i = 0; i < fileHeader.groupCount; i++)
 		{
-			binFile.read((char*)& this->meshGroup[i], sizeof(BGLoading::MeshGroup));
+			binFile.read((char*)&meshGroup[i], sizeof(BGLoading::MeshGroup));
 		}
+
 		for (int i = 0; i < fileHeader.meshCount; i++)
 		{
 
-			binFile.read((char*)& this->mesh[i], sizeof(BGLoading::LoaderMesh));
+			binFile.read((char*)&mesh[i], sizeof(BGLoading::LoaderMesh));
+
+
+			Meshes[i].name = (std::string)mesh[i].name;
+			for (int p = 0; p < 3; p++)
+			{
+				Meshes[i].translation[p] = mesh[i].translation[p];
+				Meshes[i].rotation[p] = mesh[i].rotation[p];
+				Meshes[i].scale[p] = mesh[i].scale[p];
+			}
 
 			// Allocate memory for the array of vertex arrays
 			meshVert[i].vertices = new BGLoading::Vertex[mesh[i].vertexCount];
+			Meshes[i].vertices.resize(mesh[i].vertexCount);
 
 			//Read data for all the vertices, this includes pos, uv, normals, tangents and binormals.
-			for (int j = 0; j < mesh[i].vertexCount; j++)
+			for (int v = 0; v < mesh[i].vertexCount; v++)
 			{
-				binFile.read((char*)& this->meshVert[i].vertices[j], sizeof(BGLoading::Vertex));
+				binFile.read((char*)&meshVert[i].vertices[v], sizeof(BGLoading::Vertex));
+				Meshes[i].vertices[v] = meshVert[i].vertices[v];
+			}
+
+			// Allocate memory for the array of face arrays
+			meshFace[i].faces = new BGLoading::Face[mesh[i].faceCount];
+			Meshes[i].faces.resize(mesh[i].faceCount);
+			//Read data for all the vertices, this includes pos, uv, normals, tangents and binormals.
+			for (int f = 0; f < mesh[i].faceCount; f++)
+			{
+				binFile.read((char*)&meshFace[i].faces[f], sizeof(BGLoading::Face));
 			}
 
 			// 3.3 Joints
-			MeshSkeleton newSkeleton;
+			BGLoading::MeshSkeleton newSkeleton;
 			// Allocate memory for the joint vector inside
 			newSkeleton.joint.resize(mesh[i].skeleton.jointCount);
 			for (int j = 0; j < mesh[i].skeleton.jointCount; j++)
@@ -162,7 +218,7 @@ bool BGLoader::LoadMesh(std::string fileName)
 			}
 
 
-			MeshAnis newAnimations;
+			BGLoading::MeshAnis newAnimations;
 			// Allocate memory for the animation vector inside
 			newAnimations.animations.resize(mesh[i].skeleton.aniCount);
 			for (int a = 0; a < mesh[i].skeleton.aniCount; a++)
@@ -170,7 +226,7 @@ bool BGLoader::LoadMesh(std::string fileName)
 				// 3.4.1 Animations
 				BGLoading::Animation newAni;
 				std::cout << "Writing animation " << a << "..." << std::endl;
-				binFile.read((char*)& newAni, sizeof(BGLoading::Animation));
+				binFile.read((char*)&newAni, sizeof(BGLoading::Animation));
 				// Apply the data about the animation and
 				// Allocate memory for the keyframe vector inside
 				newAnimations.animations[a].ani = newAni;
@@ -180,7 +236,7 @@ bool BGLoader::LoadMesh(std::string fileName)
 					// 3.4.2 Keyframes
 					BGLoading::KeyFrame newKey;
 					std::cout << "Writing keyframe " << k << "..." << std::endl;
-					binFile.read((char*)& newKey, sizeof(BGLoading::KeyFrame));
+					binFile.read((char*)&newKey, sizeof(BGLoading::KeyFrame));
 					// Apply the data about the keyframe and
 					// Allocate memory for the transform vector inside 
 					newAnimations.animations[a].keyFrames[k].key = newKey;
@@ -189,7 +245,7 @@ bool BGLoader::LoadMesh(std::string fileName)
 					{
 						// 3.4.3 Transforms
 						BGLoading::Transform newTr;
-						binFile.read((char*)& newTr, sizeof(BGLoading::Transform));
+						binFile.read((char*)&newTr, sizeof(BGLoading::Transform));
 						// Apply the data about the transform
 						newAnimations.animations[a].keyFrames[k].transforms[t].t = newTr;
 					}
@@ -205,7 +261,7 @@ bool BGLoader::LoadMesh(std::string fileName)
 
 		for (int i = 0; i < fileHeader.materialCount; i++)
 		{
-			binFile.read((char*)& this->material[i], sizeof(BGLoading::PhongMaterial));
+			binFile.read((char*)&material[i], sizeof(BGLoading::PhongMaterial));
 
 			std::cout << "Albedo name: " << material[i].albedo << std::endl;
 			std::cout << "Normal Name: " << material[i].normal << std::endl;
@@ -213,7 +269,7 @@ bool BGLoader::LoadMesh(std::string fileName)
 
 		for (int i = 0; i < fileHeader.dirLightCount; i++)
 		{
-			binFile.read((char*)& this->dirLight[i], sizeof(float) * 10);
+			binFile.read((char*)&dirLight[i], sizeof(float) * 10);
 			std::cout << "Directional light" << std::endl;
 			std::cout << "Position: " << dirLight[i].position[0] << "  " << dirLight[i].position[1]
 				<< "  " << dirLight[i].position[2] << std::endl;
@@ -229,7 +285,7 @@ bool BGLoader::LoadMesh(std::string fileName)
 		}
 		for (int i = 0; i < fileHeader.pointLightCount; i++)
 		{
-			binFile.read((char*)& this->pointLight[i], sizeof(float) * 7);
+			binFile.read((char*)&pointLight[i], sizeof(float) * 7);
 			std::cout << "Point light" << std::endl;
 			std::cout << "Position: " << pointLight[i].position[0] << "  " << pointLight[i].position[1]
 				<< "  " << pointLight[i].position[2] << std::endl;

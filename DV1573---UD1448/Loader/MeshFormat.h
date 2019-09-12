@@ -1,9 +1,13 @@
 #pragma once
+#include <vector>
 
 #define NAME_SIZE_L 256
 
 namespace BGLoading
 {
+	
+
+
 
 	struct BGHeader
 	{
@@ -39,6 +43,11 @@ namespace BGLoading
 		float weight[4];
 	};
 
+	struct Face
+	{
+		int indices[3];
+	};
+
 	struct PhongMaterial
 	{
 		char name[NAME_SIZE_L];
@@ -57,6 +66,11 @@ namespace BGLoading
 		Vertex* vertices;
 	};
 
+	struct MeshFace
+	{
+		Face* faces;
+	};
+
 	struct Skeleton
 	{
 		char name[NAME_SIZE_L];
@@ -67,7 +81,7 @@ namespace BGLoading
 	struct LoaderMesh
 	{
 		char name[NAME_SIZE_L];
-		unsigned int materialID;
+		int materialID;
 
 		float translation[3];
 		float rotation[3];
@@ -84,6 +98,7 @@ namespace BGLoading
 		int collect;
 
 		int vertexCount;
+		int faceCount;
 
 		Skeleton skeleton;
 	};
@@ -133,5 +148,33 @@ namespace BGLoading
 		float intensity;
 	};
 
+
+	struct MeshSkeleton
+	{
+		std::vector<BGLoading::Joint> joint;
+	};
+
+	struct MeshAnis
+	{
+		struct MeshAnimation
+		{
+			struct KeyFrameL
+			{
+				struct TransformL
+				{
+					BGLoading::Transform t;
+				};
+
+				BGLoading::KeyFrame key;
+				std::vector<TransformL> transforms;
+			};
+
+
+			BGLoading::Animation ani;
+			std::vector<KeyFrameL> keyFrames;
+		};
+
+		std::vector<MeshAnimation> animations;
+	};
 }
 
