@@ -2,7 +2,15 @@
 #include <Pch/Pch.h>
 #include "MeshFormat.h"
 
-// Temporary Mesh Data
+//Example usage:
+/*
+	BGLoader testLoader;
+	testLoader.LoadMesh("C:/Users/fisk0/Documents/GitHub/DV1573---UD1448/Assets/Meshes/SexyCube.meh");
+	testLoader.Unload();
+*/
+
+
+// Temporary Mesh Data, might delete 
 struct BGMesh
 {
 	std::string name;
@@ -19,10 +27,8 @@ class BGLoader
 {
 private:
 	std::string	fileName;
-	std::string errorMessage;
 
 	std::vector<BGMesh> Meshes;
-
 
 	// Temporary paths to load data into
 	BGLoading::BGHeader	fileHeader;
@@ -43,7 +49,6 @@ public:
 	~BGLoader();
 	void Unload();
 
-	std::string GetLastError();
 	bool LoadMesh(std::string fileName);
 
 	int GetMeshCount() { return fileHeader.meshCount; }
@@ -54,9 +59,6 @@ public:
 
 	float* GetFaces(int meshId);
 	int GetFaceCount(int meshId)  { return mesh[meshId].faceCount; }
-
-
-
 
 
 

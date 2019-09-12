@@ -81,7 +81,6 @@ void BGLoader::Unload()
 
 
 	fileName = "";
-	errorMessage = "";
 }
 
 char* BGLoader::GetMeshName(int meshID)
@@ -134,11 +133,6 @@ float* BGLoader::GetFaces(int meshId)
 	return nullptr;
 }
 
-std::string BGLoader::GetLastError()
-{
-	return errorMessage;
-}
-
 bool BGLoader::LoadMesh(std::string fileName)
 {
 	Unload();
@@ -146,8 +140,7 @@ bool BGLoader::LoadMesh(std::string fileName)
 	std::ifstream binFile(fileName, std::ios::binary);
 	if (!binFile)
 	{
-		std::cout << "Error! Could not find importer file: " << (char*)& fileName << std::endl;
-		errorMessage = "Error: Could not find importer file: " + fileName;
+		logError("Error! Could not find importer file: ", fileName);
 		return false;
 	}
 	else
@@ -212,7 +205,6 @@ bool BGLoader::LoadMesh(std::string fileName)
 			for (int j = 0; j < mesh[i].skeleton.jointCount; j++)
 			{
 				BGLoading::Joint newJoint;
-				std::cout << "Writing joint " << j << "..." << std::endl;
 				binFile.read((char*)&newJoint, sizeof(BGLoading::Joint));
 				newSkeleton.joint[j] = newJoint;
 			}
@@ -225,7 +217,6 @@ bool BGLoader::LoadMesh(std::string fileName)
 			{
 				// 3.4.1 Animations
 				BGLoading::Animation newAni;
-				std::cout << "Writing animation " << a << "..." << std::endl;
 				binFile.read((char*)&newAni, sizeof(BGLoading::Animation));
 				// Apply the data about the animation and
 				// Allocate memory for the keyframe vector inside
@@ -235,7 +226,6 @@ bool BGLoader::LoadMesh(std::string fileName)
 				{
 					// 3.4.2 Keyframes
 					BGLoading::KeyFrame newKey;
-					std::cout << "Writing keyframe " << k << "..." << std::endl;
 					binFile.read((char*)&newKey, sizeof(BGLoading::KeyFrame));
 					// Apply the data about the keyframe and
 					// Allocate memory for the transform vector inside 
@@ -255,49 +245,28 @@ bool BGLoader::LoadMesh(std::string fileName)
 			animationsD.push_back(newAnimations);
 			skeletonsD.push_back(newSkeleton);
 
-
-
+			logTrace("Mesh " + Meshes[i].name + " imported," + 
+				" Vertices: " + std::to_string(Meshes[i].vertices.size()) +
+				" Faces: " + std::to_string(Meshes[i].faces.size())
+				);
 		}
 
 		for (int i = 0; i < fileHeader.materialCount; i++)
 		{
 			binFile.read((char*)&material[i], sizeof(BGLoading::PhongMaterial));
-
-			std::cout << "Albedo name: " << material[i].albedo << std::endl;
-			std::cout << "Normal Name: " << material[i].normal << std::endl;
 		}
 
 		for (int i = 0; i < fileHeader.dirLightCount; i++)
 		{
 			binFile.read((char*)&dirLight[i], sizeof(float) * 10);
-			std::cout << "Directional light" << std::endl;
-			std::cout << "Position: " << dirLight[i].position[0] << "  " << dirLight[i].position[1]
-				<< "  " << dirLight[i].position[2] << std::endl;
-
-			std::cout << "Rotation: " << dirLight[i].rotation[0] << "  " << dirLight[i].rotation[1]
-				<< "  " << dirLight[i].rotation[2] << std::endl;
-
-			std::cout << "Color: " << dirLight[i].color[0] << "  " << dirLight[i].color[1]
-				<< "  " << dirLight[i].color[2] << std::endl;
-
-			std::cout << "Intensity: " << dirLight[i].intensity << std::endl;
-			//Pos xyz/ rotation xyz/ color xyz/ intensity
 		}
 		for (int i = 0; i < fileHeader.pointLightCount; i++)
 		{
 			binFile.read((char*)&pointLight[i], sizeof(float) * 7);
-			std::cout << "Point light" << std::endl;
-			std::cout << "Position: " << pointLight[i].position[0] << "  " << pointLight[i].position[1]
-				<< "  " << pointLight[i].position[2] << std::endl;
-
-			std::cout << "Color: " << pointLight[i].color[0] << "  " << pointLight[i].color[1]
-				<< "  " << pointLight[i].color[2] << std::endl;
-
-			std::cout << "Intensity: " << pointLight[i].intensity << std::endl;
-			//Pos xyz/ color xyz/ intensity
 		}
 	}
 	binFile.close();
+
 
 
 	return true;
