@@ -48,7 +48,7 @@
     <ClCompile Include="Renderer\ShaderMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\dependencies\include\BGLoader\BGLoader.cpp">
+    <ClCompile Include="Loader\BGLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -89,10 +89,10 @@
     <ClInclude Include="Renderer\ShaderMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\dependencies\include\BGLoader\BGLoader.h">
+    <ClInclude Include="Loader\BGLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\dependencies\include\BGLoader\MeshFormat.h">
+    <ClInclude Include="Loader\MeshFormat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
