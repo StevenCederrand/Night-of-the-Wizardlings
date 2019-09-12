@@ -2,6 +2,18 @@
 #include "ShaderMap.h"
 
 std::map<std::string, Shader*> ShaderMap::m_shaderMap;
+ShaderMap* ShaderMap::m_shaderMapInstance = 0;
+
+ShaderMap::ShaderMap() {}
+
+
+ShaderMap* ShaderMap::getInstance()
+{
+	if (m_shaderMapInstance == 0) {
+		m_shaderMapInstance = new ShaderMap();
+	}
+	return m_shaderMapInstance;
+}
 
 Shader* ShaderMap::createShader(std::string name, std::string vsName, std::string fsName)
 {
@@ -59,4 +71,11 @@ void ShaderMap::useByName(std::string name) {
 	if (existsWithName(name)) {
 		m_shaderMap[name]->use();
 	}
+}
+
+void ShaderMap::destroy()
+{
+	cleanUp();
+	logInfo("Delete");
+	delete m_shaderMapInstance;
 }

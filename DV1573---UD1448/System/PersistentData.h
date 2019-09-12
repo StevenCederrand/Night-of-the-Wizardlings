@@ -11,8 +11,6 @@
 
 struct PersistentData {
 
-
-	Renderer Renderer;
 	
 
 };
