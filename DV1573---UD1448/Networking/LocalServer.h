@@ -10,13 +10,17 @@ public:
 	~LocalServer();
 
 	void startup(const std::string& serverName);
-	void process();
+	void threadedProcess();
 
 private:
 	unsigned char getPacketID(RakNet::Packet* p);
 
 private:
-	RakNet::RakPeerInterface* m_serverPeer;
+	RakNet::RakPeerInterface* m_serverPeer = nullptr;
+	std::thread m_processThread;
+	bool m_shutdownServer;
+
+
 };
 
 #endif

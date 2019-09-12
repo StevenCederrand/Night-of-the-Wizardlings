@@ -8,7 +8,14 @@ LocalServer::LocalServer()
 
 LocalServer::~LocalServer()
 {
+	if (m_serverPeer != nullptr) {
+		m_shutdownServer = true;
+		m_processThread.join();
+		logTrace("Server thread shutdown");
+	}
+
 	RakNet::RakPeerInterface::DestroyInstance(m_serverPeer);
+	
 }
 
 void LocalServer::startup(const std::string& serverName)
@@ -25,18 +32,20 @@ void LocalServer::startup(const std::string& serverName)
 	info.connectedPlayers = 0;
 
 	m_serverPeer->SetOfflinePingResponse((const char*)&info, sizeof(info));
-
+	m_processThread = std::thread(&LocalServer::threadedProcess, this);
 
 }
 
-void LocalServer::process()
+void LocalServer::threadedProcess()
 {
-	for (RakNet::Packet* packet = m_serverPeer->Receive(); packet; m_serverPeer->DeallocatePacket(packet), packet = m_serverPeer->Receive())
-	{
-		auto packetID = getPacketID(packet);
+	while (!m_shutdownServer) {
 
-		switch (packetID)
+		for (RakNet::Packet* packet = m_serverPeer->Receive(); packet; m_serverPeer->DeallocatePacket(packet), packet = m_serverPeer->Receive())
 		{
+			auto packetID = getPacketID(packet);
+
+			switch (packetID)
+			{
 			case ID_UNCONNECTED_PING:
 			{
 				logTrace("Got a ping from {0}", packet->systemAddress.ToString());
@@ -61,8 +70,11 @@ void LocalServer::process()
 			}
 			break;
 
+			}
+
 		}
 
+		RakSleep(30);
 	}
 }
 

@@ -11,10 +11,8 @@ public:
 	void startup();
 	void connectToAnotherServer(const ServerInfo& server);
 	void connectToMyServer();
-	void process();
+	void threadedProcess();
 	const std::vector<ServerInfo>& getServerList() const;
-
-
 
 	void refreshServerList();
 	bool doneRefreshingServerList();
@@ -30,6 +28,10 @@ private:
 	std::vector<ServerInfo> m_serverList;
 	bool m_isRefreshingServerList;
 	bool m_isConnectedToAnServer;
+	
+	std::thread m_processThread;
+	bool m_shutdownClient;
+
 };
 
 #endif

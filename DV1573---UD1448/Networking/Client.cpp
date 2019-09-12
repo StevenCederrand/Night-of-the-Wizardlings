@@ -7,6 +7,10 @@ Client::Client()
 
 Client::~Client()
 {
+	m_shutdownClient = true;
+	m_processThread.join();
+	logTrace("Client process thread shutdown");
+
 	RakNet::RakPeerInterface::DestroyInstance(m_clientPeer);
 }
 
@@ -20,75 +24,81 @@ void Client::connectToAnotherServer(const ServerInfo& server)
 {
 	bool status = m_clientPeer->Connect(server.serverAddress.ToString(false), server.serverAddress.GetPort(), 0, 0, 0) == RakNet::CONNECTION_ATTEMPT_STARTED;
 	assert(status == true, "Client connecting to {0} failed!", server.serverName);
+	m_processThread = std::thread(&Client::threadedProcess, this);
 }
 
 void Client::connectToMyServer()
 {
 	bool status = m_clientPeer->Connect("localhost", NetGlobals::ServerPort, 0, 0, 0) == RakNet::CONNECTION_ATTEMPT_STARTED;
 	assert(status == true, "Client connecting to localhost failed!");
+	m_processThread = std::thread(&Client::threadedProcess, this);
 }
 
-void Client::process()
+void Client::threadedProcess()
 {
-	for (RakNet::Packet* packet = m_clientPeer->Receive(); packet; m_clientPeer->DeallocatePacket(packet), packet = m_clientPeer->Receive())
+	while (!m_shutdownClient)
 	{
-		RakNet::BitStream bsOut;
-		RakNet::BitStream bsIn(packet->data, packet->length, false);
-
-		auto packetID = getPacketID(packet);
-
-		switch (packetID)
+		for (RakNet::Packet* packet = m_clientPeer->Receive(); packet; m_clientPeer->DeallocatePacket(packet), packet = m_clientPeer->Receive())
 		{
+			RakNet::BitStream bsOut;
+			RakNet::BitStream bsIn(packet->data, packet->length, false);
+
+			auto packetID = getPacketID(packet);
+
+			switch (packetID)
+			{
 			case ID_CONNECTION_REQUEST_ACCEPTED:
 			{
 				logTrace("ID_CONNECTION_REQUEST_ACCEPTED\n");
 				m_isConnectedToAnServer = true;
 			}
 			break;
-			
+
 			// print out errors
 			case ID_CONNECTION_ATTEMPT_FAILED:
 				logTrace("Client Error: ID_CONNECTION_ATTEMPT_FAILED\n");
 				m_isConnectedToAnServer = false;
 				break;
-			
+
 			case ID_ALREADY_CONNECTED:
 				logTrace("Client Error: ID_ALREADY_CONNECTED\n");
 				break;
-			
+
 			case ID_CONNECTION_BANNED:
 				logTrace("Client Error: ID_CONNECTION_BANNED\n");
 				break;
-			
+
 			case ID_INVALID_PASSWORD:
 				logTrace("Client Error: ID_INVALID_PASSWORD\n");
 				break;
-			
+
 			case ID_INCOMPATIBLE_PROTOCOL_VERSION:
 				logTrace("Client Error: ID_INCOMPATIBLE_PROTOCOL_VERSION\n");
 				break;
-			
+
 			case ID_NO_FREE_INCOMING_CONNECTIONS:
 				logTrace("Client Error: ID_NO_FREE_INCOMING_CONNECTIONS\n");
 				m_isConnectedToAnServer = false;
 				break;
-			
+
 			case ID_DISCONNECTION_NOTIFICATION:
 				logTrace("ID_DISCONNECTION_NOTIFICATION\n");
 				m_isConnectedToAnServer = false;
 				break;
-			
+
 			case ID_CONNECTION_LOST:
 				logTrace("Client Error: ID_CONNECTION_LOST\n");
 				m_isConnectedToAnServer = false;
 				break;
-			
+
 			default:
 			{
 				logWarning("Unknown packet received!");
 			}
 			break;
+			}
 		}
+		RakSleep(30);
 	}
 }
 
@@ -109,7 +119,7 @@ bool Client::doneRefreshingServerList()
 {
 	return m_isRefreshingServerList;
 }
-
+/* When we have a UI this will most likely be threaded */
 void Client::findAllServerAddresses()
 {
 	m_clientPeer->Ping("255.255.255.255", NetGlobals::ServerPort, false);

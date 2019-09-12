@@ -53,15 +53,7 @@ PlayState::~PlayState()
 
 void PlayState::update(float dt)
 {
-	if (m_isServer)
-	{
-		m_server.process();
-	}
-	if (m_isClient)
-	{
-		m_client.process();
-	}
-
+	
 
 
 }

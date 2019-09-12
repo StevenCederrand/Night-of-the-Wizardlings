@@ -3,9 +3,9 @@
 #include <Pch/Pch.h>
 
 /* 
+	This is include in the PCH so you don't need to include it anywhere
 	This is a static class and is initialized in application.
-	To use this just include the "Input.h" header in the CPP class that
-	you want to use it in and then for example you could do:
+	For example you could do:
 
 	Input::isKeyPressed(GLFW_KEY_W)
 
