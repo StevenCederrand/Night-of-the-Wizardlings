@@ -26,10 +26,10 @@ Shader::Shader(std::string vertex, std::string fragment)
 	{
 		memset(buffer, 0, 1024);
 		glGetProgramInfoLog(m_shaderProg, 1024, nullptr, buffer);
-		logError("ERROR WITH SHADER");
+		logError("Error compiling shaders (vertexShader) {0} and (fragmentShader) {1} ", vertex, fragment);
 		logInfo(buffer);
 	}
-
+	
 	glDetachShader(m_shaderProg, vertexShader);
 	glDetachShader(m_shaderProg, fragmentShader);
 	glDeleteShader(vertexShader);
@@ -61,7 +61,7 @@ Shader::Shader(std::string vertex, std::string geometry, std::string fragment)
 	{
 		memset(buffer, 0, 1024);
 		glGetProgramInfoLog(m_shaderProg, 1024, nullptr, buffer);
-		logWarning("ERROR WITH SHADER");
+		logError("Error compiling shaders (vertexShader) {0}, (geometryShader) {1} and (fragmentShader) {2} ", vertex, geometry, fragment);
 		logInfo(buffer);
 	}
 
@@ -186,24 +186,21 @@ void Shader::setVec4(std::string name, glm::vec4 vec)
 void Shader::setFloat(std::string name, float num)
 {
 	GLint uniformLoc = getUniformLocation(name);
-	//If we have already aquired the location in out hashmap
-	if (uniformLoc != -1) {
-		//Set the location value
-		glUniform1f(uniformLoc, num);
-	}
-	else { //if the location doesn't exist in the hashmap
+	if (uniformLoc == -1)
+	{
 		uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
-		if (uniformLoc != -1)
+		
+		if (uniformLoc == -1) 
 		{
-			glUniform1f(uniformLoc, num);
-			m_IDMap[name] = uniformLoc; //Save the ID to the hashmap
+			logError("Could not find uniform {0}", name);
+			return;
 		}
-		else
-		{
-			logWarning("ERROR MAT3: ");
-			logWarning(name);
-		}
+		
+		m_IDMap[name] = uniformLoc; //Save the ID to the hashmap
 	}
+
+	glUniform1f(uniformLoc, num);
+
 }
 //uniform int
 void Shader::setInt(std::string name, int num)
@@ -273,7 +270,7 @@ void Shader::shaderSetup(std::string shaderName, unsigned int& shader)
 
 	if (!Shader.is_open())
 	{
-		logError("Failed to find shader file " + shaderName);
+		logError("Failed to find shader file {0}" , shaderName);
 	}
 
 	std::stringstream Stream;
