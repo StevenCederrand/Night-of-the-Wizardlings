@@ -15,14 +15,6 @@ struct ServerInfo {
 	RakNet::SystemAddress serverAddress;
 	unsigned short maxPlayers;
 	unsigned short connectedPlayers;
-
-	void Serialize(bool writeToBitstream, RakNet::BitStream* bs)
-	{
-		bs->Serialize(writeToBitstream, serverName);
-		bs->Serialize(writeToBitstream, maxPlayers);
-		bs->Serialize(writeToBitstream, connectedPlayers);
-	}
-
 };
 
 

@@ -136,8 +136,14 @@ void Client::findAllServerAddresses()
 				case ID_UNCONNECTED_PONG:
 				{
 					ServerInfo info;
-					RakNet::BitStream bsIn(packet->data + 5, packet->length - 5, false); // Jump 5 bytes
+
+					auto byteOffset = packet->length - sizeof(ServerInfo);
+
+					RakNet::BitStream bsIn(packet->data + byteOffset, packet->length - byteOffset, false); // Jump 5 bytes
 					info = *(ServerInfo*)bsIn.GetData();
+
+					if (info.connectedPlayers >= info.maxPlayers) continue;
+
 					info.serverAddress = packet->systemAddress;
 					m_serverList.emplace_back(info);
 				}
