@@ -1,6 +1,10 @@
 #include <Pch/Pch.h>
 #include "Renderer.h"
 
+float lastX = SCREEN_WIDTH / 2.0f;
+float lastY = SCREEN_HEIGHT / 2.0f;
+bool firstMouse = true;
+
 Renderer::Renderer()
 {
 	m_gWindow = nullptr;
@@ -11,9 +15,12 @@ Renderer::Renderer(Camera* camera, GLFWwindow* window)
 {
 	m_gWindow = window;
 	m_camera = camera;
+	//Might be moved, have a callback to enable cursor if needed.
+	
+	glfwSetInputMode(m_gWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	initBasicQuad();
-}
 
+}
 
 Renderer::~Renderer()
 {
@@ -45,4 +52,24 @@ void Renderer::drawQuad() {
 void Renderer::render() {
 
 	drawQuad();
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	if (firstMouse)
+	{
+		lastX = xpos;
+		lastY = ypos;
+		firstMouse = false;
+	}
+
+	float xOffset = xpos - lastX;
+	float yOffset = lastY - ypos;
+	
+	lastX = xpos;
+	lastY = ypos;
+	
+	logTrace(lastX);
+
+	//mouseControls(xOffset, yOffset, true);
 }

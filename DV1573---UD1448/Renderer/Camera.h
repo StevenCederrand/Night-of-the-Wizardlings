@@ -1,6 +1,8 @@
 #pragma once
 #include <Pch/Pch.h>
 
+
+
 class Camera
 {
 private:
@@ -15,8 +17,8 @@ public:
 	void mouseControls(float xOffset, float yOffset, bool pitchLimit);
 	void setProjMat(float widht, float height, float nearPlane, float farPlane);
 	
-	glm::mat4 getViewMat();
-	glm::mat4 getProjMat();
+	glm::mat4 getViewMat() const;
+	glm::mat4 getProjMat() const;
 
 
 public:
@@ -36,8 +38,5 @@ public:
 		farPlane,
 		camSpeed,
 		sensitivity;
-
-
-	
 };
 

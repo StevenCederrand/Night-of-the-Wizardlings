@@ -131,7 +131,7 @@ void Shader::setMat4(std::string name, glm::mat4 mat)
 		}
 		else
 		{
-			logWarning("ERROR MAT3: ");
+			logWarning("ERROR MAT4: ");
 			logWarning(name);
 		}
 	}

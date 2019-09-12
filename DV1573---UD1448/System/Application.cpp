@@ -56,6 +56,7 @@ bool Application::init() {
 	/*
 		Initialize all persisten data here
 	*/
+
 	m_pd.Renderer = Renderer(m_camera, m_window);
 	
 	m_stateManager = new StateManager(&m_pd);
@@ -95,6 +96,11 @@ void Application::run()
 		float deltaTime = timeNow - timeThen;
 		timeThen = timeNow;
 
+		//Set projection matrix
+		//glm::mat4 projection = m_camera->setProjMat();
+		
+		//Set view matrix
+		//glm::mat4 view = m_camera->getViewMat();
 
 		m_stateManager->update(deltaTime);
 		m_stateManager->render();	

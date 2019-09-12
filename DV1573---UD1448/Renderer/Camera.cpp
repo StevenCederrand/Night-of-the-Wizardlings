@@ -27,11 +27,12 @@ Camera::Camera()
 	camSpeed = 3.5f;
 	sensitivity = 0.15f;
 
-	width = 1240;
-	height = 720;
+	width = SCREEN_WIDTH;
+	height = SCREEN_HEIGHT;
 
 	nearPlane = 0.1f;
 	farPlane = 200.0f;
+
 
 	calcVectors();
 }
@@ -89,12 +90,12 @@ void Camera::setProjMat(float widht, float height, float nearPlane, float farPla
 	projMat = glm::perspective((3.14f * 0.45f), widht / height, nearPlane, farPlane);
 }
 
-glm::mat4 Camera::getViewMat()
+glm::mat4 Camera::getViewMat() const
 {
 	return glm::lookAt(camPos, camPos + camFace, camUp);
 }
 
-glm::mat4 Camera::getProjMat()
+glm::mat4 Camera::getProjMat() const
 {
 	return projMat;
 }

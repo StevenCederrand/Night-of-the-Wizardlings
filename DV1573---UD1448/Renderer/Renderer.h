@@ -1,6 +1,7 @@
 #pragma once
 #include <Pch/Pch.h>
 
+
 class Renderer
 {
 private:
@@ -36,8 +37,6 @@ public:
 	void initBasicQuad();
 	void drawQuad();
 	void render();
-
-	
 
 };
 
