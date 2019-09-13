@@ -3,7 +3,9 @@
 in vec2 f_UV;
 out vec4 color;
 
+uniform sampler2D albedoTexture;
+
 void main() {
     vec2 xy = vec2(0.1f, 0.1f);
-    color = vec4(f_UV, 1, 1);
+    color = texture(albedoTexture, f_UV);
 }
