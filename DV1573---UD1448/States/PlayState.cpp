@@ -23,4 +23,5 @@ void PlayState::render()
 {
 	m_shaderMap->useByName("Basic_Forward");
 	m_renderer->drawQuad();
+	
 }

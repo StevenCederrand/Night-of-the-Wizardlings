@@ -56,3 +56,8 @@ void Renderer::render() {
 	m_camera->update(m_gWindow);
 	drawQuad();
 }
+
+Camera* Renderer::getMainCamera() const
+{
+	return m_camera;
+}

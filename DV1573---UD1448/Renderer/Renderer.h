@@ -29,13 +29,14 @@ private:
 public:
 
 	static Renderer* getInstance();
-	void init(Camera* camera, GLFWwindow* window);
+	void init(GLFWwindow* window);
 	void destroy();
 
 	void initBasicQuad();
 	void drawQuad();
 	void render();
 
+	Camera* getMainCamera() const;
 	
 
 };
