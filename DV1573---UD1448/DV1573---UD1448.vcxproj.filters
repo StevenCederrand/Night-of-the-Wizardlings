@@ -48,10 +48,7 @@
     <ClCompile Include="Renderer\ShaderMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Loader\BGLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Loader\Mesh.cpp">
+    <ClCompile Include="GameObject\Cube.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -89,16 +86,7 @@
     <ClInclude Include="Renderer\ShaderMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Loader\BGLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Loader\MeshFormat.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Loader\Mesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Loader\MeshFormatInput.h">
+    <ClInclude Include="GameObject\Cube.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

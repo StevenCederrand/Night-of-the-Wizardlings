@@ -15,24 +15,50 @@ void Camera::calcVectors()
 	camUp = glm::normalize(glm::cross(camRight, camFace));
 }
 
+void Camera::mouse_callback(GLFWwindow* window)
+{
+	lastX = 640.0f;
+	lastY = 360.0f;
+
+	glfwGetCursorPos(window, &xpos, &ypos);
+	glfwSetCursorPos(window, lastX, lastY);
+	if (this->firstMouse == true)
+	{
+		this->firstMouse = false;
+		xpos = lastX;
+		ypos = lastY;
+		logInfo("Start");
+	}
+
+	float xoffset = xpos - lastX;
+	float yoffset = lastY - ypos;
+	
+	lastX = xpos;
+	lastY = ypos;
+
+	//logTrace("Camera move X:" + std::to_string(xoffset) + "\tY:" + std::to_string(yoffset));
+	mouseControls(xoffset, yoffset, true);
+}
+
 Camera::Camera()
 {
 	//Initial values (starting point of camera) if nothing else is given
-	camPos = glm::vec3(0.0f, 0.0f, 0.0f);
+	camPos = glm::vec3(0.0f, 0.0f, 3.0f);
 	worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
-	camYaw = 90.0f;
-	camPitch = -40.0f;
+	camYaw = -90.0f;
+	camPitch = 0;//-40.0f;
 	
-	camFace = glm::vec3(0.0f, 0.0f, 1.0f);
-	camSpeed = 3.5f;
+	camFace = glm::vec3(0.0f, 0.0f, -1.0f);
+	camSpeed = 1;
 	sensitivity = 0.15f;
 
-	width = 1240;
-	height = 720;
+	width = SCREEN_WIDTH;
+	height = SCREEN_HEIGHT;
 
 	nearPlane = 0.1f;
 	farPlane = 200.0f;
 
+	setWindowSize(width, height);
 	calcVectors();
 }
 
@@ -45,13 +71,13 @@ void Camera::fpsControls(GLFWwindow* window, float deltaTime)
 	float m_CamSpeed = camSpeed * deltaTime;
 
 	//WASD controls
-	if (Input::isKeyPressed(GLFW_KEY_A))
+	if (Input::isKeyHeldDown(GLFW_KEY_A))
 		camPos -= m_CamSpeed * camRight;
-	if (Input::isKeyPressed(GLFW_KEY_D))
+	if (Input::isKeyHeldDown(GLFW_KEY_D))
 		camPos += m_CamSpeed * camRight;
-	if (Input::isKeyPressed(GLFW_KEY_W))
+	if (Input::isKeyHeldDown(GLFW_KEY_W))
 		camPos += m_CamSpeed * camFace;
-	if (Input::isKeyPressed(GLFW_KEY_S))
+	if (Input::isKeyHeldDown(GLFW_KEY_S))
 		camPos -= m_CamSpeed * camFace;
 
 	calcVectors();
@@ -86,15 +112,20 @@ void Camera::mouseControls(float xOffset, float yOffset, bool pitchLimit)
 
 void Camera::setProjMat(float widht, float height, float nearPlane, float farPlane)
 {
-	projMat = glm::perspective((3.14f * 0.45f), widht / height, nearPlane, farPlane);
+	projMat = glm::perspective(glm::radians(45.0f), widht / height, nearPlane, farPlane);
 }
 
-glm::mat4 Camera::getViewMat()
+glm::mat4 Camera::getViewMat() const
 {
 	return glm::lookAt(camPos, camPos + camFace, camUp);
 }
 
-glm::mat4 Camera::getProjMat()
+glm::mat4 Camera::getProjMat() const
 {
 	return projMat;
+}
+
+void Camera::update(GLFWwindow* window)
+{
+	mouse_callback(window);
 }

@@ -3,34 +3,12 @@
 
 Renderer* Renderer::m_rendererInstance = 0;
 
-GLFWwindow* Renderer::m_gWindow;
-Camera* Renderer::m_camera;
-unsigned int Renderer::m_Fbo;
-unsigned int Renderer::m_FboAttachments[2];
-
-glm::mat4 Renderer::m_modelMat;
-glm::mat4 Renderer::m_viewMat;
-glm::mat4 Renderer::m_projMat;
-
-//Temporary 
-GLuint Renderer::m_rQuadVAO;
-GLuint Renderer::m_rQuadVBO;
-
-float Renderer::m_rQuadData[24] = {
-	//VP			UV
-	-0.5f,  0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f,  0.0f, 0.0f,
-	0.5f, -0.5f,  1.0f, 0.0f,
-
-	-0.5f,  0.5f,  0.0f, 1.0f,
-	0.5f, -0.5f,  1.0f, 0.0f,
-	0.5f,  0.5f,  1.0f, 1.0f
-};
-
 Renderer::Renderer()
 {
 	m_gWindow = nullptr;
 	m_camera = nullptr;
+ 	glGenBuffers(1, &m_VBO); //Generate a VBO
+
 }
 
 Renderer* Renderer::getInstance()
@@ -41,17 +19,17 @@ Renderer* Renderer::getInstance()
 	return m_rendererInstance;
 }
 
-void Renderer::init(Camera* camera, GLFWwindow* window)
+void Renderer::init(GLFWwindow* window)
 {
-	m_camera = camera;
+	m_camera = new Camera();
 	m_gWindow = window;
-	initBasicQuad();
+	//initBasicQuad();
 }
 
 void Renderer::destroy()
 {
 	delete m_rendererInstance;
-}
+}	
 
 void Renderer::initBasicQuad()
 {
@@ -67,6 +45,7 @@ void Renderer::initBasicQuad()
  	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+
 }
 
 void Renderer::drawQuad() {
@@ -75,7 +54,38 @@ void Renderer::drawQuad() {
 	glBindVertexArray(0);
 }
 
-void Renderer::render() {
+void Renderer::update(float dt) {
+	m_camera->fpsControls(m_gWindow, dt);
+}
 
-	drawQuad();
+void Renderer::render(Cube* cube) {
+	m_camera->update(m_gWindow);
+	ShaderMap* shaderMap = shaderMap->getInstance();
+	shaderMap->useByName("Basic_Forward");	
+
+	shaderMap->getShader("Basic_Forward")->setMat4("viewMatrix", m_camera->getViewMat());
+	shaderMap->getShader("Basic_Forward")->setMat4("projectionMatrix", m_camera->getProjMat());
+
+
+	glBindVertexArray(cube->getVAO());
+
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, cube->getWorldPos());
+
+	shaderMap->getShader("Basic_Forward")->setMat4("modelMatrix", model);
+
+
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+}
+
+
+GLuint Renderer::getVBO() {
+	return m_VBO;
+}
+
+
+Camera* Renderer::getMainCamera() const
+{
+	return m_camera;
 }
