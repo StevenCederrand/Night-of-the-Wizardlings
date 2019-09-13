@@ -186,9 +186,7 @@ bool BGLoader::LoadMesh(std::string fileName)
 
 		for (int i = 0; i < fileHeader.meshCount; i++)
 		{
-
 			binFile.read((char*)&mesh[i], sizeof(BGLoading::LoaderMesh));
-
 
 			Meshes[i].name = (std::string)mesh[i].name;
 			for (int p = 0; p < 3; p++)

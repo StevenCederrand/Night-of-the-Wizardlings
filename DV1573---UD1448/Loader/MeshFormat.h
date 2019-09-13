@@ -87,12 +87,6 @@ namespace BGLoading
 		char parentName[NAME_SIZE_L];
 		int parentType;
 
-		int type;
-		int link;
-		int dir;
-		float dist;
-		int collect;
-
 		int vertexCount;
 		int faceCount;
 
