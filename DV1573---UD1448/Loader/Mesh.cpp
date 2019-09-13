@@ -33,7 +33,6 @@ void Mesh::setUpMesh(float* inVertices, int inVertexCount, int* inIndices, int i
 		vertices[i].Normals[1] = tempVert[j]; j++;
 		vertices[i].Normals[2] = tempVert[j]; j++;
 	}
-	j = 0;
 
 	int* tempFace = inIndices;
 	faceCount = inFaceCount;
