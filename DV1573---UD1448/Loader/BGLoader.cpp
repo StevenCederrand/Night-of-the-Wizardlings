@@ -98,10 +98,6 @@ float* BGLoader::GetVertices(int meshNr)
 
 	float* vertices = new float[vertexSize];
 	int vertexOffset = 0;
-
-	vertices[0] = (float)vertexCount;
-	vertices += 1;
-
 	for (int i = 1; i < vertexCount; i++)
 	{
 		BGLoading::Vertex tempVertices = meshVert[meshNr].vertices[i];
