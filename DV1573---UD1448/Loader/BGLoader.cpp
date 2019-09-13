@@ -128,13 +128,13 @@ float* BGLoader::GetVertices(int meshNr)
 	return vertices;
 }
 
-float* BGLoader::GetFaces(int meshNr)
+int* BGLoader::GetFaces(int meshNr)
 {
 	BGLoading::LoaderMesh tempMesh = mesh[meshNr];
 	int faceCount = tempMesh.vertexCount;
 	int faceSize = 3;
 
-	float* faces = new float[faceCount];
+	int* faces = new int[faceCount * (int)3];
 	int faceOffset = 0;
 
 	for (int i = 0; i < faceCount; i++)

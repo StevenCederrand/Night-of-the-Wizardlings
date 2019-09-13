@@ -56,11 +56,12 @@ public:
 
 	// Should return vertex in format posX/posY/PosZ/uvX/uvY/normalX/normalY/normalZ/posX/posY.... 
 	// Next vertex starts where the last vertex ends (8 floats)
-
 	float* GetVertices(int meshId);
 	int GetVertexCount(int meshId) { return mesh[meshId].vertexCount; }
 
-	float* GetFaces(int meshId);
+	// Should return faces in format index1/index2/index3/index1/index2.... 
+	// Next face starts where the last face ends (3 ints)
+	int* GetFaces(int meshId);
 	int GetFaceCount(int meshId)  { return mesh[meshId].faceCount; }
 
 
