@@ -7,7 +7,7 @@ Renderer::Renderer()
 {
 	m_gWindow = nullptr;
 	m_camera = nullptr;
-	glGenBuffers(1, &m_VBO); //Generate a VBO
+ 	glGenBuffers(1, &m_VBO); //Generate a VBO
 
 }
 
@@ -19,9 +19,9 @@ Renderer* Renderer::getInstance()
 	return m_rendererInstance;
 }
 
-void Renderer::init(Camera* camera, GLFWwindow* window)
+void Renderer::init(GLFWwindow* window)
 {
-	m_camera = camera;
+	m_camera = new Camera();
 	m_gWindow = window;
 	//initBasicQuad();
 }
@@ -54,14 +54,22 @@ void Renderer::drawQuad() {
 	glBindVertexArray(0);
 }
 
+void Renderer::update(float dt) {
+	m_camera->fpsControls(m_gWindow, dt);
+}
+
 void Renderer::render(Cube* cube) {
+	m_camera->update(m_gWindow);
 	ShaderMap* shaderMap = shaderMap->getInstance();
-	shaderMap->useByName("Basic_Forward");
+	shaderMap->useByName("Basic_Forward");	
+
+	shaderMap->getShader("Basic_Forward")->setMat4("viewMatrix", m_camera->getViewMat());
+	shaderMap->getShader("Basic_Forward")->setMat4("projectionMatrix", m_camera->getProjMat());
 
 
 	glBindVertexArray(cube->getVAO());
 
-	glm::mat4 model = glm::mat4(1);
+	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, cube->getWorldPos());
 
 	shaderMap->getShader("Basic_Forward")->setMat4("modelMatrix", model);
@@ -72,7 +80,12 @@ void Renderer::render(Cube* cube) {
 }
 
 
-GLuint Renderer::getVBO() const {
+GLuint Renderer::getVBO() {
 	return m_VBO;
 }
 
+
+Camera* Renderer::getMainCamera() const
+{
+	return m_camera;
+}

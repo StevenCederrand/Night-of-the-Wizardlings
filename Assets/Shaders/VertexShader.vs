@@ -7,15 +7,11 @@ uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 
-/*
-layout(location = 2) in vec3 normal;
-
-out vec3 f_Normal;
-out vec3 f_WorldPosition;*/
-
 out vec2 f_UV;
-
+out vec4 pos;
 void main() {
-    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1);
+
+    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.0f);
+
     f_UV = uv;
 }

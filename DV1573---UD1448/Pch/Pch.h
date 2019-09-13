@@ -1,8 +1,6 @@
 #ifndef _PCH_H
 #define _PCH_H
 
-
-
 //Standard includes
 #include <iostream>
 #include <fstream>
@@ -44,5 +42,7 @@
 #include <System/Input.h>
 
 const std::string SHADERPATH = "Assets/Shaders/";
+const unsigned int SCREEN_WIDTH = 1280;
+const unsigned int SCREEN_HEIGHT = 720;
 
 #endif

@@ -132,7 +132,7 @@ void Shader::setMat4(std::string name, glm::mat4 mat)
 		m_IDMap[name] = uniformLoc; //Save the ID to the hashmap
 	}
 
-	glUniformMatrix3fv(uniformLoc, 1, GL_FALSE, &mat[0][0]);
+	glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &mat[0][0]);
 }
 //uniform vec3
 void Shader::setVec3(std::string name, glm::vec3 vec)

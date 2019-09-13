@@ -30,7 +30,10 @@ bool Application::init() {
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
+
+
 	m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", NULL, NULL);
+	glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	
 	if (m_window == nullptr) {
 		glfwTerminate();
@@ -118,7 +121,7 @@ void Application::initGraphics()
 		logError("Rendererer failed");
 	}
 
-	m_renderer->init(m_camera, m_window);
+	m_renderer->init(m_window);
 
 	m_shaderMap = m_shaderMap->getInstance();
 

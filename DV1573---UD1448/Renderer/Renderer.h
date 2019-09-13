@@ -11,7 +11,7 @@ private:
 	unsigned int m_Fbo;
 	unsigned int m_FboAttachments[2];
 	
-	GLuint m_VBO;
+
 	GLuint m_rQuadVAO;
 	GLuint m_rQuadVBO;
 
@@ -28,19 +28,20 @@ private:
 
 	static Renderer* m_rendererInstance;
 	Renderer();
-
 public:
-
+	void update(float dt);
+	GLuint m_VBO;
 	static Renderer* getInstance();
-	void init(Camera* camera, GLFWwindow* window);
+	void init(GLFWwindow* window);
 	void destroy();
 
-	GLuint getVBO() const;
+	GLuint getVBO();
 
 	void initBasicQuad();
 	void drawQuad();
 	void render(Cube* cube);
 
+	Camera* getMainCamera() const;
 
 };
 
