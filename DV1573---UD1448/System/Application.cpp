@@ -97,7 +97,7 @@ void Application::run()
 			m_shaderMap->reload();
 		}
 
-
+		timeNow = static_cast<float>(glfwGetTime());
 		//Deltatime
 		float deltaTime = timeNow - timeThen;
 		timeThen = timeNow;
