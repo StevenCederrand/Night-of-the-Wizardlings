@@ -8,10 +8,9 @@ Application::Application() {
 Application::~Application() {
 	delete m_input;
 	delete m_stateManager;
+	m_renderer->destroy();
+	m_shaderMap->destroy();
 	glfwTerminate();
-	ShaderMap::cleanUp();
-	ShaderMap::destroy();
-	Renderer::destroy();
 }
 
 bool Application::init() {
@@ -59,16 +58,7 @@ bool Application::init() {
 		Initialize all persisten data here
 	*/
 
-	ShaderMap* shaderMap = ShaderMap::getInstance();
-	if (!shaderMap) {
-		logError("Shader Map instancing failed");
-	}
-	Renderer* renderer = Renderer::getInstance();
-	if (!renderer) {
-		logError("Rendererer failed");
-	}
-
-	renderer->init(m_camera, m_window);
+	initGraphics();
 
 	m_stateManager = new StateManager();
 
@@ -98,10 +88,13 @@ void Application::run()
 		{
 			glfwSetWindowShouldClose(m_window, true);
 		}
-		
+	
+	
 		if (Input::isKeyPressed(GLFW_KEY_R)) {
-			ShaderMap::reload();
+			m_shaderMap->reload();
 		}
+
+
 		//Deltatime
 		float deltaTime = timeNow - timeThen;
 		timeThen = timeNow;
@@ -114,5 +107,20 @@ void Application::run()
 	}
 
 	logInfo("Exiting application loop");
+
+}
+
+void Application::initGraphics()
+{
+	//init renderer
+	m_renderer = m_renderer->getInstance();
+	if (!m_renderer) {
+		logError("Rendererer failed");
+	}
+
+	m_renderer->init(m_camera, m_window);
+
+	m_shaderMap = m_shaderMap->getInstance();
+
 
 }
