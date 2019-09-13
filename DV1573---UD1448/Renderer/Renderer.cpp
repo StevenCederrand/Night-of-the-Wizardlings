@@ -41,9 +41,9 @@ Renderer* Renderer::getInstance()
 	return m_rendererInstance;
 }
 
-void Renderer::init(Camera* camera, GLFWwindow* window)
+void Renderer::init(GLFWwindow* window)
 {
-	m_camera = camera;
+	m_camera = new Camera();
 	m_gWindow = window;
 	initBasicQuad();
 }
@@ -76,6 +76,6 @@ void Renderer::drawQuad() {
 }
 
 void Renderer::render() {
-
+	m_camera->update(m_gWindow);
 	drawQuad();
 }

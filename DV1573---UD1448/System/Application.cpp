@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "States/PlayState.h"
 
+
 Application::Application() {
 }
 
@@ -31,6 +32,7 @@ bool Application::init() {
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
+
 	m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", NULL, NULL);
 	
 	if (m_window == nullptr) {
@@ -55,6 +57,8 @@ bool Application::init() {
 	
 	m_input = new Input();
 
+	glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 	/*
 		Initialize all persisten data here
 	*/
@@ -66,8 +70,8 @@ bool Application::init() {
 	if (!renderer) {
 		logError("Rendererer failed");
 	}
-
-	renderer->init(m_camera, m_window);
+	
+	renderer->init(m_window);
 
 	m_stateManager = new StateManager();
 
@@ -105,7 +109,6 @@ void Application::run()
 		float deltaTime = timeNow - timeThen;
 		timeThen = timeNow;
 
-
 		m_stateManager->update(deltaTime);
 		m_stateManager->render();	
 
@@ -113,5 +116,4 @@ void Application::run()
 	}
 
 	logInfo("Exiting application loop");
-
 }

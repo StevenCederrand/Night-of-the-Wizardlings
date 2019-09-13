@@ -19,6 +19,7 @@ void PlayState::update(float dt)
 
 void PlayState::render()
 {
+	//ShaderMap::getShader("Basic_Forward");
 	ShaderMap::useByName("Basic_Forward");
 	Renderer::render();
 }

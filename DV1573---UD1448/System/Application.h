@@ -4,6 +4,7 @@
 #include "Input.h"
 #include "StateManager.h"
 
+
 class Application {
 
 public:
@@ -18,14 +19,13 @@ public:
 
 
 private:
-	GLFWwindow* m_window;
 	Camera* m_camera;
+	GLFWwindow* m_window;
 	Input* m_input;
 	StateManager* m_stateManager;
 	bool m_vsync;
+
 };
-
-
 
 
 #endif

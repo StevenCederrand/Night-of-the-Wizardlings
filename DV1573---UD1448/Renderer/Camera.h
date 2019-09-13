@@ -8,6 +8,13 @@ class Camera
 private:
 	void calcVectors();
 
+
+	bool firstMouse = true;
+	double xpos, ypos;
+	float lastX, lastY;
+
+	void mouse_callback(GLFWwindow* window);
+
 public:
 	Camera();
 	~Camera();
@@ -20,23 +27,27 @@ public:
 	glm::mat4 getViewMat() const;
 	glm::mat4 getProjMat() const;
 
+	void update(GLFWwindow* window);
+
 
 public:
-	glm::vec3 camPos,
-		camFace,
-		worldUp,
-		camUp,
-		camRight;
+	glm::vec3 camPos;
+	glm::vec3 camFace;
+	glm::vec3 worldUp;
+	glm::vec3 camUp;
+	glm::vec3 camRight;
 
 	glm::mat4 projMat;
 
-	float camYaw,
-		camPitch,
-		width,
-		height,
-		nearPlane,
-		farPlane,
-		camSpeed,
-		sensitivity;
+	float camYaw;
+	float camPitch;
+	float width;
+	float height;
+	float nearPlane;
+	float farPlane;
+	float camSpeed;
+	float sensitivity;
+	
+	
 };
 

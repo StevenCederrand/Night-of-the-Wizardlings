@@ -26,12 +26,14 @@ private:
 public:
 
 	static Renderer* getInstance();
-	static void init(Camera* camera, GLFWwindow* window);
+	static void init(GLFWwindow* window);
 	static void destroy();
 
 	static void initBasicQuad();
 	static void drawQuad();
 	static void render();
+
+	static Camera* getCameraRef() { return m_camera; }
 
 };
 

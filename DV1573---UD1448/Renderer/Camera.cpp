@@ -15,6 +15,31 @@ void Camera::calcVectors()
 	camUp = glm::normalize(glm::cross(camRight, camFace));
 }
 
+void Camera::mouse_callback(GLFWwindow* window)
+{
+	lastX = 640.0f;
+	lastY = 360.0f;
+
+	glfwGetCursorPos(window, &xpos, &ypos);
+	glfwSetCursorPos(window, lastX, lastY);
+	if (this->firstMouse == true)
+	{
+		this->firstMouse = false;
+		xpos = lastX;
+		ypos = lastY;
+		logInfo("Start");
+	}
+
+	float xoffset = xpos - lastX;
+	float yoffset = lastY - ypos;
+	
+	lastX = xpos;
+	lastY = ypos;
+
+	logTrace("Camera move X:" + std::to_string(xoffset) + "\tY:" + std::to_string(yoffset));
+	mouseControls(xoffset, yoffset, true);
+}
+
 Camera::Camera()
 {
 	//Initial values (starting point of camera) if nothing else is given
@@ -33,7 +58,7 @@ Camera::Camera()
 	nearPlane = 0.1f;
 	farPlane = 200.0f;
 
-
+	setWindowSize(width, height);
 	calcVectors();
 }
 
@@ -98,4 +123,9 @@ glm::mat4 Camera::getViewMat() const
 glm::mat4 Camera::getProjMat() const
 {
 	return projMat;
+}
+
+void Camera::update(GLFWwindow* window)
+{
+	mouse_callback(window);
 }
