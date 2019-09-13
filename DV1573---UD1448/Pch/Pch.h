@@ -1,6 +1,8 @@
 #ifndef _PCH_H
 #define _PCH_H
 
+#include "Bullet/btBulletDynamicsCommon.h"
+
 #include <iostream>
 #include <fstream>
 #include <memory>
