@@ -49,51 +49,50 @@ void Client::threadedProcess()
 			{
 			case ID_CONNECTION_REQUEST_ACCEPTED:
 			{
-				logTrace("ID_CONNECTION_REQUEST_ACCEPTED\n");
+				logTrace("[CLIENT] Connected to server.\n");
 				m_isConnectedToAnServer = true;
 			}
-			break;
+				break;
 
-			// print out errors
 			case ID_CONNECTION_ATTEMPT_FAILED:
-				logTrace("Client Error: ID_CONNECTION_ATTEMPT_FAILED\n");
+				logTrace("[CLIENT] Connection failed, server might be full.\n");
 				m_isConnectedToAnServer = false;
 				break;
 
 			case ID_ALREADY_CONNECTED:
-				logTrace("Client Error: ID_ALREADY_CONNECTED\n");
+				logTrace("[CLIENT] You are already connected to the server\n");
 				break;
 
 			case ID_CONNECTION_BANNED:
-				logTrace("Client Error: ID_CONNECTION_BANNED\n");
+				logTrace("[CLIENT] You are banned for that server.\n");
 				break;
 
 			case ID_INVALID_PASSWORD:
-				logTrace("Client Error: ID_INVALID_PASSWORD\n");
+				logTrace("[CLIENT] Invalid server password.\n");
 				break;
 
 			case ID_INCOMPATIBLE_PROTOCOL_VERSION:
-				logTrace("Client Error: ID_INCOMPATIBLE_PROTOCOL_VERSION\n");
+				logTrace("[CLIENT] Client Error: incompatible protocol version!\n");
 				break;
 
 			case ID_NO_FREE_INCOMING_CONNECTIONS:
-				logTrace("Client Error: ID_NO_FREE_INCOMING_CONNECTIONS\n");
+				logTrace("[CLIENT] Client Error: No free incoming connection slots!\n");
 				m_isConnectedToAnServer = false;
 				break;
 
 			case ID_DISCONNECTION_NOTIFICATION:
-				logTrace("ID_DISCONNECTION_NOTIFICATION\n");
+				logTrace("[CLIENT] Disconnected from server!\n");
 				m_isConnectedToAnServer = false;
 				break;
 
 			case ID_CONNECTION_LOST:
-				logTrace("Client Error: ID_CONNECTION_LOST\n");
+				logTrace("[CLIENT] Connection to the server is lost!\n");
 				m_isConnectedToAnServer = false;
 				break;
 
 			default:
 			{
-				logWarning("Unknown packet received!");
+				logWarning("[CLIENT] Unknown packet received!");
 			}
 			break;
 			}
@@ -139,9 +138,10 @@ void Client::findAllServerAddresses()
 
 					auto byteOffset = packet->length - sizeof(ServerInfo);
 
-					RakNet::BitStream bsIn(packet->data + byteOffset, packet->length - byteOffset, false); // Jump 5 bytes
+					RakNet::BitStream bsIn(packet->data + byteOffset, packet->length - byteOffset, false);
 					info = *(ServerInfo*)bsIn.GetData();
 
+					// If the pinged server is full then don't add it to the server list
 					if (info.connectedPlayers >= info.maxPlayers) continue;
 
 					info.serverAddress = packet->systemAddress;

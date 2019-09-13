@@ -48,25 +48,25 @@ void LocalServer::threadedProcess()
 			{
 			case ID_UNCONNECTED_PING:
 			{
-				logTrace("Got a ping from {0}", packet->systemAddress.ToString());
+				logTrace("[SERVER] Got a ping from {0}", packet->systemAddress.ToString());
 			}
 			break;
 
 			case ID_NEW_INCOMING_CONNECTION:
 			{
-				logTrace("New connection from {0}\nAssigned GUID: {1}\n", packet->systemAddress.ToString(), packet->guid.ToString());
+				logTrace("[SERVER] New connection from {0}\nAssigned GUID: {1}\n", packet->systemAddress.ToString(), packet->guid.ToString());
 			}
 			break;
 
 			case ID_DISCONNECTION_NOTIFICATION:
 			{
-				logTrace("Disconnected {0}\nWith GUID: {1}\n", packet->systemAddress.ToString(), packet->guid.ToString());
+				logTrace("[SERVER] Disconnected {0}\nWith GUID: {1}\n", packet->systemAddress.ToString(), packet->guid.ToString());
 			}
 			break;
 
 			case ID_CONNECTION_LOST:
 			{
-				logTrace("Lost connection with {0}\nWith GUID: {1}\n", packet->systemAddress.ToString(), packet->guid.ToString());
+				logTrace("[SERVER] Lost connection with {0}\nWith GUID: {1}\n", packet->systemAddress.ToString(), packet->guid.ToString());
 			}
 			break;
 
