@@ -58,6 +58,7 @@ bool Application::init() {
 	/*
 		Initialize all persisten data here
 	*/
+
 	ShaderMap* shaderMap = ShaderMap::getInstance();
 	if (!shaderMap) {
 		logError("Shader Map instancing failed");

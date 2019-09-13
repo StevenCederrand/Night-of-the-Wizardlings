@@ -73,7 +73,7 @@ void ShaderMap::reload() {
 	}
 
 	for (it = m_shaderMap.begin(); it != m_shaderMap.end(); it++) {
-		logTrace("Shader ID: {0}",it->second->getShaderID());
+		logTrace("Shader ID: {0}", it->second->getShaderID());
 	}
 }
 

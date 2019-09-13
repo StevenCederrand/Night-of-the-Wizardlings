@@ -51,7 +51,7 @@ void Renderer::init(Camera* camera, GLFWwindow* window)
 void Renderer::destroy()
 {
 	delete m_rendererInstance;
-}
+}	
 
 void Renderer::initBasicQuad()
 {
@@ -67,6 +67,8 @@ void Renderer::initBasicQuad()
  	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+
+
 }
 
 void Renderer::drawQuad() {
