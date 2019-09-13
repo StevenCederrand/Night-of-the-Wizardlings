@@ -3,13 +3,20 @@
 
 PlayState::PlayState()
 {
-	BGLoader load;
-	load.LoadMesh("C:/Users/Nicolas Wallenskog/Documents/GitHub/DV1573---UD1448/Assets/Meshes/SexyCube.meh");
-	Mesh mesh1;
-	mesh1.setUpMesh(load.GetVertices(0), load.GetVertexCount(0), load.GetFaces(0), load.GetFaceCount(0));
 	logTrace("Playstate created");
 	ShaderMap::createShader("Basic_Forward", "VertexShader.vs", "FragShader.fs");
 
+
+	BGLoader tempLoader;
+	tempLoader.LoadMesh("Assets/Meshes/SexyCubex2.meh");
+	tempLoader.GetVertices(0);
+	tempLoader.GetFaces(0);
+
+	Mesh mesh1;
+	mesh1.setUpMesh(tempLoader.GetVertices(0),
+		tempLoader.GetVertexCount(0),
+		tempLoader.GetFaces(0),
+		tempLoader.GetFaceCount(0));
 }
 
 PlayState::~PlayState()

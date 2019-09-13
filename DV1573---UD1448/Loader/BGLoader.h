@@ -5,7 +5,7 @@
 //Example usage:
 /*
 	BGLoader testLoader;
-	testLoader.LoadMesh("C:/Users/fisk0/Documents/GitHub/DV1573---UD1448/Assets/Meshes/SexyCube.meh");
+	testLoader.LoadMesh("Assets/Meshes/SexyCube.meh");
 	testLoader.Unload();
 */
 
@@ -45,44 +45,35 @@ private:
 
 public:
 	BGLoader();
-	BGLoader(std::string filesName);
+	BGLoader(std::string filesName);		// Default constructor to directly load a file
 	~BGLoader();
 	void Unload();
 
-	bool LoadMesh(std::string fileName);
+	bool LoadMesh(std::string fileName);	// Load a file
+	std::string GetFileName() { return fileName; }
 
-	int GetMeshCount() { return fileHeader.meshCount; }
+	int GetMeshCount() { return fileHeader.meshCount; }	// Get meshes
 	char* GetMeshName(int meshId);
 
-	// Should return vertex in format posX/posY/PosZ/uvX/uvY/normalX/normalY/normalZ/posX/posY.... 
+	// Returns all the verices in format posX/posY/PosZ/uvX/uvY/normalX/normalY/normalZ/posX/posY.... 
 	// Next vertex starts where the last vertex ends (8 floats)
 	float* GetVertices(int meshId);
 	int GetVertexCount(int meshId) { return mesh[meshId].vertexCount; }
 
-	// Should return faces in format index1/index2/index3/index1/index2.... 
+	// Returns all the faces in format index1/index2/index3/index1/index2.... 
 	// Next face starts where the last face ends (3 ints)
 	int* GetFaces(int meshId);
 	int GetFaceCount(int meshId)  { return mesh[meshId].faceCount; }
 
 
 
-
-	BGLoading::LoaderMesh GetMesh(int index) const { return mesh[index]; }
+	// Ignore below, will be reformated or removed
 	BGLoading::Skeleton GetSkeleton(int index) const { return mesh[index].skeleton; }
 	BGLoading::Joint GetJoint(int mIndex, int jIndex) const { return skeletonsD[mIndex].joint[jIndex]; }
 	BGLoading::Animation GetAnimation(int mIndex, int aIndex) const { return animationsD[mIndex].animations[aIndex].ani; }
 	BGLoading::KeyFrame GetKeyFrame(int mIndex, int aIndex, int kIndex) const { return animationsD[mIndex].animations[aIndex].keyFrames[kIndex].key; }
 	BGLoading::Transform GetTransform(int mIndex, int aIndex, int kIndex, int tIndex) const { return animationsD[mIndex].animations[aIndex].keyFrames[kIndex].transforms[tIndex].t; }
 
-
-	int GetHeader() { return fileHeader.meshCount; }
-	std::string GetFileName() { return fileName; }
-
-	BGLoading::Vertex* GetVerticies(int meshId) { return meshVert[meshId].vertices; }
-
-	int GetType(int index) const { return mesh[index].type; }
-	int GetLink(int index) const { return mesh[index].link; }
-	int GetCollectIndex(int index) const { return mesh[index].collect; }
 
 	float* GetDirLightPos(int index) const { return dirLight[index].position; }
 	float GetDirLightIntensity(int index) const { return dirLight[index].intensity; }

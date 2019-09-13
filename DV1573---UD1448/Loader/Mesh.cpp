@@ -15,7 +15,7 @@ Mesh::~Mesh()
 
 void Mesh::setUpMesh(float* inVertices, int inVertexCount, int* inIndices, int inFaceCount)
 {
-	int j = 1;
+	int j = 0;
 	vertexCount = inVertexCount;
 	vertices.resize(vertexCount);
 	float* tempVert = inVertices;
