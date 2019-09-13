@@ -8,10 +8,15 @@ PlayState::PlayState()
 
 
 	BGLoader tempLoader;
-	tempLoader.LoadMesh("C:/Users/fisk0/Documents/GitHub/DV1573---UD1448/Assets/Meshes/SexyCubex2.meh");
+	tempLoader.LoadMesh("Assets/Meshes/SexyCubex2.meh");
 	tempLoader.GetVertices(0);
 	tempLoader.GetFaces(0);
 
+	Mesh mesh1;
+	mesh1.setUpMesh(tempLoader.GetVertices(0),
+		tempLoader.GetVertexCount(0),
+		tempLoader.GetFaces(0),
+		tempLoader.GetFaceCount(0));
 }
 
 PlayState::~PlayState()
@@ -21,6 +26,7 @@ PlayState::~PlayState()
 
 void PlayState::update(float dt)
 {
+
 	
 }
 

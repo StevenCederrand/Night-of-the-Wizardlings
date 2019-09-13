@@ -5,7 +5,7 @@
 //Example usage:
 /*
 	BGLoader testLoader;
-	testLoader.LoadMesh("C:/Users/fisk0/Documents/GitHub/DV1573---UD1448/Assets/Meshes/SexyCube.meh");
+	testLoader.LoadMesh("Assets/Meshes/SexyCube.meh");
 	testLoader.Unload();
 */
 

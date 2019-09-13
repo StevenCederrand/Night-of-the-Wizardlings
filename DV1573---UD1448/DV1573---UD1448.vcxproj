@@ -175,6 +175,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Loader\BGLoader.cpp" />
+    <ClCompile Include="Loader\Mesh.cpp" />
     <ClCompile Include="Pch\Pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -213,6 +214,7 @@
   <ItemGroup>
     <ClInclude Include="Loader\BGLoader.h" />
     <ClInclude Include="Loader\MeshFormat.h" />
+    <ClInclude Include="Loader\Mesh.h" />
     <ClInclude Include="Pch\Pch.h" />
     <ClInclude Include="Renderer\Camera.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
@@ -226,6 +228,7 @@
     <ClInclude Include="System\Application.h" />
     <ClInclude Include="System\Input.h" />
     <ClInclude Include="System\Log.h" />
+    <ClInclude Include="Loader\MeshFormatInput.h" />
     <ClInclude Include="System\State.h" />
     <ClInclude Include="System\StateManager.h" />
   </ItemGroup>
