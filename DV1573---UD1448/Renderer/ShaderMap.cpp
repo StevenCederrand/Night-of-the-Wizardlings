@@ -1,7 +1,7 @@
 #include <Pch/Pch.h>
 #include "ShaderMap.h"
 
-std::map<std::string, Shader*> ShaderMap::m_shaderMap;
+//std::map<std::string, Shader*> ShaderMap::m_shaderMap;
 ShaderMap* ShaderMap::m_shaderMapInstance = 0;
 
 ShaderMap::ShaderMap() {}
@@ -73,7 +73,7 @@ void ShaderMap::reload() {
 	}
 
 	for (it = m_shaderMap.begin(); it != m_shaderMap.end(); it++) {
-		logTrace("Shader ID: {0}",it->second->getShaderID());
+		logTrace("Shader ID: {0}", it->second->getShaderID());
 	}
 }
 
@@ -87,6 +87,5 @@ void ShaderMap::useByName(std::string name) {
 void ShaderMap::destroy()
 {
 	cleanUp();
-	logInfo("Delete");
 	delete m_shaderMapInstance;
 }

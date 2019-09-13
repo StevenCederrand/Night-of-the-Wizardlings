@@ -4,7 +4,6 @@
 #include "Input.h"
 #include "StateManager.h"
 
-
 class Application {
 
 public:
@@ -13,19 +12,28 @@ public:
 	
 	/* Init GLFW & GL HEHEH */
 	bool init();
-	
 	/* Runs the application */
 	void run();
 
 
 private:
-	Camera* m_camera;
+	void initGraphics();
+	
+	
 	GLFWwindow* m_window;
+	Camera* m_camera;
 	Input* m_input;
 	StateManager* m_stateManager;
 	bool m_vsync;
+	
+
+
+	Renderer* m_renderer;
+	ShaderMap* m_shaderMap;
 
 };
+
+
 
 
 #endif

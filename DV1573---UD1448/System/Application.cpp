@@ -2,17 +2,15 @@
 #include "Application.h"
 #include "States/PlayState.h"
 
-
 Application::Application() {
 }
 
 Application::~Application() {
 	delete m_input;
 	delete m_stateManager;
+	m_renderer->destroy();
+	m_shaderMap->destroy();
 	glfwTerminate();
-	ShaderMap::cleanUp();
-	ShaderMap::destroy();
-	Renderer::destroy();
 }
 
 bool Application::init() {
@@ -31,7 +29,6 @@ bool Application::init() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-
 
 	m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", NULL, NULL);
 	
@@ -57,21 +54,11 @@ bool Application::init() {
 	
 	m_input = new Input();
 
-	glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
 	/*
 		Initialize all persisten data here
 	*/
-	ShaderMap* shaderMap = ShaderMap::getInstance();
-	if (!shaderMap) {
-		logError("Shader Map instancing failed");
-	}
-	Renderer* renderer = Renderer::getInstance();
-	if (!renderer) {
-		logError("Rendererer failed");
-	}
-	
-	renderer->init(m_window);
+
+	initGraphics();
 
 	m_stateManager = new StateManager();
 
@@ -101,13 +88,17 @@ void Application::run()
 		{
 			glfwSetWindowShouldClose(m_window, true);
 		}
-		
+	
+	
 		if (Input::isKeyPressed(GLFW_KEY_R)) {
-			ShaderMap::reload();
+			m_shaderMap->reload();
 		}
+
+
 		//Deltatime
 		float deltaTime = timeNow - timeThen;
 		timeThen = timeNow;
+
 
 		m_stateManager->update(deltaTime);
 		m_stateManager->render();	
@@ -116,4 +107,20 @@ void Application::run()
 	}
 
 	logInfo("Exiting application loop");
+
+}
+
+void Application::initGraphics()
+{
+	//init renderer
+	m_renderer = m_renderer->getInstance();
+	if (!m_renderer) {
+		logError("Rendererer failed");
+	}
+
+	m_renderer->init(m_camera, m_window);
+
+	m_shaderMap = m_shaderMap->getInstance();
+
+
 }
