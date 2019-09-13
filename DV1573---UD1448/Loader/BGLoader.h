@@ -54,6 +54,9 @@ public:
 	int GetMeshCount() { return fileHeader.meshCount; }
 	char* GetMeshName(int meshId);
 
+	// Should return vertex in format posX/posY/PosZ/uvX/uvY/normalX/normalY/normalZ/posX/posY.... 
+	// Next vertex starts where the last vertex ends (8 floats)
+
 	float* GetVertices(int meshId);
 	int GetVertexCount(int meshId) { return mesh[meshId].vertexCount; }
 

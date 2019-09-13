@@ -94,7 +94,7 @@ float* BGLoader::GetVertices(int meshNr)
 {
 	BGLoading::LoaderMesh tempMesh = mesh[meshNr];
 	int vertexCount = tempMesh.vertexCount;
-	size_t vertexSize = vertexCount * 8 + 1;
+	int vertexSize = vertexCount * (int)8 + 1;
 
 	float* vertices = new float[vertexSize];
 	int vertexOffset = 0;
