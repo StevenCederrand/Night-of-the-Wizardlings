@@ -5,10 +5,6 @@
 
 namespace BGLoading
 {
-	
-
-
-
 	struct BGHeader
 	{
 		int meshCount;

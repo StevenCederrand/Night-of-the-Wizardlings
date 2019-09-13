@@ -132,9 +132,9 @@ int* BGLoader::GetFaces(int meshNr)
 {
 	BGLoading::LoaderMesh tempMesh = mesh[meshNr];
 	int faceCount = tempMesh.vertexCount;
-	int faceSize = 3;
+	int faceSize = faceCount * 3;
 
-	int* faces = new int[faceCount * 3];
+	int* faces = new int[faceSize];
 	int faceOffset = 0;
 
 	for (int i = 0; i < faceCount; i++)
