@@ -1,8 +1,6 @@
 #ifndef _PCH_H
 #define _PCH_H
 
-
-
 //Standard includes
 #include <iostream>
 #include <fstream>
@@ -43,11 +41,11 @@
 #include <Renderer/Renderer.h>
 #include <System/Input.h>
 
-
-//Importer
 #include <Loader/BGLoader.h>
 #include <Loader/Mesh.h>
-#include <Loader/MeshFormatInput.h>
+
 const std::string SHADERPATH = "Assets/Shaders/";
+const unsigned int SCREEN_WIDTH = 1280;
+const unsigned int SCREEN_HEIGHT = 720;
 
 #endif
