@@ -41,7 +41,9 @@ public:
 	void drawQuad();
 	void render(Cube* cube);
 
+
 	Camera* getMainCamera() const;
 
+	GLuint createTexture(std::string path);
 };
 
