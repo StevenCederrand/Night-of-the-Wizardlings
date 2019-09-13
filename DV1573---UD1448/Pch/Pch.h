@@ -35,14 +35,15 @@
 #include <raknet/BitStream.h>
 
 //Custom
+#include <Loader/BGLoader.h>
+#include <Mesh/MeshFormat.h>
+#include <Mesh/Mesh.h>
 #include <Renderer/Shader.h>
 #include <Renderer/ShaderMap.h>
 #include <Renderer/Camera.h>	
 #include <Renderer/Renderer.h>
 #include <System/Input.h>
 
-#include <Loader/BGLoader.h>
-#include <Loader/Mesh.h>
 
 const std::string SHADERPATH = "Assets/Shaders/";
 const unsigned int SCREEN_WIDTH = 1280;

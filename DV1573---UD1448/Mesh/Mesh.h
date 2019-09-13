@@ -1,6 +1,5 @@
 #pragma once
 #include <Pch/Pch.h>
-#include <Loader/MeshFormatInput.h>
 
 class Mesh
 {

@@ -13,6 +13,7 @@ PlayState::PlayState()
 		tempLoader.GetVertexCount(0),
 		tempLoader.GetFaces(0),
 		tempLoader.GetFaceCount(0));
+	tempLoader.Unload();
 
 
 	m_shaderMap = m_shaderMap->getInstance();
