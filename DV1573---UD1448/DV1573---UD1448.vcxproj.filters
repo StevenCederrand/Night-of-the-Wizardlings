@@ -68,9 +68,6 @@
     <ClInclude Include="System\StateManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="System\PersistentData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="States\PlayState.h">
       <Filter>Header Files</Filter>
     </ClInclude>

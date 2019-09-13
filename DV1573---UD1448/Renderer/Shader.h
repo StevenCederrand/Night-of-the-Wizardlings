@@ -21,6 +21,7 @@ public:
 	void setInt(std::string name, int num);
 	void setName(std::string name);
 
+	bool getValid() const;
 	int getShaderID() const;
 	std::string getName() const;
 	std::vector<std::string> getShaderNames() const;
@@ -35,7 +36,7 @@ public:
 private:
 
 	void shaderSetup(std::string shaderName, unsigned int& shader);
-
+	bool m_valid;
 	std::string m_name;
 	int m_shaderProg;
 	std::map<std::string, GLint> m_IDMap;
