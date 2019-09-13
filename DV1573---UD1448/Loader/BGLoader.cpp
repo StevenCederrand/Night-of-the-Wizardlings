@@ -116,8 +116,8 @@ float* BGLoader::GetVertices(int meshNr)
 		vertices += 2;
 
 		vertices[0] = tempVertices.normal[0];
-		vertices[0] = tempVertices.normal[1];
-		vertices[0] = tempVertices.normal[2];
+		vertices[1] = tempVertices.normal[1];
+		vertices[2] = tempVertices.normal[2];
 		vertices += 3;
 
 		vertexOffset += 8;
