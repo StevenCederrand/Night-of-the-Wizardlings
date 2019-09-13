@@ -68,7 +68,7 @@ Camera::~Camera()
 
 void Camera::fpsControls(GLFWwindow* window, float deltaTime)
 {
-	float m_CamSpeed = camSpeed;
+	float m_CamSpeed = camSpeed * deltaTime;
 
 	//WASD controls
 	if (Input::isKeyHeldDown(GLFW_KEY_A))
