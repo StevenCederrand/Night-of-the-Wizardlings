@@ -18,7 +18,10 @@ void Mesh::setUpMesh(float* inVertices, int inVertexCount, int* inIndices, int i
 	int j = 0;
 	vertexCount = inVertexCount;
 	vertices.resize(vertexCount);
+
 	float* tempVert = inVertices;
+
+
 	for (int i = 0; i < vertexCount; i++)
 	{
 
@@ -33,13 +36,12 @@ void Mesh::setUpMesh(float* inVertices, int inVertexCount, int* inIndices, int i
 		vertices[i].Normals[1] = tempVert[j]; j++;
 		vertices[i].Normals[2] = tempVert[j]; j++;
 	}
-	j = 0;
 	int* tempFace = inIndices;
 	faces.resize(inFaceCount);
 
 
+	j = 0;
 	int k = 0;
-
 	for (int i = 0; i < inFaceCount; i++)
 	{
 		for (int j = 0; j < 3; j++)
@@ -48,8 +50,5 @@ void Mesh::setUpMesh(float* inVertices, int inVertexCount, int* inIndices, int i
 			k++;
 		}
 	}
-
-
-
 
 }

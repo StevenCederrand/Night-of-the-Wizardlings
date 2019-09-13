@@ -9,8 +9,6 @@ PlayState::PlayState()
 
 	BGLoader tempLoader;
 	tempLoader.LoadMesh("Assets/Meshes/SexyCubex2.meh");
-	tempLoader.GetVertices(0);
-	tempLoader.GetFaces(0);
 
 	Mesh mesh1;
 	mesh1.setUpMesh(tempLoader.GetVertices(0),
