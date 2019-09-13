@@ -12,7 +12,6 @@ private:
 	Mesh();
 	~Mesh();
 	BGLoader load;
-	std::string filename;
 
 public:
 	void setUpMesh();
