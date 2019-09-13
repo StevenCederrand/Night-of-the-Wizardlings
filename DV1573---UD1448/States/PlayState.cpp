@@ -7,6 +7,7 @@ PlayState::PlayState()
 	ShaderMap::getInstance()->createShader("Basic_Forward", "VertexShader.vs", "FragShader.fs");
 	m_renderer = m_renderer->getInstance();
 	m_cube = new Cube(m_renderer->getVBO());
+	m_cube->loadTexture("testTexture.jpg");
 }
 
 PlayState::~PlayState()

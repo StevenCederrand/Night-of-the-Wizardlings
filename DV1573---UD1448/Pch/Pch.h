@@ -34,6 +34,8 @@
 #include <raknet/GetTime.h>
 #include <raknet/BitStream.h>
 
+
+
 //Custom
 #include <Renderer/Shader.h>
 #include <Renderer/ShaderMap.h>
@@ -42,6 +44,8 @@
 #include <System/Input.h>
 
 const std::string SHADERPATH = "Assets/Shaders/";
+const std::string TEXTUREPATH = "Assets/Textures/";
+
 const unsigned int SCREEN_WIDTH = 1280;
 const unsigned int SCREEN_HEIGHT = 720;
 

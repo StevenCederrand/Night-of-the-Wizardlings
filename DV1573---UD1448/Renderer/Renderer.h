@@ -29,7 +29,5 @@ public:
 
 
 	Camera* getMainCamera() const;
-
-	GLuint createTexture(std::string path);
 };
 

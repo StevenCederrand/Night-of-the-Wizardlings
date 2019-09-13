@@ -1,4 +1,6 @@
-#include "Pch/Pch.h"
+#include <Pch/Pch.h>
+
+#include <Texture/stb_image.h>
 #include "Cube.h"
 
 Cube::Cube(GLuint vbo)
@@ -71,6 +73,37 @@ Cube::~Cube()
 {
 	glDeleteVertexArrays(1, &m_VAO);
 }
+//The texture path is automatically placed onto the name
+void Cube::loadTexture(std::string textureName) {
+	textureName = TEXTUREPATH + textureName;
+
+	GLuint m_textureID;
+	glGenTextures(1, &m_textureID);
+	glBindTexture(GL_TEXTURE_2D, m_textureID);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	int width, height, nrOfChannels;
+	unsigned char* data = stbi_load(textureName.c_str(), &width, &height, &nrOfChannels, 0);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else {
+		logError("Failed to load texture");
+	}
+
+	stbi_image_free(data);
+}
+
+//Assumes that the shader that the texture is to be bound to is currently "used"
+void Cube::bindTextures(Shader* currentShader) {
+	currentShader->setInt("albedoTexture", 1);
+}
 
 const GLuint& Cube::getVAO() const
 {
@@ -81,7 +114,9 @@ const glm::vec3& Cube::getWorldPos() const {
 	return m_worldPos;
 }
 
-const glm::mat4& Cube::getModelMatrix() const {
-	
+const glm::mat4& Cube::getModelMatrix() const {	
 	return glm::translate(m_modelMatrix, m_worldPos);
+}
+const GLuint& Cube::getTextureID() const {
+	return m_textureID;
 }

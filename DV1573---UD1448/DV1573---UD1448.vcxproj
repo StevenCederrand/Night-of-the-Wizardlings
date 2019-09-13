@@ -207,7 +207,9 @@
     </ClCompile>
     <ClCompile Include="System\Main.cpp" />
     <ClCompile Include="System\StateManager.cpp" />
-    <ClCompile Include="Texture\stb_image.cpp" />
+    <ClCompile Include="Texture\stb_image.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameObject\Cube.h" />
