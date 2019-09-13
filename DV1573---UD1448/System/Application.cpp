@@ -8,15 +8,15 @@ Application::Application() {
 Application::~Application() {
 	delete m_input;
 	delete m_stateManager;
-	m_renderer->destroy();
-	m_shaderMap->destroy();
+	ShaderMap::getInstance()->destroy();
+	Renderer::getInstance()->destroy();
 	glfwTerminate();
 }
 
 bool Application::init() {
 
 	bool statusOK = false;
-
+	initialFrame = false;
 	statusOK = glfwInit();
 
 	if (!statusOK) {
@@ -57,14 +57,9 @@ bool Application::init() {
 	
 	m_input = new Input();
 
-	/*
-		Initialize all persisten data here
-	*/
-
 	initGraphics();
 
 	m_stateManager = new StateManager();
-
 	m_stateManager->pushState(new PlayState());
 
 	logTrace("Application successfully initialized");
@@ -75,7 +70,7 @@ void Application::run()
 {
 	float timeNow = 0.0f;
 	float timeThen = 0.0f;
-
+	
 	logInfo("Running Application loop");
 
 	while (!glfwWindowShouldClose(m_window)) {
@@ -92,19 +87,28 @@ void Application::run()
 			glfwSetWindowShouldClose(m_window, true);
 		}
 	
-	
 		if (Input::isKeyPressed(GLFW_KEY_R)) {
-			m_shaderMap->reload();
+			ShaderMap::getInstance()->reload();
+		}
+		//Skip the first frame, this is because we 
+		if (initialFrame == false) {
+			timeNow = static_cast<float>(glfwGetTime());
+			timeThen = timeNow;
+			initialFrame = true;
+			glfwSwapBuffers(m_window);
+
+			continue;
 		}
 
 		timeNow = static_cast<float>(glfwGetTime());
+
 		//Deltatime
 		float deltaTime = timeNow - timeThen;
 		timeThen = timeNow;
-
-
+		
 		m_stateManager->update(deltaTime);
-		m_stateManager->render();	
+		m_stateManager->render();
+
 
 		glfwSwapBuffers(m_window);
 	}
@@ -116,14 +120,13 @@ void Application::run()
 void Application::initGraphics()
 {
 	//init renderer
-	m_renderer = m_renderer->getInstance();
+	Renderer* m_renderer = Renderer::getInstance();
 	if (!m_renderer) {
 		logError("Rendererer failed");
 	}
-
+	
 	m_renderer->init(m_window);
 
-	m_shaderMap = m_shaderMap->getInstance();
-
+	ShaderMap::getInstance();
 
 }

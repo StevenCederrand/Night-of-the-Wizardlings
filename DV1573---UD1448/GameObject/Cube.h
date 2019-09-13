@@ -3,12 +3,12 @@
 #include <Pch/Pch.h>
 class Cube {
 public:
-	Cube(GLuint& vbo);
+	Cube(GLuint vbo);
 	~Cube();
 
-	GLuint getVAO() const;
-	glm::vec3 getWorldPos() const;
-	glm::mat4 getModelMatrix();
+	const GLuint& getVAO() const;
+	const glm::vec3& getWorldPos() const;
+	const glm::mat4& getModelMatrix() const;
 
 private:
 	GLuint m_VAO;

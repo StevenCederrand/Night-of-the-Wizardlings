@@ -27,7 +27,6 @@ void Camera::mouse_callback(GLFWwindow* window)
 		this->firstMouse = false;
 		xpos = lastX;
 		ypos = lastY;
-		logInfo("Start");
 	}
 
 	float xoffset = xpos - lastX;
@@ -36,7 +35,6 @@ void Camera::mouse_callback(GLFWwindow* window)
 	lastX = xpos;
 	lastY = ypos;
 
-	//logTrace("Camera move X:" + std::to_string(xoffset) + "\tY:" + std::to_string(yoffset));
 	mouseControls(xoffset, yoffset, true);
 }
 
@@ -64,9 +62,10 @@ Camera::Camera()
 
 Camera::~Camera()
 {
+
 }
 
-void Camera::fpsControls(GLFWwindow* window, float deltaTime)
+void Camera::fpsControls(float deltaTime)
 {
 	float m_CamSpeed = camSpeed * deltaTime;
 
@@ -115,12 +114,12 @@ void Camera::setProjMat(float widht, float height, float nearPlane, float farPla
 	projMat = glm::perspective(glm::radians(45.0f), widht / height, nearPlane, farPlane);
 }
 
-glm::mat4 Camera::getViewMat() const
+const glm::mat4& Camera::getViewMat() const
 {
 	return glm::lookAt(camPos, camPos + camFace, camUp);
 }
 
-glm::mat4 Camera::getProjMat() const
+const glm::mat4& Camera::getProjMat() const
 {
 	return projMat;
 }

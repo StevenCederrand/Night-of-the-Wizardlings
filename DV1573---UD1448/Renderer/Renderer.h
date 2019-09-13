@@ -8,37 +8,23 @@ class Renderer
 private:
 	GLFWwindow* m_gWindow;
 	Camera* m_camera;
+	//Buffer Object
+	GLuint m_VBO;
+
 	unsigned int m_Fbo;
 	unsigned int m_FboAttachments[2];
-	
-
-	GLuint m_rQuadVAO;
-	GLuint m_rQuadVBO;
-
-	float m_rQuadData[24] = {
-		//VP			UV
-		-0.5f,  0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.0f, 0.0f,
-		0.5f, -0.5f,  1.0f, 0.0f,
-
-		-0.5f,  0.5f,  0.0f, 1.0f,
-		0.5f, -0.5f,  1.0f, 0.0f,
-		0.5f,  0.5f,  1.0f, 1.0f
-	};
 
 	static Renderer* m_rendererInstance;
 	Renderer();
 public:
+
+
 	void update(float dt);
-	GLuint m_VBO;
 	static Renderer* getInstance();
 	void init(GLFWwindow* window);
+	
 	void destroy();
-
-	GLuint getVBO();
-
-	void initBasicQuad();
-	void drawQuad();
+	const GLuint& getVBO() const;
 	void render(Cube* cube);
 
 	Camera* getMainCamera() const;

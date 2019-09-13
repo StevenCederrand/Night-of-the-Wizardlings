@@ -8,10 +8,7 @@ uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 
 out vec2 f_UV;
-out vec4 pos;
 void main() {
-
     gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.0f);
-
     f_UV = uv;
 }
