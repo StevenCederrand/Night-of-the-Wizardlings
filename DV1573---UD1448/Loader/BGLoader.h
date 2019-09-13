@@ -50,20 +50,22 @@ public:
 	void Unload();
 
 	bool LoadMesh(std::string fileName);	// Load a file
-	std::string GetFileName() { return fileName; }
 
-	int GetMeshCount() { return fileHeader.meshCount; }	// Get meshes
-	char* GetMeshName(int meshId);
+
+	std::string GetFileName() const { return fileName; }
+
+	int GetMeshCount() const { return fileHeader.meshCount; }	// Get meshes
+	char* GetMeshName(int meshId) const;
 
 	// Returns all the verices in format posX/posY/PosZ/uvX/uvY/normalX/normalY/normalZ/posX/posY.... 
 	// Next vertex starts where the last vertex ends (8 floats)
-	float* GetVertices(int meshId);
-	int GetVertexCount(int meshId) { return mesh[meshId].vertexCount; }
+	float* GetVertices(int meshId) const;
+	int GetVertexCount(int meshId) const { return mesh[meshId].vertexCount; }
 
 	// Returns all the faces in format index1/index2/index3/index1/index2.... 
 	// Next face starts where the last face ends (3 ints)
-	int* GetFaces(int meshId);
-	int GetFaceCount(int meshId)  { return mesh[meshId].faceCount; }
+	int* GetFaces(int meshId) const;
+	int GetFaceCount(int meshId) const  { return mesh[meshId].faceCount; }
 
 
 

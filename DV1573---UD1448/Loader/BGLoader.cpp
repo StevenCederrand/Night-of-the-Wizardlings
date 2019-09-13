@@ -83,14 +83,14 @@ void BGLoader::Unload()
 	fileName = "";
 }
 
-char* BGLoader::GetMeshName(int meshID)
+char* BGLoader::GetMeshName(int meshID) const
 {
 	char* meshName = mesh[meshID].name;
 
 	return meshName;
 }
 
-float* BGLoader::GetVertices(int meshNr)
+float* BGLoader::GetVertices(int meshNr) const
 {
 	BGLoading::LoaderMesh tempMesh = mesh[meshNr];
 	int vertexCount = tempMesh.vertexCount;
@@ -120,7 +120,7 @@ float* BGLoader::GetVertices(int meshNr)
 	return vertices;
 }
 
-int* BGLoader::GetFaces(int meshNr)
+int* BGLoader::GetFaces(int meshNr) const
 {
 	BGLoading::LoaderMesh tempMesh = mesh[meshNr];
 	int faceCount = tempMesh.faceCount;

@@ -3,6 +3,12 @@
 
 Mesh::Mesh()
 {
+	name = "";
+
+	m_worldPos = glm::vec3();
+	m_worldRot = glm::quat();
+	m_worldScale = glm::vec3();
+
 	vertexCount = 0;
 	faceCount = 0;
 }
