@@ -34,19 +34,20 @@ void Mesh::setUpMesh(float* inVertices, int inVertexCount, int* inIndices, int i
 		vertices[i].Normals[2] = tempVert[j]; j++;
 	}
 	j = 0;
+
 	int* tempFace = inIndices;
-	faces.resize(inFaceCount);
+	faceCount = inFaceCount;
+	faces.resize(faceCount);
 
 
 	int k = 0;
 
-	for (int i = 0; i < inFaceCount; i++)
+	for (int i = 0; i < faceCount; i++)
 	{
-		for (int j = 0; j < 3; j++)
-		{
-			faces[i].indices[j] = tempFace[k];
-			k++;
-		}
+
+		faces[i].indices[0] = tempFace[k]; k++;
+		faces[i].indices[1] = tempFace[k]; k++;
+		faces[i].indices[2] = tempFace[k]; k++;
 	}
 
 
