@@ -5,5 +5,5 @@ out vec4 color;
 
 void main() {
     vec2 xy = vec2(0.1f, 0.1f);
-    color = vec4(f_UV, 1, 1);
+    color = vec4(1, 1, 1, 1);
 }

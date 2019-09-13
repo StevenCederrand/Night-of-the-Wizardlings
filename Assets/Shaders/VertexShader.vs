@@ -16,6 +16,6 @@ out vec3 f_WorldPosition;*/
 out vec2 f_UV;
 
 void main() {
-    gl_Position = vec4(position, 1);
+    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1);
     f_UV = uv;
 }

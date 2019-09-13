@@ -13,7 +13,7 @@ public:
 
 private:
 	int key = 1;
-	
+	Cube *m_cube;
 	Renderer* m_renderer;
 	ShaderMap* m_shaderMap;
 };

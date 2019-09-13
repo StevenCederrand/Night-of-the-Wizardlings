@@ -1,5 +1,7 @@
 #pragma once
 #include <Pch/Pch.h>
+#include <GameObject/Cube.h>
+
 
 class Renderer
 {
@@ -8,7 +10,8 @@ private:
 	Camera* m_camera;
 	unsigned int m_Fbo;
 	unsigned int m_FboAttachments[2];
-
+	
+	GLuint m_VBO;
 	GLuint m_rQuadVAO;
 	GLuint m_rQuadVBO;
 
@@ -32,11 +35,12 @@ public:
 	void init(Camera* camera, GLFWwindow* window);
 	void destroy();
 
+	GLuint getVBO() const;
+
 	void initBasicQuad();
 	void drawQuad();
-	void render();
+	void render(Cube* cube);
 
-	
 
 };
 
