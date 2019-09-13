@@ -7,7 +7,9 @@ Client::Client()
 
 Client::~Client()
 {
+	
 	m_shutdownClient = true;
+	logTrace("Waiting for client thread to finish...");
 	m_processThread.join();
 	logTrace("Client process thread shutdown");
 
@@ -16,6 +18,7 @@ Client::~Client()
 
 void Client::startup()
 {
+	m_connectedPlayers.reserve(NetGlobals::MaximumConnections);
 	m_clientPeer = RakNet::RakPeerInterface::GetInstance();
 	m_clientPeer->Startup(1, &RakNet::SocketDescriptor(), 1);
 }
@@ -40,6 +43,7 @@ void Client::threadedProcess()
 	{
 		for (RakNet::Packet* packet = m_clientPeer->Receive(); packet; m_clientPeer->DeallocatePacket(packet), packet = m_clientPeer->Receive())
 		{
+			
 			RakNet::BitStream bsOut;
 			RakNet::BitStream bsIn(packet->data, packet->length, false);
 
@@ -50,6 +54,7 @@ void Client::threadedProcess()
 			case ID_CONNECTION_REQUEST_ACCEPTED:
 			{
 				logTrace("[CLIENT] Connected to server.\n");
+				m_serverAddress = packet->systemAddress;
 				m_isConnectedToAnServer = true;
 			}
 				break;
@@ -89,7 +94,50 @@ void Client::threadedProcess()
 				logTrace("[CLIENT] Connection to the server is lost!\n");
 				m_isConnectedToAnServer = false;
 				break;
+			case INFO_ABOUT_OTHER_PLAYERS:
+			{
+				bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+				size_t nrOfConnectedPlayers;
+				bsIn.Read(nrOfConnectedPlayers);
 
+				for (size_t i = 0; i < nrOfConnectedPlayers; i++) {
+					NetworkPlayer player;
+					player.Serialize(false, bsIn);
+					m_connectedPlayers.emplace_back(player);
+				}
+				printAllConnectedPlayers();
+				
+			}
+				break;
+			case PLAYER_JOINED:
+			{
+				logTrace("New player joined!");
+				bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+				NetworkPlayer player;
+				player.Serialize(false, bsIn);
+				m_connectedPlayers.emplace_back(player);
+				printAllConnectedPlayers();
+				
+			}
+				break;
+			case PLAYER_DISCONNECTED:
+			{
+				bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+				RakNet::AddressOrGUID guidOfDisconnectedPlayer;
+				bsIn.Read(guidOfDisconnectedPlayer);
+
+				bool found = false;
+				for (size_t i = 0; i < m_connectedPlayers.size() && !found; i++) {
+					if (guidOfDisconnectedPlayer == m_connectedPlayers[i].getData().guid) {
+						m_connectedPlayers.erase(m_connectedPlayers.begin() + i);
+						found = true;
+					}
+				}
+
+				logTrace("Player disconnected");
+				printAllConnectedPlayers();
+			}
+				break;
 			default:
 			{
 				logWarning("[CLIENT] Unknown packet received!");
@@ -99,11 +147,26 @@ void Client::threadedProcess()
 		}
 		RakSleep(30);
 	}
+
+	// Client has been told to shutdown here so send a disconnection packet if you're still connected
+	if (m_isConnectedToAnServer)
+	{
+		RakNet::BitStream stream;
+		stream.Write((RakNet::MessageID)ID_DISCONNECTION_NOTIFICATION);
+		m_clientPeer->Send(&stream,IMMEDIATE_PRIORITY , RELIABLE_ORDERED, 0,m_serverAddress, false);
+		RakSleep(250);
+	}
+
 }
 
 const std::vector<ServerInfo>& Client::getServerList() const
 {
 	return m_serverList;
+}
+
+const std::vector<NetworkPlayer>& Client::getConnectedPlayers() const
+{
+	return m_connectedPlayers;
 }
 
 void Client::refreshServerList()
@@ -162,4 +225,11 @@ unsigned char Client::getPacketID(RakNet::Packet* p)
 		return (unsigned char)p->data[sizeof(RakNet::MessageID) + sizeof(RakNet::Time)];
 	else
 		return (unsigned char)p->data[0];
+}
+
+void Client::printAllConnectedPlayers()
+{
+	for (size_t i = 0; i < m_connectedPlayers.size(); i++) {
+		logTrace("Client ({0})\n{3}\n{1}\n{2}", (i + 1), m_connectedPlayers[i].toString(), "________________________", "________________________");
+	}
 }

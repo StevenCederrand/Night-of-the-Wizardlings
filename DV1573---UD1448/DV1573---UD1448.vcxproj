@@ -176,6 +176,7 @@
   <ItemGroup>
     <ClCompile Include="Networking\Client.cpp" />
     <ClCompile Include="Networking\LocalServer.cpp" />
+    <ClCompile Include="Networking\NetworkPlayer.cpp" />
     <ClCompile Include="Pch\Pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -208,6 +209,7 @@
     <ClInclude Include="Networking\LocalServer.h" />
     <ClInclude Include="Networking\NetworkGlobals.h" />
     <ClInclude Include="Networking\NetworkPackets.h" />
+    <ClInclude Include="Networking\NetworkPlayer.h" />
     <ClInclude Include="Pch\Pch.h" />
     <ClInclude Include="States\PlayState.h" />
     <ClInclude Include="System\Application.h" />
