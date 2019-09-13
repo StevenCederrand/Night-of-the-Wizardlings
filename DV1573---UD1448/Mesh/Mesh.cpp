@@ -5,7 +5,6 @@ Mesh::Mesh()
 {
 	vertexCount = 0;
 	faceCount = 0;
-	
 }
 
 Mesh::~Mesh()
@@ -16,11 +15,14 @@ void Mesh::setUpMesh(float* inVertices, int inVertexCount, int* inIndices, int i
 {
 	int j = 0;
 	vertexCount = inVertexCount;
+	faceCount = inFaceCount;
+
 	vertices.resize(vertexCount);
+	faces.resize(inFaceCount);
 
+
+	// Fill verts
 	float* tempVert = inVertices;
-
-
 	for (int i = 0; i < vertexCount; i++)
 	{
 
@@ -35,10 +37,9 @@ void Mesh::setUpMesh(float* inVertices, int inVertexCount, int* inIndices, int i
 		vertices[i].Normals[1] = tempVert[j]; j++;
 		vertices[i].Normals[2] = tempVert[j]; j++;
 	}
+
+	// Fill faces
 	int* tempFace = inIndices;
-	faces.resize(inFaceCount);
-
-
 	j = 0;
 	int k = 0;
 	for (int i = 0; i < inFaceCount; i++)
