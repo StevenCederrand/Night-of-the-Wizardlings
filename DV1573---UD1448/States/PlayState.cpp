@@ -4,8 +4,6 @@
 PlayState::PlayState()
 {
 	logTrace("Playstate created");
-	ShaderMap::createShader("Basic_Forward", "VertexShader.vs", "FragShader.fs");
-
 
 	BGLoader tempLoader;
 	tempLoader.LoadMesh("Assets/Meshes/SexyCubex2.meh");
@@ -15,6 +13,8 @@ PlayState::PlayState()
 		tempLoader.GetVertexCount(0),
 		tempLoader.GetFaces(0),
 		tempLoader.GetFaceCount(0));
+
+
 	m_shaderMap = m_shaderMap->getInstance();
 	m_shaderMap->createShader("Basic_Forward", "VertexShader.vs", "FragShader.fs");
 	m_renderer = m_renderer->getInstance();
