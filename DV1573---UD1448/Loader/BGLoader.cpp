@@ -104,7 +104,7 @@ float* BGLoader::GetVertices(int meshNr)
 
 	for (int i = 1; i < vertexCount; i++)
 	{
-		BGLoading::Vertex tempVertices = meshVert[0].vertices[i];
+		BGLoading::Vertex tempVertices = meshVert[meshNr].vertices[i];
 
 		vertices[0] = tempVertices.position[0];
 		vertices[1] = tempVertices.position[1];
@@ -128,9 +128,29 @@ float* BGLoader::GetVertices(int meshNr)
 	return vertices;
 }
 
-float* BGLoader::GetFaces(int meshId)
+float* BGLoader::GetFaces(int meshNr)
 {
-	return nullptr;
+	BGLoading::LoaderMesh tempMesh = mesh[meshNr];
+	int faceCount = tempMesh.vertexCount;
+	int faceSize = 3;
+
+	float* faces = new float[faceCount];
+	int faceOffset = 0;
+
+	for (int i = 0; i < faceCount; i++)
+	{
+		BGLoading::Face tempFace = meshFace[meshNr].faces[i];
+
+		faces[0] = tempFace.indices[0];
+		faces[1] = tempFace.indices[1];
+		faces[2] = tempFace.indices[2];
+		faces += 3;
+		faceOffset += 3;
+	}
+	faces -= faceOffset;
+
+
+	return faces;
 }
 
 bool BGLoader::LoadMesh(std::string fileName)
