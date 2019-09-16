@@ -8,9 +8,9 @@ Renderer::Renderer()
 {
 	m_gWindow = nullptr;
 	m_camera = nullptr;
+
+
 	glEnable(GL_DEPTH_TEST);
-
-
 	//Enable this when more objects are being loaded!
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -78,11 +78,6 @@ void Renderer::render(Buffers buffer, glm::vec3 worldPos) {
 	glDrawElements(GL_TRIANGLES, buffer.nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 	glBindVertexArray(0);
-
-}
-
-const GLuint& Renderer::getVBO() const{
-	return m_VBO;
 }
 
 Camera* Renderer::getMainCamera() const

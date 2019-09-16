@@ -8,8 +8,6 @@ class Renderer
 private:
 	GLFWwindow* m_gWindow;
 	Camera* m_camera;
-	//Buffer Object
-	GLuint m_VBO;
 
 	unsigned int m_Fbo;
 	unsigned int m_FboAttachments[2];
@@ -24,7 +22,6 @@ public:
 	void init(GLFWwindow* window);
 	
 	void destroy();
-	const GLuint& getVBO() const;
 	void render(Cube* cube);
 	void render(Buffers buffer, glm::vec3 worldPos);
 
