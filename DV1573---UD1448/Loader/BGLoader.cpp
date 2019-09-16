@@ -10,8 +10,7 @@ BGLoader::BGLoader()
 	loaderMesh = nullptr;
 	dirLight = nullptr;
 	pointLight = nullptr;
-	//meshVert = nullptr;
-	//meshFace = nullptr;
+
 }
 
 BGLoader::BGLoader(std::string fileName)
@@ -23,8 +22,6 @@ BGLoader::BGLoader(std::string fileName)
 	loaderMesh = nullptr;
 	dirLight = nullptr;
 	pointLight = nullptr;
-	//meshVert = nullptr;
-	//meshFace = nullptr;
 
 	LoadMesh(fileName);
 }
@@ -39,30 +36,20 @@ void BGLoader::Unload()
 	Meshes.clear();
 	animationsD.clear();
 	skeletonsD.clear();
+	meshVert.clear();
+	meshFace.clear();
 
 
 	if (meshGroup)
 		delete[] meshGroup;
 	if (material)
 		delete[] material;
-	if (loaderMesh)
-	{
-		for (int i = 0; i < fileHeader.meshCount; i++)
-		{
-			/*delete[] meshVert[i].vertices;
-			delete[] meshFace[i].faces;*/
-		}
-			
+	if (loaderMesh)	
 		delete[] loaderMesh;
-	}
 	if (dirLight)
 		delete[] dirLight;
 	if (pointLight)
 		delete[] pointLight;
-	//if(meshVert)
-	//	delete[] meshVert;
-	//if(meshFace)
-	//	delete[] meshFace;
 	if (vertices)
 		delete[] vertices;
 	if (faces)
@@ -74,8 +61,7 @@ void BGLoader::Unload()
 	loaderMesh = nullptr;
 	dirLight = nullptr;
 	pointLight = nullptr;
-	//meshVert = nullptr;
-	//meshFace = nullptr;
+
 
 	vertices = nullptr;
 	faces = nullptr;
