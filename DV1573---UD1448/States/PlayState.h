@@ -13,7 +13,11 @@ public:
 
 private:
 	CEGUI::OpenGL3Renderer* m_guiRenderer;
-
+	int key = 1;
+	Cube *m_cube;
+	Renderer* m_renderer;
+	ShaderMap* m_shaderMap;
+	Mesh m_mesh;
 
 };
 
