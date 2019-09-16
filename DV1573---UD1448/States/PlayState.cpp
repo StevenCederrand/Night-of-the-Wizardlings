@@ -1,7 +1,6 @@
 #include <Pch/Pch.h>
 #include "PlayState.h"
-#include <CEGUI/CEGUI.h>
-#include <CEGUI/RendererModules/OpenGL/GL3Renderer.h>
+
 
 
 PlayState::PlayState()
@@ -15,6 +14,7 @@ PlayState::PlayState()
 PlayState::~PlayState()
 {
 	logTrace("Playstate destroyed");
+	CEGUI::System::destroy();
 }
 
 void PlayState::update(float dt)

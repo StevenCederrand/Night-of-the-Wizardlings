@@ -12,6 +12,8 @@ public:
 	virtual void render() override;
 
 private:
+	CEGUI::OpenGL3Renderer* m_guiRenderer;
+
 
 };
 
