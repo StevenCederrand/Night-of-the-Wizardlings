@@ -26,7 +26,7 @@ public:
 	Mesh();
 	~Mesh();
 
-	void setUpMesh(float* inVertices, int inVertexCount, int* inIndices, int inFaceCount);
+	void setUpMesh(const float* inVertices, int inVertexCount, const int* inIndices, int inFaceCount);
 	void setUpBuffers();
 	void setUpMaterials();
 
