@@ -13,6 +13,18 @@ struct Face
 	int indices[3];
 };
 
+struct Materials
+{
+	std::string name;
+	glm::vec3 ambient;
+	glm::vec3 diffuse;
+	glm::vec3 specular;
+
+	std::vector<GLuint> textureID;
+	//std::string albedo;
+	//std::string normal;
+};
+
 struct Buffers
 {
 	GLuint vao;

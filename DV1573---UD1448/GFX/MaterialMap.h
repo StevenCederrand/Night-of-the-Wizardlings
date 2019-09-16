@@ -1,13 +1,24 @@
-#ifndef _TEXTURESMAP_h
-#define _TEXTURESMAP_h
+#ifndef _MATERIALMAP_h
+#define _MATERIALMAP_h
 #include <Pch/Pch.h>
 
-class TextureMap {
+class MaterialMap {
 
+public:
+	static MaterialMap* getInstance();
+	void cleanUp();
+	bool existsWithName(std::string name);
+	void reload();
+	void useByName(std::string name);
+	Materials* getMaterial(std::string name);
+
+	void destroy();
 
 private:
 
-	std::map<std::string, Material*> m_textures;
+	MaterialMap();
+	static MaterialMap* m_materialMapInstance;
+	std::map<std::string, Materials*> m_Materials;
 };
 
 
