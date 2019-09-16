@@ -109,7 +109,6 @@ void Application::run()
 		m_stateManager->update(deltaTime);
 		m_stateManager->render();
 
-
 		glfwSwapBuffers(m_window);
 	}
 

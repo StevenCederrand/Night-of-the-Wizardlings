@@ -22,16 +22,20 @@ PlayState::PlayState()
 	m_renderer = m_renderer->getInstance();
 	m_cube = new Cube();
 	m_cube->loadTexture("testTexture.jpg");
-	logTrace("Playstate created");
+	
+	m_gui.init();
+	m_gui.loadScheme("TaharezLook.scheme");
+	m_gui.setFont("DejaVuSans-10");
+	CEGUI::PushButton* btn = static_cast<CEGUI::PushButton*>(m_gui.createWidget("TaharezLook/Button", glm::vec4(0.5f, 0.5f, 0.1f, 0.05f), glm::vec4(0.0f), "TestButton"));
+	btn->setText("Hello");
 
-	CEGUI::OpenGL3Renderer& guiRenderer = CEGUI::OpenGL3Renderer::bootstrapSystem();
+	
 }
 
 PlayState::~PlayState()
 {
 
-	logTrace("Playstate destroyed");
-	CEGUI::System::destroy();
+	m_gui.destroy();
 	delete m_cube;
 }
 
@@ -42,5 +46,7 @@ void PlayState::update(float dt)
 
 void PlayState::render()
 {
-	Renderer::getInstance()->render(m_mesh.getBuffers(), m_mesh.getPos());
+	//Renderer::getInstance()->render(m_mesh.getBuffers(), m_mesh.getPos());
+
+	m_gui.draw();
 }

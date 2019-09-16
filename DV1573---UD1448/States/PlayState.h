@@ -2,6 +2,7 @@
 #define _PLAYSTATE_H
 #include <Pch/Pch.h>
 #include "System/State.h"
+#include <Gui/Gui.h>
 
 class PlayState : public State {
 
@@ -12,7 +13,7 @@ public:
 	virtual void render() override;
 
 private:
-	CEGUI::OpenGL3Renderer* m_guiRenderer;
+	Gui m_gui;
 	int key = 1;
 	Cube *m_cube;
 	Renderer* m_renderer;
