@@ -26,6 +26,7 @@ public:
 	void destroy();
 	const GLuint& getVBO() const;
 	void render(Cube* cube);
+	void render(Buffer buffer, glm::mat4 worldMat);
 
 
 	Camera* getMainCamera() const;

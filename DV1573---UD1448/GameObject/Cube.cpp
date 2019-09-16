@@ -3,7 +3,7 @@
 #include <Texture/stb_image.h>
 #include "Cube.h"
 
-Cube::Cube(GLuint vbo)
+Cube::Cube()
 {
 	float vertices[] = {
 	  -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -51,10 +51,12 @@ Cube::Cube(GLuint vbo)
 
 	m_worldPos = glm::vec3(0.0f,  0.0f,  0.0f);
 	   
-	glGenVertexArrays(1, &m_VAO);
-	glBindVertexArray(m_VAO);
+	glGenVertexArrays(1, &m_buffers.VAO);
+	glGenBuffers(1, &m_buffers.VBO);
 
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+	glBindVertexArray(m_buffers.VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_buffers.VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	// position attribute
@@ -67,11 +69,12 @@ Cube::Cube(GLuint vbo)
 
 	m_worldPos = glm::vec3(0, 0, 0);
 	m_modelMatrix = glm::mat4(1);
+	m_buffers.sizeOfData = 36;
 }
 
 Cube::~Cube()
 {
-	glDeleteVertexArrays(1, &m_VAO);
+	glDeleteVertexArrays(1, &m_buffers.VAO);
 }
 //The texture path is automatically placed onto the name
 void Cube::loadTexture(std::string textureName) {
@@ -107,7 +110,7 @@ void Cube::bindTextures(Shader* currentShader) {
 
 const GLuint& Cube::getVAO() const
 {
-	return m_VAO;
+	return m_buffers.VAO;
 }
 
 const glm::vec3& Cube::getWorldPos() const {
@@ -119,4 +122,9 @@ const glm::mat4& Cube::getModelMatrix() const {
 }
 const GLuint& Cube::getTextureID() const {
 	return m_textureID;
+}
+
+const Buffer& Cube::getBuffers() const
+{
+	return m_buffers;
 }

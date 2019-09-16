@@ -8,7 +8,6 @@ Renderer::Renderer()
 {
 	m_gWindow = nullptr;
 	m_camera = nullptr;
- 	glGenBuffers(1, &m_VBO); //Generate a VBO
 	glEnable(GL_DEPTH_TEST);
 
 
@@ -33,7 +32,6 @@ void Renderer::init(GLFWwindow* window)
 
 void Renderer::destroy()
 {
-	glDeleteBuffers(1, &m_VBO);
 	delete m_camera;
 	delete m_rendererInstance;
 }	
@@ -56,13 +54,31 @@ void Renderer::render(Cube* cube) {
 	model = glm::translate(model, cube->getWorldPos());
 
 	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("modelMatrix", model);
-	//cube->bindTextures(ShaderMap::getInstance()->getShader("Basic_Forward"));
 
 
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
 }
 
+void Renderer::render(Buffer buffer, glm::mat4 worldMat) {
+	m_camera->update(m_gWindow);
+
+	ShaderMap::getInstance()->useByName("Basic_Forward");
+
+	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("viewMatrix", m_camera->getViewMat());
+	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("projectionMatrix", m_camera->getProjMat());
+
+	glBindVertexArray(buffer.VAO);
+
+
+	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("modelMatrix", worldMat);
+
+
+	glDrawElements(GL_TRIANGLES, buffer.indicesCount, GL_UNSIGNED_INT, NULL);
+	//glDrawArrays(GL_TRIANGLES, 0, buffer.sizeOfData);
+	glBindVertexArray(0);
+
+}
 
 const GLuint& Renderer::getVBO() const{
 	return m_VBO;
