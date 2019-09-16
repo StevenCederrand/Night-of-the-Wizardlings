@@ -6,6 +6,7 @@ class Shader
 {
 public:
 	Shader();
+	Shader(std::string compute);
 	Shader(std::string vertex, std::string fragment);
 	Shader(std::string vertex, std::string geometry, std::string fragment);
 	~Shader();

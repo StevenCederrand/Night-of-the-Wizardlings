@@ -19,10 +19,20 @@ Shader* ShaderMap::createShader(std::string name, std::string vsName, std::strin
 {
 	//If we have already reserved the name
 	if (existsWithName(name)) {
-		return nullptr;
+		return NULL;
 	}
 
 	Shader* shader = new Shader(vsName, fsName);
+	m_shaderMap[name] = shader;
+	return shader;
+}
+
+Shader* ShaderMap::createShader(std::string name, std::string csName) {
+	if (existsWithName(name)) {
+		return NULL;
+	}
+
+	Shader* shader = new Shader(csName);
 	m_shaderMap[name] = shader;
 	return shader;
 }

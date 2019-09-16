@@ -12,8 +12,8 @@ Renderer::Renderer()
 
 
 	//Enable this when more objects are being loaded!
-	/*glEnable(GL_CULL_FACE);
-	glCullFace(GL_FRONT);*/
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 }
 
 Renderer* Renderer::getInstance()

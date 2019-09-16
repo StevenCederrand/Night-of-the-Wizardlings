@@ -5,6 +5,30 @@ Shader::Shader() {
 
 }
 
+Shader::Shader(std::string compute)
+{
+	unsigned int computeShader = glCreateShader(GL_COMPUTE_SHADER);
+	
+	GLint compileResult;
+	char buffer[1024];
+	shaderSetup(compute, computeShader);
+	m_shaderProg = glCreateProgram();
+	glAttachShader(m_shaderProg, computeShader);
+	glLinkProgram(m_shaderProg);
+	
+	glGetProgramiv(m_shaderProg, GL_LINK_STATUS, &compileResult);
+	if (compileResult == GL_FALSE)
+	{
+		memset(buffer, 0, 1024);
+		glGetProgramInfoLog(m_shaderProg, 1024, nullptr, buffer);
+		logError("Error compiling shaders (computeShader)", compute);
+		logInfo(buffer);
+		m_valid = false;
+	}
+	glDetachShader(m_shaderProg, computeShader);
+	glDeleteShader(computeShader);
+}
+
 Shader::Shader(std::string vertex, std::string fragment)
 {
 
