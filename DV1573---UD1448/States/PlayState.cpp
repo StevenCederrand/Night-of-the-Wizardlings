@@ -1,9 +1,11 @@
 #include <Pch/Pch.h>
 #include "PlayState.h"
+#include <CEGUI/CEGUI.h>
+#include <CEGUI/RendererModules/OpenGL/GL3Renderer.h>
+
 
 PlayState::PlayState()
 {
-	logTrace("Playstate created");
 
 
 	BGLoader tempLoader;
@@ -23,6 +25,9 @@ PlayState::PlayState()
 	m_renderer = m_renderer->getInstance();
 	m_cube = new Cube();
 	m_cube->loadTexture("testTexture.jpg");
+	logTrace("Playstate created");
+
+	CEGUI::OpenGL3Renderer& guiRenderer = CEGUI::OpenGL3Renderer::bootstrapSystem();
 }
 
 PlayState::~PlayState()

@@ -1,7 +1,8 @@
 #ifndef _PCH_H
 #define _PCH_H
 
-//Standard includes
+#include "Bullet/btBulletDynamicsCommon.h"
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -43,7 +44,7 @@
 #include <Mesh/Mesh.h>
 #include <Renderer/Shader.h>
 #include <Renderer/ShaderMap.h>
-#include <Renderer/Camera.h>	
+#include <Renderer/Camera.h>
 #include <Renderer/Renderer.h>
 #include <System/Input.h>
 
