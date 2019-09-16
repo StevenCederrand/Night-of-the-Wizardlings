@@ -1,21 +1,24 @@
 #include <Pch/Pch.h>
 #include "PlayState.h"
+// TODO move to mesh
+#include <Loader/BGLoader.h>
 
 PlayState::PlayState()
 {
 	logTrace("Playstate created");
 
-
+	// TODO move to mesh and file filepath
 	BGLoader tempLoader;
-	tempLoader.LoadMesh("Assets/Meshes/SexyCubex2.meh");
+	tempLoader.LoadMesh(MESHPATH + "SexyCube.mesh");
 
 	m_mesh.setUpMesh(tempLoader.GetVertices(0),
 		tempLoader.GetVertexCount(0),
 		tempLoader.GetFaces(0),
 		tempLoader.GetFaceCount(0));
 	m_mesh.setUpBuffers();
-	tempLoader.Unload();
 
+
+	tempLoader.Unload();
 
 	m_shaderMap = m_shaderMap->getInstance();
 	m_shaderMap->createShader("Basic_Forward", "VertexShader.vs", "FragShader.fs");

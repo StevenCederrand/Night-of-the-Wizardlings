@@ -5,7 +5,7 @@
 //Example usage:
 /*
 	BGLoader testLoader;
-	testLoader.LoadMesh("Assets/Meshes/SexyCube.meh");
+	testLoader.LoadMesh("SexyCube.meh");
 	testLoader.Unload();
 */
 
@@ -21,6 +21,9 @@ struct BGMesh
 
 	std::vector<BGLoading::Vertex> vertices;
 	std::vector<BGLoading::Face> faces;
+	
+	BGLoading::PhongMaterial material;
+
 };
 
 class BGLoader
@@ -30,15 +33,18 @@ private:
 
 	std::vector<BGMesh> Meshes;
 
+	float* vertices;
+	int* faces;
+
 	// Temporary paths to load data into
 	BGLoading::BGHeader	fileHeader;
 	BGLoading::MeshGroup* meshGroup;
 	BGLoading::PhongMaterial* material;
-	BGLoading::LoaderMesh* mesh;
+	BGLoading::LoaderMesh* loaderMesh;
 	BGLoading::DirLight* dirLight;
 	BGLoading::PointLight* pointLight;
-	BGLoading::MeshVert* meshVert;
-	BGLoading::MeshFace* meshFace;
+	std::vector<BGLoading::Vertex*> meshVert;
+	std::vector<BGLoading::Face*> meshFace;
 
 	std::vector<BGLoading::MeshAnis> animationsD;
 	std::vector<BGLoading::MeshSkeleton> skeletonsD;
@@ -54,27 +60,43 @@ public:
 
 	std::string GetFileName() const { return fileName; }
 
-	int GetMeshCount() const { return fileHeader.meshCount; }	// Get meshes
-	char* GetMeshName(int meshId) const;
+	const int GetMeshCount() const { return fileHeader.meshCount; }	// Get meshes
+	const char* GetMeshName(int meshId);
+	const char* GetMeshName();
 
 	// Returns all the verices in format posX/posY/PosZ/uvX/uvY/normalX/normalY/normalZ/posX/posY.... 
 	// Next vertex starts where the last vertex ends (8 floats)
-	float* GetVertices(int meshId) const;
-	int GetVertexCount(int meshId) const { return mesh[meshId].vertexCount; }
+	const float* GetVertices(int meshId);
+	const float* GetVertices();
+	const int GetVertexCount(int meshId) { return loaderMesh[meshId].vertexCount; }
+	const int GetVertexCount() { return loaderMesh[0].vertexCount; }
 
 	// Returns all the faces in format index1/index2/index3/index1/index2.... 
 	// Next face starts where the last face ends (3 ints)
-	int* GetFaces(int meshId) const;
-	int GetFaceCount(int meshId) const  { return mesh[meshId].faceCount; }
+	const int* GetFaces(int meshId);
+	const int* GetFaces();
+	const int GetFaceCount(int meshId)  { return loaderMesh[meshId].faceCount; }
+	const int GetFaceCount()  { return loaderMesh[0].faceCount; }
 
+	const std::string GetAlbedo(int meshId) { return (std::string)material[meshId].albedo; }
+	const std::string GetNormalMap(int meshId) { return (std::string)material[meshId].normal; }
+
+	const BGLoading::PhongMaterial GetMaterial(int index) const { return material[index]; }
+	const BGLoading::PhongMaterial GetMaterial() const { return material[0]; }
 
 
 	// Ignore below, will be reformated or removed
-	BGLoading::Skeleton GetSkeleton(int index) const { return mesh[index].skeleton; }
+
+	BGLoading::LoaderMesh GetLoaderMesh(int meshId) const { return loaderMesh[meshId]; }
+	const BGLoading::Vertex* GetLoaderVertices(int meshId) { return meshVert[meshId]; }
+	const BGLoading::Face* GetLoaderFaces(int meshId) { return meshFace[meshId]; }
+
+	BGLoading::Skeleton GetSkeleton(int index) const { return loaderMesh[index].skeleton; }
 	BGLoading::Joint GetJoint(int mIndex, int jIndex) const { return skeletonsD[mIndex].joint[jIndex]; }
 	BGLoading::Animation GetAnimation(int mIndex, int aIndex) const { return animationsD[mIndex].animations[aIndex].ani; }
 	BGLoading::KeyFrame GetKeyFrame(int mIndex, int aIndex, int kIndex) const { return animationsD[mIndex].animations[aIndex].keyFrames[kIndex].key; }
 	BGLoading::Transform GetTransform(int mIndex, int aIndex, int kIndex, int tIndex) const { return animationsD[mIndex].animations[aIndex].keyFrames[kIndex].transforms[tIndex].t; }
+	BGLoading::MeshGroup GetMeshGroup(int index) const { return meshGroup[index]; }
 
 
 	float* GetDirLightPos(int index) const { return dirLight[index].position; }
@@ -90,11 +112,9 @@ public:
 	float GetPointLightIntensity(int index) const { return pointLight[index].intensity; }
 	int GetPointLightCount() const { return fileHeader.pointLightCount; }
 
-	unsigned int GetMaterialID(int meshIndex) const { return mesh[meshIndex].materialID; }
-	BGLoading::PhongMaterial GetMaterial(int index) const { return material[index]; }
+	unsigned int GetMaterialID(int meshIndex) const { return loaderMesh[meshIndex].materialID; }
 	int GetMaterialCount() const { return fileHeader.materialCount; }
 
 	int GetMeshGroupCount() const { return fileHeader.groupCount; }
-	BGLoading::MeshGroup GetMeshGroup(int index) const { return meshGroup[index]; }
 };
 

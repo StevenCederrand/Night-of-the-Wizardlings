@@ -38,7 +38,6 @@
 
 
 //Custom
-#include <Loader/BGLoader.h>
 #include <Mesh/MeshFormat.h>
 #include <Mesh/Mesh.h>
 #include <Renderer/Shader.h>
@@ -50,6 +49,7 @@
 
 const std::string SHADERPATH = "Assets/Shaders/";
 const std::string TEXTUREPATH = "Assets/Textures/";
+const std::string MESHPATH = "Assets/Meshes/";
 
 const unsigned int SCREEN_WIDTH = 1280;
 const unsigned int SCREEN_HEIGHT = 720;
