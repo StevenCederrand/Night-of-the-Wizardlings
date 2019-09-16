@@ -58,3 +58,28 @@ void Mesh::setUpMesh(float* inVertices, int inVertexCount, int* inIndices, int i
 	}
 
 }
+
+void Mesh::setUpBuffers()
+{
+	glGenVertexArrays(1, &vertexBuffer.vao);
+	glGenBuffers(1, &vertexBuffer.vbo);
+	glGenBuffers(1, &vertexBuffer.ibo);
+
+	glBindVertexArray(vertexBuffer.vao);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.vbo);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertices), &vertices[0], GL_STATIC_DRAW); 
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertexBuffer.ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, faces.size() * sizeof(unsigned int),
+		&faces[0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertices), (void*)0);
+	// vertex normals
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertices), (void*)offsetof(Vertices, Normals));
+	// vertex texture coords
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertices), (void*)offsetof(Vertices, UV));
+	glBindVertexArray(0);
+}

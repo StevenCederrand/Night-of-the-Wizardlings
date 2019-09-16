@@ -1,7 +1,7 @@
 #pragma once
 #include <Pch/Pch.h>
 
-struct Verticex
+struct Vertices
 {
 	glm::vec3 position;
 	glm::vec2 UV;
@@ -11,4 +11,11 @@ struct Verticex
 struct Face
 {
 	int indices[3];
+};
+
+struct Buffers
+{
+	GLuint vao;
+	GLuint vbo;
+	GLuint ibo;
 };
