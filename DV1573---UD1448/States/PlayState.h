@@ -16,6 +16,7 @@ private:
 	Cube *m_cube;
 	Renderer* m_renderer;
 	ShaderMap* m_shaderMap;
+	Mesh m_mesh;
 };
 
 

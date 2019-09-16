@@ -52,6 +52,10 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Texture\stb_image.cpp">
+    <ClCompile Include="Loader\BGLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh\Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -92,7 +96,18 @@
     <ClInclude Include="GameObject\Cube.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+
     <ClInclude Include="Texture\stb_image.h">
+    <ClInclude Include="Loader\BGLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh\Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Loader\LoaderFormat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh\MeshFormat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

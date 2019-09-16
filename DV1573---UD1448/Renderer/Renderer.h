@@ -1,7 +1,7 @@
 #pragma once
 #include <Pch/Pch.h>
 #include <GameObject/Cube.h>
-
+#include <Mesh/MeshFormat.h>
 
 class Renderer
 {
@@ -26,7 +26,7 @@ public:
 	void destroy();
 	const GLuint& getVBO() const;
 	void render(Cube* cube);
-	void render(Buffer buffer, glm::mat4 worldMat);
+	void render(Buffers buffer, glm::vec3 worldPos);
 
 
 	Camera* getMainCamera() const;

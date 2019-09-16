@@ -60,7 +60,7 @@ void Renderer::render(Cube* cube) {
 	glBindVertexArray(0);
 }
 
-void Renderer::render(Buffer buffer, glm::mat4 worldMat) {
+void Renderer::render(Buffers buffer, glm::vec3 worldPos) {
 	m_camera->update(m_gWindow);
 
 	ShaderMap::getInstance()->useByName("Basic_Forward");
@@ -68,14 +68,15 @@ void Renderer::render(Buffer buffer, glm::mat4 worldMat) {
 	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("viewMatrix", m_camera->getViewMat());
 	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("projectionMatrix", m_camera->getProjMat());
 
-	glBindVertexArray(buffer.VAO);
+	glBindVertexArray(buffer.vao);
 
+	glm::mat4 worldMatrix = glm::mat4(1.0f);
+	worldMatrix = glm::translate(worldMatrix, worldPos);
 
-	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("modelMatrix", worldMat);
+	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("modelMatrix", worldMatrix);
+	
+	glDrawElements(GL_TRIANGLES, buffer.nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
-
-	glDrawElements(GL_TRIANGLES, buffer.indicesCount, GL_UNSIGNED_INT, NULL);
-	//glDrawArrays(GL_TRIANGLES, 0, buffer.sizeOfData);
 	glBindVertexArray(0);
 
 }

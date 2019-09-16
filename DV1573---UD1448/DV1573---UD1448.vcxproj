@@ -173,6 +173,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="GameObject\Cube.cpp" />
+    <ClCompile Include="Loader\BGLoader.cpp" />
+    <ClCompile Include="Mesh\Mesh.cpp" />
     <ClCompile Include="Pch\Pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -213,6 +215,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameObject\Cube.h" />
+    <ClInclude Include="Loader\BGLoader.h" />
+    <ClInclude Include="Mesh\Mesh.h" />
+    <ClInclude Include="Loader\LoaderFormat.h" />
+    <ClInclude Include="Mesh\MeshFormat.h" />
     <ClInclude Include="Pch\Pch.h" />
     <ClInclude Include="Renderer\Camera.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>

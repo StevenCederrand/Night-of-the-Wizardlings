@@ -4,7 +4,22 @@
 PlayState::PlayState()
 {
 	logTrace("Playstate created");
-	ShaderMap::getInstance()->createShader("Basic_Forward", "VertexShader.vs", "FragShader.fs");
+
+
+	BGLoader tempLoader;
+	tempLoader.LoadMesh("Assets/Meshes/SexyCubex2.meh");
+
+	m_mesh.setUpMesh(tempLoader.GetVertices(0),
+		tempLoader.GetVertexCount(0),
+		tempLoader.GetFaces(0),
+		tempLoader.GetFaceCount(0));
+	m_mesh.setUpBuffers();
+	tempLoader.Unload();
+
+
+	m_shaderMap = m_shaderMap->getInstance();
+	m_shaderMap->createShader("Basic_Forward", "VertexShader.vs", "FragShader.fs");
+
 	m_renderer = m_renderer->getInstance();
 	m_cube = new Cube();
 	m_cube->loadTexture("testTexture.jpg");
@@ -22,5 +37,5 @@ void PlayState::update(float dt)
 
 void PlayState::render()
 {
-	Renderer::getInstance()->render(m_cube->getBuffers(), m_cube->getModelMatrix());
+	Renderer::getInstance()->render(m_mesh.getBuffers(), m_mesh.getPos());
 }

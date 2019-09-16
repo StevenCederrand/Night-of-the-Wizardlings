@@ -23,6 +23,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 #include <GLM/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <glm/common.hpp>
 
 #include "System/Log.h"
@@ -37,11 +38,15 @@
 
 
 //Custom
+#include <Loader/BGLoader.h>
+#include <Mesh/MeshFormat.h>
+#include <Mesh/Mesh.h>
 #include <Renderer/Shader.h>
 #include <Renderer/ShaderMap.h>
 #include <Renderer/Camera.h>	
 #include <Renderer/Renderer.h>
 #include <System/Input.h>
+
 
 const std::string SHADERPATH = "Assets/Shaders/";
 const std::string TEXTUREPATH = "Assets/Textures/";
