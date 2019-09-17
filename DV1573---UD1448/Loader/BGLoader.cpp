@@ -4,6 +4,7 @@
 BGLoader::BGLoader()
 {
 	fileName = "";
+	meshCount = 0;
 
 	meshGroup = nullptr;
 	material = nullptr;
@@ -16,6 +17,7 @@ BGLoader::BGLoader()
 BGLoader::BGLoader(std::string fileName)
 {
 	this->fileName = fileName;
+	meshCount = 0;
 
 	meshGroup = nullptr;
 	material = nullptr;
@@ -37,6 +39,14 @@ void BGLoader::Unload()
 	skeletonsD.clear();
 	meshVert.clear();
 	meshFace.clear();
+
+	for (std::vector<Vertices> vector : bggVertices)
+		vector.clear();
+	bggVertices.clear();
+
+	for (std::vector<Face> vector : bggFaces)
+		vector.clear();
+	bggFaces.clear();
 
 
 	if (meshGroup)
@@ -73,6 +83,53 @@ void BGLoader::Unload()
 
 
 	fileName = "";
+}
+
+void BGLoader::BGFormatData()
+{
+	meshCount = fileHeader.meshCount;
+
+
+	bggVertices.resize(meshCount);
+	bggFaces.resize(meshCount);
+	bggMaterials.resize(meshCount);
+
+	for (int meshId = 0; meshId < meshCount; meshId++)
+	{
+		bggVertices[meshId].resize(GetVertexCount(meshId));
+		bggFaces[meshId].resize(GetFaceCount(meshId));
+
+		// Vertices
+		for (int v = 0; v < bggVertices.size(); v++)
+		{
+			bggVertices[meshId][v].position[0] = meshVert[meshId]->position[0];
+			bggVertices[meshId][v].position[1] = meshVert[meshId]->position[1];
+			bggVertices[meshId][v].position[2] = meshVert[meshId]->position[2];
+
+			bggVertices[meshId][v].UV[0] = meshVert[meshId]->uv[0];
+			bggVertices[meshId][v].UV[1] = meshVert[meshId]->uv[1];
+
+			bggVertices[meshId][v].Normals[0] = meshVert[meshId]->normal[0];
+			bggVertices[meshId][v].Normals[1] = meshVert[meshId]->normal[1];
+			bggVertices[meshId][v].Normals[2] = meshVert[meshId]->normal[2];
+		}
+
+		// Faces
+		for (int f = 0; f < bggFaces.size(); f++)
+		{
+			bggFaces[meshId][f].indices[0] = meshFace[meshId]->indices[0];
+			bggFaces[meshId][f].indices[1] = meshFace[meshId]->indices[1];
+			bggFaces[meshId][f].indices[2] = meshFace[meshId]->indices[2];
+		}
+
+		// Material
+		bggMaterials[meshId].name = (std::string)material[0].name;
+		bggMaterials[meshId].ambient = glm::vec3(*material[0].ambient);
+		bggMaterials[meshId].diffuse = glm::vec3(*material[0].diffuse);
+		bggMaterials[meshId].specular = glm::vec3(*material[0].specular);
+		bggMaterials[meshId].ambient = glm::vec3(*material[0].ambient);
+	}
+
 }
 
 const float* BGLoader::GetVertices(int meshNr)
@@ -135,6 +192,7 @@ const float* BGLoader::GetVertices()
 	return vertices;
 }
 
+
 const int* BGLoader::GetFaces(int meshNr)
 {
 	BGLoading::LoaderMesh tempMesh = loaderMesh[meshNr];
@@ -179,34 +237,6 @@ const int* BGLoader::GetFaces()
 	return faces;
 }
 
-const Material BGLoader::GetMaterial(int meshID)
-{
-	Material tempMat;
-	tempMat.name = (std::string)material[meshID].name;
-
-	tempMat.ambient = glm::vec3(*material[meshID].ambient);
-	tempMat.diffuse = glm::vec3(*material[meshID].diffuse);
-	tempMat.specular = glm::vec3(*material[meshID].specular);
-	tempMat.ambient = glm::vec3(*material[meshID].ambient);
-
-
-	return tempMat;
-}
-
-const Material BGLoader::GetMaterial()
-{
-	Material tempMat;
-	tempMat.name = (std::string)material[0].name;
-
-	tempMat.ambient = glm::vec3(*material[0].ambient);
-	tempMat.diffuse = glm::vec3(*material[0].diffuse);
-	tempMat.specular = glm::vec3(*material[0].specular);
-	tempMat.ambient = glm::vec3(*material[0].ambient);
-
-
-	return tempMat;
-}
-
 bool BGLoader::LoadMesh(std::string fileName)
 {
 	Unload();
@@ -219,6 +249,7 @@ bool BGLoader::LoadMesh(std::string fileName)
 	}
 	else
 	{
+		
 		// Allocate memory based on header
 		binFile.read((char*)&fileHeader, sizeof(BGLoading::BGHeader));
 		meshGroup = new BGLoading::MeshGroup[fileHeader.groupCount];
@@ -228,6 +259,10 @@ bool BGLoader::LoadMesh(std::string fileName)
 		material = new BGLoading::PhongMaterial[fileHeader.materialCount];
 		dirLight = new BGLoading::DirLight[fileHeader.dirLightCount];
 		pointLight = new BGLoading::PointLight[fileHeader.pointLightCount];
+
+		logTrace("Opening file " + (std::string)fileName + 
+			", Meshes: " + std::to_string(fileHeader.meshCount) + 
+			", Materials: " + std::to_string(fileHeader.materialCount));
 
 		
 		// Fill data
@@ -304,10 +339,7 @@ bool BGLoader::LoadMesh(std::string fileName)
 			animationsD.push_back(newAnimations);
 			skeletonsD.push_back(newSkeleton);
 
-			logTrace("Mesh " + (std::string)loaderMesh[i].name + " imported," +
-				" Vertices: " + std::to_string(loaderMesh[i].vertexCount) +
-				" Faces: " + std::to_string(loaderMesh[i].faceCount)
-				);
+			
 		}
 
 		for (int i = 0; i < fileHeader.materialCount; i++)
@@ -326,7 +358,8 @@ bool BGLoader::LoadMesh(std::string fileName)
 	}
 	binFile.close();
 
-
+	// Parse data to a more comfortable format
+	BGFormatData();
 
 	return true;
 }

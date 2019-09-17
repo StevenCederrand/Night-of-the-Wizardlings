@@ -3,6 +3,7 @@
 
 #define NAME_SIZE_L 256
 
+// Format that both the exporter and importer share
 namespace BGLoading
 {
 	struct BGHeader

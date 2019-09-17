@@ -16,10 +16,16 @@ class BGLoader
 private:
 	std::string	fileName;
 
+	int meshCount;
+
+	std::vector<std::vector<Vertices>> bggVertices;
+	std::vector<std::vector<Face>> bggFaces;
+	std::vector<Material> bggMaterials;
+
 	float* vertices;
 	int* faces;
 
-	// Temporary paths to load data into
+	// Temporary shared format to load data into
 	BGLoading::BGHeader	fileHeader;
 	BGLoading::MeshGroup* meshGroup;
 	BGLoading::PhongMaterial* material;
@@ -28,7 +34,6 @@ private:
 	BGLoading::PointLight* pointLight;
 	std::vector<BGLoading::Vertex*> meshVert;
 	std::vector<BGLoading::Face*> meshFace;
-
 	std::vector<BGLoading::MeshAnis> animationsD;
 	std::vector<BGLoading::MeshSkeleton> skeletonsD;
 
@@ -38,10 +43,11 @@ public:
 	BGLoader(std::string filesName);		
 	~BGLoader();
 	void Unload();
+	void BGFormatData();
 
 	bool LoadMesh(std::string fileName);	// Load a file
 
-	// Returns the name of the opened file
+	// Returns the name of the file
 	std::string GetFileName() const { return fileName; }
 
 	//  Returns the meshcount of the file
@@ -49,9 +55,37 @@ public:
 
 	//  Returns the name of a specifc mesh
 	const std::string GetMeshName(int meshID) { return (std::string)loaderMesh[meshID].name; }
-
 	//  Returns the name of the first mesh
 	const std::string GetMeshName() { return (std::string)loaderMesh[0].name; }
+
+	// Returns the vertices of a specific mesh
+	const std::vector<Vertices> GetVerticesBGG(int meshId) { return bggVertices[meshId];  }
+	// Returns the vertices of the first mesh
+	const std::vector<Vertices> GetVerticesBGG() { return bggVertices[0]; }
+
+	// Returns the faces of a specific mesh
+	const std::vector<Face> GetFacesBGG(int meshId) { return bggFaces[meshId]; }
+	// Returns the faces of the first mesh
+	const std::vector<Face> GetFacesBGG() { return bggFaces[0]; }
+
+	// Returns a specific material
+	const Material GetMaterial(int meshId) { return bggMaterials[meshId]; }
+	// Returns the first material in the file
+	const Material GetMaterial() { return bggMaterials[0]; }
+
+	// Returns a specific albedo map
+	const std::string GetAlbedo(int meshId) { return (std::string)material[meshId].albedo; }
+	// Returns the first albedo map
+	const std::string GetAlbedo() { return (std::string)material[0].albedo; }
+
+	// Returns a specific normal map
+	const std::string GetNormalMap(int meshId) { return (std::string)material[meshId].normal; }
+	// Returns the first normal map
+	const std::string GetNormalMap() { return (std::string)material[0].normal; }
+
+
+
+	// TODO: REMOVE THESE
 
 	// Returns the vertices of a specific mesh
 	// Returns all the verices in format posX/posY/PosZ/uvX/uvY/normalX/normalY/normalZ/posX/posY.... 
@@ -85,33 +119,15 @@ public:
 	// Returns the face count of the first mesh
 	const int GetFaceCount()  { return loaderMesh[0].faceCount; }
 
-	// Returns a specific material
-	const Material GetMaterial(int meshID);			// Project specific
-
-	// Returns the first material in the file
-	const Material GetMaterial();					// Project specific
-
-	// Returns a specific albedo map
-	const std::string GetAlbedo(int meshId) { return (std::string)material[meshId].albedo; }
-
-	// Returns the first albedo map
-	const std::string GetAlbedo() { return (std::string)material[0].albedo; }
-
-	// Returns a specific normal map
-	const std::string GetNormalMap(int meshId) { return (std::string)material[meshId].normal; }
-
-	// Returns the first normal map
-	const std::string GetNormalMap() { return (std::string)material[0].normal; }
-
-
-
-	const BGLoading::PhongMaterial GetMaterial(int meshID) const { return material[meshID]; }
-	const BGLoading::PhongMaterial GetMaterial() const { return material[0]; }
 
 	// Ignore below, will be reformated or removed
 	BGLoading::LoaderMesh GetLoaderMesh(int meshId) const { return loaderMesh[meshId]; }
 	const BGLoading::Vertex* GetLoaderVertices(int meshId) { return meshVert[meshId]; }
 	const BGLoading::Face* GetLoaderFaces(int meshId) { return meshFace[meshId]; }
+
+	const BGLoading::PhongMaterial GetMaterial(int meshID) const { return material[meshID]; }
+	const BGLoading::PhongMaterial GetMaterial() const { return material[0]; }
+
 
 	BGLoading::Skeleton GetSkeleton(int index) const { return loaderMesh[index].skeleton; }
 	BGLoading::Joint GetJoint(int mIndex, int jIndex) const { return skeletonsD[mIndex].joint[jIndex]; }
@@ -128,7 +144,6 @@ public:
 	float* GetDirLightColor(int index) const { return dirLight[index].color; }
 	int GetDirLightCount() const { return fileHeader.dirLightCount; }
 
-	//float GetPointLightPos(int index, int posIndex								) const { return pointLight[index].position[posIndex]; }
 	float* GetPointLightPos(int index) const { return pointLight[index].position; }
 	float* GetPointLightColor(int index) const { return pointLight[index].color; }
 
