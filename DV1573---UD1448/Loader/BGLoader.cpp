@@ -202,7 +202,6 @@ const Material BGLoader::GetMaterial(int meshID)
 	tempMat.ambient = glm::vec3(*material[meshID].ambient);
 	tempMat.diffuse = glm::vec3(*material[meshID].diffuse);
 	tempMat.specular = glm::vec3(*material[meshID].specular);
-	tempMat.ambient = glm::vec3(*material[meshID].ambient);
 
 
 	return tempMat;

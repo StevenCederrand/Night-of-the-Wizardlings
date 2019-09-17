@@ -82,8 +82,6 @@ void Mesh::setUpBuffers()
 	glBindVertexArray(0);
 
 	vertexBuffer.nrOfFaces = faces.size();
-
-
 }
 
 

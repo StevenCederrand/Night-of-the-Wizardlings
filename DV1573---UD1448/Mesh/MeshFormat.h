@@ -21,8 +21,6 @@ struct Material
 	glm::vec3 specular;
 
 	std::vector<GLuint> textureID;
-	//std::string albedo;
-	//std::string normal;
 };
 
 struct Buffers

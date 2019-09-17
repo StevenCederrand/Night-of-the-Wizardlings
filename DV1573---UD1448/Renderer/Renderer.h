@@ -3,6 +3,12 @@
 #include <GameObject/Cube.h>
 #include <Mesh/MeshFormat.h>
 
+struct ObjectRenderData {
+	Buffers buffer;
+	glm::vec3 worldPos;
+};
+
+
 class Renderer
 {
 private:
