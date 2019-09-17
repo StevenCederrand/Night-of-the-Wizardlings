@@ -16,8 +16,6 @@ private:
 	std::vector<Vertices> vertices;
 	Buffers vertexBuffer;
 
-	//GLuint vao, vbo, ibo;
-
 public:
 	Mesh();
 	~Mesh();

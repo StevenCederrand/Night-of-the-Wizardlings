@@ -15,6 +15,7 @@ Mesh::Mesh()
 
 Mesh::~Mesh()
 {
+
 }
 
 void Mesh::setUpMesh(float* inVertices, int inVertexCount, int* inIndices, int inFaceCount)
@@ -56,6 +57,9 @@ void Mesh::setUpMesh(float* inVertices, int inVertexCount, int* inIndices, int i
 			k++;
 		}
 	}
+
+	delete tempVert;
+	delete tempFace;
 
 }
 

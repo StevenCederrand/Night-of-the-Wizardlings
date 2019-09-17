@@ -18,7 +18,6 @@ private:
 	void initGraphics();
 	
 	GLFWwindow* m_window;
-	Camera* m_camera;
 	Input* m_input;
 	StateManager* m_stateManager;
 	bool m_vsync;
