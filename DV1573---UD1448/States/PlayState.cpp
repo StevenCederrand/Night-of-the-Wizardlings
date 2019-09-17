@@ -7,7 +7,7 @@ PlayState::PlayState()
 {
 	logTrace("Playstate created");
 
-	// TODO move to mesh and file filepath
+	// TODO move this to be more clean and change the setUpMesh function
 	BGLoader tempLoader;
 	tempLoader.LoadMesh(MESHPATH + "WalkingTest.mesh");
 
@@ -16,6 +16,8 @@ PlayState::PlayState()
 		tempLoader.GetFaces(0),
 		tempLoader.GetFaceCount(0));
 	m_mesh.setUpBuffers();
+
+
 
 	Material tempMaterial;
 	tempMaterial = tempLoader.GetMaterial(0);
