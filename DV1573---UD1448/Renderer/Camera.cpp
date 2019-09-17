@@ -103,7 +103,7 @@ void Camera::mouseControls(float xOffset, float yOffset, bool pitchLimit)
 		if (camPitch > 89.0f)
 			camPitch = 89.0f;
 		if (camPitch < -89.0f)
-			camPitch = 89.0f;
+			camPitch = -89.0f;
 	}
 
 	calcVectors();
