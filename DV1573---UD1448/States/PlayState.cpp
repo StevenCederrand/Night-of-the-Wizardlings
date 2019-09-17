@@ -18,6 +18,7 @@ PlayState::PlayState()
 	m_mesh.setUpBuffers();
 
 
+
 	tempLoader.Unload();
 
 	m_shaderMap = m_shaderMap->getInstance();

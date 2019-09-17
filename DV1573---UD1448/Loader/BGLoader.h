@@ -1,6 +1,7 @@
 #pragma once
 #include <Pch/Pch.h>
 #include "LoaderFormat.h"
+#include "Mesh/MeshFormat.h"
 
 //Example usage:
 /*
@@ -93,7 +94,8 @@ public:
 
 	BGLoading::Skeleton GetSkeleton(int index) const { return loaderMesh[index].skeleton; }
 	BGLoading::Joint GetJoint(int mIndex, int jIndex) const { return skeletonsD[mIndex].joint[jIndex]; }
-	BGLoading::Animation GetAnimation(int mIndex, int aIndex) const { return animationsD[mIndex].animations[aIndex].ani; }
+	BGLoading::MeshAnis GetAnimation(int mIndex,) const { return animationsD[mIndex]; }
+	BGLoading::Animation GetAnimationHeader(int mIndex, int aIndex) const { return animationsD[mIndex].animations[aIndex].ani; }
 	BGLoading::KeyFrame GetKeyFrame(int mIndex, int aIndex, int kIndex) const { return animationsD[mIndex].animations[aIndex].keyFrames[kIndex].key; }
 	BGLoading::Transform GetTransform(int mIndex, int aIndex, int kIndex, int tIndex) const { return animationsD[mIndex].animations[aIndex].keyFrames[kIndex].transforms[tIndex].t; }
 	BGLoading::MeshGroup GetMeshGroup(int index) const { return meshGroup[index]; }
