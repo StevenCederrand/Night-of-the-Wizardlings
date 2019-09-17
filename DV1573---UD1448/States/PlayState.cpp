@@ -17,6 +17,12 @@ PlayState::PlayState()
 		tempLoader.GetFaceCount(0));
 	m_mesh.setUpBuffers();
 
+	Material tempMaterial;
+	tempMaterial.ambient[0] = tempLoader.GetMaterial(0).ambient[0];
+
+	
+	m_materialMap = m_materialMap->getInstance();
+	m_materialMap->createMaterial((std::string)tempLoader.GetMaterial(0).name, tempMaterial);
 
 
 	tempLoader.Unload();

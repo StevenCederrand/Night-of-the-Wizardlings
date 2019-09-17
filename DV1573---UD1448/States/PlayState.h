@@ -2,6 +2,8 @@
 #define _PLAYSTATE_H
 #include <Pch/Pch.h>
 #include "System/State.h"
+#include <GFX/MaterialMap.h>
+
 
 class PlayState : public State {
 
@@ -16,6 +18,7 @@ private:
 	Cube *m_cube;
 	Renderer* m_renderer;
 	ShaderMap* m_shaderMap;
+	MaterialMap* m_materialMap;
 	Mesh m_mesh;
 };
 

@@ -13,7 +13,7 @@ struct Face
 	int indices[3];
 };
 
-struct Materials
+struct Material
 {
 	std::string name;
 	glm::vec3 ambient;

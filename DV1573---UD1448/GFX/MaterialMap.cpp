@@ -15,44 +15,23 @@ MaterialMap* MaterialMap::getInstance()
 
 void MaterialMap::cleanUp()
 {
-	std::map<std::string, Materials*>::iterator it;
+	std::map<std::string, Material*>::iterator it;
 
-	for (it = m_Materials.begin(); it != m_Materials.end(); it++) {
+	for (it = m_Material.begin(); it != m_Material.end(); it++) {
 		delete it->second;
 	}
 
-	m_Materials.clear();
+	m_Material.clear();
 }
 
 bool MaterialMap::existsWithName(std::string name)
 {
-	if (m_Materials.find(name) != m_Materials.end()) {
+	if (m_Material.find(name) != m_Material.end()) {
 		return true;
 	}
 	return false;
 }
 
-void MaterialMap::reload()
-{
-	//std::map<std::string, Shader*>::iterator it;
-
-	//for (it = m_Materials.begin(); it != m_Materials.end(); it++) {
-	//	Materials* tempMaterial = new Materials(it->second->getShaderNames()[0], it->second->getShaderNames()[1]);
-	//	if (tempMaterial->getValid()) {
-	//		delete it->second;
-	//		it->second = tempShader;
-
-	//		logInfo("Recompile Shader Completed");
-	//	}
-	//	else {
-	//		delete tempShader;
-	//	}
-	//}
-
-	//for (it = m_shaderMap.begin(); it != m_shaderMap.end(); it++) {
-	//	logTrace("Shader ID: {0}", it->second->getShaderID());
-	//}
-}
 
 void MaterialMap::useByName(std::string name)
 {
@@ -61,14 +40,26 @@ void MaterialMap::useByName(std::string name)
 	//}
 }
 
-Materials* MaterialMap::getMaterial(std::string name)
+Material* MaterialMap::getMaterial(std::string name)
 {
 	if (existsWithName(name))
 	{
-		return m_Materials[name];
+		return m_Material[name];
 	}
 
 	return nullptr;
+}
+
+Material* MaterialMap::createMaterial(std::string name, Material material)
+{
+	if (existsWithName(name))
+	{
+		return nullptr;
+	}
+	Material* newMaterial = new Material();
+	*newMaterial = material;
+	m_Material[name] = newMaterial;
+	return newMaterial;
 }
 
 void MaterialMap::destroy()

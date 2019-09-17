@@ -86,6 +86,7 @@ void Mesh::setUpBuffers()
 
 }
 
+
 Buffers Mesh::getBuffers() const
 {
 	return vertexBuffer;

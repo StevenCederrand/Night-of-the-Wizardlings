@@ -16,11 +16,6 @@ private:
 	std::vector<Vertices> vertices;
 	Buffers vertexBuffer;
 
-	int materialCount;
-	std::vector<Materials> materials;
-
-	std::string materialName;
-
 
 public:
 	Mesh();
@@ -28,7 +23,6 @@ public:
 
 	void setUpMesh(const float* inVertices, int inVertexCount, const int* inIndices, int inFaceCount);
 	void setUpBuffers();
-	void setUpMaterials();
 
 	glm::vec3 getPos() const { return m_worldPos; }
 	glm::quat getRot() const { return m_worldPos; }
