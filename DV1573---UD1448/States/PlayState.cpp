@@ -29,18 +29,26 @@ PlayState::PlayState()
 	CEGUI::PushButton* btn = static_cast<CEGUI::PushButton*>(m_gui.createWidget("TaharezLook/Button", glm::vec4(0.5f, 0.5f, 0.1f, 0.05f), glm::vec4(0.0f), "TestButton"));
 	btn->setText("Hello");
 
-	
+	CEGUI::Combobox* combobox = static_cast<CEGUI::Combobox*>(m_gui.createWidget("TaharezLook/Combobox", glm::vec4(0.5f, 0.6f, 0.1f, 0.05f), glm::vec4(0.0f), "TestCombobox"));
+
+	CEGUI::Combobox* combobox2 = static_cast<CEGUI::Combobox*>(m_gui.createWidget("TaharezLook/Combobox", glm::vec4(0.5f, 0.7f, 0.1f, 0.05f), glm::vec4(0.0f), "TestCombobox2"));
+
+	m_gui.setMouseCursor("TaharezLook/MouseArrow");
+	m_gui.showMouseCursor();
+
 }
 
 PlayState::~PlayState()
 {
-
 	m_gui.destroy();
 	delete m_cube;
 }
 
 void PlayState::update(float dt)
 {
+
+	m_gui.update(dt);
+
 	m_renderer->update(dt);
 }
 

@@ -3,6 +3,53 @@
 
 CEGUI::OpenGL3Renderer* Gui:: m_guiRenderer = nullptr;
 
+unsigned int GlfwToCeguiKey(int glfwKey)
+{
+	switch (glfwKey)
+	{
+	case GLFW_KEY_UNKNOWN: return 0;
+	case GLFW_KEY_ESCAPE: return CEGUI::Key::Escape;
+	case GLFW_KEY_F1: return CEGUI::Key::F1;
+	case GLFW_KEY_F2: return CEGUI::Key::F2;
+	case GLFW_KEY_F3: return CEGUI::Key::F3;
+	case GLFW_KEY_F4: return CEGUI::Key::F4;
+	case GLFW_KEY_F5: return CEGUI::Key::F5;
+	case GLFW_KEY_F6: return CEGUI::Key::F6;
+	case GLFW_KEY_F7: return CEGUI::Key::F7;
+	case GLFW_KEY_F8: return CEGUI::Key::F8;
+	case GLFW_KEY_F9: return CEGUI::Key::F9;
+	case GLFW_KEY_F10: return CEGUI::Key::F10;
+	case GLFW_KEY_F11: return CEGUI::Key::F11;
+	case GLFW_KEY_F12: return CEGUI::Key::F12;
+	case GLFW_KEY_F13: return CEGUI::Key::F13;
+	case GLFW_KEY_F14: return CEGUI::Key::F14;
+	case GLFW_KEY_F15: return CEGUI::Key::F15;
+	case GLFW_KEY_UP: return CEGUI::Key::ArrowUp;
+	case GLFW_KEY_DOWN: return CEGUI::Key::ArrowDown;
+	case GLFW_KEY_LEFT: return CEGUI::Key::ArrowLeft;
+	case GLFW_KEY_RIGHT: return CEGUI::Key::ArrowRight;
+	case GLFW_KEY_TAB: return CEGUI::Key::Tab;
+	case GLFW_KEY_ENTER: return CEGUI::Key::Return;
+	case GLFW_KEY_BACKSPACE: return CEGUI::Key::Backspace;
+	case GLFW_KEY_INSERT: return CEGUI::Key::Insert;
+	case GLFW_KEY_HOME: return CEGUI::Key::Home;
+	case GLFW_KEY_END: return CEGUI::Key::End;
+	case GLFW_KEY_KP_ENTER: return CEGUI::Key::NumpadEnter;
+	default: return 0;
+	}
+}
+
+CEGUI::MouseButton GlfwToCeguiButton(int glfwButton)
+{
+	switch (glfwButton)
+	{
+	case GLFW_MOUSE_BUTTON_LEFT: return CEGUI::LeftButton;
+	case GLFW_MOUSE_BUTTON_RIGHT: return CEGUI::RightButton;
+	case GLFW_MOUSE_BUTTON_MIDDLE: return CEGUI::MiddleButton;
+	default: return CEGUI::NoButton;
+	}
+}
+
 void Gui::init()
 {
 	if (m_guiRenderer == nullptr)
@@ -61,6 +108,57 @@ void Gui::setWidgetDestRect(CEGUI::Window* widget, const glm::vec4& destRecPerc,
 {
 	widget->setPosition(CEGUI::UVector2(CEGUI::UDim(destRecPerc.x, destRecPix.x), CEGUI::UDim(destRecPerc.y, destRecPix.y)));
 	widget->setSize(CEGUI::USize(CEGUI::UDim(destRecPerc.z, destRecPix.z), CEGUI::UDim(destRecPerc.w, destRecPix.w)));
+}
+
+void Gui::setMouseCursor(const std::string& imageFile)
+{
+	m_context->getMouseCursor().setDefaultImage(imageFile);
+}
+
+void Gui::showMouseCursor()
+{
+	m_context->getMouseCursor().show();
+}
+
+void Gui::hideMouseCursor()
+{
+	m_context->getMouseCursor().hide();
+}
+
+void Gui::update(float dt)
+{
+	m_context->injectTimePulse(dt);
+	CEGUI::utf32 codePoint;
+	if (m_context->getMouseCursor().isVisible())
+	{
+		double x, y;
+		glfwGetCursorPos(glfwGetCurrentContext(), &x, &y);
+		m_context->injectMousePosition(x,y);
+	}
+
+	if (Input::isAnyKeyPressed())
+	{
+		CEGUI::Key::Scan code = (CEGUI::Key::Scan)GlfwToCeguiKey(Input::getLatestKeyPressed());
+		m_context->injectKeyDown(code);
+	}
+	if (Input::isAnyKeyReleased())
+	{
+		CEGUI::Key::Scan code = (CEGUI::Key::Scan)GlfwToCeguiKey(Input::getLatestKeyPressed());
+		m_context->injectKeyUp(code);
+	}  
+	if (Input::isTextInput())
+	{
+		m_context->injectChar((CEGUI::utf32)Input::getLatestPressedCharacter());
+	}
+	if (Input::isAnyMousePressed())
+	{
+		m_context->injectMouseButtonDown(GlfwToCeguiButton(Input::getLatestPressedMouseButton()));
+	} 
+	if (Input::isAnyMouseReleased())
+	{
+		m_context->injectMouseButtonUp(GlfwToCeguiButton(Input::getLatestPressedMouseButton()));
+	}
+	
 }
 
 void Gui::draw()

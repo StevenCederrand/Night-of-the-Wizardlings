@@ -87,7 +87,7 @@ void Application::run()
 			glfwSetWindowShouldClose(m_window, true);
 		}
 	
-		if (Input::isKeyPressed(GLFW_KEY_R)) {
+		if (Input::isKeyPressed(GLFW_KEY_F1)) {
 			ShaderMap::getInstance()->reload();
 		}
 		//Skip the first frame, this is because we 
