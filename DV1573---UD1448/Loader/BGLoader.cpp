@@ -210,10 +210,17 @@ const Material BGLoader::GetMaterial(int meshID)
 
 const Material BGLoader::GetMaterial()
 {
-	return Material();
+	Material tempMat;
+	tempMat.name = (std::string)material[0].name;
+
+	tempMat.ambient = glm::vec3(*material[0].ambient);
+	tempMat.diffuse = glm::vec3(*material[0].diffuse);
+	tempMat.specular = glm::vec3(*material[0].specular);
+	tempMat.ambient = glm::vec3(*material[0].ambient);
+
+
+	return tempMat;
 }
-
-
 
 bool BGLoader::LoadMesh(std::string fileName)
 {
