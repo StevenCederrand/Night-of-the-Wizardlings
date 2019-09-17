@@ -11,28 +11,10 @@
 */
 
 
-// Temporary Mesh Data, might delete 
-struct BGMesh
-{
-	std::string name;
-
-	float translation[3];
-	float rotation[3];
-	float scale[3];
-
-	std::vector<BGLoading::Vertex> vertices;
-	std::vector<BGLoading::Face> faces;
-	
-	BGLoading::PhongMaterial material;
-
-};
-
 class BGLoader
 {
 private:
 	std::string	fileName;
-
-	std::vector<BGMesh> Meshes;
 
 	float* vertices;
 	int* faces;
@@ -52,7 +34,8 @@ private:
 
 public:
 	BGLoader();
-	BGLoader(std::string filesName);		// Default constructor to directly load a file
+	// Default constructor to directly load a file
+	BGLoader(std::string filesName);		
 	~BGLoader();
 	void Unload();
 
@@ -65,10 +48,10 @@ public:
 	const int GetMeshCount() const { return fileHeader.meshCount; }
 
 	//  Returns the name of a specifc mesh
-	const char* GetMeshName(int meshId);
+	const std::string GetMeshName(int meshID) { return (std::string)loaderMesh[meshID].name; }
 
 	//  Returns the name of the first mesh
-	const char* GetMeshName();
+	const std::string GetMeshName() { return (std::string)loaderMesh[0].name; }
 
 	// Returns the vertices of a specific mesh
 	// Returns all the verices in format posX/posY/PosZ/uvX/uvY/normalX/normalY/normalZ/posX/posY.... 
@@ -120,10 +103,10 @@ public:
 	// Returns the first normal map
 	const std::string GetNormalMap() { return (std::string)material[0].normal; }
 
+
+
 	const BGLoading::PhongMaterial GetMaterial(int meshID) const { return material[meshID]; }
 	const BGLoading::PhongMaterial GetMaterial() const { return material[0]; }
-
-
 
 	// Ignore below, will be reformated or removed
 	BGLoading::LoaderMesh GetLoaderMesh(int meshId) const { return loaderMesh[meshId]; }

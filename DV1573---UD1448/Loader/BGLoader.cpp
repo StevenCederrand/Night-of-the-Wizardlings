@@ -33,7 +33,6 @@ BGLoader::~BGLoader()
 
 void BGLoader::Unload()
 {	
-	Meshes.clear();
 	animationsD.clear();
 	skeletonsD.clear();
 	meshVert.clear();
@@ -74,20 +73,6 @@ void BGLoader::Unload()
 
 
 	fileName = "";
-}
-
-const char* BGLoader::GetMeshName(int meshID)
-{
-	char* meshName = loaderMesh[meshID].name;
-
-	return meshName;
-}
-
-const char* BGLoader::GetMeshName()
-{
-	char* meshName = loaderMesh[0].name;
-
-	return meshName;
 }
 
 const float* BGLoader::GetVertices(int meshNr)
@@ -245,8 +230,6 @@ bool BGLoader::LoadMesh(std::string fileName)
 		pointLight = new BGLoading::PointLight[fileHeader.pointLightCount];
 
 		
-		Meshes.resize(fileHeader.meshCount);
-
 		// Fill data
 		for (int i = 0; i < fileHeader.groupCount; i++)
 		{
@@ -257,29 +240,17 @@ bool BGLoader::LoadMesh(std::string fileName)
 		{
 			binFile.read((char*)&loaderMesh[i], sizeof(BGLoading::LoaderMesh));
 
-
-			Meshes[i].name = (std::string)loaderMesh[i].name;
-			for (int p = 0; p < 3; p++)
-			{
-				Meshes[i].translation[p] = loaderMesh[i].translation[p];
-				Meshes[i].rotation[p] = loaderMesh[i].rotation[p];
-				Meshes[i].scale[p] = loaderMesh[i].scale[p];
-			}
-
 			// Allocate memory for the array of vertex arrays
 			meshVert[i] = new BGLoading::Vertex[loaderMesh[i].vertexCount];
-			Meshes[i].vertices.resize(loaderMesh[i].vertexCount);
 
 			//Read data for all the vertices, this includes pos, uv, normals, tangents and binormals.
 			for (int v = 0; v < loaderMesh[i].vertexCount; v++)
 			{
 				binFile.read((char*)&meshVert[i][v], sizeof(BGLoading::Vertex));
-				Meshes[i].vertices[v] = meshVert[i][v];
 			}
 
 			// Allocate memory for the array of face arrays
 			meshFace[i] = new BGLoading::Face[loaderMesh[i].faceCount];
-			Meshes[i].faces.resize(loaderMesh[i].faceCount);
 			//Read data for all the vertices, this includes pos, uv, normals, tangents and binormals.
 			for (int f = 0; f < loaderMesh[i].faceCount; f++)
 			{
@@ -333,9 +304,9 @@ bool BGLoader::LoadMesh(std::string fileName)
 			animationsD.push_back(newAnimations);
 			skeletonsD.push_back(newSkeleton);
 
-			logTrace("Mesh " + Meshes[i].name + " imported," + 
-				" Vertices: " + std::to_string(Meshes[i].vertices.size()) +
-				" Faces: " + std::to_string(Meshes[i].faces.size())
+			logTrace("Mesh " + (std::string)loaderMesh[i].name + " imported," +
+				" Vertices: " + std::to_string(loaderMesh[i].vertexCount) +
+				" Faces: " + std::to_string(loaderMesh[i].faceCount)
 				);
 		}
 
