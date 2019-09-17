@@ -194,6 +194,25 @@ const int* BGLoader::GetFaces()
 	return faces;
 }
 
+const Material BGLoader::GetMaterial(int meshID)
+{
+	Material tempMat;
+	tempMat.name = (std::string)material[meshID].name;
+
+	tempMat.ambient = glm::vec3(*material[meshID].ambient);
+	tempMat.diffuse = glm::vec3(*material[meshID].diffuse);
+	tempMat.specular = glm::vec3(*material[meshID].specular);
+	tempMat.ambient = glm::vec3(*material[meshID].ambient);
+
+
+	return Material();
+}
+
+const Material BGLoader::GetMaterial()
+{
+	return Material();
+}
+
 
 
 bool BGLoader::LoadMesh(std::string fileName)

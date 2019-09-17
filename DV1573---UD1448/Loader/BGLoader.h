@@ -58,43 +58,81 @@ public:
 
 	bool LoadMesh(std::string fileName);	// Load a file
 
-
+	// Returns the name of the opened file
 	std::string GetFileName() const { return fileName; }
 
-	const int GetMeshCount() const { return fileHeader.meshCount; }	// Get meshes
+	//  Returns the meshcount of the file
+	const int GetMeshCount() const { return fileHeader.meshCount; }
+
+	//  Returns the name of a specifc mesh
 	const char* GetMeshName(int meshId);
+
+	//  Returns the name of the first mesh
 	const char* GetMeshName();
 
+	// Returns the vertices of a specific mesh
 	// Returns all the verices in format posX/posY/PosZ/uvX/uvY/normalX/normalY/normalZ/posX/posY.... 
 	// Next vertex starts where the last vertex ends (8 floats)
 	const float* GetVertices(int meshId);
+
+	// Returns the vertices of the first mesh
+	// Returns all the verices in format posX/posY/PosZ/uvX/uvY/normalX/normalY/normalZ/posX/posY.... 
+	// Next vertex starts where the last vertex ends (8 floats)
 	const float* GetVertices();
+
+	// Returns the vertexcount of a specific mesh
 	const int GetVertexCount(int meshId) { return loaderMesh[meshId].vertexCount; }
+
+	// Returns the vertexcount of the first mesh
 	const int GetVertexCount() { return loaderMesh[0].vertexCount; }
 
+	// Returns the face indicies of a specific mesh
 	// Returns all the faces in format index1/index2/index3/index1/index2.... 
 	// Next face starts where the last face ends (3 ints)
 	const int* GetFaces(int meshId);
+
+	// Returns the face indicies of the first mesh
+	// Returns all the faces in format index1/index2/index3/index1/index2.... 
+	// Next face starts where the last face ends (3 ints)
 	const int* GetFaces();
+
+	// Returns the facecount of a specific mesh
 	const int GetFaceCount(int meshId)  { return loaderMesh[meshId].faceCount; }
+
+	// Returns the face count of the first mesh
 	const int GetFaceCount()  { return loaderMesh[0].faceCount; }
 
+	// Returns a specific material
+	const Material GetMaterial(int meshID);			// Project specific
+
+	// Returns the first material in the file
+	const Material GetMaterial();					// Project specific
+
+	// Returns a specific albedo map
 	const std::string GetAlbedo(int meshId) { return (std::string)material[meshId].albedo; }
+
+	// Returns the first albedo map
+	const std::string GetAlbedo() { return (std::string)material[0].albedo; }
+
+	// Returns a specific normal map
 	const std::string GetNormalMap(int meshId) { return (std::string)material[meshId].normal; }
 
-	const BGLoading::PhongMaterial GetMaterial(int index) const { return material[index]; }
+	// Returns the first normal map
+	const std::string GetNormalMap() { return (std::string)material[0].normal; }
+
+	const BGLoading::PhongMaterial GetMaterial(int meshID) const { return material[meshID]; }
 	const BGLoading::PhongMaterial GetMaterial() const { return material[0]; }
 
 
-	// Ignore below, will be reformated or removed
 
+	// Ignore below, will be reformated or removed
 	BGLoading::LoaderMesh GetLoaderMesh(int meshId) const { return loaderMesh[meshId]; }
 	const BGLoading::Vertex* GetLoaderVertices(int meshId) { return meshVert[meshId]; }
 	const BGLoading::Face* GetLoaderFaces(int meshId) { return meshFace[meshId]; }
 
 	BGLoading::Skeleton GetSkeleton(int index) const { return loaderMesh[index].skeleton; }
 	BGLoading::Joint GetJoint(int mIndex, int jIndex) const { return skeletonsD[mIndex].joint[jIndex]; }
-	BGLoading::MeshAnis GetAnimation(int mIndex,) const { return animationsD[mIndex]; }
+	BGLoading::MeshAnis GetAnimation(int mIndex) const { return animationsD[mIndex]; }
 	BGLoading::Animation GetAnimationHeader(int mIndex, int aIndex) const { return animationsD[mIndex].animations[aIndex].ani; }
 	BGLoading::KeyFrame GetKeyFrame(int mIndex, int aIndex, int kIndex) const { return animationsD[mIndex].animations[aIndex].keyFrames[kIndex].key; }
 	BGLoading::Transform GetTransform(int mIndex, int aIndex, int kIndex, int tIndex) const { return animationsD[mIndex].animations[aIndex].keyFrames[kIndex].transforms[tIndex].t; }

@@ -9,7 +9,7 @@ PlayState::PlayState()
 
 	// TODO move to mesh and file filepath
 	BGLoader tempLoader;
-	tempLoader.LoadMesh(MESHPATH + "SexyCube.mesh");
+	tempLoader.LoadMesh(MESHPATH + "WalkingTest.mesh");
 
 	m_mesh.setUpMesh(tempLoader.GetVertices(0),
 		tempLoader.GetVertexCount(0),
@@ -18,7 +18,7 @@ PlayState::PlayState()
 	m_mesh.setUpBuffers();
 
 	Material tempMaterial;
-	tempMaterial.ambient[0] = tempLoader.GetMaterial(0).ambient[0];
+	tempMaterial = tempLoader.GetMaterial(0);
 
 	
 	m_materialMap = m_materialMap->getInstance();
