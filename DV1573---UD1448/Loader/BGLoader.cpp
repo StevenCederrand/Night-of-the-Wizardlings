@@ -205,7 +205,7 @@ const Material BGLoader::GetMaterial(int meshID)
 	tempMat.ambient = glm::vec3(*material[meshID].ambient);
 
 
-	return Material();
+	return tempMat;
 }
 
 const Material BGLoader::GetMaterial()
