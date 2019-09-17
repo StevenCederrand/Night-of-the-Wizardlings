@@ -175,6 +175,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="GameObject\Cube.cpp" />
+    <ClCompile Include="GFX\MaterialMap.cpp" />
     <ClCompile Include="Loader\BGLoader.cpp" />
     <ClCompile Include="Mesh\Mesh.cpp" />
     <ClCompile Include="Pch\Pch.cpp">
@@ -220,6 +221,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameObject\Cube.h" />
+    <ClInclude Include="GFX\MaterialMap.h" />
     <ClInclude Include="Loader\BGLoader.h" />
     <ClInclude Include="Mesh\Mesh.h" />
     <ClInclude Include="Loader\LoaderFormat.h" />
