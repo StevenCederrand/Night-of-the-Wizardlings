@@ -23,12 +23,13 @@ GameObject::~GameObject()
 void GameObject::loadMesh(std::string meshName)
 {
 	BGLoader tempLoader;
+	//----BUG----
+	//A memory leak builds here
 	tempLoader.LoadMesh(MESHPATH + meshName);
 	
+	
 	m_mesh = new Mesh();
-
-
-	m_mesh->setUpMesh(tempLoader.GetVertices(0),
+   	m_mesh->setUpMesh(tempLoader.GetVertices(0),
 		tempLoader.GetVertexCount(0),
 		tempLoader.GetFaces(0),
 		tempLoader.GetFaceCount(0));
@@ -38,6 +39,7 @@ void GameObject::loadMesh(std::string meshName)
 	Material tempMaterial = tempLoader.GetMaterial(0);
 	m_materialName = (std::string)tempLoader.GetMaterial(0).name;
 	MaterialMap::getInstance()->createMaterial(m_materialName, tempMaterial);
+	//----BUG----And is never unloaded
 	tempLoader.Unload();
 }
 

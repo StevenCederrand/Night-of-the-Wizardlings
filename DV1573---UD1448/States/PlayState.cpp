@@ -7,16 +7,15 @@
 
 PlayState::PlayState()
 {
-	m_shaderMap = m_shaderMap->getInstance();
-	m_shaderMap->createShader("Basic_Forward", "VertexShader.vs", "FragShader.fs");
-
+	ShaderMap::getInstance()->createShader("Basic_Forward", "VertexShader.vs", "FragShader.fs");
+	Renderer::getInstance();
+	m_camera = new Camera();
+	Renderer::getInstance()->setupCamera(m_camera);
 
 	// TODO move to mesh and file filepath
 	m_object = new WorldObject("Character");
 	m_object->loadMesh("TestScene.mesh");
 	
-
-	m_renderer = m_renderer->getInstance();
 	logTrace("Playstate created");
 
 	CEGUI::OpenGL3Renderer& guiRenderer = CEGUI::OpenGL3Renderer::bootstrapSystem();
@@ -25,16 +24,18 @@ PlayState::PlayState()
 PlayState::~PlayState()
 {
 	MaterialMap::getInstance()->destroy();
+	delete m_object;
+	delete m_camera;
 }
 
 void PlayState::update(float dt)
 {
-	m_renderer->update(dt);
+	Renderer::getInstance()->update(dt);
 }
 
 void PlayState::render()
 {
-	
-	m_object->bindMaterialToShader("Basic_Forward");
-	Renderer::getInstance()->render(*m_object);
+	//m_object->bindMaterialToShader("Basic_Forward");
+	Renderer::getInstance()->bindMatrixes(m_camera->getViewMat(), m_camera->getProjMat());
+//	Renderer::getInstance()->render(*m_object);
 }

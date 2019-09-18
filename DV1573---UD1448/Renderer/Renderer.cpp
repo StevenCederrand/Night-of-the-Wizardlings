@@ -26,15 +26,25 @@ Renderer* Renderer::getInstance()
 
 void Renderer::init(GLFWwindow* window)
 {
-	m_camera = new Camera();
 	m_gWindow = window;
-}	
+}
+void Renderer::setupCamera(Camera* camera)
+{
+	if (camera == nullptr) {
+		return;
+	}
+	m_camera = camera;
+}
 
 void Renderer::destroy()
 {
-	delete m_camera;
 	delete m_rendererInstance;
-}	
+}
+void Renderer::bindMatrixes(const glm::mat4& viewMatrix, const glm::mat4& projMatrix)
+{
+	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("viewMatrix", m_camera->getViewMat());
+	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("projectionMatrix", m_camera->getProjMat());
+}
 
 void Renderer::update(float dt) {
 	m_camera->fpsControls(dt);
@@ -43,13 +53,8 @@ void Renderer::update(float dt) {
 void Renderer::render(const GameObject& gameObject) {
 	m_camera->update(m_gWindow);
 
-	ShaderMap::getInstance()->useByName("Basic_Forward");
-
-	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("viewMatrix", m_camera->getViewMat());
-	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("projectionMatrix", m_camera->getProjMat());
-
 	glBindVertexArray(gameObject.getMesh()->getBuffers().vao);
-
+	
 	glm::mat4 worldMatrix = glm::mat4(1.0f);
 	worldMatrix = glm::translate(worldMatrix, gameObject.getTransform().m_worldPos);
 

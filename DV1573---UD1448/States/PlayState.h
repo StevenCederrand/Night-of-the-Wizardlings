@@ -16,11 +16,9 @@ public:
 
 private:
 	int key = 1;
-	Renderer* m_renderer;
-	ShaderMap* m_shaderMap;
-	Mesh m_mesh;
-
 	WorldObject* m_object;
+
+	Camera* m_camera;
 };
 
 

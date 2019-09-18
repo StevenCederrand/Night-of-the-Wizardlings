@@ -25,12 +25,14 @@ public:
 
 	void update(float dt);
 	static Renderer* getInstance();
-	void init(GLFWwindow* window);
 	
+	void init(GLFWwindow* window);
+	void setupCamera(Camera* camera);
+
 	void destroy();
+	void bindMatrixes(const glm::mat4& viewMatrix, const glm::mat4& projMatrix);
 	void render(const GameObject& gameObject);
 	void render(Buffers buffer, glm::vec3 worldPos);
-
 
 	Camera* getMainCamera() const;
 };

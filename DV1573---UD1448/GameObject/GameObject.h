@@ -4,8 +4,6 @@
 #include <Mesh/Mesh.h>
 #include <GFX/MaterialMap.h>
 
-
-
 struct Transform {
 	glm::vec3 m_worldPos;
 	glm::quat m_worldRot;
@@ -33,7 +31,6 @@ public:
 	void setWorldPosition(glm::vec3 worldPosition);
 	void translate(const glm::vec3& translationVector);
 
-
 	//Get functions
 	const Transform& getTransform() const;
 	Mesh* getMesh() const;
@@ -47,7 +44,6 @@ private:
 	Mesh* m_mesh = nullptr;
 
 	Transform m_transform;
-
 };
 
 
