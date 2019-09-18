@@ -1,9 +1,8 @@
 #include <Pch/Pch.h>
 #include "PlayState.h"
-#include <CEGUI/CEGUI.h>
-#include <CEGUI/RendererModules/OpenGL/GL3Renderer.h>
 // TODO move to mesh
 #include <Loader/BGLoader.h>
+
 
 PlayState::PlayState()
 {
@@ -32,9 +31,7 @@ PlayState::PlayState()
 
 
 	m_renderer = m_renderer->getInstance();
-	logTrace("Playstate created");
 
-	CEGUI::OpenGL3Renderer& guiRenderer = CEGUI::OpenGL3Renderer::bootstrapSystem();
 }
 
 PlayState::~PlayState()
@@ -49,7 +46,7 @@ void PlayState::update(float dt)
 
 void PlayState::render()
 {
-	
 	m_object.bindMaterialToShader("Basic_Forward");
 	Renderer::getInstance()->render(m_object.getMesh()->getBuffers(), m_object.getMesh()->getPos());
+
 }

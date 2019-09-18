@@ -55,6 +55,7 @@ void Mesh::setUpMesh(const float* inVertices, int inVertexCount, const int* inIn
 			k++;
 		}
 	}
+
 }
 
 void Mesh::setUpBuffers()

@@ -36,6 +36,8 @@
 #include <raknet/GetTime.h>
 #include <raknet/BitStream.h>
 
+#include <CEGUI/CEGUI.h>
+#include <CEGUI/RendererModules/OpenGL/GL3Renderer.h>
 
 
 //Custom

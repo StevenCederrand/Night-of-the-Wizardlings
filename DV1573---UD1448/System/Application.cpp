@@ -1,6 +1,7 @@
 #include <Pch/Pch.h>
 #include "Application.h"
 #include "States/PlayState.h"
+#include "States/MenuState.h"
 
 Application::Application() {
 }
@@ -33,7 +34,7 @@ bool Application::init() {
 
 
 	m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", NULL, NULL);
-	glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	//glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	
 	if (m_window == nullptr) {
 		glfwTerminate();
@@ -60,7 +61,7 @@ bool Application::init() {
 	initGraphics();
 
 	m_stateManager = new StateManager();
-	m_stateManager->pushState(new PlayState());
+	m_stateManager->pushState(new MenuState());
 
 	logTrace("Application successfully initialized");
 	return statusOK;
@@ -87,7 +88,7 @@ void Application::run()
 			glfwSetWindowShouldClose(m_window, true);
 		}
 	
-		if (Input::isKeyPressed(GLFW_KEY_R)) {
+		if (Input::isKeyPressed(GLFW_KEY_F1)) {
 			ShaderMap::getInstance()->reload();
 		}
 		//Skip the first frame, this is because we 
@@ -108,7 +109,6 @@ void Application::run()
 		
 		m_stateManager->update(deltaTime);
 		m_stateManager->render();
-
 
 		glfwSwapBuffers(m_window);
 	}

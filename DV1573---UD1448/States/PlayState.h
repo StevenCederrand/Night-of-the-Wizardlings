@@ -2,6 +2,7 @@
 #define _PLAYSTATE_H
 #include <Pch/Pch.h>
 #include "System/State.h"
+
 #include <GFX/MaterialMap.h>
 #include <GameObject/GameObject.h>
 
@@ -19,7 +20,6 @@ private:
 	Renderer* m_renderer;
 	ShaderMap* m_shaderMap;
 	Mesh m_mesh;
-
 	GameObject m_object;
 };
 
