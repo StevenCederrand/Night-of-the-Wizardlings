@@ -25,7 +25,7 @@ void GameObject::loadMesh(std::string meshName)
 	BGLoader tempLoader;
 	//----BUG----
 	//A memory leak builds here
-	tempLoader.LoadMesh(MESHPATH + meshName);
+	tempLoader.LoadMesh(MESHPATH + meshName); 
 	
 	
 	m_mesh = new Mesh();
