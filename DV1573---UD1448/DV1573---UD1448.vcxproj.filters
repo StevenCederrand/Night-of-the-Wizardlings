@@ -17,6 +17,7 @@
     <ClCompile Include="System\StateManager.cpp" />
     <ClCompile Include="Texture\stb_image.cpp" />
     <ClCompile Include="GameObject\GameObject.cpp" />
+    <ClCompile Include="GameObject\WorldObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GFX\MaterialMap.h" />
@@ -36,6 +37,7 @@
     <ClInclude Include="System\State.h" />
     <ClInclude Include="System\StateManager.h" />
     <ClInclude Include="Texture\stb_image.h" />
+    <ClInclude Include="GameObject\WorldObject.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

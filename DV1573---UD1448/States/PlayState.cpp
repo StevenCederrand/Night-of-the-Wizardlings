@@ -12,8 +12,8 @@ PlayState::PlayState()
 
 
 	// TODO move to mesh and file filepath
-	m_object = GameObject("Character");
-	m_object.loadMesh("TestScene.mesh");
+	m_object = new WorldObject("Character");
+	m_object->loadMesh("TestScene.mesh");
 	
 
 	m_renderer = m_renderer->getInstance();
@@ -35,6 +35,6 @@ void PlayState::update(float dt)
 void PlayState::render()
 {
 	
-	m_object.bindMaterialToShader("Basic_Forward");
-	Renderer::getInstance()->render(m_object);
+	m_object->bindMaterialToShader("Basic_Forward");
+	Renderer::getInstance()->render(*m_object);
 }

@@ -3,7 +3,7 @@
 #include <Pch/Pch.h>
 #include "System/State.h"
 #include <GFX/MaterialMap.h>
-#include <GameObject/GameObject.h>
+#include <GameObject/WorldObject.h>
 
 
 class PlayState : public State {
@@ -20,7 +20,7 @@ private:
 	ShaderMap* m_shaderMap;
 	Mesh m_mesh;
 
-	GameObject m_object;
+	WorldObject* m_object;
 };
 
 

@@ -58,6 +58,11 @@ void GameObject::setWorldPosition(glm::vec3 worldPosition)
 	m_transform.m_worldPos = worldPosition;
 }
 
+void GameObject::translate(const glm::vec3& translationVector)
+{
+	m_transform.m_worldPos += translationVector;
+}
+
 const Transform& GameObject::getTransform() const
 {
 	return m_transform;

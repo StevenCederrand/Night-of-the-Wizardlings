@@ -175,6 +175,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="GameObject\GameObject.cpp" />
+    <ClCompile Include="GameObject\WorldObject.cpp" />
     <ClCompile Include="GFX\MaterialMap.cpp" />
     <ClCompile Include="Loader\BGLoader.cpp" />
     <ClCompile Include="Mesh\Mesh.cpp" />
@@ -220,6 +221,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GameObject\WorldObject.h" />
     <ClInclude Include="GFX\MaterialMap.h" />
     <ClInclude Include="Loader\BGLoader.h" />
     <ClInclude Include="Mesh\Mesh.h" />
