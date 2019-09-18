@@ -126,6 +126,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch/Pch.h</PrecompiledHeaderFile>
       <PreprocessToFile>false</PreprocessToFile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -163,6 +164,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Pch/Pch.h</PrecompiledHeaderFile>
       <PreprocessToFile>false</PreprocessToFile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -173,6 +175,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="GameObject\Cube.cpp" />
+    <ClCompile Include="GameObject\GameObject.cpp" />
+    <ClCompile Include="GFX\MaterialMap.cpp" />
     <ClCompile Include="Loader\BGLoader.cpp" />
     <ClCompile Include="Mesh\Mesh.cpp" />
     <ClCompile Include="Pch\Pch.cpp">
@@ -218,6 +222,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameObject\Cube.h" />
+    <ClInclude Include="GFX\MaterialMap.h" />
     <ClInclude Include="Loader\BGLoader.h" />
     <ClInclude Include="Mesh\Mesh.h" />
     <ClInclude Include="Loader\LoaderFormat.h" />
@@ -238,6 +243,9 @@
     <ClInclude Include="System\State.h" />
     <ClInclude Include="System\StateManager.h" />
     <ClInclude Include="Texture\stb_image.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="GameObject\GameObject.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

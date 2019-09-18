@@ -2,29 +2,36 @@
 #include "PlayState.h"
 #include <CEGUI/CEGUI.h>
 #include <CEGUI/RendererModules/OpenGL/GL3Renderer.h>
-
+// TODO move to mesh
+#include <Loader/BGLoader.h>
 
 PlayState::PlayState()
 {
+	m_shaderMap = m_shaderMap->getInstance();
+	m_shaderMap->createShader("Basic_Forward", "VertexShader.vs", "FragShader.fs");
 
 
+	// TODO move to mesh and file filepath
+	m_object = GameObject("Character");
+	m_object.loadMesh("TestScene.mesh");
+
+	/*
 	BGLoader tempLoader;
-	tempLoader.LoadMesh("Assets/Meshes/SexyCube3.meh");
+	tempLoader.LoadMesh(MESHPATH + "WalkingTest.mesh");
 
 	m_mesh.setUpMesh(tempLoader.GetVertices(0),
 		tempLoader.GetVertexCount(0),
 		tempLoader.GetFaces(0),
 		tempLoader.GetFaceCount(0));
 	m_mesh.setUpBuffers();
-	tempLoader.Unload();
 
+	Material tempMaterial;
+	tempMaterial = tempLoader.GetMaterial(0);	
+	MaterialMap::getInstance()->createMaterial((std::string)tempLoader.GetMaterial(0).name, tempMaterial);
+	tempLoader.Unload();*/
 
-	m_shaderMap = m_shaderMap->getInstance();
-	m_shaderMap->createShader("Basic_Forward", "VertexShader.vs", "FragShader.fs");
 
 	m_renderer = m_renderer->getInstance();
-	m_cube = new Cube();
-	m_cube->loadTexture("testTexture.jpg");
 	logTrace("Playstate created");
 
 	CEGUI::OpenGL3Renderer& guiRenderer = CEGUI::OpenGL3Renderer::bootstrapSystem();
@@ -32,7 +39,7 @@ PlayState::PlayState()
 
 PlayState::~PlayState()
 {
-	delete m_cube;
+	MaterialMap::getInstance()->destroy();
 }
 
 void PlayState::update(float dt)
@@ -42,5 +49,7 @@ void PlayState::update(float dt)
 
 void PlayState::render()
 {
-	Renderer::getInstance()->render(m_mesh.getBuffers(), m_mesh.getPos());
+	
+	m_object.bindMaterialToShader("Basic_Forward");
+	Renderer::getInstance()->render(m_object.getMesh()->getBuffers(), m_object.getMesh()->getPos());
 }
