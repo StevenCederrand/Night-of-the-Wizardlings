@@ -1,6 +1,6 @@
 #pragma once
 #include <Pch/Pch.h>
-#include <GameObject/Cube.h>
+#include <GameObject/GameObject.h>
 #include <Mesh/MeshFormat.h>
 
 struct ObjectRenderData {
@@ -28,7 +28,7 @@ public:
 	void init(GLFWwindow* window);
 	
 	void destroy();
-	void render(Cube* cube);
+	void render(const GameObject& gameObject);
 	void render(Buffers buffer, glm::vec3 worldPos);
 
 

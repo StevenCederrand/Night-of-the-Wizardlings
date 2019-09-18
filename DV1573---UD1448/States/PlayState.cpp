@@ -14,22 +14,7 @@ PlayState::PlayState()
 	// TODO move to mesh and file filepath
 	m_object = GameObject("Character");
 	m_object.loadMesh("TestScene.mesh");
-
-	/*
-	BGLoader tempLoader;
-	tempLoader.LoadMesh(MESHPATH + "WalkingTest.mesh");
-
-	m_mesh.setUpMesh(tempLoader.GetVertices(0),
-		tempLoader.GetVertexCount(0),
-		tempLoader.GetFaces(0),
-		tempLoader.GetFaceCount(0));
-	m_mesh.setUpBuffers();
-
-	Material tempMaterial;
-	tempMaterial = tempLoader.GetMaterial(0);	
-	MaterialMap::getInstance()->createMaterial((std::string)tempLoader.GetMaterial(0).name, tempMaterial);
-	tempLoader.Unload();*/
-
+	
 
 	m_renderer = m_renderer->getInstance();
 	logTrace("Playstate created");
@@ -51,5 +36,5 @@ void PlayState::render()
 {
 	
 	m_object.bindMaterialToShader("Basic_Forward");
-	Renderer::getInstance()->render(m_object.getMesh()->getBuffers(), m_object.getMesh()->getPos());
+	Renderer::getInstance()->render(m_object);
 }
