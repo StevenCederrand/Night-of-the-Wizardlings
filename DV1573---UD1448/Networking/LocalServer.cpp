@@ -8,33 +8,46 @@ LocalServer::LocalServer()
 
 LocalServer::~LocalServer()
 {
-	if (m_serverPeer != nullptr) {
-		logTrace("Waiting for server thread to finish...");
-		m_shutdownServer = true;
-		m_processThread.join();
-		logTrace("Server thread shutdown");
-	}
+}
 
-	RakNet::RakPeerInterface::DestroyInstance(m_serverPeer);
-	
+LocalServer* LocalServer::getInstance()
+{
+	static LocalServer s;
+	return &s;
 }
 
 void LocalServer::startup(const std::string& serverName)
 {
-	m_serverPeer = RakNet::RakPeerInterface::GetInstance();
-	auto startResult = m_serverPeer->Startup(NetGlobals::MaximumConnections, &RakNet::SocketDescriptor(NetGlobals::ServerPort, 0), 1);
-	assert(startResult == RakNet::RAKNET_STARTED, "Server could not be started!");
+	if (!m_initialized) {
+		m_serverPeer = RakNet::RakPeerInterface::GetInstance();
+		auto startResult = m_serverPeer->Startup(NetGlobals::MaximumConnections, &RakNet::SocketDescriptor(NetGlobals::ServerPort, 0), 1);
+		assert(startResult == RakNet::RAKNET_STARTED, "Server could not be started!");
 
-	m_serverPeer->SetMaximumIncomingConnections(NetGlobals::MaximumIncomingConnections);
+		m_serverPeer->SetMaximumIncomingConnections(NetGlobals::MaximumIncomingConnections);
 
-	memcpy(&m_serverInfo.serverName, serverName.c_str(), serverName.length());
-	m_serverInfo.maxPlayers = NetGlobals::MaximumConnections;
-	m_serverInfo.connectedPlayers = 0;
-	m_connectedPlayers.reserve(NetGlobals::MaximumConnections);
+		memcpy(&m_serverInfo.serverName, serverName.c_str(), serverName.length());
+		m_serverInfo.maxPlayers = NetGlobals::MaximumConnections;
+		m_serverInfo.connectedPlayers = 0;
+		m_connectedPlayers.reserve(NetGlobals::MaximumConnections);
 
-	m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
-	m_processThread = std::thread(&LocalServer::threadedProcess, this);
+		m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
+		m_processThread = std::thread(&LocalServer::threadedProcess, this);
+		m_initialized = true;
+	}
+}
 
+void LocalServer::destroy()
+{
+	if (m_initialized) {
+		if (m_serverPeer != nullptr) {
+			logTrace("Waiting for server thread to finish...");
+			m_shutdownServer = true;
+			m_processThread.join();
+			logTrace("Server thread shutdown");
+		}
+		m_initialized = false;
+		RakNet::RakPeerInterface::DestroyInstance(m_serverPeer);
+	}
 }
 
 void LocalServer::threadedProcess()
@@ -116,6 +129,11 @@ void LocalServer::threadedProcess()
 
 		RakSleep(30);
 	}
+}
+
+const bool& LocalServer::isInitialized() const
+{
+	return m_initialized;
 }
 
 unsigned char LocalServer::getPacketID(RakNet::Packet* p)

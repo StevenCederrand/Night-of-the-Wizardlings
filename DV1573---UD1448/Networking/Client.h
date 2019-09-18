@@ -9,7 +9,10 @@ public:
 	Client();
 	~Client();
 
+	static Client* getInstance();
+
 	void startup();
+	void destroy();
 	void connectToAnotherServer(const ServerInfo& server);
 	void connectToMyServer();
 	void threadedProcess();
@@ -17,7 +20,7 @@ public:
 	const std::vector<NetworkPlayer>& getConnectedPlayers() const;
 	void refreshServerList();
 	bool doneRefreshingServerList();
-	
+	const bool& isInitialized() const;
 
 private:
 	void findAllServerAddresses();
@@ -34,7 +37,7 @@ private:
 	
 	std::thread m_processThread;
 	bool m_shutdownClient;
-
+	bool m_initialized = false;
 	std::vector<NetworkPlayer> m_connectedPlayers;
 
 };

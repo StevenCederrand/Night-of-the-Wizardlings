@@ -2,9 +2,6 @@
 #define _PLAYSTATE_H
 #include <Pch/Pch.h>
 #include "System/State.h"
-#include <Networking/LocalServer.h>
-#include <Networking/Client.h>
-
 
 #include <GFX/MaterialMap.h>
 #include <GameObject/GameObject.h>

@@ -7,20 +7,35 @@ Client::Client()
 
 Client::~Client()
 {
-	
-	m_shutdownClient = true;
-	logTrace("Waiting for client thread to finish...");
-	m_processThread.join();
-	logTrace("Client process thread shutdown");
+}
 
-	RakNet::RakPeerInterface::DestroyInstance(m_clientPeer);
+Client* Client::getInstance()
+{
+	static Client c;
+	return &c;
 }
 
 void Client::startup()
 {
-	m_connectedPlayers.reserve(NetGlobals::MaximumConnections);
-	m_clientPeer = RakNet::RakPeerInterface::GetInstance();
-	m_clientPeer->Startup(1, &RakNet::SocketDescriptor(), 1);
+	if (!m_initialized) {
+		m_connectedPlayers.reserve(NetGlobals::MaximumConnections);
+		m_clientPeer = RakNet::RakPeerInterface::GetInstance();
+		m_clientPeer->Startup(1, &RakNet::SocketDescriptor(), 1);
+		m_initialized = true;
+	}
+}
+
+void Client::destroy()
+{
+	if (m_initialized) {
+		m_shutdownClient = true;
+		logTrace("Waiting for client thread to finish...");
+		if(m_processThread.joinable())
+			m_processThread.join();
+		logTrace("Client process thread shutdown");
+		m_initialized = false;
+		RakNet::RakPeerInterface::DestroyInstance(m_clientPeer);
+	}
 }
 
 void Client::connectToAnotherServer(const ServerInfo& server)
@@ -181,6 +196,12 @@ bool Client::doneRefreshingServerList()
 {
 	return m_isRefreshingServerList;
 }
+
+const bool& Client::isInitialized() const
+{
+	return m_initialized;
+}
+
 /* When we have a UI this will most likely be threaded */
 void Client::findAllServerAddresses()
 {

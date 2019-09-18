@@ -1,45 +1,51 @@
 #include <Pch/Pch.h>
 #include "MenuState.h"
+#include "FindServerState.h"
 #include "PlayState.h"
 #include <System/StateManager.h>
 
 MenuState::MenuState()
 {
+	//bool guiFirstTimeInit = true;
+	//if (Gui::getRenderer() != nullptr) 
+	//	guiFirstTimeInit = false;
+	//
 	m_gui.init();
-	m_gui.loadScheme("TaharezLook.scheme");
-	m_gui.setFont("DejaVuSans-10");
-	
-	m_startWithoutServerBtn = static_cast<CEGUI::PushButton*>(m_gui.createWidget("TaharezLook/Button", glm::vec4(0.45f, 0.45f, 0.1f, 0.05f), glm::vec4(0.0f), "StartWithoutServerBtn"));
-	m_startWithoutServerBtn->setText("Start offline");
-	m_startWithoutServerBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&MenuState::onStartOfflineClicked, this));
+	logTrace("Menu");
+	//if (guiFirstTimeInit) {
+	//	logTrace("Loading fonts and scheme");
+	//	m_gui.loadScheme("TaharezLook.scheme");
+	//	m_gui.setFont("DejaVuSans-10");
+	//}
 
-	m_startServerBtn = static_cast<CEGUI::PushButton*>(m_gui.createWidget("TaharezLook/Button", glm::vec4(0.45f, 0.55f, 0.1f, 0.05f), glm::vec4(0.0f), "StartServerButton"));
-	m_startServerBtn->setText("Start Server");
-	m_startServerBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&MenuState::onStartServerClicked, this));
+	//m_startWithoutServerBtn = static_cast<CEGUI::PushButton*>(m_gui.createWidget("TaharezLook/Button", glm::vec4(0.45f, 0.45f, 0.1f, 0.05f), glm::vec4(0.0f), "StartWithoutServerBtn"));
+	//m_startWithoutServerBtn->setText("Start offline");
+	//m_startWithoutServerBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&MenuState::onStartOfflineClicked, this));
 
-	m_joinServerBtn = static_cast<CEGUI::PushButton*>(m_gui.createWidget("TaharezLook/Button", glm::vec4(0.45f, 0.65f, 0.1f, 0.05f), glm::vec4(0.0f), "JoinServerButton"));
-	m_joinServerBtn->setText("Join Server");
-	m_joinServerBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&MenuState::onStartClientClicked, this));
+	//m_startServerBtn = static_cast<CEGUI::PushButton*>(m_gui.createWidget("TaharezLook/Button", glm::vec4(0.45f, 0.55f, 0.1f, 0.05f), glm::vec4(0.0f), "StartServerButton"));
+	//m_startServerBtn->setText("Start Server");
+	//m_startServerBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&MenuState::onStartServerClicked, this));
 
-	m_quitBtn = static_cast<CEGUI::PushButton*>(m_gui.createWidget("TaharezLook/Button", glm::vec4(0.45f, 0.75f, 0.1f, 0.05f), glm::vec4(0.0f), "ExitButton"));
-	m_quitBtn->setText("Exit");
-	m_quitBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&MenuState::onExitClicked, this));
+	//m_joinServerBtn = static_cast<CEGUI::PushButton*>(m_gui.createWidget("TaharezLook/Button", glm::vec4(0.45f, 0.65f, 0.1f, 0.05f), glm::vec4(0.0f), "JoinServerButton"));
+	//m_joinServerBtn->setText("Join Server");
+	//m_joinServerBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&MenuState::onStartClientClicked, this));
+
+	//m_quitBtn = static_cast<CEGUI::PushButton*>(m_gui.createWidget("TaharezLook/Button", glm::vec4(0.45f, 0.75f, 0.1f, 0.05f), glm::vec4(0.0f), "ExitButton"));
+	//m_quitBtn->setText("Exit");
+	//m_quitBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&MenuState::onExitClicked, this));
 
 }
 
 MenuState::~MenuState()
 {
-	/*m_startWithoutServerBtn->removeAllEvents();
-	m_startServerBtn->removeAllEvents();
-	m_joinServerBtn->removeAllEvents();
-	m_quitBtn->removeAllEvents();*/
-
-
 	m_gui.destroy();
 }
 
 void MenuState::update(float dt)
 {
+	if (Input::isKeyHeldDown(GLFW_KEY_F3)) {
+		m_stateManager->clearAllAndSetState(new FindServerState());
+	}
 	m_gui.update(dt);
 }
 
@@ -63,7 +69,7 @@ bool MenuState::onStartServerClicked(const CEGUI::EventArgs& e)
 
 bool MenuState::onStartClientClicked(const CEGUI::EventArgs& e)
 {
-	logInfo("Would be nice to have a client");
+	m_stateManager->clearAllAndSetState(new FindServerState());
 	return true;
 }
 

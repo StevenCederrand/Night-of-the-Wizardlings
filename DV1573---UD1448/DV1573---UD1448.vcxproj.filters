@@ -20,11 +20,12 @@
     <ClCompile Include="GameObject\GameObject.cpp" />
     <ClCompile Include="Gui\Gui.cpp" />
     <ClCompile Include="States\MenuState.cpp" />
-	<ClCompile Include="Networking\LocalServer.cpp" />
-	<ClCompile Include="Networking\Client.cpp" />
-	<ClCompile Include="Networking\NetworkPlayer.cpp" />
+    <ClCompile Include="Networking\LocalServer.cpp" />
+    <ClCompile Include="Networking\Client.cpp" />
+    <ClCompile Include="Networking\NetworkPlayer.cpp" />
+    <ClCompile Include="States\LobbyState.cpp" />
+    <ClCompile Include="States\FindServerState.cpp" />
   </ItemGroup>
- 
   <ItemGroup>
     <ClInclude Include="GameObject\Cube.h" />
     <ClInclude Include="GFX\MaterialMap.h" />
@@ -46,11 +47,13 @@
     <ClInclude Include="Texture\stb_image.h" />
     <ClInclude Include="Gui\Gui.h" />
     <ClInclude Include="States\MenuState.h" />
-	<ClInclude Include="Networking\LocalServer.h" />
-	<ClInclude Include="Networking\Client.h" />
-	<ClInclude Include="Networking\NetworkGlobals.h" />
-	<ClInclude Include="Networking\NetworkPackets.h" />
-	<ClInclude Include="Networking\NetworkPlayer.h" />
+    <ClInclude Include="Networking\LocalServer.h" />
+    <ClInclude Include="Networking\Client.h" />
+    <ClInclude Include="Networking\NetworkGlobals.h" />
+    <ClInclude Include="Networking\NetworkPackets.h" />
+    <ClInclude Include="Networking\NetworkPlayer.h" />
+    <ClInclude Include="States\LobbyState.h" />
+    <ClInclude Include="States\FindServerState.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

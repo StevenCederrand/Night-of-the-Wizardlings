@@ -54,6 +54,7 @@ void Gui::init()
 {
 	if (m_guiRenderer == nullptr)
 	{
+		logTrace("Bootstrapping CEGUI");
 		m_guiRenderer = &CEGUI::OpenGL3Renderer::bootstrapSystem();
 		CEGUI::DefaultResourceProvider* rp = static_cast<CEGUI::DefaultResourceProvider*>(CEGUI::System::getSingleton().getResourceProvider());
 		rp->setResourceGroupDirectory("imagesets",	 "DV1573---UD1448/GUIResource/imagesets/");
@@ -71,23 +72,26 @@ void Gui::init()
 		CEGUI::WidgetLookManager::setDefaultResourceGroup("looknfeel");
 		CEGUI::WindowManager::setDefaultResourceGroup("layout");
 		CEGUI::ScriptModule::setDefaultResourceGroup("lua_scripts");
+
 	}
 
 	m_context = &CEGUI::System::getSingleton().createGUIContext(m_guiRenderer->getDefaultRenderTarget());
 	m_root = CEGUI::WindowManager::getSingleton().createWindow("DefaultWindow", "root");
 	m_context->setRootWindow(m_root);
+
 }
 
 void Gui::destroy()
 {
 	CEGUI::System::getSingleton().destroyGUIContext(*m_context);
-
 	for (size_t i = 0; i < m_root->getChildCount(); i++)
 	{
 		m_root->getChildAtIdx(i)->removeAllEvents();
 	}
-
+	m_root->removeAllEvents();
 	CEGUI::WindowManager::getSingleton().destroyWindow(m_root);
+	logTrace("Deleted CEGUI contexts and root");
+	
 }
 
 void Gui::loadScheme(const std::string& schemefile)
@@ -134,8 +138,11 @@ void Gui::hideMouseCursor()
 
 void Gui::update(float dt)
 {
+
+	if (m_context == nullptr) return;
+
 	m_context->injectTimePulse(dt);
-	CEGUI::utf32 codePoint;
+	
 	if (m_context->getMouseCursor().isVisible())
 	{
 		double x, y;
@@ -170,6 +177,8 @@ void Gui::update(float dt)
 
 void Gui::draw()
 {
+	if (m_context == nullptr) return;
+
 	glDisable(GL_DEPTH_TEST);
 	m_guiRenderer->beginRendering();
 	m_context->draw();

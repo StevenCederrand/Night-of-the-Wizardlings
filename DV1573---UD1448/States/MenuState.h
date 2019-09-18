@@ -4,9 +4,6 @@
 #include <System/State.h>
 #include <Gui/Gui.h>
 
-
-typedef CEGUI::PushButton* Cbtn;
-
 class MenuState : public State {
 
 public:
@@ -17,7 +14,10 @@ public:
 
 private:
 	Gui m_gui;
-	Cbtn m_quitBtn, m_joinServerBtn, m_startServerBtn, m_startWithoutServerBtn;
+	CEGUI::PushButton* m_quitBtn; 
+	CEGUI::PushButton* m_joinServerBtn; 
+	CEGUI::PushButton* m_startServerBtn; 
+	CEGUI::PushButton* m_startWithoutServerBtn;
 
 private:
 	bool onStartOfflineClicked(const CEGUI::EventArgs& e);

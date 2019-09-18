@@ -9,8 +9,12 @@ public:
 	LocalServer();
 	~LocalServer();
 
+	static LocalServer* getInstance();
+
 	void startup(const std::string& serverName);
+	void destroy();
 	void threadedProcess();
+	const bool& isInitialized() const;
 
 private:
 	unsigned char getPacketID(RakNet::Packet* p);
@@ -22,7 +26,7 @@ private:
 
 	std::vector<NetworkPlayer> m_connectedPlayers;
 	ServerInfo m_serverInfo;
-
+	bool m_initialized = false;
 
 };
 

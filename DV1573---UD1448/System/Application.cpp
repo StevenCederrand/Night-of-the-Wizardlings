@@ -2,6 +2,8 @@
 #include "Application.h"
 #include "States/PlayState.h"
 #include "States/MenuState.h"
+#include <Networking/Client.h>
+#include <Networking/LocalServer.h>
 
 Application::Application() {
 }
@@ -11,6 +13,13 @@ Application::~Application() {
 	delete m_stateManager;
 	ShaderMap::getInstance()->destroy();
 	Renderer::getInstance()->destroy();
+
+	if(Client::getInstance()->isInitialized())
+		Client::getInstance()->destroy();
+
+	if (LocalServer::getInstance()->isInitialized())
+		LocalServer::getInstance()->destroy();
+
 	glfwTerminate();
 }
 
