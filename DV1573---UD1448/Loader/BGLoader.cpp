@@ -123,11 +123,11 @@ void BGLoader::BGFormatData()
 		}
 
 		// Material
-		bggMaterials[meshId].name = (std::string)material[0].name;
-		bggMaterials[meshId].ambient = glm::vec3(*material[0].ambient);
-		bggMaterials[meshId].diffuse = glm::vec3(*material[0].diffuse);
-		bggMaterials[meshId].specular = glm::vec3(*material[0].specular);
-		bggMaterials[meshId].ambient = glm::vec3(*material[0].ambient);
+		bggMaterials[meshId].name = (std::string)material[meshId].name;
+		bggMaterials[meshId].ambient = glm::vec3(*material[meshId].ambient);
+		bggMaterials[meshId].diffuse = glm::vec3(*material[meshId].diffuse);
+		bggMaterials[meshId].specular = glm::vec3(*material[meshId].specular);
+		bggMaterials[meshId].ambient = glm::vec3(*material[meshId].ambient);
 	}
 
 }

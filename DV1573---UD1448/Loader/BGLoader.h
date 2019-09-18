@@ -22,6 +22,8 @@ private:
 	std::vector<std::vector<Face>> bggFaces;
 	std::vector<Material> bggMaterials;
 
+	// TODO: Direction lights, Point Lights, Skeletons, and Animations
+
 	float* vertices;
 	int* faces;
 
