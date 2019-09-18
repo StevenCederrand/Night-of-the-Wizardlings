@@ -8,7 +8,4 @@ bin-intermediate
 imgui.ini
 
 /dependencies/include/GLM/out/build/x64-Debug/.cmake/api/v1/reply
-/DV1573---UD1448/Renderer
-/Assets/Shaders/FragShader.fs
-/Assets/Shaders/VertexShader.vs
 CEGUI.log
