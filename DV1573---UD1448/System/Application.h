@@ -10,20 +10,18 @@ public:
 	Application();
 	~Application();
 	
-	/* Init GLFW & GL HEHEH */
 	bool init();
-	
-	/* Runs the application */
 	void run();
 
 
 private:
+	void initGraphics();
+	
 	GLFWwindow* m_window;
 	Input* m_input;
 	StateManager* m_stateManager;
-	PersistentData m_pd;
 	bool m_vsync;
-
+	bool initialFrame;
 };
 
 

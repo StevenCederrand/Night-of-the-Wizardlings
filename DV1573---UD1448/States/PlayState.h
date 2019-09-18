@@ -6,6 +6,10 @@
 #include <Networking/Client.h>
 
 
+#include <GFX/MaterialMap.h>
+#include <GameObject/GameObject.h>
+
+
 class PlayState : public State {
 
 public:
@@ -15,11 +19,11 @@ public:
 	virtual void render() override;
 
 private:
-
-	LocalServer m_server;
-	Client m_client;
-	bool m_isServer;
-	bool m_isClient;
+	int key = 1;
+	Renderer* m_renderer;
+	ShaderMap* m_shaderMap;
+	Mesh m_mesh;
+	GameObject m_object;
 
 };
 

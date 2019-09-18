@@ -7,3 +7,6 @@
 bin-intermediate
 imgui.ini
 
+/dependencies/include/GLM/out/build/x64-Debug/.cmake/api/v1/reply
+CEGUI.log
+

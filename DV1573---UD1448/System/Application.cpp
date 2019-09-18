@@ -1,6 +1,7 @@
 #include <Pch/Pch.h>
 #include "Application.h"
 #include "States/PlayState.h"
+#include "States/MenuState.h"
 
 Application::Application() {
 }
@@ -8,13 +9,15 @@ Application::Application() {
 Application::~Application() {
 	delete m_input;
 	delete m_stateManager;
+	ShaderMap::getInstance()->destroy();
+	Renderer::getInstance()->destroy();
 	glfwTerminate();
 }
 
 bool Application::init() {
 
 	bool statusOK = false;
-
+	initialFrame = false;
 	statusOK = glfwInit();
 
 	if (!statusOK) {
@@ -28,8 +31,11 @@ bool Application::init() {
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-	m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", NULL, NULL);
 
+
+	m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", NULL, NULL);
+	//glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	
 	if (m_window == nullptr) {
 		glfwTerminate();
 		logError("Failed to create GLFW window");
@@ -52,14 +58,10 @@ bool Application::init() {
 	
 	m_input = new Input();
 
-	/*
-		Initialize all persisten data here
-	*/
-	
+	initGraphics();
 
-	m_stateManager = new StateManager(&m_pd);
-
-	m_stateManager->pushState(new PlayState());
+	m_stateManager = new StateManager();
+	m_stateManager->pushState(new MenuState());
 
 	logTrace("Application successfully initialized");
 	return statusOK;
@@ -67,6 +69,8 @@ bool Application::init() {
 
 void Application::run()
 {
+	float timeNow = 0.0f;
+	float timeThen = 0.0f;
 	
 	logInfo("Running Application loop");
 
@@ -83,14 +87,46 @@ void Application::run()
 		{
 			glfwSetWindowShouldClose(m_window, true);
 		}
+	
+		if (Input::isKeyPressed(GLFW_KEY_F1)) {
+			ShaderMap::getInstance()->reload();
+		}
+		//Skip the first frame, this is because we 
+		if (initialFrame == false) {
+			timeNow = static_cast<float>(glfwGetTime());
+			timeThen = timeNow;
+			initialFrame = true;
+			glfwSwapBuffers(m_window);
 
-		m_stateManager->update(1.0f);
+			continue;
+		}
+
+		timeNow = static_cast<float>(glfwGetTime());
+
+		//Deltatime
+		float deltaTime = timeNow - timeThen;
+		timeThen = timeNow;
+		
+		m_stateManager->update(deltaTime);
 		m_stateManager->render();
-
 
 		glfwSwapBuffers(m_window);
 	}
 
 	logInfo("Exiting application loop");
+
+}
+
+void Application::initGraphics()
+{
+	//init renderer
+	Renderer* m_renderer = Renderer::getInstance();
+	if (!m_renderer) {
+		logError("Rendererer failed");
+	}
+	
+	m_renderer->init(m_window);
+
+	ShaderMap::getInstance();
 
 }

@@ -2,22 +2,24 @@
 #include "StateManager.h"
 
 
-StateManager::StateManager(PersistentData* pd)
+StateManager::StateManager()
 {
-	m_pd = pd;
 }
 
 
 StateManager::~StateManager()
 {
 	clearStates();
+	clearKillList();
 }
 
 void StateManager::popState()
 {
 	if (m_states.size() > 1) {
-		delete m_states[m_states.size() - 1];
+		
+		m_killList.emplace_back(m_states[m_states.size() - 1]);
 		m_states.pop_back();
+
 	}
 	else {
 		logWarning("Trying to remove the only state left in the stack!");
@@ -27,7 +29,6 @@ void StateManager::popState()
 void StateManager::pushState(State* newState)
 {
 	newState->assignManager(this);
-	newState->assignPersistentData(m_pd);
 	m_states.emplace_back(newState);
 	
 }
@@ -37,7 +38,6 @@ void StateManager::clearAllAndSetState(State* newState)
 	if (newState != nullptr) {
 		clearStates();
 		newState->assignManager(this);
-		newState->assignPersistentData(m_pd);
 		m_states.emplace_back(newState);
 		
 	}
@@ -48,9 +48,13 @@ void StateManager::clearAllAndSetState(State* newState)
 
 void StateManager::update(float dt)
 {
+	// Clear and remove the states that is present in the kill list
+	clearKillList();
+
 	if (!m_states.empty()) {
 		m_states.back()->update(dt);
 	}
+
 }
 
 void StateManager::render()
@@ -63,7 +67,15 @@ void StateManager::render()
 void StateManager::clearStates()
 {
 	for (size_t i = 0; i < m_states.size(); i++) {
-		delete m_states[i];
+		m_killList.emplace_back(m_states[i]);
 	}
 	m_states.clear();
+}
+
+void StateManager::clearKillList()
+{
+	for (size_t i = 0; i < m_killList.size(); i++) {
+		delete m_killList[i];
+	}
+	m_killList.clear();
 }
