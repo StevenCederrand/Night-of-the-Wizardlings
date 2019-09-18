@@ -10,8 +10,8 @@ public:
 	// you dont have to do it.
 	void init();
 	
-	// Dont call this, it's being called in the application class already
 	void destroy();
+
 
 	void loadScheme(const std::string& schemefile);
 	void setFont(const std::string& fontFile);
@@ -32,6 +32,7 @@ private:
 	static CEGUI::OpenGL3Renderer* m_guiRenderer;
 	CEGUI::GUIContext* m_context = nullptr;
 	CEGUI::Window* m_root;
+	
 	
 
 };

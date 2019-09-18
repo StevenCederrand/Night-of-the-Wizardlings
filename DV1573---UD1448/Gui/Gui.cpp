@@ -81,6 +81,13 @@ void Gui::init()
 void Gui::destroy()
 {
 	CEGUI::System::getSingleton().destroyGUIContext(*m_context);
+
+	for (size_t i = 0; i < m_root->getChildCount(); i++)
+	{
+		m_root->getChildAtIdx(i)->removeAllEvents();
+	}
+
+	CEGUI::WindowManager::getSingleton().destroyWindow(m_root);
 }
 
 void Gui::loadScheme(const std::string& schemefile)
@@ -170,3 +177,4 @@ void Gui::draw()
 	glDisable(GL_SCISSOR_TEST);
 	glEnable(GL_DEPTH_TEST);
 }
+

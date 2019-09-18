@@ -57,6 +57,8 @@ void Mesh::setUpMesh(float* inVertices, int inVertexCount, int* inIndices, int i
 		}
 	}
 
+	delete tempVert;
+	delete tempFace;
 }
 
 void Mesh::setUpBuffers()
