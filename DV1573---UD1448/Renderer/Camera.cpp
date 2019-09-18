@@ -41,13 +41,13 @@ void Camera::mouse_callback(GLFWwindow* window)
 Camera::Camera()
 {
 	//Initial values (starting point of camera) if nothing else is given
-	camPos = glm::vec3(0.0f, 0.0f, 3.0f);
+	camPos = glm::vec3(0.0f, 3.0f, 0.0f);
 	worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	camYaw = -90.0f;
 	camPitch = 0;//-40.0f;
 	
 	camFace = glm::vec3(0.0f, 0.0f, -1.0f);
-	camSpeed = 1;
+	camSpeed = 10;
 	sensitivity = 0.15f;
 
 	width = SCREEN_WIDTH;
@@ -103,7 +103,7 @@ void Camera::mouseControls(float xOffset, float yOffset, bool pitchLimit)
 		if (camPitch > 89.0f)
 			camPitch = 89.0f;
 		if (camPitch < -89.0f)
-			camPitch = 89.0f;
+			camPitch = -89.0f;
 	}
 
 	calcVectors();

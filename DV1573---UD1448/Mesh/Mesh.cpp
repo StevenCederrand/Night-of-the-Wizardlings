@@ -18,7 +18,7 @@ Mesh::~Mesh()
 
 }
 
-void Mesh::setUpMesh(float* inVertices, int inVertexCount, int* inIndices, int inFaceCount)
+void Mesh::setUpMesh(const float* inVertices, int inVertexCount, const int* inIndices, int inFaceCount)
 {
 	int j = 0;
 	vertexCount = inVertexCount;
@@ -29,38 +29,32 @@ void Mesh::setUpMesh(float* inVertices, int inVertexCount, int* inIndices, int i
 
 
 	// Fill verts
-	float* tempVert = inVertices;
 	for (int i = 0; i < vertexCount; i++)
 	{
 
-		vertices[i].position[0] = tempVert[j]; j++;
-		vertices[i].position[1] = tempVert[j]; j++;
-		vertices[i].position[2] = tempVert[j]; j++;
+		vertices[i].position[0] = inVertices[j]; j++;
+		vertices[i].position[1] = inVertices[j]; j++;
+		vertices[i].position[2] = inVertices[j]; j++;
 			
-		vertices[i].UV[0] = tempVert[j]; j++;
-		vertices[i].UV[1] = tempVert[j]; j++;
+		vertices[i].UV[0] = inVertices[j]; j++;
+		vertices[i].UV[1] = inVertices[j]; j++;
 
-		vertices[i].Normals[0] = tempVert[j]; j++;
-		vertices[i].Normals[1] = tempVert[j]; j++;
-		vertices[i].Normals[2] = tempVert[j]; j++;
+		vertices[i].Normals[0] = inVertices[j]; j++;
+		vertices[i].Normals[1] = inVertices[j]; j++;
+		vertices[i].Normals[2] = inVertices[j]; j++;
 	}
 
 	// Fill faces
-	int* tempFace = inIndices;
 	j = 0;
 	int k = 0;
 	for (int i = 0; i < inFaceCount; i++)
 	{
 		for (int j = 0; j < 3; j++)
 		{
-			faces[i].indices[j] = tempFace[k];
+			faces[i].indices[j] = inIndices[k];
 			k++;
 		}
 	}
-
-	delete tempVert;
-	delete tempFace;
-
 }
 
 void Mesh::setUpBuffers()
@@ -89,6 +83,7 @@ void Mesh::setUpBuffers()
 
 	vertexBuffer.nrOfFaces = faces.size();
 }
+
 
 Buffers Mesh::getBuffers() const
 {

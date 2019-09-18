@@ -57,16 +57,6 @@ namespace BGLoading
 		char normal[NAME_SIZE_L];
 	};
 
-	struct MeshVert
-	{
-		Vertex* vertices;
-	};
-
-	struct MeshFace
-	{
-		Face* faces;
-	};
-
 	struct Skeleton
 	{
 		char name[NAME_SIZE_L];

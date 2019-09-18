@@ -1,7 +1,7 @@
 #ifndef _SHADER_H
 #define _SHADER_H
 #include <Pch/Pch.h>
-
+#include <GFX/MaterialMap.h>
 class Shader
 {
 public:
@@ -21,6 +21,8 @@ public:
 	void setFloat(std::string name, float num);
 	void setInt(std::string name, int num);
 	void setName(std::string name);
+	//Sets a standard material
+	void setMaterial(std::string materalName);
 
 	bool getValid() const;
 	int getShaderID() const;
