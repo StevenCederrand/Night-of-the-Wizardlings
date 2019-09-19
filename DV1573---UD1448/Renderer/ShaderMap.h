@@ -7,6 +7,9 @@ public:
 	static ShaderMap* getInstance();
 	//@ vsName & fsName enter just the name of the shader.
 	Shader* createShader(std::string name, std::string vsName, std::string fsName);
+	//@ csName enter just the name of the compute shader
+	Shader* createShader(std::string name, std::string csName);
+
 	Shader* getShader(std::string name);
 	void cleanUp();
 	bool existsWithName(std::string name);

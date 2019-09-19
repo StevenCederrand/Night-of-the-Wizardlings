@@ -1,5 +1,7 @@
-#pragma once
+#ifndef _MESH_h
+#define _MESH_h
 #include <Pch/Pch.h>
+
 
 class Mesh
 {
@@ -15,7 +17,6 @@ private:
 	std::vector<Face> faces;
 	std::vector<Vertices> vertices;
 	Buffers vertexBuffer;
-
 
 public:
 	Mesh();
@@ -39,3 +40,4 @@ public:
 
 };
 
+#endif

@@ -1,24 +1,26 @@
 #include <Pch/Pch.h>
 #include "PlayState.h"
+#include <CEGUI/CEGUI.h>
+#include <CEGUI/RendererModules/OpenGL/GL3Renderer.h>
 // TODO move to mesh
 #include <Loader/BGLoader.h>
 
 PlayState::PlayState()
 {
+	ShaderMap::getInstance()->createShader("Basic_Forward", "VertexShader.vs", "FragShader.fs");
+	Renderer::getInstance();
+	m_camera = new Camera();
+	Renderer::getInstance()->setupCamera(m_camera);
+
+	// TODO move to mesh and file filepath
+	m_object = new WorldObject("Character");
+	m_object->loadMesh("TestScene.mesh");
+	
 	logTrace("Playstate created");
 
-	// TODO move this to be more clean and change the setUpMesh function
-	BGLoader tempLoader;
-	tempLoader.LoadMesh(MESHPATH + "WalkingTest.mesh");
+	CEGUI::OpenGL3Renderer& guiRenderer = CEGUI::OpenGL3Renderer::bootstrapSystem();
 
-	m_mesh.setUpMesh(tempLoader.GetVertices(0),
-		tempLoader.GetVertexCount(0),
-		tempLoader.GetFaces(0),
-		tempLoader.GetFaceCount(0));
-	m_mesh.setUpBuffers();
-
-
-
+	/*
 	Material tempMaterial;
 	tempMaterial = tempLoader.GetMaterial(0);
 
@@ -35,19 +37,24 @@ PlayState::PlayState()
 	m_renderer = m_renderer->getInstance();
 	m_cube = new Cube();
 	m_cube->loadTexture("testTexture.jpg");
+	*/
 }
 
 PlayState::~PlayState()
 {
-	delete m_cube;
+	MaterialMap::getInstance()->destroy();
+	delete m_object;
+	delete m_camera;
 }
 
 void PlayState::update(float dt)
 {
-	m_renderer->update(dt);
+	Renderer::getInstance()->update(dt);
 }
 
 void PlayState::render()
 {
-	Renderer::getInstance()->render(m_mesh.getBuffers(), m_mesh.getPos());
+	//m_object->bindMaterialToShader("Basic_Forward");
+	Renderer::getInstance()->bindMatrixes(m_camera->getViewMat(), m_camera->getProjMat());
+//	Renderer::getInstance()->render(*m_object);
 }

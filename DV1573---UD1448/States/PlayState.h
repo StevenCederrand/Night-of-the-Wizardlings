@@ -3,6 +3,7 @@
 #include <Pch/Pch.h>
 #include "System/State.h"
 #include <GFX/MaterialMap.h>
+#include <GameObject/WorldObject.h>
 
 
 class PlayState : public State {
@@ -15,11 +16,9 @@ public:
 
 private:
 	int key = 1;
-	Cube *m_cube;
-	Renderer* m_renderer;
-	ShaderMap* m_shaderMap;
-	MaterialMap* m_materialMap;
-	Mesh m_mesh;
+	WorldObject* m_object;
+
+	Camera* m_camera;
 };
 
 

@@ -8,12 +8,12 @@ Renderer::Renderer()
 {
 	m_gWindow = nullptr;
 	m_camera = nullptr;
+
+
 	glEnable(GL_DEPTH_TEST);
-
-
 	//Enable this when more objects are being loaded!
-	/*glEnable(GL_CULL_FACE);
-	glCullFace(GL_FRONT);*/
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 }
 
 Renderer* Renderer::getInstance()
@@ -26,38 +26,44 @@ Renderer* Renderer::getInstance()
 
 void Renderer::init(GLFWwindow* window)
 {
-	m_camera = new Camera();
 	m_gWindow = window;
-}	
+}
+void Renderer::setupCamera(Camera* camera)
+{
+	if (camera == nullptr) {
+		return;
+	}
+	m_camera = camera;
+}
 
 void Renderer::destroy()
 {
-	delete m_camera;
 	delete m_rendererInstance;
-}	
+}
+void Renderer::bindMatrixes(const glm::mat4& viewMatrix, const glm::mat4& projMatrix)
+{
+	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("viewMatrix", m_camera->getViewMat());
+	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("projectionMatrix", m_camera->getProjMat());
+}
 
 void Renderer::update(float dt) {
 	m_camera->fpsControls(dt);
 }
 
-void Renderer::render(Cube* cube) {
+void Renderer::render(const GameObject& gameObject) {
 	m_camera->update(m_gWindow);
+
+	glBindVertexArray(gameObject.getMesh()->getBuffers().vao);
 	
-	ShaderMap::getInstance()->useByName("Basic_Forward");	
+	glm::mat4 worldMatrix = glm::mat4(1.0f);
+	worldMatrix = glm::translate(worldMatrix, gameObject.getTransform().m_worldPos);
 
-	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("viewMatrix", m_camera->getViewMat());
-	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("projectionMatrix", m_camera->getProjMat());
+	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("modelMatrix", worldMatrix);
 
-	glBindVertexArray(cube->getVAO());
+	glDrawElements(GL_TRIANGLES, gameObject.getMesh()->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, cube->getWorldPos());
-
-	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("modelMatrix", model);
-
-
-	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
+
 }
 
 void Renderer::render(Buffers buffer, glm::vec3 worldPos) {
@@ -78,11 +84,6 @@ void Renderer::render(Buffers buffer, glm::vec3 worldPos) {
 	glDrawElements(GL_TRIANGLES, buffer.nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 	glBindVertexArray(0);
-
-}
-
-const GLuint& Renderer::getVBO() const{
-	return m_VBO;
 }
 
 Camera* Renderer::getMainCamera() const

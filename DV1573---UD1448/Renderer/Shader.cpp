@@ -5,6 +5,30 @@ Shader::Shader() {
 
 }
 
+Shader::Shader(std::string compute)
+{
+	unsigned int computeShader = glCreateShader(GL_COMPUTE_SHADER);
+	
+	GLint compileResult;
+	char buffer[1024];
+	shaderSetup(compute, computeShader);
+	m_shaderProg = glCreateProgram();
+	glAttachShader(m_shaderProg, computeShader);
+	glLinkProgram(m_shaderProg);
+	
+	glGetProgramiv(m_shaderProg, GL_LINK_STATUS, &compileResult);
+	if (compileResult == GL_FALSE)
+	{
+		memset(buffer, 0, 1024);
+		glGetProgramInfoLog(m_shaderProg, 1024, nullptr, buffer);
+		logError("Error compiling shaders (computeShader)", compute);
+		logInfo(buffer);
+		m_valid = false;
+	}
+	glDetachShader(m_shaderProg, computeShader);
+	glDeleteShader(computeShader);
+}
+
 Shader::Shader(std::string vertex, std::string fragment)
 {
 
@@ -212,6 +236,15 @@ void Shader::setInt(std::string name, int num)
 
 	glUniform1i(uniformLoc, num);
 }
+
+void Shader::setMaterial(std::string materialName) {
+	use();
+	Material* mat = MaterialMap::getInstance()->getMaterial(materialName);
+	setVec3("Ambient_Color", mat->ambient);
+	setVec3("Diffuse_Color", mat->diffuse);
+	setVec3("Specular_Color", mat->specular);
+}
+
 
 void Shader::clearIDs() {
 	m_IDMap.clear();

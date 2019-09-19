@@ -15,6 +15,7 @@ Mesh::Mesh()
 
 Mesh::~Mesh()
 {
+
 }
 
 void Mesh::setUpMesh(const float* inVertices, int inVertexCount, const int* inIndices, int inFaceCount)
@@ -54,7 +55,6 @@ void Mesh::setUpMesh(const float* inVertices, int inVertexCount, const int* inIn
 			k++;
 		}
 	}
-
 }
 
 void Mesh::setUpBuffers()
@@ -82,8 +82,6 @@ void Mesh::setUpBuffers()
 	glBindVertexArray(0);
 
 	vertexBuffer.nrOfFaces = faces.size();
-
-
 }
 
 
