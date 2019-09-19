@@ -17,8 +17,11 @@ void Camera::calcVectors()
 
 void Camera::mouse_callback(GLFWwindow* window)
 {
-	lastX = 640.0f;
-	lastY = 360.0f;
+	// Instead of hard coding because the size of the window might change later on
+	int wSizeX, wSizeY;
+	glfwGetWindowSize(glfwGetCurrentContext(), &wSizeX, &wSizeY);
+	lastX = static_cast<float>(wSizeX / 2);
+	lastY = static_cast<float>(wSizeY / 2);
 
 	glfwGetCursorPos(window, &xpos, &ypos);
 	glfwSetCursorPos(window, lastX, lastY);
@@ -29,11 +32,11 @@ void Camera::mouse_callback(GLFWwindow* window)
 		ypos = lastY;
 	}
 
-	float xoffset = xpos - lastX;
-	float yoffset = lastY - ypos;
+	float xoffset = static_cast<float>(xpos) - lastX;
+	float yoffset = lastY - static_cast<float>(ypos);
 	
-	lastX = xpos;
-	lastY = ypos;
+	lastX = static_cast<float>(xpos);
+	lastY = static_cast<float>(ypos);
 
 	mouseControls(xoffset, yoffset, true);
 }

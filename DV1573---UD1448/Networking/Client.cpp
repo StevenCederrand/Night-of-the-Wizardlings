@@ -42,7 +42,7 @@ void Client::connectToAnotherServer(const ServerInfo& server)
 {
 	m_failedToConnect = false;
 	bool status = m_clientPeer->Connect(server.serverAddress.ToString(false), server.serverAddress.GetPort(), 0, 0, 0) == RakNet::CONNECTION_ATTEMPT_STARTED;
-	assert(status == true, "Client connecting to {0} failed!", server.serverName);
+	assert((status == true, "Client connecting to {0} failed!", server.serverName));
 	m_processThread = std::thread(&Client::threadedProcess, this);
 }
 
@@ -50,7 +50,7 @@ void Client::connectToMyServer()
 {
 	m_failedToConnect = false;
 	bool status = m_clientPeer->Connect("localhost", NetGlobals::ServerPort, 0, 0, 0) == RakNet::CONNECTION_ATTEMPT_STARTED;
-	assert(status == true, "Client connecting to localhost failed!");
+	assert((status == true, "Client connecting to localhost failed!"));
 	m_processThread = std::thread(&Client::threadedProcess, this);
 }
 
@@ -215,8 +215,9 @@ const ServerInfo& Client::getServerByID(const unsigned int& ID) const
 			return m_serverList[i].second;
 	}
 
-	ServerInfo c;
-	return c;
+	// Really ugly way to get rid of an compiler warning
+	ServerInfo* c = nullptr;
+	return *c;
 }
 
 const bool Client::doesServerExist(const unsigned int& ID) const
@@ -257,7 +258,7 @@ void Client::findAllServerAddresses()
 				{
 					ServerInfo info;
 
-					auto byteOffset = packet->length - sizeof(ServerInfo);
+					auto byteOffset = packet->length - static_cast<unsigned int>(sizeof(ServerInfo));
 
 					RakNet::BitStream bsIn(packet->data + byteOffset, packet->length - byteOffset, false);
 					info = *(ServerInfo*)bsIn.GetData();

@@ -21,7 +21,7 @@ void LocalServer::startup(const std::string& serverName)
 	if (!m_initialized) {
 		m_serverPeer = RakNet::RakPeerInterface::GetInstance();
 		auto startResult = m_serverPeer->Startup(NetGlobals::MaximumConnections, &RakNet::SocketDescriptor(NetGlobals::ServerPort, 0), 1);
-		assert(startResult == RakNet::RAKNET_STARTED, "Server could not be started!");
+		assert((startResult == RakNet::RAKNET_STARTED, "Server could not be started!"));
 
 		m_serverPeer->SetMaximumIncomingConnections(NetGlobals::MaximumIncomingConnections);
 
@@ -111,7 +111,7 @@ void LocalServer::threadedProcess()
 
 			case ID_DISCONNECTION_NOTIFICATION:
 			{
-				logTrace("[SERVER] Player disconnected with {0}\With GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
+				logTrace("[SERVER] Player disconnected with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
 				handleLostPlayer(*packet, bsIn);
 			}
 			break;

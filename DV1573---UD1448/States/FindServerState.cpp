@@ -64,7 +64,7 @@ void FindServerState::loadServersIntoList()
 	auto& servers = Client::getInstance()->getServerList();
 	for (size_t i = 0; i < m_serverList->getRowCount(); i++) {
 		//auto* c = m_serverList->getChildAtIdx(i);
-		m_serverList->removeRow(m_serverList->getRowID(i));
+		m_serverList->removeRow(m_serverList->getRowID(static_cast<CEGUI::uint>(i)));
 		logTrace("Should have deleted something atleast..");
 	}
 
@@ -74,9 +74,9 @@ void FindServerState::loadServersIntoList()
 		CEGUI::ListboxTextItem* itemMultiColumnList;
 		itemMultiColumnList = new CEGUI::ListboxTextItem(servers[i].second.serverName, servers[i].first);
 		itemMultiColumnList->setSelectionBrushImage("TaharezLook/MultiListSelectionBrush");
-		m_serverList->setItem(itemMultiColumnList, 0, i); // ColumnID, RowID
+		m_serverList->setItem(itemMultiColumnList, 0, static_cast<CEGUI::uint>(i)); // ColumnID, RowID
 		itemMultiColumnList = new CEGUI::ListboxTextItem(std::to_string(servers[i].second.connectedPlayers) + "/" + std::to_string(servers[i].second.maxPlayers), servers[i].first+1);
-		m_serverList->setItem(itemMultiColumnList, 1, i); // ColumnID, RowID
+		m_serverList->setItem(itemMultiColumnList, 1, static_cast<CEGUI::uint>(i)); // ColumnID, RowID
 	}
 }
 

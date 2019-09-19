@@ -182,7 +182,7 @@ void Gui::update(float dt)
 	{
 		double x, y;
 		glfwGetCursorPos(glfwGetCurrentContext(), &x, &y);
-		m_context->injectMousePosition(x,y);
+		m_context->injectMousePosition(static_cast<float>(x), static_cast<float>(y));
 	}
 
 	if (Input::isAnyKeyPressed())
