@@ -2,7 +2,6 @@
 #define _MESH_h
 #include <Pch/Pch.h>
 
-
 class Mesh
 {
 private:
@@ -12,17 +11,19 @@ private:
 	glm::quat m_worldRot;
 	glm::vec3 m_worldScale;
 
-	int vertexCount;
-	int faceCount;
-	std::vector<Face> faces;
-	std::vector<Vertices> vertices;
-	Buffers vertexBuffer;
+	int m_vertexCount;
+	int m_faceCount;
+	std::vector<Face> m_faces;
+	std::vector<Vertices> m_vertices;
+	Buffers m_vertexBuffer;
+
+
 
 public:
 	Mesh();
 	~Mesh();
 
-	void setUpMesh(const float* inVertices, int inVertexCount, const int* inIndices, int inFaceCount);
+	void setUpMesh(std::vector<Vertices> vertices, std::vector<Face> faces);
 	void setUpBuffers();
 
 	glm::vec3 getPos() const { return m_worldPos; }
@@ -31,11 +32,11 @@ public:
 
 	Buffers getBuffers() const;
 
-	int getVertexCount() const { return vertexCount; }
-	int getFaceCount() const { return faceCount; }
+	int getVertexCount() const { return m_vertexCount; }
+	int getFaceCount() const { return m_faceCount; }
 	
-	const std::vector<Face>& getFaces() { return faces; }
-	const std::vector<Vertices>& getVertices() { return vertices; }
+	const std::vector<Face>& getFaces() { return m_faces; }
+	const std::vector<Vertices>& getVertices() { return m_vertices; }
 
 
 };

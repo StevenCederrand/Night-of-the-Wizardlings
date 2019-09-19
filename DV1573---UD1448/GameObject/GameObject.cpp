@@ -27,17 +27,14 @@ void GameObject::loadMesh(std::string meshName)
 	//A memory leak builds here
 	tempLoader.LoadMesh(MESHPATH + meshName); 
 	
-	
 	m_mesh = new Mesh();
-   	m_mesh->setUpMesh(tempLoader.GetVertices(0),
-		tempLoader.GetVertexCount(0),
-		tempLoader.GetFaces(0),
-		tempLoader.GetFaceCount(0));
+   	m_mesh->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
 	m_mesh->setUpBuffers();
 
+
 	//Get the mesh Material
-	Material tempMaterial = tempLoader.GetMaterial(0);
-	m_materialName = (std::string)tempLoader.GetMaterial(0).name;
+	Material tempMaterial = tempLoader.GetMaterial();
+	m_materialName = (std::string)tempLoader.GetMaterial().name;
 	MaterialMap::getInstance()->createMaterial(m_materialName, tempMaterial);
 	//----BUG----And is never unloaded
 	tempLoader.Unload();

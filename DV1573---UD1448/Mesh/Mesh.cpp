@@ -1,4 +1,4 @@
-#include "Pch/Pch.h"
+#include <Pch/Pch.h>
 #include "Mesh.h"
 
 Mesh::Mesh()
@@ -9,8 +9,8 @@ Mesh::Mesh()
 	m_worldRot = glm::quat();
 	m_worldScale = glm::vec3();
 
-	vertexCount = 0;
-	faceCount = 0;
+	m_vertexCount = 0;
+	m_faceCount = 0;
 }
 
 Mesh::~Mesh()
@@ -18,58 +18,32 @@ Mesh::~Mesh()
 
 }
 
-void Mesh::setUpMesh(const float* inVertices, int inVertexCount, const int* inIndices, int inFaceCount)
+void Mesh::setUpMesh(std::vector<Vertices> vertices, std::vector<Face> faces)
 {
 	int j = 0;
-	vertexCount = inVertexCount;
-	faceCount = inFaceCount;
+	m_vertexCount = vertices.size();
+	m_faceCount = faces.size();
 
-	vertices.resize(vertexCount);
-	faces.resize(inFaceCount);
+	//vertices.resize(m_vertexCount);
+	//faces.resize(m_inFaceCount);
 
-
-	// Fill verts
-	for (int i = 0; i < vertexCount; i++)
-	{
-
-		vertices[i].position[0] = inVertices[j]; j++;
-		vertices[i].position[1] = inVertices[j]; j++;
-		vertices[i].position[2] = inVertices[j]; j++;
-			
-		vertices[i].UV[0] = inVertices[j]; j++;
-		vertices[i].UV[1] = inVertices[j]; j++;
-
-		vertices[i].Normals[0] = inVertices[j]; j++;
-		vertices[i].Normals[1] = inVertices[j]; j++;
-		vertices[i].Normals[2] = inVertices[j]; j++;
-	}
-
-	// Fill faces
-	j = 0;
-	int k = 0;
-	for (int i = 0; i < inFaceCount; i++)
-	{
-		for (int j = 0; j < 3; j++)
-		{
-			faces[i].indices[j] = inIndices[k];
-			k++;
-		}
-	}
+	m_vertices = vertices;
+	m_faces = faces;
 }
 
 void Mesh::setUpBuffers()
 {
-	glGenVertexArrays(1, &vertexBuffer.vao);
-	glGenBuffers(1, &vertexBuffer.vbo);
-	glGenBuffers(1, &vertexBuffer.ibo);
+	glGenVertexArrays(1, &m_vertexBuffer.vao);
+	glGenBuffers(1, &m_vertexBuffer.vbo);
+	glGenBuffers(1, &m_vertexBuffer.ibo);
 
-	glBindVertexArray(vertexBuffer.vao);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertices), &vertices[0], GL_STATIC_DRAW); 
+	glBindVertexArray(m_vertexBuffer.vao);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer.vbo);
+	glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(Vertices), &m_vertices[0], GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertexBuffer.ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, faces.size() * sizeof(int) * 3,
-		&faces[0], GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vertexBuffer.ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_faces.size() * sizeof(int) * 3,
+		&m_faces[0], GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertices), (void*)0);
@@ -81,11 +55,11 @@ void Mesh::setUpBuffers()
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertices), (void*)offsetof(Vertices, UV));
 	glBindVertexArray(0);
 
-	vertexBuffer.nrOfFaces = faces.size();
+	m_vertexBuffer.nrOfFaces = m_faces.size();
 }
 
 
 Buffers Mesh::getBuffers() const
 {
-	return vertexBuffer;
+	return m_vertexBuffer;
 }

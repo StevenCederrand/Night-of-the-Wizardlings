@@ -37,6 +37,7 @@ void BGLoader::Unload()
 {	
 	animationsD.clear();
 	skeletonsD.clear();
+	bggMaterials.clear();
 
 	for (std::vector<Vertices> vector : bggVertices)
 		vector.clear();
@@ -65,10 +66,6 @@ void BGLoader::Unload()
 		delete[] dirLight;
 	if (pointLight)
 		delete[] pointLight;
-	if (vertices)
-		delete[] vertices;
-	if (faces)
-		delete[] faces;
 
 
 	meshGroup = nullptr;
@@ -76,8 +73,6 @@ void BGLoader::Unload()
 	loaderMesh = nullptr;
 	dirLight = nullptr;
 	pointLight = nullptr;
-	vertices = nullptr;
-	faces = nullptr;
 
 	fileHeader.meshCount = 0;
 	fileHeader.groupCount = 0;
@@ -104,26 +99,26 @@ void BGLoader::BGFormatData()
 		bggFaces[meshId].resize(GetFaceCount(meshId));
 
 		// Vertices
-		for (int v = 0; v < bggVertices.size(); v++)
+		for (int v = 0; v < bggVertices[meshId].size(); v++)
 		{
-			bggVertices[meshId][v].position[0] = meshVert[meshId]->position[0];
-			bggVertices[meshId][v].position[1] = meshVert[meshId]->position[1];
-			bggVertices[meshId][v].position[2] = meshVert[meshId]->position[2];
+			bggVertices[meshId][v].position[0] = meshVert[meshId][v].position[0];
+			bggVertices[meshId][v].position[1] = meshVert[meshId][v].position[1];
+			bggVertices[meshId][v].position[2] = meshVert[meshId][v].position[2];
 
-			bggVertices[meshId][v].UV[0] = meshVert[meshId]->uv[0];
-			bggVertices[meshId][v].UV[1] = meshVert[meshId]->uv[1];
+			bggVertices[meshId][v].UV[0] = meshVert[meshId][v].uv[0];
+			bggVertices[meshId][v].UV[1] = meshVert[meshId][v].uv[1];
 
-			bggVertices[meshId][v].Normals[0] = meshVert[meshId]->normal[0];
-			bggVertices[meshId][v].Normals[1] = meshVert[meshId]->normal[1];
-			bggVertices[meshId][v].Normals[2] = meshVert[meshId]->normal[2];
+			bggVertices[meshId][v].Normals[0] = meshVert[meshId][v].normal[0];
+			bggVertices[meshId][v].Normals[1] = meshVert[meshId][v].normal[1];
+			bggVertices[meshId][v].Normals[2] = meshVert[meshId][v].normal[2];
 		}
 
 		// Faces
-		for (int f = 0; f < bggFaces.size(); f++)
+		for (int f = 0; f < bggFaces[meshId].size(); f++)
 		{
-			bggFaces[meshId][f].indices[0] = meshFace[meshId]->indices[0];
-			bggFaces[meshId][f].indices[1] = meshFace[meshId]->indices[1];
-			bggFaces[meshId][f].indices[2] = meshFace[meshId]->indices[2];
+			bggFaces[meshId][f].indices[0] = meshFace[meshId][f].indices[0];
+			bggFaces[meshId][f].indices[1] = meshFace[meshId][f].indices[1];
+			bggFaces[meshId][f].indices[2] = meshFace[meshId][f].indices[2];
 		}
 
 		// Material
@@ -134,111 +129,6 @@ void BGLoader::BGFormatData()
 		bggMaterials[meshId].ambient = glm::vec3(*material[meshId].ambient);
 	}
 
-}
-
-const float* BGLoader::GetVertices(int meshNr)
-{
-	BGLoading::LoaderMesh tempMesh = loaderMesh[meshNr];
-	int vertexCount = tempMesh.vertexCount;
-
-	int vertexSize = vertexCount * 8 + 1;
-	vertices = new float[vertexSize];
-
-	int j = 0;
-	for (int i = 0; i < vertexCount; i++)
-	{
-		BGLoading::Vertex tempVertices = meshVert[meshNr][i];
-
-		vertices[j] = (float)tempVertices.position[0]; j++;
-		vertices[j] = (float)tempVertices.position[1]; j++;
-		vertices[j] = (float)tempVertices.position[2]; j++;
-
-		vertices[j] = (float)tempVertices.uv[0]; j++;
-		vertices[j] = (float)tempVertices.uv[1]; j++;
-
-		vertices[j] = (float)tempVertices.normal[0]; j++;
-		vertices[j] = (float)tempVertices.normal[1]; j++;
-		vertices[j] = (float)tempVertices.normal[2]; j++;
-
-	}
-
-
-	return vertices;
-}
-
-const float* BGLoader::GetVertices()
-{
-	BGLoading::LoaderMesh tempMesh = loaderMesh[0];
-	int vertexCount = tempMesh.vertexCount;
-
-	int vertexSize = vertexCount * 8 + 1;
-	vertices = new float[vertexSize];
-
-	int j = 0;
-	for (int i = 0; i < vertexCount; i++)
-	{
-		BGLoading::Vertex tempVertices = meshVert[0][i];
-
-		vertices[j] = (float)tempVertices.position[0]; j++;
-		vertices[j] = (float)tempVertices.position[1]; j++;
-		vertices[j] = (float)tempVertices.position[2]; j++;
-
-		vertices[j] = (float)tempVertices.uv[0]; j++;
-		vertices[j] = (float)tempVertices.uv[1]; j++;
-
-		vertices[j] = (float)tempVertices.normal[0]; j++;
-		vertices[j] = (float)tempVertices.normal[1]; j++;
-		vertices[j] = (float)tempVertices.normal[2]; j++;
-
-	}
-
-
-	return vertices;
-}
-
-
-const int* BGLoader::GetFaces(int meshNr)
-{
-	BGLoading::LoaderMesh tempMesh = loaderMesh[meshNr];
-	int faceCount = tempMesh.faceCount;
-
-	int faceSize = faceCount * 3;
-	faces = new int[faceSize];
-
-	int j = 0;
-	for (int i = 0; i < faceCount; i++)
-	{
-		BGLoading::Face tempFace = meshFace[meshNr][i];
-
-		faces[j] = (int)tempFace.indices[0]; j++;
-		faces[j] = (int)tempFace.indices[1]; j++;
-		faces[j] = (int)tempFace.indices[2]; j++;
-	}
-
-
-	return faces;
-}
-
-const int* BGLoader::GetFaces()
-{
-	BGLoading::LoaderMesh tempMesh = loaderMesh[0];
-	int faceCount = tempMesh.faceCount;
-
-	int faceSize = faceCount * 3;
-	faces = new int[faceSize];
-
-	int j = 0;
-	for (int i = 0; i < faceCount; i++)
-	{
-		BGLoading::Face tempFace = meshFace[0][i];
-
-		faces[j] = (int)tempFace.indices[0]; j++;
-		faces[j] = (int)tempFace.indices[1]; j++;
-		faces[j] = (int)tempFace.indices[2]; j++;
-	}
-
-
-	return faces;
 }
 
 bool BGLoader::LoadMesh(std::string fileName)

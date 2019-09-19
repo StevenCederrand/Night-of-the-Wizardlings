@@ -24,9 +24,6 @@ private:
 
 	// TODO: Direction lights, Point Lights, Skeletons, and Animations
 
-	float* vertices;
-	int* faces;
-
 	// Temporary shared format to load data into
 	BGLoading::BGHeader	fileHeader;
 	BGLoading::MeshGroup* meshGroup;
@@ -61,14 +58,14 @@ public:
 	const std::string GetMeshName() { return (std::string)loaderMesh[0].name; }
 
 	// Returns the vertices of a specific mesh
-	const std::vector<Vertices> GetVerticesBGG(int meshId) { return bggVertices[meshId];  }
+	const std::vector<Vertices> GetVertices(int meshId) { return bggVertices[meshId];  }
 	// Returns the vertices of the first mesh
-	const std::vector<Vertices> GetVerticesBGG() { return bggVertices[0]; }
+	const std::vector<Vertices> GetVertices() { return bggVertices[0]; }
 
 	// Returns the faces of a specific mesh
-	const std::vector<Face> GetFacesBGG(int meshId) { return bggFaces[meshId]; }
+	const std::vector<Face> GetFaces(int meshId) { return bggFaces[meshId]; }
 	// Returns the faces of the first mesh
-	const std::vector<Face> GetFacesBGG() { return bggFaces[0]; }
+	const std::vector<Face> GetFaces() { return bggFaces[0]; }
 
 	// Returns a specific material
 	const Material GetMaterial(int meshId) { return bggMaterials[meshId]; }
@@ -85,52 +82,25 @@ public:
 	// Returns the first normal map
 	const std::string GetNormalMap() { return (std::string)material[0].normal; }
 
-
-
-	// TODO: REMOVE THESE
-
-	// Returns the vertices of a specific mesh
-	// Returns all the verices in format posX/posY/PosZ/uvX/uvY/normalX/normalY/normalZ/posX/posY.... 
-	// Next vertex starts where the last vertex ends (8 floats)
-	const float* GetVertices(int meshId);
-
-	// Returns the vertices of the first mesh
-	// Returns all the verices in format posX/posY/PosZ/uvX/uvY/normalX/normalY/normalZ/posX/posY.... 
-	// Next vertex starts where the last vertex ends (8 floats)
-	const float* GetVertices();
-
 	// Returns the vertexcount of a specific mesh
 	const int GetVertexCount(int meshId) { return loaderMesh[meshId].vertexCount; }
-
 	// Returns the vertexcount of the first mesh
 	const int GetVertexCount() { return loaderMesh[0].vertexCount; }
 
-	// Returns the face indicies of a specific mesh
-	// Returns all the faces in format index1/index2/index3/index1/index2.... 
-	// Next face starts where the last face ends (3 ints)
-	const int* GetFaces(int meshId);
-
-	// Returns the face indicies of the first mesh
-	// Returns all the faces in format index1/index2/index3/index1/index2.... 
-	// Next face starts where the last face ends (3 ints)
-	const int* GetFaces();
-
 	// Returns the facecount of a specific mesh
 	const int GetFaceCount(int meshId)  { return loaderMesh[meshId].faceCount; }
-
 	// Returns the face count of the first mesh
 	const int GetFaceCount()  { return loaderMesh[0].faceCount; }
 
 
 	// Ignore below, will be reformated or removed
 	BGLoading::LoaderMesh GetLoaderMesh(int meshId) const { return loaderMesh[meshId]; }
-	const BGLoading::Vertex* GetLoaderVertices(int meshId) { return meshVert[meshId]; }
-	const BGLoading::Face* GetLoaderFaces(int meshId) { return meshFace[meshId]; }
 
 	const BGLoading::PhongMaterial GetMaterial(int meshID) const { return material[meshID]; }
 	const BGLoading::PhongMaterial GetMaterial() const { return material[0]; }
 
-
+	const BGLoading::Vertex* GetLoaderVertices(int meshId) { return meshVert[meshId]; }
+	const BGLoading::Face* GetLoaderFaces(int meshId) { return meshFace[meshId]; }
 	BGLoading::Skeleton GetSkeleton(int index) const { return loaderMesh[index].skeleton; }
 	BGLoading::Joint GetJoint(int mIndex, int jIndex) const { return skeletonsD[mIndex].joint[jIndex]; }
 	BGLoading::MeshAnis GetAnimation(int mIndex) const { return animationsD[mIndex]; }
