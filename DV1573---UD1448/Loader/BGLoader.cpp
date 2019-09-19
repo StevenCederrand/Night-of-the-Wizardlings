@@ -37,8 +37,6 @@ void BGLoader::Unload()
 {	
 	animationsD.clear();
 	skeletonsD.clear();
-	meshVert.clear();
-	meshFace.clear();
 
 	for (std::vector<Vertices> vector : bggVertices)
 		vector.clear();
@@ -47,6 +45,14 @@ void BGLoader::Unload()
 	for (std::vector<Face> vector : bggFaces)
 		vector.clear();
 	bggFaces.clear();
+
+	for (BGLoading::Vertex* v : meshVert)
+		delete[] v;
+	meshVert.clear();
+
+	for (BGLoading::Face* f : meshFace)
+		delete[] f;
+	meshFace.clear();
 
 
 	if (meshGroup)
@@ -70,8 +76,6 @@ void BGLoader::Unload()
 	loaderMesh = nullptr;
 	dirLight = nullptr;
 	pointLight = nullptr;
-
-
 	vertices = nullptr;
 	faces = nullptr;
 
