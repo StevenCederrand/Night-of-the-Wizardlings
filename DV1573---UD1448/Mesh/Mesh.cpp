@@ -3,7 +3,9 @@
 
 Mesh::Mesh()
 {
-	name = "";
+	m_name = "";
+	m_filePath = "";
+	m_indexInFile = 0;
 
 	m_worldPos = glm::vec3();
 	m_worldRot = glm::quat();
@@ -24,11 +26,20 @@ void Mesh::setUpMesh(std::vector<Vertices> vertices, std::vector<Face> faces)
 	m_vertexCount = vertices.size();
 	m_faceCount = faces.size();
 
-	//vertices.resize(m_vertexCount);
-	//faces.resize(m_inFaceCount);
-
 	m_vertices = vertices;
 	m_faces = faces;
+
+}
+
+void Mesh::nameMesh(std::string name)
+{
+	m_name = name;
+}
+
+void Mesh::saveFilePath(std::string name, int index)
+{
+	m_filePath = name;
+	m_indexInFile = index;
 }
 
 void Mesh::setUpBuffers()

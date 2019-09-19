@@ -5,7 +5,9 @@
 class Mesh
 {
 private:
-	std::string name;
+	std::string m_name;
+	std::string m_filePath;
+	int m_indexInFile;
 	
 	glm::vec3 m_worldPos;
 	glm::quat m_worldRot;
@@ -24,6 +26,8 @@ public:
 	~Mesh();
 
 	void setUpMesh(std::vector<Vertices> vertices, std::vector<Face> faces);
+	void nameMesh(std::string name);
+	void saveFilePath(std::string name, int index);
 	void setUpBuffers();
 
 	glm::vec3 getPos() const { return m_worldPos; }

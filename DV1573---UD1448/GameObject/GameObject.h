@@ -19,7 +19,7 @@ public:
 	virtual ~GameObject();
 
 	//Automatically adds MESHPATH, to the name
-	void loadMesh(std::string meshName);
+	void loadMesh(std::string fileName);
 	//Bind all of the material values to the shader, i.e colors
 	void bindMaterialToShader(std::string shaderName);
 
@@ -34,6 +34,7 @@ public:
 	//Get functions
 	const Transform& getTransform() const;
 	Mesh* getMesh() const;
+	const std::vector<Mesh*>& getMeshes() const;
 
 
 private:
@@ -41,7 +42,7 @@ private:
 	std::string m_objectName;
 	std::string m_materialName;
 
-	Mesh* m_mesh = nullptr;
+	std::vector<Mesh*> m_meshes;
 
 	Transform m_transform;
 };

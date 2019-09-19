@@ -15,21 +15,23 @@ GameObject::GameObject(std::string objectName)
 
 GameObject::~GameObject()
 {
-	if (m_mesh != nullptr) {
-		delete m_mesh;
-	}
+	for (Mesh* mesh : m_meshes)
+		delete mesh;
+
 }
 
-void GameObject::loadMesh(std::string meshName)
+void GameObject::loadMesh(std::string fileName)
 {
 	BGLoader tempLoader;
 	//----BUG----
 	//A memory leak builds here
-	tempLoader.LoadMesh(MESHPATH + meshName); 
-	
-	m_mesh = new Mesh();
-   	m_mesh->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
-	m_mesh->setUpBuffers();
+	tempLoader.LoadMesh(MESHPATH + fileName); 
+
+	m_meshes.push_back(new Mesh());
+	m_meshes[m_meshes.size() - 1]->saveFilePath(tempLoader.GetFileName(), 0);
+	m_meshes[m_meshes.size() - 1]->nameMesh(tempLoader.GetMeshName());
+	m_meshes[m_meshes.size() - 1]->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
+	m_meshes[m_meshes.size() - 1]->setUpBuffers();
 
 
 	//Get the mesh Material
@@ -69,7 +71,12 @@ const Transform& GameObject::getTransform() const
 
 Mesh* GameObject::getMesh() const
 {
-	return m_mesh;
+	return m_meshes[0];
+}
+
+const std::vector<Mesh*>& GameObject::getMeshes() const
+{
+	return m_meshes;
 }
 
 void GameObject::bindMaterialToShader(std::string shaderName)
