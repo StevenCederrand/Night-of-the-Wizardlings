@@ -16,7 +16,8 @@ public:
 
 private:
 	int key = 1;
-	WorldObject* m_object;
+
+	std::vector<GameObject*> m_objects;
 
 	Camera* m_camera;
 };
