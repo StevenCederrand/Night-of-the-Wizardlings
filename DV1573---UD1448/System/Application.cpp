@@ -4,6 +4,7 @@
 #include "States/MenuState.h"
 #include <Networking/Client.h>
 #include <Networking/LocalServer.h>
+#include <Gui/Gui.h>
 
 Application::Application() {
 }
@@ -19,6 +20,8 @@ Application::~Application() {
 
 	if (LocalServer::getInstance()->isInitialized())
 		LocalServer::getInstance()->destroy();
+
+	Gui::getInstance()->destroy();
 
 	glfwTerminate();
 }
@@ -69,6 +72,10 @@ bool Application::init() {
 
 	initGraphics();
 
+	Gui::getInstance()->init();
+	Gui::getInstance()->loadScheme("TaharezLook.scheme");
+	Gui::getInstance()->setFont("DejaVuSans-10");
+
 	m_stateManager = new StateManager();
 	m_stateManager->pushState(new MenuState());
 
@@ -117,7 +124,9 @@ void Application::run()
 		timeThen = timeNow;
 		
 		m_stateManager->update(deltaTime);
+		Gui::getInstance()->update(deltaTime);
 		m_stateManager->render();
+		Gui::getInstance()->draw();
 
 		glfwSwapBuffers(m_window);
 	}

@@ -83,6 +83,21 @@ void Gui::init()
 
 void Gui::destroy()
 {
+	for (auto& section : m_widgetMap)
+	{
+		auto& vec = section.second;
+		for (size_t i = 0; i < vec.size(); i++)
+		{
+			vec[i]->removeAllEvents();
+			vec[i]->destroy();
+
+			delete vec[i];
+		}
+		vec.clear();
+	}
+	m_widgetMap.clear();
+
+
 	CEGUI::System::getSingleton().destroyGUIContext(*m_context);
 	for (size_t i = 0; i < m_root->getChildCount(); i++)
 	{
@@ -90,7 +105,6 @@ void Gui::destroy()
 	}
 	m_root->removeAllEvents();
 	CEGUI::WindowManager::getSingleton().destroyWindow(m_root);
-	logTrace("Deleted CEGUI contexts and root");
 	
 }
 
@@ -105,11 +119,26 @@ void Gui::setFont(const std::string& fontFile)
 	m_context->setDefaultFont(fontFile);
 }
 
-CEGUI::Window* Gui::createWidget(const std::string& scheme, const glm::vec4& destRecPerc, const glm::vec4& destRecPix, const std::string& name)
+CEGUI::Window* Gui::createWidget(const std::string& section, const std::string& scheme, const glm::vec4& destRecPerc, const glm::vec4& destRecPix, const std::string& name)
 {
 	CEGUI::Window* newWindow = CEGUI::WindowManager::getSingleton().createWindow(scheme, name);
 	m_root->addChild(newWindow);
 	setWidgetDestRect(newWindow, destRecPerc, destRecPix);
+
+	auto widgetSection = m_widgetMap.find(section);
+
+	if (widgetSection != m_widgetMap.end())
+	{
+		widgetSection->second.emplace_back(newWindow);
+	}
+	else
+	{
+		std::vector<CEGUI::Window*> v;
+		v.reserve(10);
+		v.emplace_back(newWindow);
+		m_widgetMap[section] = v;
+	}
+
 	return newWindow;
 
 
@@ -119,6 +148,12 @@ void Gui::setWidgetDestRect(CEGUI::Window* widget, const glm::vec4& destRecPerc,
 {
 	widget->setPosition(CEGUI::UVector2(CEGUI::UDim(destRecPerc.x, destRecPix.x), CEGUI::UDim(destRecPerc.y, destRecPix.y)));
 	widget->setSize(CEGUI::USize(CEGUI::UDim(destRecPerc.z, destRecPix.z), CEGUI::UDim(destRecPerc.w, destRecPix.w)));
+}
+
+Gui* Gui::getInstance()
+{
+	static Gui gui;
+	return &gui;
 }
 
 void Gui::setMouseCursor(const std::string& imageFile)
@@ -183,7 +218,28 @@ void Gui::draw()
 	m_guiRenderer->beginRendering();
 	m_context->draw();
 	m_guiRenderer->endRendering();
+	CEGUI::WindowManager::getSingleton().cleanDeadPool();
 	glDisable(GL_SCISSOR_TEST);
 	glEnable(GL_DEPTH_TEST);
+}
+
+void Gui::clearWidgetsInSection(const std::string& section)
+{
+	auto widgetSection = m_widgetMap.find(section);
+	
+	if (widgetSection != m_widgetMap.end())
+	{
+		//logTrace("Deleting in section: {0}", section);
+		auto& vec = widgetSection->second;
+
+		for (size_t i = 0; i < vec.size(); i++)
+		{
+			vec[i]->removeAllEvents();
+			CEGUI::WindowManager::getSingleton().destroyWindow(vec[i]);
+		}
+		vec.clear();
+		m_widgetMap.erase(widgetSection);
+	}
+
 }
 

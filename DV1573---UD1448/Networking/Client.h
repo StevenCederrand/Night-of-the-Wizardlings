@@ -16,11 +16,18 @@ public:
 	void connectToAnotherServer(const ServerInfo& server);
 	void connectToMyServer();
 	void threadedProcess();
-	const std::vector<ServerInfo>& getServerList() const;
+	const std::vector<std::pair<unsigned int, ServerInfo>>& getServerList() const;
 	const std::vector<NetworkPlayer>& getConnectedPlayers() const;
 	void refreshServerList();
 	bool doneRefreshingServerList();
 	const bool& isInitialized() const;
+
+	const ServerInfo& getServerByID(const unsigned int& ID) const;
+	const bool doesServerExist(const unsigned int& ID) const;
+
+	const bool& isConnectedToSever() const;
+	const bool& connectionFailed() const;
+
 
 private:
 	void findAllServerAddresses();
@@ -31,10 +38,11 @@ private:
 private:
 	RakNet::RakPeerInterface* m_clientPeer;
 	RakNet::SystemAddress m_serverAddress;
-	std::vector<ServerInfo> m_serverList;
+	std::vector<std::pair<unsigned int, ServerInfo>> m_serverList;
 	bool m_isRefreshingServerList;
 	bool m_isConnectedToAnServer;
-	
+	bool m_failedToConnect;
+
 	std::thread m_processThread;
 	bool m_shutdownClient;
 	bool m_initialized = false;

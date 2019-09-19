@@ -40,6 +40,7 @@ void Client::destroy()
 
 void Client::connectToAnotherServer(const ServerInfo& server)
 {
+	m_failedToConnect = false;
 	bool status = m_clientPeer->Connect(server.serverAddress.ToString(false), server.serverAddress.GetPort(), 0, 0, 0) == RakNet::CONNECTION_ATTEMPT_STARTED;
 	assert(status == true, "Client connecting to {0} failed!", server.serverName);
 	m_processThread = std::thread(&Client::threadedProcess, this);
@@ -47,6 +48,7 @@ void Client::connectToAnotherServer(const ServerInfo& server)
 
 void Client::connectToMyServer()
 {
+	m_failedToConnect = false;
 	bool status = m_clientPeer->Connect("localhost", NetGlobals::ServerPort, 0, 0, 0) == RakNet::CONNECTION_ATTEMPT_STARTED;
 	assert(status == true, "Client connecting to localhost failed!");
 	m_processThread = std::thread(&Client::threadedProcess, this);
@@ -77,6 +79,7 @@ void Client::threadedProcess()
 			case ID_CONNECTION_ATTEMPT_FAILED:
 				logTrace("[CLIENT] Connection failed, server might be full.\n");
 				m_isConnectedToAnServer = false;
+				m_failedToConnect = true;
 				break;
 
 			case ID_ALREADY_CONNECTED:
@@ -97,11 +100,13 @@ void Client::threadedProcess()
 
 			case ID_NO_FREE_INCOMING_CONNECTIONS:
 				logTrace("[CLIENT] Client Error: No free incoming connection slots!\n");
+				m_failedToConnect = true;
 				m_isConnectedToAnServer = false;
 				break;
 
 			case ID_DISCONNECTION_NOTIFICATION:
 				logTrace("[CLIENT] Disconnected from server!\n");
+				m_failedToConnect = true;
 				m_isConnectedToAnServer = false;
 				break;
 
@@ -174,7 +179,7 @@ void Client::threadedProcess()
 
 }
 
-const std::vector<ServerInfo>& Client::getServerList() const
+const std::vector<std::pair<unsigned int, ServerInfo>>& Client::getServerList() const
 {
 	return m_serverList;
 }
@@ -186,7 +191,7 @@ const std::vector<NetworkPlayer>& Client::getConnectedPlayers() const
 
 void Client::refreshServerList()
 {
-	logTrace("Fetching server list...\n");
+	logTrace("Fetching server list...");
 	m_isRefreshingServerList = true;
 	m_serverList.clear();
 	findAllServerAddresses();
@@ -194,7 +199,7 @@ void Client::refreshServerList()
 
 bool Client::doneRefreshingServerList()
 {
-	return m_isRefreshingServerList;
+	return !m_isRefreshingServerList;
 }
 
 const bool& Client::isInitialized() const
@@ -202,11 +207,43 @@ const bool& Client::isInitialized() const
 	return m_initialized;
 }
 
+const ServerInfo& Client::getServerByID(const unsigned int& ID) const
+{
+	for (size_t i = 0; i < m_serverList.size(); i++)
+	{
+		if (m_serverList[i].first == ID)
+			return m_serverList[i].second;
+	}
+
+	ServerInfo c;
+	return c;
+}
+
+const bool Client::doesServerExist(const unsigned int& ID) const
+{
+	for (size_t i = 0; i < m_serverList.size(); i++)
+	{
+		if (m_serverList[i].first == ID)
+			return true;
+	}
+	return false;
+}
+
+const bool& Client::isConnectedToSever() const
+{
+	return m_isConnectedToAnServer;
+}
+
+const bool& Client::connectionFailed() const
+{
+	return m_failedToConnect;
+}
+
 /* When we have a UI this will most likely be threaded */
 void Client::findAllServerAddresses()
 {
 	m_clientPeer->Ping("255.255.255.255", NetGlobals::ServerPort, false);
-
+	unsigned int ID = 0;
 	auto searchTime = RakNet::GetTimeMS() + 2 * 1000; 
 	while (RakNet::GetTimeMS() < searchTime)
 	{
@@ -229,7 +266,7 @@ void Client::findAllServerAddresses()
 					if (info.connectedPlayers >= info.maxPlayers) continue;
 
 					info.serverAddress = packet->systemAddress;
-					m_serverList.emplace_back(info);
+					m_serverList.emplace_back(std::make_pair(ID++, info));
 				}
 				break;
 			}

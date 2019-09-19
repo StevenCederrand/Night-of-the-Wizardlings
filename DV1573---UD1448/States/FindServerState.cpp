@@ -2,34 +2,21 @@
 #include "FindServerState.h"
 #include <System/StateManager.h>
 #include "MenuState.h"
+#include "PlayState.h"
+
+#define GUI_SECTION "FINDSERVERSTATE"
 
 FindServerState::FindServerState()
 {
-	//Client::getInstance()->startup();
+	Client::getInstance()->startup();
 	m_serverListRefreshing = false;
-	m_gui.init();
-	logTrace("Find");
-	/*m_serverList = static_cast<CEGUI::MultiColumnList*>(m_gui.createWidget("TaharezLook/MultiColumnList", glm::vec4(0.20f, 0.25f, 0.60f, 0.40f), glm::vec4(0.0f), "serverlist"));
-	m_serverList->addColumn("Server name", 0, CEGUI::UDim(0.65f, 0));
-	m_serverList->addColumn("Players", 1, CEGUI::UDim(0.35f, 0));
-	m_serverList->setSelectionMode(CEGUI::MultiColumnList::RowSingle);
-
-	m_backToMenu = static_cast<CEGUI::PushButton*>(m_gui.createWidget("TaharezLook/Button", glm::vec4(0.05f, 0.90f, 0.1f, 0.05f), glm::vec4(0.0f), "BackToMenu"));
-	m_backToMenu->setText("Go back");
-	m_backToMenu->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&FindServerState::onBackToMenuClicked, this));
-
-	m_joinServer = static_cast<CEGUI::PushButton*>(m_gui.createWidget("TaharezLook/Button", glm::vec4(0.45f, 0.55f, 0.1f, 0.05f), glm::vec4(0.0f), "StartServer"));
-	m_joinServer->setText("Join");
-	m_joinServer->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&FindServerState::onJoinServerClicked, this));
-
-	m_refreshServerList = static_cast<CEGUI::PushButton*>(m_gui.createWidget("TaharezLook/Button", glm::vec4(0.45f, 0.65f, 0.1f, 0.05f), glm::vec4(0.0f), "JoinServer"));
-	m_refreshServerList->setText("Refresh");
-	m_refreshServerList->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&FindServerState::onRefreshServerListClicked, this));*/
+	loadGui();
+	
 }
 
 FindServerState::~FindServerState()
 {
-	m_gui.destroy();
+	Gui::getInstance()->clearWidgetsInSection(GUI_SECTION);
 }
 
 void FindServerState::update(float dt)
@@ -38,19 +25,59 @@ void FindServerState::update(float dt)
 		m_stateManager->clearAllAndSetState(new MenuState());
 	}
 
-	m_gui.update(dt);
-
 	if (m_serverListRefreshing && Client::getInstance()->doneRefreshingServerList())
 	{
-		// Todo: fill column list
-
+		loadServersIntoList();
 		m_serverListRefreshing = false;
 	}
 }
 
 void FindServerState::render()
 {
-	m_gui.draw();
+
+}
+
+void FindServerState::loadGui()
+{
+	m_serverList = static_cast<CEGUI::MultiColumnList*>(Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/MultiColumnList", glm::vec4(0.20f, 0.25f, 0.60f, 0.40f), glm::vec4(0.0f), "serverlist"));
+	m_serverList->addColumn("Server name", 0, CEGUI::UDim(0.65f, 0));
+	m_serverList->addColumn("Players", 1, CEGUI::UDim(0.35f, 0));
+	m_serverList->setSelectionMode(CEGUI::MultiColumnList::RowSingle);
+
+	m_backToMenu = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/Button", glm::vec4(0.05f, 0.90f, 0.1f, 0.05f), glm::vec4(0.0f), "BackToMenu"));
+	m_backToMenu->setText("Go back");
+	m_backToMenu->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&FindServerState::onBackToMenuClicked, this));
+
+	m_joinServer = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/Button", glm::vec4(0.35f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f), "JoinServer"));
+	m_joinServer->setText("Join");
+	m_joinServer->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&FindServerState::onJoinServerClicked, this));
+
+	m_refreshServerList = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/Button", glm::vec4(0.55f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f), "RefreshServer"));
+	m_refreshServerList->setText("Refresh");
+	m_refreshServerList->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&FindServerState::onRefreshServerListClicked, this));
+
+}
+
+void FindServerState::loadServersIntoList()
+{
+	logTrace("[LoadServersIntoList]");
+	auto& servers = Client::getInstance()->getServerList();
+	for (size_t i = 0; i < m_serverList->getRowCount(); i++) {
+		//auto* c = m_serverList->getChildAtIdx(i);
+		m_serverList->removeRow(m_serverList->getRowID(i));
+		logTrace("Should have deleted something atleast..");
+	}
+
+
+	for (size_t i = 0; i < servers.size(); i++) {
+		m_serverList->addRow();
+		CEGUI::ListboxTextItem* itemMultiColumnList;
+		itemMultiColumnList = new CEGUI::ListboxTextItem(servers[i].second.serverName, servers[i].first);
+		itemMultiColumnList->setSelectionBrushImage("TaharezLook/MultiListSelectionBrush");
+		m_serverList->setItem(itemMultiColumnList, 0, i); // ColumnID, RowID
+		itemMultiColumnList = new CEGUI::ListboxTextItem(std::to_string(servers[i].second.connectedPlayers) + "/" + std::to_string(servers[i].second.maxPlayers), servers[i].first+1);
+		m_serverList->setItem(itemMultiColumnList, 1, i); // ColumnID, RowID
+	}
 }
 
 bool FindServerState::onBackToMenuClicked(const CEGUI::EventArgs& e)
@@ -61,7 +88,32 @@ bool FindServerState::onBackToMenuClicked(const CEGUI::EventArgs& e)
 
 bool FindServerState::onJoinServerClicked(const CEGUI::EventArgs& e)
 {
-	// Todo: Get the server from the columm list and join
+	
+	CEGUI::ListboxItem* item = m_serverList->getFirstSelectedItem();
+	
+	if (item != NULL)
+	{
+		std::string serverName = item->getText().c_str();
+		unsigned int serverID = item->getID();
+		item = m_serverList->getNextSelected(item);
+
+		if (Client::getInstance()->doesServerExist(serverID))
+		{
+			const ServerInfo& serverInfo = Client::getInstance()->getServerByID(serverID);
+			Client::getInstance()->connectToAnotherServer(serverInfo);
+		}
+
+
+		while (!Client::getInstance()->isConnectedToSever())
+		{
+			if (Client::getInstance()->connectionFailed()) return true;
+		}
+		glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		m_stateManager->clearAllAndSetState(new PlayState());
+	}
+
+	
+
 	return true;
 }
 

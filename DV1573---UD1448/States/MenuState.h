@@ -11,9 +11,10 @@ public:
 	virtual ~MenuState() override;
 	virtual void update(float dt) override;
 	virtual void render() override;
+private:
+	void loadGui();
 
 private:
-	Gui m_gui;
 	CEGUI::PushButton* m_quitBtn; 
 	CEGUI::PushButton* m_joinServerBtn; 
 	CEGUI::PushButton* m_startServerBtn; 

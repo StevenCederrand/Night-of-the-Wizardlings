@@ -15,7 +15,10 @@ public:
 	virtual void render() override;
 
 private:
-	Gui m_gui;
+	void loadGui();
+	void loadServersIntoList();
+
+private:
 	CEGUI::PushButton* m_backToMenu;
 	CEGUI::PushButton* m_joinServer;
 	CEGUI::PushButton* m_refreshServerList;
