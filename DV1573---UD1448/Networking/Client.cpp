@@ -28,7 +28,7 @@ void Client::startup()
 void Client::destroy()
 {
 	if (m_initialized) {
-		m_shutdownClient = true;
+		m_shutdownThread = true;
 		logTrace("Waiting for client thread to finish...");
 		if(m_processThread.joinable())
 			m_processThread.join();
@@ -41,22 +41,38 @@ void Client::destroy()
 void Client::connectToAnotherServer(const ServerInfo& server)
 {
 	m_failedToConnect = false;
+	m_shutdownThread = false;
+	m_isConnectedToAnServer = false;
+
 	bool status = m_clientPeer->Connect(server.serverAddress.ToString(false), server.serverAddress.GetPort(), 0, 0, 0) == RakNet::CONNECTION_ATTEMPT_STARTED;
 	assert((status == true, "Client connecting to {0} failed!", server.serverName));
+
+	if (m_processThread.joinable())
+		m_processThread.join();
+
 	m_processThread = std::thread(&Client::threadedProcess, this);
+	
 }
 
 void Client::connectToMyServer()
 {
 	m_failedToConnect = false;
+	m_shutdownThread = false;
+	m_isConnectedToAnServer = false;
+
 	bool status = m_clientPeer->Connect("localhost", NetGlobals::ServerPort, 0, 0, 0) == RakNet::CONNECTION_ATTEMPT_STARTED;
 	assert((status == true, "Client connecting to localhost failed!"));
+	
+	if (m_processThread.joinable())
+		m_processThread.join();
+
+	
 	m_processThread = std::thread(&Client::threadedProcess, this);
 }
 
 void Client::threadedProcess()
 {
-	while (!m_shutdownClient)
+	while (!m_shutdownThread)
 	{
 		for (RakNet::Packet* packet = m_clientPeer->Receive(); packet; m_clientPeer->DeallocatePacket(packet), packet = m_clientPeer->Receive())
 		{
@@ -80,6 +96,7 @@ void Client::threadedProcess()
 				logTrace("[CLIENT] Connection failed, server might be full.\n");
 				m_isConnectedToAnServer = false;
 				m_failedToConnect = true;
+				m_shutdownThread = true;
 				break;
 
 			case ID_ALREADY_CONNECTED:
@@ -95,6 +112,7 @@ void Client::threadedProcess()
 				break;
 
 			case ID_INCOMPATIBLE_PROTOCOL_VERSION:
+				m_shutdownThread = true;
 				logTrace("[CLIENT] Client Error: incompatible protocol version!\n");
 				break;
 
@@ -102,17 +120,20 @@ void Client::threadedProcess()
 				logTrace("[CLIENT] Client Error: No free incoming connection slots!\n");
 				m_failedToConnect = true;
 				m_isConnectedToAnServer = false;
+				m_shutdownThread = true;
 				break;
 
 			case ID_DISCONNECTION_NOTIFICATION:
 				logTrace("[CLIENT] Disconnected from server!\n");
 				m_failedToConnect = true;
 				m_isConnectedToAnServer = false;
+				m_shutdownThread = true;
 				break;
 
 			case ID_CONNECTION_LOST:
 				logTrace("[CLIENT] Connection to the server is lost!\n");
 				m_isConnectedToAnServer = false;
+				m_shutdownThread = true;
 				break;
 			case INFO_ABOUT_OTHER_PLAYERS:
 			{
@@ -245,7 +266,7 @@ void Client::findAllServerAddresses()
 {
 	m_clientPeer->Ping("255.255.255.255", NetGlobals::ServerPort, false);
 	unsigned int ID = 0;
-	auto searchTime = RakNet::GetTimeMS() + 2 * 1000; 
+	auto searchTime = RakNet::GetTimeMS() + 0.5 * 1000; 
 	while (RakNet::GetTimeMS() < searchTime)
 	{
 		for (RakNet::Packet* packet = m_clientPeer->Receive(); packet; m_clientPeer->DeallocatePacket(packet), packet = m_clientPeer->Receive())

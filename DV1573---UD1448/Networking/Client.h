@@ -44,7 +44,7 @@ private:
 	bool m_failedToConnect;
 
 	std::thread m_processThread;
-	bool m_shutdownClient;
+	bool m_shutdownThread;
 	bool m_initialized = false;
 	std::vector<NetworkPlayer> m_connectedPlayers;
 

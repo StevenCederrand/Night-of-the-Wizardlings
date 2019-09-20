@@ -3,8 +3,8 @@
 
 namespace NetGlobals {
 
-	constexpr unsigned int MaximumConnections = 4;
-	constexpr unsigned short MaximumIncomingConnections = 4;
+	constexpr unsigned int MaximumConnections = 2;
+	constexpr unsigned short MaximumIncomingConnections = 2;
 	constexpr unsigned short ServerPort = 42405;
 
 }

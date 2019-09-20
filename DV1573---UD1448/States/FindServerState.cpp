@@ -100,13 +100,17 @@ bool FindServerState::onJoinServerClicked(const CEGUI::EventArgs& e)
 		if (Client::getInstance()->doesServerExist(serverID))
 		{
 			const ServerInfo& serverInfo = Client::getInstance()->getServerByID(serverID);
+
 			Client::getInstance()->connectToAnotherServer(serverInfo);
 		}
 
 
 		while (!Client::getInstance()->isConnectedToSever())
 		{
-			if (Client::getInstance()->connectionFailed()) return true;
+			if (Client::getInstance()->connectionFailed()) {
+				std::printf("Server is full!\n");
+				return true;
+			}
 		}
 		glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		m_stateManager->clearAllAndSetState(new PlayState());
