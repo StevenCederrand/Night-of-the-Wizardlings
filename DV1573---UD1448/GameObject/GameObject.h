@@ -22,6 +22,7 @@ public:
 	void loadMesh(std::string fileName);
 	//Bind all of the material values to the shader, i.e colors
 	void bindMaterialToShader(std::string shaderName);
+	void bindMaterialToShader(std::string shaderName, int matIndex);
 
 	virtual void update(float dt) = 0;
 	   	
@@ -34,15 +35,16 @@ public:
 	//Get functions
 	const Transform& getTransform() const;
 	Mesh* getMesh() const;
+	Mesh* getMesh(int index) const;
 	const std::vector<Mesh*>& getMeshes() const;
 
 
 private:
 
 	std::string m_objectName;
-	std::string m_materialName;
 
 	std::vector<Mesh*> m_meshes;
+	std::vector<std::string> m_materialNames;
 
 	Transform m_transform;
 };
