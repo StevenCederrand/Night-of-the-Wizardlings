@@ -38,6 +38,31 @@ void GameObject::loadMesh(std::string meshName)
 	//Get the mesh Material
 	Material tempMaterial = tempLoader.GetMaterial(0);
 	m_materialName = (std::string)tempLoader.GetMaterial(0).name;
+
+	//GLuint texture = mat->textureID[0];
+	glGenTextures(1, &tempMaterial.textureID[0]);
+	//////VAFAN GÖR VI HÄR? NICO
+	glBindTexture(GL_TEXTURE_2D, tempMaterial.textureID[0]);
+	// set the texture wrapping/filtering options (on the currently bound texture object)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// load and generate the texture
+	int width, height, nrChannels;
+	unsigned char* data = stbi_load(m_materialName.c_str(), &width, &height, &nrChannels, 0);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data);
+
+
 	MaterialMap::getInstance()->createMaterial(m_materialName, tempMaterial);
 	//----BUG----And is never unloaded
 	tempLoader.Unload();

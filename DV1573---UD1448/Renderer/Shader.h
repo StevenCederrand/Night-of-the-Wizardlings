@@ -2,6 +2,8 @@
 #define _SHADER_H
 #include <Pch/Pch.h>
 #include <GFX/MaterialMap.h>
+#include <Texture/stb_image.h>
+
 class Shader
 {
 public:

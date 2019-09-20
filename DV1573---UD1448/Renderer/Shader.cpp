@@ -243,6 +243,8 @@ void Shader::setMaterial(std::string materialName) {
 	setVec3("Ambient_Color", mat->ambient);
 	setVec3("Diffuse_Color", mat->diffuse);
 	setVec3("Specular_Color", mat->specular);
+	
+	
 }
 
 
