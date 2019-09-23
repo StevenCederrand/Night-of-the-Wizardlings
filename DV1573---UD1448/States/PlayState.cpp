@@ -9,7 +9,7 @@ PlayState::PlayState()
 	ShaderMap::getInstance()->createShader("Basic_Forward", "VertexShader.vs", "FragShader.fs");
 	Renderer::getInstance();
 	m_camera = new Camera();
-	m_player = new Player("test", glm::vec3(0, 0, 3), m_camera);
+	m_player = new Player("test", glm::vec3(0, 2, 3), m_camera);
 	Renderer::getInstance()->setupCamera(m_player->getCamera());
 
 
