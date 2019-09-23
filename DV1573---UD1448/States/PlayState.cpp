@@ -1,9 +1,8 @@
 #include <Pch/Pch.h>
 #include "PlayState.h"
-#include <CEGUI/CEGUI.h>
-#include <CEGUI/RendererModules/OpenGL/GL3Renderer.h>
 // TODO move to mesh
 #include <Loader/BGLoader.h>
+
 
 PlayState::PlayState()
 {
@@ -27,7 +26,6 @@ PlayState::PlayState()
 	logTrace("Playstate created");
 
 	CEGUI::OpenGL3Renderer& guiRenderer = CEGUI::OpenGL3Renderer::bootstrapSystem();
-
 }
 
 PlayState::~PlayState()

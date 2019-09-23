@@ -17,6 +17,7 @@
 #include <thread>
 #include <string>
 #include <stdio.h>
+#include <future>
 
 //GL related includes
 #include <GL/glew.h>
@@ -36,6 +37,11 @@
 #include <raknet/GetTime.h>
 #include <raknet/BitStream.h>
 
+#include <Networking/NetworkGlobals.h>
+#include <Networking/NetworkPackets.h>
+
+#include <CEGUI/CEGUI.h>
+#include <CEGUI/RendererModules/OpenGL/GL3Renderer.h>
 
 
 //Custom

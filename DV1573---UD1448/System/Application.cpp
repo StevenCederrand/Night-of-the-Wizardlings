@@ -1,6 +1,10 @@
 #include <Pch/Pch.h>
 #include "Application.h"
 #include "States/PlayState.h"
+#include "States/MenuState.h"
+#include <Networking/Client.h>
+#include <Networking/LocalServer.h>
+#include <Gui/Gui.h>
 
 Application::Application() {
 }
@@ -10,6 +14,15 @@ Application::~Application() {
 	delete m_stateManager;
 	ShaderMap::getInstance()->destroy();
 	Renderer::getInstance()->destroy();
+
+	if(Client::getInstance()->isInitialized())
+		Client::getInstance()->destroy();
+
+	if (LocalServer::getInstance()->isInitialized())
+		LocalServer::getInstance()->destroy();
+
+	Gui::getInstance()->destroy();
+
 	glfwTerminate();
 }
 
@@ -30,16 +43,16 @@ bool Application::init() {
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-
-
 	m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", NULL, NULL);
-	glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	//glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	
 	if (m_window == nullptr) {
 		glfwTerminate();
 		logError("Failed to create GLFW window");
 		return false;
 	}
+
+	centerWindowOnMonitor();
 
 	// Opengl context
 	glfwMakeContextCurrent(m_window);
@@ -50,17 +63,20 @@ bool Application::init() {
 		glfwTerminate();
 		logError("Failed to initialize GLEW!");
 	}
-
+	
 	// Vsync
-	m_vsync = true;
 	glfwSwapInterval(1);
 	
 	m_input = new Input();
 
 	initGraphics();
 
+	Gui::getInstance()->init();
+	Gui::getInstance()->loadScheme("TaharezLook.scheme");
+	Gui::getInstance()->setFont("DejaVuSans-10");
+
 	m_stateManager = new StateManager();
-	m_stateManager->pushState(new PlayState());
+	m_stateManager->pushState(new MenuState());
 
 	logTrace("Application successfully initialized");
 	return statusOK;
@@ -70,7 +86,8 @@ void Application::run()
 {
 	float timeNow = 0.0f;
 	float timeThen = 0.0f;
-	
+	float updateFreq = 1.0f / 60.0f;
+	float currentTime = 0.0f;
 	logInfo("Running Application loop");
 
 	while (!glfwWindowShouldClose(m_window)) {
@@ -87,7 +104,7 @@ void Application::run()
 			glfwSetWindowShouldClose(m_window, true);
 		}
 	
-		if (Input::isKeyPressed(GLFW_KEY_R)) {
+		if (Input::isKeyPressed(GLFW_KEY_F1)) {
 			ShaderMap::getInstance()->reload();
 		}
 		//Skip the first frame, this is because we 
@@ -105,9 +122,16 @@ void Application::run()
 		//Deltatime
 		float deltaTime = timeNow - timeThen;
 		timeThen = timeNow;
+
+		currentTime += deltaTime;
+		
+		calcFPS(deltaTime);
 		
 		m_stateManager->update(deltaTime);
+		Gui::getInstance()->update(deltaTime);
+		
 		m_stateManager->render();
+		Gui::getInstance()->draw();
 
 
 		glfwSwapBuffers(m_window);
@@ -128,5 +152,46 @@ void Application::initGraphics()
 	m_renderer->init(m_window);
 
 	ShaderMap::getInstance();
+
+}
+
+void Application::centerWindowOnMonitor()
+{
+	auto monitor = glfwGetPrimaryMonitor();
+
+	if (!monitor)
+		return;
+
+	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+	if (!mode)
+		return;
+
+	int monitorX, monitorY;
+	glfwGetMonitorPos(monitor, &monitorX, &monitorY);
+
+	int windowWidth, windowHeight;
+	glfwGetWindowSize(m_window, &windowWidth, &windowHeight);
+
+	glfwSetWindowPos(m_window,
+		monitorX + (mode->width - windowWidth) / 2,
+		monitorY + (mode->height - windowHeight) / 2);
+}
+
+void Application::calcFPS(const float& dt)
+{
+	static unsigned fps = 0;
+	static float frameTimer = 1.0f;
+
+	fps++;
+
+	frameTimer -= dt;
+	if (frameTimer <= 0.0f)
+	{
+		frameTimer = 1.0f;
+		std::string title = "Wizards 'n stuff | FPS: " + std::to_string(fps);
+		glfwSetWindowTitle(m_window, title.c_str());
+		fps = 0;
+	}
+
 
 }

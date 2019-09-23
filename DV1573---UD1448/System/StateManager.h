@@ -3,6 +3,7 @@
 #include <Pch/Pch.h>
 #include "State.h"
 
+
 class StateManager
 {
 public:
@@ -18,9 +19,11 @@ public:
 
 private:
 	void clearStates();
+	void clearKillList();
 
 private:
 	std::vector<State*> m_states;
+	std::vector<State*> m_killList;
 };
 
 #endif

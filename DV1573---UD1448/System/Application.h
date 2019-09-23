@@ -16,11 +16,11 @@ public:
 
 private:
 	void initGraphics();
-	
+	void calcFPS(const float& dt);
+	void centerWindowOnMonitor();
 	GLFWwindow* m_window;
 	Input* m_input;
 	StateManager* m_stateManager;
-	bool m_vsync;
 	bool initialFrame;
 };
 
