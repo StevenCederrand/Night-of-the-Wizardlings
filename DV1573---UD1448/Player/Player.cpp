@@ -55,8 +55,11 @@ void Player::update(float deltaTime)
 	playerCamera->setCameraPos(playerPosition);
 	playerCamera->update(playerCamera->getWindow());
 
-	
+}
 
+void Player::attack()
+{
+	//normalSpell = new AttackSpell();
 }
 
 void Player::setPlayerPos(glm::vec3 pos)

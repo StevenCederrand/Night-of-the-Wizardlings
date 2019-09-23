@@ -1,5 +1,6 @@
 #pragma once
 #include <Pch/Pch.h>
+#include <Spells/AttackSpell.h>
 
 class Player
 {
@@ -30,6 +31,8 @@ private:
 	int health;
 	float speed;
 	Camera* playerCamera;
+	AttackSpell* normalSpell;
 	std::string name;
+
 
 };
