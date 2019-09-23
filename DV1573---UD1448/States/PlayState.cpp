@@ -90,4 +90,7 @@ void PlayState::render()
 	m_object.bindMaterialToShader("Basic_Forward");
 	Renderer::getInstance()->render(m_object.getMesh()->getBuffers(), m_object.getMesh()->getPos());
 
+	Renderer::getInstance()->bindMatrixes(m_player->getCamera()->getViewMat(), m_player->getCamera()->getProjMat());
+
+
 }
