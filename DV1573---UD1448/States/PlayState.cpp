@@ -34,6 +34,8 @@ PlayState::~PlayState()
 {
 	MaterialMap::getInstance()->destroy();
 
+	delete m_camera;
+
 	for (GameObject* object : m_objects)
 		delete object;
 }
