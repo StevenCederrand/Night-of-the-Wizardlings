@@ -11,6 +11,10 @@ PlayState::PlayState()
 	m_camera = new Camera();
 	Renderer::getInstance()->setupCamera(m_camera);
 
+	// TODO move to mesh and file filepath
+	m_object = new WorldObject("Character");
+	m_object->loadMesh("ACube2.mesh");
+	ShaderMap::getInstance()->getShader("Basic_Forward")->setInt("albedoTexture", 0);
 
 	//TODO: organized loading system?
 	m_objects.push_back(new WorldObject("Character"));
@@ -44,7 +48,9 @@ void PlayState::update(float dt)
 
 void PlayState::render()
 {
+	m_object->bindMaterialToShader("Basic_Forward");
 	Renderer::getInstance()->bindMatrixes(m_camera->getViewMat(), m_camera->getProjMat());
+	Renderer::getInstance()->render(*m_object);
 
 	for (GameObject* object : m_objects)
 	{
