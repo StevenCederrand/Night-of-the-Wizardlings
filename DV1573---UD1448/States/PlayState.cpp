@@ -25,7 +25,6 @@ PlayState::PlayState()
 
 	logTrace("Playstate created");
 
-	CEGUI::OpenGL3Renderer& guiRenderer = CEGUI::OpenGL3Renderer::bootstrapSystem();
 }
 
 PlayState::~PlayState()

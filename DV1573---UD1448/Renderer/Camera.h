@@ -40,7 +40,7 @@ public:
 	void mouseControls(float xOffset, float yOffset, bool pitchLimit);
 	void setProjMat(float widht, float height, float nearPlane, float farPlane);
 	
-	const glm::mat4& getViewMat() const;
+	const glm::mat4 getViewMat() const;
 	const glm::mat4& getProjMat() const;
 
 	void update(GLFWwindow* window);

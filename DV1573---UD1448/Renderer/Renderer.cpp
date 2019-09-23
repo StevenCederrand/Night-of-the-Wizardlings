@@ -51,16 +51,18 @@ void Renderer::bindMatrixes(const glm::mat4& viewMatrix, const glm::mat4& projMa
 
 void Renderer::update(float dt) {
 	m_camera->fpsControls(dt);
+	m_camera->update(m_gWindow);
 }
 
 void Renderer::render(const GameObject& gameObject) {
-	m_camera->update(m_gWindow);
+
 
 	glBindVertexArray(gameObject.getMesh()->getBuffers().vao);
-	
+
 	glm::mat4 worldMatrix = glm::mat4(1.0f);
 	worldMatrix = glm::translate(worldMatrix, gameObject.getTransform().m_worldPos);
-
+	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("viewMatrix", m_camera->getViewMat());
+	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("projectionMatrix", m_camera->getProjMat());
 	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("modelMatrix", worldMatrix);
 
 	glDrawElements(GL_TRIANGLES, gameObject.getMesh()->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
@@ -70,7 +72,7 @@ void Renderer::render(const GameObject& gameObject) {
 }
 
 void Renderer::render(Buffers buffer, glm::vec3 worldPos) {
-	m_camera->update(m_gWindow);
+	
 
 	ShaderMap::getInstance()->useByName("Basic_Forward");
 

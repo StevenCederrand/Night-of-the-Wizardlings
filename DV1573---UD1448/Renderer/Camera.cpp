@@ -117,7 +117,7 @@ void Camera::setProjMat(float widht, float height, float nearPlane, float farPla
 	projMat = glm::perspective(glm::radians(45.0f), widht / height, nearPlane, farPlane);
 }
 
-const glm::mat4& Camera::getViewMat() const
+const glm::mat4 Camera::getViewMat() const
 {
 	return glm::lookAt(camPos, camPos + camFace, camUp);
 }
