@@ -24,11 +24,11 @@ private:
 	/*Renderer* m_renderer;
 	ShaderMap* m_shaderMap;
 	Mesh m_mesh;*/
-	GameObject m_object;
+	//GameObject m_object;
 	Player* m_player;
 	Camera* m_camera;
 
-	GameObject m_object;
+	//GameObject m_object;
 
 
 };

@@ -10,7 +10,7 @@ PlayState::PlayState()
 	Renderer::getInstance();
 	m_camera = new Camera();
 	m_player = new Player("test", glm::vec3(0, 0, 3), m_camera);
-	Renderer::getInstance()->setupCamera(m_camera);
+	Renderer::getInstance()->setupCamera(m_player->getCamera());
 
 
 	//TODO: organized loading system?
@@ -20,7 +20,7 @@ PlayState::PlayState()
 
 
 	
-	/*
+	
 	BGLoader tempLoader;
 	tempLoader.LoadMesh(MESHPATH + "WalkingTest.mesh");
 	m_objects.push_back(new WorldObject("Level_1"));
@@ -31,7 +31,7 @@ PlayState::PlayState()
 	m_objects[m_objects.size() - 1]->loadMesh("SexyCube.mesh");
 
 
-	logTrace("Playstate created");*/
+	logTrace("Playstate created");
 
 }
 
@@ -39,7 +39,7 @@ PlayState::~PlayState()
 {
 	MaterialMap::getInstance()->destroy();
 
-	delete m_camera;
+	delete m_player;
 
 	for (GameObject* object : m_objects)
 		delete object;
@@ -47,14 +47,15 @@ PlayState::~PlayState()
 
 void PlayState::update(float dt)
 {
-	m_renderer->update(dt);
-	m_player->update(dt);
 	Renderer::getInstance()->update(dt);
+	//m_renderer->update(dt);
+	m_player->update(dt);
+	
 }
 
 void PlayState::render()
 {
-	Renderer::getInstance()->bindMatrixes(m_camera->getViewMat(), m_camera->getProjMat());
+	Renderer::getInstance()->bindMatrixes(m_player->getCamera()->getViewMat(), m_player->getCamera()->getProjMat());
 
 	for (GameObject* object : m_objects)
 	{
