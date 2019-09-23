@@ -25,6 +25,7 @@
     <ClCompile Include="Networking\NetworkPlayer.cpp" />
     <ClCompile Include="States\LobbyState.cpp" />
     <ClCompile Include="States\FindServerState.cpp" />
+    <ClCompile Include="Networking\NetworkPlayerManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameObject\Cube.h" />
@@ -54,6 +55,7 @@
     <ClInclude Include="Networking\NetworkPlayer.h" />
     <ClInclude Include="States\LobbyState.h" />
     <ClInclude Include="States\FindServerState.h" />
+    <ClInclude Include="Networking\NetworkPlayerManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />
