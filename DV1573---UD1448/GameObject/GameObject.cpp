@@ -39,10 +39,9 @@ void GameObject::loadMesh(std::string meshName)
 	Material tempMaterial = tempLoader.GetMaterial(0);
 	m_materialName = (std::string)tempLoader.GetMaterial(0).name;
 
-	
-	GLuint texture; //mat->textureID[0];
+	std::string albedoFile = TEXTUREPATH + tempLoader.GetAlbedo();
+	GLuint texture;
 	glGenTextures(1, &texture);
-	//////VAFAN GÖR VI HÄR? NICO
 	glBindTexture(GL_TEXTURE_2D, texture);
 	// set the texture wrapping/filtering options (on the currently bound texture object)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -51,7 +50,7 @@ void GameObject::loadMesh(std::string meshName)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	// load and generate the texture
 	int width, height, nrChannels;
-	unsigned char* data = stbi_load(m_materialName.c_str(), &width, &height, &nrChannels, 0);
+	unsigned char* data = stbi_load(albedoFile.c_str(), &width, &height, &nrChannels, NULL);
 	if (data)
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);

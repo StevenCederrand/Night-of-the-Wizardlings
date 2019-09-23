@@ -14,7 +14,7 @@ PlayState::PlayState()
 
 	// TODO move to mesh and file filepath
 	m_object = new WorldObject("Character");
-	m_object->loadMesh("TestScene.mesh");
+	m_object->loadMesh("ACube2.mesh");
 	ShaderMap::getInstance()->getShader("Basic_Forward")->setInt("albedoTexture", 0);
 	logTrace("Playstate created");
 
