@@ -2,7 +2,7 @@
 #include "PlayState.h"
 // TODO move to mesh
 #include <Loader/BGLoader.h>
-
+#include <Networking/Client.h>
 
 PlayState::PlayState()
 {
@@ -43,7 +43,14 @@ PlayState::~PlayState()
 }
 
 void PlayState::update(float dt)
-{
+{	
+	/*if (Client::getInstance()->isInitialized && Client::getInstance()->isConnectedToSever())
+	{
+		for (size_t i = 0; i < Client::getInstance()->getConnectedPlayers().size; i++)
+		{
+			Client::getInstance()->getConnectedPlayers()[i].updateGameObject(dt);
+		}
+	}*/
 	Renderer::getInstance()->update(dt);
 	//m_renderer->update(dt);
 	m_player->update(dt);
@@ -53,6 +60,13 @@ void PlayState::update(float dt)
 void PlayState::render()
 {
 	Renderer::getInstance()->bindMatrixes(m_player->getCamera()->getViewMat(), m_player->getCamera()->getProjMat());
+
+	auto& clientsObject = Client::getInstance()->getConnectedPlayers();
+	for (size_t i = 0; i < clientsObject.size(); i++)
+	{
+		clientsObject[i].getGameObjectPtr()->bindMaterialToShader("Basic_Forward");
+		Renderer::getInstance()->render(*clientsObject[i].getGameObjectPtr());
+	}
 
 	for (GameObject* object : m_objects)
 	{

@@ -6,10 +6,21 @@ NetworkPlayer::NetworkPlayer()
 	m_data.health = 100.0f;
 	m_data.position = glm::vec3(0.0f);
 	m_data.rotation = glm::vec3(0.0f);
+	m_hasGameObject = false;
+}
+
+void NetworkPlayer::updateGameObject()
+{
+	if(m_gameObject != nullptr)
+		m_gameObject->translate(m_data.position);
 }
 
 NetworkPlayer::~NetworkPlayer()
 {
+	if (m_hasGameObject) {
+		logTrace("Deleted a network player");
+		delete m_gameObject;
+	}
 }
 
 const NetworkPlayer::Data& NetworkPlayer::getData() const
@@ -25,6 +36,13 @@ void NetworkPlayer::Serialize(bool writeToStream, RakNet::BitStream& stream)
 	stream.Serialize(writeToStream, m_data.rotation);
 }
 
+void NetworkPlayer::initialize(const std::string& mesh)
+{
+	m_gameObject = new WorldObject();
+	m_gameObject->loadMesh(mesh);
+	m_hasGameObject = true;
+}
+
 std::string NetworkPlayer::toString() const
 {
 	std::string str;
@@ -35,4 +53,9 @@ std::string NetworkPlayer::toString() const
 	str += "Rotation: (" + std::to_string(m_data.rotation.x) + ", " + std::to_string(m_data.rotation.y) + ", " + std::to_string(m_data.rotation.z) + ")";
 
 	return str;
+}
+
+GameObject* NetworkPlayer::getGameObjectPtr() const
+{
+	return m_gameObject;
 }

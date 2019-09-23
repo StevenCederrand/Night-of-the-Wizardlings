@@ -156,6 +156,7 @@ void Client::threadedProcess()
 				bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 				NetworkPlayer player;
 				player.Serialize(false, bsIn);
+				player.initialize("SexyCube.mesh");
 				m_connectedPlayers.emplace_back(player);
 				printAllConnectedPlayers();
 				
@@ -185,6 +186,11 @@ void Client::threadedProcess()
 			}
 			break;
 			}
+		}
+
+		for (size_t i = 0; i < m_connectedPlayers.size(); i++)
+		{
+			m_connectedPlayers[i].updateGameObject();
 		}
 		RakSleep(30);
 	}
