@@ -28,7 +28,6 @@ private:
 	Player* m_player;
 	Camera* m_camera;
 
-	//GameObject m_object;
 
 
 };

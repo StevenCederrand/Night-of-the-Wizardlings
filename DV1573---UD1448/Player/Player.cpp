@@ -12,7 +12,6 @@ Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera)
 	this->name = name;
 	this->speed = 5;
 	this->health = 100;
-	std::cout << this->name << std::endl;
 }
 
 Player::~Player()
@@ -56,13 +55,7 @@ void Player::update(float deltaTime)
 	playerCamera->setCameraPos(playerPosition);
 	playerCamera->update(playerCamera->getWindow());
 
-	std::cout << inputVector.x << "" << inputVector.y << "" << inputVector.z << std::endl;
-
-	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
-	{
-		//for jumping later
-		spawnPlayer(glm::vec3(10, 0, 10));
-	}
+	
 
 }
 

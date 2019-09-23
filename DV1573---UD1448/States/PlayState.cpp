@@ -16,9 +16,6 @@ PlayState::PlayState()
 	//TODO: organized loading system?
 	m_objects.push_back(new WorldObject("Character"));
 	m_objects[m_objects.size() - 1]->loadMesh("WalkingTest.mesh");
-
-
-
 	
 	
 	BGLoader tempLoader;
