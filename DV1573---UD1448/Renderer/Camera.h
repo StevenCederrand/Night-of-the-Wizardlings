@@ -39,9 +39,14 @@ public:
 	void setWindowSize(float width, float height);
 	void mouseControls(float xOffset, float yOffset, bool pitchLimit);
 	void setProjMat(float widht, float height, float nearPlane, float farPlane);
-	
-	const glm::mat4& getViewMat() const;
+	void setCameraPos(glm::vec3 pos);
+
+	const glm::mat4 getViewMat() const;
 	const glm::mat4& getProjMat() const;
+	glm::vec3 getCamFace();
+	glm::vec3 getCamRight();
+	GLFWwindow* getWindow();
+
 
 	void update(GLFWwindow* window);
 	

@@ -5,6 +5,8 @@
 
 #include <GFX/MaterialMap.h>
 #include <GameObject/GameObject.h>
+#include <Player/Player.h>
+#include <GameObject/WorldObject.h>
 
 
 class PlayState : public State {
@@ -17,10 +19,16 @@ public:
 
 private:
 	int key = 1;
-	Renderer* m_renderer;
+
+	std::vector<GameObject*> m_objects;
+	/*Renderer* m_renderer;
 	ShaderMap* m_shaderMap;
-	Mesh m_mesh;
-	GameObject m_object;
+	Mesh m_mesh;*/
+	//GameObject m_object;
+	Player* m_player;
+	Camera* m_camera;
+
+
 
 };
 

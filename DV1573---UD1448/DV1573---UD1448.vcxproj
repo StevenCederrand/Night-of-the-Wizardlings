@@ -177,8 +177,8 @@
     <ClCompile Include="Networking\Client.cpp" />
     <ClCompile Include="Networking\LocalServer.cpp" />
     <ClCompile Include="Networking\NetworkPlayer.cpp" />
-    <ClCompile Include="GameObject\Cube.cpp" />
     <ClCompile Include="GameObject\GameObject.cpp" />
+    <ClCompile Include="GameObject\WorldObject.cpp" />
     <ClCompile Include="GFX\MaterialMap.cpp" />
     <ClCompile Include="Gui\Gui.cpp" />
     <ClCompile Include="Loader\BGLoader.cpp" />
@@ -194,6 +194,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pch.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="Player\Player.cpp" />
     <ClCompile Include="Renderer\Camera.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
@@ -234,7 +235,7 @@
     <ClInclude Include="Networking\NetworkGlobals.h" />
     <ClInclude Include="Networking\NetworkPackets.h" />
     <ClInclude Include="Networking\NetworkPlayer.h" />
-    <ClInclude Include="GameObject\Cube.h" />
+    <ClInclude Include="GameObject\WorldObject.h" />
     <ClInclude Include="GFX\MaterialMap.h" />
     <ClInclude Include="Gui\Gui.h" />
     <ClInclude Include="Loader\BGLoader.h" />
@@ -243,6 +244,7 @@
     <ClInclude Include="Mesh\MeshFormat.h" />
     <ClInclude Include="Networking\NetworkPlayerManager.h" />
     <ClInclude Include="Pch\Pch.h" />
+    <ClInclude Include="Player\Player.h" />
     <ClInclude Include="Renderer\Camera.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>

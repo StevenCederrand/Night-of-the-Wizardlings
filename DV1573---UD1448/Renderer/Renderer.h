@@ -1,6 +1,6 @@
 #pragma once
 #include <Pch/Pch.h>
-#include <GameObject/Cube.h>
+#include <GameObject/GameObject.h>
 #include <Mesh/MeshFormat.h>
 
 struct ObjectRenderData {
@@ -25,12 +25,14 @@ public:
 
 	void update(float dt);
 	static Renderer* getInstance();
-	void init(GLFWwindow* window);
 	
-	void destroy();
-	void render(Cube* cube);
-	void render(Buffers buffer, glm::vec3 worldPos);
+	void init(GLFWwindow* window);
+	void setupCamera(Camera* camera);
 
+	void destroy();
+	void bindMatrixes(const glm::mat4& viewMatrix, const glm::mat4& projMatrix);
+	void render(const GameObject& gameObject);
+	void render(Buffers buffer, glm::vec3 worldPos);
 
 	Camera* getMainCamera() const;
 };

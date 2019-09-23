@@ -15,29 +15,34 @@ GameObject::GameObject(std::string objectName)
 
 GameObject::~GameObject()
 {
-	if (m_mesh != nullptr) {
-		delete m_mesh;
-	}
+	for (Mesh* mesh : m_meshes)
+		delete mesh;
+
 }
 
-void GameObject::loadMesh(std::string meshName)
+void GameObject::loadMesh(std::string fileName)
 {
 	BGLoader tempLoader;
-	tempLoader.LoadMesh(MESHPATH + meshName);
-	
-	m_mesh = new Mesh();
+	tempLoader.LoadMesh(MESHPATH + fileName); 
+
+	//Get mesh model
+	m_meshes.push_back(new Mesh());
+	m_meshes[m_meshes.size() - 1]->saveFilePath(tempLoader.GetFileName(), 0);
+	m_meshes[m_meshes.size() - 1]->nameMesh(tempLoader.GetMeshName());
+	m_meshes[m_meshes.size() - 1]->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
+	m_meshes[m_meshes.size() - 1]->setUpBuffers();
+
+	//Get the mesh Materials
+	for (int i = 0; i < tempLoader.GetMaterialCount(); i++)
+	{
+		Material tempMaterial = tempLoader.GetMaterial();
+		std::string materialName = (std::string)tempLoader.GetMaterial().name;
+		MaterialMap::getInstance()->createMaterial(materialName, tempMaterial);
+
+		m_materialNames.push_back(materialName);
+	}
 
 
-	m_mesh->setUpMesh(tempLoader.GetVertices(0),
-		tempLoader.GetVertexCount(0),
-		tempLoader.GetFaces(0),
-		tempLoader.GetFaceCount(0));
-	m_mesh->setUpBuffers();
-
-	//Get the mesh Material
-	Material tempMaterial = tempLoader.GetMaterial(0);
-	m_materialName = (std::string)tempLoader.GetMaterial(0).name;
-	MaterialMap::getInstance()->createMaterial(m_materialName, tempMaterial);
 	tempLoader.Unload();
 }
 
@@ -58,6 +63,11 @@ void GameObject::setWorldPosition(glm::vec3 worldPosition)
 	m_transform.m_worldPos = worldPosition;
 }
 
+void GameObject::translate(const glm::vec3& translationVector)
+{
+	m_transform.m_worldPos += translationVector;
+}
+
 const Transform& GameObject::getTransform() const
 {
 	return m_transform;
@@ -65,10 +75,27 @@ const Transform& GameObject::getTransform() const
 
 Mesh* GameObject::getMesh() const
 {
-	return m_mesh;
+	return m_meshes[0];
+}
+
+Mesh* GameObject::getMesh(int index) const
+{
+	return m_meshes[index];
+}
+
+const std::vector<Mesh*>& GameObject::getMeshes() const
+{
+	return m_meshes;
 }
 
 void GameObject::bindMaterialToShader(std::string shaderName)
 {
-	ShaderMap::getInstance()->getShader(shaderName)->setMaterial(m_materialName);
+	ShaderMap::getInstance()->getShader(shaderName)->setMaterial(m_materialNames[0]);
+}
+
+void GameObject::bindMaterialToShader(std::string shaderName, int matIndex)
+{
+	if (matIndex > m_materialNames.size())
+		logError("Binding material outside of range");
+	ShaderMap::getInstance()->getShader(shaderName)->setMaterial(m_materialNames[matIndex]);
 }
