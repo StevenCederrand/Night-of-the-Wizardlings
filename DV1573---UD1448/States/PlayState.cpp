@@ -14,6 +14,9 @@ PlayState::PlayState()
 	m_object = GameObject("Character");
 	m_object.loadMesh("TestScene.mesh");
 
+
+	m_camera = new Camera();
+	m_player = new Player("test", glm::vec3(0, 0, 3), m_camera);
 	/*
 	BGLoader tempLoader;
 	tempLoader.LoadMesh(MESHPATH + "WalkingTest.mesh");
@@ -79,6 +82,7 @@ PlayState::~PlayState()
 void PlayState::update(float dt)
 {
 	m_renderer->update(dt);
+	m_player->update(dt);
 }
 
 void PlayState::render()

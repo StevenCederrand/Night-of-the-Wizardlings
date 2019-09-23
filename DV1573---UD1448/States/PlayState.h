@@ -5,6 +5,7 @@
 
 #include <GFX/MaterialMap.h>
 #include <GameObject/GameObject.h>
+#include <Player/Player.h>
 
 
 class PlayState : public State {
@@ -21,6 +22,8 @@ private:
 	ShaderMap* m_shaderMap;
 	Mesh m_mesh;
 	GameObject m_object;
+	Player* m_player;
+	Camera* m_camera;
 
 };
 

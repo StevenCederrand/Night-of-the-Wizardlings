@@ -127,6 +127,26 @@ const glm::mat4& Camera::getProjMat() const
 	return projMat;
 }
 
+glm::vec3 Camera::getCamFace()
+{
+	return camFace;
+}
+
+glm::vec3 Camera::getCamRight()
+{
+	return camRight;
+}
+
+GLFWwindow* Camera::getWindow()
+{
+	return glfwGetCurrentContext();
+}
+
+void Camera::setCameraPos(glm::vec3 pos)
+{
+	camPos = pos;
+}
+
 void Camera::update(GLFWwindow* window)
 {
 	mouse_callback(window);
