@@ -177,8 +177,8 @@
     <ClCompile Include="Networking\Client.cpp" />
     <ClCompile Include="Networking\LocalServer.cpp" />
     <ClCompile Include="Networking\NetworkPlayer.cpp" />
-    <ClCompile Include="GameObject\Cube.cpp" />
     <ClCompile Include="GameObject\GameObject.cpp" />
+    <ClCompile Include="GameObject\WorldObject.cpp" />
     <ClCompile Include="GFX\MaterialMap.cpp" />
     <ClCompile Include="Gui\Gui.cpp" />
     <ClCompile Include="Loader\BGLoader.cpp" />
@@ -234,7 +234,7 @@
     <ClInclude Include="Networking\NetworkGlobals.h" />
     <ClInclude Include="Networking\NetworkPackets.h" />
     <ClInclude Include="Networking\NetworkPlayer.h" />
-    <ClInclude Include="GameObject\Cube.h" />
+    <ClInclude Include="GameObject\WorldObject.h" />
     <ClInclude Include="GFX\MaterialMap.h" />
     <ClInclude Include="Gui\Gui.h" />
     <ClInclude Include="Loader\BGLoader.h" />

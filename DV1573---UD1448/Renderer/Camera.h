@@ -41,7 +41,7 @@ public:
 	void setProjMat(float widht, float height, float nearPlane, float farPlane);
 	void setCameraPos(glm::vec3 pos);
 
-	const glm::mat4& getViewMat() const;
+	const glm::mat4 getViewMat() const;
 	const glm::mat4& getProjMat() const;
 	glm::vec3 getCamFace();
 	glm::vec3 getCamRight();
