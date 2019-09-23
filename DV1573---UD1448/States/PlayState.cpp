@@ -15,7 +15,7 @@ PlayState::PlayState()
 	// TODO move to mesh and file filepath
 	m_object = new WorldObject("Character");
 	m_object->loadMesh("TestScene.mesh");
-	
+	ShaderMap::getInstance()->getShader("Basic_Forward")->setInt("albedoTexture", 0);
 	logTrace("Playstate created");
 
 	CEGUI::OpenGL3Renderer& guiRenderer = CEGUI::OpenGL3Renderer::bootstrapSystem();
@@ -35,7 +35,7 @@ void PlayState::update(float dt)
 
 void PlayState::render()
 {
-	//m_object->bindMaterialToShader("Basic_Forward");
+	m_object->bindMaterialToShader("Basic_Forward");
 	Renderer::getInstance()->bindMatrixes(m_camera->getViewMat(), m_camera->getProjMat());
-//	Renderer::getInstance()->render(*m_object);
+	Renderer::getInstance()->render(*m_object);
 }

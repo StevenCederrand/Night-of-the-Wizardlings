@@ -39,10 +39,11 @@ void GameObject::loadMesh(std::string meshName)
 	Material tempMaterial = tempLoader.GetMaterial(0);
 	m_materialName = (std::string)tempLoader.GetMaterial(0).name;
 
-	//GLuint texture = mat->textureID[0];
-	glGenTextures(1, &tempMaterial.textureID[0]);
+	
+	GLuint texture; //mat->textureID[0];
+	glGenTextures(1, &texture);
 	//////VAFAN GÖR VI HÄR? NICO
-	glBindTexture(GL_TEXTURE_2D, tempMaterial.textureID[0]);
+	glBindTexture(GL_TEXTURE_2D, texture);
 	// set the texture wrapping/filtering options (on the currently bound texture object)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -62,7 +63,7 @@ void GameObject::loadMesh(std::string meshName)
 	}
 	stbi_image_free(data);
 
-
+	tempMaterial.textureID.push_back(texture);
 	MaterialMap::getInstance()->createMaterial(m_materialName, tempMaterial);
 	//----BUG----And is never unloaded
 	tempLoader.Unload();
