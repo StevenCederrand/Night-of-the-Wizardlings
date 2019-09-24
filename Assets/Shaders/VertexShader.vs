@@ -16,6 +16,7 @@ out vec4 f_position;
 void main() {
     f_position = modelMatrix * vec4(position, 1.0f);
     gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.0f);
-    f_UV = uv;
+    f_UV.x = uv.x;
+    f_UV.y = -uv.y;
     f_normal = normalize(mat3(transpose(inverse(modelMatrix))) * normal);
 }

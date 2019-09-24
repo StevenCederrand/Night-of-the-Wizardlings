@@ -20,6 +20,7 @@ void main() {
     vec3 lightDir = normalize(-lightDirection);
     float diff = max(dot(f_normal, lightDir), 0.0f);
     vec3 diffuse = (Diffuse_Color  + texture(albedoTexture, f_UV).rgb) * diff; //;
+    Specular_Color;
 
     color = texture(albedoTexture, f_UV); 
     //color = vec4(ambientCol + diffuse + Specular_Color, 1);

@@ -11,20 +11,14 @@ PlayState::PlayState()
 	m_camera = new Camera();
 	Renderer::getInstance()->setupCamera(m_camera);
 
-	// TODO move to mesh and file filepath
-
 	//TODO: organized loading system?
-	//m_objects.push_back(new WorldObject("Character"));
-	//m_objects[m_objects.size() - 1]->loadMesh("WalkingTest.mesh");
+	m_objects.push_back(new WorldObject("TestCube"));
+	m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
+	m_objects[0]->setWorldPosition(glm::vec3(2.0f, 3.0f, -5.0f));
 
-	//m_objects.push_back(new WorldObject("Level_1"));
-	//m_objects[m_objects.size() - 1]->loadMesh("TestScene.mesh");
-
-	//m_objects.push_back(new WorldObject("OneCubeBoy"));
-	//m_objects[m_objects.size() - 1]->loadMesh("ACube2.mesh");
-
-	m_objects.push_back(new WorldObject("UVTestCube"));
-	m_objects[m_objects.size() - 1]->loadMesh("UVTestCube.mesh");
+	m_objects.push_back(new WorldObject("TestSphere"));
+	m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
+	m_objects[1]->setWorldPosition(glm::vec3(-2.0f, 3.0f, -5.0f));
 
 	ShaderMap::getInstance()->getShader("Basic_Forward")->setInt("albedoTexture", 0);
 

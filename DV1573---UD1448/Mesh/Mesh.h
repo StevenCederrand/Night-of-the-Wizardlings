@@ -38,6 +38,7 @@ public:
 
 	int getVertexCount() const { return m_vertexCount; }
 	int getFaceCount() const { return m_faceCount; }
+	std::string getName() const { return m_name; }
 	
 	const std::vector<Face>& getFaces() { return m_faces; }
 	const std::vector<Vertices>& getVertices() { return m_vertices; }
