@@ -12,6 +12,7 @@ PlayState::PlayState()
 	Renderer::getInstance()->setupCamera(m_camera);
 
 	//TODO: organized loading system?
+	//NOTE: Temporary hardcoded positions
 	m_objects.push_back(new WorldObject("TestCube"));
 	m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
 	m_objects[0]->setWorldPosition(glm::vec3(2.0f, 3.0f, -5.0f));
