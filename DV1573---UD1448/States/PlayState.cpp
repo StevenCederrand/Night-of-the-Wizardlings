@@ -37,8 +37,8 @@ PlayState::~PlayState()
 {
 	MaterialMap::getInstance()->destroy();
 
+	
 	delete m_player;
-
 	for (GameObject* object : m_objects)
 		delete object;
 }
