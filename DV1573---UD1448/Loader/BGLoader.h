@@ -17,6 +17,7 @@ private:
 	std::string	fileName;
 
 	int meshCount;
+	int matCount;
 
 	std::vector<std::vector<Vertices>> bggVertices;
 	std::vector<std::vector<Face>> bggFaces;
@@ -80,12 +81,12 @@ public:
 	const std::vector<Face> GetFaces() { return bggFaces[0]; }
 
 	// Returns a specific material
-	const Material GetMaterial(int meshId) { return bggMaterials[meshId]; }
+	const Material GetMaterial(int meshId) { return bggMaterials[loaderMesh[meshId].materialID]; }
 	// Returns the first material in the file
 	const Material GetMaterial() { return bggMaterials[0]; }
 
 	// Returns a specific albedo map
-	const std::string GetAlbedo(int meshId) { return (std::string)material[meshId].albedo; }
+	const std::string GetAlbedo(int meshId) { return (std::string)material[loaderMesh[meshId].materialID].albedo; }
 	// Returns the first albedo map
 	const std::string GetAlbedo() { return (std::string)material[0].albedo; }
 

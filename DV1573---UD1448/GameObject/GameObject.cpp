@@ -24,7 +24,7 @@ void GameObject::loadMesh(std::string fileName)
 	BGLoader tempLoader;
 	tempLoader.LoadMesh(MESHPATH + fileName);
 
-	//Get mesh model
+	//Get file mesh models
 	for (int i = 0; i < tempLoader.GetMeshCount(); i++)
 	{
 		m_meshes.push_back(new Mesh());
@@ -33,25 +33,21 @@ void GameObject::loadMesh(std::string fileName)
 		m_meshes[id]->nameMesh(tempLoader.GetMeshName(i));
 		m_meshes[id]->setUpMesh(tempLoader.GetVertices(i), tempLoader.GetFaces(i));
 		m_meshes[id]->setUpBuffers();
-		logTrace("Mesh loaded: {0}", m_meshes[id]->getName().c_str());
-
 		m_meshes[id]->setPos(tempLoader.GetPosition(id));
 		m_meshes[id]->setRot(tempLoader.GetRotation(id));
 		m_meshes[id]->setScale(tempLoader.GetScale(id));
-		m_meshes[id]->setMaterial(tempLoader.GetMaterial().name);
-	}
-
-	//Get the mesh Materials
-	for (int i = 0; i < tempLoader.GetMaterialCount(); i++)
-	{
-		Material tempMaterial = tempLoader.GetMaterial();
+		m_meshes[id]->setMaterial(tempLoader.GetMaterial(id).name);
+		
+		logTrace("Mesh loaded: {0}, Expecting material: {1}", m_meshes[id]->getName().c_str(), m_meshes[id]->getMaterial());
+		Material tempMaterial = tempLoader.GetMaterial(id);
 		std::string materialName = tempMaterial.name;
 
+		// Get material
 		if (!MaterialMap::getInstance()->existsWithName(materialName))
 		{
 			if (tempLoader.GetAlbedo() != "-1")
 			{
-				std::string albedoFile = TEXTUREPATH + tempLoader.GetAlbedo();
+				std::string albedoFile = TEXTUREPATH + tempLoader.GetAlbedo(id);
 				GLuint texture;
 				glGenTextures(1, &texture);
 				glBindTexture(GL_TEXTURE_2D, texture);
@@ -76,13 +72,10 @@ void GameObject::loadMesh(std::string fileName)
 				tempMaterial.textureID.push_back(texture);
 			}
 			MaterialMap::getInstance()->createMaterial(materialName, tempMaterial);
-			logTrace("Material created and used: {0}", materialName);
-		}
-		else
-		{
-			logTrace("Using existing material: {0}", materialName);
+			logTrace("Material created: {0}", materialName);
 		}
 	}
+
 
 
 	tempLoader.Unload();
@@ -110,9 +103,14 @@ void GameObject::translate(const glm::vec3& translationVector)
 	m_transform.position += translationVector;
 }
 
-const Transform& GameObject::getTransform() const
+const Transform GameObject::getTransform() const
 {
-	return m_transform;
+	Transform world_transform;
+	world_transform.position = m_transform.position + m_meshes[0]->getTransform().position;
+	world_transform.rotation = m_transform.rotation + m_meshes[0]->getTransform().rotation;
+	world_transform.scale = m_transform.scale * m_meshes[0]->getTransform().scale;
+
+	return world_transform;
 }
 
 const Transform GameObject::getTransform(int meshIndex) const

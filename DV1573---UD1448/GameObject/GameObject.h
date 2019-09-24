@@ -13,7 +13,7 @@ public:
 	GameObject(std::string objectName);
 	virtual ~GameObject();
 
-	//Automatically adds MESHPATH, to the name
+	//Loads all the meshes from the file into the GameObject
 	void loadMesh(std::string fileName);
 	//Bind all of the material values to the shader, i.e colors
 	void bindMaterialToShader(std::string shaderName);
@@ -28,7 +28,7 @@ public:
 	void translate(const glm::vec3& translationVector);
 
 	//Get functions
-	const Transform& getTransform() const;
+	const Transform getTransform() const;
 	//Returns mesh worldposition
 	const Transform getTransform(int meshIndex) const;
 	Mesh* getMesh() const;
@@ -40,10 +40,10 @@ public:
 private:
 
 	std::string m_objectName;
+	Transform m_transform;
 
 	std::vector<Mesh*> m_meshes;
 
-	Transform m_transform;
 };
 
 

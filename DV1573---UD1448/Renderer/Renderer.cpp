@@ -45,6 +45,7 @@ void Renderer::destroy()
 }
 void Renderer::bindMatrixes(const glm::mat4& viewMatrix, const glm::mat4& projMatrix)
 {
+	//TODO: Also being done in render()
 	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("viewMatrix", m_camera->getViewMat());
 	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("projectionMatrix", m_camera->getProjMat());
 }
@@ -59,13 +60,14 @@ void Renderer::render(const GameObject& gameObject) {
 	glBindVertexArray(gameObject.getMesh()->getBuffers().vao);
 
 	//Apply transformation
+	//TODO: Should the gameobject hold the worldmatrix?
 	glm::mat4 worldMatrix = glm::mat4(1.0f);
-	const Transform& meshTransform = gameObject.getTransform();
+	const Transform meshTransform = gameObject.getTransform();
 	worldMatrix = glm::translate(worldMatrix, meshTransform.position);
 	worldMatrix = glm::scale(worldMatrix, meshTransform.scale);
 	worldMatrix *= glm::mat4_cast(meshTransform.rotation);
 
-	//Set matrices
+	//Set matrices TODO: function exists for this, evaluate what to keep
 	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("viewMatrix", m_camera->getViewMat());
 	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("projectionMatrix", m_camera->getProjMat());
 	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("modelMatrix", worldMatrix);
@@ -82,8 +84,9 @@ void Renderer::render(const GameObject& gameObject, int meshIndex) {
 	glBindVertexArray(gameObject.getMesh(meshIndex)->getBuffers().vao);
 
 	//Apply transformation
+	//TODO: Should the gameobject hold the worldmatrix?
 	glm::mat4 worldMatrix = glm::mat4(1.0f);
-	Transform meshTransform = gameObject.getTransform(meshIndex);
+	const Transform meshTransform = gameObject.getTransform(meshIndex);
 	worldMatrix = glm::translate(worldMatrix, meshTransform.position);
 	worldMatrix = glm::scale(worldMatrix, meshTransform.scale);
 	worldMatrix *= glm::mat4_cast(meshTransform.rotation);
@@ -103,6 +106,7 @@ void Renderer::render(const GameObject& gameObject, int meshIndex) {
 
 void Renderer::render(Buffers buffer, glm::vec3 worldPos) {
 	
+	//TODO: Remove?
 
 	ShaderMap::getInstance()->useByName("Basic_Forward");
 
