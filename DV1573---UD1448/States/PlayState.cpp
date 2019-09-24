@@ -13,7 +13,6 @@ PlayState::PlayState()
 	Renderer::getInstance()->setupCamera(m_player->getCamera());
 
 	//TODO: organized loading system?
-	//NOTE: Temporary hardcoded positions
 	
 	//Cube and sphere centered in scene
 	m_objects.push_back(new WorldObject("TestCube"));
