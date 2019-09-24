@@ -4,6 +4,8 @@
 #include "System/State.h"
 
 #include <GFX/MaterialMap.h>
+#include <GameObject/GameObject.h>
+#include <Player/Player.h>
 #include <GameObject/WorldObject.h>
 
 
@@ -21,10 +23,13 @@ private:
 	std::vector<GameObject*> m_objects;
 	/*Renderer* m_renderer;
 	ShaderMap* m_shaderMap;
-	Mesh m_mesh;
-	GameObject m_object;*/
-
+	Mesh m_mesh;*/
+	//GameObject m_object;
+	Player* m_player;
 	Camera* m_camera;
+
+
+
 };
 
 

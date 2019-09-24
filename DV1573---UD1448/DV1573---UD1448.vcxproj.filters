@@ -25,6 +25,8 @@
     <ClCompile Include="Networking\NetworkPlayer.cpp" />
     <ClCompile Include="States\LobbyState.cpp" />
     <ClCompile Include="States\FindServerState.cpp" />
+    <ClCompile Include="Networking\NetworkPlayerManager.cpp" />
+    <ClCompile Include="Player\Player.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GFX\MaterialMap.h" />
@@ -54,6 +56,9 @@
     <ClInclude Include="Networking\NetworkPlayer.h" />
     <ClInclude Include="States\LobbyState.h" />
     <ClInclude Include="States\FindServerState.h" />
+    <ClInclude Include="Networking\NetworkPlayerManager.h" />
+    <ClInclude Include="Player\Player.h" />
+
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />
