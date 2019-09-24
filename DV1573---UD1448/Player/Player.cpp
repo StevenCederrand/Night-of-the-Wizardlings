@@ -13,6 +13,8 @@ Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera)
 	this->speed = 5;
 	this->health = 100;
 	this->attackCooldown = 0;
+	this->nrOfSpells = 0;
+	normalSpell.reserve(5);
 }
 
 Player::~Player()
@@ -64,10 +66,26 @@ void Player::attack(float deltaTime)
 {
 	if (glfwGetMouseButton(playerCamera->getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && attackCooldown <= 0)
 	{
-		normalSpell.push_back(new AttackSpell("Spell", playerPosition));
-		normalSpell[normalSpell.size() - 1]->loadMesh("SexyCube.mesh");
-		normalSpell[normalSpell.size() - 1]->setWorldPosition(playerPosition);
-		attackCooldown = 1.0f;
+		if (nrOfSpells < 5)
+		{
+			normalSpell.push_back(new AttackSpell("Spell", playerPosition));
+			normalSpell[normalSpell.size() - 1]->loadMesh("SexyCube.mesh");
+			normalSpell[normalSpell.size() - 1]->setWorldPosition(playerPosition);
+			attackCooldown = 1.0f;
+			nrOfSpells++;
+		}
+		else
+		{
+			for (int i = 0; i < nrOfSpells; i++)
+			{
+				delete normalSpell[i];
+			}
+			nrOfSpells = 0;
+			
+			normalSpell.clear();
+			
+		}
+	
 	}
 	if(attackCooldown > 0)
 		attackCooldown = attackCooldown - 1 * deltaTime;

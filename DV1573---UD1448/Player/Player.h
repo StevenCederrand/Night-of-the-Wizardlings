@@ -34,6 +34,7 @@ private:
 	std::vector<AttackSpell*> normalSpell;
 	std::string name;
 	float attackCooldown;
+	int nrOfSpells;
 
 
 };
