@@ -31,8 +31,9 @@ private:
 	int health;
 	float speed;
 	Camera* playerCamera;
-	AttackSpell* normalSpell;
+	std::vector<AttackSpell*> normalSpell;
 	std::string name;
+	float attackCooldown;
 
 
 };

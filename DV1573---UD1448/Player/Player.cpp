@@ -7,16 +7,18 @@ Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera)
 	if (camera == NULL) {
 		 playerCamera = new Camera();
 	}
-	normalSpell = new AttackSpell(playerPosition);
 	this->playerCamera = camera;
 	this->playerPosition = playerPosition;
 	this->name = name;
 	this->speed = 5;
 	this->health = 100;
+	this->attackCooldown = 0;
 }
 
 Player::~Player()
 {
+	for (AttackSpell* object : normalSpell)
+		delete object;
 	delete playerCamera;
 }
 
@@ -60,13 +62,21 @@ void Player::update(float deltaTime)
 
 void Player::attack(float deltaTime)
 {
-	
-	if (glfwGetMouseButton(playerCamera->getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && normalSpell->getCooldown() <= 0)
+	if (glfwGetMouseButton(playerCamera->getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && attackCooldown <= 0)
 	{
-		std::cout << "Attack" << std::endl;
-		
+		normalSpell.push_back(new AttackSpell("Spell", playerPosition));
+		normalSpell[normalSpell.size() - 1]->loadMesh("SexyCube.mesh");
+		normalSpell[normalSpell.size() - 1]->setWorldPosition(playerPosition);
+		attackCooldown = 1.0f;
 	}
-	
+	if(attackCooldown > 0)
+		attackCooldown = attackCooldown - 1 * deltaTime;
+
+	for (AttackSpell* object : normalSpell)
+	{
+		object->bindMaterialToShader("Basic_Forward");
+		Renderer::getInstance()->render(*object);
+	}
 }
 
 void Player::setPlayerPos(glm::vec3 pos)
