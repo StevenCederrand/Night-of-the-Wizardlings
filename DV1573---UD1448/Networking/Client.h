@@ -3,6 +3,8 @@
 #include <Pch/Pch.h>
 #include "NetworkPlayer.h"
 
+class Player;
+
 class Client
 {
 public:
@@ -16,8 +18,9 @@ public:
 	void connectToAnotherServer(const ServerInfo& server);
 	void connectToMyServer();
 	void threadedProcess();
+	void updatePlayerData(Player* player);
 	const std::vector<std::pair<unsigned int, ServerInfo>>& getServerList() const;
-	const std::vector<NetworkPlayer>& getConnectedPlayers() const;
+	const std::vector<NetworkPlayer*>& getConnectedPlayers() const;
 	void refreshServerList();
 	bool doneRefreshingServerList();
 	const bool& isInitialized() const;
@@ -30,6 +33,8 @@ public:
 
 
 private:
+	void updateDataOnServer();
+
 	void findAllServerAddresses();
 	unsigned char getPacketID(RakNet::Packet* p);
 
@@ -46,7 +51,8 @@ private:
 	std::thread m_processThread;
 	bool m_shutdownThread;
 	bool m_initialized = false;
-	std::vector<NetworkPlayer> m_connectedPlayers;
+	std::vector<NetworkPlayer*> m_connectedPlayers;
+	PlayerData m_playerData;
 
 };
 

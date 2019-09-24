@@ -87,8 +87,8 @@ void LocalServer::threadedProcess()
 				m_serverPeer->Send(&stream_otherPlayers, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->systemAddress, false);
 
 				// Create the new player and assign it the correct GUID
-				NetworkPlayer player;
-				player.m_data.guid = packet->guid;
+				PlayerData player;
+				player.guid = packet->guid;
 
 				// Tell all other clients about the new client
 				RakNet::BitStream stream_newPlayer;
@@ -97,7 +97,7 @@ void LocalServer::threadedProcess()
 				
 				for (size_t i = 0; i < m_connectedPlayers.size(); i++)
 				{
-					m_serverPeer->Send(&stream_newPlayer, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_connectedPlayers[i].getData().guid, false);
+					m_serverPeer->Send(&stream_newPlayer, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_connectedPlayers[i].guid, false);
 				}
 
 				// Lastly, add the new player to the local list of connected players
@@ -123,6 +123,16 @@ void LocalServer::threadedProcess()
 			}
 			break;
 
+			case PLAYER_DATA:
+			{
+				for (size_t i = 0; i < m_connectedPlayers.size(); i++)
+				{	
+					// Don't send it back to the sender
+					if(packet->guid != m_connectedPlayers[i].guid.rakNetGuid)
+						m_serverPeer->Send(&bsIn, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_connectedPlayers[i].guid, false);
+				}
+			}
+			break;
 			}
 
 		}
@@ -156,14 +166,14 @@ void LocalServer::handleLostPlayer(const RakNet::Packet& packet, const RakNet::B
 	for (size_t i = 0; i < m_connectedPlayers.size(); i++)
 	{
 		// Save the index of the disconnected player and send a "Player_disconnected" packet to the others
-		if (m_connectedPlayers[i].getData().guid == guid)
+		if (m_connectedPlayers[i].guid == guid)
 		{
 			indexOfDisconnectedPlayer = i;
 		}
 		else
 		{
-			logTrace("Sending disconnection packets to guid: {0}", m_connectedPlayers[i].getData().guid.ToString());
-			m_serverPeer->Send(&stream_disconnectedPlayer, IMMEDIATE_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_connectedPlayers[i].getData().guid, false);
+			logTrace("Sending disconnection packets to guid: {0}", m_connectedPlayers[i].guid.ToString());
+			m_serverPeer->Send(&stream_disconnectedPlayer, IMMEDIATE_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_connectedPlayers[i].guid, false);
 		}
 	}
 

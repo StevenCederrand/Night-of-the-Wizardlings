@@ -24,8 +24,8 @@ PlayState::PlayState()
 	m_objects[m_objects.size() - 1]->loadMesh("TestScene.mesh");
 
 
-	m_objects.push_back(new WorldObject("OneCubeBoy"));
-	m_objects[m_objects.size() - 1]->loadMesh("SexyCube.mesh");
+	//m_objects.push_back(new WorldObject("OneCubeBoy"));
+	//m_objects[m_objects.size() - 1]->loadMesh("SexyCube.mesh");
 
 
 	logTrace("Playstate created");
@@ -44,13 +44,6 @@ PlayState::~PlayState()
 
 void PlayState::update(float dt)
 {	
-	/*if (Client::getInstance()->isInitialized && Client::getInstance()->isConnectedToSever())
-	{
-		for (size_t i = 0; i < Client::getInstance()->getConnectedPlayers().size; i++)
-		{
-			Client::getInstance()->getConnectedPlayers()[i].updateGameObject(dt);
-		}
-	}*/
 	Renderer::getInstance()->update(dt);
 	//m_renderer->update(dt);
 	m_player->update(dt);
@@ -64,8 +57,9 @@ void PlayState::render()
 	auto& clientsObject = Client::getInstance()->getConnectedPlayers();
 	for (size_t i = 0; i < clientsObject.size(); i++)
 	{
-		clientsObject[i].getGameObjectPtr()->bindMaterialToShader("Basic_Forward");
-		Renderer::getInstance()->render(*clientsObject[i].getGameObjectPtr());
+		clientsObject[i]->getGameObjectPtr()->bindMaterialToShader("Basic_Forward");
+		Renderer::getInstance()->render(*clientsObject[i]->getGameObjectPtr());
+		logTrace("Rendering a gameobject");
 	}
 
 	for (GameObject* object : m_objects)

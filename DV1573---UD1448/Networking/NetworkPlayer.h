@@ -8,27 +8,19 @@ class Client;
 
 class NetworkPlayer
 {
-
-public:
-	struct Data {
-		RakNet::AddressOrGUID guid;
-		float health;
-		glm::vec3 position;
-		glm::vec3 rotation;
-	};
+	
 public:
 	NetworkPlayer();
 	~NetworkPlayer();
 	void updateGameObject();
-	const Data& getData() const; // Should only be used for reading.
-	void Serialize(bool writeToStream, RakNet::BitStream& stream);
+	const PlayerData& getData() const; // Should only be used for reading.
 	void initialize(const std::string& mesh);
 	std::string toString() const;
 	GameObject* getGameObjectPtr() const;
 private:
 	friend class LocalServer; // this mean that the local server have access to the private members
 	friend class Client;
-	Data m_data;
+	PlayerData m_data;
 	GameObject* m_gameObject;
 	bool m_hasGameObject;
 };

@@ -1,5 +1,6 @@
 #include <Pch/Pch.h>
 #include "Client.h"
+#include <Player/Player.h>
 
 Client::Client()
 {
@@ -33,8 +34,15 @@ void Client::destroy()
 		if(m_processThread.joinable())
 			m_processThread.join();
 		logTrace("Client process thread shutdown");
+		
+		for (size_t i = 0; i < m_connectedPlayers.size(); i++) {
+			delete m_connectedPlayers[i];
+		}
+		
 		m_initialized = false;
 		RakNet::RakPeerInterface::DestroyInstance(m_clientPeer);
+
+
 	}
 }
 
@@ -89,6 +97,7 @@ void Client::threadedProcess()
 				logTrace("[CLIENT] Connected to server.\n");
 				m_serverAddress = packet->systemAddress;
 				m_isConnectedToAnServer = true;
+				m_playerData.guid = m_clientPeer->GetMyGUID();
 			}
 				break;
 
@@ -142,8 +151,9 @@ void Client::threadedProcess()
 				bsIn.Read(nrOfConnectedPlayers);
 
 				for (size_t i = 0; i < nrOfConnectedPlayers; i++) {
-					NetworkPlayer player;
-					player.Serialize(false, bsIn);
+					NetworkPlayer* player = new NetworkPlayer();
+					player->m_data.Serialize(false, bsIn);
+					player->initialize("SexyCube.mesh");
 					m_connectedPlayers.emplace_back(player);
 				}
 				printAllConnectedPlayers();
@@ -154,9 +164,9 @@ void Client::threadedProcess()
 			{
 				logTrace("New player joined!");
 				bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
-				NetworkPlayer player;
-				player.Serialize(false, bsIn);
-				player.initialize("SexyCube.mesh");
+				NetworkPlayer* player = new NetworkPlayer();
+				player->m_data.Serialize(false, bsIn);
+				player->initialize("SexyCube.mesh");
 				m_connectedPlayers.emplace_back(player);
 				printAllConnectedPlayers();
 				
@@ -170,16 +180,41 @@ void Client::threadedProcess()
 
 				bool found = false;
 				for (size_t i = 0; i < m_connectedPlayers.size() && !found; i++) {
-					if (guidOfDisconnectedPlayer == m_connectedPlayers[i].getData().guid) {
+					if (guidOfDisconnectedPlayer == m_connectedPlayers[i]->getData().guid) {
+						delete m_connectedPlayers[i];
 						m_connectedPlayers.erase(m_connectedPlayers.begin() + i);
 						found = true;
 					}
 				}
 
-				logTrace("Player disconnected");
+				
 				printAllConnectedPlayers();
 			}
 				break;
+			case PLAYER_DATA:
+			{
+				//logTrace("Player data received from server");
+				bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+				PlayerData pData;
+				pData.Serialize(false, bsIn);
+
+				for (size_t i = 0; i < m_connectedPlayers.size(); i++)
+				{
+					//logTrace("GUID: {0}, Looking for guid: {1}",pData.guid.ToString(), m_connectedPlayers[i]->getData().guid.ToString());
+					if (m_connectedPlayers[i]->getData().guid == pData.guid)
+					{
+						m_connectedPlayers[i]->m_data = pData;
+						/*logTrace("Updated player with GUID: {0}, new position: {1}, {2}, {3}", m_connectedPlayers[i]->m_data.guid.ToString(),
+							m_connectedPlayers[i]->m_data.position.x,
+							m_connectedPlayers[i]->m_data.position.y,
+							m_connectedPlayers[i]->m_data.position.z);*/
+						break;
+					}
+				}
+
+			}
+				break;
+
 			default:
 			{
 				logWarning("[CLIENT] Unknown packet received!");
@@ -190,8 +225,10 @@ void Client::threadedProcess()
 
 		for (size_t i = 0; i < m_connectedPlayers.size(); i++)
 		{
-			m_connectedPlayers[i].updateGameObject();
+			m_connectedPlayers[i]->updateGameObject();
 		}
+
+		updateDataOnServer();
 		RakSleep(30);
 	}
 
@@ -206,12 +243,28 @@ void Client::threadedProcess()
 
 }
 
+void Client::updatePlayerData(Player* player)
+{
+	m_playerData.health = player->getHealth();
+	m_playerData.position = player->getPlayerPos();
+}
+
+void Client::updateDataOnServer()
+{
+	// Player data sent to server
+	RakNet::BitStream bsOut;
+	bsOut.Write((RakNet::MessageID)PLAYER_DATA);
+	m_playerData.Serialize(true, bsOut);
+	m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
+}
+
+
 const std::vector<std::pair<unsigned int, ServerInfo>>& Client::getServerList() const
 {
 	return m_serverList;
 }
 
-const std::vector<NetworkPlayer>& Client::getConnectedPlayers() const
+const std::vector<NetworkPlayer*>& Client::getConnectedPlayers() const
 {
 	return m_connectedPlayers;
 }
@@ -316,6 +369,6 @@ unsigned char Client::getPacketID(RakNet::Packet* p)
 void Client::printAllConnectedPlayers()
 {
 	for (size_t i = 0; i < m_connectedPlayers.size(); i++) {
-		logTrace("Client ({0})\n{3}\n{1}\n{2}", (i + 1), m_connectedPlayers[i].toString(), "________________________", "________________________");
+		logTrace("Client ({0})\n{3}\n{1}\n{2}", (i + 1), m_connectedPlayers[i]->toString(), "________________________", "________________________");
 	}
 }

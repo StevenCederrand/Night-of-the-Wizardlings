@@ -24,7 +24,7 @@ private:
 	std::thread m_processThread;
 	bool m_shutdownServer;
 
-	std::vector<NetworkPlayer> m_connectedPlayers;
+	std::vector<PlayerData> m_connectedPlayers;
 	ServerInfo m_serverInfo;
 	bool m_initialized = false;
 
