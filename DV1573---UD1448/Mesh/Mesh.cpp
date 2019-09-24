@@ -63,6 +63,7 @@ void Mesh::setUpBuffers()
 	glBindVertexArray(0);
 
 	m_vertexBuffer.nrOfFaces = static_cast<int>(m_faces.size());
+
 }
 
 void Mesh::setMaterial(std::string matName)

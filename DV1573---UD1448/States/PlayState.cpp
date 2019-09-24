@@ -1,12 +1,11 @@
 #include <Pch/Pch.h>
 #include "PlayState.h"
-// TODO move to mesh
-#include <Loader/BGLoader.h>
 
 
 PlayState::PlayState()
 {
 	ShaderMap::getInstance()->createShader("Basic_Forward", "VertexShader.vs", "FragShader.fs");
+	ShaderMap::getInstance()->getShader("Basic_Forward")->setInt("albedoTexture", 0);
 	Renderer::getInstance();
 	m_camera = new Camera();
 	m_player = new Player("Player", glm::vec3(0.0f, 1.8f, 0.0f), m_camera);
@@ -25,9 +24,6 @@ PlayState::PlayState()
 	m_objects[m_objects.size() - 1]->loadMesh("TestScene.mesh");
 
 
-
-
-	ShaderMap::getInstance()->getShader("Basic_Forward")->setInt("albedoTexture", 0);
 
 	logTrace("Playstate created");
 
