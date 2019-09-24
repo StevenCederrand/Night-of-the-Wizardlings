@@ -20,6 +20,10 @@ private:
 
 	std::vector<std::vector<Vertices>> bggVertices;
 	std::vector<std::vector<Face>> bggFaces;
+	std::vector<glm::vec3> bgPositions;
+	std::vector<glm::quat> bgRotation;
+	std::vector<glm::vec3> bgScale;
+
 	std::vector<Material> bggMaterials;
 
 	// TODO: Direction lights, Point Lights, Skeletons, and Animations
@@ -61,6 +65,14 @@ public:
 	const std::vector<Vertices> GetVertices(int meshId) { return bggVertices[meshId];  }
 	// Returns the vertices of the first mesh
 	const std::vector<Vertices> GetVertices() { return bggVertices[0]; }
+
+	const glm::vec3 GetPosition() { return bgPositions[0]; }
+	const glm::quat GetRotation() { return bgRotation[0]; }
+	const glm::vec3 GetScale() { return bgScale[0]; }
+
+	const glm::vec3 GetPosition(int meshId) { return bgPositions[meshId]; }
+	const glm::quat GetRotation(int meshId) { return bgRotation[meshId]; }
+	const glm::vec3 GetScale(int meshId) { return bgScale[meshId]; }
 
 	// Returns the faces of a specific mesh
 	const std::vector<Face> GetFaces(int meshId) { return bggFaces[meshId]; }

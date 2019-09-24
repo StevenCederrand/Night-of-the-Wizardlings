@@ -4,11 +4,6 @@
 #include <Mesh/Mesh.h>
 #include <GFX/MaterialMap.h>
 
-struct Transform {
-	glm::vec3 m_worldPos;
-	glm::quat m_worldRot;
-	glm::vec3 m_worldScale;
-};
 
 class GameObject {
 public:
@@ -34,9 +29,12 @@ public:
 
 	//Get functions
 	const Transform& getTransform() const;
+	//Returns mesh worldposition
+	const Transform getTransform(int meshIndex) const;
 	Mesh* getMesh() const;
-	Mesh* getMesh(int index) const;
+	Mesh* getMesh(int meshIndex) const;
 	const std::vector<Mesh*>& getMeshes() const;
+	const int getMeshesCount() const { return (int)m_meshes.size(); }
 
 
 private:
@@ -44,7 +42,6 @@ private:
 	std::string m_objectName;
 
 	std::vector<Mesh*> m_meshes;
-	std::vector<std::string> m_materialNames;
 
 	Transform m_transform;
 };

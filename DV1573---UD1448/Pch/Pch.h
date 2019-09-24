@@ -27,6 +27,7 @@
 #include <GLM/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/common.hpp>
+#include "glm/ext.hpp"
 
 #include "System/Log.h"
 //Raknet

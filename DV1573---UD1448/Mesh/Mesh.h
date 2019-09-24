@@ -7,11 +7,10 @@ class Mesh
 private:
 	std::string m_name;
 	std::string m_filePath;
+	std::string m_materialName;
 	int m_indexInFile;
 	
-	glm::vec3 m_worldPos;
-	glm::quat m_worldRot;
-	glm::vec3 m_worldScale;
+	Transform m_transform;
 
 	int m_vertexCount;
 	int m_faceCount;
@@ -29,10 +28,17 @@ public:
 	void nameMesh(std::string name);
 	void saveFilePath(std::string name, int index);
 	void setUpBuffers();
+	void setMaterial(std::string matName);
 
-	glm::vec3 getPos() const { return m_worldPos; }
-	glm::quat getRot() const { return m_worldPos; }
-	glm::vec3 getScale() const { return m_worldPos; }
+	// Returns mesh local position
+	const Transform& getTransform() const { return m_transform; }
+
+
+	void setPos(glm::vec3 pos);
+	void setRot(glm::quat quat);
+	void setScale(glm::vec3 scale);
+
+	std::string getMaterial();
 
 	Buffers getBuffers() const;
 

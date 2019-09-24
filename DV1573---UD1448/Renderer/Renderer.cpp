@@ -56,20 +56,50 @@ void Renderer::update(float dt) {
 
 void Renderer::render(const GameObject& gameObject) {
 
-
 	glBindVertexArray(gameObject.getMesh()->getBuffers().vao);
 
+	//Apply transformation
 	glm::mat4 worldMatrix = glm::mat4(1.0f);
-	worldMatrix = glm::translate(worldMatrix, gameObject.getTransform().m_worldPos);
+	const Transform& meshTransform = gameObject.getTransform();
+	worldMatrix = glm::translate(worldMatrix, meshTransform.position);
+	worldMatrix = glm::scale(worldMatrix, meshTransform.scale);
+	worldMatrix *= glm::mat4_cast(meshTransform.rotation);
+
+	//Set matrices
 	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("viewMatrix", m_camera->getViewMat());
 	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("projectionMatrix", m_camera->getProjMat());
 	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("modelMatrix", worldMatrix);
 
+	//Drawcall
 	glDrawElements(GL_TRIANGLES, gameObject.getMesh()->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 	glBindVertexArray(0);
 
 }
+
+void Renderer::render(const GameObject& gameObject, int meshIndex) {
+
+	glBindVertexArray(gameObject.getMesh(meshIndex)->getBuffers().vao);
+
+	//Apply transformation
+	glm::mat4 worldMatrix = glm::mat4(1.0f);
+	Transform meshTransform = gameObject.getTransform(meshIndex);
+	worldMatrix = glm::translate(worldMatrix, meshTransform.position);
+	worldMatrix = glm::scale(worldMatrix, meshTransform.scale);
+	worldMatrix *= glm::mat4_cast(meshTransform.rotation);
+
+	//Set matrices
+	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("viewMatrix", m_camera->getViewMat());
+	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("projectionMatrix", m_camera->getProjMat());
+	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("modelMatrix", worldMatrix);
+
+	//Drawcall
+	glDrawElements(GL_TRIANGLES, gameObject.getMesh(meshIndex)->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+	glBindVertexArray(0);
+
+}
+
 
 void Renderer::render(Buffers buffer, glm::vec3 worldPos) {
 	

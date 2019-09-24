@@ -92,6 +92,9 @@ void BGLoader::BGFormatData()
 	bggVertices.resize(meshCount);
 	bggFaces.resize(meshCount);
 	bggMaterials.resize(meshCount);
+	bgPositions.resize(meshCount);
+	bgRotation.resize(meshCount);
+	bgScale.resize(meshCount);
 
 	for (int meshId = 0; meshId < meshCount; meshId++)
 	{
@@ -127,6 +130,11 @@ void BGLoader::BGFormatData()
 		bggMaterials[meshId].diffuse = glm::vec3(*material[meshId].diffuse);
 		bggMaterials[meshId].specular = glm::vec3(*material[meshId].specular);
 		bggMaterials[meshId].ambient = glm::vec3(*material[meshId].ambient);
+
+		bgPositions[meshId] = glm::make_vec3(loaderMesh[meshId].translation);
+		bgRotation[meshId] = glm::quat(glm::radians(glm::make_vec3(loaderMesh[meshId].rotation)));
+		bgScale[meshId] = glm::make_vec3(loaderMesh[meshId].scale);
+
 	}
 
 }

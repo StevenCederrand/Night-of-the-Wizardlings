@@ -17,7 +17,6 @@ GameObject::~GameObject()
 {
 	for (Mesh* mesh : m_meshes)
 		delete mesh;
-
 }
 
 void GameObject::loadMesh(std::string fileName)
@@ -26,19 +25,27 @@ void GameObject::loadMesh(std::string fileName)
 	tempLoader.LoadMesh(MESHPATH + fileName);
 
 	//Get mesh model
-	m_meshes.push_back(new Mesh());
-	m_meshes[m_meshes.size() - 1]->saveFilePath(tempLoader.GetFileName(), 0);
-	m_meshes[m_meshes.size() - 1]->nameMesh(tempLoader.GetMeshName());
-	m_meshes[m_meshes.size() - 1]->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
-	m_meshes[m_meshes.size() - 1]->setUpBuffers();
-	logTrace("Mesh loaded: {0}", m_meshes[m_meshes.size() - 1]->getName().c_str());
+	for (int i = 0; i < tempLoader.GetMeshCount(); i++)
+	{
+		m_meshes.push_back(new Mesh());
+		int id = (int)m_meshes.size() - 1;
+		m_meshes[id]->saveFilePath(tempLoader.GetFileName(), i);
+		m_meshes[id]->nameMesh(tempLoader.GetMeshName(i));
+		m_meshes[id]->setUpMesh(tempLoader.GetVertices(i), tempLoader.GetFaces(i));
+		m_meshes[id]->setUpBuffers();
+		logTrace("Mesh loaded: {0}", m_meshes[id]->getName().c_str());
+
+		m_meshes[id]->setPos(tempLoader.GetPosition(id));
+		m_meshes[id]->setRot(tempLoader.GetRotation(id));
+		m_meshes[id]->setScale(tempLoader.GetScale(id));
+		m_meshes[id]->setMaterial(tempLoader.GetMaterial().name);
+	}
 
 	//Get the mesh Materials
 	for (int i = 0; i < tempLoader.GetMaterialCount(); i++)
 	{
 		Material tempMaterial = tempLoader.GetMaterial();
 		std::string materialName = tempMaterial.name;
-		m_materialNames.push_back(materialName);
 
 		if (!MaterialMap::getInstance()->existsWithName(materialName))
 		{
@@ -88,24 +95,34 @@ void GameObject::setTransform(Transform transform)
 
 void GameObject::setTransform(glm::vec3 worldPosition = glm::vec3(.0f), glm::quat worldRot = glm::quat(), glm::vec3 worldScale = glm::vec3(.0f))
 {
-	m_transform.m_worldPos = worldPosition;
-	m_transform.m_worldRot = worldRot;
-	m_transform.m_worldScale = worldScale;
+	m_transform.position = worldPosition;
+	m_transform.rotation = worldRot;
+	m_transform.scale = worldScale;
 }
 
 void GameObject::setWorldPosition(glm::vec3 worldPosition)
 {
-	m_transform.m_worldPos = worldPosition;
+	m_transform.position = worldPosition;
 }
 
 void GameObject::translate(const glm::vec3& translationVector)
 {
-	m_transform.m_worldPos += translationVector;
+	m_transform.position += translationVector;
 }
 
 const Transform& GameObject::getTransform() const
 {
 	return m_transform;
+}
+
+const Transform GameObject::getTransform(int meshIndex) const
+{
+	Transform world_transform;
+	world_transform.position = m_transform.position + m_meshes[meshIndex]->getTransform().position;
+	world_transform.rotation = m_transform.rotation + m_meshes[meshIndex]->getTransform().rotation;
+	world_transform.scale = m_transform.scale * m_meshes[meshIndex]->getTransform().scale;
+
+	return world_transform;
 }
 
 Mesh* GameObject::getMesh() const
@@ -125,12 +142,10 @@ const std::vector<Mesh*>& GameObject::getMeshes() const
 
 void GameObject::bindMaterialToShader(std::string shaderName)
 {
-	ShaderMap::getInstance()->getShader(shaderName)->setMaterial(m_materialNames[0]);
+	ShaderMap::getInstance()->getShader(shaderName)->setMaterial(m_meshes[0]->getMaterial());
 }
 
-void GameObject::bindMaterialToShader(std::string shaderName, int matIndex)
+void GameObject::bindMaterialToShader(std::string shaderName, int meshIndex)
 {
-	if (matIndex > m_materialNames.size())
-		logError("Binding material outside of range");
-	ShaderMap::getInstance()->getShader(shaderName)->setMaterial(m_materialNames[matIndex]);
+	ShaderMap::getInstance()->getShader(shaderName)->setMaterial(m_meshes[meshIndex]->getMaterial());
 }

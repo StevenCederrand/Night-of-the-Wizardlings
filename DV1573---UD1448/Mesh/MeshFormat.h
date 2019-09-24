@@ -1,6 +1,19 @@
 #pragma once
 #include <Pch/Pch.h>
 
+struct Transform {
+	glm::vec3 position;
+	glm::quat rotation;
+	glm::vec3 scale;
+
+	Transform()
+	{
+		position = glm::vec3();
+		rotation = glm::quat();
+		scale = glm::vec3(1.0f);
+	}
+};
+
 struct Vertices
 {
 	glm::vec3 position;
