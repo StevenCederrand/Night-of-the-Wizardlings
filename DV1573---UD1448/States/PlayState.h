@@ -7,6 +7,7 @@
 #include <GameObject/GameObject.h>
 #include <Player/Player.h>
 #include <GameObject/WorldObject.h>
+#include <Spells/Spell.h>
 
 
 class PlayState : public State {

@@ -7,6 +7,7 @@ Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera)
 	if (camera == NULL) {
 		 playerCamera = new Camera();
 	}
+	normalSpell = new AttackSpell(playerPosition);
 	this->playerCamera = camera;
 	this->playerPosition = playerPosition;
 	this->name = name;
@@ -54,12 +55,18 @@ void Player::update(float deltaTime)
 	setPlayerPos(playerPosition);
 	playerCamera->setCameraPos(playerPosition);
 	playerCamera->update(playerCamera->getWindow());
-
+	attack(deltaTime);
 }
 
-void Player::attack()
+void Player::attack(float deltaTime)
 {
-	//normalSpell = new AttackSpell();
+	
+	if (glfwGetMouseButton(playerCamera->getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && normalSpell->getCooldown() <= 0)
+	{
+		std::cout << "Attack" << std::endl;
+		
+	}
+	
 }
 
 void Player::setPlayerPos(glm::vec3 pos)

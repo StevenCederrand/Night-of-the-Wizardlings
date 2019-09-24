@@ -10,7 +10,7 @@ public:
 
 	void update(float deltaTime);
 	void playerJump();
-	void attack();
+	void attack(float deltaTime);
 
 	void setPlayerPos(glm::vec3 pos);
 	void spawnPlayer(glm::vec3 pos);
