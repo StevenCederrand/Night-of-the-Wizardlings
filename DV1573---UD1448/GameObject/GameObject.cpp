@@ -45,7 +45,7 @@ void GameObject::loadMesh(std::string fileName)
 		// Get material
 		if (!MaterialMap::getInstance()->existsWithName(materialName))
 		{
-			if (tempLoader.GetAlbedo() != "-1")
+			if (tempLoader.GetAlbedo(id) != "-1")
 			{
 				std::string albedoFile = TEXTUREPATH + tempLoader.GetAlbedo(id);
 				GLuint texture;
