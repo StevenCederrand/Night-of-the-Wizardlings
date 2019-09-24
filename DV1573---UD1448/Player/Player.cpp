@@ -32,7 +32,7 @@ void Player::update(float deltaTime)
 
 	camFace.y = 0;
 
-	glm::vec3 moveDir = glm::vec3(0.0f);
+	moveDir = glm::vec3(0.0f);
 
 	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_A) == GLFW_PRESS)
 	{
@@ -60,6 +60,7 @@ void Player::update(float deltaTime)
 	playerCamera->setCameraPos(playerPosition);
 	playerCamera->update(playerCamera->getWindow());
 	attack(deltaTime);
+	std::cout << " " << camRight.x << " " << camRight.y << " " << camRight.z << std::endl;
 }
 
 void Player::attack(float deltaTime)
@@ -68,9 +69,11 @@ void Player::attack(float deltaTime)
 	{
 		if (nrOfSpells < 5)
 		{
+
 			normalSpell.push_back(new AttackSpell("Spell", playerPosition));
 			normalSpell[normalSpell.size() - 1]->loadMesh("SexyCube.mesh");
 			normalSpell[normalSpell.size() - 1]->setWorldPosition(playerPosition);
+			normalSpell[normalSpell.size() - 1]->translate(glm::vec3());
 			attackCooldown = 1.0f;
 			nrOfSpells++;
 		}
@@ -81,11 +84,9 @@ void Player::attack(float deltaTime)
 				delete normalSpell[i];
 			}
 			nrOfSpells = 0;
-			
 			normalSpell.clear();
-			
 		}
-	
+		
 	}
 	if(attackCooldown > 0)
 		attackCooldown = attackCooldown - 1 * deltaTime;

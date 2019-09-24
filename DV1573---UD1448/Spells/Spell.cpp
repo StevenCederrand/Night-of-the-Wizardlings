@@ -22,6 +22,7 @@ void Spell::CreateSpellObject()
 
 void Spell::updateSpell()
 {
+
 }
 
 int Spell::getCooldown()

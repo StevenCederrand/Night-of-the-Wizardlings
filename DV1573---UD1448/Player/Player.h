@@ -31,6 +31,7 @@ private:
 	int health;
 	float speed;
 	Camera* playerCamera;
+	glm::vec3 moveDir = glm::vec3(0.0f);
 	std::vector<AttackSpell*> normalSpell;
 	std::string name;
 	float attackCooldown;
