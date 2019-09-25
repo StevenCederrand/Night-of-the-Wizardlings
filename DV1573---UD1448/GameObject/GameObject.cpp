@@ -96,7 +96,7 @@ void GameObject::bindMaterialToShader(std::string shaderName)
 
 void GameObject::bindMaterialToShader(std::string shaderName, int matIndex)
 {
-	if (matIndex > m_materialNames.size())
+	if (static_cast<size_t>(matIndex) > m_materialNames.size())
 		logError("Binding material outside of range");
 	ShaderMap::getInstance()->getShader(shaderName)->setMaterial(m_materialNames[matIndex]);
 }

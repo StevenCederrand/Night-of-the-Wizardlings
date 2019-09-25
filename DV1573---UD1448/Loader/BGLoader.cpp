@@ -99,7 +99,7 @@ void BGLoader::BGFormatData()
 		bggFaces[meshId].resize(GetFaceCount(meshId));
 
 		// Vertices
-		for (int v = 0; v < bggVertices[meshId].size(); v++)
+		for (size_t v = 0; v < bggVertices[meshId].size(); v++)
 		{
 			bggVertices[meshId][v].position[0] = meshVert[meshId][v].position[0];
 			bggVertices[meshId][v].position[1] = meshVert[meshId][v].position[1];
@@ -114,7 +114,7 @@ void BGLoader::BGFormatData()
 		}
 
 		// Faces
-		for (int f = 0; f < bggFaces[meshId].size(); f++)
+		for (size_t f = 0; f < bggFaces[meshId].size(); f++)
 		{
 			bggFaces[meshId][f].indices[0] = meshFace[meshId][f].indices[0];
 			bggFaces[meshId][f].indices[1] = meshFace[meshId][f].indices[1];

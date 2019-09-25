@@ -275,6 +275,11 @@ void Client::updatePlayerData(Player* player)
 {
 	m_playerData.health = player->getHealth();
 	m_playerData.position = player->getPlayerPos();
+	m_playerData.rotation = glm::vec3(
+		player->getCamera()->getViewMat()[1][0] - glm::radians(90.0f),
+		player->getCamera()->getViewMat()[1][1] - glm::radians(90.0f),
+		player->getCamera()->getViewMat()[1][2] - glm::radians(90.0f)
+	);
 }
 
 void Client::updateNetworkedPlayers(const float& dt)
