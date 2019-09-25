@@ -2,6 +2,7 @@
 #include <Pch/Pch.h>
 #include <GameObject/GameObject.h>
 #include <Mesh/MeshFormat.h>
+#include <Renderer/SkyBox.h>
 
 struct ObjectRenderData {
 	Buffers buffer;
@@ -31,6 +32,7 @@ public:
 
 	void destroy();
 	void bindMatrixes(const glm::mat4& viewMatrix, const glm::mat4& projMatrix);
+	void renderSkybox(const SkyBox& skybox);
 	void render(const GameObject& gameObject);
 	void render(const GameObject& gameObject, int meshIndex);
 	void render(Buffers buffer, glm::vec3 worldPos);

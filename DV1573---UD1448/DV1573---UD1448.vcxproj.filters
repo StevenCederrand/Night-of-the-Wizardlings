@@ -27,6 +27,7 @@
     <ClCompile Include="States\FindServerState.cpp" />
     <ClCompile Include="Networking\NetworkPlayerManager.cpp" />
     <ClCompile Include="Player\Player.cpp" />
+    <ClCompile Include="Renderer\SkyBox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GFX\MaterialMap.h" />
@@ -58,7 +59,7 @@
     <ClInclude Include="States\FindServerState.h" />
     <ClInclude Include="Networking\NetworkPlayerManager.h" />
     <ClInclude Include="Player\Player.h" />
-
+    <ClInclude Include="Renderer\SkyBox.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

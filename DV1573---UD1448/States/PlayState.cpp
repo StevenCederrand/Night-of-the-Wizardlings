@@ -18,15 +18,17 @@ PlayState::PlayState()
 	m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
 	m_objects.push_back(new WorldObject("TestSphere"));
 	m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
-
+	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0, 2, 0));
 	//Test enviroment with 4 meshes inside 1 GameObject, inherited transforms
 	m_objects.push_back(new WorldObject("TestScene"));
 	m_objects[m_objects.size() - 1]->loadMesh("TestScene.mesh");
 
-
-
 	logTrace("Playstate created");
 
+	m_skybox = new SkyBox();
+	m_skybox->prepareBuffers();
+	ShaderMap::getInstance()->createShader("Skybox_Shader", "Skybox.vs", "Skybox.fs");
+	ShaderMap::getInstance()->getShader("Skybox_Shader")->setInt("skyBox", 4);
 }
 
 PlayState::~PlayState()
@@ -51,6 +53,7 @@ void PlayState::render()
 {
 	Renderer::getInstance()->bindMatrixes(m_player->getCamera()->getViewMat(), m_player->getCamera()->getProjMat());
 
+	Renderer::getInstance()->renderSkybox(*m_skybox);
 	for (GameObject* object : m_objects)
 	{
 		for (int i = 0; i < object->getMeshesCount(); i++)

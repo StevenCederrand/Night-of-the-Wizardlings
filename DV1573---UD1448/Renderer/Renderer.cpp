@@ -50,6 +50,25 @@ void Renderer::bindMatrixes(const glm::mat4& viewMatrix, const glm::mat4& projMa
 	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("projectionMatrix", m_camera->getProjMat());
 }
 
+void Renderer::renderSkybox(const SkyBox& skybox)
+{
+	glDisable(GL_CULL_FACE);
+	glDepthMask(GL_FALSE);
+	//glDepthMask(false);
+	ShaderMap::getInstance()->useByName("Skybox_Shader");
+	ShaderMap::getInstance()->getShader("Skybox_Shader")->setMat4("viewMatrix", glm::mat4(glm::mat3(m_camera->getViewMat())));
+	ShaderMap::getInstance()->getShader("Skybox_Shader")->setMat4("projectionMatrix", m_camera->getProjMat());
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.getCubeMapTexture());
+	glBindVertexArray(skybox.getVAO());
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glDepthMask(GL_TRUE);
+	glBindVertexArray(0);
+	//glDepthMask(true);
+	glEnable(GL_CULL_FACE);
+}
+
 void Renderer::update(float dt) {
 	m_camera->fpsControls(dt);
 	m_camera->update(m_gWindow);
