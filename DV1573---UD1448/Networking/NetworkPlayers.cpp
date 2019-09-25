@@ -1,6 +1,17 @@
 #include <Pch/Pch.h>
 #include "NetworkPlayers.h"
 
+glm::vec3 vec3Lerp(const glm::vec3& a, const glm::vec3& b, float t)
+{
+	glm::vec3 v;
+	v.x = (1 - t) * a.x + t * b.x;
+	v.y = (1 - t) * a.y + t * b.y;
+	v.z = (1 - t) * a.z + t * b.z;
+
+	return v;
+
+}
+
 NetworkPlayers::NetworkPlayers()
 {
 }
@@ -42,8 +53,12 @@ void NetworkPlayers::update(const float& dt)
 
 		GameObject* g = p->gameobject;
 		
-		if(g != nullptr)
-			g->setTransform(p->data.position, glm::quat(p->data.rotation));
+		if (g != nullptr) {
+			
+			glm::vec3 pos = vec3Lerp(p->gameobject->getTransform().m_worldPos, p->data.position, m_lerpSpeed * dt);
+			g->setTransform(pos, glm::quat(p->data.rotation));
+
+		}
 
 	}
 
