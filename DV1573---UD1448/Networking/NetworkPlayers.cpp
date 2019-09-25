@@ -38,7 +38,7 @@ void NetworkPlayers::update(const float& dt)
 		{
 			if (p->gameobject == nullptr) {
 				p->gameobject = new WorldObject();
-				p->gameobject->loadMesh("SexyCube.mesh");
+				p->gameobject->loadMesh("TestCube.mesh");
 			}
 			p->flag = FLAG::NONE;
 		}
@@ -55,8 +55,9 @@ void NetworkPlayers::update(const float& dt)
 		
 		if (g != nullptr) {
 			
-			glm::vec3 pos = vec3Lerp(p->gameobject->getTransform().m_worldPos, p->data.position, m_lerpSpeed * dt);
-			g->setTransform(pos, glm::quat(p->data.rotation));
+			glm::vec3 pos = vec3Lerp(p->gameobject->getTransform().position, p->data.position, m_lerpSpeed * dt);
+			g->setWorldPosition(pos);
+			//g->setTransform(pos, glm::quat(p->data.rotation));
 
 		}
 

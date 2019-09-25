@@ -45,8 +45,28 @@ void Renderer::destroy()
 }
 void Renderer::bindMatrixes(const glm::mat4& viewMatrix, const glm::mat4& projMatrix)
 {
+	//TODO: Also being done in render()
 	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("viewMatrix", m_camera->getViewMat());
 	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("projectionMatrix", m_camera->getProjMat());
+}
+
+void Renderer::renderSkybox(const SkyBox& skybox)
+{
+	glDisable(GL_CULL_FACE);
+	glDepthMask(GL_FALSE);
+	//glDepthMask(false);
+	ShaderMap::getInstance()->useByName("Skybox_Shader");
+	ShaderMap::getInstance()->getShader("Skybox_Shader")->setMat4("viewMatrix", glm::mat4(glm::mat3(m_camera->getViewMat())));
+	ShaderMap::getInstance()->getShader("Skybox_Shader")->setMat4("projectionMatrix", m_camera->getProjMat());
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.getCubeMapTexture());
+	glBindVertexArray(skybox.getVAO());
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glDepthMask(GL_TRUE);
+	glBindVertexArray(0);
+	//glDepthMask(true);
+	glEnable(GL_CULL_FACE);
 }
 
 void Renderer::update(float dt) {
@@ -56,23 +76,57 @@ void Renderer::update(float dt) {
 
 void Renderer::render(const GameObject& gameObject) {
 
-
 	glBindVertexArray(gameObject.getMesh()->getBuffers().vao);
 
+	//Apply transformation
+	//TODO: Should the gameobject hold the worldmatrix?
 	glm::mat4 worldMatrix = glm::mat4(1.0f);
-	worldMatrix = glm::translate(worldMatrix, gameObject.getTransform().m_worldPos);
+	const Transform meshTransform = gameObject.getTransform();
+	worldMatrix = glm::translate(worldMatrix, meshTransform.position);
+	worldMatrix = glm::scale(worldMatrix, meshTransform.scale);
+	worldMatrix *= glm::mat4_cast(meshTransform.rotation);
+
+	//Set matrices TODO: function exists for this, evaluate what to keep
 	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("viewMatrix", m_camera->getViewMat());
 	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("projectionMatrix", m_camera->getProjMat());
 	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("modelMatrix", worldMatrix);
 
+	//Drawcall
 	glDrawElements(GL_TRIANGLES, gameObject.getMesh()->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 	glBindVertexArray(0);
 
 }
 
+void Renderer::render(const GameObject& gameObject, int meshIndex) {
+
+	glBindVertexArray(gameObject.getMesh(meshIndex)->getBuffers().vao);
+
+	//Apply transformation
+	//TODO: Should the gameobject hold the worldmatrix? 
+	// Yes it should
+	glm::mat4 worldMatrix = glm::mat4(1.0f);
+	const Transform meshTransform = gameObject.getTransform(meshIndex);
+	worldMatrix = glm::translate(worldMatrix, meshTransform.position);
+	worldMatrix = glm::scale(worldMatrix, meshTransform.scale);
+	worldMatrix *= glm::mat4_cast(meshTransform.rotation);
+
+	//Set matrices
+	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("viewMatrix", m_camera->getViewMat());
+	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("projectionMatrix", m_camera->getProjMat());
+	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("modelMatrix", worldMatrix);
+
+	//Drawcall
+	glDrawElements(GL_TRIANGLES, gameObject.getMesh(meshIndex)->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+	glBindVertexArray(0);
+
+}
+
+
 void Renderer::render(Buffers buffer, glm::vec3 worldPos) {
 	
+	//TODO: Remove?
 
 	ShaderMap::getInstance()->useByName("Basic_Forward");
 

@@ -4,11 +4,6 @@
 #include <Mesh/Mesh.h>
 #include <GFX/MaterialMap.h>
 
-struct Transform {
-	glm::vec3 m_worldPos;
-	glm::quat m_worldRot;
-	glm::vec3 m_worldScale;
-};
 
 class GameObject {
 public:
@@ -18,7 +13,7 @@ public:
 	GameObject(std::string objectName);
 	virtual ~GameObject();
 
-	//Automatically adds MESHPATH, to the name
+	//Loads all the meshes from the file into the GameObject
 	void loadMesh(std::string fileName);
 	//Bind all of the material values to the shader, i.e colors
 	void bindMaterialToShader(std::string shaderName);
@@ -33,20 +28,22 @@ public:
 	void translate(const glm::vec3& translationVector);
 
 	//Get functions
-	const Transform& getTransform() const;
+	const Transform getTransform() const;
+	//Returns mesh worldposition
+	const Transform getTransform(int meshIndex) const;
 	Mesh* getMesh() const;
-	Mesh* getMesh(int index) const;
+	Mesh* getMesh(int meshIndex) const;
 	const std::vector<Mesh*>& getMeshes() const;
+	const int getMeshesCount() const { return (int)m_meshes.size(); }
 
 
 private:
 
 	std::string m_objectName;
+	Transform m_transform;
 
 	std::vector<Mesh*> m_meshes;
-	std::vector<std::string> m_materialNames;
 
-	Transform m_transform;
 };
 
 

@@ -202,6 +202,7 @@
     </ClCompile>
     <ClCompile Include="Renderer\Shader.cpp" />
     <ClCompile Include="Renderer\ShaderMap.cpp" />
+    <ClCompile Include="Renderer\SkyBox.cpp" />
     <ClCompile Include="States\FindServerState.cpp" />
     <ClCompile Include="States\LobbyState.cpp" />
     <ClCompile Include="States\MenuState.cpp" />
@@ -251,6 +252,7 @@
     </ClInclude>
     <ClInclude Include="Renderer\Shader.h" />
     <ClInclude Include="Renderer\ShaderMap.h" />
+    <ClInclude Include="Renderer\SkyBox.h" />
     <ClInclude Include="States\FindServerState.h" />
     <ClInclude Include="States\LobbyState.h" />
     <ClInclude Include="States\MenuState.h" />
