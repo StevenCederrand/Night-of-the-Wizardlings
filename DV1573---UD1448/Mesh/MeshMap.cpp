@@ -1,16 +1,17 @@
 #include "Pch/Pch.h"
-#include "MeshMap.h"
+#include <Mesh/MeshMap.h>
+#include "Mesh.h"
 
-MeshMap* MeshMap::m_MeshMapInstance = 0;
+MeshMap* MeshMap::m_meshMapInstance = 0;
 
 MeshMap::MeshMap() {}
 
 MeshMap* MeshMap::getInstance()
 {
-	if (m_MeshMapInstance == 0) {
-		m_MeshMapInstance = new MeshMap();
+	if (m_meshMapInstance == 0) {
+		m_meshMapInstance = new MeshMap();
 	}
-	return m_MeshMapInstance;
+	return m_meshMapInstance;
 }
 
 void MeshMap::cleanUp()
@@ -50,14 +51,15 @@ Mesh* MeshMap::getMesh(std::string name)
 	return nullptr;
 }
 
-Mesh* MeshMap::createMesh(std::string name, Mesh Mesh)
+Mesh* MeshMap::createMesh(std::string name, Mesh mesh)
 {
 	if (existsWithName(name))
 	{
 		return nullptr;
 	}
+
 	Mesh* newMesh = new Mesh();
-	*newMesh = Mesh;
+	*newMesh = mesh;
 	m_Mesh[name] = newMesh;
 	return newMesh;
 }
@@ -65,5 +67,5 @@ Mesh* MeshMap::createMesh(std::string name, Mesh Mesh)
 void MeshMap::destroy()
 {
 	cleanUp();
-	delete m_MeshMapInstance;
+	delete m_meshMapInstance;
 }

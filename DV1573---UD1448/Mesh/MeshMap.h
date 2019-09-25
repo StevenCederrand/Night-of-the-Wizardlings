@@ -1,5 +1,5 @@
-#ifndef _MATERIALMAP_h
-#define _MATERIALMAP_h
+#ifndef _MESHMAP_H
+#define _MESHMAP_H
 #include <Pch/Pch.h>
 #include <Mesh/MeshFormat.h>
 #include <Mesh/Mesh.h>
@@ -11,14 +11,14 @@ public:
 	void cleanUp();
 	bool existsWithName(std::string name);
 	void useByName(std::string name);
-	Mesh* getMaterial(std::string name);
-	Mesh* createMaterial(std::string name, Mesh mesh);
+	Mesh* getMesh(std::string name);
+	Mesh* createMesh(std::string name, Mesh mesh);
 	void destroy();
 
 private:
 
-	MaterialMap();
-	static MaterialMap* m_materialMapInstance;
+	MeshMap();
+	static MeshMap* m_meshMapInstance;
 	std::map<std::string, Mesh*> m_Mesh;
 };
 

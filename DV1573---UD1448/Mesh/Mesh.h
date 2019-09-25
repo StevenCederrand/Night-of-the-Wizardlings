@@ -33,7 +33,6 @@ public:
 	// Returns mesh local position
 	const Transform& getTransform() const { return m_transform; }
 
-
 	void setPos(glm::vec3 pos);
 	void setRot(glm::quat quat);
 	void setScale(glm::vec3 scale);

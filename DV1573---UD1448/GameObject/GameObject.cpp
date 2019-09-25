@@ -15,8 +15,7 @@ GameObject::GameObject(std::string objectName)
 
 GameObject::~GameObject()
 {
-	for (Mesh* mesh : m_meshes)
-		delete mesh;
+	
 }
 
 void GameObject::loadMesh(std::string fileName)
@@ -27,22 +26,29 @@ void GameObject::loadMesh(std::string fileName)
 	//Get file mesh models
 	for (int i = 0; i < tempLoader.GetMeshCount(); i++)
 	{
-		m_meshes.push_back(new Mesh());
-		int id = (int)m_meshes.size() - 1;
-		m_meshes[id]->saveFilePath(tempLoader.GetFileName(), i);
-		m_meshes[id]->nameMesh(tempLoader.GetMeshName(i));
-		m_meshes[id]->setUpMesh(tempLoader.GetVertices(i), tempLoader.GetFaces(i));
-		m_meshes[id]->setUpBuffers();
-		m_meshes[id]->setPos(tempLoader.GetPosition(id));
-		m_meshes[id]->setRot(tempLoader.GetRotation(id));
-		m_meshes[id]->setScale(tempLoader.GetScale(id));
-		m_meshes[id]->setMaterial(tempLoader.GetMaterial(id).name);
-		
-		logTrace("Mesh loaded: {0}, Expecting material: {1}", m_meshes[id]->getName().c_str(), m_meshes[id]->getMaterial());
-		Material tempMaterial = tempLoader.GetMaterial(id);
-		std::string materialName = tempMaterial.name;
+		std::string meshName = tempLoader.GetMeshName(i);
+		m_meshes.push_back(meshName);
+
+		int id = i; //TODO: Remove
+		if (!MeshMap::getInstance()->existsWithName(meshName))
+		{
+			//m_meshes.push_back(new Mesh());
+			Mesh tempMesh;
+			tempMesh.saveFilePath(tempLoader.GetFileName(), i);
+			tempMesh.nameMesh(tempLoader.GetMeshName(i));
+			tempMesh.setUpMesh(tempLoader.GetVertices(i), tempLoader.GetFaces(i));
+			tempMesh.setUpBuffers();
+			tempMesh.setPos(tempLoader.GetPosition(id));
+			tempMesh.setRot(tempLoader.GetRotation(id));
+			tempMesh.setScale(tempLoader.GetScale(id));
+			tempMesh.setMaterial(tempLoader.GetMaterial(id).name);
+			MeshMap::getInstance()->createMesh(meshName, tempMesh);
+			logTrace("Mesh loaded: {0}, Expecting material: {1}", tempMesh.getName().c_str(), tempMesh.getMaterial());
+		}
 
 		// Get material
+		Material tempMaterial = tempLoader.GetMaterial(id);
+		std::string materialName = tempMaterial.name;
 		if (!MaterialMap::getInstance()->existsWithName(materialName))
 		{
 			if (tempLoader.GetAlbedo(id) != "-1")
@@ -71,6 +77,7 @@ void GameObject::loadMesh(std::string fileName)
 				stbi_image_free(data);
 				tempMaterial.textureID.push_back(texture);
 			}
+
 			MaterialMap::getInstance()->createMaterial(materialName, tempMaterial);
 			logTrace("Material created: {0}", materialName);
 		}
@@ -105,45 +112,52 @@ void GameObject::translate(const glm::vec3& translationVector)
 
 const Transform GameObject::getTransform() const
 {
+	Mesh* mesh = MeshMap::getInstance()->getMesh(m_meshes[0]);
+	
 	Transform world_transform;
-	world_transform.position = m_transform.position + m_meshes[0]->getTransform().position;
-	world_transform.rotation = m_transform.rotation + m_meshes[0]->getTransform().rotation;
-	world_transform.scale = m_transform.scale * m_meshes[0]->getTransform().scale;
+	world_transform.position = m_transform.position + mesh->getTransform().position;
+	world_transform.rotation = m_transform.rotation + mesh->getTransform().rotation;
+	world_transform.scale = m_transform.scale * mesh->getTransform().scale;
 
 	return world_transform;
 }
 
 const Transform GameObject::getTransform(int meshIndex) const
 {
+	Mesh* mesh = MeshMap::getInstance()->getMesh(m_meshes[meshIndex]);
+
 	Transform world_transform;
-	world_transform.position = m_transform.position + m_meshes[meshIndex]->getTransform().position;
-	world_transform.rotation = m_transform.rotation + m_meshes[meshIndex]->getTransform().rotation;
-	world_transform.scale = m_transform.scale * m_meshes[meshIndex]->getTransform().scale;
+	world_transform.position = m_transform.position + mesh->getTransform().position;
+	world_transform.rotation = m_transform.rotation + mesh->getTransform().rotation;
+	world_transform.scale = m_transform.scale * mesh->getTransform().scale;
 
 	return world_transform;
 }
 
 Mesh* GameObject::getMesh() const
 {
-	return m_meshes[0];
+	//TODO: Consider removing function
+	return MeshMap::getInstance()->getMesh(m_meshes[0]);
 }
 
 Mesh* GameObject::getMesh(int index) const
 {
-	return m_meshes[index];
+	//TODO: Consider removing function
+	return MeshMap::getInstance()->getMesh(m_meshes[index]);
 }
 
-const std::vector<Mesh*>& GameObject::getMeshes() const
+const std::string& GameObject::getMeshN(int meshIndex) const
 {
-	return m_meshes;
+	return m_meshes[meshIndex];
 }
 
 void GameObject::bindMaterialToShader(std::string shaderName)
 {
-	ShaderMap::getInstance()->getShader(shaderName)->setMaterial(m_meshes[0]->getMaterial());
+	ShaderMap::getInstance()->getShader(shaderName)->setMaterial(MeshMap::getInstance()->getMesh(m_meshes[0])->getMaterial());
 }
 
 void GameObject::bindMaterialToShader(std::string shaderName, int meshIndex)
 {
-	ShaderMap::getInstance()->getShader(shaderName)->setMaterial(m_meshes[meshIndex]->getMaterial());
+	
+	ShaderMap::getInstance()->getShader(shaderName)->setMaterial(MeshMap::getInstance()->getMesh(m_meshes[meshIndex])->getMaterial());
 }

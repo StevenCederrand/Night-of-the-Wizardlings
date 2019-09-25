@@ -56,13 +56,14 @@ void Renderer::update(float dt) {
 }
 
 void Renderer::render(const GameObject& gameObject) {
+	Mesh* meshRef = MeshMap::getInstance()->getMesh(gameObject.getMeshN(0));
+	const Transform meshTransform = gameObject.getTransform();
 
-	glBindVertexArray(gameObject.getMesh()->getBuffers().vao);
+	glBindVertexArray(meshRef->getBuffers().vao);
 
 	//Apply transformation
 	//TODO: Should the gameobject hold the worldmatrix?
 	glm::mat4 worldMatrix = glm::mat4(1.0f);
-	const Transform meshTransform = gameObject.getTransform();
 	worldMatrix = glm::translate(worldMatrix, meshTransform.position);
 	worldMatrix = glm::scale(worldMatrix, meshTransform.scale);
 	worldMatrix *= glm::mat4_cast(meshTransform.rotation);
@@ -73,20 +74,22 @@ void Renderer::render(const GameObject& gameObject) {
 	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("modelMatrix", worldMatrix);
 
 	//Drawcall
-	glDrawElements(GL_TRIANGLES, gameObject.getMesh()->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+	glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 	glBindVertexArray(0);
 
 }
 
 void Renderer::render(const GameObject& gameObject, int meshIndex) {
+	Mesh* meshRef = MeshMap::getInstance()->getMesh(gameObject.getMeshN(meshIndex));
+	const Transform meshTransform = gameObject.getTransform(meshIndex);
 
-	glBindVertexArray(gameObject.getMesh(meshIndex)->getBuffers().vao);
+	glBindVertexArray(meshRef->getBuffers().vao);
 
 	//Apply transformation
 	//TODO: Should the gameobject hold the worldmatrix?
 	glm::mat4 worldMatrix = glm::mat4(1.0f);
-	const Transform meshTransform = gameObject.getTransform(meshIndex);
 	worldMatrix = glm::translate(worldMatrix, meshTransform.position);
 	worldMatrix = glm::scale(worldMatrix, meshTransform.scale);
 	worldMatrix *= glm::mat4_cast(meshTransform.rotation);
@@ -97,7 +100,7 @@ void Renderer::render(const GameObject& gameObject, int meshIndex) {
 	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("modelMatrix", worldMatrix);
 
 	//Drawcall
-	glDrawElements(GL_TRIANGLES, gameObject.getMesh(meshIndex)->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+	glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 	glBindVertexArray(0);
 

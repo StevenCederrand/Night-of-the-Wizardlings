@@ -247,7 +247,6 @@ void Shader::setMaterial(std::string materialName) {
 	for (int i = 0; i < mat->textureID.size(); i++) {
 		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D, mat->textureID.at(i));
-
 	}
 	
 }

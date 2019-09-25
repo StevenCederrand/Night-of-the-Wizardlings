@@ -34,7 +34,7 @@ public:
 	const Transform getTransform(int meshIndex) const;
 	Mesh* getMesh() const;
 	Mesh* getMesh(int meshIndex) const;
-	const std::vector<Mesh*>& getMeshes() const;
+	const std::string& getMeshN(int meshIndex) const;
 	const int getMeshesCount() const { return (int)m_meshes.size(); }
 
 
@@ -43,8 +43,7 @@ private:
 	std::string m_objectName;
 	Transform m_transform;
 
-	std::vector<Mesh*> m_meshes;
-	std::vector<std::string> m_meshesN;
+	std::vector<std::string> m_meshes;
 
 };
 
