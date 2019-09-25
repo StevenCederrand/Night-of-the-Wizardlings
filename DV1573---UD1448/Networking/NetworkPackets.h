@@ -24,7 +24,7 @@ struct newPlayerInfo {
 
 struct PlayerData {
 	RakNet::AddressOrGUID guid;
-	float health = 100.0f;
+	int health = 100;
 	glm::vec3 position = glm::vec3(0.0f);
 	glm::vec3 rotation = glm::vec3(0.0f);
 

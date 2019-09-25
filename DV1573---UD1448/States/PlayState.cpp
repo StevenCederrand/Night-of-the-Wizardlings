@@ -44,6 +44,7 @@ PlayState::~PlayState()
 
 void PlayState::update(float dt)
 {	
+	Client::getInstance()->updateNetworkedPlayers(dt);
 	Renderer::getInstance()->update(dt);
 	//m_renderer->update(dt);
 	m_player->update(dt);
@@ -54,12 +55,14 @@ void PlayState::render()
 {
 	Renderer::getInstance()->bindMatrixes(m_player->getCamera()->getViewMat(), m_player->getCamera()->getProjMat());
 
-	auto& clientsObject = Client::getInstance()->getConnectedPlayers();
-	for (size_t i = 0; i < clientsObject.size(); i++)
+	auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
+
+	for (size_t i = 0; i < list.size(); i++)
 	{
-		clientsObject[i]->getGameObjectPtr()->bindMaterialToShader("Basic_Forward");
-		Renderer::getInstance()->render(*clientsObject[i]->getGameObjectPtr());
-		logTrace("Rendering a gameobject");
+		if (list[i]->gameobject == nullptr) continue;
+
+		list[i]->gameobject->bindMaterialToShader("Basic_Forward");
+		Renderer::getInstance()->render(*list[i]->gameobject);
 	}
 
 	for (GameObject* object : m_objects)

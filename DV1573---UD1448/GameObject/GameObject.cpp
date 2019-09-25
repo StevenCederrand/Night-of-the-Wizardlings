@@ -15,6 +15,7 @@ GameObject::GameObject(std::string objectName)
 
 GameObject::~GameObject()
 {
+	logTrace("Deleting meshes..");
 	for (Mesh* mesh : m_meshes)
 		delete mesh;
 
@@ -51,7 +52,7 @@ void GameObject::setTransform(Transform transform)
 	m_transform = transform;
 }
 
-void GameObject::setTransform(glm::vec3 worldPosition = glm::vec3(.0f), glm::quat worldRot = glm::quat(), glm::vec3 worldScale = glm::vec3(.0f))
+void GameObject::setTransform(glm::vec3 worldPosition, glm::quat worldRot, glm::vec3 worldScale)
 {
 	m_transform.m_worldPos = worldPosition;
 	m_transform.m_worldRot = worldRot;

@@ -28,7 +28,7 @@ public:
 	   	
 	//Set functions
 	void setTransform(Transform transform);
-	void setTransform(glm::vec3 worldPosition, glm::quat worldRot, glm::vec3 worldScale);
+	void setTransform(glm::vec3 worldPosition, glm::quat worldRot = glm::quat(), glm::vec3 worldScale = glm::vec3(.0f));
 	void setWorldPosition(glm::vec3 worldPosition);
 	void translate(const glm::vec3& translationVector);
 

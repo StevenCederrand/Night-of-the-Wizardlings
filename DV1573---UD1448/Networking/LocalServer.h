@@ -1,7 +1,6 @@
 #ifndef _LOCAL_SERVER_H
 #define _LOCAL_SERVER_H
 #include <Pch/Pch.h>
-#include "NetworkPlayer.h"
 class LocalServer
 {
 public:
