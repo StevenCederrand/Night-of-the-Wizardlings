@@ -3,6 +3,7 @@
 #include <Pch/Pch.h>
 #include <Mesh/Mesh.h>
 #include <GFX/MaterialMap.h>
+#include <Mesh/Mesh.h>
 
 
 class GameObject {
@@ -43,6 +44,7 @@ private:
 	Transform m_transform;
 
 	std::vector<Mesh*> m_meshes;
+	std::vector<std::string> m_meshesN;
 
 };
 
