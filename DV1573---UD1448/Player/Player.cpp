@@ -77,7 +77,7 @@ void Player::attack(float deltaTime)
 		std::cout << " " << rayWorld.x << " " << rayWorld.y << " " << rayWorld.z << std::endl;
 		if (nrOfSpells < 5)
 		{
-			normalSpell.push_back(new AttackSpell("Spell", playerPosition, rayWorld, 30));
+			normalSpell.push_back(new AttackSpell("Spell", playerPosition, rayWorld, 100));
 			normalSpell[normalSpell.size() - 1]->loadMesh("SexyCube.mesh");
 			normalSpell[normalSpell.size() - 1]->setWorldPosition(playerPosition);
 			normalSpell[normalSpell.size() - 1]->translate(glm::vec3(rayWorld.x, rayWorld.y, rayWorld.z));
