@@ -13,28 +13,29 @@ PlayState::PlayState()
 
 	//TODO: organized loading system?
 	
-	//Cube and sphere centered in scene
-	m_objects.push_back(new WorldObject("TestCube"));
-	m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
-	m_objects.push_back(new WorldObject("TestSphere"));
-	m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
-
 	//Test enviroment with 4 meshes inside 1 GameObject, inherited transforms
 	m_objects.push_back(new WorldObject("TestScene"));
 	m_objects[m_objects.size() - 1]->loadMesh("TestScene.mesh");
-
+	
+	//Cube and sphere centered in scene
+	m_objects.push_back(new WorldObject("TestCube"));
+	m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -2.0f));
+	m_objects.push_back(new WorldObject("TestSphere"));
+	m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -2.0f));
 
 
 	logTrace("Playstate created");
-
 }
 
 PlayState::~PlayState()
 {
-	MaterialMap::getInstance()->destroy();
-
-	
 	delete m_player;
+	
+	MaterialMap::getInstance()->destroy();
+	MeshMap::getInstance()->destroy();
+	
 	for (GameObject* object : m_objects)
 		delete object;
 }

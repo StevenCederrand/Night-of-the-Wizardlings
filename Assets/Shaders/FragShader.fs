@@ -14,14 +14,14 @@ uniform vec3 Specular_Color;
 uniform sampler2D albedoTexture;
 
 void main() {
-    float ambientStr = 0.8f;
-    vec3 ambientCol = Ambient_Color * ambientStr; //texture(albedoTexture, f_UV).rgb
+    float ambientStr = 0.15f;
+    vec3 ambientCol = (Ambient_Color + ambientStr) * texture(albedoTexture, f_UV).rgb;
 
     vec3 lightDir = normalize(-lightDirection);
     float diff = max(dot(f_normal, lightDir), 0.0f);
-    vec3 diffuse = (Diffuse_Color  + texture(albedoTexture, f_UV).rgb) * diff; //;
+    vec3 diffuse = (Diffuse_Color * texture(albedoTexture, f_UV).rgb) * diff;
     Specular_Color;
 
     color = texture(albedoTexture, f_UV); 
-    //color = vec4(ambientCol + diffuse + Specular_Color, 1);
+    color = vec4(ambientCol + diffuse, 1);
 }
