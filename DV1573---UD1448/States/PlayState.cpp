@@ -1,6 +1,10 @@
 #include <Pch/Pch.h>
 #include "PlayState.h"
 
+// TODO move to mesh
+#include <Loader/BGLoader.h>
+#include <Networking/Client.h>
+
 
 PlayState::PlayState()
 {
@@ -27,23 +31,33 @@ PlayState::PlayState()
 
 
 	logTrace("Playstate created");
+
+	m_skybox = new SkyBox();
+	m_skybox->prepareBuffers();
+	ShaderMap::getInstance()->createShader("Skybox_Shader", "Skybox.vs", "Skybox.fs");
+	ShaderMap::getInstance()->getShader("Skybox_Shader")->setInt("skyBox", 4);
 }
 
 PlayState::~PlayState()
 {
 	delete m_player;
-	
+
+	logTrace("Deleting materials..");
 	MaterialMap::getInstance()->destroy();
+	logTrace("Deleting meshes..");
 	MeshMap::getInstance()->destroy();
 	
+	delete m_skybox;
+	
+	delete m_player;
 	for (GameObject* object : m_objects)
 		delete object;
 }
 
 void PlayState::update(float dt)
-{
+{	
+	Client::getInstance()->updateNetworkedPlayers(dt);
 	Renderer::getInstance()->update(dt);
-	//m_renderer->update(dt);
 	m_player->update(dt);
 	
 }
@@ -51,6 +65,26 @@ void PlayState::update(float dt)
 void PlayState::render()
 {
 	Renderer::getInstance()->bindMatrixes(m_player->getCamera()->getViewMat(), m_player->getCamera()->getProjMat());
+	Renderer::getInstance()->renderSkybox(*m_skybox);
+
+
+	auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
+	for (size_t i = 0; i < list.size(); i++)
+	{
+
+		if (list[i]->gameobject == nullptr) continue;
+
+		for (int j = 0; j < list[i]->gameobject->getMeshesCount(); j++)
+		{
+			list[i]->gameobject->bindMaterialToShader("Basic_Forward", j);
+			Renderer::getInstance()->render(*list[i]->gameobject, j);
+		}
+
+		
+	}
+
+
+	
 
 	for (GameObject* object : m_objects)
 	{

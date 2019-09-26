@@ -177,14 +177,13 @@
     <ClCompile Include="Mesh\MeshMap.cpp" />
     <ClCompile Include="Networking\Client.cpp" />
     <ClCompile Include="Networking\LocalServer.cpp" />
-    <ClCompile Include="Networking\NetworkPlayer.cpp" />
     <ClCompile Include="GameObject\GameObject.cpp" />
     <ClCompile Include="GameObject\WorldObject.cpp" />
     <ClCompile Include="GFX\MaterialMap.cpp" />
     <ClCompile Include="Gui\Gui.cpp" />
     <ClCompile Include="Loader\BGLoader.cpp" />
     <ClCompile Include="Mesh\Mesh.cpp" />
-    <ClCompile Include="Networking\NetworkPlayerManager.cpp" />
+    <ClCompile Include="Networking\NetworkPlayers.cpp" />
     <ClCompile Include="Pch\Pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -204,6 +203,7 @@
     </ClCompile>
     <ClCompile Include="Renderer\Shader.cpp" />
     <ClCompile Include="Renderer\ShaderMap.cpp" />
+    <ClCompile Include="Renderer\SkyBox.cpp" />
     <ClCompile Include="States\FindServerState.cpp" />
     <ClCompile Include="States\LobbyState.cpp" />
     <ClCompile Include="States\MenuState.cpp" />
@@ -236,7 +236,6 @@
     <ClInclude Include="Networking\LocalServer.h" />
     <ClInclude Include="Networking\NetworkGlobals.h" />
     <ClInclude Include="Networking\NetworkPackets.h" />
-    <ClInclude Include="Networking\NetworkPlayer.h" />
     <ClInclude Include="GameObject\WorldObject.h" />
     <ClInclude Include="GFX\MaterialMap.h" />
     <ClInclude Include="Gui\Gui.h" />
@@ -244,7 +243,7 @@
     <ClInclude Include="Mesh\Mesh.h" />
     <ClInclude Include="Loader\LoaderFormat.h" />
     <ClInclude Include="Mesh\MeshFormat.h" />
-    <ClInclude Include="Networking\NetworkPlayerManager.h" />
+    <ClInclude Include="Networking\NetworkPlayers.h" />
     <ClInclude Include="Pch\Pch.h" />
     <ClInclude Include="Player\Player.h" />
     <ClInclude Include="Renderer\Camera.h">
@@ -255,6 +254,7 @@
     </ClInclude>
     <ClInclude Include="Renderer\Shader.h" />
     <ClInclude Include="Renderer\ShaderMap.h" />
+    <ClInclude Include="Renderer\SkyBox.h" />
     <ClInclude Include="States\FindServerState.h" />
     <ClInclude Include="States\LobbyState.h" />
     <ClInclude Include="States\MenuState.h" />

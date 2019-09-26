@@ -1,6 +1,6 @@
 #include "Pch/Pch.h"
 #include "Player.h"
-
+#include <Networking/Client.h>
 
 Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera)
 {
@@ -56,6 +56,7 @@ void Player::update(float deltaTime)
 	playerCamera->update(playerCamera->getWindow());
 
 	
+	Client::getInstance()->updatePlayerData(this);
 
 }
 
