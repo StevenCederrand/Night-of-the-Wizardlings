@@ -40,16 +40,14 @@ PlayState::PlayState()
 
 PlayState::~PlayState()
 {
-	delete m_player;
+	logTrace("Deleting playstate..");
 
-	logTrace("Deleting materials..");
 	MaterialMap::getInstance()->destroy();
-	logTrace("Deleting meshes..");
 	MeshMap::getInstance()->destroy();
 	
 	delete m_skybox;
-	
 	delete m_player;
+	
 	for (GameObject* object : m_objects)
 		delete object;
 }
