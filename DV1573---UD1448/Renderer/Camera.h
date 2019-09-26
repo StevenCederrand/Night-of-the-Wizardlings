@@ -43,6 +43,9 @@ public:
 
 	const glm::mat4 getViewMat() const;
 	const glm::mat4& getProjMat() const;
+	double getXpos() const;
+	double getYpos() const;
+
 	glm::vec3 getCamFace();
 	glm::vec3 getCamRight();
 	GLFWwindow* getWindow();

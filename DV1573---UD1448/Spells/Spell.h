@@ -6,7 +6,7 @@ class Spell : public GameObject
 {
 public:
 	Spell(glm::vec3 pos);
-	Spell(std::string name, glm::vec3 pos);
+	Spell(std::string name, glm::vec3 pos, glm::vec3 direction, float speed);
 	~Spell();
 
 	void CreateSpellObject();
@@ -14,6 +14,8 @@ public:
 
 	//-----Get-----//
 	int getCooldown();
+	float getSpellSpeed();
+	glm::vec3 getDirection();
 	//----Set-----//
 	void setDamage(int damage);
 	void setSpellSpeed(float speed);

@@ -39,6 +39,9 @@ void Camera::mouse_callback(GLFWwindow* window)
 	lastY = static_cast<float>(ypos);
 
 	mouseControls(xoffset, yoffset, true);
+
+	//std::cout << " " << getXpos() << " " << getYpos() << std::endl;
+
 }
 
 Camera::Camera()
@@ -97,7 +100,7 @@ void Camera::mouseControls(float xOffset, float yOffset, bool pitchLimit)
 {
 	xOffset *= sensitivity;
 	yOffset *= sensitivity;
-
+	
 	camYaw += xOffset;
 	camPitch += yOffset;
 
@@ -125,6 +128,16 @@ const glm::mat4 Camera::getViewMat() const
 const glm::mat4& Camera::getProjMat() const
 {
 	return projMat;
+}
+
+double Camera::getXpos() const
+{
+	return xpos;
+}
+
+double Camera::getYpos() const
+{
+	return ypos;
 }
 
 glm::vec3 Camera::getCamFace()

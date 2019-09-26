@@ -7,7 +7,7 @@ class AttackSpell : public Spell
 {
 public:
 	AttackSpell(glm::vec3 pos);
-	AttackSpell(std::string name, glm::vec3 pos);
+	AttackSpell(std::string name, glm::vec3 pos, glm::vec3 direction, float speed);
 	~AttackSpell();
 
 	void update(float dt);

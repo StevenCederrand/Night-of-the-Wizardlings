@@ -7,9 +7,11 @@ Spell::Spell(glm::vec3 pos)
 	this->spellPosition = pos;
 }
 
-Spell::Spell(std::string name, glm::vec3 pos)
+Spell::Spell(std::string name, glm::vec3 pos, glm::vec3 direction, float speed)
 	: GameObject(name)
 {
+	this->spellSpeed = speed;
+	this->direction = direction;
 }
 
 Spell::~Spell()
@@ -28,6 +30,16 @@ void Spell::updateSpell()
 int Spell::getCooldown()
 {
 	return this->spellCoolDown;
+}
+
+float Spell::getSpellSpeed()
+{
+	return this->spellSpeed;
+}
+
+glm::vec3 Spell::getDirection()
+{
+	return this->direction;
 }
 
 void Spell::setDamage(int damage)

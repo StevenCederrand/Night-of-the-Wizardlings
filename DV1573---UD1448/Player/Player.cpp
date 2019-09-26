@@ -2,6 +2,7 @@
 #include "Player.h"
 
 
+
 Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera)
 {
 	if (camera == NULL) {
@@ -60,20 +61,27 @@ void Player::update(float deltaTime)
 	playerCamera->setCameraPos(playerPosition);
 	playerCamera->update(playerCamera->getWindow());
 	attack(deltaTime);
-	std::cout << " " << camRight.x << " " << camRight.y << " " << camRight.z << std::endl;
+	for (int i = 0; i < normalSpell.size(); i++)
+	{
+		normalSpell[i]->translate(normalSpell[i]->getDirection() * deltaTime * normalSpell[i]->getSpellSpeed());
+
+	}
+	//std::cout << " " << playerCamera->getXpos() << " " << playerCamera->getYpos() << std::endl;
 }
 
 void Player::attack(float deltaTime)
 {
 	if (glfwGetMouseButton(playerCamera->getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && attackCooldown <= 0)
 	{
+		createRay();
+		std::cout << " " << rayWorld.x << " " << rayWorld.y << " " << rayWorld.z << std::endl;
 		if (nrOfSpells < 5)
 		{
-
-			normalSpell.push_back(new AttackSpell("Spell", playerPosition));
+			normalSpell.push_back(new AttackSpell("Spell", playerPosition, rayWorld, 30));
 			normalSpell[normalSpell.size() - 1]->loadMesh("SexyCube.mesh");
 			normalSpell[normalSpell.size() - 1]->setWorldPosition(playerPosition);
-			normalSpell[normalSpell.size() - 1]->translate(glm::vec3());
+			normalSpell[normalSpell.size() - 1]->translate(glm::vec3(rayWorld.x, rayWorld.y, rayWorld.z));
+			
 			attackCooldown = 1.0f;
 			nrOfSpells++;
 		}
@@ -86,8 +94,13 @@ void Player::attack(float deltaTime)
 			nrOfSpells = 0;
 			normalSpell.clear();
 		}
-		
+	
 	}
+
+	
+	
+
+
 	if(attackCooldown > 0)
 		attackCooldown = attackCooldown - 1 * deltaTime;
 
@@ -96,6 +109,21 @@ void Player::attack(float deltaTime)
 		object->bindMaterialToShader("Basic_Forward");
 		Renderer::getInstance()->render(*object);
 	}
+}
+
+void Player::createRay()
+{
+	float x = (2.0f * playerCamera->getXpos()) / SCREEN_WIDTH - 1.0f;
+	float y = 1.0f - (2.0f * playerCamera->getYpos()) / SCREEN_HEIGHT;
+	float z = 1.0f;
+
+	//-----Spaces-----//
+	glm::vec3 rayNDC = glm::vec3(x, y, z);
+	glm::vec4 rayClip = glm::vec4(rayNDC.x, rayNDC.y, -1.0f, 1.0f);
+	glm::vec4 rayEye = inverse(playerCamera->getProjMat()) * rayClip;
+	rayEye = glm::vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);
+	glm::vec4 rayWorldTemp = glm::vec4(inverse(playerCamera->getViewMat()) * rayEye);
+	rayWorld = normalize(glm::vec3(rayWorldTemp.x, rayWorldTemp.y, rayWorldTemp.z));
 }
 
 void Player::setPlayerPos(glm::vec3 pos)
