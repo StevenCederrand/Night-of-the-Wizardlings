@@ -86,6 +86,11 @@ void Mesh::setScale(glm::vec3 scale)
 	m_transform.scale = scale;
 }
 
+void Mesh::setTransform(Transform transform)
+{
+	m_transform = transform;
+}
+
 std::string Mesh::getMaterial()
 {
 	return m_materialName;

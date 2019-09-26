@@ -20,40 +20,44 @@ GameObject::~GameObject()
 
 void GameObject::loadMesh(std::string fileName)
 {
-	BGLoader tempLoader;
+	BGLoader tempLoader;	// The file loader
 	tempLoader.LoadMesh(MESHPATH + fileName);
 
-	//Get file mesh models
 	for (int i = 0; i < tempLoader.GetMeshCount(); i++)
 	{
+		MeshBox tempMeshBox;								// Meshbox holds the mesh identity and local transform to GameObject
 		std::string meshName = tempLoader.GetMeshName(i);
-		m_meshes.push_back(meshName);
-
-		int id = i; //TODO: Remove
-		if (!MeshMap::getInstance()->existsWithName(meshName))
+		tempMeshBox.name = meshName;
+		tempMeshBox.transform = tempLoader.GetTransform(i);	// One way of getting the meshes transform
+		m_meshes.push_back(tempMeshBox);					// This effectively adds the mesh to the gameobject
+		
+		if (!MeshMap::getInstance()->existsWithName(meshName))	// This creates the mesh if it does not exist (by name)
 		{
-			//m_meshes.push_back(new Mesh());
 			Mesh tempMesh;
 			tempMesh.saveFilePath(tempLoader.GetFileName(), i);
 			tempMesh.nameMesh(tempLoader.GetMeshName(i));
 			tempMesh.setUpMesh(tempLoader.GetVertices(i), tempLoader.GetFaces(i));
 			tempMesh.setUpBuffers();
-			tempMesh.setPos(tempLoader.GetPosition(id));
-			tempMesh.setRot(tempLoader.GetRotation(id));
-			tempMesh.setScale(tempLoader.GetScale(id));
-			tempMesh.setMaterial(tempLoader.GetMaterial(id).name);
+
+			// other way of getting the meshes transform
+			// Value that may or may not be needed depening on how we want the meshes default position to be
+			// Needs more testing, this value is per global mesh", the MeshBox value is per GameObject mesh
+			//tempMesh.setTransform(tempLoader.GetTransform(id));
+
+			tempMesh.setMaterial(tempLoader.GetMaterial(i).name);
 			MeshMap::getInstance()->createMesh(meshName, tempMesh);
 			logTrace("Mesh loaded: {0}, Expecting material: {1}", tempMesh.getName().c_str(), tempMesh.getMaterial());
 		}
 
 		// Get material
-		Material tempMaterial = tempLoader.GetMaterial(id);
+		Material tempMaterial = tempLoader.GetMaterial(i);
 		std::string materialName = tempMaterial.name;
-		if (!MaterialMap::getInstance()->existsWithName(materialName))
+	
+		if (!MaterialMap::getInstance()->existsWithName(materialName)) 	// This creates the material if it does not exist (by name)
 		{
-			if (tempLoader.GetAlbedo(id) != "-1")
+			if (tempLoader.GetAlbedo(i) != "-1")
 			{
-				std::string albedoFile = TEXTUREPATH + tempLoader.GetAlbedo(id);
+				std::string albedoFile = TEXTUREPATH + tempLoader.GetAlbedo(i);
 				GLuint texture;
 				glGenTextures(1, &texture);
 				glBindTexture(GL_TEXTURE_2D, texture);
@@ -93,7 +97,7 @@ void GameObject::setTransform(Transform transform)
 	m_transform = transform;
 }
 
-void GameObject::setTransform(glm::vec3 worldPosition = glm::vec3(.0f), glm::quat worldRot = glm::quat(), glm::vec3 worldScale = glm::vec3(.0f))
+void GameObject::setTransform(glm::vec3 worldPosition = glm::vec3(.0f), glm::quat worldRot = glm::quat(), glm::vec3 worldScale = glm::vec3(1.0f))
 {
 	m_transform.position = worldPosition;
 	m_transform.rotation = worldRot;
@@ -112,24 +116,26 @@ void GameObject::translate(const glm::vec3& translationVector)
 
 const Transform GameObject::getTransform() const
 {
-	Mesh* mesh = MeshMap::getInstance()->getMesh(m_meshes[0]);
+	Mesh* mesh = MeshMap::getInstance()->getMesh(m_meshes[0].name);
 	
+	// Adds the inherited transforms together to get the world position of a mesh
 	Transform world_transform;
-	world_transform.position = m_transform.position + mesh->getTransform().position;
-	world_transform.rotation = m_transform.rotation + mesh->getTransform().rotation;
-	world_transform.scale = m_transform.scale * mesh->getTransform().scale;
+	world_transform.position = m_transform.position + m_meshes[0].transform.position + mesh->getTransform().position;
+	world_transform.rotation = m_transform.rotation + m_meshes[0].transform.rotation +  mesh->getTransform().rotation;
+	world_transform.scale = m_transform.scale * m_meshes[0].transform.scale * mesh->getTransform().scale;
 
 	return world_transform;
 }
 
 const Transform GameObject::getTransform(int meshIndex) const
 {
-	Mesh* mesh = MeshMap::getInstance()->getMesh(m_meshes[meshIndex]);
+	Mesh* mesh = MeshMap::getInstance()->getMesh(m_meshes[meshIndex].name);
 
+	// Adds the inherited transforms together to get the world position of a mesh
 	Transform world_transform;
-	world_transform.position = m_transform.position + mesh->getTransform().position;
-	world_transform.rotation = m_transform.rotation + mesh->getTransform().rotation;
-	world_transform.scale = m_transform.scale * mesh->getTransform().scale;
+	world_transform.position = m_transform.position + m_meshes[meshIndex].transform.position + mesh->getTransform().position;
+	world_transform.rotation = m_transform.rotation + m_meshes[meshIndex].transform.rotation + mesh->getTransform().rotation;
+	world_transform.scale = m_transform.scale * m_meshes[meshIndex].transform.scale * mesh->getTransform().scale;
 
 	return world_transform;
 }
@@ -137,27 +143,27 @@ const Transform GameObject::getTransform(int meshIndex) const
 Mesh* GameObject::getMesh() const
 {
 	//TODO: Consider removing function
-	return MeshMap::getInstance()->getMesh(m_meshes[0]);
+	return MeshMap::getInstance()->getMesh(m_meshes[0].name);
 }
 
 Mesh* GameObject::getMesh(int index) const
 {
 	//TODO: Consider removing function
-	return MeshMap::getInstance()->getMesh(m_meshes[index]);
+	return MeshMap::getInstance()->getMesh(m_meshes[index].name);
 }
 
 const std::string& GameObject::getMeshN(int meshIndex) const
 {
-	return m_meshes[meshIndex];
+	return m_meshes[meshIndex].name;
 }
 
 void GameObject::bindMaterialToShader(std::string shaderName)
 {
-	ShaderMap::getInstance()->getShader(shaderName)->setMaterial(MeshMap::getInstance()->getMesh(m_meshes[0])->getMaterial());
+	ShaderMap::getInstance()->getShader(shaderName)->setMaterial(MeshMap::getInstance()->getMesh(m_meshes[0].name)->getMaterial());
 }
 
 void GameObject::bindMaterialToShader(std::string shaderName, int meshIndex)
 {
 	
-	ShaderMap::getInstance()->getShader(shaderName)->setMaterial(MeshMap::getInstance()->getMesh(m_meshes[meshIndex])->getMaterial());
+	ShaderMap::getInstance()->getShader(shaderName)->setMaterial(MeshMap::getInstance()->getMesh(m_meshes[meshIndex].name)->getMaterial());
 }

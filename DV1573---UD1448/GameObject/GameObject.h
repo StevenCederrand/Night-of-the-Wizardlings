@@ -5,6 +5,13 @@
 #include <GFX/MaterialMap.h>
 #include <Mesh/Mesh.h>
 
+//TODO: MOVE
+//Handles seperate transforms for same mesh
+struct MeshBox
+{
+	std::string name;
+	Transform transform;
+};
 
 class GameObject {
 public:
@@ -43,7 +50,7 @@ private:
 	std::string m_objectName;
 	Transform m_transform;
 
-	std::vector<std::string> m_meshes;
+	std::vector<MeshBox> m_meshes;
 
 };
 

@@ -30,15 +30,15 @@ public:
 	void setUpBuffers();
 	void setMaterial(std::string matName);
 
-	// Returns mesh local position
-	const Transform& getTransform() const { return m_transform; }
-
 	void setPos(glm::vec3 pos);
 	void setRot(glm::quat quat);
 	void setScale(glm::vec3 scale);
+	void setTransform(Transform transform);
 
 	std::string getMaterial();
 
+
+	// Returns mesh local position
 	Buffers getBuffers() const;
 
 	int getVertexCount() const { return m_vertexCount; }
@@ -47,6 +47,7 @@ public:
 	
 	const std::vector<Face>& getFaces() { return m_faces; }
 	const std::vector<Vertices>& getVertices() { return m_vertices; }
+	const Transform& getTransform() const { return m_transform; }
 
 
 };

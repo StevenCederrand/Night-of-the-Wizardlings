@@ -91,13 +91,16 @@ void BGLoader::BGFormatData()
 	meshCount = fileHeader.meshCount;
 	matCount = fileHeader.materialCount;
 
-
+	// Synced mesh vectors
 	bggVertices.resize(meshCount);
 	bggFaces.resize(meshCount);
-	bggMaterials.resize(matCount);
 	bgPositions.resize(meshCount);
 	bgRotation.resize(meshCount);
 	bgScale.resize(meshCount);
+	bggTransforms.resize(meshCount);
+
+	// Material vector
+	bggMaterials.resize(matCount);
 
 	for (int meshId = 0; meshId < meshCount; meshId++)
 	{
@@ -128,10 +131,16 @@ void BGLoader::BGFormatData()
 		}
 
 		
-
+		// Transforms
 		bgPositions[meshId] = glm::make_vec3(loaderMesh[meshId].translation);
 		bgRotation[meshId] = glm::quat(glm::radians(glm::make_vec3(loaderMesh[meshId].rotation)));
 		bgScale[meshId] = glm::make_vec3(loaderMesh[meshId].scale);
+
+		Transform newTransform;
+		newTransform.position = bgPositions[meshId];
+		newTransform.rotation = bgRotation[meshId];
+		newTransform.scale = bgScale[meshId];
+		bggTransforms[meshId] = newTransform;
 
 	}
 
