@@ -61,12 +61,7 @@ void Player::update(float deltaTime)
 	playerCamera->setCameraPos(playerPosition);
 	playerCamera->update(playerCamera->getWindow());
 	attack(deltaTime);
-	for (int i = 0; i < normalSpell.size(); i++)
-	{
-		normalSpell[i]->translate(normalSpell[i]->getDirection() * deltaTime * normalSpell[i]->getSpellSpeed());
-
-	}
-	//std::cout << " " << playerCamera->getXpos() << " " << playerCamera->getYpos() << std::endl;
+	updateAttack(deltaTime);
 }
 
 void Player::attack(float deltaTime)
@@ -75,31 +70,15 @@ void Player::attack(float deltaTime)
 	{
 		createRay();
 		std::cout << " " << rayWorld.x << " " << rayWorld.y << " " << rayWorld.z << std::endl;
-		if (nrOfSpells < 5)
-		{
-			normalSpell.push_back(new AttackSpell("Spell", playerPosition, rayWorld, 100));
-			normalSpell[normalSpell.size() - 1]->loadMesh("SexyCube.mesh");
-			normalSpell[normalSpell.size() - 1]->setWorldPosition(playerPosition);
-			normalSpell[normalSpell.size() - 1]->translate(glm::vec3(rayWorld.x, rayWorld.y, rayWorld.z));
+		
+		normalSpell.push_back(new AttackSpell("Spell", playerPosition, rayWorld, 5, 2));
+		normalSpell[normalSpell.size() - 1]->loadMesh("SexyCube.mesh");
+		normalSpell[normalSpell.size() - 1]->setWorldPosition(playerPosition);
+		normalSpell[normalSpell.size() - 1]->translate(glm::vec3(rayWorld.x, rayWorld.y, rayWorld.z));
 			
-			attackCooldown = 1.0f;
-			nrOfSpells++;
-		}
-		else
-		{
-			for (int i = 0; i < nrOfSpells; i++)
-			{
-				delete normalSpell[i];
-			}
-			nrOfSpells = 0;
-			normalSpell.clear();
-		}
+		attackCooldown = 1.0f;
 	
 	}
-
-	
-	
-
 
 	if(attackCooldown > 0)
 		attackCooldown = attackCooldown - 1 * deltaTime;
@@ -109,6 +88,26 @@ void Player::attack(float deltaTime)
 		object->bindMaterialToShader("Basic_Forward");
 		Renderer::getInstance()->render(*object);
 	}
+}
+
+void Player::updateAttack(float deltaTime)
+{
+	for (int i = 0; i < normalSpell.size(); i++)
+	{
+		normalSpell[i]->translate(normalSpell[i]->getDirection() * deltaTime * normalSpell[i]->getSpellSpeed());
+		normalSpell[i]->setTravelTime(normalSpell[i]->getTravelTime() - 1 * deltaTime);
+
+		std::cout << normalSpell[i]->getTravelTime() << std::endl;
+
+		if (normalSpell[i]->getTravelTime() <= 0)
+		{
+			delete normalSpell[i];
+			normalSpell.erase(normalSpell.begin() + i);
+			
+		}
+	}
+	
+
 }
 
 void Player::createRay()

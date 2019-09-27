@@ -6,10 +6,11 @@ Spell::Spell(glm::vec3 pos)
 {
 	this->spellPosition = pos;
 }
-
-Spell::Spell(std::string name, glm::vec3 pos, glm::vec3 direction, float speed)
+//Name, Pos, Direction, Speed, TravelTime
+Spell::Spell(std::string name, glm::vec3 pos, glm::vec3 direction, float speed, float travelTime)
 	: GameObject(name)
 {
+	this->travelTime = travelTime;
 	this->spellSpeed = speed;
 	this->direction = direction;
 }
@@ -37,6 +38,12 @@ float Spell::getSpellSpeed()
 	return this->spellSpeed;
 }
 
+float Spell::getTravelTime()
+{
+	return this->travelTime;
+}
+
+
 glm::vec3 Spell::getDirection()
 {
 	return this->direction;
@@ -61,6 +68,12 @@ void Spell::setCooldown(int cooldown)
 {
 	this->spellCoolDown = cooldown;
 }
+
+void Spell::setTravelTime(float travelTime)
+{
+	this->travelTime = travelTime;
+}
+
 
 void Spell::update(float dt)
 {
