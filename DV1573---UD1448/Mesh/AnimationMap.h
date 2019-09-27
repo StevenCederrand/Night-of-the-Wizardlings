@@ -5,6 +5,16 @@
 
 class AnimationMap
 {
-
+public:
+	static AnimationMap* getInstance();
+	void cleanUp();
+	bool exisitsWithName(std::string name);
+	Animation* getAnimation(std::string name);
+	Animation* createAnimation(std::string name, Animation* anim);
+private:
+	AnimationMap();
+	static AnimationMap* m_animMapInstance;
+	std::map<std::string, Animation*> m_animationMap;
 };
 
+#endif

@@ -9,8 +9,13 @@ public:
 	static SkeletonMap* getInstance();
 	void cleanUp();
 	bool existsWithName(std::string name);
-	
-
-
+	Skeleton* getSkeleton(std::string name);
+	Skeleton* createSkeleton(std::string name, Skeleton skeleton);
+	void destroy();
+private:
+	SkeletonMap();
+	static SkeletonMap* m_skeletonMapInstance;
+	std::map<std::string, Skeleton*> m_skeletonMap;
 };
 
+#endif

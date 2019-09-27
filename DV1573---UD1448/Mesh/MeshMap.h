@@ -18,7 +18,7 @@ public:
 private:
 	MeshMap();
 	static MeshMap* m_meshMapInstance;
-	std::map<std::string, Mesh*> m_Mesh;
+	std::map<std::string, Mesh*> m_meshMap;
 
 };
 

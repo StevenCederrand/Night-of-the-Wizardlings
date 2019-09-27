@@ -66,12 +66,17 @@ struct Skeleton
 	std::string name;
 	std::vector<Joint> joints;
 
+	Skeleton()
+	{
+		name = "";
+	}
 
 };
 
 struct Animation
 {
-	struct Keyframe
+	// Skeleton animation
+	struct skKeyframe
 	{
 		int id;
 		std::vector<glm::vec3> local_joints_T;
@@ -79,12 +84,13 @@ struct Animation
 		std::vector<glm::vec3> local_joints_S;
 	};
 
+	// Standards
 	std::string name;
 	int keyframeFirst;
 	int keyframeLast;
 	float duration;
 	float rate;
-	std::vector<Keyframe> keyframes;
+	std::vector<skKeyframe> keyframes;
 
 
 };

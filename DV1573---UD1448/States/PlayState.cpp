@@ -29,6 +29,13 @@ PlayState::PlayState()
 	m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -2.0f));
 
+	m_objects.push_back(new WorldObject("AnimationTest"));
+	m_objects[m_objects.size() - 1]->loadMesh("WalkingTest.mesh");
+	Transform tempTransform;
+	tempTransform.scale = glm::vec3(0.3f, 0.3f, 0.3f);
+	m_objects[m_objects.size() - 1]->setTransform(tempTransform);
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(-3.0f, 0.0f, 3.0f));
+
 
 	logTrace("Playstate created");
 

@@ -91,13 +91,19 @@ void BGLoader::BGFormatData()
 	meshCount = fileHeader.meshCount;
 	matCount = fileHeader.materialCount;
 
+
 	// Synced mesh vectors
 	bggVertices.resize(meshCount);
 	bggFaces.resize(meshCount);
-	bgPositions.resize(meshCount);
-	bgRotation.resize(meshCount);
-	bgScale.resize(meshCount);
+	bggPositions.resize(meshCount);
+	bggRotation.resize(meshCount);
+	bggScale.resize(meshCount);
 	bggTransforms.resize(meshCount);
+
+	//bggSkeleton.resize(skeletonsD.size());
+	//bggAnimation.resize(animationsD.size());
+	bggSkeleton.resize(meshCount);
+	bggAnimation.resize(meshCount);
 
 	// Material vector
 	bggMaterials.resize(matCount);
@@ -132,14 +138,14 @@ void BGLoader::BGFormatData()
 
 		
 		// Transforms
-		bgPositions[meshId] = glm::make_vec3(loaderMesh[meshId].translation);
-		bgRotation[meshId] = glm::quat(glm::radians(glm::make_vec3(loaderMesh[meshId].rotation)));
-		bgScale[meshId] = glm::make_vec3(loaderMesh[meshId].scale);
+		bggPositions[meshId] = glm::make_vec3(loaderMesh[meshId].translation);
+		bggRotation[meshId] = glm::quat(glm::radians(glm::make_vec3(loaderMesh[meshId].rotation)));
+		bggScale[meshId] = glm::make_vec3(loaderMesh[meshId].scale);
 
 		Transform newTransform;
-		newTransform.position = bgPositions[meshId];
-		newTransform.rotation = bgRotation[meshId];
-		newTransform.scale = bgScale[meshId];
+		newTransform.position = bggPositions[meshId];
+		newTransform.rotation = bggRotation[meshId];
+		newTransform.scale = bggScale[meshId];
 		bggTransforms[meshId] = newTransform;
 
 	}
@@ -152,6 +158,30 @@ void BGLoader::BGFormatData()
 		bggMaterials[i].diffuse = glm::vec3(*material[i].diffuse);
 		bggMaterials[i].specular = glm::vec3(*material[i].specular);
 		bggMaterials[i].ambient = glm::vec3(*material[i].ambient);
+	}
+
+
+	// TODO: Improve importer to make this step simpler and better
+	for (int i = 0; i < bggSkeleton.size(); i++)
+	{
+		if (loaderMesh[i].skeleton.jointCount > 0)
+		{
+			bggSkeleton[i].name = loaderMesh[i].skeleton.name;
+			bggSkeleton[i].joints.resize(loaderMesh[i].skeleton.jointCount);
+
+			for (int j = 0; j < bggSkeleton[i].joints.size(); j++)
+			{
+				bggSkeleton[i].joints[j].name = skeletonsD[i].joint[j].name;
+				bggSkeleton[i].joints[j].invBindPose = glm::make_mat4(skeletonsD[i].joint[j].invBindPose);
+				bggSkeleton[i].joints[j].parentIndex = skeletonsD[i].joint[j].parentIndex;
+			}
+		}
+	}
+
+
+	for(int i = 0; i < bggAnimation.size(); i++)
+	{
+		//TODO: fix
 	}
 
 }

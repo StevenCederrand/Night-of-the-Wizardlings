@@ -6,6 +6,8 @@ Mesh::Mesh()
 	m_name = "";
 	m_filePath = "";
 	m_materialName = "";
+	m_skeleton = "";
+	m_animation = "";
 	m_indexInFile = 0;
 
 	m_vertexCount = 0;

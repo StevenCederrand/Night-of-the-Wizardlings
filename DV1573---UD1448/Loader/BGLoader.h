@@ -21,12 +21,15 @@ private:
 
 	std::vector<std::vector<Vertex>> bggVertices;
 	std::vector<std::vector<Face>> bggFaces;
-	std::vector<glm::vec3> bgPositions;
-	std::vector<glm::quat> bgRotation;
-	std::vector<glm::vec3> bgScale;
+	std::vector<glm::vec3> bggPositions;
+	std::vector<glm::quat> bggRotation;
+	std::vector<glm::vec3> bggScale;
 	std::vector<Transform> bggTransforms;
-
 	std::vector<Material> bggMaterials;
+	std::vector<Skeleton> bggSkeleton;
+	std::vector<Animation> bggAnimation;
+
+
 
 	// TODO: Direction lights, Point Lights, Skeletons, and Animations
 
@@ -68,14 +71,14 @@ public:
 	// Returns the vertices of the first mesh
 	const std::vector<Vertex> GetVertices() { return bggVertices[0]; }
 
-	const glm::vec3& GetPosition() const { return bgPositions[0]; }
-	const glm::quat& GetRotation() const { return bgRotation[0]; }
-	const glm::vec3& GetScale() const { return bgScale[0]; }
+	const glm::vec3& GetPosition() const { return bggPositions[0]; }
+	const glm::quat& GetRotation() const { return bggRotation[0]; }
+	const glm::vec3& GetScale() const { return bggScale[0]; }
 	const Transform& GetTransform() const { return bggTransforms[0]; }
 
-	const glm::vec3& GetPosition(int meshId) const { return bgPositions[meshId]; }
-	const glm::quat& GetRotation(int meshId) const { return bgRotation[meshId]; }
-	const glm::vec3& GetScale(int meshId) const { return bgScale[meshId]; }
+	const glm::vec3& GetPosition(int meshId) const { return bggPositions[meshId]; }
+	const glm::quat& GetRotation(int meshId) const { return bggRotation[meshId]; }
+	const glm::vec3& GetScale(int meshId) const { return bggScale[meshId]; }
 	const Transform& GetTransform(int meshId) const { return bggTransforms[meshId]; }
 
 	// Returns the faces of a specific mesh
@@ -107,6 +110,11 @@ public:
 	const int GetFaceCount(int meshId)  { return loaderMesh[meshId].faceCount; }
 	// Returns the face count of the first mesh
 	const int GetFaceCount()  { return loaderMesh[0].faceCount; }
+
+	// Returns skeleton
+	const Skeleton GetSkeleton(int meshId) { return bggSkeleton[meshId]; }
+
+
 
 
 	// Ignore below, will be reformated or removed

@@ -49,6 +49,8 @@
 #include <Mesh/MeshFormat.h>
 #include <Mesh/Mesh.h>
 #include <Mesh/MeshMap.h>
+#include <Mesh/SkeletonMap.h>
+#include <Mesh/AnimationMap.h>
 #include <Renderer/Shader.h>
 #include <Renderer/ShaderMap.h>
 #include <Renderer/Camera.h>

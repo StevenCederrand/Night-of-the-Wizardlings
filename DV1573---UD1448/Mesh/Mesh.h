@@ -8,16 +8,17 @@ private:
 	std::string m_name;
 	std::string m_filePath;
 	std::string m_materialName;
+	std::string m_skeleton;			//Left blank if none
+	std::string m_animation;		//Left blank if none
+
 	int m_indexInFile;
 	
 	Transform m_transform;
-
 	int m_vertexCount;
 	int m_faceCount;
 	std::vector<Face> m_faces;
 	std::vector<Vertex> m_vertices;
 	Buffers m_vertexBuffer;
-
 
 
 public:
@@ -37,7 +38,6 @@ public:
 
 	std::string getMaterial();
 
-
 	// Returns mesh local position
 	Buffers getBuffers() const;
 
@@ -48,8 +48,6 @@ public:
 	const std::vector<Face>& getFaces() { return m_faces; }
 	const std::vector<Vertex>& getVertices() { return m_vertices; }
 	const Transform& getTransform() const { return m_transform; }
-
-
 };
 
 #endif

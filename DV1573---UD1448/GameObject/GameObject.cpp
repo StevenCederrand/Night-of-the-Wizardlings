@@ -25,12 +25,12 @@ void GameObject::loadMesh(std::string fileName)
 
 	for (int i = 0; i < tempLoader.GetMeshCount(); i++)
 	{
+		// Get mesh
 		MeshBox tempMeshBox;								// Meshbox holds the mesh identity and local transform to GameObject
 		std::string meshName = tempLoader.GetMeshName(i);
 		tempMeshBox.name = meshName;
 		tempMeshBox.transform = tempLoader.GetTransform(i);	// One way of getting the meshes transform
 		m_meshes.push_back(tempMeshBox);					// This effectively adds the mesh to the gameobject
-		
 		if (!MeshMap::getInstance()->existsWithName(meshName))	// This creates the mesh if it does not exist (by name)
 		{
 			Mesh tempMesh;
@@ -52,7 +52,6 @@ void GameObject::loadMesh(std::string fileName)
 		// Get material
 		Material tempMaterial = tempLoader.GetMaterial(i);
 		std::string materialName = tempMaterial.name;
-	
 		if (!MaterialMap::getInstance()->existsWithName(materialName)) 	// This creates the material if it does not exist (by name)
 		{
 			if (tempLoader.GetAlbedo(i) != "-1")
@@ -85,6 +84,18 @@ void GameObject::loadMesh(std::string fileName)
 			MaterialMap::getInstance()->createMaterial(materialName, tempMaterial);
 			logTrace("Material created: {0}", materialName);
 		}
+
+		// Get skeleton
+		Skeleton tempSkeleton = tempLoader.GetSkeleton(i);
+		std::string skeletonName = tempSkeleton.name;
+		if (skeletonName != "" && !SkeletonMap::getInstance()->existsWithName(skeletonName))
+		{
+			//TODO: implement
+			SkeletonMap::getInstance()->createSkeleton(skeletonName, tempSkeleton);
+			logTrace("Skeleton created: {0}", skeletonName);
+		}
+
+
 	}
 
 
