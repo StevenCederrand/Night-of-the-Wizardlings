@@ -19,7 +19,7 @@ private:
 	int meshCount;
 	int matCount;
 
-	std::vector<std::vector<Vertices>> bggVertices;
+	std::vector<std::vector<Vertex>> bggVertices;
 	std::vector<std::vector<Face>> bggFaces;
 	std::vector<glm::vec3> bgPositions;
 	std::vector<glm::quat> bgRotation;
@@ -64,9 +64,9 @@ public:
 	const std::string GetMeshName() { return (std::string)loaderMesh[0].name; }
 
 	// Returns the vertices of a specific mesh
-	const std::vector<Vertices> GetVertices(int meshId) { return bggVertices[meshId];  }
+	const std::vector<Vertex> GetVertices(int meshId) { return bggVertices[meshId];  }
 	// Returns the vertices of the first mesh
-	const std::vector<Vertices> GetVertices() { return bggVertices[0]; }
+	const std::vector<Vertex> GetVertices() { return bggVertices[0]; }
 
 	const glm::vec3& GetPosition() const { return bgPositions[0]; }
 	const glm::quat& GetRotation() const { return bgRotation[0]; }

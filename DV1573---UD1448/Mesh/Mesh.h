@@ -15,7 +15,7 @@ private:
 	int m_vertexCount;
 	int m_faceCount;
 	std::vector<Face> m_faces;
-	std::vector<Vertices> m_vertices;
+	std::vector<Vertex> m_vertices;
 	Buffers m_vertexBuffer;
 
 
@@ -24,7 +24,7 @@ public:
 	Mesh();
 	~Mesh();
 
-	void setUpMesh(std::vector<Vertices> vertices, std::vector<Face> faces);
+	void setUpMesh(std::vector<Vertex> vertices, std::vector<Face> faces);
 	void nameMesh(std::string name);
 	void saveFilePath(std::string name, int index);
 	void setUpBuffers();
@@ -46,7 +46,7 @@ public:
 	std::string getName() const { return m_name; }
 	
 	const std::vector<Face>& getFaces() { return m_faces; }
-	const std::vector<Vertices>& getVertices() { return m_vertices; }
+	const std::vector<Vertex>& getVertices() { return m_vertices; }
 	const Transform& getTransform() const { return m_transform; }
 
 

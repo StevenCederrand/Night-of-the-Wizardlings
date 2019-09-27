@@ -16,10 +16,10 @@ public:
 	void destroy();
 
 private:
-
 	MeshMap();
 	static MeshMap* m_meshMapInstance;
 	std::map<std::string, Mesh*> m_Mesh;
+
 };
 
 

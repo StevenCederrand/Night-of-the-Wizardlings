@@ -17,7 +17,7 @@ Mesh::~Mesh()
 
 }
 
-void Mesh::setUpMesh(std::vector<Vertices> vertices, std::vector<Face> faces)
+void Mesh::setUpMesh(std::vector<Vertex> vertices, std::vector<Face> faces)
 {
 	int j = 0;
 	m_vertexCount = (int)vertices.size();
@@ -46,20 +46,20 @@ void Mesh::setUpBuffers()
 
 	glBindVertexArray(m_vertexBuffer.vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer.vbo);
-	glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(Vertices), &m_vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(Vertex), &m_vertices[0], GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_vertexBuffer.ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_faces.size() * sizeof(int) * 3,
 		&m_faces[0], GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertices), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 	// vertex normals
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertices), (void*)offsetof(Vertices, Normals));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normals));
 	// vertex texture coords
 	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertices), (void*)offsetof(Vertices, UV));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, UV));
 	glBindVertexArray(0);
 
 	m_vertexBuffer.nrOfFaces = static_cast<int>(m_faces.size());

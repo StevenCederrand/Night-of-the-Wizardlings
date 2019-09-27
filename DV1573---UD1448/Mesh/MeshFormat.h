@@ -14,11 +14,21 @@ struct Transform {
 	}
 };
 
-struct Vertices
+struct Vertex
 {
 	glm::vec3 position;
 	glm::vec2 UV;
 	glm::vec3 Normals;
+};
+
+struct Vertex2
+{
+	glm::vec3 position;
+	glm::vec2 UV;
+	glm::vec3 Normals;
+
+	glm::vec4 bone;
+	glm::vec4 weight;
 };
 
 struct Face
@@ -42,4 +52,39 @@ struct Buffers
 	GLuint vbo;
 	GLuint ibo;
 	int nrOfFaces;
+};
+
+struct Skeleton
+{
+	struct Joint
+	{
+		std::string name;
+		int parentIndex;
+		glm::mat4 invBindPose;
+	};
+
+	std::string name;
+	std::vector<Joint> joints;
+
+
+};
+
+struct Animation
+{
+	struct Keyframe
+	{
+		int id;
+		std::vector<glm::vec3> local_joints_T;
+		std::vector<glm::quat> local_joints_R;
+		std::vector<glm::vec3> local_joints_S;
+	};
+
+	std::string name;
+	int keyframeFirst;
+	int keyframeLast;
+	float duration;
+	float rate;
+	std::vector<Keyframe> keyframes;
+
+
 };

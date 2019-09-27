@@ -28,6 +28,8 @@
     <ClCompile Include="Networking\NetworkPlayers.cpp" />
     <ClCompile Include="Renderer\SkyBox.cpp" />
     <ClCompile Include="Mesh\MeshMap.cpp" />
+    <ClCompile Include="Mesh\SkeletonMap.cpp" />
+    <ClCompile Include="Mesh\AnimationMap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GFX\MaterialMap.h" />
@@ -60,6 +62,8 @@
     <ClInclude Include="Mesh\MeshMap.h" />
     <ClInclude Include="Networking\NetworkPlayers.h" />
     <ClInclude Include="Renderer\SkyBox.h" />
+    <ClInclude Include="Mesh\SkeletonMap.h" />
+    <ClInclude Include="Mesh\AnimationMap.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

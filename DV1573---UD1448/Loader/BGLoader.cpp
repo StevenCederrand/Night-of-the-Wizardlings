@@ -41,7 +41,7 @@ void BGLoader::Unload()
 	skeletonsD.clear();
 	bggMaterials.clear();
 
-	for (std::vector<Vertices> vector : bggVertices)
+	for (std::vector<Vertex> vector : bggVertices)
 		vector.clear();
 	bggVertices.clear();
 
