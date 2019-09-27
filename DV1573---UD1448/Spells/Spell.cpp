@@ -7,12 +7,15 @@ Spell::Spell(glm::vec3 pos)
 	this->spellPosition = pos;
 }
 //Name, Pos, Direction, Speed, TravelTime
-Spell::Spell(std::string name, glm::vec3 pos, glm::vec3 direction, float speed, float travelTime)
+Spell::Spell(std::string name, glm::vec3 pos, glm::vec3 direction, float speed, float travelTime, std::string meshName)
 	: GameObject(name)
 {
 	this->travelTime = travelTime;
 	this->spellSpeed = speed;
 	this->direction = direction;
+	loadMesh(meshName);
+	setWorldPosition(pos);
+	translate(direction);
 }
 
 Spell::~Spell()

@@ -15,7 +15,8 @@ Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera)
 	this->health = 100;
 	this->attackCooldown = 0;
 	this->nrOfSpells = 0;
-	normalSpell.reserve(5);
+	this->directionVector = glm::vec3(0, 0, 0);
+	this->moveDir = glm::vec3(0.0f);
 }
 
 Player::~Player()
@@ -28,6 +29,13 @@ Player::~Player()
 void Player::update(float deltaTime)
 {
 
+	move(deltaTime);
+	attack(deltaTime);
+	updateAttack(deltaTime);
+}
+
+void Player::move(float deltaTime)
+{
 	glm::vec3 camFace = playerCamera->getCamFace();
 	glm::vec3 camRight = playerCamera->getCamRight();
 
@@ -54,14 +62,12 @@ void Player::update(float deltaTime)
 
 	if (glm::length(moveDir) >= 0.1f)
 		moveDir = glm::normalize(moveDir);
-	
+
 	inputVector = moveDir;
 	playerPosition += inputVector * speed * deltaTime;
 	setPlayerPos(playerPosition);
 	playerCamera->setCameraPos(playerPosition);
 	playerCamera->update(playerCamera->getWindow());
-	attack(deltaTime);
-	updateAttack(deltaTime);
 }
 
 void Player::attack(float deltaTime)
@@ -69,15 +75,9 @@ void Player::attack(float deltaTime)
 	if (glfwGetMouseButton(playerCamera->getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && attackCooldown <= 0)
 	{
 		createRay();
-		std::cout << " " << rayWorld.x << " " << rayWorld.y << " " << rayWorld.z << std::endl;
-		
-		normalSpell.push_back(new AttackSpell("Spell", playerPosition, rayWorld, 5, 2));
-		normalSpell[normalSpell.size() - 1]->loadMesh("SexyCube.mesh");
-		normalSpell[normalSpell.size() - 1]->setWorldPosition(playerPosition);
-		normalSpell[normalSpell.size() - 1]->translate(glm::vec3(rayWorld.x, rayWorld.y, rayWorld.z));
-			
+		normalSpell.push_back(new AttackSpell("Spell", playerPosition, directionVector, 5, 2, "SexyCube.mesh"));
+		//normalSpell[normalSpell.size() - 1]->loadMesh("SexyCube.mesh");
 		attackCooldown = 1.0f;
-	
 	}
 
 	if(attackCooldown > 0)
@@ -97,17 +97,12 @@ void Player::updateAttack(float deltaTime)
 		normalSpell[i]->translate(normalSpell[i]->getDirection() * deltaTime * normalSpell[i]->getSpellSpeed());
 		normalSpell[i]->setTravelTime(normalSpell[i]->getTravelTime() - 1 * deltaTime);
 
-		std::cout << normalSpell[i]->getTravelTime() << std::endl;
-
 		if (normalSpell[i]->getTravelTime() <= 0)
 		{
 			delete normalSpell[i];
 			normalSpell.erase(normalSpell.begin() + i);
-			
 		}
 	}
-	
-
 }
 
 void Player::createRay()
@@ -122,7 +117,7 @@ void Player::createRay()
 	glm::vec4 rayEye = inverse(playerCamera->getProjMat()) * rayClip;
 	rayEye = glm::vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);
 	glm::vec4 rayWorldTemp = glm::vec4(inverse(playerCamera->getViewMat()) * rayEye);
-	rayWorld = normalize(glm::vec3(rayWorldTemp.x, rayWorldTemp.y, rayWorldTemp.z));
+	directionVector = normalize(glm::vec3(rayWorldTemp.x, rayWorldTemp.y, rayWorldTemp.z));
 }
 
 void Player::setPlayerPos(glm::vec3 pos)
