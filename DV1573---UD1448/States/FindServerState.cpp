@@ -9,9 +9,10 @@
 FindServerState::FindServerState()
 {
 	Client::getInstance()->startup();
-	m_serverListRefreshing = false;
 	loadGui();
 	
+	m_serverListRefreshing = true;
+	Client::getInstance()->refreshServerList();
 }
 
 FindServerState::~FindServerState()
@@ -65,7 +66,6 @@ void FindServerState::loadServersIntoList()
 	for (size_t i = 0; i < m_serverList->getRowCount(); i++) {
 		//auto* c = m_serverList->getChildAtIdx(i);
 		m_serverList->removeRow(m_serverList->getRowID(static_cast<CEGUI::uint>(i)));
-		logTrace("Should have deleted something atleast..");
 	}
 
 
@@ -123,7 +123,6 @@ bool FindServerState::onJoinServerClicked(const CEGUI::EventArgs& e)
 
 bool FindServerState::onRefreshServerListClicked(const CEGUI::EventArgs& e)
 {
-	// Todo: Clear the column list
 	m_serverListRefreshing = true;
 	Client::getInstance()->refreshServerList();
 	return true;

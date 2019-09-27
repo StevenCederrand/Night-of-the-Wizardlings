@@ -142,7 +142,7 @@ void LocalServer::threadedProcess()
 
 		}
 
-		RakSleep(30);
+		RakSleep(NetGlobals::networkRefreshRate);
 	}
 }
 
