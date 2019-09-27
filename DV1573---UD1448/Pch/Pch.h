@@ -27,6 +27,7 @@
 #include <GLM/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/common.hpp>
+#include "glm/ext.hpp"
 
 #include "System/Log.h"
 //Raknet
@@ -47,6 +48,7 @@
 //Custom
 #include <Mesh/MeshFormat.h>
 #include <Mesh/Mesh.h>
+#include <Mesh/MeshMap.h>
 #include <Renderer/Shader.h>
 #include <Renderer/ShaderMap.h>
 #include <Renderer/Camera.h>

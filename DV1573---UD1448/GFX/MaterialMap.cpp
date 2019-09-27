@@ -35,6 +35,8 @@ bool MaterialMap::existsWithName(std::string name)
 
 void MaterialMap::useByName(std::string name)
 {
+	//TODO: Remove?
+
 	//if (existsWithName(name)) {
 	//	m_Materials[name]->use();
 	//}

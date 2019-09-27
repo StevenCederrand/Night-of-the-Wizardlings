@@ -17,9 +17,15 @@ private:
 	std::string	fileName;
 
 	int meshCount;
+	int matCount;
 
 	std::vector<std::vector<Vertices>> bggVertices;
 	std::vector<std::vector<Face>> bggFaces;
+	std::vector<glm::vec3> bgPositions;
+	std::vector<glm::quat> bgRotation;
+	std::vector<glm::vec3> bgScale;
+	std::vector<Transform> bggTransforms;
+
 	std::vector<Material> bggMaterials;
 
 	// TODO: Direction lights, Point Lights, Skeletons, and Animations
@@ -62,18 +68,28 @@ public:
 	// Returns the vertices of the first mesh
 	const std::vector<Vertices> GetVertices() { return bggVertices[0]; }
 
+	const glm::vec3& GetPosition() const { return bgPositions[0]; }
+	const glm::quat& GetRotation() const { return bgRotation[0]; }
+	const glm::vec3& GetScale() const { return bgScale[0]; }
+	const Transform& GetTransform() const { return bggTransforms[0]; }
+
+	const glm::vec3& GetPosition(int meshId) const { return bgPositions[meshId]; }
+	const glm::quat& GetRotation(int meshId) const { return bgRotation[meshId]; }
+	const glm::vec3& GetScale(int meshId) const { return bgScale[meshId]; }
+	const Transform& GetTransform(int meshId) const { return bggTransforms[meshId]; }
+
 	// Returns the faces of a specific mesh
 	const std::vector<Face> GetFaces(int meshId) { return bggFaces[meshId]; }
 	// Returns the faces of the first mesh
 	const std::vector<Face> GetFaces() { return bggFaces[0]; }
 
 	// Returns a specific material
-	const Material GetMaterial(int meshId) { return bggMaterials[meshId]; }
+	const Material GetMaterial(int meshId) { return bggMaterials[loaderMesh[meshId].materialID]; }
 	// Returns the first material in the file
 	const Material GetMaterial() { return bggMaterials[0]; }
 
 	// Returns a specific albedo map
-	const std::string GetAlbedo(int meshId) { return (std::string)material[meshId].albedo; }
+	const std::string GetAlbedo(int meshId) { return (std::string)material[loaderMesh[meshId].materialID].albedo; }
 	// Returns the first albedo map
 	const std::string GetAlbedo() { return (std::string)material[0].albedo; }
 

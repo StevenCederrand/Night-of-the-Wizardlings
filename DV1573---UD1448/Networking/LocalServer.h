@@ -1,7 +1,6 @@
 #ifndef _LOCAL_SERVER_H
 #define _LOCAL_SERVER_H
 #include <Pch/Pch.h>
-#include "NetworkPlayer.h"
 class LocalServer
 {
 public:
@@ -24,7 +23,7 @@ private:
 	std::thread m_processThread;
 	bool m_shutdownServer;
 
-	std::vector<NetworkPlayer> m_connectedPlayers;
+	std::vector<PlayerData> m_connectedPlayers;
 	ServerInfo m_serverInfo;
 	bool m_initialized = false;
 

@@ -5,11 +5,8 @@ Mesh::Mesh()
 {
 	m_name = "";
 	m_filePath = "";
+	m_materialName = "";
 	m_indexInFile = 0;
-
-	m_worldPos = glm::vec3();
-	m_worldRot = glm::quat();
-	m_worldScale = glm::vec3();
 
 	m_vertexCount = 0;
 	m_faceCount = 0;
@@ -23,12 +20,11 @@ Mesh::~Mesh()
 void Mesh::setUpMesh(std::vector<Vertices> vertices, std::vector<Face> faces)
 {
 	int j = 0;
-	m_vertexCount = vertices.size();
-	m_faceCount = faces.size();
+	m_vertexCount = (int)vertices.size();
+	m_faceCount = (int)faces.size();
 
 	m_vertices = vertices;
 	m_faces = faces;
-
 }
 
 void Mesh::nameMesh(std::string name)
@@ -67,8 +63,38 @@ void Mesh::setUpBuffers()
 	glBindVertexArray(0);
 
 	m_vertexBuffer.nrOfFaces = static_cast<int>(m_faces.size());
+
 }
 
+void Mesh::setMaterial(std::string matName)
+{
+	m_materialName = matName;
+}
+
+void Mesh::setPos(glm::vec3 pos)
+{
+	m_transform.position = pos;
+}
+
+void Mesh::setRot(glm::quat quat)
+{
+	m_transform.rotation = quat;
+}
+
+void Mesh::setScale(glm::vec3 scale)
+{
+	m_transform.scale = scale;
+}
+
+void Mesh::setTransform(Transform transform)
+{
+	m_transform = transform;
+}
+
+std::string Mesh::getMaterial()
+{
+	return m_materialName;
+}
 
 Buffers Mesh::getBuffers() const
 {

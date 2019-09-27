@@ -5,6 +5,7 @@ BGLoader::BGLoader()
 {
 	fileName = "";
 	meshCount = 0;
+	matCount = 0;
 
 	meshGroup = nullptr;
 	material = nullptr;
@@ -18,6 +19,7 @@ BGLoader::BGLoader(std::string fileName)
 {
 	this->fileName = fileName;
 	meshCount = 0;
+	matCount = 0;
 
 	meshGroup = nullptr;
 	material = nullptr;
@@ -87,11 +89,18 @@ void BGLoader::Unload()
 void BGLoader::BGFormatData()
 {
 	meshCount = fileHeader.meshCount;
+	matCount = fileHeader.materialCount;
 
-
+	// Synced mesh vectors
 	bggVertices.resize(meshCount);
 	bggFaces.resize(meshCount);
-	bggMaterials.resize(meshCount);
+	bgPositions.resize(meshCount);
+	bgRotation.resize(meshCount);
+	bgScale.resize(meshCount);
+	bggTransforms.resize(meshCount);
+
+	// Material vector
+	bggMaterials.resize(matCount);
 
 	for (int meshId = 0; meshId < meshCount; meshId++)
 	{
@@ -99,7 +108,7 @@ void BGLoader::BGFormatData()
 		bggFaces[meshId].resize(GetFaceCount(meshId));
 
 		// Vertices
-		for (int v = 0; v < bggVertices[meshId].size(); v++)
+		for (size_t v = 0; v < bggVertices[meshId].size(); v++)
 		{
 			bggVertices[meshId][v].position[0] = meshVert[meshId][v].position[0];
 			bggVertices[meshId][v].position[1] = meshVert[meshId][v].position[1];
@@ -114,19 +123,35 @@ void BGLoader::BGFormatData()
 		}
 
 		// Faces
-		for (int f = 0; f < bggFaces[meshId].size(); f++)
+		for (size_t f = 0; f < bggFaces[meshId].size(); f++)
 		{
 			bggFaces[meshId][f].indices[0] = meshFace[meshId][f].indices[0];
 			bggFaces[meshId][f].indices[1] = meshFace[meshId][f].indices[1];
 			bggFaces[meshId][f].indices[2] = meshFace[meshId][f].indices[2];
 		}
 
+		
+		// Transforms
+		bgPositions[meshId] = glm::make_vec3(loaderMesh[meshId].translation);
+		bgRotation[meshId] = glm::quat(glm::radians(glm::make_vec3(loaderMesh[meshId].rotation)));
+		bgScale[meshId] = glm::make_vec3(loaderMesh[meshId].scale);
+
+		Transform newTransform;
+		newTransform.position = bgPositions[meshId];
+		newTransform.rotation = bgRotation[meshId];
+		newTransform.scale = bgScale[meshId];
+		bggTransforms[meshId] = newTransform;
+
+	}
+
+	for (int i = 0; i < matCount; i++)
+	{
 		// Material
-		bggMaterials[meshId].name = (std::string)material[meshId].name;
-		bggMaterials[meshId].ambient = glm::vec3(*material[meshId].ambient);
-		bggMaterials[meshId].diffuse = glm::vec3(*material[meshId].diffuse);
-		bggMaterials[meshId].specular = glm::vec3(*material[meshId].specular);
-		bggMaterials[meshId].ambient = glm::vec3(*material[meshId].ambient);
+		bggMaterials[i].name = (std::string)material[i].name;
+		bggMaterials[i].ambient = glm::vec3(*material[i].ambient);
+		bggMaterials[i].diffuse = glm::vec3(*material[i].diffuse);
+		bggMaterials[i].specular = glm::vec3(*material[i].specular);
+		bggMaterials[i].ambient = glm::vec3(*material[i].ambient);
 	}
 
 }

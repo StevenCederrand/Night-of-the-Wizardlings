@@ -21,15 +21,12 @@ public:
 private:
 	int key = 1;
 
+	//Any inherited GameObject class added to this vector will support basic rendering
 	std::vector<GameObject*> m_objects;
-	/*Renderer* m_renderer;
-	ShaderMap* m_shaderMap;
-	Mesh m_mesh;*/
-	//GameObject m_object;
+
 	Player* m_player;
 	Camera* m_camera;
-
-
+	SkyBox* m_skybox;
 
 };
 

@@ -1,6 +1,6 @@
 #include "Pch/Pch.h"
 #include "Player.h"
-
+#include <Networking/Client.h>
 
 
 Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera)
@@ -82,6 +82,10 @@ void Player::attack(float deltaTime)
 
 	if(attackCooldown > 0)
 		attackCooldown = attackCooldown - 1 * deltaTime;
+
+	
+	Client::getInstance()->updatePlayerData(this);
+
 
 	for (AttackSpell* object : normalSpell)
 	{
