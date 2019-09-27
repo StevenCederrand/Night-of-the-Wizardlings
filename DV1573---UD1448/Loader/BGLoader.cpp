@@ -166,7 +166,8 @@ void BGLoader::BGFormatData()
 	{
 		if (loaderMesh[i].skeleton.jointCount > 0)
 		{
-			bggSkeleton[i].name = loaderMesh[i].skeleton.name;
+			//bggSkeleton[i].name = loaderMesh[i].skeleton.name;
+			bggSkeleton[i].name = skeletonsD[i].joint[0].name;
 			bggSkeleton[i].joints.resize(loaderMesh[i].skeleton.jointCount);
 
 			for (int j = 0; j < bggSkeleton[i].joints.size(); j++)
@@ -182,6 +183,32 @@ void BGLoader::BGFormatData()
 	for(int i = 0; i < bggAnimation.size(); i++)
 	{
 		//TODO: fix
+		if (loaderMesh[i].skeleton.aniCount > 0)
+		{
+			bggAnimation[i].name = animationsD[i].animations[0].ani.name;
+			
+			bggAnimation[i].duration = animationsD[i].animations[0].ani.duration;
+			bggAnimation[i].rate = animationsD[i].animations[0].ani.rate;
+			bggAnimation[i].keyframeFirst = animationsD[i].animations[0].ani.keyframeFirst;
+			bggAnimation[i].keyframeLast = animationsD[i].animations[0].ani.keyframeLast;
+
+			bggAnimation[i].keyframes.resize(animationsD[i].animations[0].ani.keyframeCount);
+			for (int k = 0; k < bggAnimation[i].keyframes.size(); k++)
+			{
+				bggAnimation[i].keyframes[k].id = animationsD[i].animations[0].keyFrames[k].key.id;
+
+				int transformCount = animationsD[i].animations[0].keyFrames[k].transforms.size();
+				bggAnimation[i].keyframes[k].local_joints_T.resize(transformCount);
+				bggAnimation[i].keyframes[k].local_joints_R.resize(transformCount);
+				bggAnimation[i].keyframes[k].local_joints_S.resize(transformCount);
+				for (int t = 0; t < transformCount; t++)
+				{
+					bggAnimation[i].keyframes[k].local_joints_T[t] = glm::make_vec3(animationsD[i].animations[0].keyFrames[k].transforms[t].t.transform);
+					bggAnimation[i].keyframes[k].local_joints_R[t] = glm::make_vec3(animationsD[i].animations[0].keyFrames[k].transforms[t].t.rotate);
+					bggAnimation[i].keyframes[k].local_joints_S[t] = glm::make_vec3(animationsD[i].animations[0].keyFrames[k].transforms[t].t.scale);
+				}
+			}
+		}
 	}
 
 }

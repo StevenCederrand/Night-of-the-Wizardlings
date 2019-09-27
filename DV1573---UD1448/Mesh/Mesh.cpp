@@ -73,6 +73,16 @@ void Mesh::setMaterial(std::string matName)
 	m_materialName = matName;
 }
 
+void Mesh::setAnimation(std::string name)
+{
+	m_animation = name;
+}
+
+void Mesh::setSkeleton(std::string name)
+{
+	m_skeleton = name;
+}
+
 void Mesh::setPos(glm::vec3 pos)
 {
 	m_transform.position = pos;

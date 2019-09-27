@@ -114,6 +114,9 @@ public:
 	// Returns skeleton
 	const Skeleton GetSkeleton(int meshId) { return bggSkeleton[meshId]; }
 
+	// Return animation
+	const Animation GetAnimation(int meshId) { return bggAnimation[meshId]; }
+
 
 
 

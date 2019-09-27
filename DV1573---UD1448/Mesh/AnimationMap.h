@@ -8,9 +8,10 @@ class AnimationMap
 public:
 	static AnimationMap* getInstance();
 	void cleanUp();
-	bool exisitsWithName(std::string name);
+	bool existsWithName(std::string name);
 	Animation* getAnimation(std::string name);
-	Animation* createAnimation(std::string name, Animation* anim);
+	Animation* createAnimation(std::string name, Animation anim);
+	void destroy();
 private:
 	AnimationMap();
 	static AnimationMap* m_animMapInstance;

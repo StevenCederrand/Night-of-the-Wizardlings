@@ -51,6 +51,8 @@ PlayState::~PlayState()
 
 	MaterialMap::getInstance()->destroy();
 	MeshMap::getInstance()->destroy();
+	AnimationMap::getInstance()->destroy();
+	SkeletonMap::getInstance()->destroy();
 	
 	delete m_skybox;
 	delete m_player;

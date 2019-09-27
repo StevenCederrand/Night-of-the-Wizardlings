@@ -44,6 +44,28 @@ void GameObject::loadMesh(std::string fileName)
 			// Needs more testing, this value is per global mesh", the MeshBox value is per GameObject mesh
 			//tempMesh.setTransform(tempLoader.GetTransform(id));
 
+			// Get skeleton
+			Skeleton tempSkeleton = tempLoader.GetSkeleton(i);
+			std::string skeletonName = tempSkeleton.name;
+			if (skeletonName != "" && !SkeletonMap::getInstance()->existsWithName(skeletonName))
+			{
+				//TODO: implement
+				SkeletonMap::getInstance()->createSkeleton(skeletonName, tempSkeleton);
+				logTrace("Skeleton created: {0}", skeletonName);
+			}
+
+			// Get animation
+			Animation tempAnimation = tempLoader.GetAnimation(i);
+			std::string animationName = tempAnimation.name;
+			if (animationName != "" && !AnimationMap::getInstance()->existsWithName(animationName))
+			{
+				//TODO: implement
+				AnimationMap::getInstance()->createAnimation(animationName, tempAnimation);
+				logTrace("Animation created: {0}", animationName);
+			}
+
+			tempMesh.setAnimation(animationName);
+			tempMesh.setSkeleton(skeletonName);
 			tempMesh.setMaterial(tempLoader.GetMaterial(i).name);
 			MeshMap::getInstance()->createMesh(meshName, tempMesh);
 			logTrace("Mesh loaded: {0}, Expecting material: {1}", tempMesh.getName().c_str(), tempMesh.getMaterial());
@@ -85,15 +107,6 @@ void GameObject::loadMesh(std::string fileName)
 			logTrace("Material created: {0}", materialName);
 		}
 
-		// Get skeleton
-		Skeleton tempSkeleton = tempLoader.GetSkeleton(i);
-		std::string skeletonName = tempSkeleton.name;
-		if (skeletonName != "" && !SkeletonMap::getInstance()->existsWithName(skeletonName))
-		{
-			//TODO: implement
-			SkeletonMap::getInstance()->createSkeleton(skeletonName, tempSkeleton);
-			logTrace("Skeleton created: {0}", skeletonName);
-		}
 
 
 	}

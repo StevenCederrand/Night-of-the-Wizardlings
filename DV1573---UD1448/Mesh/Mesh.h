@@ -31,6 +31,8 @@ public:
 	void setUpBuffers();
 	void setMaterial(std::string matName);
 
+	void setAnimation(std::string name);
+	void setSkeleton(std::string name);
 	void setPos(glm::vec3 pos);
 	void setRot(glm::quat quat);
 	void setScale(glm::vec3 scale);
