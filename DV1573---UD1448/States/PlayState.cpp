@@ -68,10 +68,10 @@ void PlayState::render()
 {
 	Renderer::getInstance()->bindMatrixes(m_player->getCamera()->getViewMat(), m_player->getCamera()->getProjMat());
 	Renderer::getInstance()->renderSkybox(*m_skybox);
-
+	m_player->renderSpell();
 
 	auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
-	for (size_t i = 0; i < list.size(); i++)
+	/*for (size_t i = 0; i < list.size(); i++)
 	{
 
 		if (list[i]->gameobject == nullptr) continue;
@@ -83,7 +83,7 @@ void PlayState::render()
 		}
 
 		
-	}
+	}*/
 
 
 	

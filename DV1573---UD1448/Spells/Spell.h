@@ -16,6 +16,7 @@ public:
 	int getCooldown();
 	float getSpellSpeed();
 	float getTravelTime();
+	glm::vec3 getSpellPos();
 	glm::vec3 getDirection();
 	//----Set-----//
 	void setDamage(int damage);
@@ -23,6 +24,7 @@ public:
 	void setSpellPos(glm::vec3 pos);
 	void setCooldown(int cooldown);
 	void setTravelTime(float travelTime);
+	void setDirection(glm::vec3 direction);
 
 	void update(float dt);
 
@@ -35,7 +37,7 @@ private:
 	int spellCoolDown = 0;
 	float travelTime = 0;
 	glm::vec3 direction;
-	glm::vec3 spellPosition;
+	glm::vec3 spellPosition = glm::vec3(0,0,0);
 	
 	
 };

@@ -13,6 +13,7 @@ Spell::Spell(std::string name, glm::vec3 pos, glm::vec3 direction, float speed, 
 	this->travelTime = travelTime;
 	this->spellSpeed = speed;
 	this->direction = direction;
+	this->spellPosition = pos;
 	loadMesh(meshName);
 	setWorldPosition(pos);
 	translate(direction);
@@ -46,6 +47,10 @@ float Spell::getTravelTime()
 	return this->travelTime;
 }
 
+glm::vec3 Spell::getSpellPos()
+{
+	return spellPosition;
+}
 
 glm::vec3 Spell::getDirection()
 {
@@ -75,6 +80,11 @@ void Spell::setCooldown(int cooldown)
 void Spell::setTravelTime(float travelTime)
 {
 	this->travelTime = travelTime;
+}
+
+void Spell::setDirection(glm::vec3 direction)
+{
+	this->direction = direction;
 }
 
 

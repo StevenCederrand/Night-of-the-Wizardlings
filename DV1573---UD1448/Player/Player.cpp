@@ -17,13 +17,15 @@ Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera)
 	this->nrOfSpells = 0;
 	this->directionVector = glm::vec3(0, 0, 0);
 	this->moveDir = glm::vec3(0.0f);
+	tempSpell = new AttackSpell("Spell", playerPosition, directionVector, 50, 2, "TestSphere.mesh");
+	
+
 }
 
 Player::~Player()
 {
-	for (AttackSpell* object : normalSpell)
-		delete object;
 	delete playerCamera;
+	delete tempSpell;
 }
 
 void Player::update(float deltaTime)
@@ -75,35 +77,28 @@ void Player::attack(float deltaTime)
 	if (glfwGetMouseButton(playerCamera->getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && attackCooldown <= 0)
 	{
 		createRay();
-		normalSpell.push_back(new AttackSpell("Spell", playerPosition, directionVector, 5, 2, "SexyCube.mesh"));
-		//normalSpell[normalSpell.size() - 1]->loadMesh("SexyCube.mesh");
+		AttackSpell tempSpell2 = *tempSpell;
+		tempSpell2.setSpellPos(glm::vec3(playerPosition.x, playerPosition.y - 1.8f, playerPosition.z) + directionVector); //-1.8 = spwn point for spell, spell need to be 0 and playerPos is set to (0,1.8,0)
+		tempSpell2.translate(tempSpell2.getSpellPos());
+		tempSpell2.setDirection(directionVector);
+		normalSpell.push_back(tempSpell2);
+
 		attackCooldown = 1.0f;
 	}
 
 	if(attackCooldown > 0)
 		attackCooldown = attackCooldown - 1 * deltaTime;
-
-	
-	Client::getInstance()->updatePlayerData(this);
-
-
-	for (AttackSpell* object : normalSpell)
-	{
-		object->bindMaterialToShader("Basic_Forward");
-		Renderer::getInstance()->render(*object);
-	}
 }
 
 void Player::updateAttack(float deltaTime)
 {
 	for (int i = 0; i < normalSpell.size(); i++)
 	{
-		normalSpell[i]->translate(normalSpell[i]->getDirection() * deltaTime * normalSpell[i]->getSpellSpeed());
-		normalSpell[i]->setTravelTime(normalSpell[i]->getTravelTime() - 1 * deltaTime);
+		normalSpell[i].translate(normalSpell[i].getDirection() * deltaTime * normalSpell[i].getSpellSpeed());
+		normalSpell[i].setTravelTime(normalSpell[i].getTravelTime() - 1 * deltaTime);
 
-		if (normalSpell[i]->getTravelTime() <= 0)
+		if (normalSpell[i].getTravelTime() <= 0)
 		{
-			delete normalSpell[i];
 			normalSpell.erase(normalSpell.begin() + i);
 		}
 	}
@@ -122,6 +117,18 @@ void Player::createRay()
 	rayEye = glm::vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);
 	glm::vec4 rayWorldTemp = glm::vec4(inverse(playerCamera->getViewMat()) * rayEye);
 	directionVector = normalize(glm::vec3(rayWorldTemp.x, rayWorldTemp.y, rayWorldTemp.z));
+}
+
+void Player::renderSpell()
+{
+	Client::getInstance()->updatePlayerData(this);
+
+
+	for (AttackSpell object : normalSpell)
+	{
+		object.bindMaterialToShader("Basic_Forward");
+		Renderer::getInstance()->render(object);
+	}
 }
 
 void Player::setPlayerPos(glm::vec3 pos)
