@@ -15,32 +15,33 @@ public:
 	void updateAttack(float deltaTime);
 	void createRay(); //create ray for spells
 	void renderSpell();
-
-	void setPlayerPos(glm::vec3 pos);
 	void spawnPlayer(glm::vec3 pos);
+	bool isDead();
+	Camera* getCamera();
 
-	void setHealth(int health);
-	void setSpeed(float speed);
+	//-----Get-----//
 	glm::vec3 getPlayerPos() const;
 	int getHealth() const;
-	Camera* getCamera();
 	std::string getName() const;
-	bool isDead();
 
+	//-----Set-----//
+	void setPlayerPos(glm::vec3 pos);
+	void setHealth(int health);
+	void setSpeed(float speed);
 
 private:
+	std::vector<AttackSpell> normalSpell;
+	glm::vec3 directionVector;
 	glm::vec3 playerPosition;
 	glm::vec3 inputVector;
-	int health;
-	float speed;
-	Camera* playerCamera;
-	float spellSpeed = 1;
 	glm::vec3 moveDir;
-	glm::vec3 directionVector;
-	std::vector<AttackSpell> normalSpell;
 	AttackSpell* tempSpell;
-	std::string name;
+	Camera* playerCamera;
 	float attackCooldown;
+	float spellSpeed = 1;
+	float speed;
 	int nrOfSpells;
+	int health;
+	std::string name;
 
 };

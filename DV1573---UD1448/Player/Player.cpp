@@ -18,8 +18,6 @@ Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera)
 	this->directionVector = glm::vec3(0, 0, 0);
 	this->moveDir = glm::vec3(0.0f);
 	tempSpell = new AttackSpell("Spell", playerPosition, directionVector, 50, 2, "TestSphere.mesh");
-	
-
 }
 
 Player::~Player()
@@ -82,7 +80,6 @@ void Player::attack(float deltaTime)
 		tempSpell2.translate(tempSpell2.getSpellPos());
 		tempSpell2.setDirection(directionVector);
 		normalSpell.push_back(tempSpell2);
-
 		attackCooldown = 1.0f;
 	}
 
