@@ -53,7 +53,7 @@ PlayState::PlayState()
 		Transform temp = m_objects.at(i)->getTransform();
 
 		m_bPhysics->createObject(obj, 0.0f, temp.position,
-			glm::vec3(temp.scale.x/2, temp.scale.y * 10, temp.scale.y/2));
+			glm::vec3(temp.scale.x/2, temp.scale.y*2, temp.scale.y/2));
 	}
 }
 
