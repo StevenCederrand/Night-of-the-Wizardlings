@@ -1,6 +1,7 @@
 #pragma once
 #include <Pch/Pch.h>
 #include <Spells/AttackSpell.h>
+#include "System/BulletPhysics.h"
 
 class Player
 {
@@ -16,10 +17,12 @@ public:
 	void createRay(); //create ray for spells
 	void renderSpell();
 	void spawnPlayer(glm::vec3 pos);
+	void createRigidBody(BulletPhysics* bp);
+	void forceUp();
 	bool isDead();
-	Camera* getCamera();
 
 	//-----Get-----//
+	Camera* getCamera();
 	glm::vec3 getPlayerPos() const;
 	int getHealth() const;
 	std::string getName() const;
@@ -37,6 +40,7 @@ private:
 	glm::vec3 moveDir;
 	AttackSpell* tempSpell;
 	Camera* playerCamera;
+	btRigidBody* m_body;
 	float attackCooldown;
 	float spellSpeed = 1;
 	float speed;

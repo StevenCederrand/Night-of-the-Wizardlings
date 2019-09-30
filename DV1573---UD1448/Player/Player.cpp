@@ -3,6 +3,7 @@
 #include <Networking/Client.h>
 
 
+
 Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera)
 {
 	if (camera == NULL) {
@@ -38,11 +39,13 @@ void Player::move(float deltaTime)
 {
 	glm::vec3 camFace = playerCamera->getCamFace();
 	glm::vec3 camRight = playerCamera->getCamRight();
+	float xspeed = 100.0f;
 
 	camFace.y = 0;
-
+	auto& totalForce = m_body->getLinearVelocity();
 	moveDir = glm::vec3(0.0f);
 
+	m_body->activate();
 	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_A) == GLFW_PRESS)
 	{
 		moveDir -= camRight;
@@ -63,11 +66,31 @@ void Player::move(float deltaTime)
 	if (glm::length(moveDir) >= 0.1f)
 		moveDir = glm::normalize(moveDir);
 
-	inputVector = moveDir;
-	playerPosition += inputVector * speed * deltaTime;
+	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
+	{
+		btVector3 translate = btVector3(0.0f, 14.0f, 0.0f);
+		m_body->applyCentralImpulse(translate);
+	}
+
+	//physics
+	btVector3 translate = btVector3(0.0f, 0.0f, 0.0f);
+	translate = btVector3(moveDir.x * speed * deltaTime*xspeed, 
+		totalForce.getY(),
+		moveDir.z * speed * deltaTime*xspeed);
+	m_body->setLinearVelocity(translate);
+
+	//change playerPos based on the physics box
+	btVector3 playerPos = m_body->getCenterOfMassPosition();
+	playerPosition = glm::vec3(playerPos.getX(), playerPos.getY(), playerPos.getZ());
 	setPlayerPos(playerPosition);
 	playerCamera->setCameraPos(playerPosition);
 	playerCamera->update(playerCamera->getWindow());
+
+	//inputVector = moveDir;
+	//playerPosition += inputVector * speed * deltaTime;
+	//setPlayerPos(playerPosition);
+	//playerCamera->setCameraPos(playerPosition);
+	//playerCamera->update(playerCamera->getWindow());
 }
 
 void Player::attack(float deltaTime)
@@ -136,6 +159,19 @@ void Player::setPlayerPos(glm::vec3 pos)
 void Player::spawnPlayer(glm::vec3 pos)
 {
 	this->playerPosition = pos;
+}
+
+void Player::createRigidBody(BulletPhysics* bp)
+{
+	CollisionObject object = capsule;
+
+	m_body = bp->createObject(object, 10.0f, playerPosition, glm::vec3(3.0f));
+	m_body->setUserPointer(this);
+}
+
+void Player::forceUp()
+{
+	m_body->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
 }
 
 void Player::setHealth(int health)

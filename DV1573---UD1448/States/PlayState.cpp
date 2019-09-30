@@ -40,6 +40,23 @@ PlayState::PlayState()
 	m_skybox->prepareBuffers();
 	ShaderMap::getInstance()->createShader("Skybox_Shader", "Skybox.vs", "Skybox.fs");
 	ShaderMap::getInstance()->getShader("Skybox_Shader")->setInt("skyBox", 4);
+
+	m_bPhysics = new BulletPhysics(-10);
+	CollisionObject obj = box;
+	m_bPhysics->createObject(obj, 0.0f, glm::vec3(0.0f, -2.0f, 0.0f), glm::vec3(1000.0f, 2.0f, 1000.0f), 1.0);
+	gContactAddedCallback = callbackFunc;
+	m_player->createRigidBody(m_bPhysics);
+
+	for (int i = 0; i < m_objects.size(); i++)
+	{
+	
+		Transform temp = m_objects.at(i)->getTransform();
+
+		m_bPhysics->createObject(obj, 0.0f, temp.position,
+			temp.scale);
+
+	}
+	
 }
 
 PlayState::~PlayState()
@@ -51,9 +68,10 @@ PlayState::~PlayState()
 	
 	delete m_skybox;
 	delete m_player;
-	
+	delete m_bPhysics;
 	for (GameObject* object : m_objects)
 		delete object;
+
 }
 
 void PlayState::update(float dt)
@@ -61,6 +79,14 @@ void PlayState::update(float dt)
 	Client::getInstance()->updateNetworkedPlayers(dt);
 	Renderer::getInstance()->update(dt);
 	m_player->update(dt);
+	m_bPhysics->update(dt);
+
+	if (col::characterCollided == true)
+	{
+		m_player->forceUp();
+		//m_renderer->getMainCamera()->forceUp();
+		col::characterCollided = false;
+	}
 	
 }
 
@@ -96,4 +122,21 @@ void PlayState::render()
 			Renderer::getInstance()->render(*object, i);
 		}
 	}
+}
+
+//This function is called everytime two collision objects collide
+bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
+	const btCollisionObjectWrapper* obj2, int id2, int index2)
+{
+
+	if ((Camera*)obj1->getCollisionObject()->getUserPointer() != nullptr)
+	{
+		//obj1->getCollisionObject;
+		if (obj1->getCollisionObject()->getCollisionFlags()
+			== (btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK | btCollisionObject::CF_NO_CONTACT_RESPONSE));
+		col::characterCollided = true;
+	
+	}
+
+	return false;
 }
