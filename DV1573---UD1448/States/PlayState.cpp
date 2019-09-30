@@ -9,6 +9,8 @@
 PlayState::PlayState()
 {
 	ShaderMap::getInstance()->createShader("Basic_Forward", "VertexShader.vs", "FragShader.fs");
+
+
 	ShaderMap::getInstance()->getShader("Basic_Forward")->setInt("albedoTexture", 0);
 	Renderer::getInstance();
 	m_camera = new Camera();
