@@ -72,7 +72,7 @@ void LocalServer::threadedProcess()
 			{
 				logTrace("[SERVER] New connection from {0}\nAssigned GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
 
-				if (m_connectedPlayers.size() >= 4) logError("[SERVER]  Trying to add more clients than allowed!");
+				if (m_connectedPlayers.size() >= NetGlobals::MaximumConnections) logError("[SERVER]  Trying to add more clients than allowed!");
 
 				RakNet::BitStream stream_otherPlayers;
 
@@ -113,6 +113,9 @@ void LocalServer::threadedProcess()
 			{
 				logTrace("[SERVER] Player disconnected with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
 				handleLostPlayer(*packet, bsIn);
+				m_serverInfo.connectedPlayers--;
+				m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
+
 			}
 			break;
 
@@ -120,6 +123,8 @@ void LocalServer::threadedProcess()
 			{
 				logTrace("[SERVER] Lost connection with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
 				handleLostPlayer(*packet, bsIn);
+				m_serverInfo.connectedPlayers--;
+				m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
 			}
 			break;
 
@@ -137,7 +142,7 @@ void LocalServer::threadedProcess()
 
 		}
 
-		RakSleep(30);
+		RakSleep(NetGlobals::networkRefreshRate);
 	}
 }
 

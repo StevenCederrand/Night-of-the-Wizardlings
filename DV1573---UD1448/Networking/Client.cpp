@@ -257,7 +257,7 @@ void Client::threadedProcess()
 		}
 
 		updateDataOnServer();
-		RakSleep(30);
+		RakSleep(NetGlobals::networkRefreshRate);
 	}
 
 	// Client has been told to shutdown here so send a disconnection packet if you're still connected
