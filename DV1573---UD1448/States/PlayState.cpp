@@ -43,19 +43,19 @@ PlayState::PlayState()
 
 	m_bPhysics = new BulletPhysics(-10);
 	CollisionObject obj = box;
-	m_bPhysics->createObject(obj, 0.0f, glm::vec3(0.0f, -2.0f, 0.0f), glm::vec3(1000.0f, 2.0f, 1000.0f), 1.0);
+	m_bPhysics->createObject(obj, 0.0f, glm::vec3(0.0f, -4.0f, 0.0f), glm::vec3(1000.0f, 2.0f, 1000.0f), 1.0);
 	gContactAddedCallback = callbackFunc;
 	m_player->createRigidBody(m_bPhysics);
 
-	for (int i = 0; i < m_objects.size(); i++)
-	{
+	//for (int i = 1; i < m_objects.size(); i++)
+	//{
 	
-		Transform temp = m_objects.at(i)->getTransform();
+		Transform temp = m_objects.at(2)->getTransform();
 
 		m_bPhysics->createObject(obj, 0.0f, temp.position,
-			temp.scale);
+			temp.scale/2);
 
-	}
+	//}
 	
 }
 
@@ -77,9 +77,9 @@ PlayState::~PlayState()
 void PlayState::update(float dt)
 {	
 	Client::getInstance()->updateNetworkedPlayers(dt);
+	m_bPhysics->update(dt);
 	Renderer::getInstance()->update(dt);
 	m_player->update(dt);
-	m_bPhysics->update(dt);
 
 	if (col::characterCollided == true)
 	{

@@ -39,9 +39,9 @@ void Player::move(float deltaTime)
 {
 	glm::vec3 camFace = playerCamera->getCamFace();
 	glm::vec3 camRight = playerCamera->getCamRight();
-	float xspeed = 100.0f;
+	float xspeed = 10.0f;
 
-	camFace.y = 0;
+	//camFace.y = 0;
 	auto& totalForce = m_body->getLinearVelocity();
 	moveDir = glm::vec3(0.0f);
 
@@ -73,7 +73,7 @@ void Player::move(float deltaTime)
 	}
 
 	//physics
-	btVector3 translate = btVector3(0.0f, 0.0f, 0.0f);
+	btVector3 translate; //= btVector3(0.0f, 0.0f, 0.0f);
 	translate = btVector3(moveDir.x * speed * deltaTime*xspeed, 
 		totalForce.getY(),
 		moveDir.z * speed * deltaTime*xspeed);
@@ -81,6 +81,7 @@ void Player::move(float deltaTime)
 
 	//change playerPos based on the physics box
 	btVector3 playerPos = m_body->getCenterOfMassPosition();
+	
 	playerPosition = glm::vec3(playerPos.getX(), playerPos.getY(), playerPos.getZ());
 	setPlayerPos(playerPosition);
 	playerCamera->setCameraPos(playerPosition);

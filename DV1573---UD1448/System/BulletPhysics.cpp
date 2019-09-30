@@ -66,7 +66,7 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 
 		break;
 	case capsule:
-		objectShape = new btCapsuleShape(extend.x, 1);
+		objectShape = new btCapsuleShape(extend.x, extend.y);
 
 		break;
 	default:
@@ -106,9 +106,6 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	m_dynamicsWorld->addRigidBody(body);
 
 	return body;
-
-
-	return nullptr;
 }
 
 btDiscreteDynamicsWorld* BulletPhysics::getDynamicsWorld() const

@@ -18,7 +18,7 @@ public:
 
 	//objects box, sphere, capsule. (Extend.x is radius) 
 	btRigidBody* createObject(CollisionObject object, float inMass,
-		glm::vec3 position, glm::vec3 extend, float friction = 0.1f);
+		glm::vec3 position, glm::vec3 extend, float friction = 0.2f);
 
 	btDiscreteDynamicsWorld* getDynamicsWorld() const;
 
