@@ -39,7 +39,7 @@ void Player::move(float deltaTime)
 {
 	glm::vec3 camFace = playerCamera->getCamFace();
 	glm::vec3 camRight = playerCamera->getCamRight();
-	float xspeed = 10.0f;
+	float xspeed = 100.0f;
 
 	//camFace.y = 0;
 	auto& totalForce = m_body->getLinearVelocity();
@@ -82,7 +82,7 @@ void Player::move(float deltaTime)
 	//change playerPos based on the physics box
 	btVector3 playerPos = m_body->getCenterOfMassPosition();
 	
-	playerPosition = glm::vec3(playerPos.getX(), playerPos.getY(), playerPos.getZ());
+	playerPosition = glm::vec3(playerPos.getX(), playerPos.getY()*2, playerPos.getZ());
 	setPlayerPos(playerPosition);
 	playerCamera->setCameraPos(playerPosition);
 	playerCamera->update(playerCamera->getWindow());
@@ -100,6 +100,7 @@ void Player::attack(float deltaTime)
 	{
 		createRay();
 		AttackSpell tempSpell2 = *tempSpell;
+		//tempSpell2.setSpellPos(glm::vec3(0.0f) + directionVector);
 		tempSpell2.setSpellPos(glm::vec3(playerPosition.x, playerPosition.y - 1.8f, playerPosition.z) + directionVector); //-1.8 = spwn point for spell, spell need to be 0 and playerPos is set to (0,1.8,0)
 		tempSpell2.translate(tempSpell2.getSpellPos());
 		tempSpell2.setDirection(directionVector);
@@ -166,7 +167,7 @@ void Player::createRigidBody(BulletPhysics* bp)
 {
 	CollisionObject object = capsule;
 
-	m_body = bp->createObject(object, 10.0f, playerPosition, glm::vec3(3.0f));
+	m_body = bp->createObject(object, 10.0f, playerPosition, glm::vec3(1.0f, 3.0f,1.0f));
 	m_body->setUserPointer(this);
 }
 

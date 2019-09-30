@@ -31,7 +31,7 @@ PlayState::PlayState()
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -2.0f));
 	m_objects.push_back(new WorldObject("TestSphere"));
 	m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -2.0f));
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 1.0f, -2.0f));
 
 
 	logTrace("Playstate created");
@@ -43,20 +43,18 @@ PlayState::PlayState()
 
 	m_bPhysics = new BulletPhysics(-10);
 	CollisionObject obj = box;
-	m_bPhysics->createObject(obj, 0.0f, glm::vec3(0.0f, -4.0f, 0.0f), glm::vec3(1000.0f, 2.0f, 1000.0f), 1.0);
+	m_bPhysics->createObject(obj, 0.0f, glm::vec3(0.0f, -2.0f, 0.0f), glm::vec3(100.0f, 2.0f, 100.0f), 1.0);
 	gContactAddedCallback = callbackFunc;
 	m_player->createRigidBody(m_bPhysics);
 
-	//for (int i = 1; i < m_objects.size(); i++)
-	//{
+	for (int i = 1; i < m_objects.size(); i++)
+	{
 	
-		Transform temp = m_objects.at(2)->getTransform();
+		Transform temp = m_objects.at(i)->getTransform();
 
 		m_bPhysics->createObject(obj, 0.0f, temp.position,
-			temp.scale/2);
-
-	//}
-	
+			glm::vec3(temp.scale.x/2, temp.scale.y * 10, temp.scale.y/2));
+	}
 }
 
 PlayState::~PlayState()
