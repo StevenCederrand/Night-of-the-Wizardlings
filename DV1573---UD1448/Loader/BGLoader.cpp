@@ -137,7 +137,8 @@ void BGLoader::BGFormatData()
 		// Skeleton
 		if (loaderMesh[meshId].skeleton.jointCount > 0)
 		{
-			bggMeshes[meshId].bggSkeleton.name = loaderMesh[meshId].skeleton.name;
+			//bggMeshes[meshId].bggSkeleton.name = loaderMesh[meshId].skeleton.name;
+			bggMeshes[meshId].bggSkeleton.name = skeletonsD[meshId].joint[0].name;
 			bggMeshes[meshId].bggSkeleton.joints.resize(loaderMesh[meshId].skeleton.jointCount);
 
 			for (int j = 0; j < bggMeshes[meshId].bggSkeleton.joints.size(); j++)
@@ -166,7 +167,7 @@ void BGLoader::BGFormatData()
 			{
 				ani.keyframes[k].id = animationsD[i].animations[0].keyFrames[k].key.id;
 
-				int transformCount = animationsD[i].animations[0].keyFrames[k].transforms.size();
+				int transformCount = (int)animationsD[i].animations[0].keyFrames[k].transforms.size();
 				ani.keyframes[k].local_joints_T.resize(transformCount);
 				ani.keyframes[k].local_joints_R.resize(transformCount);
 				ani.keyframes[k].local_joints_S.resize(transformCount);

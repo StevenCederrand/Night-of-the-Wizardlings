@@ -5,8 +5,6 @@
 #include <GFX/MaterialMap.h>
 #include <Mesh/Mesh.h>
 
-
-
 class GameObject {
 public:
 	//Create an Empty object
@@ -48,7 +46,7 @@ private:
 
 	std::string m_objectName;
 	Transform m_transform;
-
+protected:
 	std::vector<MeshBox> m_meshes;
 };
 

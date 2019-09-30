@@ -46,6 +46,8 @@ public:
 	int getVertexCount() const { return m_vertexCount; }
 	int getFaceCount() const { return m_faceCount; }
 	std::string getName() const { return m_name; }
+	const std::vector<std::string>& getAnimations() const { return m_animations; }
+	const std::string& getSkeleton() const { return m_skeleton; }
 	
 	const std::vector<Face>& getFaces() { return m_faces; }
 	const std::vector<Vertex>& getVertices() { return m_vertices; }

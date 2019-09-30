@@ -11,7 +11,7 @@ public:
 	virtual ~AnimatedObject();
 
 	void update(float dt);
-	void ComputeMatrix(int animId, float dt);
+	void ComputeMatrix(std::string meshn, std::string animation, float dt);
 
 private:
 	struct SkinDataBuffer
@@ -20,6 +20,8 @@ private:
 	};
 
 	SkinDataBuffer skinData;
+
+	float currentTime;
 
 };
 
