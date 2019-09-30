@@ -99,6 +99,8 @@ namespace BGLoading
 		float duration;
 		float rate;
 		int keyframeCount;
+
+		//char mesh[NAME_SIZE_L];
 	};
 
 	struct KeyFrame

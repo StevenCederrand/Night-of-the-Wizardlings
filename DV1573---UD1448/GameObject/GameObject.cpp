@@ -49,22 +49,24 @@ void GameObject::loadMesh(std::string fileName)
 			std::string skeletonName = tempSkeleton.name;
 			if (skeletonName != "" && !SkeletonMap::getInstance()->existsWithName(skeletonName))
 			{
-				//TODO: implement
 				SkeletonMap::getInstance()->createSkeleton(skeletonName, tempSkeleton);
 				logTrace("Skeleton created: {0}", skeletonName);
 			}
 
 			// Get animation
-			Animation tempAnimation = tempLoader.GetAnimation(i);
-			std::string animationName = tempAnimation.name;
-			if (animationName != "" && !AnimationMap::getInstance()->existsWithName(animationName))
+			for (int a = 0; a < tempLoader.GetAnimation(i).size(); a++)
 			{
-				//TODO: implement
-				AnimationMap::getInstance()->createAnimation(animationName, tempAnimation);
-				logTrace("Animation created: {0}", animationName);
+				Animation tempAnimation = tempLoader.GetAnimation(i)[a];
+				std::string animationName = tempAnimation.name;
+				if (animationName != "" && !AnimationMap::getInstance()->existsWithName(animationName))
+				{
+					AnimationMap::getInstance()->createAnimation(animationName, tempAnimation);
+					logTrace("Animation created: {0}", animationName);
+				}
+
+				tempMesh.addAnimation(animationName);
 			}
 
-			tempMesh.setAnimation(animationName);
 			tempMesh.setSkeleton(skeletonName);
 			tempMesh.setMaterial(tempLoader.GetMaterial(i).name);
 			MeshMap::getInstance()->createMesh(meshName, tempMesh);
@@ -106,9 +108,6 @@ void GameObject::loadMesh(std::string fileName)
 			MaterialMap::getInstance()->createMaterial(materialName, tempMaterial);
 			logTrace("Material created: {0}", materialName);
 		}
-
-
-
 	}
 
 

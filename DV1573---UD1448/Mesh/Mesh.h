@@ -8,8 +8,8 @@ private:
 	std::string m_name;
 	std::string m_filePath;
 	std::string m_materialName;
-	std::string m_skeleton;			//Left blank if none
-	std::string m_animation;		//Left blank if none
+	std::string m_skeleton;						//Left blank if none
+	std::vector<std::string> m_animations;		//Left empty if none
 
 	int m_indexInFile;
 	
@@ -31,7 +31,7 @@ public:
 	void setUpBuffers();
 	void setMaterial(std::string matName);
 
-	void setAnimation(std::string name);
+	void addAnimation(std::string name);
 	void setSkeleton(std::string name);
 	void setPos(glm::vec3 pos);
 	void setRot(glm::quat quat);

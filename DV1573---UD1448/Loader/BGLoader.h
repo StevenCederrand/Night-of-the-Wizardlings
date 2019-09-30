@@ -19,16 +19,21 @@ private:
 	int meshCount;
 	int matCount;
 
-	std::vector<std::vector<Vertex>> bggVertices;
-	std::vector<std::vector<Face>> bggFaces;
-	std::vector<glm::vec3> bggPositions;
-	std::vector<glm::quat> bggRotation;
-	std::vector<glm::vec3> bggScale;
-	std::vector<Transform> bggTransforms;
-	std::vector<Material> bggMaterials;
-	std::vector<Skeleton> bggSkeleton;
-	std::vector<Animation> bggAnimation;
+	struct bggMeshData
+	{
+		std::vector<Vertex> bggVertices;
+		std::vector<Face> bggFaces;
+		glm::vec3 bggPositions;
+		glm::quat bggRotation;
+		glm::vec3 bggScale;
+		Transform bggTransforms;
+		Skeleton bggSkeleton;
+		std::vector<Animation> bggAnimation;
+	};
 
+	std::vector<bggMeshData> bggMeshes;
+	std::vector<Material> bggMaterials;
+	
 
 
 	// TODO: Direction lights, Point Lights, Skeletons, and Animations
@@ -67,24 +72,24 @@ public:
 	const std::string GetMeshName() { return (std::string)loaderMesh[0].name; }
 
 	// Returns the vertices of a specific mesh
-	const std::vector<Vertex> GetVertices(int meshId) { return bggVertices[meshId];  }
+	const std::vector<Vertex> GetVertices(int meshId) { return bggMeshes[meshId].bggVertices;  }
 	// Returns the vertices of the first mesh
-	const std::vector<Vertex> GetVertices() { return bggVertices[0]; }
+	const std::vector<Vertex> GetVertices() { return bggMeshes[0].bggVertices; }
 
-	const glm::vec3& GetPosition() const { return bggPositions[0]; }
-	const glm::quat& GetRotation() const { return bggRotation[0]; }
-	const glm::vec3& GetScale() const { return bggScale[0]; }
-	const Transform& GetTransform() const { return bggTransforms[0]; }
+	const glm::vec3& GetPosition() const { return bggMeshes[0].bggPositions; }
+	const glm::quat& GetRotation() const { return bggMeshes[0].bggRotation; }
+	const glm::vec3& GetScale() const { return bggMeshes[0].bggScale; }
+	const Transform& GetTransform() const { return bggMeshes[0].bggTransforms; }
 
-	const glm::vec3& GetPosition(int meshId) const { return bggPositions[meshId]; }
-	const glm::quat& GetRotation(int meshId) const { return bggRotation[meshId]; }
-	const glm::vec3& GetScale(int meshId) const { return bggScale[meshId]; }
-	const Transform& GetTransform(int meshId) const { return bggTransforms[meshId]; }
+	const glm::vec3& GetPosition(int meshId) const { return bggMeshes[meshId].bggPositions; }
+	const glm::quat& GetRotation(int meshId) const { return bggMeshes[meshId].bggRotation; }
+	const glm::vec3& GetScale(int meshId) const { return bggMeshes[meshId].bggScale; }
+	const Transform& GetTransform(int meshId) const { return bggMeshes[meshId].bggTransforms; }
 
 	// Returns the faces of a specific mesh
-	const std::vector<Face> GetFaces(int meshId) { return bggFaces[meshId]; }
+	const std::vector<Face> GetFaces(int meshId) { return bggMeshes[meshId].bggFaces; }
 	// Returns the faces of the first mesh
-	const std::vector<Face> GetFaces() { return bggFaces[0]; }
+	const std::vector<Face> GetFaces() { return bggMeshes[0].bggFaces; }
 
 	// Returns a specific material
 	const Material GetMaterial(int meshId) { return bggMaterials[loaderMesh[meshId].materialID]; }
@@ -112,10 +117,10 @@ public:
 	const int GetFaceCount()  { return loaderMesh[0].faceCount; }
 
 	// Returns skeleton
-	const Skeleton GetSkeleton(int meshId) { return bggSkeleton[meshId]; }
+	const Skeleton GetSkeleton(int meshId) { return bggMeshes[meshId].bggSkeleton; }
 
 	// Return animation
-	const Animation GetAnimation(int meshId) { return bggAnimation[meshId]; }
+	const std::vector<Animation>& GetAnimation(int meshId) { return bggMeshes[meshId].bggAnimation; }
 
 
 

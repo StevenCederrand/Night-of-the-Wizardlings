@@ -7,7 +7,6 @@ Mesh::Mesh()
 	m_filePath = "";
 	m_materialName = "";
 	m_skeleton = "";
-	m_animation = "";
 	m_indexInFile = 0;
 
 	m_vertexCount = 0;
@@ -73,9 +72,9 @@ void Mesh::setMaterial(std::string matName)
 	m_materialName = matName;
 }
 
-void Mesh::setAnimation(std::string name)
+void Mesh::addAnimation(std::string name)
 {
-	m_animation = name;
+	m_animations.push_back(name);
 }
 
 void Mesh::setSkeleton(std::string name)

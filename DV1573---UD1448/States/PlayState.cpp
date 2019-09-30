@@ -78,7 +78,6 @@ void PlayState::render()
 	auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
 	for (size_t i = 0; i < list.size(); i++)
 	{
-
 		if (list[i]->gameobject == nullptr) continue;
 
 		for (int j = 0; j < list[i]->gameobject->getMeshesCount(); j++)
@@ -86,8 +85,6 @@ void PlayState::render()
 			list[i]->gameobject->bindMaterialToShader("Basic_Forward", j);
 			Renderer::getInstance()->render(*list[i]->gameobject, j);
 		}
-
-		
 	}
 
 
