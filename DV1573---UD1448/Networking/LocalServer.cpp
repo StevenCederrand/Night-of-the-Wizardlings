@@ -31,7 +31,7 @@ void LocalServer::startup(const std::string& serverName)
 		m_connectedPlayers.reserve(NetGlobals::MaximumConnections);
 
 		m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
-		m_processThread = std::thread(&LocalServer::threadedProcess, this);
+		m_processThread = std::thread(&LocalServer::ThreadedUpdate, this);
 		m_initialized = true;
 	}
 }
@@ -40,9 +40,16 @@ void LocalServer::destroy()
 {
 	if (m_initialized) {
 		if (m_serverPeer != nullptr) {
+
+			// In it's own scope	
+			{
+				std::lock_guard<std::mutex> lockGuard(m_cleanupMutex);
+				m_shutdownServer = true;
+			}
+
 			logTrace("Waiting for server thread to finish...");
-			m_shutdownServer = true;
-			m_processThread.join();
+			if(m_processThread.joinable())
+				m_processThread.join();
 			logTrace("Server thread shutdown");
 		}
 		m_initialized = false;
@@ -50,99 +57,118 @@ void LocalServer::destroy()
 	}
 }
 
-void LocalServer::threadedProcess()
+void LocalServer::ThreadedUpdate()
 {
-	while (!m_shutdownServer) {
+	float timeNow = 0.0f;
+	float timeThen = 0.0f;
+	float updateFreq = 1.0f / NetGlobals::tickRate;
+	float currentTime = 0.0f;
+	bool serverRunning = true;
 
-		for (RakNet::Packet* packet = m_serverPeer->Receive(); packet; m_serverPeer->DeallocatePacket(packet), packet = m_serverPeer->Receive())
+	while (serverRunning) {
+
+		processAndHandlePackets();
+
+		// Scope
 		{
-			RakNet::BitStream bsIn(packet->data, packet->length, false);
-
-			auto packetID = getPacketID(packet);
-
-			switch (packetID)
-			{
-			case ID_UNCONNECTED_PING:
-			{
-				logTrace("[SERVER] Got a ping from {0}", packet->systemAddress.ToString());
-			}
-			break;
-
-			case ID_NEW_INCOMING_CONNECTION:
-			{
-				logTrace("[SERVER] New connection from {0}\nAssigned GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
-
-				if (m_connectedPlayers.size() >= NetGlobals::MaximumConnections) logError("[SERVER]  Trying to add more clients than allowed!");
-
-				RakNet::BitStream stream_otherPlayers;
-
-				// Send info about all clients to the newly connected one
-				stream_otherPlayers.Write((RakNet::MessageID)INFO_ABOUT_OTHER_PLAYERS);
-				stream_otherPlayers.Write(m_connectedPlayers.size());
-
-				for (size_t i = 0; i < m_connectedPlayers.size(); i++)
-				{
-					m_connectedPlayers[i].Serialize(true, stream_otherPlayers);
-				}
-				m_serverPeer->Send(&stream_otherPlayers, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->systemAddress, false);
-
-				// Create the new player and assign it the correct GUID
-				PlayerData player;
-				player.guid = packet->guid;
-
-				// Tell all other clients about the new client
-				RakNet::BitStream stream_newPlayer;
-				stream_newPlayer.Write((RakNet::MessageID)PLAYER_JOINED);
-				player.Serialize(true, stream_newPlayer);
-				
-				for (size_t i = 0; i < m_connectedPlayers.size(); i++)
-				{
-					m_serverPeer->Send(&stream_newPlayer, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_connectedPlayers[i].guid, false);
-				}
-
-				// Lastly, add the new player to the local list of connected players
-				m_connectedPlayers.emplace_back(player);
-
-				m_serverInfo.connectedPlayers++;
-				m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
-				
-			}
-			break;
-
-			case ID_DISCONNECTION_NOTIFICATION:
-			{
-				logTrace("[SERVER] Player disconnected with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
-				handleLostPlayer(*packet, bsIn);
-				m_serverInfo.connectedPlayers--;
-				m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
-
-			}
-			break;
-
-			case ID_CONNECTION_LOST:
-			{
-				logTrace("[SERVER] Lost connection with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
-				handleLostPlayer(*packet, bsIn);
-				m_serverInfo.connectedPlayers--;
-				m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
-			}
-			break;
-
-			case PLAYER_DATA:
-			{
-				for (size_t i = 0; i < m_connectedPlayers.size(); i++)
-				{	
-					// Don't send it back to the sender
-					if(packet->guid != m_connectedPlayers[i].guid.rakNetGuid)
-						m_serverPeer->Send(&bsIn, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_connectedPlayers[i].guid, false);
-				}
-			}
-			break;
-			}
-
+			std::lock_guard<std::mutex> lockGuard(m_cleanupMutex);
+			if (m_shutdownServer == true)
+				serverRunning = false;
 		}
 
-		RakSleep(NetGlobals::networkRefreshRate);
+		RakSleep(NetGlobals::threadSleepTime);
+	}
+}
+
+void LocalServer::processAndHandlePackets()
+{
+
+	for (RakNet::Packet* packet = m_serverPeer->Receive(); packet; m_serverPeer->DeallocatePacket(packet), packet = m_serverPeer->Receive())
+	{
+		RakNet::BitStream bsIn(packet->data, packet->length, false);
+
+		auto packetID = getPacketID(packet);
+
+		switch (packetID)
+		{
+		case ID_UNCONNECTED_PING:
+		{
+			logTrace("[SERVER] Got a ping from {0}", packet->systemAddress.ToString());
+		}
+		break;
+
+		case ID_NEW_INCOMING_CONNECTION:
+		{
+			logTrace("[SERVER] New connection from {0}\nAssigned GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
+
+			if (m_connectedPlayers.size() >= NetGlobals::MaximumConnections) logError("[SERVER]  Trying to add more clients than allowed!");
+
+			RakNet::BitStream stream_otherPlayers;
+
+			// Send info about all clients to the newly connected one
+			stream_otherPlayers.Write((RakNet::MessageID)INFO_ABOUT_OTHER_PLAYERS);
+			stream_otherPlayers.Write(m_connectedPlayers.size());
+
+			for (size_t i = 0; i < m_connectedPlayers.size(); i++)
+			{
+				m_connectedPlayers[i].Serialize(true, stream_otherPlayers);
+			}
+			m_serverPeer->Send(&stream_otherPlayers, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->systemAddress, false);
+
+			// Create the new player and assign it the correct GUID
+			PlayerData player;
+			player.guid = packet->guid;
+
+			// Tell all other clients about the new client
+			RakNet::BitStream stream_newPlayer;
+			stream_newPlayer.Write((RakNet::MessageID)PLAYER_JOINED);
+			player.Serialize(true, stream_newPlayer);
+
+			for (size_t i = 0; i < m_connectedPlayers.size(); i++)
+			{
+				m_serverPeer->Send(&stream_newPlayer, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_connectedPlayers[i].guid, false);
+			}
+
+			// Lastly, add the new player to the local list of connected players
+			m_connectedPlayers.emplace_back(player);
+
+			m_serverInfo.connectedPlayers++;
+			m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
+
+		}
+		break;
+
+		case ID_DISCONNECTION_NOTIFICATION:
+		{
+			logTrace("[SERVER] Player disconnected with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
+			handleLostPlayer(*packet, bsIn);
+			m_serverInfo.connectedPlayers--;
+			m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
+
+		}
+		break;
+
+		case ID_CONNECTION_LOST:
+		{
+			logTrace("[SERVER] Lost connection with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
+			handleLostPlayer(*packet, bsIn);
+			m_serverInfo.connectedPlayers--;
+			m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
+		}
+		break;
+
+		case PLAYER_DATA:
+		{
+			for (size_t i = 0; i < m_connectedPlayers.size(); i++)
+			{
+				// Don't send it back to the sender
+				if (packet->guid != m_connectedPlayers[i].guid.rakNetGuid)
+					m_serverPeer->Send(&bsIn, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_connectedPlayers[i].guid, false);
+			}
+		}
+		break;
+		}
+
 	}
 }
 

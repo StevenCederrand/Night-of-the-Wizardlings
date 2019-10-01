@@ -12,7 +12,8 @@ public:
 
 	void startup(const std::string& serverName);
 	void destroy();
-	void threadedProcess();
+	void ThreadedUpdate();
+	void processAndHandlePackets();
 	const bool& isInitialized() const;
 
 private:
@@ -22,7 +23,7 @@ private:
 	RakNet::RakPeerInterface* m_serverPeer = nullptr;
 	std::thread m_processThread;
 	bool m_shutdownServer;
-
+	std::mutex m_cleanupMutex;
 	std::vector<PlayerData> m_connectedPlayers;
 	ServerInfo m_serverInfo;
 	bool m_initialized = false;

@@ -71,7 +71,7 @@ void PlayState::render()
 	m_player->renderSpell();
 
 	auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
-	/*for (size_t i = 0; i < list.size(); i++)
+	for (size_t i = 0; i < list.size(); i++)
 	{
 
 		if (list[i]->gameobject == nullptr) continue;
@@ -83,7 +83,7 @@ void PlayState::render()
 		}
 
 		
-	}*/
+	}
 
 
 	

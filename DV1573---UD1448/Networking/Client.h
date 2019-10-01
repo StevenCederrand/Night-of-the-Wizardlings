@@ -16,7 +16,8 @@ public:
 	void destroy();
 	void connectToAnotherServer(const ServerInfo& server);
 	void connectToMyServer();
-	void threadedProcess();
+	void ThreadedUpdate();
+	void processAndHandlePackets();
 	void updatePlayerData(Player* player);
 	void updateNetworkedPlayers(const float& dt);
 	const std::vector<std::pair<unsigned int, ServerInfo>>& getServerList() const;
@@ -31,7 +32,6 @@ public:
 
 	const bool& isConnectedToSever() const;
 	const bool& connectionFailed() const;
-
 
 private:
 	void updateDataOnServer();
@@ -56,6 +56,7 @@ private:
 	std::vector<PlayerData> m_connectedPlayers;
 	PlayerData m_playerData;
 	NetworkPlayers m_playerEntities;
+	std::mutex m_cleanupMutex;
 };
 
 #endif
