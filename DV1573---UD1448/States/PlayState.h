@@ -33,6 +33,7 @@ private:
 	SkyBox* m_skybox;
 	BulletPhysics* m_bPhysics;
 
+
 };
 
 

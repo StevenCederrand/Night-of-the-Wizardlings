@@ -2,11 +2,13 @@
 #include <Pch/Pch.h>
 #include <Spells/AttackSpell.h>
 #include "System/BulletPhysics.h"
+#include <Bullet/BulletDynamics/Character/btKinematicCharacterController.h>
+#include <Bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
 
 class Player
 {
 public:
-	Player(std::string name = "", glm::vec3 playerPosition = glm::vec3(0.0f, 0.0f, 0.0f), Camera* camera = NULL);
+	Player(BulletPhysics* bp, std::string name = "", glm::vec3 playerPosition = glm::vec3(0.0f, 0.0f, 0.0f), Camera* camera = NULL);
 	~Player();
 
 	void update(float deltaTime);
@@ -47,5 +49,7 @@ private:
 	int nrOfSpells;
 	int health;
 	std::string name;
+	BulletPhysics* m_bp;
+	btKinematicCharacterController* controller;
 
 };

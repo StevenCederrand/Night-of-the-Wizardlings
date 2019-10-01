@@ -1,6 +1,7 @@
 #include <Pch/Pch.h>
 #include "PlayState.h"
 
+
 // TODO move to mesh
 #include <Loader/BGLoader.h>
 #include <Networking/Client.h>
@@ -8,6 +9,11 @@
 
 PlayState::PlayState()
 {
+
+
+
+	m_bPhysics = new BulletPhysics(-10);
+
 	ShaderMap::getInstance()->createShader("Basic_Forward", "VertexShader.vs", "FragShader.fs");
 	ShaderMap::getInstance()->getShader("Basic_Forward")->setInt("albedoTexture", 0);
 	Renderer::getInstance();
@@ -15,7 +21,7 @@ PlayState::PlayState()
 
 	//m_player = new Player("test", glm::vec3(0, 2, 3), m_camera);
 
-	m_player = new Player("Player", glm::vec3(0.0f, 1.8f, 0.0f), m_camera);
+	m_player = new Player(m_bPhysics, "Player", glm::vec3(0.0f, 1.8f, 0.0f), m_camera);
 
 	Renderer::getInstance()->setupCamera(m_player->getCamera());
 
@@ -41,7 +47,8 @@ PlayState::PlayState()
 	ShaderMap::getInstance()->createShader("Skybox_Shader", "Skybox.vs", "Skybox.fs");
 	ShaderMap::getInstance()->getShader("Skybox_Shader")->setInt("skyBox", 4);
 
-	m_bPhysics = new BulletPhysics(-10);
+
+
 	CollisionObject obj = box;
 	m_bPhysics->createObject(obj, 0.0f, glm::vec3(0.0f, -2.0f, 0.0f), glm::vec3(100.0f, 2.0f, 100.0f), 1.0);
 	gContactAddedCallback = callbackFunc;
@@ -53,8 +60,15 @@ PlayState::PlayState()
 		Transform temp = m_objects.at(i)->getTransform();
 
 		m_bPhysics->createObject(obj, 0.0f, temp.position,
-			glm::vec3(temp.scale.x/2, temp.scale.y*2, temp.scale.y/2));
+			glm::vec3(temp.scale.x/2, temp.scale.y, temp.scale.y/2));
 	}
+	
+
+
+
+
+
+	//btBvhTriangleMeshShape* abc = new btBvhTriangleMeshShape()
 }
 
 PlayState::~PlayState()
@@ -74,6 +88,7 @@ PlayState::~PlayState()
 
 void PlayState::update(float dt)
 {	
+
 	Client::getInstance()->updateNetworkedPlayers(dt);
 	m_bPhysics->update(dt);
 	Renderer::getInstance()->update(dt);
@@ -103,11 +118,8 @@ void PlayState::render()
 		{
 			list[i]->gameobject->bindMaterialToShader("Basic_Forward", j);
 			Renderer::getInstance()->render(*list[i]->gameobject, j);
-		}
-
-		
+		}		
 	}
-
 
 	
 

@@ -2,6 +2,7 @@
 #define BULLETPHYSICS_H
 #include <Pch/Pch.h>
 
+// box, sphere, capsule
 enum CollisionObject
 {
 	box,
@@ -16,7 +17,7 @@ public:
 	BulletPhysics(float gravity);
 	~BulletPhysics();
 
-	//objects box, sphere, capsule. (Extend.x is radius) 
+	//objects box, sphere, capsule. (Extend.x is radius, Extend.y is height) 
 	btRigidBody* createObject(CollisionObject object, float inMass,
 		glm::vec3 position, glm::vec3 extend, float friction = 0.2f);
 
