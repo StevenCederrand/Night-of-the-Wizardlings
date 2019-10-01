@@ -39,6 +39,8 @@ void Player::move(float deltaTime)
 	glm::vec3 camFace = playerCamera->getCamFace();
 	glm::vec3 camRight = playerCamera->getCamRight();
 
+	std::cout << inputVector.x << " " << inputVector.y << " " << inputVector.z << " " << std::endl;
+
 	camFace.y = 0;
 
 	moveDir = glm::vec3(0.0f);
@@ -60,14 +62,15 @@ void Player::move(float deltaTime)
 		moveDir -= camFace;
 	}
 
-	if (glm::length(moveDir) >= 0.1f)
+	if (glm::length(moveDir) >= 0.01f)
 		moveDir = glm::normalize(moveDir);
 
-	inputVector = moveDir;
-	playerPosition += inputVector * speed * deltaTime;
+	playerPosition += moveDir * speed * deltaTime;
 	setPlayerPos(playerPosition);
 	playerCamera->setCameraPos(playerPosition);
 	playerCamera->update(playerCamera->getWindow());
+
+	//std::cout << inputVector.x << " " << inputVector.y << " " << inputVector.z << " " << std::endl;
 }
 
 void Player::attack(float deltaTime)
