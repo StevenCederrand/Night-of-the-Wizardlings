@@ -72,14 +72,14 @@ void Player::move(float deltaTime)
 		m_body->applyCentralImpulse(translate);
 	}
 
-	//physics
+	//move the physics box
 	btVector3 translate; //= btVector3(0.0f, 0.0f, 0.0f);
 	translate = btVector3(moveDir.x * speed * deltaTime*xspeed, 
 		totalForce.getY(),
 		moveDir.z * speed * deltaTime*xspeed);
 	m_body->setLinearVelocity(translate);
 
-	//change playerPos based on the physics box
+	//change playerPos based on the physics box 
 	btVector3 playerPos = m_body->getCenterOfMassPosition();
 	
 	playerPosition = glm::vec3(playerPos.getX(), playerPos.getY()*2, playerPos.getZ());
