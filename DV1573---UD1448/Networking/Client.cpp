@@ -22,9 +22,7 @@ void Client::startup()
 		m_connectedPlayers.reserve(NetGlobals::MaximumConnections);
 		m_clientPeer = RakNet::RakPeerInterface::GetInstance();
 		m_clientPeer->Startup(1, &RakNet::SocketDescriptor(), 1);
-		m_initialized = true;
-
-		
+		m_initialized = true;	
 	}
 }
 
@@ -71,7 +69,7 @@ void Client::connectToMyServer()
 	m_failedToConnect = false;
 	m_shutdownThread = false;
 	m_isConnectedToAnServer = false;
-
+	
 	bool status = m_clientPeer->Connect("localhost", NetGlobals::ServerPort, 0, 0, 0) == RakNet::CONNECTION_ATTEMPT_STARTED;
 	assert((status == true, "Client connecting to localhost failed!"));
 	
@@ -84,10 +82,6 @@ void Client::connectToMyServer()
 
 void Client::ThreadedUpdate()
 {
-	float timeNow = 0.0f;
-	float timeThen = 0.0f;
-	float updateFreq = 1.0f / NetGlobals::tickRate;
-	float currentTime = 0.0f;
 	bool clientRunning = true;
 
 	while (clientRunning)

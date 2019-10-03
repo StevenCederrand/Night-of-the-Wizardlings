@@ -20,14 +20,12 @@ void LocalServer::startup(const std::string& serverName)
 {
 	if (!m_initialized) {
 		m_serverPeer = RakNet::RakPeerInterface::GetInstance();
-		auto startResult = m_serverPeer->Startup(NetGlobals::MaximumConnections, &RakNet::SocketDescriptor(0, 0), 1);
+		auto startResult = m_serverPeer->Startup(NetGlobals::MaximumConnections, &RakNet::SocketDescriptor(NetGlobals::ServerPort, 0), 1);
 		assert((startResult == RakNet::RAKNET_STARTED, "Server could not be started!"));
 
 		m_serverPeer->SetMaximumIncomingConnections(NetGlobals::MaximumIncomingConnections);
 
 		memcpy(&m_serverInfo.serverName, serverName.c_str(), serverName.length());
-		
-		//m_serverInfo.port = m_serverPeer.Sys
 		m_serverInfo.maxPlayers = NetGlobals::MaximumConnections;
 		m_serverInfo.connectedPlayers = 0;
 		m_connectedPlayers.reserve(NetGlobals::MaximumConnections);
@@ -35,6 +33,8 @@ void LocalServer::startup(const std::string& serverName)
 		m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
 		m_processThread = std::thread(&LocalServer::ThreadedUpdate, this);
 		m_initialized = true;
+		logTrace("[SERVER] Tickrate: {0}", NetGlobals::tickRate);
+		logTrace("[SERVER] Thread sleep time {0}", NetGlobals::threadSleepTime);
 	}
 }
 
@@ -61,10 +61,6 @@ void LocalServer::destroy()
 
 void LocalServer::ThreadedUpdate()
 {
-	float timeNow = 0.0f;
-	float timeThen = 0.0f;
-	float updateFreq = 1.0f / NetGlobals::tickRate;
-	float currentTime = 0.0f;
 	bool serverRunning = true;
 
 	while (serverRunning) {
@@ -180,6 +176,11 @@ void LocalServer::processAndHandlePackets()
 const bool& LocalServer::isInitialized() const
 {
 	return m_initialized;
+}
+
+const ServerInfo& LocalServer::getMySeverInfo() const
+{
+	return m_serverInfo;
 }
 
 unsigned char LocalServer::getPacketID(RakNet::Packet* p)

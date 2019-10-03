@@ -15,6 +15,7 @@ public:
 	void ThreadedUpdate();
 	void processAndHandlePackets();
 	const bool& isInitialized() const;
+	const ServerInfo& getMySeverInfo() const;
 
 private:
 	unsigned char getPacketID(RakNet::Packet* p);

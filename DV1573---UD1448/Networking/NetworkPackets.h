@@ -16,7 +16,6 @@ struct ServerInfo {
 	
 	char serverName[16] = { ' ' };
 	RakNet::SystemAddress serverAddress;
-	uint16_t port;
 	unsigned short maxPlayers;
 	unsigned short connectedPlayers;
 };
