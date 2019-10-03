@@ -9,9 +9,6 @@
 
 PlayState::PlayState()
 {
-
-
-
 	m_bPhysics = new BulletPhysics(-10);
 
 	ShaderMap::getInstance()->createShader("Basic_Forward", "VertexShader.vs", "FragShader.fs");
@@ -50,7 +47,7 @@ PlayState::PlayState()
 
 
 	CollisionObject obj = box;
-	m_bPhysics->createObject(obj, 0.0f, glm::vec3(0.0f, -2.0f, 0.0f), glm::vec3(100.0f, 2.0f, 100.0f), 1.0);
+	m_bPhysics->createObject(obj, 0.0f, glm::vec3(0.0f, -1.5f, 0.0f), glm::vec3(100.0f, 2.0f, 100.0f), 1.0);
 	gContactAddedCallback = callbackFunc;
 	m_player->createRigidBody(m_bPhysics);
 

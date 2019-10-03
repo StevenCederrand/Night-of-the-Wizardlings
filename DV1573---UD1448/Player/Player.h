@@ -37,7 +37,7 @@ public:
 private:
 	std::vector<AttackSpell> normalSpell;
 	glm::vec3 directionVector;
-	glm::vec3 playerPosition;
+	glm::vec3 m_playerPosition;
 	glm::vec3 inputVector;
 	glm::vec3 moveDir;
 	AttackSpell* tempSpell;

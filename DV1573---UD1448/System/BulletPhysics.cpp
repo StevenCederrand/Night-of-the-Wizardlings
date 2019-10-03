@@ -79,12 +79,12 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	startTransform.setIdentity();
 
 	// if you want to rotate something 
-	if (inMass == 0)
+	/*if (inMass == 0)
 	{
 		btQuaternion rot;
 		rot.setEuler(0, 0, 0);
 		startTransform.setRotation(rot);
-	}
+	}*/
 
 	startTransform.setOrigin(btVector3(position.x, position.y, position.z));
 
