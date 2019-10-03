@@ -12,7 +12,7 @@ public:
 	};
 
 	struct PlayerEntity {
-		PlayerData data;
+		PlayerPacket data;
 		GameObject* gameobject = nullptr; // This is created on the MAIN thread!
 		FLAG flag = FLAG::NONE;
 

@@ -20,12 +20,14 @@ void LocalServer::startup(const std::string& serverName)
 {
 	if (!m_initialized) {
 		m_serverPeer = RakNet::RakPeerInterface::GetInstance();
-		auto startResult = m_serverPeer->Startup(NetGlobals::MaximumConnections, &RakNet::SocketDescriptor(NetGlobals::ServerPort, 0), 1);
+		auto startResult = m_serverPeer->Startup(NetGlobals::MaximumConnections, &RakNet::SocketDescriptor(0, 0), 1);
 		assert((startResult == RakNet::RAKNET_STARTED, "Server could not be started!"));
 
 		m_serverPeer->SetMaximumIncomingConnections(NetGlobals::MaximumIncomingConnections);
 
 		memcpy(&m_serverInfo.serverName, serverName.c_str(), serverName.length());
+		
+		//m_serverInfo.port = m_serverPeer.Sys
 		m_serverInfo.maxPlayers = NetGlobals::MaximumConnections;
 		m_serverInfo.connectedPlayers = 0;
 		m_connectedPlayers.reserve(NetGlobals::MaximumConnections);
@@ -116,7 +118,7 @@ void LocalServer::processAndHandlePackets()
 			m_serverPeer->Send(&stream_otherPlayers, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->systemAddress, false);
 
 			// Create the new player and assign it the correct GUID
-			PlayerData player;
+			PlayerPacket player;
 			player.guid = packet->guid;
 
 			// Tell all other clients about the new client
@@ -132,6 +134,7 @@ void LocalServer::processAndHandlePackets()
 			// Lastly, add the new player to the local list of connected players
 			m_connectedPlayers.emplace_back(player);
 
+			// Update the general server information.
 			m_serverInfo.connectedPlayers++;
 			m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
 
@@ -152,12 +155,14 @@ void LocalServer::processAndHandlePackets()
 		{
 			logTrace("[SERVER] Lost connection with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
 			handleLostPlayer(*packet, bsIn);
+			
+			// Update the general server information.
 			m_serverInfo.connectedPlayers--;
 			m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
 		}
 		break;
 
-		case PLAYER_DATA:
+		case PLAYER_UPDATE_PACKET:
 		{
 			for (size_t i = 0; i < m_connectedPlayers.size(); i++)
 			{

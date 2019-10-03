@@ -5,7 +5,9 @@ enum {
 	INFO_ABOUT_OTHER_PLAYERS = ID_USER_PACKET_ENUM + 1,
 	PLAYER_JOINED,
 	PLAYER_DISCONNECTED,
-	PLAYER_DATA
+	PLAYER_UPDATE_PACKET,
+	PLAYER_REQUEST_JOIN_TEAM,
+	PLAYER_REQUEST_LEAVE_TEAM
 };
 
 /* To make sure the compiler aligns the bits */
@@ -14,6 +16,7 @@ struct ServerInfo {
 	
 	char serverName[16] = { ' ' };
 	RakNet::SystemAddress serverAddress;
+	uint16_t port;
 	unsigned short maxPlayers;
 	unsigned short connectedPlayers;
 };
@@ -22,11 +25,12 @@ struct newPlayerInfo {
 	RakNet::AddressOrGUID guid;
 };
 
-struct PlayerData {
+struct PlayerPacket {
 	RakNet::AddressOrGUID guid;
 	int health = 100;
 	glm::vec3 position = glm::vec3(0.0f);
 	glm::vec3 rotation = glm::vec3(0.0f);
+
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream)
 	{
@@ -36,5 +40,11 @@ struct PlayerData {
 		stream.Serialize(writeToStream, rotation);
 	}
 };
+
+struct JoinTeamRequest {
+	RakNet::AddressOrGUID guid;
+	NetGlobals::Teams teamRequest;
+};
+
 
 #endif

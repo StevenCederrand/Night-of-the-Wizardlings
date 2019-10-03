@@ -21,7 +21,7 @@ public:
 	void updatePlayerData(Player* player);
 	void updateNetworkedPlayers(const float& dt);
 	const std::vector<std::pair<unsigned int, ServerInfo>>& getServerList() const;
-	const std::vector<PlayerData>& getConnectedPlayers() const;
+	const std::vector<PlayerPacket>& getConnectedPlayers() const;
 	NetworkPlayers& getNetworkPlayersREF();
 	void refreshServerList();
 	bool doneRefreshingServerList();
@@ -53,8 +53,8 @@ private:
 	bool m_shutdownThread;
 	bool m_initialized = false;
 	
-	std::vector<PlayerData> m_connectedPlayers;
-	PlayerData m_playerData;
+	std::vector<PlayerPacket> m_connectedPlayers;
+	PlayerPacket m_playerData;
 	NetworkPlayers m_playerEntities;
 	std::mutex m_cleanupMutex;
 };

@@ -188,7 +188,7 @@ void Client::processAndHandlePackets()
 			bsIn.Read(nrOfConnectedPlayers);
 
 			for (size_t i = 0; i < nrOfConnectedPlayers; i++) {
-				PlayerData player;
+				PlayerPacket player;
 				player.Serialize(false, bsIn);
 				m_connectedPlayers.emplace_back(player);
 
@@ -209,7 +209,7 @@ void Client::processAndHandlePackets()
 		{
 			logTrace("New player joined!");
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
-			PlayerData player;
+			PlayerPacket player;
 			player.Serialize(false, bsIn);
 			m_connectedPlayers.emplace_back(player);
 
@@ -254,11 +254,11 @@ void Client::processAndHandlePackets()
 			printAllConnectedPlayers();
 		}
 		break;
-		case PLAYER_DATA:
+		case PLAYER_UPDATE_PACKET:
 		{
 			//logTrace("Player data received from server");
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
-			PlayerData pData;
+			PlayerPacket pData;
 			pData.Serialize(false, bsIn);
 
 			for (size_t i = 0; i < m_connectedPlayers.size(); i++)
@@ -317,7 +317,7 @@ void Client::updateDataOnServer()
 {
 	// Player data sent to server
 	RakNet::BitStream bsOut;
-	bsOut.Write((RakNet::MessageID)PLAYER_DATA);
+	bsOut.Write((RakNet::MessageID)PLAYER_UPDATE_PACKET);
 	m_playerData.Serialize(true, bsOut);
 	m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
 }
@@ -328,7 +328,7 @@ const std::vector<std::pair<unsigned int, ServerInfo>>& Client::getServerList() 
 	return m_serverList;
 }
 
-const std::vector<PlayerData>& Client::getConnectedPlayers() const
+const std::vector<PlayerPacket>& Client::getConnectedPlayers() const
 {
 	return m_connectedPlayers;
 }
