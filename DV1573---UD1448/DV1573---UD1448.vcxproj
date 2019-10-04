@@ -79,7 +79,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
-    <IncludePath>$(SolutionDir)dependencies/include/;$(SolutionDir)$(MSBuildProjectName);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)dependencies/include/;$(SolutionDir)$(MSBuildProjectName);$(IncludePath);$(SolutionDir)dependencies/include/Bullet</IncludePath>
     <ReferencePath>$(ReferencePath)</ReferencePath>
     <LibraryPath>$(SolutionDir)dependencies/lib/x64/;$(LibraryPath)</LibraryPath>
     <IntDir>$(SolutionDir)bin-intermediate\$(Platform)\$(Configuration)\</IntDir>
@@ -96,7 +96,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LibraryPath>$(SolutionDir)dependencies/lib/x32/;$(LibraryPath)</LibraryPath>
     <ReferencePath>$(ReferencePath)</ReferencePath>
-    <IncludePath>$(SolutionDir)dependencies/include/;$(SolutionDir)dependencies/include/Bullet;$(SolutionDir)$(MSBuildProjectName);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)dependencies/include/;$(SolutionDir)dependencies/include/Bullet;$(SolutionDir)$(MSBuildProjectName);$(IncludePath);$(SolutionDir)dependencies/include/Bullet</IncludePath>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin-intermediate\$(Platform)\$(Configuration)\</IntDir>
     <SourcePath>%(SolutionDir)DV1573---UD1448/;$(SourcePath)</SourcePath>

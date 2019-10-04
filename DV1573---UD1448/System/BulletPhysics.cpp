@@ -20,6 +20,7 @@ BulletPhysics::BulletPhysics(float gravity)
 
 BulletPhysics::~BulletPhysics()
 {
+	//m_dynamicsWorld->removeAction(m_character);
 	//Remove the rigidbodies from the dynamics world and delete them
 	for (int i = m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
 	{
@@ -29,10 +30,18 @@ BulletPhysics::~BulletPhysics()
 		{
 			delete body->getMotionState();
 		}
+		//if (body->getFriction() == 0.68)
+		//{
+
+			logTrace("hej");
+
+		//}
 		m_dynamicsWorld->removeCollisionObject(obj);
+
 		delete obj;
 	}
-
+	
+	//m_dynamicsWorld->removeCollisionObject(m_ghostObject);
 	//Delete collsion shapes
 	for (int i = 0; i < m_collisionShapes.size(); i++)
 	{
@@ -40,12 +49,23 @@ BulletPhysics::~BulletPhysics()
 		m_collisionShapes[i] = 0;
 		delete shape;
 	}
+	
+	delete m_playerShape;
+	//delete m_ghostObject;
+	delete m_character;
+//	logTrace(sizeof(m_ghostObject));
+//	logTrace(sizeof(m_character));
+//	m_ghostObject->getFriction();
+//	m_character->canJump();
+
+	
 
 	delete m_dynamicsWorld;
 	delete m_solver;
 	delete m_overlappingPairCache;
 	delete m_dispatcher;
 	delete m_collisionConfiguration;
+
 
 	m_collisionShapes.clear();
 }
@@ -120,6 +140,29 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 btDiscreteDynamicsWorld* BulletPhysics::getDynamicsWorld() const
 {
 	return m_dynamicsWorld;
+}
+
+btKinematicCharacterController* BulletPhysics::createCharacter()
+{
+	m_character;
+
+	m_playerShape = new btCapsuleShape(0.25, 1);
+	m_ghostObject = new btPairCachingGhostObject();
+	
+	m_ghostObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 20, 0)));
+
+	m_dynamicsWorld->getPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+	m_ghostObject->setCollisionShape(m_playerShape);
+	m_ghostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
+	m_character = new btKinematicCharacterController(m_ghostObject, m_playerShape, 0.5f, btVector3(0.0f, 1.0f, 0.0f));
+	m_dynamicsWorld->addCollisionObject(m_ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
+	m_dynamicsWorld->addAction(m_character);
+	m_character->setGravity(btVector3(0.0f, -5.0f, 0.0f));
+	m_character->setMaxPenetrationDepth(0.1f);
+	m_character->setUp(btVector3(0.0f, 1.0f, 0.0f));
+
+
+	return m_character;
 }
 
 void BulletPhysics::update(float dt)
