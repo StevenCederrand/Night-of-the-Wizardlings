@@ -407,8 +407,9 @@ void Client::findAllServerAddresses()
 					RakNet::BitStream bsIn(packet->data + byteOffset, packet->length - byteOffset, false);
 					info = *(ServerInfo*)bsIn.GetData();
 
-					// If the pinged server is full then don't add it to the server list
+					// If the pinged server is full or in session then don't add it to the server list
 					if (info.connectedPlayers >= info.maxPlayers) continue;
+					if (info.currentState == NetGlobals::ServerState::GameStarted) continue;
 
 					info.serverAddress = packet->systemAddress;
 					m_serverList.emplace_back(std::make_pair(ID++, info));

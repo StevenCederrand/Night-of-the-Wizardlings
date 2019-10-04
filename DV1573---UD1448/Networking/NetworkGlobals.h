@@ -14,7 +14,7 @@ namespace NetGlobals {
 
 	enum ServerState {
 		WaitingForPlayers = 0,
-		GameStarted
+		GameStarted,
 	};
 }
 

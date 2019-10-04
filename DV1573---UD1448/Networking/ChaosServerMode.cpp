@@ -9,7 +9,7 @@ ChaosServerMode::~ChaosServerMode()
 {
 }
 
-void ChaosServerMode::update(const RakNet::BitStream& bitstream, unsigned char& packetID)
+void ChaosServerMode::update(const RakNet::BitStream& bitstream, unsigned char& packetID, const std::vector<PlayerPacket>& players)
 {
 
 }

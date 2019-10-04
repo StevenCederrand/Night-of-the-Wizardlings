@@ -138,7 +138,6 @@ void LocalServer::processAndHandlePackets()
 			m_serverInfo.connectedPlayers++;
 			m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
 
-			m_chaosMode.testCallback();
 
 		}
 		break;
@@ -169,11 +168,25 @@ void LocalServer::processAndHandlePackets()
 			for (size_t i = 0; i < m_connectedPlayers.size(); i++)
 			{
 				// Don't send it back to the sender
-				if (packet->guid != m_connectedPlayers[i].guid.rakNetGuid)
+				if (packet->guid != m_connectedPlayers[i].guid.rakNetGuid) {
 					m_serverPeer->Send(&bsIn, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_connectedPlayers[i].guid, false);
+				}
+				// If it's the sender then update the information about that client on the server
+				else if(packet->guid == m_connectedPlayers[i].guid.rakNetGuid){
+					PlayerPacket playerPacket;
+					bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+					playerPacket.Serialize(false, bsIn);
+					m_connectedPlayers[i] = playerPacket;
+					bsIn.SetReadOffset(0);
+				}
+
 			}
 		}
 		break;
+		
+		default:
+			m_chaosMode.update(bsIn, packetID, m_connectedPlayers);
+			break;
 		}
 
 	}
