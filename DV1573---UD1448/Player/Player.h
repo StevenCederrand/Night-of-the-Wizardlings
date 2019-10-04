@@ -48,6 +48,7 @@ private:
 	float speed;
 	int nrOfSpells;
 	int health;
+	int frameCount;
 	std::string name;
 	BulletPhysics* m_bp;
 	btKinematicCharacterController* controller;

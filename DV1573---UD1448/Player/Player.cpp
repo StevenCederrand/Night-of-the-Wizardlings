@@ -48,6 +48,7 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_body = new btRigidBody(rbInfo);
 
 	bp->getDynamicsWorld()->addRigidBody(m_body);*/
+	frameCount = 0;
 }
 
 Player::~Player()
@@ -66,6 +67,11 @@ void Player::update(float deltaTime)
 
 void Player::move(float deltaTime)
 {
+	frameCount++;
+	if (frameCount < 2)
+	{
+		return;
+	}
 	glm::vec3 camFace = playerCamera->getCamFace();
 	glm::vec3 camRight = playerCamera->getCamRight();
 	float xspeed = 1.0f;
