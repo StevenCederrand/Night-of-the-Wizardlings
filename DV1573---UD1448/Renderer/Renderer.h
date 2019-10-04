@@ -1,6 +1,7 @@
 #pragma once
 #include <Pch/Pch.h>
 #include <GameObject/GameObject.h>
+#include <GameObject/AnimatedObject.h>
 #include <Mesh/MeshFormat.h>
 #include <Renderer/SkyBox.h>
 
@@ -35,6 +36,7 @@ public:
 	void renderSkybox(const SkyBox& skybox);
 	void render(const GameObject& gameObject);
 	void render(const GameObject& gameObject, int meshIndex);
+	void renderAni(const GameObject& gameObject, int meshIndex);
 	void render(Buffers buffer, glm::vec3 worldPos);
 
 	Camera* getMainCamera() const;

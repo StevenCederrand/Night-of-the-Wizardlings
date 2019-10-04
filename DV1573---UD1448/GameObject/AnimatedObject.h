@@ -6,20 +6,21 @@
 class AnimatedObject : public GameObject
 {
 public:
-	AnimatedObject();
 	AnimatedObject(std::string name);
 	virtual ~AnimatedObject();
 
 	void update(float dt);
-	void ComputeMatrix(std::string meshn, std::string animation, float dt);
+	void ComputeMatrix(int meshId, std::string meshn, std::string animation, float dt);
+	void BindMatrix(int meshId);
 
 private:
-	struct SkinDataBuffer
+	struct BonePalleteBuffer
 	{
-		glm::mat4 bones[64];
+		glm::mat4 bones[64]{ glm::mat4() };
 	};
 
-	SkinDataBuffer skinData;
+	std::vector<BonePalleteBuffer> bonePallete;
+	GLuint boneBuffer;
 
 	float currentTime;
 

@@ -74,14 +74,16 @@ void Renderer::update(float dt) {
 	m_camera->update(m_gWindow);
 }
 
+// Single mesh render
+//TODO: Remove this function ? (i.e. always send in meshIndex to render)
 void Renderer::render(const GameObject& gameObject) {
-	Mesh* meshRef = MeshMap::getInstance()->getMesh(gameObject.getMeshN(0));
-	const Transform meshTransform = gameObject.getTransform();
+	Mesh* meshRef = MeshMap::getInstance()->getMesh(gameObject.getMeshName(0));
 
 	glBindVertexArray(meshRef->getBuffers().vao);
 
 	//Apply transformation
-	//TODO: Should the gameobject hold the worldmatrix?
+	//TODO: Move matrix to gameobject	
+	const Transform meshTransform = gameObject.getTransform();
 	glm::mat4 worldMatrix = glm::mat4(1.0f);
 	worldMatrix = glm::translate(worldMatrix, meshTransform.position);
 	worldMatrix = glm::scale(worldMatrix, meshTransform.scale);
@@ -100,15 +102,15 @@ void Renderer::render(const GameObject& gameObject) {
 
 }
 
+// Multi mesh in GameObject render
 void Renderer::render(const GameObject& gameObject, int meshIndex) {
-	Mesh* meshRef = MeshMap::getInstance()->getMesh(gameObject.getMeshN(meshIndex));
-	const Transform meshTransform = gameObject.getTransform(meshIndex);
+	Mesh* meshRef = MeshMap::getInstance()->getMesh(gameObject.getMeshName(meshIndex));
 
 	glBindVertexArray(meshRef->getBuffers().vao);
 
 	//Apply transformation
-	//TODO: Should the gameobject hold the worldmatrix? 
-	// Yes it should
+	//TODO: Move matrix to gameobject
+	const Transform meshTransform = gameObject.getTransform(meshIndex);
 	glm::mat4 worldMatrix = glm::mat4(1.0f);
 	worldMatrix = glm::translate(worldMatrix, meshTransform.position);
 	worldMatrix = glm::scale(worldMatrix, meshTransform.scale);
@@ -123,13 +125,35 @@ void Renderer::render(const GameObject& gameObject, int meshIndex) {
 	glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 	glBindVertexArray(0);
+}
 
+void Renderer::renderAni(const GameObject& gameObject, int meshIndex) {
+	Mesh* meshRef = MeshMap::getInstance()->getMesh(gameObject.getMeshName(meshIndex));
+	glBindVertexArray(meshRef->getBuffers().vao);
+
+	//Apply transformation
+	//TODO: Move matrix to gameobject
+	const Transform meshTransform = gameObject.getTransform(meshIndex);
+	glm::mat4 worldMatrix = glm::mat4(1.0f);
+	worldMatrix = glm::translate(worldMatrix, meshTransform.position);
+	worldMatrix = glm::scale(worldMatrix, meshTransform.scale);
+	worldMatrix *= glm::mat4_cast(meshTransform.rotation);
+
+	//Set matrices
+	ShaderMap::getInstance()->getShader("Animation")->setMat4("viewMatrix", m_camera->getViewMat());
+	ShaderMap::getInstance()->getShader("Animation")->setMat4("projectionMatrix", m_camera->getProjMat());
+	ShaderMap::getInstance()->getShader("Animation")->setMat4("modelMatrix", worldMatrix);
+
+	//Drawcall
+	glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+	glBindVertexArray(0);
 }
 
 
+//TODO: Remove this function ?
 void Renderer::render(Buffers buffer, glm::vec3 worldPos) {
 	
-	//TODO: Remove?
 
 	ShaderMap::getInstance()->useByName("Basic_Forward");
 

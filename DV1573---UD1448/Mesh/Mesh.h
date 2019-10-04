@@ -18,6 +18,7 @@ private:
 	int m_faceCount;
 	std::vector<Face> m_faces;
 	std::vector<Vertex> m_vertices;
+	std::vector<Vertex2> m_skeleVertices;		// Animation specific vertices
 	Buffers m_vertexBuffer;
 
 
@@ -26,9 +27,11 @@ public:
 	~Mesh();
 
 	void setUpMesh(std::vector<Vertex> vertices, std::vector<Face> faces);
+	void setUpMesh(std::vector<Vertex2> vertices, std::vector<Face> faces);
 	void nameMesh(std::string name);
 	void saveFilePath(std::string name, int index);
 	void setUpBuffers();
+	void setUpSkeleBuffers();					// Animation specific buffers
 	void setMaterial(std::string matName);
 
 	void addAnimation(std::string name);

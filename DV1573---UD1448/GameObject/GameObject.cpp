@@ -5,12 +5,13 @@
 GameObject::GameObject()
 {
 	m_objectName = "Empty";
-
+	type = 0;
 }
 
 GameObject::GameObject(std::string objectName)
 {
 	m_objectName = objectName;
+	type = 0;
 }
 
 GameObject::~GameObject()
@@ -26,23 +27,33 @@ void GameObject::loadMesh(std::string fileName)
 	for (int i = 0; i < tempLoader.GetMeshCount(); i++)
 	{
 		// Get mesh
-		MeshBox tempMeshBox;								// Meshbox holds the mesh identity and local transform to GameObject
+		MeshBox tempMeshBox;									// Meshbox holds the mesh identity and local transform to GameObject
 		std::string meshName = tempLoader.GetMeshName(i);
 		tempMeshBox.name = meshName;
-		tempMeshBox.transform = tempLoader.GetTransform(i);	// One way of getting the meshes transform
-		m_meshes.push_back(tempMeshBox);					// This effectively adds the mesh to the gameobject
+		tempMeshBox.transform = tempLoader.GetTransform(i);		// One way of getting the meshes transform
+		m_meshes.push_back(tempMeshBox);						// This effectively adds the mesh to the gameobject
 		if (!MeshMap::getInstance()->existsWithName(meshName))	// This creates the mesh if it does not exist (by name)
 		{
 			Mesh tempMesh;
 			tempMesh.saveFilePath(tempLoader.GetFileName(), i);
 			tempMesh.nameMesh(tempLoader.GetMeshName(i));
-			tempMesh.setUpMesh(tempLoader.GetVertices(i), tempLoader.GetFaces(i));
-			tempMesh.setUpBuffers();
+			if (tempLoader.GetSkeleton(i).name != "")
+			{
+				// Mesh with skeleton requires extra vertex data
+				tempMesh.setUpMesh(tempLoader.GetSkeleVertices(i), tempLoader.GetFaces(i));
+				tempMesh.setUpSkeleBuffers();
+			}
+			else
+			{
+				// Default mesh
+				tempMesh.setUpMesh(tempLoader.GetVertices(i), tempLoader.GetFaces(i));
+				tempMesh.setUpBuffers();
+			}
 
 			// other way of getting the meshes transform
 			// Value that may or may not be needed depening on how we want the meshes default position to be
-			// Needs more testing, this value is per global mesh", the MeshBox value is per GameObject mesh
-			//tempMesh.setTransform(tempLoader.GetTransform(id));
+			// Needs more testing, this value is per global mesh, the MeshBox value is per GameObject mesh
+			// tempMesh.setTransform(tempLoader.GetTransform(id));
 
 			// Get skeleton
 			Skeleton tempSkeleton = tempLoader.GetSkeleton(i);
@@ -57,7 +68,7 @@ void GameObject::loadMesh(std::string fileName)
 			for (int a = 0; a < tempLoader.GetAnimation(i).size(); a++)
 			{
 				Animation tempAnimation = tempLoader.GetAnimation(i)[a];
-				std::string animationName = tempAnimation.name;
+				std::string animationName = tempAnimation.name + "_" + meshName;
 				if (animationName != "" && !AnimationMap::getInstance()->existsWithName(animationName))
 				{
 					AnimationMap::getInstance()->createAnimation(animationName, tempAnimation);
@@ -163,19 +174,7 @@ const Transform GameObject::getTransform(int meshIndex) const
 	return world_transform;
 }
 
-Mesh* GameObject::getMesh() const
-{
-	//TODO: Consider removing function
-	return MeshMap::getInstance()->getMesh(m_meshes[0].name);
-}
-
-Mesh* GameObject::getMesh(int index) const
-{
-	//TODO: Consider removing function
-	return MeshMap::getInstance()->getMesh(m_meshes[index].name);
-}
-
-const std::string& GameObject::getMeshN(int meshIndex) const
+const std::string& GameObject::getMeshName(int meshIndex) const
 {
 	return m_meshes[meshIndex].name;
 }

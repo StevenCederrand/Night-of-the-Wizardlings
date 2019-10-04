@@ -111,6 +111,7 @@ namespace BGLoading
 
 	struct Transform
 	{
+		int joinId;
 		float transform[3];
 		float rotate[4];
 		float scale[3];

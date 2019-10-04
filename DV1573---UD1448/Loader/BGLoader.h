@@ -22,6 +22,7 @@ private:
 	struct bggMeshData
 	{
 		std::vector<Vertex> bggVertices;
+		std::vector<Vertex2> bggSkeleVertices;
 		std::vector<Face> bggFaces;
 		glm::vec3 bggPositions;
 		glm::quat bggRotation;
@@ -30,13 +31,10 @@ private:
 		Skeleton bggSkeleton;
 		std::vector<Animation> bggAnimation;
 	};
-
 	std::vector<bggMeshData> bggMeshes;
 	std::vector<Material> bggMaterials;
-	
 
-
-	// TODO: Direction lights, Point Lights, Skeletons, and Animations
+	// TODO: Direction lights, Point Lights
 
 	// Temporary shared format to load data into
 	BGLoading::BGHeader	fileHeader;
@@ -60,67 +58,40 @@ public:
 
 	bool LoadMesh(std::string fileName);	// Load a file
 
-	// Returns the name of the file
 	std::string GetFileName() const { return fileName; }
-
-	//  Returns the meshcount of the file
 	const int GetMeshCount() const { return fileHeader.meshCount; }
 
-	//  Returns the name of a specifc mesh
 	const std::string GetMeshName(int meshID) { return (std::string)loaderMesh[meshID].name; }
-	//  Returns the name of the first mesh
-	const std::string GetMeshName() { return (std::string)loaderMesh[0].name; }
-
-	// Returns the vertices of a specific mesh
 	const std::vector<Vertex> GetVertices(int meshId) { return bggMeshes[meshId].bggVertices;  }
-	// Returns the vertices of the first mesh
-	const std::vector<Vertex> GetVertices() { return bggMeshes[0].bggVertices; }
-
-	const glm::vec3& GetPosition() const { return bggMeshes[0].bggPositions; }
-	const glm::quat& GetRotation() const { return bggMeshes[0].bggRotation; }
-	const glm::vec3& GetScale() const { return bggMeshes[0].bggScale; }
-	const Transform& GetTransform() const { return bggMeshes[0].bggTransforms; }
-
+	const std::vector<Vertex2> GetSkeleVertices(int meshId) { return bggMeshes[meshId].bggSkeleVertices;  }
 	const glm::vec3& GetPosition(int meshId) const { return bggMeshes[meshId].bggPositions; }
 	const glm::quat& GetRotation(int meshId) const { return bggMeshes[meshId].bggRotation; }
 	const glm::vec3& GetScale(int meshId) const { return bggMeshes[meshId].bggScale; }
 	const Transform& GetTransform(int meshId) const { return bggMeshes[meshId].bggTransforms; }
-
-	// Returns the faces of a specific mesh
 	const std::vector<Face> GetFaces(int meshId) { return bggMeshes[meshId].bggFaces; }
-	// Returns the faces of the first mesh
-	const std::vector<Face> GetFaces() { return bggMeshes[0].bggFaces; }
-
-	// Returns a specific material
 	const Material GetMaterial(int meshId) { return bggMaterials[loaderMesh[meshId].materialID]; }
-	// Returns the first material in the file
-	const Material GetMaterial() { return bggMaterials[0]; }
-
-	// Returns a specific albedo map
 	const std::string GetAlbedo(int meshId) { return (std::string)material[loaderMesh[meshId].materialID].albedo; }
-	// Returns the first albedo map
-	const std::string GetAlbedo() { return (std::string)material[0].albedo; }
-
-	// Returns a specific normal map
 	const std::string GetNormalMap(int meshId) { return (std::string)material[meshId].normal; }
-	// Returns the first normal map
-	const std::string GetNormalMap() { return (std::string)material[0].normal; }
-
-	// Returns the vertexcount of a specific mesh
 	const int GetVertexCount(int meshId) { return loaderMesh[meshId].vertexCount; }
-	// Returns the vertexcount of the first mesh
-	const int GetVertexCount() { return loaderMesh[0].vertexCount; }
-
-	// Returns the facecount of a specific mesh
 	const int GetFaceCount(int meshId)  { return loaderMesh[meshId].faceCount; }
-	// Returns the face count of the first mesh
-	const int GetFaceCount()  { return loaderMesh[0].faceCount; }
-
-	// Returns skeleton
 	const Skeleton GetSkeleton(int meshId) { return bggMeshes[meshId].bggSkeleton; }
-
-	// Return animation
 	const std::vector<Animation>& GetAnimation(int meshId) { return bggMeshes[meshId].bggAnimation; }
+
+
+	// Returns the first (default) data
+	const std::string GetMeshName() { return (std::string)loaderMesh[0].name; }
+	const std::vector<Vertex> GetVertices() { return bggMeshes[0].bggVertices; }
+	const std::vector<Vertex2> GetSkeleVertices() { return bggMeshes[0].bggSkeleVertices;  }
+	const glm::vec3& GetPosition() const { return bggMeshes[0].bggPositions; }
+	const glm::quat& GetRotation() const { return bggMeshes[0].bggRotation; }
+	const glm::vec3& GetScale() const { return bggMeshes[0].bggScale; }
+	const Transform& GetTransform() const { return bggMeshes[0].bggTransforms; }
+	const std::vector<Face> GetFaces() { return bggMeshes[0].bggFaces; }
+	const Material GetMaterial() { return bggMaterials[0]; }
+	const std::string GetAlbedo() { return (std::string)material[0].albedo; }
+	const std::string GetNormalMap() { return (std::string)material[0].normal; }
+	const int GetVertexCount() { return loaderMesh[0].vertexCount; }
+	const int GetFaceCount()  { return loaderMesh[0].faceCount; }
 
 
 

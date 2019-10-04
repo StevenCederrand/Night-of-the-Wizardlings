@@ -27,7 +27,7 @@ struct Vertex2
 	glm::vec2 UV;
 	glm::vec3 Normals;
 
-	glm::vec4 bone;
+	glm::ivec4 bone;
 	glm::vec4 weight;
 };
 
@@ -78,10 +78,13 @@ struct Animation
 	// Skeleton animation
 	struct skKeyframe
 	{
+		struct skTransform
+		{
+			int jointid;
+			Transform transform;
+		};
 		int id;
-		std::vector<glm::vec3> local_joints_T;
-		std::vector<glm::quat> local_joints_R;
-		std::vector<glm::vec3> local_joints_S;
+		std::vector<skTransform> local_joint_t;
 	};
 
 	// Standards
@@ -91,6 +94,5 @@ struct Animation
 	float duration;
 	float rate;
 	std::vector<skKeyframe> keyframes;
-
 
 };

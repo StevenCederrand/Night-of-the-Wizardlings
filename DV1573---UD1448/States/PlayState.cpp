@@ -9,6 +9,7 @@ PlayState::PlayState()
 {
 	ShaderMap::getInstance()->createShader("Basic_Forward", "VertexShader.vs", "FragShader.fs");
 	ShaderMap::getInstance()->getShader("Basic_Forward")->setInt("albedoTexture", 0);
+	ShaderMap::getInstance()->createShader("Animation", "Animation.vs", "FragShader.fs");
 	Renderer::getInstance();
 	m_camera = new Camera();
 	m_player = new Player("Player", glm::vec3(0.0f, 1.8f, 0.0f), m_camera);
@@ -19,17 +20,12 @@ PlayState::PlayState()
 	//Test enviroment with 4 meshes inside 1 GameObject, inherited transforms
 	m_objects.push_back(new WorldObject("TestScene"));
 	m_objects[m_objects.size() - 1]->loadMesh("TestScene.mesh");
-	
-	//Cube and sphere centered in scene
-	m_objects.push_back(new WorldObject("TestCube"));
-	m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
-	m_objects.push_back(new WorldObject("TestSphere"));
-	m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
+
 
 	m_objects.push_back(new AnimatedObject("AnimationTest"));
-	m_objects[m_objects.size() - 1]->loadMesh("WalkingTest.mesh");
+	m_objects[m_objects.size() - 1]->loadMesh("ElGoblino.mesh");
 	Transform tempTransform;
-	tempTransform.scale = glm::vec3(0.3f, 0.3f, 0.3f);
+	tempTransform.scale = glm::vec3(0.03f, 0.03f, 0.03f);
 	m_objects[m_objects.size() - 1]->setTransform(tempTransform);
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(-3.0f, 0.0f, 3.0f));
 
@@ -74,7 +70,7 @@ void PlayState::render()
 	Renderer::getInstance()->bindMatrixes(m_player->getCamera()->getViewMat(), m_player->getCamera()->getProjMat());
 	Renderer::getInstance()->renderSkybox(*m_skybox);
 
-
+	// Network render
 	auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
 	for (size_t i = 0; i < list.size(); i++)
 	{
@@ -87,15 +83,22 @@ void PlayState::render()
 		}
 	}
 
-
-	
-
+	// Default
 	for (GameObject* object : m_objects)
 	{
 		for (int i = 0; i < object->getMeshesCount(); i++)
 		{
-			object->bindMaterialToShader("Basic_Forward", i);
-			Renderer::getInstance()->render(*object, i);
+			if (object->getType() == 0)
+			{
+				object->bindMaterialToShader("Basic_Forward", i);
+				Renderer::getInstance()->render(*object, i);
+			}
+			else if (object->getType() == 1)
+			{
+				object->bindMaterialToShader("Animation", i);
+				static_cast<AnimatedObject*>(object)->BindMatrix(i);
+				Renderer::getInstance()->renderAni(*object, i);
+			}
 		}
 	}
 }

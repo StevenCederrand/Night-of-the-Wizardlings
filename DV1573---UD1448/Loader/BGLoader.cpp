@@ -37,8 +37,9 @@ BGLoader::~BGLoader()
 
 void BGLoader::Unload()
 {	
-	for (bggMeshData bggMesh: bggMeshes)
+	for (bggMeshData bggMesh : bggMeshes)
 	{
+		bggMesh.bggSkeleVertices.clear();
 		bggMesh.bggVertices.clear();
 		bggMesh.bggFaces.clear();
 		bggMesh.bggAnimation.clear();
@@ -137,6 +138,32 @@ void BGLoader::BGFormatData()
 		// Skeleton
 		if (loaderMesh[meshId].skeleton.jointCount > 0)
 		{
+			bggMeshes[meshId].bggVertices.clear();
+			bggMeshes[meshId].bggSkeleVertices.resize(GetVertexCount(meshId));
+			for (size_t v = 0; v < bggMeshes[meshId].bggSkeleVertices.size(); v++)
+			{
+				Vertex2& vert = bggMeshes[meshId].bggSkeleVertices[v];
+				vert.position[0] = meshVert[meshId][v].position[0];
+				vert.position[1] = meshVert[meshId][v].position[1];
+				vert.position[2] = meshVert[meshId][v].position[2];
+				vert.UV[0] = meshVert[meshId][v].uv[0];
+				vert.UV[1] = meshVert[meshId][v].uv[1];
+				vert.Normals[0] = meshVert[meshId][v].normal[0];
+				vert.Normals[1] = meshVert[meshId][v].normal[1];
+				vert.Normals[2] = meshVert[meshId][v].normal[2];
+
+				vert.bone[0] = (int)meshVert[meshId][v].bone[0];
+				vert.bone[1] = (int)meshVert[meshId][v].bone[1];
+				vert.bone[2] = (int)meshVert[meshId][v].bone[2];
+				vert.bone[3] = (int)meshVert[meshId][v].bone[3];
+
+				vert.weight[0] = meshVert[meshId][v].weight[0];
+				vert.weight[1] = meshVert[meshId][v].weight[1];
+				vert.weight[2] = meshVert[meshId][v].weight[2];
+				vert.weight[3] = meshVert[meshId][v].weight[3];
+			}
+
+
 			//bggMeshes[meshId].bggSkeleton.name = loaderMesh[meshId].skeleton.name;
 			bggMeshes[meshId].bggSkeleton.name = skeletonsD[meshId].joint[0].name;
 			bggMeshes[meshId].bggSkeleton.joints.resize(loaderMesh[meshId].skeleton.jointCount);
@@ -155,27 +182,29 @@ void BGLoader::BGFormatData()
 		// Animation
 		for (int i = 0; i < bggMeshes[meshId].bggAnimation.size(); i++)
 		{
-			Animation& ani = bggMeshes[meshId].bggAnimation[i];
-			ani.name = animationsD[i].animations[0].ani.name;
-			ani.duration = animationsD[i].animations[0].ani.duration;
-			ani.rate = animationsD[i].animations[0].ani.rate;
-			ani.keyframeFirst = animationsD[i].animations[0].ani.keyframeFirst;
-			ani.keyframeLast = animationsD[i].animations[0].ani.keyframeLast;
+			Animation& ani		= bggMeshes[meshId].bggAnimation[i];
+			ani.name			= animationsD[meshId].animations[0].ani.name;
+			ani.duration		= animationsD[meshId].animations[0].ani.duration;
+			ani.rate			= animationsD[meshId].animations[0].ani.rate;
+			ani.keyframeFirst	= animationsD[meshId].animations[0].ani.keyframeFirst;
+			ani.keyframeLast	= animationsD[meshId].animations[0].ani.keyframeLast;
 
-			ani.keyframes.resize(animationsD[i].animations[0].ani.keyframeCount);
+			ani.keyframes.resize(animationsD[meshId].animations[0].ani.keyframeCount);
 			for (int k = 0; k < ani.keyframes.size(); k++)
 			{
-				ani.keyframes[k].id = animationsD[i].animations[0].keyFrames[k].key.id;
+				ani.keyframes[k].id = animationsD[meshId].animations[0].keyFrames[k].key.id;
 
-				int transformCount = (int)animationsD[i].animations[0].keyFrames[k].transforms.size();
-				ani.keyframes[k].local_joints_T.resize(transformCount);
-				ani.keyframes[k].local_joints_R.resize(transformCount);
-				ani.keyframes[k].local_joints_S.resize(transformCount);
+				int transformCount = (int)animationsD[meshId].animations[0].keyFrames[k].transforms.size();
+				ani.keyframes[k].local_joint_t.resize(transformCount);
 				for (int t = 0; t < transformCount; t++)
 				{
-					ani.keyframes[k].local_joints_T[t] = glm::make_vec3(animationsD[i].animations[0].keyFrames[k].transforms[t].t.transform);
-					ani.keyframes[k].local_joints_R[t] = glm::make_vec3(animationsD[i].animations[0].keyFrames[k].transforms[t].t.rotate);
-					ani.keyframes[k].local_joints_S[t] = glm::make_vec3(animationsD[i].animations[0].keyFrames[k].transforms[t].t.scale);
+					Transform tempTransform;
+					tempTransform.position = glm::make_vec3(animationsD[meshId].animations[0].keyFrames[k].transforms[t].t.transform);
+					tempTransform.rotation = glm::make_quat(animationsD[meshId].animations[0].keyFrames[k].transforms[t].t.rotate);
+					tempTransform.scale = glm::make_vec3(animationsD[meshId].animations[0].keyFrames[k].transforms[t].t.scale);
+
+					ani.keyframes[k].local_joint_t[t].transform = tempTransform;
+					ani.keyframes[k].local_joint_t[t].jointid = animationsD[meshId].animations[0].keyFrames[k].transforms[t].t.joinId;
 				}
 			}
 		}

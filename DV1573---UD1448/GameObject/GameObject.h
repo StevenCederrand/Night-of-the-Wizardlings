@@ -31,10 +31,10 @@ public:
 	const Transform getTransform() const;
 	//Returns mesh worldposition
 	const Transform getTransform(int meshIndex) const;
-	Mesh* getMesh() const;
-	Mesh* getMesh(int meshIndex) const;
-	const std::string& getMeshN(int meshIndex) const;
+	const std::string& getMeshName(int meshIndex) const;
 	const int getMeshesCount() const { return (int)m_meshes.size(); }
+
+	const int getType() const { return type; }
 
 
 private:
@@ -48,6 +48,7 @@ private:
 	Transform m_transform;
 protected:
 	std::vector<MeshBox> m_meshes;
+	int type;
 };
 
 
