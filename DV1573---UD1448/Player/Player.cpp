@@ -36,10 +36,10 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	controller = new btKinematicCharacterController(ghostObject, playerShape, 0.5f, btVector3(0.0f, 1.0f, 0.0f));
 	bp->getDynamicsWorld()->addCollisionObject(ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
 	bp->getDynamicsWorld()->addAction(controller);
-	controller->setGravity(btVector3(0.0, -3.0, 0.0));
+	controller->setGravity(btVector3(0.0f, -9.0f, 0.0f));
 	controller->setMaxPenetrationDepth(0.1f);
-	
-	logTrace(controller->getUp().getY());
+	controller->setUp(btVector3(0.0f, 1.0f, 0.0f));
+	//logTrace(controller->getUp().getY());
 	//controller->jump();
 	m_bp = bp;
 
@@ -103,8 +103,8 @@ void Player::move(float deltaTime)
 		logTrace(controller->canJump());
 		if (controller->canJump())
 		{			
-			controller->setLinearVelocity(btVector3(totalForce.getX(), totalForce.getY(), 100.0f));
-			
+			//controller->setLinearVelocity(btVector3(totalForce.getX(), totalForce.getY(), 100.0f));
+			//controller->jump();
 		}	
 
 				
@@ -112,10 +112,11 @@ void Player::move(float deltaTime)
 
 
 	//move the physics box
-
-	btScalar y =  controller->getLinearVelocity().getY() * 100;
+	btScalar y =  controller->getLinearVelocity().getY();
+	logTrace(y);
 	int yint = y;
-	y = yint / 100;
+	y = yint / 10000;
+	//btScalar yValue = controller->getGhostObject()->getWorldTransform().getOrigin().getY();
 	btVector3 translate; //= btVector3(0.0f, 0.0f, 0.0f);
 	translate = btVector3(moveDir.x * speed * deltaTime*xspeed, 
 		y,
