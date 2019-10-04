@@ -119,7 +119,7 @@ void Player::move(float deltaTime)
 
 	//move the physics box
 	btScalar y =  controller->getLinearVelocity().getY();
-	logTrace(y);
+	//logTrace(y);
 	int yint = y;
 	y = yint / 10000;
 	//btScalar yValue = controller->getGhostObject()->getWorldTransform().getOrigin().getY();
@@ -187,7 +187,7 @@ void Player::attack(float deltaTime)
 
 void Player::updateAttack(float deltaTime)
 {
-	for (int i = 0; i < normalSpell.size(); i++)
+	for (size_t i = 0; i < normalSpell.size(); i++)
 	{
 		normalSpell[i].translate(normalSpell[i].getDirection() * deltaTime * normalSpell[i].getSpellSpeed());
 		normalSpell[i].setTravelTime(normalSpell[i].getTravelTime() - 1 * deltaTime);
@@ -201,8 +201,8 @@ void Player::updateAttack(float deltaTime)
 
 void Player::createRay()
 {
-	float x = (2.0f * playerCamera->getXpos()) / SCREEN_WIDTH - 1.0f;
-	float y = 1.0f - (2.0f * playerCamera->getYpos()) / SCREEN_HEIGHT;
+	float x = (2.0f * static_cast<float>(playerCamera->getXpos())) / SCREEN_WIDTH - 1.0f;
+	float y = 1.0f - (2.0f * static_cast<float>(playerCamera->getYpos())) / SCREEN_HEIGHT;
 	float z = 1.0f;
 
 	//-----Spaces-----//

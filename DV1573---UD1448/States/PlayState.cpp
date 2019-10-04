@@ -117,7 +117,6 @@ void PlayState::render()
 			Renderer::getInstance()->render(*list[i]->gameobject, j);
 		}		
 	}
-
 	
 
 	for (GameObject* object : m_objects)
