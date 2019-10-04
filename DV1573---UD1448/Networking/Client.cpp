@@ -60,6 +60,7 @@ void Client::connectToAnotherServer(const ServerInfo& server)
 	if (m_processThread.joinable())
 		m_processThread.join();
 
+	m_clientPeer->SetTimeoutTime(NetGlobals::timeoutTimeMS, server.serverAddress);
 	m_processThread = std::thread(&Client::ThreadedUpdate, this);
 	
 }

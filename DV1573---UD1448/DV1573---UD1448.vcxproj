@@ -175,6 +175,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Mesh\MeshMap.cpp" />
+    <ClCompile Include="Networking\ChaosServerMode.cpp" />
     <ClCompile Include="Networking\Client.cpp" />
     <ClCompile Include="Networking\LocalServer.cpp" />
     <ClCompile Include="GameObject\GameObject.cpp" />
@@ -237,6 +238,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mesh\MeshMap.h" />
+    <ClInclude Include="Networking\ChaosServerMode.h" />
     <ClInclude Include="Networking\Client.h" />
     <ClInclude Include="Networking\LocalServer.h" />
     <ClInclude Include="Networking\NetworkGlobals.h" />

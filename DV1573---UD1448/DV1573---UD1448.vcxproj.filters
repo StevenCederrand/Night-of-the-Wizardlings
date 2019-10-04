@@ -32,6 +32,8 @@
     <ClCompile Include="Networking\NetworkPlayers.cpp" />
     <ClCompile Include="Renderer\SkyBox.cpp" />
     <ClCompile Include="Mesh\MeshMap.cpp" />
+    <ClCompile Include="System\BulletPhysics.cpp" />
+    <ClCompile Include="Networking\ChaosServerMode.cpp" />
 
   </ItemGroup>
   <ItemGroup>
@@ -69,6 +71,9 @@
     <ClInclude Include="Mesh\MeshMap.h" />
     <ClInclude Include="Networking\NetworkPlayers.h" />
     <ClInclude Include="Renderer\SkyBox.h" />
+    <ClInclude Include="System\BulletPhysics.h" />
+    <ClInclude Include="Networking\ChaosServerMode.h" />
+
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

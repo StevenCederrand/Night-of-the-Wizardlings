@@ -26,6 +26,7 @@ void LocalServer::startup(const std::string& serverName)
 		m_serverPeer->SetMaximumIncomingConnections(NetGlobals::MaximumIncomingConnections);
 
 		memcpy(&m_serverInfo.serverName, serverName.c_str(), serverName.length());
+		m_serverInfo.currentState = NetGlobals::ServerState::WaitingForPlayers;
 		m_serverInfo.maxPlayers = NetGlobals::MaximumConnections;
 		m_serverInfo.connectedPlayers = 0;
 		m_connectedPlayers.reserve(NetGlobals::MaximumConnections);
@@ -35,6 +36,9 @@ void LocalServer::startup(const std::string& serverName)
 		m_initialized = true;
 		logTrace("[SERVER] Tickrate: {0}", NetGlobals::tickRate);
 		logTrace("[SERVER] Thread sleep time {0}", NetGlobals::threadSleepTime);
+		m_serverPeer->SetTimeoutTime(NetGlobals::timeoutTimeMS, RakNet::UNASSIGNED_SYSTEM_ADDRESS);
+
+		m_chaosMode.registerCallbackOnServerStateChange(std::bind(&LocalServer::onStateChange, this, std::placeholders::_1));
 	}
 }
 
@@ -134,6 +138,8 @@ void LocalServer::processAndHandlePackets()
 			m_serverInfo.connectedPlayers++;
 			m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
 
+			m_chaosMode.testCallback();
+
 		}
 		break;
 
@@ -217,5 +223,15 @@ void LocalServer::handleLostPlayer(const RakNet::Packet& packet, const RakNet::B
 	// Remove the disconnected player from the local list of clients
 	m_connectedPlayers.erase(m_connectedPlayers.begin() + indexOfDisconnectedPlayer);
 
+
+}
+
+void LocalServer::onStateChange(NetGlobals::ServerState newState)
+{
+	m_serverInfo.currentState = newState;
+	if (newState == NetGlobals::ServerState::GameStarted) logTrace("[SERVER] Game started");
+	if (newState == NetGlobals::ServerState::WaitingForPlayers) logTrace("[SERVER] Game is in waiting state");
+
+	m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
 
 }

@@ -6,8 +6,7 @@ enum {
 	PLAYER_JOINED,
 	PLAYER_DISCONNECTED,
 	PLAYER_UPDATE_PACKET,
-	PLAYER_REQUEST_JOIN_TEAM,
-	PLAYER_REQUEST_LEAVE_TEAM
+	SERVER_CURRENT_STATE
 };
 
 /* To make sure the compiler aligns the bits */
@@ -18,6 +17,7 @@ struct ServerInfo {
 	RakNet::SystemAddress serverAddress;
 	unsigned short maxPlayers;
 	unsigned short connectedPlayers;
+	NetGlobals::ServerState currentState;
 };
 #pragma pack(pop)
 struct newPlayerInfo {
@@ -40,10 +40,6 @@ struct PlayerPacket {
 	}
 };
 
-struct JoinTeamRequest {
-	RakNet::AddressOrGUID guid;
-	NetGlobals::Teams teamRequest;
-};
 
 
 #endif
