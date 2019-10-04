@@ -110,7 +110,7 @@ void Player::move(float deltaTime)
 		if (controller->canJump())
 		{			
 			//controller->setLinearVelocity(btVector3(totalForce.getX(), totalForce.getY(), 100.0f));
-			//controller->jump();
+			controller->jump();
 		}	
 
 				
@@ -119,9 +119,11 @@ void Player::move(float deltaTime)
 
 	//move the physics box
 	btScalar y =  controller->getLinearVelocity().getY();
-	//logTrace(y);
-	int yint = y;
-	y = yint / 10000;
+	double yd = std::ceil(y*100.0) / 100.0;
+	y = yd;
+	logTrace(y);
+	/*int yint = y;
+	y = yint / 10000;*/
 	//btScalar yValue = controller->getGhostObject()->getWorldTransform().getOrigin().getY();
 	btVector3 translate; //= btVector3(0.0f, 0.0f, 0.0f);
 	translate = btVector3(moveDir.x * speed * deltaTime*xspeed, 
