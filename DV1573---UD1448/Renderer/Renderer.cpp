@@ -127,6 +127,8 @@ void Renderer::render(const GameObject& gameObject, int meshIndex) {
 	glBindVertexArray(0);
 }
 
+// Animation shader render
+// TODO: Tie shader to material? Incase multiple shaders are used for different materials / meshes.
 void Renderer::renderAni(const GameObject& gameObject, int meshIndex) {
 	Mesh* meshRef = MeshMap::getInstance()->getMesh(gameObject.getMeshName(meshIndex));
 	glBindVertexArray(meshRef->getBuffers().vao);
@@ -149,7 +151,6 @@ void Renderer::renderAni(const GameObject& gameObject, int meshIndex) {
 
 	glBindVertexArray(0);
 }
-
 
 //TODO: Remove this function ?
 void Renderer::render(Buffers buffer, glm::vec3 worldPos) {

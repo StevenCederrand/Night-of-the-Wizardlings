@@ -77,7 +77,7 @@ void AnimatedObject::ComputeMatrix(int meshId, std::string meshn, std::string an
 	glm::mat4 local_r				= translationMatrix_r * rotationMatrix_r * scaleMatrix_r;
 
 	bones_global_pose[0] = local_r;
-	bonePallete[meshId].bones[0] = bones_global_pose[0] * skeleton.joints[0].invBindPose;
+	bonePallete.bones[0] = bones_global_pose[0] * skeleton.joints[0].invBindPose;
 
 	int boneCount = (int)skeleton.joints.size();
 	int transformCount = (int)anim.keyframes[0].local_joint_t.size();	// Assuming same size for all
@@ -104,35 +104,15 @@ void AnimatedObject::ComputeMatrix(int meshId, std::string meshn, std::string an
 
 		if (i < transformCount)
 			bones_global_pose[i] = bones_global_pose[skeleton.joints[i].parentIndex] * localTransform;
-		bonePallete[meshId].bones[i] = bones_global_pose[i] * skeleton.joints[i].invBindPose;
-	}
-
-	//TODO: FIX & TEST
-	//Issue: Child meshes that don't utilize the entire skeleton in an animation don't recieve a transform for every bone
-	//The joint that gets transformed is recieved with jointid. 
-
-	//TODO: Fix found maybe 
-	bonePallete[meshId] = bonePallete[0];
-	for (int i = 0; i < boneCount; i++)
-	{
-		if (i < transformCount)
-		{
-			const int& jointid = anim.keyframes[k1].local_joint_t[i].jointid;
-			//bonePallete[meshId].bones[i] = bonePallete[meshId].bones[jointid];
-		}
+		bonePallete.bones[i] = bones_global_pose[i] * skeleton.joints[i].invBindPose;
 	}
 }
 
 void AnimatedObject::BindMatrix(int meshId)
 {
-
-	//TODO: Allocate somewhere else
-	if (bonePallete.size() < m_meshes.size())
-		bonePallete.resize(m_meshes.size());
-
 	GLint aniShader = ShaderMap::getInstance()->getShader("Animation")->getShaderID();
 	unsigned int boneDataIndex = glGetUniformBlockIndex(aniShader, "SkinDataBlock");
 	glUniformBlockBinding(aniShader, boneDataIndex, 1);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 1, boneBuffer);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(BonePalleteBuffer), &bonePallete[meshId], GL_STATIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(BonePalleteBuffer), &bonePallete, GL_STATIC_DRAW);
 }

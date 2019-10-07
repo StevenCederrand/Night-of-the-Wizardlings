@@ -19,7 +19,7 @@ private:
 		glm::mat4 bones[64]{ glm::mat4() };
 	};
 
-	std::vector<BonePalleteBuffer> bonePallete;
+	BonePalleteBuffer bonePallete;
 	GLuint boneBuffer;
 
 	float currentTime;

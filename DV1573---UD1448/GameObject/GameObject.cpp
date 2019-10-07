@@ -57,7 +57,7 @@ void GameObject::loadMesh(std::string fileName)
 
 			// Get skeleton
 			Skeleton tempSkeleton = tempLoader.GetSkeleton(i);
-			std::string skeletonName = tempSkeleton.name;
+			std::string skeletonName = tempSkeleton.name + "_" + m_objectName;
 			if (skeletonName != "" && !SkeletonMap::getInstance()->existsWithName(skeletonName))
 			{
 				SkeletonMap::getInstance()->createSkeleton(skeletonName, tempSkeleton);
@@ -68,7 +68,7 @@ void GameObject::loadMesh(std::string fileName)
 			for (int a = 0; a < tempLoader.GetAnimation(i).size(); a++)
 			{
 				Animation tempAnimation = tempLoader.GetAnimation(i)[a];
-				std::string animationName = tempAnimation.name + "_" + meshName;
+				std::string animationName = tempAnimation.name + "_" + m_objectName;
 				if (animationName != "" && !AnimationMap::getInstance()->existsWithName(animationName))
 				{
 					AnimationMap::getInstance()->createAnimation(animationName, tempAnimation);

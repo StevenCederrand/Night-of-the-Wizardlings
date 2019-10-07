@@ -21,8 +21,21 @@ PlayState::PlayState()
 	m_objects.push_back(new WorldObject("TestScene"));
 	m_objects[m_objects.size() - 1]->loadMesh("TestScene.mesh");
 
+	//Animated rectangle
+	m_objects.push_back(new AnimatedObject("TestRectangle"));
+	m_objects[m_objects.size() - 1]->loadMesh("TestRectangle.mesh");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -4.0f));
 
-	m_objects.push_back(new AnimatedObject("AnimationTest"));
+	m_objects.push_back(new WorldObject("TestSphere"));
+	m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -4.0f));
+
+	m_objects.push_back(new WorldObject("TestCube"));
+	m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -1.0f));
+
+	//Animated goblino
+	m_objects.push_back(new AnimatedObject("TestGoblino"));
 	m_objects[m_objects.size() - 1]->loadMesh("ElGoblino.mesh");
 	Transform tempTransform;
 	tempTransform.scale = glm::vec3(0.03f, 0.03f, 0.03f);
@@ -30,12 +43,12 @@ PlayState::PlayState()
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(-3.0f, 0.0f, 3.0f));
 
 
-	logTrace("Playstate created");
-
 	m_skybox = new SkyBox();
 	m_skybox->prepareBuffers();
 	ShaderMap::getInstance()->createShader("Skybox_Shader", "Skybox.vs", "Skybox.fs");
 	ShaderMap::getInstance()->getShader("Skybox_Shader")->setInt("skyBox", 4);
+	
+	logTrace("Playstate created");
 }
 
 PlayState::~PlayState()
