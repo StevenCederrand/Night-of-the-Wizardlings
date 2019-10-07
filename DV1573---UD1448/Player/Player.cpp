@@ -26,27 +26,14 @@ Player::~Player()
 {
 	delete playerCamera;
 	delete spellhandler;
-	delete tempEnhanceAttackSpell;
 }
 
 void Player::update(float deltaTime)
 {
-	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_1) == GLFW_PRESS)
-	{
-		this->spellType = NORMALATTACK;
-	}
-
-	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_2) == GLFW_PRESS)
-	{
-		this->spellType = ENHANCEATTACK;
-	}
-
+	selectSpell();
 	move(deltaTime);
-	spellhandler->spellUpdate(deltaTime, spellType);
+	spellhandler->spellUpdate(deltaTime);
 	attack(deltaTime);
-	castSpell(deltaTime);
-	
-
 }
 
 
@@ -92,12 +79,7 @@ void Player::attack(float deltaTime)
 		createRay();
 		spellhandler->createSpell(deltaTime, playerPosition, directionVector, spellType);
 	}
-	spellhandler->spellTest(deltaTime, spellType);
-
-}
-
-void Player::castSpell(float deltaTime)
-{
+	spellhandler->spellCooldown(deltaTime);
 
 }
 
@@ -120,7 +102,7 @@ void Player::renderSpell()
 {
 	Client::getInstance()->updatePlayerData(this);
 
-	spellhandler->renderSpell(spellType);
+	spellhandler->renderSpell();
 
 }
 
@@ -132,6 +114,19 @@ void Player::setPlayerPos(glm::vec3 pos)
 void Player::spawnPlayer(glm::vec3 pos)
 {
 	this->playerPosition = pos;
+}
+
+void Player::selectSpell()
+{
+	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_1) == GLFW_PRESS)
+	{
+		this->spellType = NORMALATTACK;
+	}
+
+	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_2) == GLFW_PRESS)
+	{
+		this->spellType = ENHANCEATTACK;
+	}
 }
 
 void Player::setHealth(int health)

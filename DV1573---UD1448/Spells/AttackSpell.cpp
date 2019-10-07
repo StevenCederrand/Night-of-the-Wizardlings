@@ -16,6 +16,27 @@ AttackSpell::~AttackSpell()
 {
 }
 
+void AttackSpell::updateActiveSpell(float deltaTime)
+{
+	
+	translate(getDirection() * deltaTime * getSpellSpeed());
+	setTravelTime(getTravelTime() - 1 * deltaTime);
+
+}
+
+void AttackSpell::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector)
+{
+	setSpellPos(glm::vec3(spellPos.x, spellPos.y - 1.8f, spellPos.z) + directionVector); //-1.8 = spwn point for spell, spell need to be 0 and playerPos is set to (0,1.8,0)
+	translate(getSpellPos());
+	setDirection(directionVector);
+}
+
+void AttackSpell::spellCooldownUpdate(float deltaTime)
+{
+	if (getCooldown() > 0)
+		setCooldown(getCooldown() - 1 * deltaTime);
+}
+
 void AttackSpell::update(float dt)
 {
 }

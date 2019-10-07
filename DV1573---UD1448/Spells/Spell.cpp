@@ -24,15 +24,6 @@ Spell::~Spell()
 {
 }
 
-void Spell::CreateSpellObject()
-{
-}
-
-void Spell::updateSpell()
-{
-
-}
-
 float Spell::getCooldown()
 {
 	return this->spellCoolDown;

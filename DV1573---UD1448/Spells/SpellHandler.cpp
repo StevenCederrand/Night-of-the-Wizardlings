@@ -22,9 +22,7 @@ void SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 di
 		if(tempSpell->getCooldown() <= 0)
 		{
 			AttackSpell tempSpell2 = *tempSpell;
-			tempSpell2.setSpellPos(glm::vec3(spellPos.x, spellPos.y - 1.8f, spellPos.z) + directionVector); //-1.8 = spwn point for spell, spell need to be 0 and playerPos is set to (0,1.8,0)
-			tempSpell2.translate(tempSpell2.getSpellPos());
-			tempSpell2.setDirection(directionVector);
+			tempSpell2.createSpell(deltaTime, spellPos, directionVector);
 			normalSpell.push_back(tempSpell2);
 			tempSpell->setCooldown(1.0f);
 		}
@@ -32,69 +30,59 @@ void SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 di
 
 	if (type == ENHANCEATTACK)
 	{
-		if (tempEnhanceAttackSpell->getCooldown() <= 0 && tempEnhanceAttackSpell->getThreeAttacks() <= 0)
+		if (tempEnhanceAttackSpell->getCooldown() <= 0)//&& tempEnhanceAttackSpell->getThreeAttacks() <= 0)
 		{
 			EnhanceAttackSpell tempSpell2 = *tempEnhanceAttackSpell;
-			tempSpell2.setSpellPos(glm::vec3(spellPos.x, spellPos.y - 1.8f, spellPos.z) + directionVector); //-1.8 = spwn point for spell, spell need to be 0 and playerPos is set to (0,1.8,0)
-			tempSpell2.translate(tempSpell2.getSpellPos());
-			tempSpell2.setDirection(directionVector);
+			tempSpell2.createSpell(deltaTime, spellPos, directionVector);
 			enhanceAttackSpell.push_back(tempSpell2);
 			tempEnhanceAttackSpell->setCooldown(5.0f);
 		}
-	}
-
-	
+	}	
 }
 
-void SpellHandler::spellUpdate(float deltaTime, TYPE type)
+void SpellHandler::spellUpdate(float deltaTime)
 {
-	
 		for (int i = 0; i < normalSpell.size(); i++)
 		{
-			normalSpell[i].translate(normalSpell[i].getDirection() * deltaTime * normalSpell[i].getSpellSpeed());
-			normalSpell[i].setTravelTime(normalSpell[i].getTravelTime() - 1 * deltaTime);
-
+			normalSpell[i].updateActiveSpell(deltaTime);
 			if (normalSpell[i].getTravelTime() <= 0)
 			{
 				normalSpell.erase(normalSpell.begin() + i);
 			}
 		}
 	
-	
-	
 		for (int i = 0; i < enhanceAttackSpell.size(); i++)
 		{
-			enhanceAttackSpell[i].translate(enhanceAttackSpell[i].getDirection() * deltaTime * enhanceAttackSpell[i].getSpellSpeed());
-			enhanceAttackSpell[i].setTravelTime(enhanceAttackSpell[i].getTravelTime() - 1 * deltaTime);
-
+	
+			enhanceAttackSpell[i].updateActiveSpell(deltaTime);
 			if (enhanceAttackSpell[i].getTravelTime() <= 0)
 			{
 				enhanceAttackSpell.erase(enhanceAttackSpell.begin() + i);
 			}
 		}
-	
-
 }
 
-void SpellHandler::spellTest(float deltaTime, TYPE type)
+void SpellHandler::spellCooldown(float deltaTime)
 {
 	
-	if (tempSpell->getCooldown() > 0)
-		tempSpell->setCooldown(tempSpell->getCooldown() - 1 * deltaTime);
-	
-	
-	if (tempEnhanceAttackSpell->getCooldown() > 0)
-		tempEnhanceAttackSpell->setCooldown(tempEnhanceAttackSpell->getCooldown() - 1 * deltaTime);
+	tempSpell->spellCooldownUpdate(deltaTime);
+	tempEnhanceAttackSpell->spellCooldownUpdate(deltaTime);
 }
 
-void SpellHandler::renderSpell(TYPE type)
+void SpellHandler::renderSpell()
 {
 	
-		for (AttackSpell object : normalSpell)
+	/*for (int i = 0; i < normalSpell.size(); i++)
+	{
+		normalSpell[i].renderAttackSpell(normalSpell);
+
+	}*/
+		
+		/*for (AttackSpell object : normalSpell)
 		{
 			object.bindMaterialToShader("Basic_Forward");
 			Renderer::getInstance()->render(object);
-		}
+		}*/
 	
 		for (EnhanceAttackSpell object : enhanceAttackSpell)
 		{

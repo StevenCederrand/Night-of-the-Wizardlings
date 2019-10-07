@@ -15,10 +15,10 @@ public:
 	void playerJump();
 	void move(float deltaTime);
 	void attack(float deltaTime);
-	void castSpell(float deltaTime);
 	void createRay(); //create ray for spells
 	void renderSpell();
 	void spawnPlayer(glm::vec3 pos);
+	void selectSpell();
 	bool isDead();
 	Camera* getCamera();
 
@@ -33,12 +33,6 @@ public:
 	void setSpeed(float speed);
 
 private:
-
-	std::vector<AttackSpell> normalSpell;
-	AttackSpell* tempSpell;
-	std::vector<EnhanceAttackSpell> enhanceAttackSpell;
-	EnhanceAttackSpell* tempEnhanceAttackSpell;
-
 	SpellHandler* spellhandler;
 
 	glm::vec3 directionVector;

@@ -9,9 +9,6 @@ public:
 	Spell(std::string name, glm::vec3 pos, glm::vec3 direction, float speed, float travelTime, std::string meshName, float cooldown);
 	~Spell();
 
-	void CreateSpellObject();
-	void updateSpell();
-
 	//-----Get-----//
 	float getCooldown();
 	float getSpellSpeed();

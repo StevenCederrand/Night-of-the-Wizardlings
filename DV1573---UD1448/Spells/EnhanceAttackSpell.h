@@ -12,6 +12,10 @@ public:
 
 	float getThreeAttacks();
 	void setThreeAttacks(float nrOfEnhancedAttacks);
+	void updateActiveSpell(float deltaTime);
+	void spellCooldownUpdate(float deltaTime);
+	void createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector);
+
 
 	void update(float dt);
 
