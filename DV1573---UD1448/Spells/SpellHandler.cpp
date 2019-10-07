@@ -72,17 +72,12 @@ void SpellHandler::spellCooldown(float deltaTime)
 void SpellHandler::renderSpell()
 {
 	
-	/*for (int i = 0; i < normalSpell.size(); i++)
-	{
-		normalSpell[i].renderAttackSpell(normalSpell);
 
-	}*/
-		
-		/*for (AttackSpell object : normalSpell)
+		for (AttackSpell object : normalSpell)
 		{
 			object.bindMaterialToShader("Basic_Forward");
 			Renderer::getInstance()->render(object);
-		}*/
+		}
 	
 		for (EnhanceAttackSpell object : enhanceAttackSpell)
 		{

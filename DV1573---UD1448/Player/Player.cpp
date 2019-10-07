@@ -65,7 +65,6 @@ void Player::update(float deltaTime)
 	move(deltaTime);
 	spellhandler->spellUpdate(deltaTime);
 	attack(deltaTime);
-	updateAttack(deltaTime);	
 }
 
 
@@ -107,9 +106,9 @@ void Player::move(float deltaTime)
 	if (glm::length(moveDir) >= 0.01f)
 		moveDir = glm::normalize(moveDir);
 
-	playerPosition += moveDir * speed * deltaTime;
-	setPlayerPos(playerPosition);
-	playerCamera->setCameraPos(playerPosition);
+	m_playerPosition += moveDir * speed * deltaTime;
+	setPlayerPos(m_playerPosition);
+	playerCamera->setCameraPos(m_playerPosition);
 	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
 	{
 		//controller->jump(btVector3(0, 10, 0));		
@@ -179,7 +178,7 @@ void Player::attack(float deltaTime)
 	if (glfwGetMouseButton(playerCamera->getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)// && tempSpell->getCooldown() <= 0
 	{
 		createRay();
-		spellhandler->createSpell(deltaTime, playerPosition, directionVector, spellType);
+		spellhandler->createSpell(deltaTime, m_playerPosition, directionVector, spellType);
 
 	}
 	spellhandler->spellCooldown(deltaTime);

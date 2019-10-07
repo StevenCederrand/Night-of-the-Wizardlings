@@ -64,7 +64,6 @@ PlayState::PlayState()
 
 
 
-
 	//btBvhTriangleMeshShape* abc = new btBvhTriangleMeshShape()
 }
 
@@ -120,9 +119,7 @@ void PlayState::render()
 		}	
 	}
 
-		}		
-	}
-	
+
 
 	for (GameObject* object : m_objects)
 	{
