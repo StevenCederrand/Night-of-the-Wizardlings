@@ -1,14 +1,20 @@
 #pragma once
 #include <Pch/Pch.h>
 #include <Spells/AttackSpell.h>
+
 #include <Spells/EnhanceAttackSpell.h>
 #include <Spells/SpellHandler.h>
+
+
+#include "System/BulletPhysics.h"
+#include <Bullet/BulletDynamics/Character/btKinematicCharacterController.h>
+#include <Bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
 
 
 class Player
 {
 public:
-	Player(std::string name = "", glm::vec3 playerPosition = glm::vec3(0.0f, 0.0f, 0.0f), Camera* camera = NULL);
+	Player(BulletPhysics* bp, std::string name = "", glm::vec3 playerPosition = glm::vec3(0.0f, 0.0f, 0.0f), Camera* camera = NULL);
 	~Player();
 
 	void update(float deltaTime);
@@ -19,10 +25,13 @@ public:
 	void renderSpell();
 	void spawnPlayer(glm::vec3 pos);
 	void selectSpell();
+
+	void createRigidBody(BulletPhysics* bp);
+	void forceUp();
 	bool isDead();
-	Camera* getCamera();
 
 	//-----Get-----//
+	Camera* getCamera();
 	glm::vec3 getPlayerPos() const;
 	int getHealth() const;
 	std::string getName() const;
@@ -36,17 +45,23 @@ private:
 	SpellHandler* spellhandler;
 
 	glm::vec3 directionVector;
-	glm::vec3 playerPosition;
+	glm::vec3 m_playerPosition;
 	glm::vec3 inputVector;
 	glm::vec3 moveDir;
 
 	Camera* playerCamera;
+	btRigidBody* m_body;
 	float attackCooldown;
 	float spellSpeed = 1;
 	float speed;
 	int nrOfSpells;
 	int health;
+	int frameCount;
 	std::string name;
+
 	TYPE spellType;
+	BulletPhysics* m_bp;
+	btKinematicCharacterController* controller;
+
 
 };
