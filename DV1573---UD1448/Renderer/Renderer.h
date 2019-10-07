@@ -78,6 +78,7 @@ public:
 	void bindMatrixes(const glm::mat4& viewMatrix, const glm::mat4& projMatrix);
 	void renderSkybox(const SkyBox& skybox);
 	void render(const GameObject& gameObject, int meshIndex);
+	void render();
 	Camera* getMainCamera() const;
 };
 

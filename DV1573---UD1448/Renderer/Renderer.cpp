@@ -231,9 +231,92 @@ void Renderer::render(const GameObject& gameObject, int meshIndex) {
 	renderColor(gameObject, meshIndex);
 }
 
+void Renderer::render() {
+	Mesh* mesh;
+	Transform transform;
+	glm::mat4 modelMatrix;
+	
+#pragma region Depth_Render
+	ShaderMap::getInstance()->useByName(DEPTH_MAP);
+
+	//Bind and draw the objects to the depth-buffer
+	bindMatrixes(DEPTH_MAP);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_depthFBO);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	
+	//Loop through all of the gameobjects
+	for (GameObject* object : m_staticObjects)
+	{
+		//Then through all of the meshes
+		for (size_t j = 0; j < object->getMeshesCount(); j++)
+		{
+			modelMatrix = glm::mat4(1.0f);
+			//Fetch the current mesh and its transform
+			mesh = MeshMap::getInstance()->getMesh(object->getMeshN(j));
+			transform = object->getTransform(j);
+			//Apply the transform to the matrix. This should actually be done automatically in the mesh!
+			modelMatrix = glm::translate(modelMatrix, transform.position);
+			modelMatrix = glm::scale(modelMatrix, transform.scale);
+			modelMatrix *= glm::mat4_cast(transform.rotation);
+
+			glBindVertexArray(mesh->getBuffers().vao);
+
+			//Bind the modelmatrix
+			ShaderMap::getInstance()->getShader(DEPTH_MAP)->setMat4("modelMatrix", modelMatrix);
+			
+			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+			glBindVertexArray(0);
+		}
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+#pragma endregion
+	
+#pragma region Color_Render
+
+	ShaderMap::getInstance()->useByName(BASIC_FORWARD);
+	//Bind view- and projection matrix
+	bindMatrixes(BASIC_FORWARD);
+
+	//Add a step where we insert lights into the scene
+
+	//
+
+	for (GameObject* object : m_staticObjects)
+	{
+		//Then through all of the meshes
+		for (size_t j = 0; j < object->getMeshesCount(); j++)
+		{
+			//Fetch the current mesh and its transform
+			mesh = MeshMap::getInstance()->getMesh(object->getMeshN(j));
+			transform = object->getTransform(j);
+
+			//Bind the material
+			object->bindMaterialToShader(BASIC_FORWARD, j);
+			
+			modelMatrix = glm::mat4(1.0f);
+			//Apply the transform to the matrix. This should actually be done automatically in the mesh!
+			modelMatrix = glm::translate(modelMatrix, transform.position);
+			modelMatrix = glm::scale(modelMatrix, transform.scale);
+			modelMatrix *= glm::mat4_cast(transform.rotation);
+
+			//Bind the modelmatrix
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
+			
+			glBindVertexArray(mesh->getBuffers().vao);
+
+			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+			glBindVertexArray(0);
+		}
+	}
+
+
+#pragma endregion
+}
 
 Camera* Renderer::getMainCamera() const
 {
 	return m_camera;
 }
-

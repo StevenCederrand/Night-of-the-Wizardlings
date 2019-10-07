@@ -96,13 +96,11 @@ void PlayState::update(float dt)
 
 void PlayState::render()
 {
-	//Renderer::getInstance()->bindMatrixes(m_player->getCamera()->getViewMat(), m_player->getCamera()->getProjMat());
-
 	//Move the render skybox to be a private renderer function
 	Renderer::getInstance()->renderSkybox(*m_skybox);
 	
 	m_player->renderSpell();
-
+	/*
 	auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
 	for (size_t i = 0; i < list.size(); i++)
 	{
@@ -114,8 +112,8 @@ void PlayState::render()
 			list[i]->gameobject->bindMaterialToShader("Basic_Forward", j);
 			Renderer::getInstance()->render(*list[i]->gameobject, j);
 		}		
-	}
-	
+	}*/
+	/*
 	for (GameObject* object : m_objects)
 	{
 		for (int i = 0; i < object->getMeshesCount(); i++)
@@ -123,8 +121,9 @@ void PlayState::render()
 			object->bindMaterialToShader("Basic_Forward", i);
 			Renderer::getInstance()->render(*object, i);
 		}
-	}
+	}*/
 
+	Renderer::getInstance()->render();
 
 }
 
