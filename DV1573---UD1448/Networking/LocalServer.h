@@ -12,8 +12,10 @@ public:
 
 	void startup(const std::string& serverName);
 	void destroy();
-	void threadedProcess();
+	void ThreadedUpdate();
+	void processAndHandlePackets();
 	const bool& isInitialized() const;
+	const ServerInfo& getMySeverInfo() const;
 
 private:
 	unsigned char getPacketID(RakNet::Packet* p);
@@ -22,8 +24,8 @@ private:
 	RakNet::RakPeerInterface* m_serverPeer = nullptr;
 	std::thread m_processThread;
 	bool m_shutdownServer;
-
-	std::vector<PlayerData> m_connectedPlayers;
+	std::mutex m_cleanupMutex;
+	std::vector<PlayerPacket> m_connectedPlayers;
 	ServerInfo m_serverInfo;
 	bool m_initialized = false;
 

@@ -12,9 +12,9 @@ public:
 	SpellHandler(glm::vec3 playerPosition, glm::vec3 directionVector);
 	~SpellHandler();
 	void createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector, TYPE type);
-	void spellUpdate(float deltaTime, TYPE type);
-	void spellTest(float deltaTime, TYPE type);
-	void renderSpell(TYPE type);
+	void spellUpdate(float deltaTime);
+	void spellCooldown(float deltaTime);
+	void renderSpell();
 
 private:
 	std::vector<AttackSpell> normalSpell;
