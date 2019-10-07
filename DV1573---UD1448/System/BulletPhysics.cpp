@@ -16,11 +16,13 @@ BulletPhysics::BulletPhysics(float gravity)
 
 	m_dynamicsWorld->setGravity(btVector3(0, gravity, 0));
 
+	m_ghostCallback = new btGhostPairCallback();
+
 }
 
 BulletPhysics::~BulletPhysics()
 {
-	//m_dynamicsWorld->removeAction(m_character);
+	m_dynamicsWorld->removeAction(m_character);
 	//Remove the rigidbodies from the dynamics world and delete them
 	for (int i = m_dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
 	{
@@ -30,18 +32,12 @@ BulletPhysics::~BulletPhysics()
 		{
 			delete body->getMotionState();
 		}
-		//if (body->getFriction() == 0.68)
-		//{
-
-			logTrace("hej");
-
-		//}
+		logTrace("removing a collision obj");
 		m_dynamicsWorld->removeCollisionObject(obj);
 
 		delete obj;
 	}
 	
-	//m_dynamicsWorld->removeCollisionObject(m_ghostObject);
 	//Delete collsion shapes
 	for (int i = 0; i < m_collisionShapes.size(); i++)
 	{
@@ -50,16 +46,9 @@ BulletPhysics::~BulletPhysics()
 		delete shape;
 	}
 	
-	delete m_playerShape;
-	//delete m_ghostObject;
 	delete m_character;
-//	logTrace(sizeof(m_ghostObject));
-//	logTrace(sizeof(m_character));
-//	m_ghostObject->getFriction();
-//	m_character->canJump();
 
-	
-
+	delete m_ghostCallback;
 	delete m_dynamicsWorld;
 	delete m_solver;
 	delete m_overlappingPairCache;
@@ -133,6 +122,7 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 
 
 	m_dynamicsWorld->addRigidBody(body);
+	logTrace(m_dynamicsWorld->getNumCollisionObjects());
 
 	return body;
 }
@@ -151,16 +141,20 @@ btKinematicCharacterController* BulletPhysics::createCharacter()
 	
 	m_ghostObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 20, 0)));
 
-	m_dynamicsWorld->getPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
+	m_dynamicsWorld->getPairCache()->setInternalGhostPairCallback(m_ghostCallback);
 	m_ghostObject->setCollisionShape(m_playerShape);
 	m_ghostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
 	m_character = new btKinematicCharacterController(m_ghostObject, m_playerShape, 0.5f, btVector3(0.0f, 1.0f, 0.0f));
 	m_dynamicsWorld->addCollisionObject(m_ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
+	
+	logTrace("player");
+	logTrace(m_dynamicsWorld->getNumCollisionObjects());
+	
+	m_collisionShapes.push_back(m_playerShape);
 	m_dynamicsWorld->addAction(m_character);
 	m_character->setGravity(btVector3(0.0f, -5.0f, 0.0f));
 	m_character->setMaxPenetrationDepth(0.1f);
 	m_character->setUp(btVector3(0.0f, 1.0f, 0.0f));
-
 
 	return m_character;
 }

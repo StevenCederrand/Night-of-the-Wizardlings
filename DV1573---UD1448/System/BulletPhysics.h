@@ -42,6 +42,7 @@ private:
 	btConvexShape* m_playerShape;
 	btPairCachingGhostObject* m_ghostObject;
 	btKinematicCharacterController* m_character;
+	btGhostPairCallback* m_ghostCallback;
 };
 
 #endif

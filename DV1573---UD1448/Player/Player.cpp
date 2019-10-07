@@ -21,21 +21,6 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_frameCount = 0;
 	tempSpell = new AttackSpell("Spell", playerPosition, directionVector, 50, 2, "TestSphere.mesh");
 
-
-	//m_playerShape = new btCapsuleShape(0.25, 1);
-	//m_ghostObject = new btPairCachingGhostObject();
-	//m_ghostObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 20, 0)));
-	//bp->getDynamicsWorld()->getPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
-	//m_ghostObject->setCollisionShape(m_playerShape);
-	//m_ghostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
-	/*m_character = new btKinematicCharacterController(m_ghostObject, m_playerShape, 0.5f, btVector3(0.0f, 1.0f, 0.0f));
-	bp->getDynamicsWorld()->addCollisionObject(m_ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
-	bp->getDynamicsWorld()->addAction(m_character);
-	m_character->setGravity(btVector3(0.0f, -5.0f, 0.0f));
-	m_character->setMaxPenetrationDepth(0.1f);
-	m_character->setUp(btVector3(0.0f, 1.0f, 0.0f));*/
-	
-
 	m_bp = bp;
 	m_character = m_bp->createCharacter();
 }
@@ -57,7 +42,7 @@ void Player::update(float deltaTime)
 void Player::move(float deltaTime)
 {
 	m_frameCount++;
-	if (m_frameCount < 2)
+	if (m_frameCount < 5)
 	{
 		return;
 	}
