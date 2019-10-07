@@ -27,15 +27,17 @@ PlayState::PlayState()
 	//Test enviroment with 4 meshes inside 1 GameObject, inherited transforms
 	m_objects.push_back(new WorldObject("TestScene"));
 	m_objects[m_objects.size() - 1]->loadMesh("TestScene.mesh");
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 	
 	//Cube and sphere centered in scene
 	m_objects.push_back(new WorldObject("TestCube"));
 	m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -2.0f));
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 	m_objects.push_back(new WorldObject("TestSphere"));
 	m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 1.0f, -2.0f));
-
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
 	logTrace("Playstate created");
 
@@ -59,13 +61,6 @@ PlayState::PlayState()
 		m_bPhysics->createObject(obj, 0.0f, temp.position,
 			glm::vec3(temp.scale.x/2, temp.scale.y, temp.scale.y/2));
 	}
-	
-
-
-
-
-
-	//btBvhTriangleMeshShape* abc = new btBvhTriangleMeshShape()
 }
 
 PlayState::~PlayState()
@@ -101,8 +96,11 @@ void PlayState::update(float dt)
 
 void PlayState::render()
 {
-	Renderer::getInstance()->bindMatrixes(m_player->getCamera()->getViewMat(), m_player->getCamera()->getProjMat());
+	//Renderer::getInstance()->bindMatrixes(m_player->getCamera()->getViewMat(), m_player->getCamera()->getProjMat());
+
+	//Move the render skybox to be a private renderer function
 	Renderer::getInstance()->renderSkybox(*m_skybox);
+	
 	m_player->renderSpell();
 
 	auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
@@ -118,7 +116,6 @@ void PlayState::render()
 		}		
 	}
 	
-
 	for (GameObject* object : m_objects)
 	{
 		for (int i = 0; i < object->getMeshesCount(); i++)
@@ -127,6 +124,8 @@ void PlayState::render()
 			Renderer::getInstance()->render(*object, i);
 		}
 	}
+
+
 }
 
 //This function is called everytime two collision objects collide

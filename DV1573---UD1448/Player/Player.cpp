@@ -130,14 +130,7 @@ void Player::move(float deltaTime)
 	//m_body->setLinearVelocity(translate);
 
 	btScalar h = controller->getLinearVelocity().getY();
-
-	/*logTrace("h ");
-	logTrace(h);
-	logTrace(" ");
-	logTrace(translate.getX());
-	logTrace(translate.getY());
-	logTrace(translate.getZ());*/
-
+	
 	controller->setLinearVelocity(translate);
 
 	//character controller
@@ -147,24 +140,6 @@ void Player::move(float deltaTime)
 	playerCamera->setCameraPos(m_playerPosition);
 	playerCamera->update(playerCamera->getWindow());
 	//m_body->getWorldTransform().setOrigin(playerPos);
-
-	
-	/*logTrace(playerPos.getX());
-	logTrace(playerPos.getY());
-	logTrace(playerPos.getZ());*/
-	//change playerPos based on the physics box 
-	//btVector3 playerPos = m_body->getCenterOfMassPosition();
-	//
-	//playerPosition = glm::vec3(playerPos.getX(), playerPos.getY()*2, playerPos.getZ());
-	//setPlayerPos(playerPosition);
-	//playerCamera->setCameraPos(playerPosition);
-	//playerCamera->update(playerCamera->getWindow());
-
-	//inputVector = moveDir;
-	//playerPosition += inputVector * speed * deltaTime;
-	//setPlayerPos(playerPosition);
-	//playerCamera->setCameraPos(playerPosition);
-	//playerCamera->update(playerCamera->getWindow());
 }
 
 void Player::attack(float deltaTime)
@@ -222,7 +197,7 @@ void Player::renderSpell()
 	for (AttackSpell object : normalSpell)
 	{
 		object.bindMaterialToShader("Basic_Forward");
-		Renderer::getInstance()->render(object);
+		Renderer::getInstance()->render(object, 0);
 	}
 }
 
