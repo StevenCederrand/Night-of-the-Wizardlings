@@ -17,29 +17,43 @@ Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera)
 	this->nrOfSpells = 0;
 	this->directionVector = glm::vec3(0, 0, 0);
 	this->moveDir = glm::vec3(0.0f);
-	tempSpell = new AttackSpell("Spell", playerPosition, directionVector, 50, 2, "TestSphere.mesh");
+	this->spellType = ENHANCEATTACK;
+	spellhandler = new SpellHandler(playerPosition, directionVector);
+
 }
 
 Player::~Player()
 {
 	delete playerCamera;
-	delete tempSpell;
+	delete spellhandler;
+	delete tempEnhanceAttackSpell;
 }
 
 void Player::update(float deltaTime)
 {
+	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_1) == GLFW_PRESS)
+	{
+		this->spellType = NORMALATTACK;
+	}
+
+	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_2) == GLFW_PRESS)
+	{
+		this->spellType = ENHANCEATTACK;
+	}
 
 	move(deltaTime);
+	spellhandler->spellUpdate(deltaTime, spellType);
 	attack(deltaTime);
-	updateAttack(deltaTime);
+	castSpell(deltaTime);
+	
+
 }
+
 
 void Player::move(float deltaTime)
 {
 	glm::vec3 camFace = playerCamera->getCamFace();
 	glm::vec3 camRight = playerCamera->getCamRight();
-
-	std::cout << inputVector.x << " " << inputVector.y << " " << inputVector.z << " " << std::endl;
 
 	camFace.y = 0;
 
@@ -69,39 +83,22 @@ void Player::move(float deltaTime)
 	setPlayerPos(playerPosition);
 	playerCamera->setCameraPos(playerPosition);
 	playerCamera->update(playerCamera->getWindow());
-
-	//std::cout << inputVector.x << " " << inputVector.y << " " << inputVector.z << " " << std::endl;
 }
 
 void Player::attack(float deltaTime)
 {
-	if (glfwGetMouseButton(playerCamera->getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && attackCooldown <= 0)
+	if (glfwGetMouseButton(playerCamera->getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)// && tempSpell->getCooldown() <= 0
 	{
 		createRay();
-		AttackSpell tempSpell2 = *tempSpell;
-		tempSpell2.setSpellPos(glm::vec3(playerPosition.x, playerPosition.y - 1.8f, playerPosition.z) + directionVector); //-1.8 = spwn point for spell, spell need to be 0 and playerPos is set to (0,1.8,0)
-		tempSpell2.translate(tempSpell2.getSpellPos());
-		tempSpell2.setDirection(directionVector);
-		normalSpell.push_back(tempSpell2);
-		attackCooldown = 1.0f;
+		spellhandler->createSpell(deltaTime, playerPosition, directionVector, spellType);
 	}
+	spellhandler->spellTest(deltaTime, spellType);
 
-	if(attackCooldown > 0)
-		attackCooldown = attackCooldown - 1 * deltaTime;
 }
 
-void Player::updateAttack(float deltaTime)
+void Player::castSpell(float deltaTime)
 {
-	for (int i = 0; i < normalSpell.size(); i++)
-	{
-		normalSpell[i].translate(normalSpell[i].getDirection() * deltaTime * normalSpell[i].getSpellSpeed());
-		normalSpell[i].setTravelTime(normalSpell[i].getTravelTime() - 1 * deltaTime);
 
-		if (normalSpell[i].getTravelTime() <= 0)
-		{
-			normalSpell.erase(normalSpell.begin() + i);
-		}
-	}
 }
 
 void Player::createRay()
@@ -123,12 +120,8 @@ void Player::renderSpell()
 {
 	Client::getInstance()->updatePlayerData(this);
 
+	spellhandler->renderSpell(spellType);
 
-	for (AttackSpell object : normalSpell)
-	{
-		object.bindMaterialToShader("Basic_Forward");
-		Renderer::getInstance()->render(object);
-	}
 }
 
 void Player::setPlayerPos(glm::vec3 pos)

@@ -1,6 +1,9 @@
 #pragma once
 #include <Pch/Pch.h>
 #include <Spells/AttackSpell.h>
+#include <Spells/EnhanceAttackSpell.h>
+#include <Spells/SpellHandler.h>
+
 
 class Player
 {
@@ -12,7 +15,7 @@ public:
 	void playerJump();
 	void move(float deltaTime);
 	void attack(float deltaTime);
-	void updateAttack(float deltaTime);
+	void castSpell(float deltaTime);
 	void createRay(); //create ray for spells
 	void renderSpell();
 	void spawnPlayer(glm::vec3 pos);
@@ -30,12 +33,19 @@ public:
 	void setSpeed(float speed);
 
 private:
+
 	std::vector<AttackSpell> normalSpell;
+	AttackSpell* tempSpell;
+	std::vector<EnhanceAttackSpell> enhanceAttackSpell;
+	EnhanceAttackSpell* tempEnhanceAttackSpell;
+
+	SpellHandler* spellhandler;
+
 	glm::vec3 directionVector;
 	glm::vec3 playerPosition;
 	glm::vec3 inputVector;
 	glm::vec3 moveDir;
-	AttackSpell* tempSpell;
+
 	Camera* playerCamera;
 	float attackCooldown;
 	float spellSpeed = 1;
@@ -43,5 +53,6 @@ private:
 	int nrOfSpells;
 	int health;
 	std::string name;
+	TYPE spellType;
 
 };

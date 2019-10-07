@@ -206,9 +206,10 @@
     <ClCompile Include="Spells\AttackSpell.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Spells\EnhanceAttackSpell.cpp" />
     <ClCompile Include="Spells\Spell.cpp" />
-
     <ClCompile Include="Renderer\SkyBox.cpp" />
+    <ClCompile Include="Spells\SpellHandler.cpp" />
     <ClCompile Include="States\FindServerState.cpp" />
     <ClCompile Include="States\LobbyState.cpp" />
     <ClCompile Include="States\MenuState.cpp" />
@@ -262,8 +263,10 @@
     <ClInclude Include="Spells\AttackSpell.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Spells\EnhanceAttackSpell.h" />
     <ClInclude Include="Spells\Spell.h" />
     <ClInclude Include="Renderer\SkyBox.h" />
+    <ClInclude Include="Spells\SpellHandler.h" />
     <ClInclude Include="States\FindServerState.h" />
     <ClInclude Include="States\LobbyState.h" />
     <ClInclude Include="States\MenuState.h" />

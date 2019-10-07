@@ -71,7 +71,8 @@ void PlayState::render()
 	m_player->renderSpell();
 
 	auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
-	/*for (size_t i = 0; i < list.size(); i++)
+
+	for (size_t i = 0; i < list.size(); i++)
 	{
 
 		if (list[i]->gameobject == nullptr) continue;
@@ -80,13 +81,8 @@ void PlayState::render()
 		{
 			list[i]->gameobject->bindMaterialToShader("Basic_Forward", j);
 			Renderer::getInstance()->render(*list[i]->gameobject, j);
-		}
-
-		
-	}*/
-
-
-	
+		}	
+	}
 
 	for (GameObject* object : m_objects)
 	{

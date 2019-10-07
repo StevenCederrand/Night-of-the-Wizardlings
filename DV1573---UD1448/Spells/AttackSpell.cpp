@@ -7,8 +7,8 @@ AttackSpell::AttackSpell(glm::vec3 pos)
 {
 }
 
-AttackSpell::AttackSpell(std::string name, glm::vec3 pos, glm::vec3 direction, float speed, float travelTime, std::string meshName)
-	: Spell(name, pos, direction, speed, travelTime, meshName)
+AttackSpell::AttackSpell(std::string name, glm::vec3 pos, glm::vec3 direction, float speed, float travelTime, std::string meshName, float cooldown)
+	: Spell(name, pos, direction, speed, travelTime, meshName, cooldown)
 {
 }
 
