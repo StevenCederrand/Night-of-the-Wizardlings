@@ -18,7 +18,7 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	this->nrOfSpells = 0;
 	this->directionVector = glm::vec3(0, 0, 0);
 	this->moveDir = glm::vec3(0.0f);
-	this->spellType = ENHANCEATTACK;
+	this->spellType = NORMALATTACK;
 	spellhandler = new SpellHandler(playerPosition, directionVector);
 
 
