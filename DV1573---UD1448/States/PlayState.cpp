@@ -51,7 +51,7 @@ PlayState::PlayState()
 		m_bPhysics->createObject(obj, 0.0f, temp.position,
 			glm::vec3(temp.scale.x/2, temp.scale.y, temp.scale.y/2));
 	}
-	//btBvhTriangleMeshShape* abc = new btBvhTriangleMeshShape()
+
 }
 
 PlayState::~PlayState()
@@ -86,6 +86,7 @@ void PlayState::render()
 	m_player->renderSpell();
 
 	auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
+
 	for (size_t i = 0; i < list.size(); i++)
 	{
 
@@ -95,9 +96,11 @@ void PlayState::render()
 		{
 			list[i]->gameobject->bindMaterialToShader("Basic_Forward", j);
 			Renderer::getInstance()->render(*list[i]->gameobject, j);
-		}		
+
+		}	
 	}
-	
+
+
 
 	for (GameObject* object : m_objects)
 	{
