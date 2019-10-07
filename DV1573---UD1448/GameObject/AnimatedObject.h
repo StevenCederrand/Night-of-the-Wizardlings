@@ -10,7 +10,7 @@ public:
 	virtual ~AnimatedObject();
 
 	void update(float dt);
-	void ComputeMatrix(int meshId, std::string meshn, std::string animation, float dt);
+	void ComputeMatrix(int meshId, std::string meshn, std::string animation);
 	void BindMatrix(int meshId);
 
 private:

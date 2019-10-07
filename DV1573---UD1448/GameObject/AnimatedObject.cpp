@@ -8,7 +8,7 @@ AnimatedObject::AnimatedObject(std::string name) : GameObject(name)
 	boneBuffer = 0;
 
 
-	//TODO: move this maybe
+	//Binds buffer for the bone matrices on the gpu
 	glGenBuffers(1, &boneBuffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, boneBuffer);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 64, NULL, GL_DYNAMIC_DRAW);
@@ -24,28 +24,29 @@ void AnimatedObject::update(float dt)
 	// Update animation time
 	currentTime += dt;
 
-	// Basic animation update
-	// TODO: Only update 1 animation
-	// TODO: Choose animation to update
+	// Basic animation update for testing
+	// TODO: Only update 1 animation, Choose animation to update
+	// Should come naturally with specific animation implementation
+	// This loop updates all the animations for all the meshes based on time
 	for (size_t i = 0; i < m_meshes.size(); i++)
 	{
 		size_t animSize = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations().size();
 		for (size_t a = 0; a < animSize; a++)
 		{
 			std::string animName = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations()[a];
-			ComputeMatrix(i, m_meshes[i].name, animName, dt);
+			ComputeMatrix(i, m_meshes[i].name, animName);
 		}
 	}
 }
 
-void AnimatedObject::ComputeMatrix(int meshId, std::string meshn, std::string animation, float dt)
+void AnimatedObject::ComputeMatrix(int meshId, std::string meshn, std::string animation)
 {
 	// Mesh, animation, and skeleton
 	const Animation& anim = *AnimationMap::getInstance()->getAnimation(animation);
 	const Mesh& mesh = *MeshMap::getInstance()->getMesh(meshn);
 	const Skeleton& skeleton = *SkeletonMap::getInstance()->getSkeleton(mesh.getSkeleton());
 
-	// time must be less than duration.
+	// time must be less than duration. Also resets animation.
 	if (currentTime > anim.duration)
 		currentTime = 0;
 
