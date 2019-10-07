@@ -6,7 +6,7 @@ SpellHandler::SpellHandler(glm::vec3 playerPosition, glm::vec3 directionVector)
 	this->directionVector = directionVector;
 	this->spellPos = playerPosition;
 	tempSpell = new AttackSpell("Spell", playerPosition, directionVector, 50, 2, "TestSphere.mesh", 0);
-	tempEnhanceAttackSpell = new EnhanceAttackSpell("EnhanceSpell", playerPosition, directionVector, 10, 4, "TestCube.mesh", 0, 3);
+	tempEnhanceAttackSpell = new EnhanceAttackSpell("EnhanceSpell", playerPosition, directionVector, 5, 2, "TestCube.mesh", 0, 3, 1);
 }
 
 SpellHandler::~SpellHandler()
@@ -32,14 +32,39 @@ void SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 di
 
 	if (type == ENHANCEATTACK)
 	{
-		if (tempEnhanceAttackSpell->getCooldown() <= 0 && tempEnhanceAttackSpell->getThreeAttacks() <= 0)
+
+		int test = 1;
+
+		if (tempEnhanceAttackSpell->getCooldown() <= 0)
 		{
+			
 			EnhanceAttackSpell tempSpell2 = *tempEnhanceAttackSpell;
+			directionVector = test * directionVector;
 			tempSpell2.setSpellPos(glm::vec3(spellPos.x, spellPos.y - 1.8f, spellPos.z) + directionVector); //-1.8 = spwn point for spell, spell need to be 0 and playerPos is set to (0,1.8,0)
 			tempSpell2.translate(tempSpell2.getSpellPos());
 			tempSpell2.setDirection(directionVector);
 			enhanceAttackSpell.push_back(tempSpell2);
-			tempEnhanceAttackSpell->setCooldown(5.0f);
+			tempEnhanceAttackSpell->reduceNrOfAttacks(1);
+			tempEnhanceAttackSpell->setAttackCooldown(1);
+			
+			if (tempEnhanceAttackSpell->getNrOfAttacks() <= 0)
+			{
+				tempEnhanceAttackSpell->setCooldown(2.0);
+				tempEnhanceAttackSpell->setNrOfAttacks(3);
+			}
+
+			//tempEnhanceAttackSpell->reduceNrOfAttacks(1.0f);
+			
+			
+			//tempEnhanceAttackSpell->setNrOfAttacks(3);
+
+			//EnhanceAttackSpell tempSpell2 = *tempEnhanceAttackSpell;
+			//tempSpell2.setSpellPos(glm::vec3(spellPos.x, spellPos.y - 1.8f, spellPos.z) + directionVector); //-1.8 = spwn point for spell, spell need to be 0 and playerPos is set to (0,1.8,0)
+			//tempSpell2.translate(tempSpell2.getSpellPos());
+			//tempSpell2.setDirection(directionVector);
+			//enhanceAttackSpell.push_back(tempSpell2);
+			//tempEnhanceAttackSpell->setCooldown(0.5f);
+
 		}
 	}
 
@@ -82,9 +107,11 @@ void SpellHandler::spellTest(float deltaTime, TYPE type)
 	if (tempSpell->getCooldown() > 0)
 		tempSpell->setCooldown(tempSpell->getCooldown() - 1 * deltaTime);
 	
-	
 	if (tempEnhanceAttackSpell->getCooldown() > 0)
 		tempEnhanceAttackSpell->setCooldown(tempEnhanceAttackSpell->getCooldown() - 1 * deltaTime);
+
+	if (tempEnhanceAttackSpell->getAttackCooldown() > 0)
+		tempEnhanceAttackSpell->setAttackCooldown(tempEnhanceAttackSpell->getAttackCooldown() - 1 * deltaTime);
 }
 
 void SpellHandler::renderSpell(TYPE type)
