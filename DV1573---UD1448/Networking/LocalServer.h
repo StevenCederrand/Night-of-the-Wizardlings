@@ -6,7 +6,6 @@
 class LocalServer
 {
 public:
-
 	LocalServer();
 	~LocalServer();
 
@@ -23,6 +22,7 @@ private:
 	unsigned char getPacketID(RakNet::Packet* p);
 	void handleLostPlayer(const RakNet::Packet& packet, const RakNet::BitStream& bsIn);
 	void onStateChange(NetGlobals::ServerState newState);
+	void sendStreamToAllClients(RakNet::BitStream& stream);
 private:
 	RakNet::RakPeerInterface* m_serverPeer = nullptr;
 	std::thread m_processThread;
@@ -32,6 +32,8 @@ private:
 	ServerInfo m_serverInfo;
 	bool m_initialized = false;
 	ChaosServerMode m_chaosMode;
+	RakNet::RakNetGUID m_adminID;
+
 };
 
 #endif

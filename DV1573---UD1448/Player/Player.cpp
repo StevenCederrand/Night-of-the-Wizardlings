@@ -62,7 +62,13 @@ void Player::update(float deltaTime)
 	controller->updateAction(m_bp->getDynamicsWorld(), deltaTime);
 	move(deltaTime);
 	attack(deltaTime);
-	updateAttack(deltaTime);	
+	updateAttack(deltaTime);
+	Client* client = Client::getInstance();
+	client->updatePlayerData(this);
+
+	if (Input::isKeyReleased(GLFW_KEY_E)) {
+		client->sendStartRequestToServer();
+	}
 }
 
 void Player::move(float deltaTime)
@@ -216,9 +222,7 @@ void Player::createRay()
 
 void Player::renderSpell()
 {
-	Client::getInstance()->updatePlayerData(this);
-
-
+	
 	for (AttackSpell object : normalSpell)
 	{
 		object.bindMaterialToShader("Basic_Forward");

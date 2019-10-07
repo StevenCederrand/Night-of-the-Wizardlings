@@ -6,7 +6,9 @@ enum {
 	PLAYER_JOINED,
 	PLAYER_DISCONNECTED,
 	PLAYER_UPDATE_PACKET,
-	SERVER_CURRENT_STATE
+	SERVER_CURRENT_STATE,
+	SERVER_CHANGE_STATE,
+	ADMIN_PACKET
 };
 
 /* To make sure the compiler aligns the bits */
@@ -40,6 +42,12 @@ struct PlayerPacket {
 	}
 };
 
+struct ServerStateChange {
+	NetGlobals::ServerState currentState;
 
+	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
+		stream.Serialize(writeToStream, currentState);
+	}
+};
 
 #endif

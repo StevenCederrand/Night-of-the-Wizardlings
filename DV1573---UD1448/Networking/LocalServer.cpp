@@ -4,6 +4,7 @@
 
 LocalServer::LocalServer()
 {
+	m_adminID = RakNet::UNASSIGNED_RAKNET_GUID;
 }
 
 LocalServer::~LocalServer()
@@ -103,6 +104,15 @@ void LocalServer::processAndHandlePackets()
 		{
 			logTrace("[SERVER] New connection from {0}\nAssigned GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
 
+			// Is it safe enough to assume that the first player that joins is the admin?
+			if (m_adminID == RakNet::UNASSIGNED_RAKNET_GUID) {
+				m_adminID = packet->guid;
+				RakNet::BitStream stream;
+				stream.Write((RakNet::MessageID)ADMIN_PACKET);
+				m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_adminID, false);
+
+			}
+
 			if (m_connectedPlayers.size() >= NetGlobals::MaximumConnections) logError("[SERVER]  Trying to add more clients than allowed!");
 
 			RakNet::BitStream stream_otherPlayers;
@@ -126,10 +136,7 @@ void LocalServer::processAndHandlePackets()
 			stream_newPlayer.Write((RakNet::MessageID)PLAYER_JOINED);
 			player.Serialize(true, stream_newPlayer);
 
-			for (size_t i = 0; i < m_connectedPlayers.size(); i++)
-			{
-				m_serverPeer->Send(&stream_newPlayer, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_connectedPlayers[i].guid, false);
-			}
+			sendStreamToAllClients(stream_newPlayer);
 
 			// Lastly, add the new player to the local list of connected players
 			m_connectedPlayers.emplace_back(player);
@@ -138,6 +145,7 @@ void LocalServer::processAndHandlePackets()
 			m_serverInfo.connectedPlayers++;
 			m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
 
+			
 
 		}
 		break;
@@ -185,7 +193,7 @@ void LocalServer::processAndHandlePackets()
 		break;
 		
 		default:
-			m_chaosMode.update(bsIn, packetID, m_connectedPlayers);
+			m_chaosMode.update(bsIn, packetID, packet->guid, m_connectedPlayers);
 			break;
 		}
 
@@ -241,10 +249,27 @@ void LocalServer::handleLostPlayer(const RakNet::Packet& packet, const RakNet::B
 
 void LocalServer::onStateChange(NetGlobals::ServerState newState)
 {
+	if (newState == m_serverInfo.currentState) return;
+
+	if(newState == NetGlobals::ServerState::GameStarted)
+		logTrace("[SERVER] Admin requested to start the game!");
+
 	m_serverInfo.currentState = newState;
-	if (newState == NetGlobals::ServerState::GameStarted) logTrace("[SERVER] Game started");
-	if (newState == NetGlobals::ServerState::WaitingForPlayers) logTrace("[SERVER] Game is in waiting state");
-
 	m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
+	
+	RakNet::BitStream stream;
+	stream.Write((RakNet::MessageID)SERVER_CURRENT_STATE);
+	ServerStateChange statePacket;
+	statePacket.currentState = NetGlobals::ServerState::GameStarted;
+	statePacket.Serialize(true, stream);
+	sendStreamToAllClients(stream);
 
+}
+
+void LocalServer::sendStreamToAllClients(RakNet::BitStream& stream)
+{
+	for (size_t i = 0; i < m_connectedPlayers.size(); i++)
+	{
+		m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_connectedPlayers[i].guid, false);
+	}
 }
