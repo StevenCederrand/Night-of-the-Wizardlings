@@ -18,77 +18,55 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	this->nrOfSpells = 0;
 	this->directionVector = glm::vec3(0, 0, 0);
 	this->moveDir = glm::vec3(0.0f);
-	tempSpell = new AttackSpell("Spell", playerPosition, directionVector, 50, 2, "TestSphere.mesh");
+
+	//m_frameCount = 0;
+	//tempSpell = new AttackSpell("Spell", playerPosition, directionVector, 50, 2, "TestSphere.mesh");
+
+	this->spellType = NORMALATTACK;
+	spellhandler = new SpellHandler(playerPosition, directionVector);
 
 
-	btConvexShape* playerShape = new btCapsuleShape(0.25, 1);
-	btPairCachingGhostObject* ghostObject = new btPairCachingGhostObject();
-
-
-	ghostObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 20, 0)));
-	/*btTransform startTransform;
-	startTransform.setIdentity();*/
-	//startTransform.setOrigin(btVector3(m_playerPosition.x, m_playerPosition.y, m_playerPosition.z));
-	//ghostObject->setWorldTransform(startTransform);
-	bp->getDynamicsWorld()->getPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
-	ghostObject->setCollisionShape(playerShape);
-	ghostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
-	controller = new btKinematicCharacterController(ghostObject, playerShape, 0.5f, btVector3(0.0f, 1.0f, 0.0f));
-	bp->getDynamicsWorld()->addCollisionObject(ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
-	bp->getDynamicsWorld()->addAction(controller);
-	controller->setGravity(btVector3(0.0f, -9.0f, 0.0f));
-	controller->setMaxPenetrationDepth(0.1f);
-	controller->setUp(btVector3(0.0f, 1.0f, 0.0f));
-	//logTrace(controller->getUp().getY());
-	//controller->jump();
 	m_bp = bp;
-
-	/*btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-	btRigidBody::btRigidBodyConstructionInfo rbInfo(1.0f, myMotionState, playerShape, btVector3(0.0f, 0.0f, 0.0f));
-	m_body = new btRigidBody(rbInfo);
-
-	bp->getDynamicsWorld()->addRigidBody(m_body);*/
-	frameCount = 0;
+	m_character = m_bp->createCharacter();
 }
 
 Player::~Player()
 {
 	delete playerCamera;
-	delete tempSpell;
+	delete spellhandler;
 }
 
 void Player::update(float deltaTime)
 {
-	controller->updateAction(m_bp->getDynamicsWorld(), deltaTime);
+	m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
+	selectSpell();
 	move(deltaTime);
+	spellhandler->spellUpdate(deltaTime);
 	attack(deltaTime);
-	updateAttack(deltaTime);
 	Client* client = Client::getInstance();
 	client->updatePlayerData(this);
 
 	if (Input::isKeyReleased(GLFW_KEY_E)) {
 		client->sendStartRequestToServer();
 	}
+
 }
+
 
 void Player::move(float deltaTime)
 {
-	frameCount++;
-	if (frameCount < 2)
+	m_frameCount++;
+	if (m_frameCount < 5)
 	{
 		return;
 	}
 	glm::vec3 camFace = playerCamera->getCamFace();
 	glm::vec3 camRight = playerCamera->getCamRight();
-	float xspeed = 1.0f;
 
-	//camFace.y = 0;
-	//auto& totalForce = m_body->getLinearVelocity();
-	btVector3 totalForce = controller->getLinearVelocity();
+	btVector3 totalForce = m_character->getLinearVelocity();
 	
 	moveDir = glm::vec3(0.0f);
 
-	//m_body->activate();
 	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_A) == GLFW_PRESS)
 	{
 		moveDir -= camRight;
@@ -106,103 +84,46 @@ void Player::move(float deltaTime)
 		moveDir -= camFace;
 	}
 
-	if (glm::length(moveDir) >= 0.1f)
+	if (glm::length(moveDir) >= 0.01f)
 		moveDir = glm::normalize(moveDir);
 
+	m_playerPosition += moveDir * speed * deltaTime;
+	setPlayerPos(m_playerPosition);
+	playerCamera->setCameraPos(m_playerPosition);
 	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
-	{
-		//controller->jump(btVector3(0, 10, 0));		
-		logTrace(controller->canJump());
-		if (controller->canJump())
+	{		
+		if (m_character->canJump())
 		{			
-			//controller->setLinearVelocity(btVector3(totalForce.getX(), totalForce.getY(), 100.0f));
-			//controller->jump();
-		}	
-
-				
+			m_character->jump(btVector3(0.0f, 3.0f, 0.0f));
+		}					
 	}	
 
-
 	//move the physics box
-	btScalar y =  controller->getLinearVelocity().getY();
-	//logTrace(y);
-	int yint = y;
-	y = yint / 10000;
-	//btScalar yValue = controller->getGhostObject()->getWorldTransform().getOrigin().getY();
-	btVector3 translate; //= btVector3(0.0f, 0.0f, 0.0f);
-	translate = btVector3(moveDir.x * speed * deltaTime*xspeed, 
-		y,
-		moveDir.z * speed * deltaTime*xspeed);
-	//m_body->setLinearVelocity(translate);
+	btScalar yValue = std::ceil(m_character->getLinearVelocity().getY()*100.0) / 100.0;	//Round to two decimals
+	btVector3 translate = btVector3
+		(moveDir.x * speed * deltaTime,
+		yValue,
+		moveDir.z * speed * deltaTime);
+	m_character->setLinearVelocity(translate);
 
-	btScalar h = controller->getLinearVelocity().getY();
-
-	/*logTrace("h ");
-	logTrace(h);
-	logTrace(" ");
-	logTrace(translate.getX());
-	logTrace(translate.getY());
-	logTrace(translate.getZ());*/
-
-	controller->setLinearVelocity(translate);
-
-	//character controller
-	btVector3 playerPos = controller->getGhostObject()->getWorldTransform().getOrigin();
+	//update playercamera position
+	btVector3 playerPos = m_character->getGhostObject()->getWorldTransform().getOrigin();
 	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY()* 2, playerPos.getZ());
-	//setPlayerPos(m_playerPosition);
-	playerCamera->setCameraPos(m_playerPosition);
-	playerCamera->update(playerCamera->getWindow());
-	//m_body->getWorldTransform().setOrigin(playerPos);
-
 	
-	/*logTrace(playerPos.getX());
-	logTrace(playerPos.getY());
-	logTrace(playerPos.getZ());*/
-	//change playerPos based on the physics box 
-	//btVector3 playerPos = m_body->getCenterOfMassPosition();
-	//
-	//playerPosition = glm::vec3(playerPos.getX(), playerPos.getY()*2, playerPos.getZ());
-	//setPlayerPos(playerPosition);
-	//playerCamera->setCameraPos(playerPosition);
-	//playerCamera->update(playerCamera->getWindow());
-
-	//inputVector = moveDir;
-	//playerPosition += inputVector * speed * deltaTime;
-	//setPlayerPos(playerPosition);
-	//playerCamera->setCameraPos(playerPosition);
-	//playerCamera->update(playerCamera->getWindow());
+	playerCamera->setCameraPos(m_playerPosition);
+	playerCamera->update(playerCamera->getWindow());	
 }
 
 void Player::attack(float deltaTime)
 {
-	if (glfwGetMouseButton(playerCamera->getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && attackCooldown <= 0)
+	if (glfwGetMouseButton(playerCamera->getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)// && tempSpell->getCooldown() <= 0
 	{
 		createRay();
-		AttackSpell tempSpell2 = *tempSpell;
-		//tempSpell2.setSpellPos(glm::vec3(0.0f) + directionVector);
-		tempSpell2.setSpellPos(glm::vec3(m_playerPosition.x, m_playerPosition.y - 1.8f, m_playerPosition.z) + directionVector); //-1.8 = spwn point for spell, spell need to be 0 and playerPos is set to (0,1.8,0)
-		tempSpell2.translate(tempSpell2.getSpellPos());
-		tempSpell2.setDirection(directionVector);
-		normalSpell.push_back(tempSpell2);
-		attackCooldown = 1.0f;
+		spellhandler->createSpell(deltaTime, m_playerPosition, directionVector, spellType);
+
 	}
+	spellhandler->spellCooldown(deltaTime);
 
-	if(attackCooldown > 0)
-		attackCooldown = attackCooldown - 1 * deltaTime;
-}
-
-void Player::updateAttack(float deltaTime)
-{
-	for (size_t i = 0; i < normalSpell.size(); i++)
-	{
-		normalSpell[i].translate(normalSpell[i].getDirection() * deltaTime * normalSpell[i].getSpellSpeed());
-		normalSpell[i].setTravelTime(normalSpell[i].getTravelTime() - 1 * deltaTime);
-
-		if (normalSpell[i].getTravelTime() <= 0)
-		{
-			normalSpell.erase(normalSpell.begin() + i);
-		}
-	}
 }
 
 void Player::createRay()
@@ -222,12 +143,7 @@ void Player::createRay()
 
 void Player::renderSpell()
 {
-	
-	for (AttackSpell object : normalSpell)
-	{
-		object.bindMaterialToShader("Basic_Forward");
-		Renderer::getInstance()->render(object);
-	}
+	spellhandler->renderSpell();
 }
 
 void Player::setPlayerPos(glm::vec3 pos)
@@ -240,18 +156,19 @@ void Player::spawnPlayer(glm::vec3 pos)
 	this->m_playerPosition = pos;
 }
 
-void Player::createRigidBody(BulletPhysics* bp)
+void Player::selectSpell()
 {
-	CollisionObject object = capsule;
+	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_1) == GLFW_PRESS)
+	{
+		this->spellType = NORMALATTACK;
+	}
 
-	m_body = bp->createObject(object, 10.0f, m_playerPosition, glm::vec3(1.0f, 3.0f,1.0f));
-	m_body->setUserPointer(this);
+	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_2) == GLFW_PRESS)
+	{
+		this->spellType = ENHANCEATTACK;
+	}
 }
 
-void Player::forceUp()
-{
-	m_body->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
-}
 
 void Player::setHealth(int health)
 {
