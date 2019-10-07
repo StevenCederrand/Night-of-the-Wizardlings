@@ -17,7 +17,6 @@ BulletPhysics::BulletPhysics(float gravity)
 	m_dynamicsWorld->setGravity(btVector3(0, gravity, 0));
 
 	m_ghostCallback = new btGhostPairCallback();
-
 }
 
 BulletPhysics::~BulletPhysics()
@@ -32,7 +31,6 @@ BulletPhysics::~BulletPhysics()
 		{
 			delete body->getMotionState();
 		}
-		logTrace("removing a collision obj");
 		m_dynamicsWorld->removeCollisionObject(obj);
 
 		delete obj;
@@ -120,9 +118,7 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	body->setFriction(friction);
 	body->setSpinningFriction(1.0f);
 
-
 	m_dynamicsWorld->addRigidBody(body);
-	logTrace(m_dynamicsWorld->getNumCollisionObjects());
 
 	return body;
 }
@@ -134,8 +130,7 @@ btDiscreteDynamicsWorld* BulletPhysics::getDynamicsWorld() const
 
 btKinematicCharacterController* BulletPhysics::createCharacter()
 {
-	m_character;
-
+	//create the character and add him to the dynamicsWorld
 	m_playerShape = new btCapsuleShape(0.25, 1);
 	m_ghostObject = new btPairCachingGhostObject();
 	
@@ -146,10 +141,7 @@ btKinematicCharacterController* BulletPhysics::createCharacter()
 	m_ghostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
 	m_character = new btKinematicCharacterController(m_ghostObject, m_playerShape, 0.5f, btVector3(0.0f, 1.0f, 0.0f));
 	m_dynamicsWorld->addCollisionObject(m_ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
-	
-	logTrace("player");
-	logTrace(m_dynamicsWorld->getNumCollisionObjects());
-	
+
 	m_collisionShapes.push_back(m_playerShape);
 	m_dynamicsWorld->addAction(m_character);
 	m_character->setGravity(btVector3(0.0f, -5.0f, 0.0f));
