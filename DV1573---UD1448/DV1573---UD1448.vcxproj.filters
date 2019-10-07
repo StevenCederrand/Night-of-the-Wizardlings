@@ -33,6 +33,7 @@
     <ClCompile Include="Spells\EnhanceAttackSpell.cpp" />
     <ClCompile Include="Spells\SpellHandler.cpp" />
     <ClCompile Include="System\BulletPhysics.cpp" />
+    <ClCompile Include="Networking\ChaosServerMode.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GFX\MaterialMap.h" />
@@ -70,6 +71,7 @@
     <ClInclude Include="Spells\EnhanceAttackSpell.h" />
     <ClInclude Include="Spells\SpellHandler.h" />
     <ClInclude Include="System\BulletPhysics.h" />
+    <ClInclude Include="Networking\ChaosServerMode.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

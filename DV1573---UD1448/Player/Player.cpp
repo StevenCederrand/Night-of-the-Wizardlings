@@ -43,6 +43,13 @@ void Player::update(float deltaTime)
 	move(deltaTime);
 	spellhandler->spellUpdate(deltaTime);
 	attack(deltaTime);
+	Client* client = Client::getInstance();
+	client->updatePlayerData(this);
+
+	if (Input::isKeyReleased(GLFW_KEY_E)) {
+		client->sendStartRequestToServer();
+	}
+
 }
 
 
@@ -136,10 +143,7 @@ void Player::createRay()
 
 void Player::renderSpell()
 {
-	Client::getInstance()->updatePlayerData(this);
-
 	spellhandler->renderSpell();
-
 }
 
 void Player::setPlayerPos(glm::vec3 pos)
