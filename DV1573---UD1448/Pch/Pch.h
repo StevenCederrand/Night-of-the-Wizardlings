@@ -18,6 +18,7 @@
 #include <string>
 #include <stdio.h>
 #include <future>
+#include <functional>
 
 //GL related includes
 #include <GL/glew.h>

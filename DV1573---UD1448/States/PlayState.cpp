@@ -10,13 +10,9 @@
 PlayState::PlayState()
 {
 	m_bPhysics = new BulletPhysics(-10);
-
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
 	Renderer::getInstance();
 	m_camera = new Camera();
-
-	//m_player = new Player("test", glm::vec3(0, 2, 3), m_camera);
-
 	m_player = new Player(m_bPhysics, "Player", glm::vec3(0.0f, 1.8f, 0.0f), m_camera);
 
 	Renderer::getInstance()->setupCamera(m_player->getCamera());
@@ -38,6 +34,7 @@ PlayState::PlayState()
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 1.0f, -2.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
+
 	logTrace("Playstate created");
 
 	m_skybox = new SkyBox();
@@ -45,16 +42,13 @@ PlayState::PlayState()
 	ShaderMap::getInstance()->createShader("Skybox_Shader", "Skybox.vs", "Skybox.fs");
 	ShaderMap::getInstance()->getShader("Skybox_Shader")->setInt("skyBox", 4);
 
-
-
 	CollisionObject obj = box;
 	m_bPhysics->createObject(obj, 0.0f, glm::vec3(0.0f, -1.5f, 0.0f), glm::vec3(100.0f, 2.0f, 100.0f), 1.0);
 	gContactAddedCallback = callbackFunc;
-	m_player->createRigidBody(m_bPhysics);
+	
 
 	for (int i = 1; i < m_objects.size(); i++)
 	{
-	
 		Transform temp = m_objects.at(i)->getTransform();
 
 		m_bPhysics->createObject(obj, 0.0f, temp.position,
@@ -85,12 +79,6 @@ void PlayState::update(float dt)
 	Renderer::getInstance()->update(dt);
 	m_player->update(dt);
 
-	if (col::characterCollided == true)
-	{
-		m_player->forceUp();
-		col::characterCollided = false;
-	}
-	
 }
 
 void PlayState::render()
@@ -101,6 +89,7 @@ void PlayState::render()
 	m_player->renderSpell();
 	/*
 	auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
+
 	for (size_t i = 0; i < list.size(); i++)
 	{
 
@@ -122,15 +111,5 @@ void PlayState::render()
 bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
 	const btCollisionObjectWrapper* obj2, int id2, int index2)
 {
-
-	if ((Camera*)obj1->getCollisionObject()->getUserPointer() != nullptr)
-	{
-		//obj1->getCollisionObject;
-		if (obj1->getCollisionObject()->getCollisionFlags()
-			== (btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK | btCollisionObject::CF_NO_CONTACT_RESPONSE));
-		col::characterCollided = true;
-	
-	}
-
 	return false;
 }

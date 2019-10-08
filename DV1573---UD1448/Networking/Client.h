@@ -20,6 +20,7 @@ public:
 	void processAndHandlePackets();
 	void updatePlayerData(Player* player);
 	void updateNetworkedPlayers(const float& dt);
+	void sendStartRequestToServer();
 	const std::vector<std::pair<unsigned int, ServerInfo>>& getServerList() const;
 	const std::vector<PlayerPacket>& getConnectedPlayers() const;
 	NetworkPlayers& getNetworkPlayersREF();
@@ -48,6 +49,7 @@ private:
 	bool m_isRefreshingServerList;
 	bool m_isConnectedToAnServer;
 	bool m_failedToConnect;
+	bool m_serverOwner;
 
 	std::thread m_processThread;
 	bool m_shutdownThread;
@@ -57,6 +59,7 @@ private:
 	PlayerPacket m_playerData;
 	NetworkPlayers m_playerEntities;
 	std::mutex m_cleanupMutex;
+	
 };
 
 #endif

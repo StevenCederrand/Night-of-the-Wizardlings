@@ -6,14 +6,11 @@ class Spell : public GameObject
 {
 public:
 	Spell(glm::vec3 pos);
-	Spell(std::string name, glm::vec3 pos, glm::vec3 direction, float speed, float travelTime, std::string meshName);
+	Spell(std::string name, glm::vec3 pos, glm::vec3 direction, float speed, float travelTime, std::string meshName, float cooldown);
 	~Spell();
 
-	void CreateSpellObject();
-	void updateSpell();
-
 	//-----Get-----//
-	int getCooldown();
+	float getCooldown();
 	float getSpellSpeed();
 	float getTravelTime();
 	glm::vec3 getSpellPos();
@@ -22,7 +19,7 @@ public:
 	void setDamage(int damage);
 	void setSpellSpeed(float speed);
 	void setSpellPos(glm::vec3 pos);
-	void setCooldown(int cooldown);
+	void setCooldown(float cooldown);
 	void setTravelTime(float travelTime);
 	void setDirection(glm::vec3 direction);
 
@@ -34,7 +31,7 @@ public:
 private:
 	int spellDamage;
 	float spellSpeed; 
-	int spellCoolDown = 0;
+	float spellCoolDown = 0;
 	float travelTime = 0;
 	glm::vec3 direction;
 	glm::vec3 spellPosition = glm::vec3(0,0,0);

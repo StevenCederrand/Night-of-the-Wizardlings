@@ -1,9 +1,14 @@
 #pragma once
 #include <Pch/Pch.h>
 #include <Spells/AttackSpell.h>
+
+#include <Spells/EnhanceAttackSpell.h>
+#include <Spells/SpellHandler.h>
+
+
 #include "System/BulletPhysics.h"
-#include <Bullet/BulletDynamics/Character/btKinematicCharacterController.h>
-#include <Bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
+
+
 
 class Player
 {
@@ -15,12 +20,10 @@ public:
 	void playerJump();
 	void move(float deltaTime);
 	void attack(float deltaTime);
-	void updateAttack(float deltaTime);
 	void createRay(); //create ray for spells
 	void renderSpell();
 	void spawnPlayer(glm::vec3 pos);
-	void createRigidBody(BulletPhysics* bp);
-	void forceUp();
+	void selectSpell();
 	bool isDead();
 
 	//-----Get-----//
@@ -35,22 +38,27 @@ public:
 	void setSpeed(float speed);
 
 private:
-	std::vector<AttackSpell> normalSpell;
+	SpellHandler* spellhandler;
+
 	glm::vec3 directionVector;
 	glm::vec3 m_playerPosition;
 	glm::vec3 inputVector;
 	glm::vec3 moveDir;
-	AttackSpell* tempSpell;
+
 	Camera* playerCamera;
-	btRigidBody* m_body;
 	float attackCooldown;
 	float spellSpeed = 1;
 	float speed;
 	int nrOfSpells;
 	int health;
-	int frameCount;
+	int m_frameCount;
 	std::string name;
+	TYPE spellType;
+
+	//removed in bulletPhysics.cpp
 	BulletPhysics* m_bp;
-	btKinematicCharacterController* controller;
+	btKinematicCharacterController* m_character;
+
+
 
 };

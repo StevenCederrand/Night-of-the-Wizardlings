@@ -1,6 +1,8 @@
 #ifndef BULLETPHYSICS_H
 #define BULLETPHYSICS_H
 #include <Pch/Pch.h>
+#include <Bullet/BulletDynamics/Character/btKinematicCharacterController.h>
+#include <Bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
 
 // box, sphere, capsule
 enum CollisionObject
@@ -22,6 +24,7 @@ public:
 		glm::vec3 position, glm::vec3 extend, float friction = 0.2f);
 
 	btDiscreteDynamicsWorld* getDynamicsWorld() const;
+	btKinematicCharacterController* createCharacter();
 
 	void update(float dt);
 
@@ -34,6 +37,12 @@ private:
 	btDiscreteDynamicsWorld* m_dynamicsWorld;
 
 	btAlignedObjectArray<btCollisionShape*> m_collisionShapes;
+
+	//character controller
+	btConvexShape* m_playerShape;
+	btPairCachingGhostObject* m_ghostObject;
+	btKinematicCharacterController* m_character;
+	btGhostPairCallback* m_ghostCallback;
 };
 
 #endif

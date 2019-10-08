@@ -53,6 +53,7 @@ void Client::connectToAnotherServer(const ServerInfo& server)
 	m_failedToConnect = false;
 	m_shutdownThread = false;
 	m_isConnectedToAnServer = false;
+	m_serverOwner = false;
 
 	bool status = m_clientPeer->Connect(server.serverAddress.ToString(false), server.serverAddress.GetPort(), 0, 0, 0) == RakNet::CONNECTION_ATTEMPT_STARTED;
 	assert((status == true, "Client connecting to {0} failed!", server.serverName));
@@ -60,6 +61,7 @@ void Client::connectToAnotherServer(const ServerInfo& server)
 	if (m_processThread.joinable())
 		m_processThread.join();
 
+	m_clientPeer->SetTimeoutTime(NetGlobals::timeoutTimeMS, server.serverAddress);
 	m_processThread = std::thread(&Client::ThreadedUpdate, this);
 	
 }
@@ -69,7 +71,8 @@ void Client::connectToMyServer()
 	m_failedToConnect = false;
 	m_shutdownThread = false;
 	m_isConnectedToAnServer = false;
-	
+	m_serverOwner = false;
+
 	bool status = m_clientPeer->Connect("localhost", NetGlobals::ServerPort, 0, 0, 0) == RakNet::CONNECTION_ATTEMPT_STARTED;
 	assert((status == true, "Client connecting to localhost failed!"));
 	
@@ -280,6 +283,23 @@ void Client::processAndHandlePackets()
 
 		}
 		break;
+		case ADMIN_PACKET:
+		{
+			m_serverOwner = true;
+			logTrace("[CLIENT-ADMIN]Press E to start game!");
+		}
+		break;
+		case SERVER_CURRENT_STATE:
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			ServerStateChange stateChange;
+			stateChange.Serialize(false, bsIn);
+
+			if (stateChange.currentState == NetGlobals::ServerState::GameStarted) {
+				logTrace("[SERVER->CLIENT]******** GAME STARTED ********");
+			}
+		}
+		break;
 
 		default:
 		{
@@ -305,6 +325,18 @@ void Client::updateNetworkedPlayers(const float& dt)
 {
 	if(m_initialized && m_isConnectedToAnServer)
 		m_playerEntities.update(dt);
+}
+
+void Client::sendStartRequestToServer()
+{
+	if (m_serverOwner) {
+		RakNet::BitStream stream;
+		stream.Write((RakNet::MessageID)SERVER_CHANGE_STATE);
+		ServerStateChange stateChange;
+		stateChange.currentState = NetGlobals::ServerState::GameStarted;
+		stateChange.Serialize(true, stream);
+		m_clientPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
+	}
 }
 
 void Client::updateDataOnServer()
@@ -406,8 +438,9 @@ void Client::findAllServerAddresses()
 					RakNet::BitStream bsIn(packet->data + byteOffset, packet->length - byteOffset, false);
 					info = *(ServerInfo*)bsIn.GetData();
 
-					// If the pinged server is full then don't add it to the server list
+					// If the pinged server is full or in session then don't add it to the server list
 					if (info.connectedPlayers >= info.maxPlayers) continue;
+					if (info.currentState == NetGlobals::ServerState::GameStarted) continue;
 
 					info.serverAddress = packet->systemAddress;
 					m_serverList.emplace_back(std::make_pair(ID++, info));
