@@ -242,9 +242,9 @@ void Shader::setMaterial(std::string materialName) {
 	Material* mat = MaterialMap::getInstance()->getMaterial(materialName);
 	setVec3("Ambient_Color", mat->ambient);
 	setVec3("Diffuse_Color", mat->diffuse);
-	setVec3("Specular_Color", mat->specular);
+	//setVec3("Specular_Color", mat->specular);
 	
-	for (int i = 0; i < mat->textureID.size(); i++) {
+	for (size_t i = 0; i < mat->textureID.size(); i++) {
 		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D, mat->textureID.at(i));
 	}

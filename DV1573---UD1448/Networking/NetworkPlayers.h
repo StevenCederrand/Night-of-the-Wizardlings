@@ -12,7 +12,7 @@ public:
 	};
 
 	struct PlayerEntity {
-		PlayerData data;
+		PlayerPacket data;
 		GameObject* gameobject = nullptr; // This is created on the MAIN thread!
 		FLAG flag = FLAG::NONE;
 
@@ -30,7 +30,7 @@ private:
 	friend class Client;
 	std::mutex m_mutex;
 	std::vector<PlayerEntity*> m_players;
-	float m_lerpSpeed = 10.f;
+	float m_lerpSpeed = 15.f;
 
 };
 

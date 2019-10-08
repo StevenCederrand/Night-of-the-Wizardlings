@@ -22,16 +22,20 @@ void Client::startup()
 		m_connectedPlayers.reserve(NetGlobals::MaximumConnections);
 		m_clientPeer = RakNet::RakPeerInterface::GetInstance();
 		m_clientPeer->Startup(1, &RakNet::SocketDescriptor(), 1);
-		m_initialized = true;
-
-		
+		m_initialized = true;	
 	}
 }
 
 void Client::destroy()
 {
 	if (m_initialized) {
-		m_shutdownThread = true;
+		
+		// In it's own scope	
+		{
+			std::lock_guard<std::mutex> lockGuard(m_cleanupMutex);
+			m_shutdownThread = true;
+		}
+
 		logTrace("Waiting for client thread to finish...");
 		if(m_processThread.joinable())
 			m_processThread.join();
@@ -49,6 +53,7 @@ void Client::connectToAnotherServer(const ServerInfo& server)
 	m_failedToConnect = false;
 	m_shutdownThread = false;
 	m_isConnectedToAnServer = false;
+	m_serverOwner = false;
 
 	bool status = m_clientPeer->Connect(server.serverAddress.ToString(false), server.serverAddress.GetPort(), 0, 0, 0) == RakNet::CONNECTION_ATTEMPT_STARTED;
 	assert((status == true, "Client connecting to {0} failed!", server.serverName));
@@ -56,7 +61,8 @@ void Client::connectToAnotherServer(const ServerInfo& server)
 	if (m_processThread.joinable())
 		m_processThread.join();
 
-	m_processThread = std::thread(&Client::threadedProcess, this);
+	m_clientPeer->SetTimeoutTime(NetGlobals::timeoutTimeMS, server.serverAddress);
+	m_processThread = std::thread(&Client::ThreadedUpdate, this);
 	
 }
 
@@ -65,6 +71,7 @@ void Client::connectToMyServer()
 	m_failedToConnect = false;
 	m_shutdownThread = false;
 	m_isConnectedToAnServer = false;
+	m_serverOwner = false;
 
 	bool status = m_clientPeer->Connect("localhost", NetGlobals::ServerPort, 0, 0, 0) == RakNet::CONNECTION_ATTEMPT_STARTED;
 	assert((status == true, "Client connecting to localhost failed!"));
@@ -73,191 +80,27 @@ void Client::connectToMyServer()
 		m_processThread.join();
 
 	
-	m_processThread = std::thread(&Client::threadedProcess, this);
+	m_processThread = std::thread(&Client::ThreadedUpdate, this);
 }
 
-void Client::threadedProcess()
+void Client::ThreadedUpdate()
 {
-	while (!m_shutdownThread)
-	{
-		for (RakNet::Packet* packet = m_clientPeer->Receive(); packet; m_clientPeer->DeallocatePacket(packet), packet = m_clientPeer->Receive())
-		{
-			
-			RakNet::BitStream bsOut;
-			RakNet::BitStream bsIn(packet->data, packet->length, false);
+	bool clientRunning = true;
 
-			auto packetID = getPacketID(packet);
-
-			switch (packetID)
-			{
-			case ID_CONNECTION_REQUEST_ACCEPTED:
-			{
-				logTrace("[CLIENT] Connected to server.\n");
-				m_serverAddress = packet->systemAddress;
-				m_isConnectedToAnServer = true;
-				m_playerData.guid = m_clientPeer->GetMyGUID();
-			}
-				break;
-
-			case ID_CONNECTION_ATTEMPT_FAILED:
-				logTrace("[CLIENT] Connection failed, server might be full.\n");
-				m_isConnectedToAnServer = false;
-				m_failedToConnect = true;
-				m_shutdownThread = true;
-				break;
-
-			case ID_ALREADY_CONNECTED:
-				logTrace("[CLIENT] You are already connected to the server\n");
-				break;
-
-			case ID_CONNECTION_BANNED:
-				logTrace("[CLIENT] You are banned for that server.\n");
-				break;
-
-			case ID_INVALID_PASSWORD:
-				logTrace("[CLIENT] Invalid server password.\n");
-				break;
-
-			case ID_INCOMPATIBLE_PROTOCOL_VERSION:
-				m_shutdownThread = true;
-				logTrace("[CLIENT] Client Error: incompatible protocol version!\n");
-				break;
-
-			case ID_NO_FREE_INCOMING_CONNECTIONS:
-				logTrace("[CLIENT] Client Error: No free incoming connection slots!\n");
-				m_failedToConnect = true;
-				m_isConnectedToAnServer = false;
-				m_shutdownThread = true;
-				break;
-
-			case ID_DISCONNECTION_NOTIFICATION:
-				logTrace("[CLIENT] Disconnected from server!\n");
-				m_failedToConnect = true;
-				m_isConnectedToAnServer = false;
-				m_shutdownThread = true;
-				break;
-
-			case ID_CONNECTION_LOST:
-				logTrace("[CLIENT] Connection to the server is lost!\n");
-				m_isConnectedToAnServer = false;
-				m_shutdownThread = true;
-				break;
-			case INFO_ABOUT_OTHER_PLAYERS:
-			{
-				bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
-				size_t nrOfConnectedPlayers;
-				bsIn.Read(nrOfConnectedPlayers);
-
-				for (size_t i = 0; i < nrOfConnectedPlayers; i++) {
-					PlayerData player;
-					player.Serialize(false, bsIn);
-					m_connectedPlayers.emplace_back(player);
-
-					std::lock_guard<std::mutex> lockGuard(m_playerEntities.m_mutex);
-					NetworkPlayers::PlayerEntity* pE = new NetworkPlayers::PlayerEntity();
-
-					pE->data = player;
-					pE->flag = NetworkPlayers::FLAG::ADD;
-					pE->gameobject = nullptr;
-					m_playerEntities.m_players.emplace_back(pE);
-
-				}
-				printAllConnectedPlayers();
-				
-			}
-				break;
-			case PLAYER_JOINED:
-			{
-				logTrace("New player joined!");
-				bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
-				PlayerData player;
-				player.Serialize(false, bsIn);
-				m_connectedPlayers.emplace_back(player);
-				
-
-				std::lock_guard<std::mutex> lockGuard(m_playerEntities.m_mutex);
-				NetworkPlayers::PlayerEntity* pE = new NetworkPlayers::PlayerEntity();
-
-				pE->data = player;
-				pE->flag = NetworkPlayers::FLAG::ADD;
-				pE->gameobject = nullptr;
-				m_playerEntities.m_players.emplace_back(pE);
-
-				printAllConnectedPlayers();
-				
-			}
-				break;
-			case PLAYER_DISCONNECTED:
-			{
-				bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
-				RakNet::AddressOrGUID guidOfDisconnectedPlayer;
-				bsIn.Read(guidOfDisconnectedPlayer);
-
-				bool found = false;
-				for (size_t i = 0; i < m_connectedPlayers.size() && !found; i++) {
-					if (guidOfDisconnectedPlayer == m_connectedPlayers[i].guid) {
-
-						if (m_playerEntities.m_players[i]->data.guid == guidOfDisconnectedPlayer)
-						{
-							m_playerEntities.m_players[i]->flag = NetworkPlayers::FLAG::REMOVE;
-						}
-						else
-						{
-							logError("Well shit, client thread and main thread is not synched up, so the removal of a client is not going to happen..");
-						}
-
-						m_connectedPlayers.erase(m_connectedPlayers.begin() + i);
-						found = true;
-					}
-				}
-
-				
-				printAllConnectedPlayers();
-			}
-				break;
-			case PLAYER_DATA:
-			{
-				//logTrace("Player data received from server");
-				bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
-				PlayerData pData;
-				pData.Serialize(false, bsIn);
-
-				for (size_t i = 0; i < m_connectedPlayers.size(); i++)
-				{
-					//logTrace("GUID: {0}, Looking for guid: {1}",pData.guid.ToString(), m_connectedPlayers[i]->getData().guid.ToString());
-					if (m_connectedPlayers[i].guid == pData.guid)
-					{
-						m_connectedPlayers[i] = pData;
-						/*logTrace("Updated player with GUID: {0}, new position: {1}, {2}, {3}", m_connectedPlayers[i]->m_data.guid.ToString(),
-							m_connectedPlayers[i]->m_data.position.x,
-							m_connectedPlayers[i]->m_data.position.y,
-							m_connectedPlayers[i]->m_data.position.z);*/
-
-						if (m_playerEntities.m_players[i]->data.guid == pData.guid)
-						{
-							m_playerEntities.m_players[i]->data = pData;
-						}
-						else {
-							logError("Well fuck, now the update between the server and client is not synched up with the main thread, let's hope that this message never shows!");
-						}
-
-						break;
-					}
-				}
-
-			}
-				break;
-
-			default:
-			{
-				logWarning("[CLIENT] Unknown packet received!");
-			}
-			break;
-			}
-		}
-
+	while (clientRunning)
+	{	
+		
+		processAndHandlePackets();
 		updateDataOnServer();
-		RakSleep(30);
+		
+		// Scope
+		{
+			std::lock_guard<std::mutex> lockGuard(m_cleanupMutex);
+			if (m_shutdownThread == true)
+				clientRunning = false;
+		}
+	
+		RakSleep(NetGlobals::threadSleepTime);
 	}
 
 	// Client has been told to shutdown here so send a disconnection packet if you're still connected
@@ -269,6 +112,202 @@ void Client::threadedProcess()
 		RakSleep(250);
 	}
 
+}
+
+void Client::processAndHandlePackets()
+{
+	for (RakNet::Packet* packet = m_clientPeer->Receive(); packet; m_clientPeer->DeallocatePacket(packet), packet = m_clientPeer->Receive())
+	{
+
+		RakNet::BitStream bsOut;
+		RakNet::BitStream bsIn(packet->data, packet->length, false);
+
+		auto packetID = getPacketID(packet);
+
+		switch (packetID)
+		{
+		case ID_CONNECTION_REQUEST_ACCEPTED:
+		{
+			logTrace("[CLIENT] Connected to server.\n");
+			m_serverAddress = packet->systemAddress;
+			m_isConnectedToAnServer = true;
+			m_playerData.guid = m_clientPeer->GetMyGUID();
+		}
+		break;
+
+		case ID_CONNECTION_ATTEMPT_FAILED:
+			logTrace("[CLIENT] Connection failed, server might be full.\n");
+			m_isConnectedToAnServer = false;
+			m_failedToConnect = true;
+			m_shutdownThread = true;
+			break;
+
+		case ID_ALREADY_CONNECTED:
+			logTrace("[CLIENT] You are already connected to the server\n");
+			break;
+
+		case ID_CONNECTION_BANNED:
+			logTrace("[CLIENT] You are banned for that server.\n");
+			break;
+
+		case ID_INVALID_PASSWORD:
+			logTrace("[CLIENT] Invalid server password.\n");
+			break;
+
+		case ID_INCOMPATIBLE_PROTOCOL_VERSION:
+			m_shutdownThread = true;
+			logTrace("[CLIENT] Client Error: incompatible protocol version!\n");
+			break;
+
+		case ID_NO_FREE_INCOMING_CONNECTIONS:
+			logTrace("[CLIENT] Client Error: No free incoming connection slots!\n");
+			m_failedToConnect = true;
+			m_isConnectedToAnServer = false;
+			m_shutdownThread = true;
+			break;
+
+		case ID_DISCONNECTION_NOTIFICATION:
+			logTrace("[CLIENT] Disconnected from server!\n");
+			m_failedToConnect = true;
+			m_isConnectedToAnServer = false;
+			m_shutdownThread = true;
+			break;
+
+		case ID_CONNECTION_LOST:
+			logTrace("[CLIENT] Connection to the server is lost!\n");
+			m_isConnectedToAnServer = false;
+			m_shutdownThread = true;
+			break;
+		case INFO_ABOUT_OTHER_PLAYERS:
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			size_t nrOfConnectedPlayers;
+			bsIn.Read(nrOfConnectedPlayers);
+
+			for (size_t i = 0; i < nrOfConnectedPlayers; i++) {
+				PlayerPacket player;
+				player.Serialize(false, bsIn);
+				m_connectedPlayers.emplace_back(player);
+
+				std::lock_guard<std::mutex> lockGuard(m_playerEntities.m_mutex);
+				NetworkPlayers::PlayerEntity* pE = new NetworkPlayers::PlayerEntity();
+
+				pE->data = player;
+				pE->flag = NetworkPlayers::FLAG::ADD;
+				pE->gameobject = nullptr;
+				m_playerEntities.m_players.emplace_back(pE);
+
+			}
+			printAllConnectedPlayers();
+
+		}
+		break;
+		case PLAYER_JOINED:
+		{
+			logTrace("New player joined!");
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			PlayerPacket player;
+			player.Serialize(false, bsIn);
+			m_connectedPlayers.emplace_back(player);
+
+
+			std::lock_guard<std::mutex> lockGuard(m_playerEntities.m_mutex);
+			NetworkPlayers::PlayerEntity* pE = new NetworkPlayers::PlayerEntity();
+
+			pE->data = player;
+			pE->flag = NetworkPlayers::FLAG::ADD;
+			pE->gameobject = nullptr;
+			m_playerEntities.m_players.emplace_back(pE);
+
+			printAllConnectedPlayers();
+
+		}
+		break;
+		case PLAYER_DISCONNECTED:
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			RakNet::AddressOrGUID guidOfDisconnectedPlayer;
+			bsIn.Read(guidOfDisconnectedPlayer);
+
+			bool found = false;
+			for (size_t i = 0; i < m_connectedPlayers.size() && !found; i++) {
+				if (guidOfDisconnectedPlayer == m_connectedPlayers[i].guid) {
+
+					if (m_playerEntities.m_players[i]->data.guid == guidOfDisconnectedPlayer)
+					{
+						m_playerEntities.m_players[i]->flag = NetworkPlayers::FLAG::REMOVE;
+					}
+					else
+					{
+						logError("Well shit, client thread and main thread is not synched up, so the removal of a client is not going to happen..");
+					}
+
+					m_connectedPlayers.erase(m_connectedPlayers.begin() + i);
+					found = true;
+				}
+			}
+
+
+			printAllConnectedPlayers();
+		}
+		break;
+		case PLAYER_UPDATE_PACKET:
+		{
+			//logTrace("Player data received from server");
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			PlayerPacket pData;
+			pData.Serialize(false, bsIn);
+
+			for (size_t i = 0; i < m_connectedPlayers.size(); i++)
+			{
+				//logTrace("GUID: {0}, Looking for guid: {1}",pData.guid.ToString(), m_connectedPlayers[i]->getData().guid.ToString());
+				if (m_connectedPlayers[i].guid == pData.guid)
+				{
+					m_connectedPlayers[i] = pData;
+					/*logTrace("Updated player with GUID: {0}, new position: {1}, {2}, {3}", m_connectedPlayers[i]->m_data.guid.ToString(),
+						m_connectedPlayers[i]->m_data.position.x,
+						m_connectedPlayers[i]->m_data.position.y,
+						m_connectedPlayers[i]->m_data.position.z);*/
+
+					if (m_playerEntities.m_players[i]->data.guid == pData.guid)
+					{
+						m_playerEntities.m_players[i]->data = pData;
+					}
+					else {
+						logError("Well fuck, now the update between the server and client is not synched up with the main thread, let's hope that this message never shows!");
+					}
+
+					break;
+				}
+			}
+
+		}
+		break;
+		case ADMIN_PACKET:
+		{
+			m_serverOwner = true;
+			logTrace("[CLIENT-ADMIN]Press E to start game!");
+		}
+		break;
+		case SERVER_CURRENT_STATE:
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			ServerStateChange stateChange;
+			stateChange.Serialize(false, bsIn);
+
+			if (stateChange.currentState == NetGlobals::ServerState::GameStarted) {
+				logTrace("[SERVER->CLIENT]******** GAME STARTED ********");
+			}
+		}
+		break;
+
+		default:
+		{
+			logWarning("[CLIENT] Unknown packet received!");
+		}
+		break;
+		}
+	}
 }
 
 void Client::updatePlayerData(Player* player)
@@ -288,11 +327,23 @@ void Client::updateNetworkedPlayers(const float& dt)
 		m_playerEntities.update(dt);
 }
 
+void Client::sendStartRequestToServer()
+{
+	if (m_serverOwner) {
+		RakNet::BitStream stream;
+		stream.Write((RakNet::MessageID)SERVER_CHANGE_STATE);
+		ServerStateChange stateChange;
+		stateChange.currentState = NetGlobals::ServerState::GameStarted;
+		stateChange.Serialize(true, stream);
+		m_clientPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
+	}
+}
+
 void Client::updateDataOnServer()
 {
 	// Player data sent to server
 	RakNet::BitStream bsOut;
-	bsOut.Write((RakNet::MessageID)PLAYER_DATA);
+	bsOut.Write((RakNet::MessageID)PLAYER_UPDATE_PACKET);
 	m_playerData.Serialize(true, bsOut);
 	m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
 }
@@ -303,7 +354,7 @@ const std::vector<std::pair<unsigned int, ServerInfo>>& Client::getServerList() 
 	return m_serverList;
 }
 
-const std::vector<PlayerData>& Client::getConnectedPlayers() const
+const std::vector<PlayerPacket>& Client::getConnectedPlayers() const
 {
 	return m_connectedPlayers;
 }
@@ -387,8 +438,9 @@ void Client::findAllServerAddresses()
 					RakNet::BitStream bsIn(packet->data + byteOffset, packet->length - byteOffset, false);
 					info = *(ServerInfo*)bsIn.GetData();
 
-					// If the pinged server is full then don't add it to the server list
+					// If the pinged server is full or in session then don't add it to the server list
 					if (info.connectedPlayers >= info.maxPlayers) continue;
+					if (info.currentState == NetGlobals::ServerState::GameStarted) continue;
 
 					info.serverAddress = packet->systemAddress;
 					m_serverList.emplace_back(std::make_pair(ID++, info));

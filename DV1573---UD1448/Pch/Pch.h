@@ -18,6 +18,7 @@
 #include <string>
 #include <stdio.h>
 #include <future>
+#include <functional>
 
 //GL related includes
 #include <GL/glew.h>
@@ -64,6 +65,11 @@ const std::string MESHPATH = "Assets/Meshes/";
 
 const unsigned int SCREEN_WIDTH = 1280;
 const unsigned int SCREEN_HEIGHT = 720;
+
+namespace col
+{
+	extern bool characterCollided;
+}
 
 const int MAX_BONES = 64;
 

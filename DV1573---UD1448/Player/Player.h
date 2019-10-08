@@ -1,35 +1,64 @@
 #pragma once
 #include <Pch/Pch.h>
+#include <Spells/AttackSpell.h>
+
+#include <Spells/EnhanceAttackSpell.h>
+#include <Spells/SpellHandler.h>
+
+
+#include "System/BulletPhysics.h"
+
+
 
 class Player
 {
 public:
-	Player(std::string name = "", glm::vec3 playerPosition = glm::vec3(0.0f, 0.0f, 0.0f), Camera* camera = NULL);
+	Player(BulletPhysics* bp, std::string name = "", glm::vec3 playerPosition = glm::vec3(0.0f, 0.0f, 0.0f), Camera* camera = NULL);
 	~Player();
 
 	void update(float deltaTime);
 	void playerJump();
-	void attack();
-
-	void setPlayerPos(glm::vec3 pos);
+	void move(float deltaTime);
+	void attack(float deltaTime);
+	void createRay(); //create ray for spells
+	void renderSpell();
 	void spawnPlayer(glm::vec3 pos);
-
-
-	void setHealth(int health);
-	void setSpeed(float speed);
-	glm::vec3 getPlayerPos() const;
-	int getHealth() const;
-	Camera* getCamera();
-	std::string getName() const;
+	void selectSpell();
 	bool isDead();
 
+	//-----Get-----//
+	Camera* getCamera();
+	glm::vec3 getPlayerPos() const;
+	int getHealth() const;
+	std::string getName() const;
+
+	//-----Set-----//
+	void setPlayerPos(glm::vec3 pos);
+	void setHealth(int health);
+	void setSpeed(float speed);
 
 private:
-	glm::vec3 playerPosition;
+	SpellHandler* spellhandler;
+
+	glm::vec3 directionVector;
+	glm::vec3 m_playerPosition;
 	glm::vec3 inputVector;
-	int health;
-	float speed;
+	glm::vec3 moveDir;
+
 	Camera* playerCamera;
+	float attackCooldown;
+	float spellSpeed = 1;
+	float speed;
+	int nrOfSpells;
+	int health;
+	int m_frameCount;
 	std::string name;
+	TYPE spellType;
+
+	//removed in bulletPhysics.cpp
+	BulletPhysics* m_bp;
+	btKinematicCharacterController* m_character;
+
+
 
 };

@@ -25,9 +25,15 @@
     <ClCompile Include="States\LobbyState.cpp" />
     <ClCompile Include="States\FindServerState.cpp" />
     <ClCompile Include="Player\Player.cpp" />
+    <ClCompile Include="Spells\Spell.cpp" />
+    <ClCompile Include="Spells\AttackSpell.cpp" />
     <ClCompile Include="Networking\NetworkPlayers.cpp" />
     <ClCompile Include="Renderer\SkyBox.cpp" />
     <ClCompile Include="Mesh\MeshMap.cpp" />
+    <ClCompile Include="Spells\EnhanceAttackSpell.cpp" />
+    <ClCompile Include="Spells\SpellHandler.cpp" />
+    <ClCompile Include="System\BulletPhysics.cpp" />
+    <ClCompile Include="Networking\ChaosServerMode.cpp" />
     <ClCompile Include="Mesh\SkeletonMap.cpp" />
     <ClCompile Include="Mesh\AnimationMap.cpp" />
     <ClCompile Include="GameObject\AnimatedObject.cpp" />
@@ -60,12 +66,18 @@
     <ClInclude Include="States\LobbyState.h" />
     <ClInclude Include="States\FindServerState.h" />
     <ClInclude Include="Player\Player.h" />
+    <ClInclude Include="Spells\Spell.h" />
+    <ClInclude Include="Spells\AttackSpell.h" />
     <ClInclude Include="Mesh\MeshMap.h" />
     <ClInclude Include="Networking\NetworkPlayers.h" />
     <ClInclude Include="Renderer\SkyBox.h" />
     <ClInclude Include="Mesh\SkeletonMap.h" />
     <ClInclude Include="Mesh\AnimationMap.h" />
     <ClInclude Include="GameObject\AnimatedObject.h" />
+    <ClInclude Include="Spells\EnhanceAttackSpell.h" />
+    <ClInclude Include="Spells\SpellHandler.h" />
+    <ClInclude Include="System\BulletPhysics.h" />
+    <ClInclude Include="Networking\ChaosServerMode.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />
