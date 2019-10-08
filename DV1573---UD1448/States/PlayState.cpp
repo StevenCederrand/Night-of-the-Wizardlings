@@ -9,9 +9,9 @@
 PlayState::PlayState()
 {
 	m_bPhysics = new BulletPhysics(-10);
-	ShaderMap::getInstance()->createShader("Basic_Forward", "VertexShader.vs", "FragShader.fs");
-	ShaderMap::getInstance()->getShader("Basic_Forward")->setInt("albedoTexture", 0);
-	ShaderMap::getInstance()->createShader("Animation", "Animation.vs", "FragShader.fs");
+	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
+	//TODO: move this and add animation shader
+	//ShaderMap::getInstance()->createShader("Animation", "Animation.vs", "FragShader.fs");
 	Renderer::getInstance();
 	m_camera = new Camera();
 	m_player = new Player(m_bPhysics, "Player", glm::vec3(0.0f, 1.8f, 0.0f), m_camera);
@@ -27,20 +27,33 @@ PlayState::PlayState()
 	//Test enviroment with 4 meshes inside 1 GameObject, inherited transforms
 	m_objects.push_back(new WorldObject("TestScene"));
 	m_objects[m_objects.size() - 1]->loadMesh("TestScene.mesh");
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+	
+	//Cube and sphere centered in scene
+	m_objects.push_back(new WorldObject("TestCube"));
+	m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -2.0f));
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
 	//Animated rectangle
 	m_objects.push_back(new AnimatedObject("TestRectangle"));
 	m_objects[m_objects.size() - 1]->loadMesh("TestRectangle.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -4.0f));
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
 	m_objects.push_back(new WorldObject("TestSphere"));
 	m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -4.0f));
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 1.0f, -2.0f));
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
+
+	logTrace("Playstate created");
 	m_objects.push_back(new WorldObject("TestCube"));
 	m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -1.0f));
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+	
 
 	//Animated goblino
 	m_objects.push_back(new AnimatedObject("TestGoblino"));
@@ -49,7 +62,7 @@ PlayState::PlayState()
 	tempTransform.scale = glm::vec3(0.03f, 0.03f, 0.03f);
 	m_objects[m_objects.size() - 1]->setTransform(tempTransform);
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(-3.0f, 0.0f, 3.0f));
-
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
 
 
@@ -65,9 +78,6 @@ PlayState::PlayState()
 		m_bPhysics->createObject(obj, 0.0f, temp.position,
 			glm::vec3(temp.scale.x/2, temp.scale.y, temp.scale.y/2));
 	}
-	
-	logTrace("Playstate created");
-
 }
 
 PlayState::~PlayState()
@@ -103,11 +113,11 @@ void PlayState::update(float dt)
 
 void PlayState::render()
 {
-	Renderer::getInstance()->bindMatrixes(m_player->getCamera()->getViewMat(), m_player->getCamera()->getProjMat());
+	//Move the render skybox to be a private renderer function
 	Renderer::getInstance()->renderSkybox(*m_skybox);
+	
 	m_player->renderSpell();
-
-	// Network render
+	/*
 	auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
 
 	for (size_t i = 0; i < list.size(); i++)
@@ -118,28 +128,31 @@ void PlayState::render()
 		{
 			list[i]->gameobject->bindMaterialToShader("Basic_Forward", j);
 			Renderer::getInstance()->render(*list[i]->gameobject, j);
+		}		
+	}*/
 
-		}	
-	}
 
-	// Default
-	for (GameObject* object : m_objects)
-	{
-		for (int i = 0; i < object->getMeshesCount(); i++)
-		{
-			if (object->getType() == 0)
-			{
-				object->bindMaterialToShader("Basic_Forward", i);
-				Renderer::getInstance()->render(*object, i);
-			}
-			else if (object->getType() == 1)
-			{
-				object->bindMaterialToShader("Animation", i);
-				static_cast<AnimatedObject*>(object)->BindMatrix(i);
-				Renderer::getInstance()->renderAni(*object, i);
-			}
-		}
-	}
+	Renderer::getInstance()->render();
+
+	// TODO: modify for the renderer and add animation rendering
+
+	//for (GameObject* object : m_objects)
+	//{
+	//	for (int i = 0; i < object->getMeshesCount(); i++)
+	//	{
+	//		if (object->getType() == 0)
+	//		{
+	//			object->bindMaterialToShader("Basic_Forward", i);
+	//			Renderer::getInstance()->render(*object, i);
+	//		}
+	//		else if (object->getType() == 1)
+	//		{
+	//			object->bindMaterialToShader("Animation", i);
+	//			static_cast<AnimatedObject*>(object)->BindMatrix(i);
+	//			Renderer::getInstance()->renderAni(*object, i);
+	//		}
+	//	}
+	//}
 }
 
 //This function is called everytime two collision objects collide

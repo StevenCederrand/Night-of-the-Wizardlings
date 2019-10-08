@@ -1,6 +1,7 @@
 #include <Pch/Pch.h>
 #include "Renderer.h"
 
+#define TILE_SIZE 16
 
 Renderer* Renderer::m_rendererInstance = 0;
 
@@ -8,15 +9,94 @@ Renderer::Renderer()
 {
 	m_gWindow = nullptr;
 	m_camera = nullptr;
+	glEnable(GL_MULTISAMPLE);
+	createDepthMap();
+	int x = -10;
+	int z = -40;
+
+	m_pLights.reserve(P_LIGHT_COUNT);
+	
+	for (int i = 0; i < P_LIGHT_COUNT; i++) {
+		Pointlight pL;
+		pL.position = glm::vec3(0, 0, 0);
+
+		pL.radius = 5.0f;
+		pL.attenuation = glm::vec3(1.0f, 0.09f, 0.032f);
+		m_pLights.push_back(pL);
+	}
 
 
+	//Define Work Groups
+	workGroups.x = (SCREEN_WIDTH + (SCREEN_WIDTH % TILE_SIZE)) / TILE_SIZE;
+	workGroups.y = (SCREEN_HEIGHT + (SCREEN_HEIGHT % TILE_SIZE)) / TILE_SIZE;
+	//INIT SHADER_STORAGE_BUFFER_OBJECT 
+	glGenBuffers(1, &m_lightIndexSSBO);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_lightIndexSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(LightIndex), 0, GL_STATIC_DRAW);
+	//GL related calls
 	glEnable(GL_DEPTH_TEST);
-	//Enable this when more objects are being loaded!
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
-
+	//Blending
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
+void Renderer::createDepthMap() {
+
+	//Create a depth map texture for the rendering system
+	glGenFramebuffers(1, &m_depthFBO);
+
+	glGenTextures(1, &m_depthMap);
+	glBindTexture(GL_TEXTURE_2D, m_depthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	float borderColor[] = { 1, 1, 1, 1 };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, m_depthFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depthMap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	//HDR and a sperate colour buffer
+	glGenFramebuffers(1, &m_hdrFbo);
+
+	glGenTextures(1, &m_colourBuffer);
+	glBindTexture(GL_TEXTURE_2D, m_colourBuffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glGenRenderbuffers(1, &m_rbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, m_rbo);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, m_hdrFbo);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_colourBuffer, 0);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_rbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	//Inits the shaders for forward+
+	initShaders();
+}
+
+void Renderer::initShaders() {
+	ShaderMap::getInstance()->createShader(DEPTH_MAP, "Depth.vert", "Depth.frag");
+	//Set the light index binding
+	ShaderMap::getInstance()->createShader(LIGHT_CULL, "LightCullCompute.comp");
+	ShaderMap::getInstance()->useByName(LIGHT_CULL);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
+	ShaderMap::getInstance()->createShader(BASIC_FORWARD, "VertexShader.vert", "FragShader.frag");
+}
+
+void Renderer::bindMatrixes(const std::string& shaderName) {
+	ShaderMap::getInstance()->getShader(shaderName)->setMat4("viewMatrix", m_camera->getViewMat());
+	ShaderMap::getInstance()->getShader(shaderName)->setMat4("projMatrix", m_camera->getProjMat());
 }
 
 Renderer* Renderer::getInstance()
@@ -31,6 +111,7 @@ void Renderer::init(GLFWwindow* window)
 {
 	m_gWindow = window;
 }
+
 void Renderer::setupCamera(Camera* camera)
 {
 	if (camera == nullptr) {
@@ -39,15 +120,19 @@ void Renderer::setupCamera(Camera* camera)
 	m_camera = camera;
 }
 
+void Renderer::submit(GameObject* gameObject, ObjectType objType)
+{
+	if (objType == STATIC) {
+		m_staticObjects.push_back(gameObject);
+	}
+	else if (objType == DYNAMIC) {
+		m_dynamicObjects.push_back(gameObject);
+	}
+}
+
 void Renderer::destroy()
 {
 	delete m_rendererInstance;
-}
-void Renderer::bindMatrixes(const glm::mat4& viewMatrix, const glm::mat4& projMatrix)
-{
-	//TODO: Also being done in render()
-	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("viewMatrix", m_camera->getViewMat());
-	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("projectionMatrix", m_camera->getProjMat());
 }
 
 void Renderer::renderSkybox(const SkyBox& skybox)
@@ -74,103 +159,124 @@ void Renderer::update(float dt) {
 	m_camera->update(m_gWindow);
 }
 
-// Single mesh render
-//TODO: Remove this function ? (i.e. always send in meshIndex to render)
-void Renderer::render(const GameObject& gameObject) {
-	Mesh* meshRef = MeshMap::getInstance()->getMesh(gameObject.getMeshName(0));
-
-	glBindVertexArray(meshRef->getBuffers().vao);
-
-	//Apply transformation
-	//TODO: Move matrix to gameobject	
-	const Transform meshTransform = gameObject.getTransform();
-	glm::mat4 worldMatrix = glm::mat4(1.0f);
-	worldMatrix = glm::translate(worldMatrix, meshTransform.position);
-	worldMatrix = glm::scale(worldMatrix, meshTransform.scale);
-	worldMatrix *= glm::mat4_cast(meshTransform.rotation);
-
-	//Set matrices TODO: function exists for this, evaluate what to keep
-	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("viewMatrix", m_camera->getViewMat());
-	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("projectionMatrix", m_camera->getProjMat());
-	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("modelMatrix", worldMatrix);
-
-	//Drawcall
-
-	glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
-	glBindVertexArray(0);
-
-}
-
-// Multi mesh in GameObject render
-void Renderer::render(const GameObject& gameObject, int meshIndex) {
-	Mesh* meshRef = MeshMap::getInstance()->getMesh(gameObject.getMeshName(meshIndex));
-
-	glBindVertexArray(meshRef->getBuffers().vao);
-
-	//Apply transformation
-	//TODO: Move matrix to gameobject
-	const Transform meshTransform = gameObject.getTransform(meshIndex);
-	glm::mat4 worldMatrix = glm::mat4(1.0f);
-	worldMatrix = glm::translate(worldMatrix, meshTransform.position);
-	worldMatrix = glm::scale(worldMatrix, meshTransform.scale);
-	worldMatrix *= glm::mat4_cast(meshTransform.rotation);
-
-	//Set matrices
-	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("viewMatrix", m_camera->getViewMat());
-	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("projectionMatrix", m_camera->getProjMat());
-	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("modelMatrix", worldMatrix);
-
-	//Drawcall
-	glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
-	glBindVertexArray(0);
-}
-
-// Animation shader render
-// TODO: Tie shader to material? Incase multiple shaders are used for different materials / meshes.
-void Renderer::renderAni(const GameObject& gameObject, int meshIndex) {
-	Mesh* meshRef = MeshMap::getInstance()->getMesh(gameObject.getMeshName(meshIndex));
-	glBindVertexArray(meshRef->getBuffers().vao);
-
-	//Apply transformation
-	//TODO: Move matrix to gameobject
-	const Transform meshTransform = gameObject.getTransform(meshIndex);
-	glm::mat4 worldMatrix = glm::mat4(1.0f);
-	worldMatrix = glm::translate(worldMatrix, meshTransform.position);
-	worldMatrix = glm::scale(worldMatrix, meshTransform.scale);
-	worldMatrix *= glm::mat4_cast(meshTransform.rotation);
-
-	//Set matrices
-	ShaderMap::getInstance()->getShader("Animation")->setMat4("viewMatrix", m_camera->getViewMat());
-	ShaderMap::getInstance()->getShader("Animation")->setMat4("projectionMatrix", m_camera->getProjMat());
-	ShaderMap::getInstance()->getShader("Animation")->setMat4("modelMatrix", worldMatrix);
-
-	//Drawcall
-	glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
-	glBindVertexArray(0);
-}
-
-//TODO: Remove this function ?
-void Renderer::render(Buffers buffer, glm::vec3 worldPos) {
+void Renderer::render() {
+	Mesh* mesh;
+	Transform transform;
+	glm::mat4 modelMatrix;
 	
+#pragma region Depth_Render
+	ShaderMap::getInstance()->useByName(DEPTH_MAP);
 
-	ShaderMap::getInstance()->useByName("Basic_Forward");
-
-	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("viewMatrix", m_camera->getViewMat());
-	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("projectionMatrix", m_camera->getProjMat());
-
-	glBindVertexArray(buffer.vao);
-
-	glm::mat4 worldMatrix = glm::mat4(1.0f);
-	worldMatrix = glm::translate(worldMatrix, worldPos);
-
-	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("modelMatrix", worldMatrix);
+	//Bind and draw the objects to the depth-buffer
+	bindMatrixes(DEPTH_MAP);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_depthFBO);
+	glClear(GL_DEPTH_BUFFER_BIT);
 	
-	glDrawElements(GL_TRIANGLES, buffer.nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+	//Loop through all of the gameobjects
+	for (GameObject* object : m_staticObjects)
+	{
+		//Then through all of the meshes
+		for (size_t j = 0; j < object->getMeshesCount(); j++)
+		{
+			modelMatrix = glm::mat4(1.0f);
+			//Fetch the current mesh and its transform
+			mesh = MeshMap::getInstance()->getMesh(object->getMeshN(j));
+			transform = object->getTransform(j);
+			//Apply the transform to the matrix. This should actually be done automatically in the mesh!
+			modelMatrix = glm::translate(modelMatrix, transform.position);
+			modelMatrix = glm::scale(modelMatrix, transform.scale);
+			modelMatrix *= glm::mat4_cast(transform.rotation);
 
-	glBindVertexArray(0);
+			glBindVertexArray(mesh->getBuffers().vao);
+
+			//Bind the modelmatrix
+			ShaderMap::getInstance()->getShader(DEPTH_MAP)->setMat4("modelMatrix", modelMatrix);
+			
+			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+			glBindVertexArray(0);
+		}
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+#pragma endregion
+#pragma region Light_Culling
+	//If we have got pointlights in the scene the we check the light culling
+	if (m_pLights.size() > 0) {
+		ShaderMap::getInstance()->useByName(LIGHT_CULL);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
+		bindMatrixes(LIGHT_CULL);
+
+		glm::vec2 screenSize = glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT);
+		ShaderMap::getInstance()->getShader(LIGHT_CULL)->setVec2("screenSize", screenSize);
+
+		//Bind the depthmap	
+		glActiveTexture(GL_TEXTURE0);
+		ShaderMap::getInstance()->getShader(LIGHT_CULL)->setInt("depthMap", 0); //Not sure if this has to happen every frame
+		glBindTexture(GL_TEXTURE_2D, m_depthMap);
+
+
+		//Send all of the light data into the compute shader	
+		for (int i = 0; i < P_LIGHT_COUNT; i++) {
+			ShaderMap::getInstance()->getShader(LIGHT_CULL)->setVec3("lights[" + std::to_string(i) + "].position", m_pLights[i].position);
+			ShaderMap::getInstance()->getShader(LIGHT_CULL)->setFloat("lights[" + std::to_string(i) + "].radius", m_pLights[i].radius);
+		}
+
+		glDispatchCompute(workGroups.x, workGroups.y, 1);
+		//Unbind the depth
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+	
+#pragma endregion
+#pragma region Color_Render
+
+	ShaderMap::getInstance()->useByName(BASIC_FORWARD);
+	//Bind view- and projection matrix
+	bindMatrixes(BASIC_FORWARD);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
+
+	//Add a step where we insert lights into the scene
+	if (m_pLights.size() > 0) {
+		for (int i = 0; i < P_LIGHT_COUNT; i++) {
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setVec3("pLights[" + std::to_string(i) + "].position", m_pLights[i].position);
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setVec3("pLights[" + std::to_string(i) + "].attenuation", m_pLights[i].attenuation);
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setFloat("pLights[" + std::to_string(i) + "].radius", m_pLights[i].radius);
+		}
+	}
+
+	for (GameObject* object : m_staticObjects)
+	{
+		//Then through all of the meshes
+		for (size_t j = 0; j < object->getMeshesCount(); j++)
+		{
+			//Fetch the current mesh and its transform
+			mesh = MeshMap::getInstance()->getMesh(object->getMeshN(j));
+			transform = object->getTransform(j);
+
+			//Bind the material
+			object->bindMaterialToShader(BASIC_FORWARD, j);
+			
+			modelMatrix = glm::mat4(1.0f);
+			//Apply the transform to the matrix. This should actually be done automatically in the mesh!
+			//TODO: Move to GameObject, meshes inherit transform from their GameObject.
+			modelMatrix = glm::translate(modelMatrix, transform.position);
+			modelMatrix = glm::scale(modelMatrix, transform.scale);
+			modelMatrix *= glm::mat4_cast(transform.rotation);
+
+			//Bind the modelmatrix
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
+			
+			glBindVertexArray(mesh->getBuffers().vao);
+
+			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+			glBindVertexArray(0);
+		}
+	}
+
+
+#pragma endregion
 }
 
 Camera* Renderer::getMainCamera() const

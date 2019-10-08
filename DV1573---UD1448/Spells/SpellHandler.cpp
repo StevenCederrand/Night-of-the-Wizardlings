@@ -76,13 +76,13 @@ void SpellHandler::renderSpell()
 		for (AttackSpell object : normalSpell)
 		{
 			object.bindMaterialToShader("Basic_Forward");
-			Renderer::getInstance()->render(object);
+			//Renderer::getInstance()->render(object);
 		}
 	
 		for (EnhanceAttackSpell object : enhanceAttackSpell)
 		{
 			object.bindMaterialToShader("Basic_Forward");
-			Renderer::getInstance()->render(object);
+			//Renderer::getInstance()->render(object);
 		}
 	
 }

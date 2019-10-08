@@ -1,26 +1,69 @@
-#pragma once
+#ifndef _RENDERER_h
+#define _RENDERER_h
+
+//Define the names of the shaders
+#define LIGHT_CULL "Light_Cull"
+#define BASIC_FORWARD "Basic_Forward"
+#define DEPTH_MAP "Depth_Map"
+#define SKYBOX "Skybox_Shader"
+
 #include <Pch/Pch.h>
 #include <GameObject/GameObject.h>
 #include <GameObject/AnimatedObject.h>
 #include <Mesh/MeshFormat.h>
 #include <Renderer/SkyBox.h>
 
+#define P_LIGHT_COUNT 1
+
 struct ObjectRenderData {
 	Buffers buffer;
 	glm::vec3 worldPos;
 };
 
+struct Pointlight {
+	glm::vec3 position; //EXPAND ONE OF THESE VEC3's TO ALSO INCLUDE THE RADIUS!!!
+	glm::vec3 attenuation; //EXPAND ONE OF THESE VEC3's TO ALSO INCLUDE THE RADIUS!!!
+	float radius;
+};
+
+struct LightIndex {
+	int index[P_LIGHT_COUNT];
+};
+
+enum ObjectType {
+	STATIC,
+	DYNAMIC
+};
 
 class Renderer
 {
 private:
+	static Renderer* m_rendererInstance;
 	GLFWwindow* m_gWindow;
 	Camera* m_camera;
 
-	unsigned int m_Fbo;
-	unsigned int m_FboAttachments[2];
+	//Store gameobjects directly to the renderer
+	std::vector<GameObject*> m_staticObjects;
+	std::vector<GameObject*> m_dynamicObjects;
 
-	static Renderer* m_rendererInstance;
+	//Buffers
+	unsigned int m_depthFBO;
+	unsigned int m_depthMap;
+	unsigned int m_hdrFbo;
+	unsigned int m_colourBuffer;
+	unsigned int m_rbo;
+
+	//Storage Buffer for light indecies
+	unsigned int m_lightIndexSSBO;
+	
+	glm::vec2 workGroups;
+	std::vector<Pointlight> m_pLights;
+
+	
+	void createDepthMap();
+	void initShaders();
+	void bindMatrixes(const std::string& shaderName);
+	
 	Renderer();
 public:
 
@@ -32,13 +75,10 @@ public:
 	void setupCamera(Camera* camera);
 
 	void destroy();
-	void bindMatrixes(const glm::mat4& viewMatrix, const glm::mat4& projMatrix);
+	void submit(GameObject* gameObject, ObjectType objType);
 	void renderSkybox(const SkyBox& skybox);
-	void render(const GameObject& gameObject);
-	void render(const GameObject& gameObject, int meshIndex);
-	void renderAni(const GameObject& gameObject, int meshIndex);
-	void render(Buffers buffer, glm::vec3 worldPos);
-
+	void render();
 	Camera* getMainCamera() const;
 };
 
+#endif

@@ -98,7 +98,7 @@ void Player::move(float deltaTime)
 		}					
 	}	
 
-	//move the physics box
+
 	btScalar yValue = std::ceil(m_character->getLinearVelocity().getY()*100.0) / 100.0;	//Round to two decimals
 	btVector3 translate = btVector3
 		(moveDir.x * speed * deltaTime,
