@@ -2,8 +2,6 @@
 #include "Player.h"
 #include <Networking/Client.h>
 
-
-
 Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Camera *camera)
 {
 	if (camera == NULL) {
@@ -18,13 +16,8 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	this->nrOfSpells = 0;
 	this->directionVector = glm::vec3(0, 0, 0);
 	this->moveDir = glm::vec3(0.0f);
-
-	//m_frameCount = 0;
-	//tempSpell = new AttackSpell("Spell", playerPosition, directionVector, 50, 2, "TestSphere.mesh");
-
 	this->spellType = NORMALATTACK;
 	spellhandler = new SpellHandler(playerPosition, directionVector);
-
 
 	m_bp = bp;
 	m_character = m_bp->createCharacter();
@@ -44,7 +37,6 @@ void Player::update(float deltaTime)
 	spellhandler->spellUpdate(deltaTime);
 	attack(deltaTime);
 }
-
 
 void Player::move(float deltaTime)
 {
@@ -116,7 +108,6 @@ void Player::attack(float deltaTime)
 
 	}
 	spellhandler->spellCooldown(deltaTime);
-
 }
 
 void Player::createRay()
@@ -139,7 +130,6 @@ void Player::renderSpell()
 	Client::getInstance()->updatePlayerData(this);
 
 	spellhandler->renderSpell();
-
 }
 
 void Player::setPlayerPos(glm::vec3 pos)
@@ -164,7 +154,6 @@ void Player::selectSpell()
 		this->spellType = ENHANCEATTACK;
 	}
 }
-
 
 void Player::setHealth(int health)
 {

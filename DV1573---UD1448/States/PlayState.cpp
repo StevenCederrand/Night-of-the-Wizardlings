@@ -1,11 +1,9 @@
 #include <Pch/Pch.h>
 #include "PlayState.h"
 
-
 // TODO move to mesh
 #include <Loader/BGLoader.h>
 #include <Networking/Client.h>
-
 
 PlayState::PlayState()
 {
@@ -51,7 +49,6 @@ PlayState::PlayState()
 		m_bPhysics->createObject(obj, 0.0f, temp.position,
 			glm::vec3(temp.scale.x/2, temp.scale.y, temp.scale.y/2));
 	}
-
 }
 
 PlayState::~PlayState()
@@ -66,17 +63,14 @@ PlayState::~PlayState()
 	delete m_bPhysics;
 	for (GameObject* object : m_objects)
 		delete object;
-
 }
 
 void PlayState::update(float dt)
 {	
-
 	Client::getInstance()->updateNetworkedPlayers(dt);
 	m_bPhysics->update(dt);
 	Renderer::getInstance()->update(dt);
 	m_player->update(dt);
-
 }
 
 void PlayState::render()
@@ -99,8 +93,6 @@ void PlayState::render()
 
 		}	
 	}
-
-
 
 	for (GameObject* object : m_objects)
 	{

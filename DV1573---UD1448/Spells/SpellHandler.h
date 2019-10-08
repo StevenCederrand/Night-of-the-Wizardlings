@@ -15,6 +15,7 @@ public:
 	void spellUpdate(float deltaTime);
 	void spellCooldown(float deltaTime);
 	void renderSpell();
+	void spellCollisionCheck();
 
 private:
 	std::vector<AttackSpell> normalSpell;
