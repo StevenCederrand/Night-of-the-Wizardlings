@@ -19,6 +19,7 @@ void MeshMap::cleanUp()
 	std::map<std::string, Mesh*>::iterator it;
 
 	for (it = m_meshMap.begin(); it != m_meshMap.end(); it++) {
+		it->second->Destroy();
 		delete it->second;
 	}
 

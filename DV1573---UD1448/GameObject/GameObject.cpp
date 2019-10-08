@@ -16,7 +16,15 @@ GameObject::GameObject(std::string objectName)
 
 GameObject::~GameObject()
 {
-	
+	//TODO: fix deletion of textures
+	for (int i = 0; i < (int)m_meshes.size(); i++)
+	{
+		// We create the textures in this class so we delete them here for consistency
+		//Material* material = MaterialMap::getInstance()->getMaterial(MeshMap::getInstance()->getMesh(m_meshes[i].name)->getMaterial());
+		//if (material)
+		//	for (int j = 0; j < (int)material->textureID.size(); j++)
+		//		glDeleteTextures(1, &material->textureID[j]);
+	}
 }
 
 void GameObject::loadMesh(std::string fileName)

@@ -25,6 +25,7 @@ private:
 public:
 	Mesh();
 	~Mesh();
+	void Destroy();
 
 	void setUpMesh(std::vector<Vertex> vertices, std::vector<Face> faces);
 	void setUpMesh(std::vector<Vertex2> vertices, std::vector<Face> faces);

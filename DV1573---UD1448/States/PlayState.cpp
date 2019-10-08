@@ -73,17 +73,17 @@ PlayState::PlayState()
 PlayState::~PlayState()
 {
 	logTrace("Deleting playstate..");
+	for (GameObject* object : m_objects)
+		delete object;
+	delete m_skybox;
+	delete m_player;
+	delete m_bPhysics;
 
 	MaterialMap::getInstance()->destroy();
 	MeshMap::getInstance()->destroy();
 	AnimationMap::getInstance()->destroy();
 	SkeletonMap::getInstance()->destroy();
 	
-	delete m_skybox;
-	delete m_player;
-	delete m_bPhysics;
-	for (GameObject* object : m_objects)
-		delete object;
 
 }
 

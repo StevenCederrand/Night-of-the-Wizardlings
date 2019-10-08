@@ -15,7 +15,14 @@ Mesh::Mesh()
 
 Mesh::~Mesh()
 {
+	
+}
 
+void Mesh::Destroy()
+{
+	glDeleteVertexArrays(1, &m_vertexBuffer.vao);
+	glDeleteBuffers(1, &m_vertexBuffer.vbo);
+	glDeleteBuffers(1, &m_vertexBuffer.ibo);
 }
 
 void Mesh::setUpMesh(std::vector<Vertex> vertices, std::vector<Face> faces)
