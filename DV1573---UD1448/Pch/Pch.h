@@ -65,14 +65,13 @@ const std::string MESHPATH = "Assets/Meshes/";
 
 const unsigned int SCREEN_WIDTH = 1280;
 const unsigned int SCREEN_HEIGHT = 720;
+const int MAX_BONES = 64;
 
 namespace col
 {
 	extern bool characterCollided;
 }
 
-const int MAX_BONES = 64;
 
-//
 
 #endif

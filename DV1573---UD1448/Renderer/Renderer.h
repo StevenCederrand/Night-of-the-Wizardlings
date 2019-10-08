@@ -6,6 +6,7 @@
 #define BASIC_FORWARD "Basic_Forward"
 #define DEPTH_MAP "Depth_Map"
 #define SKYBOX "Skybox_Shader"
+#define ANIMATION "Basic_Animation"
 
 #include <Pch/Pch.h>
 #include <GameObject/GameObject.h>
@@ -32,7 +33,9 @@ struct LightIndex {
 
 enum ObjectType {
 	STATIC,
-	DYNAMIC
+	DYNAMIC,
+	ANIMATEDSTATIC,
+	ANIMATEDDYNAMIC
 };
 
 class Renderer
@@ -45,6 +48,8 @@ private:
 	//Store gameobjects directly to the renderer
 	std::vector<GameObject*> m_staticObjects;
 	std::vector<GameObject*> m_dynamicObjects;
+	std::vector<GameObject*> m_anistaticObjects;
+	std::vector<GameObject*> m_anidynamicObjects;
 
 	//Buffers
 	unsigned int m_depthFBO;

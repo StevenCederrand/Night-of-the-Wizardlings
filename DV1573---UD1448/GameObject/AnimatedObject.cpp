@@ -17,6 +17,7 @@ AnimatedObject::AnimatedObject(std::string name) : GameObject(name)
 
 AnimatedObject::~AnimatedObject()
 {
+	glDeleteBuffers(1, &boneBuffer);
 }
 
 void AnimatedObject::update(float dt)
@@ -27,7 +28,9 @@ void AnimatedObject::update(float dt)
 	// Basic animation update for testing
 	// TODO: Only update 1 animation, Choose animation to update
 	// Should come naturally with specific animation implementation
-	// This loop updates all the animations for all the meshes based on time
+
+	// (DEBUG) This loop temporarily updates all the animations for all the meshes based on time,
+	// looping with the shortest animation and always replacing the pallete.
 	for (size_t i = 0; i < m_meshes.size(); i++)
 	{
 		size_t animSize = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations().size();
@@ -39,6 +42,8 @@ void AnimatedObject::update(float dt)
 	}
 }
 
+//TODO: Optimize if laggy, possibly move to GPU
+//Less allocations will speed up the algorithm
 void AnimatedObject::ComputeMatrix(int meshId, std::string meshn, std::string animation)
 {
 	// Mesh, animation, and skeleton
@@ -109,9 +114,9 @@ void AnimatedObject::ComputeMatrix(int meshId, std::string meshn, std::string an
 	}
 }
 
-void AnimatedObject::BindMatrix(int meshId)
+void AnimatedObject::BindAnimation(int meshId)
 {
-	GLint aniShader = ShaderMap::getInstance()->getShader("Animation")->getShaderID();
+	GLint aniShader = ShaderMap::getInstance()->getShader(ANIMATION)->getShaderID();
 	unsigned int boneDataIndex = glGetUniformBlockIndex(aniShader, "SkinDataBlock");
 	glUniformBlockBinding(aniShader, boneDataIndex, 1);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 1, boneBuffer);

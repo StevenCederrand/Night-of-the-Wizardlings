@@ -12,7 +12,7 @@ layout(location = 4) in vec4 weight;
 
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
-uniform mat4 projectionMatrix;
+uniform mat4 projMatrix;
 
 out vec2 f_UV;
 out vec3 f_normal;
@@ -25,15 +25,15 @@ void main() {
 	gl_Position += (boneMat[bone[2]] * vec4(position, 1.0f)) * weight.z;
 	gl_Position += (boneMat[bone[3]] * vec4(position, 1.0f)) * weight.w;
     f_position = modelMatrix * gl_Position;
-    gl_Position = projectionMatrix * viewMatrix * modelMatrix * gl_Position;
+    gl_Position = projMatrix * viewMatrix * modelMatrix * gl_Position;
     
     
-   f_normal  = normal;
-   f_normal  = vec3((transpose(inverse(mat3(boneMat[bone[0]]))) * normal) * weight.x);
-   f_normal += vec3((transpose(inverse(mat3(boneMat[bone[1]]))) * normal) * weight.y);
-   f_normal += vec3((transpose(inverse(mat3(boneMat[bone[2]]))) * normal) * weight.z);
-   f_normal += vec3((transpose(inverse(mat3(boneMat[bone[3]]))) * normal) * weight.w);
-   f_normal =  normalize(transpose(inverse(mat3(modelMatrix))) * f_normal);
+    f_normal  = normal;
+    f_normal  = vec3((transpose(inverse(mat3(boneMat[bone[0]]))) * normal) * weight.x);
+    f_normal += vec3((transpose(inverse(mat3(boneMat[bone[1]]))) * normal) * weight.y);
+    f_normal += vec3((transpose(inverse(mat3(boneMat[bone[2]]))) * normal) * weight.z);
+    f_normal += vec3((transpose(inverse(mat3(boneMat[bone[3]]))) * normal) * weight.w);
+    f_normal =  normalize(transpose(inverse(mat3(modelMatrix))) * f_normal);
 
 
 

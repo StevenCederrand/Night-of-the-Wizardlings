@@ -97,3 +97,8 @@ struct Animation
 	std::vector<skKeyframe> keyframes;
 
 };
+
+struct BonePalleteBuffer
+{
+	glm::mat4 bones[64]{ glm::mat4() };
+};

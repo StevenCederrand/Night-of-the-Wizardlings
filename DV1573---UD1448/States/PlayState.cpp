@@ -35,25 +35,22 @@ PlayState::PlayState()
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -2.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
-	//Animated rectangle
-	m_objects.push_back(new AnimatedObject("TestRectangle"));
-	m_objects[m_objects.size() - 1]->loadMesh("TestRectangle.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -4.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
-
 	m_objects.push_back(new WorldObject("TestSphere"));
 	m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -4.0f));
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 1.0f, -2.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
-
-	logTrace("Playstate created");
 	m_objects.push_back(new WorldObject("TestCube"));
 	m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -1.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 	
+	//Animated rectangle
+	m_objects.push_back(new AnimatedObject("TestRectangle"));
+	m_objects[m_objects.size() - 1]->loadMesh("TestRectangle.mesh");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -4.0f));
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
 
 	//Animated goblino
 	m_objects.push_back(new AnimatedObject("TestGoblino"));
@@ -62,14 +59,13 @@ PlayState::PlayState()
 	tempTransform.scale = glm::vec3(0.03f, 0.03f, 0.03f);
 	m_objects[m_objects.size() - 1]->setTransform(tempTransform);
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(-3.0f, 0.0f, 3.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
 
 
 
 	CollisionObject obj = box;
 	m_bPhysics->createObject(obj, 0.0f, glm::vec3(0.0f, -1.5f, 0.0f), glm::vec3(100.0f, 2.0f, 100.0f), 1.0);
 	gContactAddedCallback = callbackFunc;
-	
 
 	for (int i = 1; i < m_objects.size(); i++)
 	{
@@ -78,6 +74,11 @@ PlayState::PlayState()
 		m_bPhysics->createObject(obj, 0.0f, temp.position,
 			glm::vec3(temp.scale.x/2, temp.scale.y, temp.scale.y/2));
 	}
+
+
+
+
+	logTrace("Playstate created");
 }
 
 PlayState::~PlayState()
@@ -133,26 +134,6 @@ void PlayState::render()
 
 
 	Renderer::getInstance()->render();
-
-	// TODO: modify for the renderer and add animation rendering
-
-	//for (GameObject* object : m_objects)
-	//{
-	//	for (int i = 0; i < object->getMeshesCount(); i++)
-	//	{
-	//		if (object->getType() == 0)
-	//		{
-	//			object->bindMaterialToShader("Basic_Forward", i);
-	//			Renderer::getInstance()->render(*object, i);
-	//		}
-	//		else if (object->getType() == 1)
-	//		{
-	//			object->bindMaterialToShader("Animation", i);
-	//			static_cast<AnimatedObject*>(object)->BindMatrix(i);
-	//			Renderer::getInstance()->renderAni(*object, i);
-	//		}
-	//	}
-	//}
 }
 
 //This function is called everytime two collision objects collide
