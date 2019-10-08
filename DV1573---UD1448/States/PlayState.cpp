@@ -3,7 +3,6 @@
 
 
 // TODO move to mesh
-#include <Loader/BGLoader.h>
 #include <Networking/Client.h>
 
 
@@ -11,6 +10,8 @@ PlayState::PlayState()
 {
 	m_bPhysics = new BulletPhysics(-10);
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
+	//TODO: move this and add animation shader
+	//ShaderMap::getInstance()->createShader("Animation", "Animation.vs", "FragShader.fs");
 	Renderer::getInstance();
 	m_camera = new Camera();
 	m_player = new Player(m_bPhysics, "Player", glm::vec3(0.0f, 1.8f, 0.0f), m_camera);
@@ -18,7 +19,11 @@ PlayState::PlayState()
 	Renderer::getInstance()->setupCamera(m_player->getCamera());
 
 	//TODO: organized loading system?
-	
+	m_skybox = new SkyBox();
+	m_skybox->prepareBuffers();
+	ShaderMap::getInstance()->createShader("Skybox_Shader", "Skybox.vs", "Skybox.fs");
+	ShaderMap::getInstance()->getShader("Skybox_Shader")->setInt("skyBox", 4);
+
 	//Test enviroment with 4 meshes inside 1 GameObject, inherited transforms
 	m_objects.push_back(new WorldObject("TestScene"));
 	m_objects[m_objects.size() - 1]->loadMesh("TestScene.mesh");
@@ -29,23 +34,38 @@ PlayState::PlayState()
 	m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -2.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+
 	m_objects.push_back(new WorldObject("TestSphere"));
 	m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -4.0f));
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 1.0f, -2.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
+	m_objects.push_back(new WorldObject("TestCube"));
+	m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -1.0f));
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+	
+	//Animated rectangle
+	m_objects.push_back(new AnimatedObject("TestRectangle"));
+	m_objects[m_objects.size() - 1]->loadMesh("TestRectangle.mesh");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -4.0f));
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
 
-	logTrace("Playstate created");
+	//Animated goblino
+	m_objects.push_back(new AnimatedObject("TestGoblino"));
+	m_objects[m_objects.size() - 1]->loadMesh("ElGoblino.mesh");
+	Transform tempTransform;
+	tempTransform.scale = glm::vec3(0.03f, 0.03f, 0.03f);
+	m_objects[m_objects.size() - 1]->setTransform(tempTransform);
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(-3.0f, 0.0f, 3.0f));
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
 
-	m_skybox = new SkyBox();
-	m_skybox->prepareBuffers();
-	ShaderMap::getInstance()->createShader("Skybox_Shader", "Skybox.vs", "Skybox.fs");
-	ShaderMap::getInstance()->getShader("Skybox_Shader")->setInt("skyBox", 4);
+
 
 	CollisionObject obj = box;
 	m_bPhysics->createObject(obj, 0.0f, glm::vec3(0.0f, -1.5f, 0.0f), glm::vec3(100.0f, 2.0f, 100.0f), 1.0);
 	gContactAddedCallback = callbackFunc;
-	
 
 	for (int i = 1; i < m_objects.size(); i++)
 	{
@@ -54,20 +74,27 @@ PlayState::PlayState()
 		m_bPhysics->createObject(obj, 0.0f, temp.position,
 			glm::vec3(temp.scale.x/2, temp.scale.y, temp.scale.y/2));
 	}
+
+
+
+
+	logTrace("Playstate created");
 }
 
 PlayState::~PlayState()
 {
 	logTrace("Deleting playstate..");
-
-	MaterialMap::getInstance()->destroy();
-	MeshMap::getInstance()->destroy();
-	
+	for (GameObject* object : m_objects)
+		delete object;
 	delete m_skybox;
 	delete m_player;
 	delete m_bPhysics;
-	for (GameObject* object : m_objects)
-		delete object;
+
+	MaterialMap::getInstance()->destroy();
+	MeshMap::getInstance()->destroy();
+	AnimationMap::getInstance()->destroy();
+	SkeletonMap::getInstance()->destroy();
+	
 
 }
 
@@ -78,6 +105,10 @@ void PlayState::update(float dt)
 	m_bPhysics->update(dt);
 	Renderer::getInstance()->update(dt);
 	m_player->update(dt);
+	for (GameObject* object : m_objects)
+	{
+		object->update(dt);
+	}
 
 }
 
@@ -92,7 +123,6 @@ void PlayState::render()
 
 	for (size_t i = 0; i < list.size(); i++)
 	{
-
 		if (list[i]->gameobject == nullptr) continue;
 
 		for (int j = 0; j < list[i]->gameobject->getMeshesCount(); j++)
@@ -104,7 +134,6 @@ void PlayState::render()
 
 
 	Renderer::getInstance()->render();
-
 }
 
 //This function is called everytime two collision objects collide

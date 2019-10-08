@@ -34,6 +34,9 @@
     <ClCompile Include="Spells\SpellHandler.cpp" />
     <ClCompile Include="System\BulletPhysics.cpp" />
     <ClCompile Include="Networking\ChaosServerMode.cpp" />
+    <ClCompile Include="Mesh\SkeletonMap.cpp" />
+    <ClCompile Include="Mesh\AnimationMap.cpp" />
+    <ClCompile Include="GameObject\AnimatedObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GFX\MaterialMap.h" />
@@ -68,6 +71,9 @@
     <ClInclude Include="Mesh\MeshMap.h" />
     <ClInclude Include="Networking\NetworkPlayers.h" />
     <ClInclude Include="Renderer\SkyBox.h" />
+    <ClInclude Include="Mesh\SkeletonMap.h" />
+    <ClInclude Include="Mesh\AnimationMap.h" />
+    <ClInclude Include="GameObject\AnimatedObject.h" />
     <ClInclude Include="Spells\EnhanceAttackSpell.h" />
     <ClInclude Include="Spells\SpellHandler.h" />
     <ClInclude Include="System\BulletPhysics.h" />

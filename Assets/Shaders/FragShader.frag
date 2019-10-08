@@ -26,6 +26,7 @@ float ambientStr = 1.0f;
 uniform vec3 Ambient_Color;
 uniform vec3 Diffuse_Color;
 uniform vec3 Specular_Color;
+uniform bool HasTex;
 
 uniform sampler2D albedoTexture;
 
@@ -35,7 +36,10 @@ vec3 calcLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance, vec3
     vec3 lightDir = normalize(lightPosition - position);
     float diff = max(dot(normal, lightDir), 0);
     vec3 ambient = vec3(0.1f) * lightCol * ambientStr;
-    vec3 diffuse = (Diffuse_Color * texture(albedoTexture, f_UV).rgb) * diff;
+    vec3 diffuse = Diffuse_Color * diff;
+    if(HasTex)
+        diffuse = (Diffuse_Color * texture(albedoTexture, f_UV).rgb) * diff;
+
     float attenuation = 1 / (pLight.attenuation.x + pLight.attenuation.y * distance + pLight.attenuation.z * (distance * distance));
     ambient *= attenuation;
     diffuse *= attenuation;
@@ -47,7 +51,10 @@ vec3 calcLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance, vec3
 
 void main() {
     float ambientStr = 0.1f;
-    vec3 ambientCol = (Ambient_Color + ambientStr) * texture(albedoTexture, f_UV).rgb;
+    vec3 ambientCol = (Ambient_Color + ambientStr);
+    if (HasTex)
+        ambientCol = (Ambient_Color + ambientStr) * texture(albedoTexture, f_UV).rgb;
+
     vec3 position = vec3(0);
 
     vec3 result = ambientCol;
