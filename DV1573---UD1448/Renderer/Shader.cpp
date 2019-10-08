@@ -237,11 +237,13 @@ void Shader::setInt(std::string name, int num)
 	glUniform1i(uniformLoc, num);
 }
 
+
 void Shader::setMaterial(std::string materialName) {
 	use();
 	Material* mat = MaterialMap::getInstance()->getMaterial(materialName);
 	setVec3("Ambient_Color", mat->ambient);
 	setVec3("Diffuse_Color", mat->diffuse);
+	setInt("HasTex", mat->texture);
 	//setVec3("Specular_Color", mat->specular);
 	
 	for (size_t i = 0; i < mat->textureID.size(); i++) {

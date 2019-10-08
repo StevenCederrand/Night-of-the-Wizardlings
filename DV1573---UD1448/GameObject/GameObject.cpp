@@ -113,7 +113,13 @@ void GameObject::loadMesh(std::string fileName)
 					std::cout << "Failed to load texture" << std::endl;
 				}
 				stbi_image_free(data);
+
+				tempMaterial.texture = true;
 				tempMaterial.textureID.push_back(texture);
+			}
+			else
+			{
+				tempMaterial.texture = false;
 			}
 
 			MaterialMap::getInstance()->createMaterial(materialName, tempMaterial);
