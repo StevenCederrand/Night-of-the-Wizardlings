@@ -130,7 +130,6 @@ void Renderer::submit(GameObject* gameObject, ObjectType objType)
 	}
 }
 
-
 void Renderer::destroy()
 {
 	delete m_rendererInstance;
@@ -154,59 +153,6 @@ void Renderer::renderSkybox(const SkyBox& skybox)
 	//glDepthMask(true);
 	glEnable(GL_CULL_FACE);
 }
-
-//void Renderer::renderDepth(const GameObject& gameObject, const int& meshIndex) {
-//	ShaderMap::getInstance()->useByName(DEPTH_MAP);
-//
-//	//Bind and draw the objects to the depth-buffer
-//	bindMatrixes(DEPTH_MAP);
-//	glBindFramebuffer(GL_FRAMEBUFFER, m_depthFBO);
-//	glClear(GL_DEPTH_BUFFER_BIT);
-//
-//	Mesh* mesh = MeshMap::getInstance()->getMesh(gameObject.getMeshN(meshIndex));
-//	Transform transform = gameObject.getTransform(meshIndex);
-//
-//	glBindVertexArray(mesh->getBuffers().vao);
-//
-//	glm::mat4 modelMatrix = glm::mat4(1.0f);
-//
-//	/* !!!THIS IS NOT SUPPOSED TO HAPPEN IN THE RENDER FUNCTION!!!! */
-//	modelMatrix = glm::translate(modelMatrix, transform.position);
-//	modelMatrix = glm::scale(modelMatrix, transform.scale);
-//	modelMatrix *= glm::mat4_cast(transform.rotation);
-//
-//	ShaderMap::getInstance()->getShader(DEPTH_MAP)->setMat4("modelMatrix", modelMatrix);
-//
-//	glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-//
-//	glBindVertexArray(0);
-//	
-//	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-//}
-
-//void Renderer::renderColor(const GameObject& gameObject, const int& meshIndex) {
-//
-//	ShaderMap::getInstance()->useByName(BASIC_FORWARD);
-//
-//	Mesh* meshRef = MeshMap::getInstance()->getMesh(gameObject.getMeshN(meshIndex));
-//	const Transform meshTransform = gameObject.getTransform(meshIndex);
-//
-//	glBindVertexArray(meshRef->getBuffers().vao);
-//
-//	glm::mat4 worldMatrix = glm::mat4(1.0f);
-//	worldMatrix = glm::translate(worldMatrix, meshTransform.position);
-//	worldMatrix = glm::scale(worldMatrix, meshTransform.scale);
-//	worldMatrix *= glm::mat4_cast(meshTransform.rotation);
-//
-//	//Set matrices
-//	bindMatrixes(BASIC_FORWARD);
-//	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", worldMatrix);
-//
-//	//Drawcall
-//	glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-//
-//	glBindVertexArray(0);
-//}
 
 void Renderer::update(float dt) {
 	m_camera->fpsControls(dt);
