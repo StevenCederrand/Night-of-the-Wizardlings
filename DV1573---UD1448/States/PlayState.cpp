@@ -19,7 +19,11 @@ PlayState::PlayState()
 	Renderer::getInstance()->setupCamera(m_player->getCamera());
 
 	//TODO: organized loading system?
-	
+	m_skybox = new SkyBox();
+	m_skybox->prepareBuffers();
+	ShaderMap::getInstance()->createShader("Skybox_Shader", "Skybox.vs", "Skybox.fs");
+	ShaderMap::getInstance()->getShader("Skybox_Shader")->setInt("skyBox", 4);
+
 	//Test enviroment with 4 meshes inside 1 GameObject, inherited transforms
 	m_objects.push_back(new WorldObject("TestScene"));
 	m_objects[m_objects.size() - 1]->loadMesh("TestScene.mesh");
@@ -47,10 +51,7 @@ PlayState::PlayState()
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(-3.0f, 0.0f, 3.0f));
 
 
-	m_skybox = new SkyBox();
-	m_skybox->prepareBuffers();
-	ShaderMap::getInstance()->createShader("Skybox_Shader", "Skybox.vs", "Skybox.fs");
-	ShaderMap::getInstance()->getShader("Skybox_Shader")->setInt("skyBox", 4);
+
 
 	CollisionObject obj = box;
 	m_bPhysics->createObject(obj, 0.0f, glm::vec3(0.0f, -1.5f, 0.0f), glm::vec3(100.0f, 2.0f, 100.0f), 1.0);
@@ -120,8 +121,6 @@ void PlayState::render()
 
 		}	
 	}
-
-
 
 	// Default
 	for (GameObject* object : m_objects)

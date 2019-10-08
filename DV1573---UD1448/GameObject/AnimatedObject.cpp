@@ -34,7 +34,7 @@ void AnimatedObject::update(float dt)
 		for (size_t a = 0; a < animSize; a++)
 		{
 			std::string animName = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations()[a];
-			ComputeMatrix(i, m_meshes[i].name, animName);
+			ComputeMatrix((int)i, m_meshes[i].name, animName);
 		}
 	}
 }
