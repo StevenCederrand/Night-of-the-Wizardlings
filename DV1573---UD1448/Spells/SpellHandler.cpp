@@ -15,7 +15,7 @@ SpellHandler::~SpellHandler()
 	delete tempEnhanceAttackSpell;
 }
 
-void SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector, TYPE type)
+void SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector, SPELL_TYPE type)
 {
 	if (type == NORMALATTACK)
 	{

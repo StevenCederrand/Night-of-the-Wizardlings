@@ -53,7 +53,7 @@ private:
 	int health;
 	int m_frameCount;
 	std::string name;
-	TYPE spellType;
+	SPELL_TYPE spellType;
 
 	//removed in bulletPhysics.cpp
 	BulletPhysics* m_bp;

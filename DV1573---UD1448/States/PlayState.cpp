@@ -89,7 +89,6 @@ void PlayState::render()
 
 	for (size_t i = 0; i < list.size(); i++)
 	{
-
 		if (list[i]->gameobject == nullptr) continue;
 
 		for (int j = 0; j < list[i]->gameobject->getMeshesCount(); j++)

@@ -14,8 +14,8 @@ void ChaosServerMode::update(const RakNet::BitStream& bitstream, unsigned char& 
 	if (packetID == SERVER_CHANGE_STATE) {
 		NetGlobals::ServerState state = NetGlobals::ServerState::GameStarted;
 		m_registeredOnServerStateChangeCallback(state);
-		
 	}
+
 }
 
 void ChaosServerMode::registerCallbackOnServerStateChange(std::function<void(NetGlobals::ServerState)> callback)
