@@ -9,7 +9,7 @@ Renderer::Renderer()
 {
 	m_gWindow = nullptr;
 	m_camera = nullptr;
-
+	glEnable(GL_MULTISAMPLE);
 	createDepthMap();
 	int x = -10;
 	int z = -40;
