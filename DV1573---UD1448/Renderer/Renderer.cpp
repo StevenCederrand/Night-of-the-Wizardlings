@@ -1,11 +1,6 @@
 #include <Pch/Pch.h>
 #include "Renderer.h"
 
-#define LIGHT_CULL "Light_Cull"
-#define BASIC_FORWARD "Basic_Forward"
-#define DEPTH_MAP "Depth_Map"
-#define SKYBOX "Skybox_Shader"
-
 #define TILE_SIZE 16
 
 Renderer* Renderer::m_rendererInstance = 0;
@@ -20,14 +15,17 @@ Renderer::Renderer()
 	int z = -40;
 
 	m_pLights.reserve(P_LIGHT_COUNT);
+	
 	for (int i = 0; i < P_LIGHT_COUNT; i++) {
 		Pointlight pL;
-		pL.position = glm::vec3(x += 15, 2.5f, 0);
+		pL.position = glm::vec3(0, 0, 0);
 
 		pL.radius = 5.0f;
 		pL.attenuation = glm::vec3(1.0f, 0.09f, 0.032f);
 		m_pLights.push_back(pL);
 	}
+
+
 	//Define Work Groups
 	workGroups.x = (SCREEN_WIDTH + (SCREEN_WIDTH % TILE_SIZE)) / TILE_SIZE;
 	workGroups.y = (SCREEN_HEIGHT + (SCREEN_HEIGHT % TILE_SIZE)) / TILE_SIZE;
@@ -93,8 +91,7 @@ void Renderer::initShaders() {
 	ShaderMap::getInstance()->createShader(LIGHT_CULL, "LightCullCompute.comp");
 	ShaderMap::getInstance()->useByName(LIGHT_CULL);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
-	
-	//ShaderMap::getInstance()->createShader(BASIC_FORWARD, "VertexShader.vert", "FragShader.frag");
+	ShaderMap::getInstance()->createShader(BASIC_FORWARD, "VertexShader.vert", "FragShader.frag");
 }
 
 void Renderer::bindMatrixes(const std::string& shaderName) {
@@ -139,13 +136,6 @@ void Renderer::destroy()
 	delete m_rendererInstance;
 }
 
-void Renderer::bindMatrixes(const glm::mat4& viewMatrix, const glm::mat4& projMatrix)
-{
-	//TODO: Also being done in render()
-	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("viewMatrix", m_camera->getViewMat());
-	ShaderMap::getInstance()->getShader("Basic_Forward")->setMat4("projectionMatrix", m_camera->getProjMat());
-}
-
 void Renderer::renderSkybox(const SkyBox& skybox)
 {
 	glDisable(GL_CULL_FACE);
@@ -165,70 +155,62 @@ void Renderer::renderSkybox(const SkyBox& skybox)
 	glEnable(GL_CULL_FACE);
 }
 
-void Renderer::renderDepth(const GameObject& gameObject, const int& meshIndex) {
-	ShaderMap::getInstance()->useByName(DEPTH_MAP);
+//void Renderer::renderDepth(const GameObject& gameObject, const int& meshIndex) {
+//	ShaderMap::getInstance()->useByName(DEPTH_MAP);
+//
+//	//Bind and draw the objects to the depth-buffer
+//	bindMatrixes(DEPTH_MAP);
+//	glBindFramebuffer(GL_FRAMEBUFFER, m_depthFBO);
+//	glClear(GL_DEPTH_BUFFER_BIT);
+//
+//	Mesh* mesh = MeshMap::getInstance()->getMesh(gameObject.getMeshN(meshIndex));
+//	Transform transform = gameObject.getTransform(meshIndex);
+//
+//	glBindVertexArray(mesh->getBuffers().vao);
+//
+//	glm::mat4 modelMatrix = glm::mat4(1.0f);
+//
+//	/* !!!THIS IS NOT SUPPOSED TO HAPPEN IN THE RENDER FUNCTION!!!! */
+//	modelMatrix = glm::translate(modelMatrix, transform.position);
+//	modelMatrix = glm::scale(modelMatrix, transform.scale);
+//	modelMatrix *= glm::mat4_cast(transform.rotation);
+//
+//	ShaderMap::getInstance()->getShader(DEPTH_MAP)->setMat4("modelMatrix", modelMatrix);
+//
+//	glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+//
+//	glBindVertexArray(0);
+//	
+//	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//}
 
-	//Bind and draw the objects to the depth-buffer
-	bindMatrixes(DEPTH_MAP);
-	glBindFramebuffer(GL_FRAMEBUFFER, m_depthFBO);
-	glClear(GL_DEPTH_BUFFER_BIT);
-
-	Mesh* mesh = MeshMap::getInstance()->getMesh(gameObject.getMeshN(meshIndex));
-	Transform transform = gameObject.getTransform(meshIndex);
-
-	glBindVertexArray(mesh->getBuffers().vao);
-
-	glm::mat4 modelMatrix = glm::mat4(1.0f);
-
-	/* !!!THIS IS NOT SUPPOSED TO HAPPEN IN THE RENDER FUNCTION!!!! */
-	modelMatrix = glm::translate(modelMatrix, transform.position);
-	modelMatrix = glm::scale(modelMatrix, transform.scale);
-	modelMatrix *= glm::mat4_cast(transform.rotation);
-
-	ShaderMap::getInstance()->getShader(DEPTH_MAP)->setMat4("modelMatrix", modelMatrix);
-
-	glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
-	glBindVertexArray(0);
-	
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-void Renderer::renderColor(const GameObject& gameObject, const int& meshIndex) {
-
-	ShaderMap::getInstance()->useByName(BASIC_FORWARD);
-
-	Mesh* meshRef = MeshMap::getInstance()->getMesh(gameObject.getMeshN(meshIndex));
-	const Transform meshTransform = gameObject.getTransform(meshIndex);
-
-	glBindVertexArray(meshRef->getBuffers().vao);
-
-	glm::mat4 worldMatrix = glm::mat4(1.0f);
-	worldMatrix = glm::translate(worldMatrix, meshTransform.position);
-	worldMatrix = glm::scale(worldMatrix, meshTransform.scale);
-	worldMatrix *= glm::mat4_cast(meshTransform.rotation);
-
-	//Set matrices
-	bindMatrixes(BASIC_FORWARD);
-	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", worldMatrix);
-
-	//Drawcall
-	glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
-	glBindVertexArray(0);
-}
+//void Renderer::renderColor(const GameObject& gameObject, const int& meshIndex) {
+//
+//	ShaderMap::getInstance()->useByName(BASIC_FORWARD);
+//
+//	Mesh* meshRef = MeshMap::getInstance()->getMesh(gameObject.getMeshN(meshIndex));
+//	const Transform meshTransform = gameObject.getTransform(meshIndex);
+//
+//	glBindVertexArray(meshRef->getBuffers().vao);
+//
+//	glm::mat4 worldMatrix = glm::mat4(1.0f);
+//	worldMatrix = glm::translate(worldMatrix, meshTransform.position);
+//	worldMatrix = glm::scale(worldMatrix, meshTransform.scale);
+//	worldMatrix *= glm::mat4_cast(meshTransform.rotation);
+//
+//	//Set matrices
+//	bindMatrixes(BASIC_FORWARD);
+//	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", worldMatrix);
+//
+//	//Drawcall
+//	glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+//
+//	glBindVertexArray(0);
+//}
 
 void Renderer::update(float dt) {
 	m_camera->fpsControls(dt);
 	m_camera->update(m_gWindow);
-}
-
-void Renderer::render(const GameObject& gameObject, int meshIndex) {
-
-	//Render to the depth buffer
-	renderDepth(gameObject, meshIndex);
-	
-	renderColor(gameObject, meshIndex);
 }
 
 void Renderer::render() {
@@ -272,16 +254,50 @@ void Renderer::render() {
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 #pragma endregion
+#pragma region Light_Culling
+	//If we have got pointlights in the scene the we check the light culling
+	if (m_pLights.size() > 0) {
+		ShaderMap::getInstance()->useByName(LIGHT_CULL);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
+		bindMatrixes(LIGHT_CULL);
+
+		glm::vec2 screenSize = glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT);
+		ShaderMap::getInstance()->getShader(LIGHT_CULL)->setVec2("screenSize", screenSize);
+
+		//Bind the depthmap	
+		glActiveTexture(GL_TEXTURE0);
+		ShaderMap::getInstance()->getShader(LIGHT_CULL)->setInt("depthMap", 0); //Not sure if this has to happen every frame
+		glBindTexture(GL_TEXTURE_2D, m_depthMap);
+
+
+		//Send all of the light data into the compute shader	
+		for (int i = 0; i < P_LIGHT_COUNT; i++) {
+			ShaderMap::getInstance()->getShader(LIGHT_CULL)->setVec3("lights[" + std::to_string(i) + "].position", m_pLights[i].position);
+			ShaderMap::getInstance()->getShader(LIGHT_CULL)->setFloat("lights[" + std::to_string(i) + "].radius", m_pLights[i].radius);
+		}
+
+		glDispatchCompute(workGroups.x, workGroups.y, 1);
+		//Unbind the depth
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
 	
+#pragma endregion
 #pragma region Color_Render
 
 	ShaderMap::getInstance()->useByName(BASIC_FORWARD);
 	//Bind view- and projection matrix
 	bindMatrixes(BASIC_FORWARD);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
 
 	//Add a step where we insert lights into the scene
-
-	//
+	if (m_pLights.size() > 0) {
+		for (int i = 0; i < P_LIGHT_COUNT; i++) {
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setVec3("pLights[" + std::to_string(i) + "].position", m_pLights[i].position);
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setVec3("pLights[" + std::to_string(i) + "].attenuation", m_pLights[i].attenuation);
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setFloat("pLights[" + std::to_string(i) + "].radius", m_pLights[i].radius);
+		}
+	}
 
 	for (GameObject* object : m_staticObjects)
 	{

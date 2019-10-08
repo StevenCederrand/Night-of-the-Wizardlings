@@ -1,12 +1,18 @@
 #ifndef _RENDERER_h
 #define _RENDERER_h
 
+//Define the names of the shaders
+#define LIGHT_CULL "Light_Cull"
+#define BASIC_FORWARD "Basic_Forward"
+#define DEPTH_MAP "Depth_Map"
+#define SKYBOX "Skybox_Shader"
+
 #include <Pch/Pch.h>
 #include <GameObject/GameObject.h>
 #include <Mesh/MeshFormat.h>
 #include <Renderer/SkyBox.h>
 
-#define P_LIGHT_COUNT 10
+#define P_LIGHT_COUNT 1
 
 struct ObjectRenderData {
 	Buffers buffer;
@@ -57,12 +63,6 @@ private:
 	void initShaders();
 	void bindMatrixes(const std::string& shaderName);
 	
-	void renderDepth(const GameObject& gameObject, const int& meshIndex);
-	
-	void lightCull();
-
-	void renderColor(const GameObject& gameObject, const int& meshIndex);
-
 	Renderer();
 public:
 
@@ -75,9 +75,7 @@ public:
 
 	void destroy();
 	void submit(GameObject* gameObject, ObjectType objType);
-	void bindMatrixes(const glm::mat4& viewMatrix, const glm::mat4& projMatrix);
 	void renderSkybox(const SkyBox& skybox);
-	void render(const GameObject& gameObject, int meshIndex);
 	void render();
 	Camera* getMainCamera() const;
 };

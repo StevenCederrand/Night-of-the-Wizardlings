@@ -197,7 +197,7 @@ void Player::renderSpell()
 	for (AttackSpell object : normalSpell)
 	{
 		object.bindMaterialToShader("Basic_Forward");
-		Renderer::getInstance()->render(object, 0);
+		//Renderer::getInstance()->render(object, 0);
 	}
 }
 

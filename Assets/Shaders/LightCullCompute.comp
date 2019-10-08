@@ -1,6 +1,6 @@
 #version 430
-#define LIGHTS_MAX 3
-#define PLANE_COUNT 4
+#define LIGHTS_MAX 1
+#define PLANE_COUNT 6
 
 layout(std430, binding = 0) writeonly buffer LightIndexBuffer {
     //Point light indexes
@@ -65,34 +65,34 @@ void main() {
     barrier();
 
     //Setup the frustum
-   if(gl_LocalInvocationIndex == 0) {
-        minDepth = uintBitsToFloat(minMaxDepth.x);
-        maxDepth = uintBitsToFloat(minMaxDepth.y);
-        
-        vec2 sides = (2.0 * vec2(tileID)) / vec2(tileNumber);
+    if(gl_LocalInvocationIndex == 0) {
+         minDepth = uintBitsToFloat(minMaxDepth.x);
+         maxDepth = uintBitsToFloat(minMaxDepth.y);
 
-        //planes[0] = vec3(1.0 - sidex.x, 0, 0)
-		planes[1] = vec4(1.0, 0.0, 0.0, 1.0 + sides.x); // Left
-		planes[2] = vec4(0.0, 1.0, 0.0, 1.0 + sides.y); // Bottom
+         vec2 sides = (2.0 * vec2(tileID)) / vec2(tileNumber);
+
+         //planes[0] = vec3(1.0 - sidex.x, 0, 0)
+ 		planes[1] = vec4(1.0, 0.0, 0.0, 1.0 + sides.x); // Left
+ 		planes[2] = vec4(0.0, 1.0, 0.0, 1.0 + sides.y); // Bottom
 
         sides = (2.0 * vec2(tileID + ivec2(1, 1))) / vec2(tileNumber);
-		
-        planes[3] = vec4(-1.0, 0.0, 0.0, 1.0 - sides.x); // Right
-		planes[0] = vec4(0.0, -1.0, 0.0, 1.0 - sides.y); // Top
 
-		//planes[4] = vec4(0.0, 0.0, -1.0, -minDepth); // Near
-		//planes[5] = vec4(0.0, 0.0, 1.0, maxDepth); // Far
+        planes[3] = vec4(1.0, 0.0, 0.0, 1.0 - sides.x); // Right
+ 		planes[0] = vec4(0.0, 1.0, 0.0, 1.0 - sides.y); // Top
+
+ 		planes[4] = vec4(0.0, 0.0, 1.0, -minDepth); // Near
+ 		planes[5] = vec4(0.0, 0.0, 1.0, maxDepth); // Far
 
         for(uint i = 0; i < 4; i++) {
             planes[i] *=  projMatrix * viewMatrix;
             planes[i] /= length(planes[i].xyz);
         }
 
-        //planes[4] *= viewMatrix;
-        //planes[4] /= length(planes[4].xyz);
-        //planes[5] *= viewMatrix;
-        //planes[5] /= length(planes[5].xyz);
-    }
+        planes[4] *= viewMatrix;
+        planes[4] /= length(planes[4].xyz);
+        planes[5] *= viewMatrix;
+        planes[5] /= length(planes[5].xyz);
+     }
 
     barrier();
 
@@ -105,8 +105,6 @@ void main() {
         for(uint j = 0; j < PLANE_COUNT; j++)
         {
             distance = dot(vec4(lights[lightIndex].position, 1.0), planes[j]);
-
-
 
             if(distance <= 0.0) {
                 break;
@@ -132,36 +130,3 @@ void main() {
         }
     }
 }
-/*
-
-
-
-   if(gl_LocalInvocationIndex == 0) {
-        minDepth = uintBitsToFloat(minMaxDepth.x);
-        maxDepth = uintBitsToFloat(minMaxDepth.y);
-        
-        vec2 sides = (2.0 * vec2(tileID)) / vec2(tileNumber);
-
-        //planes[0] = vec3(1.0 - sidex.x, 0, 0)
-		planes[1] = vec4(1.0, 0.0, 0.0, 1.0 + sides.x); // Left
-		planes[2] = vec4(0.0, 1.0, 0.0, 1.0 + sides.y); // Bottom
-
-        sides = (2.0 * vec2(tileID + ivec2(1, 1))) / vec2(tileNumber);
-		
-        planes[3] = vec4(-1.0, 0.0, 0.0, 1.0 - sides.x); // Right
-		planes[0] = vec4(0.0, -1.0, 0.0, 1.0 - sides.y); // Top
-
-		planes[4] = vec4(0.0, 0.0, 1.0, minDepth); // Near
-		planes[5] = vec4(0.0, 0.0, 1.0, maxDepth); // Far
-
-        for(uint i = 0; i < 4; i++) {
-            planes[i] *=  projMatrix * viewMatrix;
-            planes[i] /= length(planes[i].xyz);
-        }
-
-        planes[4] *= viewMatrix;
-        planes[4] /= length(planes[4].xyz);
-        planes[5] *= viewMatrix;
-        planes[5] /= length(planes[5].xyz);
-    }
-*/

@@ -158,6 +158,24 @@ void Shader::setMat4(std::string name, glm::mat4 mat)
 
 	glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &mat[0][0]);
 }
+void Shader::setVec2(std::string name, glm::vec2 vec)
+{
+	GLint uniformLoc = getUniformLocation(name);
+	if (uniformLoc == -1)
+	{
+		uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
+
+		if (uniformLoc == -1)
+		{
+			logError("Could not find uniform {0}", name);
+			return;
+		}
+
+		m_IDMap[name] = uniformLoc; //Save the ID to the hashmap
+	}
+
+	glUniform2fv(uniformLoc, 1, &vec[0]);
+}
 //uniform vec3
 void Shader::setVec3(std::string name, glm::vec3 vec)
 {

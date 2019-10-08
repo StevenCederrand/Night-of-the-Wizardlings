@@ -11,8 +11,7 @@ PlayState::PlayState()
 {
 	m_bPhysics = new BulletPhysics(-10);
 
-	ShaderMap::getInstance()->createShader("Basic_Forward", "VertexShader.vs", "FragShader.fs");
-	ShaderMap::getInstance()->getShader("Basic_Forward")->setInt("albedoTexture", 0);
+	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
 	Renderer::getInstance();
 	m_camera = new Camera();
 
@@ -113,15 +112,7 @@ void PlayState::render()
 			Renderer::getInstance()->render(*list[i]->gameobject, j);
 		}		
 	}*/
-	/*
-	for (GameObject* object : m_objects)
-	{
-		for (int i = 0; i < object->getMeshesCount(); i++)
-		{
-			object->bindMaterialToShader("Basic_Forward", i);
-			Renderer::getInstance()->render(*object, i);
-		}
-	}*/
+
 
 	Renderer::getInstance()->render();
 
