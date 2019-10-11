@@ -39,11 +39,15 @@ void NetworkPlayers::update(const float& dt)
 			if (p->gameobject == nullptr) {
 				p->gameobject = new WorldObject();
 				p->gameobject->loadMesh("TestCube.mesh");
+				//Submit the player object as a dynamic object
+				Renderer::getInstance()->submit(p->gameobject, DYNAMIC); 
 			}
 			p->flag = FLAG::NONE;
 		}
 		else if (p->flag == FLAG::REMOVE)
 		{
+
+			Renderer::getInstance()->removeDynamic(p->gameobject);
 			delete p->gameobject;
 			delete p;
 			m_players.erase(m_players.begin() + i);

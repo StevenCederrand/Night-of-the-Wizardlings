@@ -130,6 +130,24 @@ void Renderer::submit(GameObject* gameObject, ObjectType objType)
 	}
 }
 
+void Renderer::removeDynamic(GameObject* gameObject)
+{
+	int index = -1;
+	//Find the index of the object
+	for (size_t i = 0; i < m_dynamicObjects.size(); i++)
+	{
+		if (m_dynamicObjects[i] == gameObject) {
+			i = index;
+			break;
+		}
+	}
+	if (index > -1) {
+		m_dynamicObjects.erase(m_dynamicObjects.begin() + index);
+	}
+	
+
+}
+
 void Renderer::destroy()
 {
 	delete m_rendererInstance;
@@ -273,9 +291,49 @@ void Renderer::render() {
 			glBindVertexArray(0);
 		}
 	}
+#pragma endregion	
+	
+#pragma region Dynamic_Object
+	if (m_dynamicObjects.size() > 0) {
+		ShaderMap::getInstance()->useByName(BASIC_FORWARD);
+		bindMatrixes(BASIC_FORWARD);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
 
+		for (GameObject* object : m_dynamicObjects)
+		{
+			if (object == nullptr) {
+				continue;
+			}
+			//Then through all of the meshes
+			for (size_t j = 0; j < object->getMeshesCount(); j++)
+			{
+				//Fetch the current mesh and its transform
+				mesh = MeshMap::getInstance()->getMesh(object->getMeshN(j));
+				transform = object->getTransform(j);
 
+				//Bind the material
+				object->bindMaterialToShader(BASIC_FORWARD, j);
+
+				modelMatrix = glm::mat4(1.0f);
+				//Apply the transform to the matrix. This should actually be done automatically in the mesh!
+				modelMatrix = glm::translate(modelMatrix, transform.position);
+				modelMatrix = glm::scale(modelMatrix, transform.scale);
+				modelMatrix *= glm::mat4_cast(transform.rotation);
+
+				//Bind the modelmatrix
+				ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
+
+				glBindVertexArray(mesh->getBuffers().vao);
+
+				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+				glBindVertexArray(0);
+			}
+		}
+	}
+	
 #pragma endregion
+
 }
 
 Camera* Renderer::getMainCamera() const

@@ -75,6 +75,7 @@ public:
 
 	void destroy();
 	void submit(GameObject* gameObject, ObjectType objType);
+	void removeDynamic(GameObject* gameObject); //Remove an object from the dynamic array
 	void renderSkybox(const SkyBox& skybox);
 	void render();
 	Camera* getMainCamera() const;
