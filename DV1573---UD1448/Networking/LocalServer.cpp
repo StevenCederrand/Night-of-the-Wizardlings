@@ -198,7 +198,14 @@ void LocalServer::processAndHandlePackets()
 
 		case SPELL_CREATED:
 		{
+			for (size_t i = 0; i < m_connectedPlayers.size(); i++)
+			{
+				// Don't send it back to the sender
+				if (packet->guid != m_connectedPlayers[i].guid.rakNetGuid) {
+					m_serverPeer->Send(&bsIn, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_connectedPlayers[i].guid, false);
+				}
 
+			}
 		}
 		break;
 			   		

@@ -45,7 +45,7 @@ struct PlayerPacket {
 	}
 };
 
-struct SpellPacket : public RakNet::NetworkIDObject {
+struct SpellPacket{
 	RakNet::RakNetGUID SpellGUID = RakNet::UNASSIGNED_RAKNET_GUID;
 	RakNet::RakNetGUID CreatorGUID = RakNet::UNASSIGNED_RAKNET_GUID;
 	glm::vec3 Position = glm::vec3(0.0f);
@@ -58,6 +58,24 @@ struct SpellPacket : public RakNet::NetworkIDObject {
 		stream.Serialize(writeToStream, Position);
 		stream.Serialize(writeToStream, Rotation);
 		stream.Serialize(writeToStream, SpellType);
+	}
+
+	std::string toString() const {
+		std::string str = "---Spell Packet---\n";
+		str +=	"Spell ID: " + std::string(SpellGUID.ToString()) + "\n";
+		str +=	"Creator ID: " + std::string(CreatorGUID.ToString()) + "\n" ;
+		str += "Position: (" + std::to_string(Position.x) + ", " + std::to_string(Position.y) + ", " + std::to_string(Position.z) + ")\n";
+		str += "Rotation: (" + std::to_string(Rotation.x) + ", " + std::to_string(Rotation.y) + ", " + std::to_string(Rotation.z) + ")\n";
+		
+		if(SpellType == SPELL_TYPE::ENHANCEATTACK)
+			str += "SpellType: Enhanced attack";
+		else if (SpellType == SPELL_TYPE::NORMALATTACK)
+			str += "SpellType: Normal attack";
+		else if (SpellType == SPELL_TYPE::ENHANCEATTACK)
+			str += "SpellType: Unknown type";
+		
+
+		return str;
 	}
 };
 

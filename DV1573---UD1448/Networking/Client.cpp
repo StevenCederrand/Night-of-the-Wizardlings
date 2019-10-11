@@ -301,6 +301,27 @@ void Client::processAndHandlePackets()
 		}
 		break;
 
+		case SPELL_CREATED:
+		{
+			logTrace("Spell created by some dude on the network");
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			SpellPacket spellPacket;
+			spellPacket.Serialize(false, bsIn);
+
+			logTrace(spellPacket.toString());
+			
+
+		}
+
+		break;
+		
+		case SPELL_UPDATE:
+		{
+
+		}
+
+		break;
+
 		default:
 		{
 			logWarning("[CLIENT] Unknown packet received!");
@@ -323,7 +344,21 @@ void Client::updatePlayerData(Player* player)
 
 void Client::createSpellOnNetwork(Spell& spell)
 {
-	//RakNet::RakNetGUID guid = m_clientPeer->Get64BitUniqueRandomNumber()
+	RakNet::RakNetGUID guid = RakNet::RakNetGUID::RakNetGUID(m_clientPeer->Get64BitUniqueRandomNumber());
+	
+	SpellPacket spellPacket;
+	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
+	spellPacket.Position = spell.getSpellPos();
+	spellPacket.SpellGUID = guid;
+	spellPacket.Rotation = glm::vec3(0.0f);
+	spellPacket.SpellType = SPELL_TYPE::UNKNOWN; // Type needs to be present in Spell class and not in sub classes.
+	
+	// Send it
+	RakNet::BitStream bsOut;
+	bsOut.Write((RakNet::MessageID)SPELL_CREATED);
+	spellPacket.Serialize(true, bsOut);
+	m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
+
 }
 
 void Client::updateNetworkedPlayers(const float& dt)

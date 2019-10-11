@@ -26,11 +26,8 @@ void SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 di
 			tempSpell2.createSpell(deltaTime, spellPos, directionVector);
 			normalSpell.push_back(tempSpell2);
 			tempSpell->setCooldown(1.0f);
-			
-			
-
-			
-
+			Client::getInstance()->createSpellOnNetwork(tempSpell2);
+		
 		}
 	}
 
@@ -42,6 +39,7 @@ void SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 di
 			tempSpell2.createSpell(deltaTime, spellPos, directionVector);
 			enhanceAttackSpell.push_back(tempSpell2);
 			tempEnhanceAttackSpell->setCooldown(5.0f);
+			Client::getInstance()->createSpellOnNetwork(tempSpell2);
 		}
 	}	
 }

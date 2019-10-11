@@ -15,6 +15,8 @@ public:
 	float getTravelTime();
 	glm::vec3 getSpellPos();
 	glm::vec3 getDirection();
+	const RakNet::RakNetGUID& getGUID() const;
+
 	//----Set-----//
 	void setDamage(int damage);
 	void setSpellSpeed(float speed);
@@ -22,7 +24,7 @@ public:
 	void setCooldown(float cooldown);
 	void setTravelTime(float travelTime);
 	void setDirection(glm::vec3 direction);
-
+	void setGUID(const RakNet::RakNetGUID& guid);
 	void update(float dt);
 
 	void destroySpell();

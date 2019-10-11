@@ -49,6 +49,11 @@ glm::vec3 Spell::getDirection()
 	return this->direction;
 }
 
+const RakNet::RakNetGUID& Spell::getGUID() const
+{
+	return m_guid;
+}
+
 void Spell::setDamage(int damage)
 {
 	this->spellDamage = damage;
@@ -77,6 +82,11 @@ void Spell::setTravelTime(float travelTime)
 void Spell::setDirection(glm::vec3 direction)
 {
 	this->direction = direction;
+}
+
+void Spell::setGUID(const RakNet::RakNetGUID& guid)
+{
+	m_guid = guid;
 }
 
 

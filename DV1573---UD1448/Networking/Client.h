@@ -63,6 +63,7 @@ private:
 	NetworkPlayers m_playerEntities;
 	std::mutex m_cleanupMutex;
 	
+	std::unordered_map<RakNet::RakNetGUID, Spell*> m_activeSpells;
 };
 
 #endif
