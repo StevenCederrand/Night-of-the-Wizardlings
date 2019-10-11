@@ -5,14 +5,6 @@
 #include <GFX/MaterialMap.h>
 #include <Mesh/Mesh.h>
 
-//TODO: MOVE
-//Handles seperate transforms for same mesh
-struct MeshBox
-{
-	std::string name;
-	Transform transform;
-};
-
 class GameObject {
 public:
 	//Create an Empty object
@@ -39,19 +31,27 @@ public:
 	const Transform getTransform() const;
 	//Returns mesh worldposition
 	const Transform getTransform(int meshIndex) const;
-	Mesh* getMesh() const;
-	Mesh* getMesh(int meshIndex) const;
-	const std::string& getMeshN(int meshIndex) const;
+	const std::string& getMeshName(int meshIndex) const;
 	const int getMeshesCount() const { return (int)m_meshes.size(); }
-
+	const const glm::mat4& getMatrix(int i) const;
+	const int getType() const { return type; }
+	
 
 private:
+	void updateModelMatrix();
+	struct MeshBox //Handles seperate transforms for same mesh
+	{
+		std::string name;
+		Transform transform;
+	};
 
 	std::string m_objectName;
 	Transform m_transform;
 
+protected:
+	std::vector<glm::mat4> m_modelMatrixes;
 	std::vector<MeshBox> m_meshes;
-
+	int type;
 };
 
 

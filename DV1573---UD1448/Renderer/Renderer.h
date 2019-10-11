@@ -6,11 +6,14 @@
 #define BASIC_FORWARD "Basic_Forward"
 #define DEPTH_MAP "Depth_Map"
 #define SKYBOX "Skybox_Shader"
+#define ANIMATION "Basic_Animation"
 
 #include <Pch/Pch.h>
 #include <GameObject/GameObject.h>
+#include <GameObject/AnimatedObject.h>
 #include <Mesh/MeshFormat.h>
 #include <Renderer/SkyBox.h>
+#include <System/Timer.h>
 
 #define P_LIGHT_COUNT 1
 
@@ -31,7 +34,9 @@ struct LightIndex {
 
 enum ObjectType {
 	STATIC,
-	DYNAMIC
+	DYNAMIC,
+	ANIMATEDSTATIC,
+	ANIMATEDDYNAMIC
 };
 
 class Renderer
@@ -41,9 +46,13 @@ private:
 	GLFWwindow* m_gWindow;
 	Camera* m_camera;
 
+	Timer m_timer;
+
 	//Store gameobjects directly to the renderer
 	std::vector<GameObject*> m_staticObjects;
 	std::vector<GameObject*> m_dynamicObjects;
+	std::vector<GameObject*> m_anistaticObjects;
+	std::vector<GameObject*> m_anidynamicObjects;
 
 	//Buffers
 	unsigned int m_depthFBO;
@@ -62,6 +71,7 @@ private:
 	void createDepthMap();
 	void initShaders();
 	void bindMatrixes(const std::string& shaderName);
+	
 	
 	Renderer();
 public:

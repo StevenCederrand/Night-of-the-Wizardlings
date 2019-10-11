@@ -92,6 +92,9 @@ void Renderer::initShaders() {
 	ShaderMap::getInstance()->useByName(LIGHT_CULL);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
 	ShaderMap::getInstance()->createShader(BASIC_FORWARD, "VertexShader.vert", "FragShader.frag");
+	ShaderMap::getInstance()->createShader(ANIMATION, "Animation.vert", "FragShader.frag");
+	ShaderMap::getInstance()->createShader("Skybox_Shader", "Skybox.vs", "Skybox.fs");
+	ShaderMap::getInstance()->getShader("Skybox_Shader")->setInt("skyBox", 4);
 }
 
 void Renderer::bindMatrixes(const std::string& shaderName) {
@@ -127,6 +130,12 @@ void Renderer::submit(GameObject* gameObject, ObjectType objType)
 	}
 	else if (objType == DYNAMIC) {
 		m_dynamicObjects.push_back(gameObject);
+	}
+	else if (objType == ANIMATEDSTATIC) {
+		m_anistaticObjects.push_back(gameObject);
+	}
+	else if (objType == ANIMATEDDYNAMIC) {
+		m_anidynamicObjects.push_back(gameObject);
 	}
 }
 
@@ -181,7 +190,6 @@ void Renderer::render() {
 	Mesh* mesh;
 	Transform transform;
 	glm::mat4 modelMatrix;
-	
 #pragma region Depth_Render
 	ShaderMap::getInstance()->useByName(DEPTH_MAP);
 
@@ -196,15 +204,12 @@ void Renderer::render() {
 		//Then through all of the meshes
 		for (size_t j = 0; j < object->getMeshesCount(); j++)
 		{
-			modelMatrix = glm::mat4(1.0f);
+			//modelMatrix = glm::mat4(1.0f);
 			//Fetch the current mesh and its transform
-			mesh = MeshMap::getInstance()->getMesh(object->getMeshN(j));
+			mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
 			transform = object->getTransform(j);
-			//Apply the transform to the matrix. This should actually be done automatically in the mesh!
-			modelMatrix = glm::translate(modelMatrix, transform.position);
-			modelMatrix = glm::scale(modelMatrix, transform.scale);
-			modelMatrix *= glm::mat4_cast(transform.rotation);
-
+			//Grab the modelmatrix for the current mesh
+			modelMatrix = object->getMatrix(j);
 			glBindVertexArray(mesh->getBuffers().vao);
 
 			//Bind the modelmatrix
@@ -215,9 +220,35 @@ void Renderer::render() {
 			glBindVertexArray(0);
 		}
 	}
+	
+	//Animated static objects
+	//TODO: Consider animation for the depth shader
+	for (GameObject* object : m_anistaticObjects)
+	{
+		//Then through all of the meshes
+		for (size_t j = 0; j < object->getMeshesCount(); j++)
+		{
+			//modelMatrix = glm::mat4(1.0f);
+			//Fetch the current mesh and its transform
+			mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
+			transform = object->getTransform(j);
+			//Grab the modelmatrix for the current mesh
+			modelMatrix = object->getMatrix(j);
 
+			glBindVertexArray(mesh->getBuffers().vao);
+
+			//Bind the modelmatrix
+			ShaderMap::getInstance()->getShader(DEPTH_MAP)->setMat4("modelMatrix", modelMatrix);
+
+			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+			glBindVertexArray(0);
+		}
+	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 #pragma endregion
+
+
 #pragma region Light_Culling
 	//If we have got pointlights in the scene the we check the light culling
 	if (m_pLights.size() > 0) {
@@ -245,10 +276,10 @@ void Renderer::render() {
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
-	
-#pragma endregion
-#pragma region Color_Render
 
+#pragma endregion
+
+#pragma region Color_Render
 	ShaderMap::getInstance()->useByName(BASIC_FORWARD);
 	//Bind view- and projection matrix
 	bindMatrixes(BASIC_FORWARD);
@@ -262,25 +293,20 @@ void Renderer::render() {
 			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setFloat("pLights[" + std::to_string(i) + "].radius", m_pLights[i].radius);
 		}
 	}
-
+	//Render Static objects
 	for (GameObject* object : m_staticObjects)
 	{
 		//Then through all of the meshes
 		for (size_t j = 0; j < object->getMeshesCount(); j++)
 		{
 			//Fetch the current mesh and its transform
-			mesh = MeshMap::getInstance()->getMesh(object->getMeshN(j));
+			mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
 			transform = object->getTransform(j);
 
 			//Bind the material
 			object->bindMaterialToShader(BASIC_FORWARD, j);
-			
-			modelMatrix = glm::mat4(1.0f);
-			//Apply the transform to the matrix. This should actually be done automatically in the mesh!
-			modelMatrix = glm::translate(modelMatrix, transform.position);
-			modelMatrix = glm::scale(modelMatrix, transform.scale);
-			modelMatrix *= glm::mat4_cast(transform.rotation);
-
+			//Grab the modelmatrix for the current mesh
+			modelMatrix = object->getMatrix(j);
 			//Bind the modelmatrix
 			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
 			
@@ -291,14 +317,9 @@ void Renderer::render() {
 			glBindVertexArray(0);
 		}
 	}
-#pragma endregion	
-	
-#pragma region Dynamic_Object
-	if (m_dynamicObjects.size() > 0) {
-		ShaderMap::getInstance()->useByName(BASIC_FORWARD);
-		bindMatrixes(BASIC_FORWARD);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
 
+	//Dynamic objects
+	if (m_dynamicObjects.size() > 0) {
 		for (GameObject* object : m_dynamicObjects)
 		{
 			if (object == nullptr) {
@@ -308,17 +329,13 @@ void Renderer::render() {
 			for (size_t j = 0; j < object->getMeshesCount(); j++)
 			{
 				//Fetch the current mesh and its transform
-				mesh = MeshMap::getInstance()->getMesh(object->getMeshN(j));
+				mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
 				transform = object->getTransform(j);
 
 				//Bind the material
 				object->bindMaterialToShader(BASIC_FORWARD, j);
-
-				modelMatrix = glm::mat4(1.0f);
-				//Apply the transform to the matrix. This should actually be done automatically in the mesh!
-				modelMatrix = glm::translate(modelMatrix, transform.position);
-				modelMatrix = glm::scale(modelMatrix, transform.scale);
-				modelMatrix *= glm::mat4_cast(transform.rotation);
+				//Grab the modelmatrix for the current mesh
+				modelMatrix = object->getMatrix(j);
 
 				//Bind the modelmatrix
 				ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
@@ -331,9 +348,52 @@ void Renderer::render() {
 			}
 		}
 	}
+#pragma endregion	
 	
-#pragma endregion
+#pragma region Animation_Render
+	//m_timer.start();
+	//TODO: Evaluate this implementation, should be an easier way to bind values to shaders as they're changed
+	// Possibly extract functions. Only difference in rendering is the shader and the binding of bone matrices
+	ShaderMap::getInstance()->useByName(ANIMATION);
+	//Bind view- and projection matrix
+	bindMatrixes(ANIMATION);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
 
+	//Add a step where we insert lights into the scene
+	if (m_pLights.size() > 0) {
+		for (int i = 0; i < P_LIGHT_COUNT; i++) {
+			ShaderMap::getInstance()->getShader(ANIMATION)->setVec3("pLights[" + std::to_string(i) + "].position", m_pLights[i].position);
+			ShaderMap::getInstance()->getShader(ANIMATION)->setVec3("pLights[" + std::to_string(i) + "].attenuation", m_pLights[i].attenuation);
+			ShaderMap::getInstance()->getShader(ANIMATION)->setFloat("pLights[" + std::to_string(i) + "].radius", m_pLights[i].radius);
+		}
+	}
+	for (GameObject* object : m_anistaticObjects)
+	{
+		//Then through all of the meshes
+		for (size_t j = 0; j < object->getMeshesCount(); j++)
+		{
+			//Fetch the current mesh and its transform
+			mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
+			//Bind calculated bone matrices
+			static_cast<AnimatedObject*>(object)->BindAnimation(j);
+			transform = object->getTransform(j);
+
+			//Bind the material
+			object->bindMaterialToShader(ANIMATION, j);
+
+			modelMatrix = object->getMatrix(j);
+
+			//Bind the modelmatrix
+			ShaderMap::getInstance()->getShader(ANIMATION)->setMat4("modelMatrix", modelMatrix);
+
+			glBindVertexArray(mesh->getBuffers().vao);
+
+			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+			glBindVertexArray(0);
+		}
+	}
+#pragma endregion
 }
 
 Camera* Renderer::getMainCamera() const

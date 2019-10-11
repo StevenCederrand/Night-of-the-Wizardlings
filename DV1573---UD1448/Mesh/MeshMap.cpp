@@ -18,16 +18,17 @@ void MeshMap::cleanUp()
 {
 	std::map<std::string, Mesh*>::iterator it;
 
-	for (it = m_Mesh.begin(); it != m_Mesh.end(); it++) {
+	for (it = m_meshMap.begin(); it != m_meshMap.end(); it++) {
+		it->second->Destroy();
 		delete it->second;
 	}
 
-	m_Mesh.clear();
+	m_meshMap.clear();
 }
 
 bool MeshMap::existsWithName(std::string name)
 {
-	if (m_Mesh.find(name) != m_Mesh.end()) {
+	if (m_meshMap.find(name) != m_meshMap.end()) {
 		return true;
 	}
 	return false;
@@ -45,7 +46,7 @@ Mesh* MeshMap::getMesh(std::string name)
 {
 	if (existsWithName(name))
 	{
-		return m_Mesh[name];
+		return m_meshMap[name];
 	}
 
 	return nullptr;
@@ -60,7 +61,7 @@ Mesh* MeshMap::createMesh(std::string name, Mesh mesh)
 
 	Mesh* newMesh = new Mesh();
 	*newMesh = mesh;
-	m_Mesh[name] = newMesh;
+	m_meshMap[name] = newMesh;
 	return newMesh;
 }
 
