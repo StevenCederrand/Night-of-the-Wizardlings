@@ -60,7 +60,6 @@ Player::~Player()
 
 void Player::update(float deltaTime)
 {
-	selectSpell();
 	controller->updateAction(m_bp->getDynamicsWorld(), deltaTime);
 	move(deltaTime);
 	spellhandler->spellUpdate(deltaTime);
@@ -175,14 +174,33 @@ void Player::move(float deltaTime)
 
 void Player::attack(float deltaTime)
 {
-	if (glfwGetMouseButton(playerCamera->getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)// && tempSpell->getCooldown() <= 0
+	if (glfwGetMouseButton(playerCamera->getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 	{
 		createRay();
-		spellhandler->createSpell(deltaTime, m_playerPosition, directionVector, spellType);
-
+		spellhandler->setType(spellType);
+		if (spellhandler->createSpell(deltaTime, m_playerPosition, directionVector, spellhandler->getType()))
+		{
+			this->spellType = NORMALATTACK;
+		}
 	}
-	spellhandler->spellCooldown(deltaTime);
 
+	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_2) == GLFW_PRESS)
+	{
+		this->spellType = ENHANCEATTACK;
+	}
+
+	if (spellType == ENHANCEATTACK)
+	{
+		createRay();
+		spellhandler->setType(spellType);
+		if (spellhandler->createSpell(deltaTime, m_playerPosition, directionVector, spellhandler->getType()))
+		{
+			this->spellType = NORMALATTACK;
+		}
+	}
+
+
+	spellhandler->spellCooldown(deltaTime);
 }
 
 void Player::createRay()
@@ -229,19 +247,6 @@ void Player::createRigidBody(BulletPhysics* bp)
 void Player::forceUp()
 {
 	m_body->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
-}
-
-void Player::selectSpell()
-{
-	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_1) == GLFW_PRESS)
-	{
-		this->spellType = NORMALATTACK;
-	}
-
-	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_2) == GLFW_PRESS)
-	{
-		this->spellType = ENHANCEATTACK;
-	}
 }
 
 void Player::setHealth(int health)

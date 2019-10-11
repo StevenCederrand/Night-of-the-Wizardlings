@@ -24,7 +24,6 @@ public:
 	void createRay(); //create ray for spells
 	void renderSpell();
 	void spawnPlayer(glm::vec3 pos);
-	void selectSpell();
 
 	void createRigidBody(BulletPhysics* bp);
 	void forceUp();

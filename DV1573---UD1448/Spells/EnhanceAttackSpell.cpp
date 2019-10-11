@@ -6,10 +6,11 @@ EnhanceAttackSpell::EnhanceAttackSpell(glm::vec3 pos)
 {
 }
 
-EnhanceAttackSpell::EnhanceAttackSpell(std::string name, glm::vec3 pos, glm::vec3 direction, float speed, float travelTime, std::string meshName, float cooldown, float nrOfEnhancedAttacks, float attackCooldown)
+EnhanceAttackSpell::EnhanceAttackSpell(std::string name, glm::vec3 pos, glm::vec3 direction, float speed, float travelTime, std::string meshName, float cooldown, float nrOfEnhancedAttacks, float attackCooldown, float spellActiveTime)
 	: Spell(name, pos, direction, speed, travelTime, meshName, cooldown)
 {
 	this->nrOfAttacks = nrOfEnhancedAttacks;
+	this->spellActiveTime = spellActiveTime;
 }
 
 EnhanceAttackSpell::~EnhanceAttackSpell()
@@ -51,6 +52,14 @@ void EnhanceAttackSpell::spellCooldownUpdate(float deltaTime)
 {
 	if (getCooldown() > 0)
 		setCooldown(getCooldown() - 1 * deltaTime);
+}
+
+void EnhanceAttackSpell::attackCooldownUpdate(float deltaTime)
+{
+	if (getAttackCooldown() > 0)
+	{
+		setAttackCooldown(getAttackCooldown() - 1 * deltaTime);
+	}
 }
 
 void EnhanceAttackSpell::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector)
