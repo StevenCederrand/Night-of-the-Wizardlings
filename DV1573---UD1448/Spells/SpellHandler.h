@@ -16,6 +16,7 @@ public:
 	void spellCooldown(float deltaTime);
 	void renderSpell();
 	void spellCollisionCheck();
+	glm::vec3 OBBclosestPoint(glm::vec3 &spherePos, std::vector<glm::vec3> &axis, glm::vec3 &playerPos);
 
 private:
 	std::vector<AttackSpell> normalSpell;
