@@ -11,7 +11,9 @@ enum {
 	SERVER_CHANGE_STATE,
 	ADMIN_PACKET,
 	SPELL_CREATED,
-	SPELL_UPDATE
+	SPELL_UPDATE,
+	SPELL_DESTROY,
+	SPELL_PLAYER_HIT
 };
 
 /* To make sure the compiler aligns the bits */
@@ -46,6 +48,7 @@ struct PlayerPacket {
 };
 
 struct SpellPacket{
+	SpellPacket() {}
 	RakNet::RakNetGUID SpellGUID = RakNet::UNASSIGNED_RAKNET_GUID;
 	RakNet::RakNetGUID CreatorGUID = RakNet::UNASSIGNED_RAKNET_GUID;
 	glm::vec3 Position = glm::vec3(0.0f);

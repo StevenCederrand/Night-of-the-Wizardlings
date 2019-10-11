@@ -309,7 +309,7 @@ void Client::processAndHandlePackets()
 			spellPacket.Serialize(false, bsIn);
 
 			logTrace(spellPacket.toString());
-			
+			m_activeSpells[spellPacket.SpellGUID.g] = spellPacket;
 
 		}
 
@@ -317,9 +317,33 @@ void Client::processAndHandlePackets()
 		
 		case SPELL_UPDATE:
 		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			SpellPacket spellPacket;
+			spellPacket.Serialize(false, bsIn);
 
+			auto item = m_activeSpells.find(spellPacket.SpellGUID.g);
+
+			if (item != m_activeSpells.end()) {
+				logTrace("Spell update package");
+				auto& spell = item._Ptr->_Myval.second;
+				
+				spell.Position = spellPacket.Position;
+				spell.Rotation = spellPacket.Rotation;
+			}
 		}
 
+		break;
+
+		case SPELL_DESTROY:
+		{
+
+		}
+		break;
+
+		case SPELL_PLAYER_HIT:
+		{
+
+		}
 		break;
 
 		default:
@@ -345,7 +369,8 @@ void Client::updatePlayerData(Player* player)
 void Client::createSpellOnNetwork(Spell& spell)
 {
 	RakNet::RakNetGUID guid = RakNet::RakNetGUID::RakNetGUID(m_clientPeer->Get64BitUniqueRandomNumber());
-	
+	spell.setGUID(guid);
+
 	SpellPacket spellPacket;
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
 	spellPacket.Position = spell.getSpellPos();
@@ -359,6 +384,22 @@ void Client::createSpellOnNetwork(Spell& spell)
 	spellPacket.Serialize(true, bsOut);
 	m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
 
+}
+
+void Client::updateSpellOnNetwork(Spell& spell)
+{
+	SpellPacket spellPacket;
+	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
+	spellPacket.Position = spell.getSpellPos();
+	spellPacket.SpellGUID = spell.getGUID();
+	spellPacket.Rotation = glm::vec3(0.0f);
+	spellPacket.SpellType = SPELL_TYPE::UNKNOWN; // Type needs to be present in Spell class and not in sub classes.
+
+	// Send it
+	RakNet::BitStream bsOut;
+	bsOut.Write((RakNet::MessageID)SPELL_UPDATE);
+	spellPacket.Serialize(true, bsOut);
+	m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
 }
 
 void Client::updateNetworkedPlayers(const float& dt)

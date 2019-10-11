@@ -22,6 +22,7 @@ public:
 	void processAndHandlePackets();
 	void updatePlayerData(Player* player);
 	void createSpellOnNetwork(Spell& spell);
+	void updateSpellOnNetwork(Spell& spell);
 	void updateNetworkedPlayers(const float& dt);
 	void sendStartRequestToServer();
 	const std::vector<std::pair<unsigned int, ServerInfo>>& getServerList() const;
@@ -63,7 +64,7 @@ private:
 	NetworkPlayers m_playerEntities;
 	std::mutex m_cleanupMutex;
 	
-	std::unordered_map<RakNet::RakNetGUID, Spell*> m_activeSpells;
+	std::unordered_map<uint64_t, SpellPacket> m_activeSpells;
 };
 
 #endif

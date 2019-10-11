@@ -18,11 +18,17 @@ public:
 public:
 	NetworkSpells();
 	~NetworkSpells();
-	//void createSpell(SPELL_TYPE type, )
+	void createSpell(const SpellPacket& spellPacket);
+
+	
 
 private:
+	void swap(SpellEntity& se1, SpellEntity& se2);
+	const size_t findUnusedSpell() const;
+private:
 	std::array<SpellEntity, MAX_SPELLS_IN_WORLD> m_spells;
-	
+	unsigned int m_nrOfUsedSpells = 0;
+
 };
 
 
