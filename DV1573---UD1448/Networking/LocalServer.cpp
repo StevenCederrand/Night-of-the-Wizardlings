@@ -38,8 +38,6 @@ void LocalServer::startup(const std::string& serverName)
 		logTrace("[SERVER] Tickrate: {0}", NetGlobals::tickRate);
 		logTrace("[SERVER] Thread sleep time {0}", NetGlobals::threadSleepTime);
 		m_serverPeer->SetTimeoutTime(NetGlobals::timeoutTimeMS, RakNet::UNASSIGNED_SYSTEM_ADDRESS);
-
-		m_chaosMode.registerCallbackOnServerStateChange(std::bind(&LocalServer::onStateChange, this, std::placeholders::_1));
 	}
 }
 
@@ -192,8 +190,19 @@ void LocalServer::processAndHandlePackets()
 		}
 		break;
 		
+		case SERVER_CHANGE_STATE:
+		{
+			stateChange(NetGlobals::ServerState::GameStarted);
+		}
+		break;
+
+		case SPELL_CREATED:
+		{
+
+		}
+		break;
+			   		
 		default:
-			m_chaosMode.update(bsIn, packetID, packet->guid, m_connectedPlayers);
 			break;
 		}
 
@@ -247,7 +256,7 @@ void LocalServer::handleLostPlayer(const RakNet::Packet& packet, const RakNet::B
 
 }
 
-void LocalServer::onStateChange(NetGlobals::ServerState newState)
+void LocalServer::stateChange(NetGlobals::ServerState newState)
 {
 	if (newState == m_serverInfo.currentState) return;
 

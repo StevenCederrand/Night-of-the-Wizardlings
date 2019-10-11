@@ -1,5 +1,6 @@
 #include "Pch/Pch.h"
 #include "SpellHandler.h"
+#include <Networking/Client.h>
 
 SpellHandler::SpellHandler(glm::vec3 playerPosition, glm::vec3 directionVector)
 {
@@ -25,6 +26,11 @@ void SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 di
 			tempSpell2.createSpell(deltaTime, spellPos, directionVector);
 			normalSpell.push_back(tempSpell2);
 			tempSpell->setCooldown(1.0f);
+			
+			
+
+			
+
 		}
 	}
 

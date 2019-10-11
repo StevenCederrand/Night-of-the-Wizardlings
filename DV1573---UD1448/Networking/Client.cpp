@@ -321,6 +321,11 @@ void Client::updatePlayerData(Player* player)
 	);
 }
 
+void Client::createSpellOnNetwork(Spell& spell)
+{
+	//RakNet::RakNetGUID guid = m_clientPeer->Get64BitUniqueRandomNumber()
+}
+
 void Client::updateNetworkedPlayers(const float& dt)
 {
 	if(m_initialized && m_isConnectedToAnServer)

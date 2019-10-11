@@ -29,6 +29,7 @@ public:
 	
 
 private:
+	RakNet::RakNetGUID m_guid;
 	int spellDamage;
 	float spellSpeed; 
 	float spellCoolDown = 0;

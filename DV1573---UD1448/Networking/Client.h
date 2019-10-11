@@ -2,6 +2,8 @@
 #define _CLIENT_H
 #include <Pch/Pch.h>
 #include "NetworkPlayers.h"
+#include "NetworkSpells.h"
+
 class Player;
 
 class Client
@@ -19,6 +21,7 @@ public:
 	void ThreadedUpdate();
 	void processAndHandlePackets();
 	void updatePlayerData(Player* player);
+	void createSpellOnNetwork(Spell& spell);
 	void updateNetworkedPlayers(const float& dt);
 	void sendStartRequestToServer();
 	const std::vector<std::pair<unsigned int, ServerInfo>>& getServerList() const;
