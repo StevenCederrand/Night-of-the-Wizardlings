@@ -46,6 +46,7 @@ void EnhanceAttackSpell::updateActiveSpell(float deltaTime)
 {
 	translate(getDirection() * deltaTime * getSpellSpeed());
 	setTravelTime(getTravelTime() - 1 * deltaTime);
+
 }
 
 void EnhanceAttackSpell::spellCooldownUpdate(float deltaTime)

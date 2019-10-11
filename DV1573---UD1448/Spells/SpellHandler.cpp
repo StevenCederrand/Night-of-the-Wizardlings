@@ -84,19 +84,6 @@ void SpellHandler::spellCooldown(float deltaTime)
 	tempSpell->spellCooldownUpdate(deltaTime);
 	tempEnhanceAttackSpell->spellCooldownUpdate(deltaTime);
 	tempEnhanceAttackSpell->attackCooldownUpdate(deltaTime);
-
-	//----DEBUG-----//
-	if (tempEnhanceAttackSpell->getCooldown() > 0)
-	{
-		std::cout << tempEnhanceAttackSpell->getCooldown() << std::endl;
-	}
-	//std::cout << tempEnhanceAttackSpell->getNrOfAttacks() << std::endl;
-
-	if (tempEnhanceAttackSpell->getNrOfAttacks() <= 0)
-	{
-		std::cout << "BANANKOLA" << std::endl;
-	}
-
 }
 
 void SpellHandler::renderSpell()
