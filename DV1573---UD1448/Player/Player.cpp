@@ -174,6 +174,7 @@ void Player::move(float deltaTime)
 
 void Player::attack(float deltaTime)
 {
+
 	if (glfwGetMouseButton(playerCamera->getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 	{
 		createRay();
@@ -184,11 +185,11 @@ void Player::attack(float deltaTime)
 		}
 	}
 
-	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_2) == GLFW_PRESS)
+	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_2) == GLFW_PRESS && spellhandler->isSpellOnCooldown(ENHANCEATTACK) == true)
 	{
 		this->spellType = ENHANCEATTACK;
-	}
 
+	}
 	if (spellType == ENHANCEATTACK)
 	{
 		createRay();
@@ -199,7 +200,7 @@ void Player::attack(float deltaTime)
 		}
 	}
 
-	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_3) == GLFW_PRESS)
+	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_3) == GLFW_PRESS && spellhandler->isSpellOnCooldown(FLAMESTRIKE) == true)
 	{
 		createRay();
 		spellhandler->setType(FLAMESTRIKE);

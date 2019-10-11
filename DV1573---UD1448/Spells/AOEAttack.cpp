@@ -29,7 +29,7 @@ void AOEAttack::updateActiveSpell(float deltaTime)
 		translate(getDirection());
 
 	setTravelTime(getTravelTime() - 1 * deltaTime);
-	std::cout << getSpellPos().x << " " << getSpellPos().y << " " << getSpellPos().z << std::endl;
+	//std::cout << getSpellPos().x << " " << getSpellPos().y << " " << getSpellPos().z << std::endl;
 
 	//AOE
 	if (getSpellPos().y <= 0)

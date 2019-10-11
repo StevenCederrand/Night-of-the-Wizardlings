@@ -139,6 +139,29 @@ void SpellHandler::renderSpell()
 	
 }
 
+bool SpellHandler::isSpellOnCooldown(TYPE type)
+{
+	if (type == ENHANCEATTACK)
+	{
+		if (tempEnhanceAttackSpell->getCooldown() <= 0)
+		{
+			return true;
+		}
+		else
+			return false;
+	}
+
+	if (type == FLAMESTRIKE)
+	{
+		if (tempFlamestrike->getCooldown() <= 0)
+		{
+			return true;
+		}
+		else
+			return false;
+	}
+}
+
 void SpellHandler::setType(TYPE type)
 {
 	this->spellType = type;
