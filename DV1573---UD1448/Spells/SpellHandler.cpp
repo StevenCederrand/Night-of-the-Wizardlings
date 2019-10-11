@@ -45,7 +45,6 @@ bool SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 di
 			}
 			if (tempEnhanceAttackSpell->getNrOfAttacks() <= 0)
 			{
-				std::cout << "EnhanceSpell is now on cooldown" << std::endl;
 				tempEnhanceAttackSpell->setCooldown(10.0f);
 				tempEnhanceAttackSpell->setNrOfAttacks(3);
 
@@ -55,6 +54,7 @@ bool SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 di
 				spellIsOver = true;
 			}
 		}
+
 	}	
 
 	if (type == FLAMESTRIKE)
@@ -111,6 +111,7 @@ void SpellHandler::spellCooldown(float deltaTime)
 {
 	tempSpell->spellCooldownUpdate(deltaTime);
 	tempEnhanceAttackSpell->spellCooldownUpdate(deltaTime);
+	tempEnhanceAttackSpell->attackCooldownUpdate(deltaTime);
 	tempFlamestrike->spellCooldownUpdate(deltaTime);
 }
 
