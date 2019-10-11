@@ -185,7 +185,7 @@ void Player::attack(float deltaTime)
 		}
 	}
 
-	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_2) == GLFW_PRESS && spellhandler->isSpellOnCooldown(ENHANCEATTACK) == true)
+	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_2) == GLFW_PRESS && spellhandler->isSpellReadyToCast(ENHANCEATTACK) == true)
 	{
 		this->spellType = ENHANCEATTACK;
 
@@ -200,7 +200,7 @@ void Player::attack(float deltaTime)
 		}
 	}
 
-	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_3) == GLFW_PRESS && spellhandler->isSpellOnCooldown(FLAMESTRIKE) == true)
+	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_3) == GLFW_PRESS && spellhandler->isSpellReadyToCast(FLAMESTRIKE) == true)
 	{
 		createRay();
 		spellhandler->setType(FLAMESTRIKE);

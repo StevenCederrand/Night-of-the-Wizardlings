@@ -16,7 +16,7 @@ public:
 	void spellUpdate(float deltaTime);
 	void spellCooldown(float deltaTime);
 	void renderSpell();
-	bool isSpellOnCooldown(TYPE type);
+	bool isSpellReadyToCast(TYPE type);
 
 	void setType(TYPE type);
 	TYPE getType();

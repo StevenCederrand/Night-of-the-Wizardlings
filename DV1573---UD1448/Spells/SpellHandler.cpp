@@ -139,7 +139,7 @@ void SpellHandler::renderSpell()
 	
 }
 
-bool SpellHandler::isSpellOnCooldown(TYPE type)
+bool SpellHandler::isSpellReadyToCast(TYPE type)
 {
 	if (type == ENHANCEATTACK)
 	{

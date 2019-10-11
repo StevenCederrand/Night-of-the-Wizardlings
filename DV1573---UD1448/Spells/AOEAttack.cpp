@@ -34,7 +34,7 @@ void AOEAttack::updateActiveSpell(float deltaTime)
 	//AOE
 	if (getSpellPos().y <= 0)
 	{
-		std::cout << "Fire! You are burning" << std::endl;
+		//std::cout << "Fire! You are burning" << std::endl;
 
 		setTravelTime(0);
 		//std::cout << getSpellPos().x << " " << getSpellPos().y << " " << getSpellPos().z << std::endl;
