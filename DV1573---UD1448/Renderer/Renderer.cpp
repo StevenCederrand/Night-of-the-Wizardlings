@@ -204,11 +204,12 @@ void Renderer::render() {
 		//Then through all of the meshes
 		for (size_t j = 0; j < object->getMeshesCount(); j++)
 		{
-			//modelMatrix = glm::mat4(1.0f);
+			modelMatrix = glm::mat4(1.0f);
 			//Fetch the current mesh and its transform
 			mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
 			transform = object->getTransform(j);
-			//Grab the modelmatrix for the current mesh
+			//Apply the transform to the matrix. This should actually be done automatically in the mesh!
+			//TODO: Move to GameObject, meshes inherit transform from their GameObject.
 			modelMatrix = object->getMatrix(j);
 			glBindVertexArray(mesh->getBuffers().vao);
 
@@ -228,11 +229,13 @@ void Renderer::render() {
 		//Then through all of the meshes
 		for (size_t j = 0; j < object->getMeshesCount(); j++)
 		{
-			//modelMatrix = glm::mat4(1.0f);
+			modelMatrix = glm::mat4(1.0f);
 			//Fetch the current mesh and its transform
 			mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
 			transform = object->getTransform(j);
-			//Grab the modelmatrix for the current mesh
+			//Apply the transform to the matrix. This should actually be done automatically in the mesh!
+			//TODO: Move to GameObject, meshes inherit transform from their GameObject.
+
 			modelMatrix = object->getMatrix(j);
 
 			glBindVertexArray(mesh->getBuffers().vao);
@@ -305,7 +308,9 @@ void Renderer::render() {
 
 			//Bind the material
 			object->bindMaterialToShader(BASIC_FORWARD, j);
-			//Grab the modelmatrix for the current mesh
+			modelMatrix = glm::mat4(1.0f);
+			//Apply the transform to the matrix. This should actually be done automatically in the mesh!
+			//TODO: Move to GameObject, meshes inherit transform from their GameObject.
 			modelMatrix = object->getMatrix(j);
 			//Bind the modelmatrix
 			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
@@ -334,7 +339,9 @@ void Renderer::render() {
 
 				//Bind the material
 				object->bindMaterialToShader(BASIC_FORWARD, j);
-				//Grab the modelmatrix for the current mesh
+
+				modelMatrix = glm::mat4(1.0f);
+				//Apply the transform to the matrix. This should actually be done automatically in the mesh!
 				modelMatrix = object->getMatrix(j);
 
 				//Bind the modelmatrix
@@ -381,7 +388,10 @@ void Renderer::render() {
 			//Bind the material
 			object->bindMaterialToShader(ANIMATION, j);
 
-			modelMatrix = object->getMatrix(j);
+			modelMatrix = glm::mat4(1.0f);
+			modelMatrix = glm::translate(modelMatrix, transform.position);
+			modelMatrix = glm::scale(modelMatrix, transform.scale);
+			modelMatrix *= glm::mat4_cast(transform.rotation);
 
 			//Bind the modelmatrix
 			ShaderMap::getInstance()->getShader(ANIMATION)->setMat4("modelMatrix", modelMatrix);
