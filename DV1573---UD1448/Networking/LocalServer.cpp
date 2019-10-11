@@ -198,6 +198,14 @@ void LocalServer::processAndHandlePackets()
 
 		case SPELL_CREATED:
 		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			SpellPacket spellPacket;
+			spellPacket.Serialize(false, bsIn);
+			bsIn.SetReadOffset(0);
+
+			logTrace("[SERVER] " + spellPacket.toString());
+			m_activeSpells[spellPacket.SpellGUID.g] = spellPacket;
+
 			for (size_t i = 0; i < m_connectedPlayers.size(); i++)
 			{
 				// Don't send it back to the sender
@@ -208,7 +216,73 @@ void LocalServer::processAndHandlePackets()
 			}
 		}
 		break;
-			   		
+
+		case SPELL_UPDATE:
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			SpellPacket spellPacket;
+			spellPacket.Serialize(false, bsIn);
+			bsIn.SetReadOffset(0);
+
+			logTrace("[SERVER] Update spell {0}", spellPacket.SpellGUID.ToString());
+
+			auto item = m_activeSpells.find(spellPacket.SpellGUID.g);
+
+			if (item != m_activeSpells.end()) {
+				auto& spell = item._Ptr->_Myval.second;
+				spell.Position = spellPacket.Position;
+				spell.Rotation = spellPacket.Rotation;
+
+				for (size_t i = 0; i < m_connectedPlayers.size(); i++)
+				{
+					// Don't send it back to the sender
+					if (packet->guid != m_connectedPlayers[i].guid.rakNetGuid) {
+						m_serverPeer->Send(&bsIn, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_connectedPlayers[i].guid, false);
+					}
+
+				}
+			
+			}
+
+		
+		}
+		break;
+
+		case SPELL_DESTROY:
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			SpellPacket spellPacket;
+			spellPacket.Serialize(false, bsIn);
+			bsIn.SetReadOffset(0);
+
+			logTrace("[SERVER] Destroyed spell {0}", spellPacket.SpellGUID.ToString());
+
+			auto item = m_activeSpells.find(spellPacket.SpellGUID.g);
+
+			if (item != m_activeSpells.end()) {
+				m_activeSpells.erase(item);
+			}
+
+			for (size_t i = 0; i < m_connectedPlayers.size(); i++)
+			{
+				// Don't send it back to the sender
+				if (packet->guid != m_connectedPlayers[i].guid.rakNetGuid) {
+					m_serverPeer->Send(&bsIn, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_connectedPlayers[i].guid, false);
+				}
+
+			}
+
+		}
+
+		break;
+			  
+		case SPELL_PLAYER_HIT:
+		{
+
+		}
+
+		break;
+
 		default:
 			break;
 		}

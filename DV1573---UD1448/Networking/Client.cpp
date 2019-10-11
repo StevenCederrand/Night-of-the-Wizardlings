@@ -336,6 +336,18 @@ void Client::processAndHandlePackets()
 
 		case SPELL_DESTROY:
 		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			SpellPacket spellPacket;
+			spellPacket.Serialize(false, bsIn);
+			bsIn.SetReadOffset(0);
+
+			logTrace("[CLIENT] Destroyed spell {0}", spellPacket.SpellGUID.ToString());
+
+			auto item = m_activeSpells.find(spellPacket.SpellGUID.g);
+
+			if (item != m_activeSpells.end()) {
+				m_activeSpells.erase(item);
+			}
 
 		}
 		break;
@@ -402,6 +414,22 @@ void Client::updateSpellOnNetwork(Spell& spell)
 	m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
 }
 
+void Client::destroySpellOnNetwork(Spell& spell)
+{
+	SpellPacket spellPacket;
+	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
+	spellPacket.Position = spell.getSpellPos();
+	spellPacket.SpellGUID = spell.getGUID();
+	spellPacket.Rotation = glm::vec3(0.0f);
+	spellPacket.SpellType = SPELL_TYPE::UNKNOWN; // Type needs to be present in Spell class and not in sub classes.
+
+	// Send it
+	RakNet::BitStream bsOut;
+	bsOut.Write((RakNet::MessageID)SPELL_DESTROY);
+	spellPacket.Serialize(true, bsOut);
+	m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
+}
+
 void Client::updateNetworkedPlayers(const float& dt)
 {
 	if(m_initialized && m_isConnectedToAnServer)
@@ -443,6 +471,11 @@ const std::vector<PlayerPacket>& Client::getConnectedPlayers() const
 NetworkPlayers& Client::getNetworkPlayersREF()
 {
 	return m_playerEntities;
+}
+
+const std::unordered_map<uint64_t, SpellPacket>& Client::getNetworkSpells()
+{
+	return m_activeSpells;
 }
 
 void Client::refreshServerList()

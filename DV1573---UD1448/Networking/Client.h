@@ -23,11 +23,13 @@ public:
 	void updatePlayerData(Player* player);
 	void createSpellOnNetwork(Spell& spell);
 	void updateSpellOnNetwork(Spell& spell);
+	void destroySpellOnNetwork(Spell& spell);
 	void updateNetworkedPlayers(const float& dt);
 	void sendStartRequestToServer();
 	const std::vector<std::pair<unsigned int, ServerInfo>>& getServerList() const;
 	const std::vector<PlayerPacket>& getConnectedPlayers() const;
 	NetworkPlayers& getNetworkPlayersREF();
+	const std::unordered_map<uint64_t, SpellPacket>& getNetworkSpells();
 	void refreshServerList();
 	bool doneRefreshingServerList();
 	const bool& isInitialized() const;

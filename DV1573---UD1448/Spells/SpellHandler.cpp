@@ -49,8 +49,10 @@ void SpellHandler::spellUpdate(float deltaTime)
 		for (int i = 0; i < normalSpell.size(); i++)
 		{
 			normalSpell[i].updateActiveSpell(deltaTime);
+			Client::getInstance()->updateSpellOnNetwork(normalSpell[i]);
 			if (normalSpell[i].getTravelTime() <= 0)
 			{
+				Client::getInstance()->destroySpellOnNetwork(normalSpell[i]);
 				normalSpell.erase(normalSpell.begin() + i);
 			}
 		}
@@ -59,8 +61,10 @@ void SpellHandler::spellUpdate(float deltaTime)
 		{
 	
 			enhanceAttackSpell[i].updateActiveSpell(deltaTime);
+			Client::getInstance()->updateSpellOnNetwork(enhanceAttackSpell[i]);
 			if (enhanceAttackSpell[i].getTravelTime() <= 0)
 			{
+				Client::getInstance()->destroySpellOnNetwork(enhanceAttackSpell[i]);
 				enhanceAttackSpell.erase(enhanceAttackSpell.begin() + i);
 			}
 		}
