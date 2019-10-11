@@ -4,15 +4,17 @@
 SpellHandler::SpellHandler(glm::vec3 playerPosition, glm::vec3 directionVector)
 {
 	this->directionVector = directionVector;
-	this->spellPos = playerPosition;
 	tempSpell = new AttackSpell("Spell", playerPosition, directionVector, 50, 2, "TestSphere.mesh", 0);
 	tempEnhanceAttackSpell = new EnhanceAttackSpell("EnhanceSpell", playerPosition, directionVector, 150, 1, "TestCube.mesh", 0, 3, 1, 0);
+	tempFlamestrike = new AOEAttack("Flamestrike", playerPosition, directionVector, 10, 20, "TestCube.mesh", 0);
+
 }
 
 SpellHandler::~SpellHandler()
 {
 	delete tempSpell;
 	delete tempEnhanceAttackSpell;
+	delete tempFlamestrike;
 }
 
 bool SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector, TYPE type)
@@ -31,7 +33,6 @@ bool SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 di
 
 	if (type == ENHANCEATTACK)
 	{
-		
 		if (tempEnhanceAttackSpell->getCooldown() <= 0)
 		{
 			if (tempEnhanceAttackSpell->getAttackCooldown() <= 0)
@@ -55,6 +56,21 @@ bool SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 di
 			}
 		}
 	}	
+
+	if (type == FLAMESTRIKE)
+	{
+		if (tempFlamestrike->getCooldown() <= 0)
+		{
+			AOEAttack tempSpell2 = *tempFlamestrike;
+			tempSpell2.createSpell(deltaTime, spellPos, directionVector);
+			flamestrike.push_back(tempSpell2);
+			tempFlamestrike->setCooldown(1.0f);
+
+			tempSpell->setCooldown(1.0f);
+			setType(NORMALATTACK);
+			spellIsOver = true;
+		}
+	}
 	return spellIsOver;
 }
 
@@ -77,26 +93,25 @@ void SpellHandler::spellUpdate(float deltaTime)
 				enhanceAttackSpell.erase(enhanceAttackSpell.begin() + i);
 			}
 		}
+
+		for (int i = 0; i < flamestrike.size(); i++)
+		{
+
+			flamestrike[i].updateActiveSpell(deltaTime);
+			if (flamestrike[i].getTravelTime() <= 0)
+			{
+				flamestrike.erase(flamestrike.begin() + i);
+			}
+		}
+
+
 }
 
 void SpellHandler::spellCooldown(float deltaTime)
 {
 	tempSpell->spellCooldownUpdate(deltaTime);
 	tempEnhanceAttackSpell->spellCooldownUpdate(deltaTime);
-	tempEnhanceAttackSpell->attackCooldownUpdate(deltaTime);
-
-	//----DEBUG-----//
-	if (tempEnhanceAttackSpell->getCooldown() > 0)
-	{
-		std::cout << tempEnhanceAttackSpell->getCooldown() << std::endl;
-	}
-	//std::cout << tempEnhanceAttackSpell->getNrOfAttacks() << std::endl;
-
-	if (tempEnhanceAttackSpell->getNrOfAttacks() <= 0)
-	{
-		std::cout << "BANANKOLA" << std::endl;
-	}
-
+	tempFlamestrike->spellCooldownUpdate(deltaTime);
 }
 
 void SpellHandler::renderSpell()
@@ -110,6 +125,12 @@ void SpellHandler::renderSpell()
 		}
 	
 		for (EnhanceAttackSpell object : enhanceAttackSpell)
+		{
+			object.bindMaterialToShader("Basic_Forward");
+			Renderer::getInstance()->render(object);
+		}
+
+		for (AOEAttack object : flamestrike)
 		{
 			object.bindMaterialToShader("Basic_Forward");
 			Renderer::getInstance()->render(object);

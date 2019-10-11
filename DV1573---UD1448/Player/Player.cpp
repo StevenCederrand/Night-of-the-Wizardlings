@@ -199,6 +199,22 @@ void Player::attack(float deltaTime)
 		}
 	}
 
+	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_3) == GLFW_PRESS)
+	{
+		this->spellType = FLAMESTRIKE;
+
+	}
+
+	if (spellType == FLAMESTRIKE)
+	{
+		createRay();
+		spellhandler->setType(spellType);
+		if (spellhandler->createSpell(deltaTime, m_playerPosition, directionVector, spellhandler->getType()))
+		{
+			this->spellType = NORMALATTACK;
+		}
+	}
+
 
 	spellhandler->spellCooldown(deltaTime);
 }

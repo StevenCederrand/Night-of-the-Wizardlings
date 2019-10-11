@@ -12,12 +12,9 @@ public:
 	void updateActiveSpell(float deltaTime);
 	void createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector);
 	void spellCooldownUpdate(float deltaTime);
-	void renderAttackSpell(std::vector<AttackSpell> test);
 
 	void update(float dt);
 
 private:
-	std::vector<AttackSpell> normalSpell;
-	AttackSpell* tempSpell;
 
 };

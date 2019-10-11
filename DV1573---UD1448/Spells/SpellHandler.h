@@ -3,8 +3,9 @@
 #include <GameObject/GameObject.h>
 #include <Spells/AttackSpell.h>
 #include <Spells/EnhanceAttackSpell.h>
+#include <Spells/AOEAttack.h>
 
-enum TYPE { NORMALATTACK, ENHANCEATTACK };
+enum TYPE { NORMALATTACK, ENHANCEATTACK, FLAMESTRIKE };
 
 class SpellHandler
 {
@@ -20,13 +21,18 @@ public:
 	TYPE getType();
 
 private:
+	//all spells
 	std::vector<AttackSpell> normalSpell;
 	AttackSpell* tempSpell;
 	std::vector<EnhanceAttackSpell> enhanceAttackSpell;
 	EnhanceAttackSpell* tempEnhanceAttackSpell;
+	std::vector<AOEAttack> flamestrike;
+	AOEAttack* tempFlamestrike;
 
+	//other things
 	glm::vec3 directionVector;
 	glm::vec3 spellPos;
 	TYPE spellType;
+
 
 };
