@@ -93,7 +93,7 @@ void SpellHandler::renderSpell()
 void SpellHandler::spellCollisionCheck()
 {
 	
-	
+	//BEGIN TEST=========================================== BEGIN TEST
 	for (int i = 0; i < normalSpell.size(); i++) {
 		glm::vec3 playerPos = glm::vec3(0.0f, 1.0f, -2.0f);
 
@@ -110,7 +110,7 @@ void SpellHandler::spellCollisionCheck()
 
 		glm::vec3 spherePos = normalSpell.at(i).getTransform().position;
 		glm::vec3 closestPoint = OBBclosestPoint(spherePos, axis, playerPos);
-		float sphereRadius = 1.0f;
+		float sphereRadius = 0.6f;
 		glm::vec3 v = closestPoint - spherePos;
 
 		float temp = sphereRadius * sphereRadius;
@@ -123,10 +123,8 @@ void SpellHandler::spellCollisionCheck()
 		}
 	}
 	
+	//END TEST=========================================== END TEST
 
-	
-	
-	
 	
 	//get the list of att the players on the network
 	auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
@@ -169,22 +167,23 @@ void SpellHandler::spellCollisionCheck()
 
 glm::vec3 SpellHandler::OBBclosestPoint(glm::vec3& spherePos, std::vector<glm::vec3>& axis, glm::vec3& playerPos)
 {
-	float boxSize = 1.0f;
+	float boxSize = 0.25f;
 	//closest point on obb
 	glm::vec3 boxPoint = playerPos;
 	glm::vec3 ray = glm::vec3(spherePos - playerPos);
 
 	for (int j = 0; j < 3; j++) {
 		float distance = glm::dot(ray, axis.at(j));
+		float distance2 = 0;
 
 		if (distance > boxSize)
-			distance = boxSize;
+			distance2 = boxSize;
 
-		if (distance > -boxSize)
-			distance = -boxSize;
+		if (distance < -boxSize)
+			distance2 = -boxSize;
 
 		
-		boxPoint += distance * axis.at(j);
+		boxPoint += distance2 * axis.at(j);
 	}
 
 	return boxPoint;
