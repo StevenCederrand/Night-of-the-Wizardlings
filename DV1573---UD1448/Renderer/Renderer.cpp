@@ -146,7 +146,7 @@ void Renderer::removeDynamic(GameObject* gameObject)
 	for (size_t i = 0; i < m_dynamicObjects.size(); i++)
 	{
 		if (m_dynamicObjects[i] == gameObject) {
-			i = index;
+			index = i;
 			break;
 		}
 	}
@@ -339,7 +339,7 @@ void Renderer::render() {
 
 				//Bind the material
 				object->bindMaterialToShader(BASIC_FORWARD, j);
-
+				
 				modelMatrix = glm::mat4(1.0f);
 				//Apply the transform to the matrix. This should actually be done automatically in the mesh!
 				modelMatrix = object->getMatrix(j);

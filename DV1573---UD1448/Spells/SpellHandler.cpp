@@ -25,6 +25,7 @@ void SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 di
 			tempSpell2.createSpell(deltaTime, spellPos, directionVector);
 			normalSpell.push_back(tempSpell2);
 			tempSpell->setCooldown(1.0f);
+			Renderer::getInstance()->submit(tempSpell, DYNAMIC);
 		}
 	}
 
@@ -36,6 +37,7 @@ void SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 di
 			tempSpell2.createSpell(deltaTime, spellPos, directionVector);
 			enhanceAttackSpell.push_back(tempSpell2);
 			tempEnhanceAttackSpell->setCooldown(5.0f);
+			Renderer::getInstance()->submit(&tempSpell2, DYNAMIC);
 		}
 	}	
 }
@@ -45,9 +47,12 @@ void SpellHandler::spellUpdate(float deltaTime)
 		for (int i = 0; i < normalSpell.size(); i++)
 		{
 			normalSpell[i].updateActiveSpell(deltaTime);
+
 			if (normalSpell[i].getTravelTime() <= 0)
 			{
+				Renderer::getInstance()->removeDynamic(tempSpell);
 				normalSpell.erase(normalSpell.begin() + i);
+
 			}
 		}
 	
@@ -76,7 +81,7 @@ void SpellHandler::renderSpell()
 		for (AttackSpell object : normalSpell)
 		{
 			object.bindMaterialToShader("Basic_Forward");
-			//Renderer::getInstance()->render(object);
+			//Renderer::getInstance)
 		}
 	
 		for (EnhanceAttackSpell object : enhanceAttackSpell)
