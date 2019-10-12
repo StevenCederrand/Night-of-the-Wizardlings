@@ -19,6 +19,7 @@ Client* Client::getInstance()
 void Client::startup()
 {
 	if (!m_initialized) {
+		m_spellQueue.reserve(250);
 		m_connectedPlayers.reserve(NetGlobals::MaximumConnections);
 		m_clientPeer = RakNet::RakPeerInterface::GetInstance();
 		m_clientPeer->Startup(1, &RakNet::SocketDescriptor(), 1);
@@ -86,6 +87,7 @@ void Client::connectToMyServer()
 void Client::ThreadedUpdate()
 {
 	bool clientRunning = true;
+	
 
 	while (clientRunning)
 	{	
@@ -303,14 +305,25 @@ void Client::processAndHandlePackets()
 
 		case SPELL_CREATED:
 		{
-			logTrace("Spell created by some dude on the network");
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			SpellPacket spellPacket;
 			spellPacket.Serialize(false, bsIn);
 
-			logTrace(spellPacket.toString());
-			m_activeSpells[spellPacket.SpellGUID.g] = spellPacket;
 
+			auto item = m_activeSpells.find(spellPacket.CreatorGUID.g);
+
+			if (item == m_activeSpells.end()) {
+				logTrace("[CLIENT] Created a new list with spells for player {0}, spell ID {1}", spellPacket.CreatorGUID.ToString(), spellPacket.SpellID);
+				std::vector<SpellPacket> spellVec;
+				spellVec.reserve(10);
+				spellVec.emplace_back(spellPacket);
+				m_activeSpells[spellPacket.CreatorGUID.g] = spellVec;
+			}
+			else {
+				logTrace("[CLIENT] Added spell to spell list for player {0}, spell ID {1}", spellPacket.CreatorGUID.ToString(), spellPacket.SpellID);
+				item._Ptr->_Myval.second.emplace_back(spellPacket);
+			}
+			
 		}
 
 		break;
@@ -321,14 +334,18 @@ void Client::processAndHandlePackets()
 			SpellPacket spellPacket;
 			spellPacket.Serialize(false, bsIn);
 
-			auto item = m_activeSpells.find(spellPacket.SpellGUID.g);
+			auto item = m_activeSpells.find(spellPacket.CreatorGUID.g);
 
 			if (item != m_activeSpells.end()) {
-				logTrace("Spell update package");
-				auto& spell = item._Ptr->_Myval.second;
+				auto& spellVec = item._Ptr->_Myval.second;
 				
-				spell.Position = spellPacket.Position;
-				spell.Rotation = spellPacket.Rotation;
+				for (size_t i = 0; i < spellVec.size(); i++) {
+					if (spellVec[i].SpellID == spellPacket.SpellID) {
+						spellVec[i].Position = spellPacket.Position;
+						spellVec[i].Rotation = spellPacket.Rotation;
+					}
+				}
+				
 			}
 		}
 
@@ -341,12 +358,25 @@ void Client::processAndHandlePackets()
 			spellPacket.Serialize(false, bsIn);
 			bsIn.SetReadOffset(0);
 
-			logTrace("[CLIENT] Destroyed spell {0}", spellPacket.SpellGUID.ToString());
-
-			auto item = m_activeSpells.find(spellPacket.SpellGUID.g);
+			auto item = m_activeSpells.find(spellPacket.CreatorGUID.g);
 
 			if (item != m_activeSpells.end()) {
-				m_activeSpells.erase(item);
+				auto& spellVec = item._Ptr->_Myval.second;
+				bool deleted = false;
+				for (size_t i = 0; i < spellVec.size() && !deleted; i++) {
+					if (spellVec[i].SpellID == spellPacket.SpellID) {
+						logTrace("[CLIENT] Deleted a spell with spell ID: {0} from client {1}", spellVec[i].SpellID, spellVec[i].CreatorGUID.ToString());
+						spellVec.erase(spellVec.begin() + i);
+						deleted = true;
+					}
+				}
+
+				if (spellVec.size() == 0)
+				{
+					logTrace("[CLIENT] Deleted the local spell container for client with ID {0}", spellPacket.CreatorGUID.ToString());
+					m_activeSpells.erase(item);
+				}
+
 			}
 
 		}
@@ -378,56 +408,46 @@ void Client::updatePlayerData(Player* player)
 	);
 }
 
+// Note to self: Guid creation is slow af, possible solution is to have some sort of queue with pointers to the spells so
+// that the client thread can set the GUID of the spell within its own loop. Otherwise the main thread will stop for a brief and
+// very noticable moment.
 void Client::createSpellOnNetwork(Spell& spell)
 {
-	RakNet::RakNetGUID guid = RakNet::RakNetGUID::RakNetGUID(m_clientPeer->Get64BitUniqueRandomNumber());
-	spell.setGUID(guid);
-
 	SpellPacket spellPacket;
+	spellPacket.packetType = SPELL_CREATED;
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
 	spellPacket.Position = spell.getSpellPos();
-	spellPacket.SpellGUID = guid;
+	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Rotation = glm::vec3(0.0f);
 	spellPacket.SpellType = SPELL_TYPE::UNKNOWN; // Type needs to be present in Spell class and not in sub classes.
-	
-	// Send it
-	RakNet::BitStream bsOut;
-	bsOut.Write((RakNet::MessageID)SPELL_CREATED);
-	spellPacket.Serialize(true, bsOut);
-	m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
 
+	m_spellQueue.emplace_back(spellPacket);
 }
 
 void Client::updateSpellOnNetwork(Spell& spell)
 {
 	SpellPacket spellPacket;
+	spellPacket.packetType = SPELL_UPDATE;
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
 	spellPacket.Position = spell.getSpellPos();
-	spellPacket.SpellGUID = spell.getGUID();
+	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Rotation = glm::vec3(0.0f);
 	spellPacket.SpellType = SPELL_TYPE::UNKNOWN; // Type needs to be present in Spell class and not in sub classes.
 
-	// Send it
-	RakNet::BitStream bsOut;
-	bsOut.Write((RakNet::MessageID)SPELL_UPDATE);
-	spellPacket.Serialize(true, bsOut);
-	m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
+	m_spellQueue.emplace_back(spellPacket);
 }
 
 void Client::destroySpellOnNetwork(Spell& spell)
 {
 	SpellPacket spellPacket;
+	spellPacket.packetType = SPELL_DESTROY;
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
 	spellPacket.Position = spell.getSpellPos();
-	spellPacket.SpellGUID = spell.getGUID();
+	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Rotation = glm::vec3(0.0f);
 	spellPacket.SpellType = SPELL_TYPE::UNKNOWN; // Type needs to be present in Spell class and not in sub classes.
 
-	// Send it
-	RakNet::BitStream bsOut;
-	bsOut.Write((RakNet::MessageID)SPELL_DESTROY);
-	spellPacket.Serialize(true, bsOut);
-	m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
+	m_spellQueue.emplace_back(spellPacket);
 }
 
 void Client::updateNetworkedPlayers(const float& dt)
@@ -455,6 +475,18 @@ void Client::updateDataOnServer()
 	bsOut.Write((RakNet::MessageID)PLAYER_UPDATE_PACKET);
 	m_playerData.Serialize(true, bsOut);
 	m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
+
+	// Empty out the spell queue
+	for (size_t i = 0; i < m_spellQueue.size(); i++) {
+	
+		RakNet::BitStream bsOut;
+		bsOut.Write(m_spellQueue[i].packetType);
+		m_spellQueue[i].Serialize(true, bsOut);
+		m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
+	}
+
+	// Empty it
+	m_spellQueue.clear();
 }
 
 
@@ -473,7 +505,7 @@ NetworkPlayers& Client::getNetworkPlayersREF()
 	return m_playerEntities;
 }
 
-const std::unordered_map<uint64_t, SpellPacket>& Client::getNetworkSpells()
+const std::unordered_map<uint64_t, std::vector<SpellPacket>>& Client::getNetworkSpells()
 {
 	return m_activeSpells;
 }

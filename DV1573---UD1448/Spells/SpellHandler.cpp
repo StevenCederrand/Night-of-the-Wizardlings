@@ -24,10 +24,11 @@ void SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 di
 		{
 			AttackSpell tempSpell2 = *tempSpell;
 			tempSpell2.createSpell(deltaTime, spellPos, directionVector);
+			tempSpell2.setUniqueID(getUniqueID()); // Is needed by the network
+			Client::getInstance()->createSpellOnNetwork(tempSpell2);
 			normalSpell.push_back(tempSpell2);
 			tempSpell->setCooldown(1.0f);
-			Client::getInstance()->createSpellOnNetwork(tempSpell2);
-		
+
 		}
 	}
 
@@ -37,9 +38,10 @@ void SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 di
 		{
 			EnhanceAttackSpell tempSpell2 = *tempEnhanceAttackSpell;
 			tempSpell2.createSpell(deltaTime, spellPos, directionVector);
+			tempSpell2.setUniqueID(getUniqueID()); // Is needed by the network
+			Client::getInstance()->createSpellOnNetwork(tempSpell2);
 			enhanceAttackSpell.push_back(tempSpell2);
 			tempEnhanceAttackSpell->setCooldown(5.0f);
-			Client::getInstance()->createSpellOnNetwork(tempSpell2);
 		}
 	}	
 }
@@ -79,8 +81,6 @@ void SpellHandler::spellCooldown(float deltaTime)
 
 void SpellHandler::renderSpell()
 {
-	
-
 		for (AttackSpell object : normalSpell)
 		{
 			object.bindMaterialToShader("Basic_Forward");
@@ -93,4 +93,15 @@ void SpellHandler::renderSpell()
 			Renderer::getInstance()->render(object);
 		}
 	
+}
+
+const uint64_t SpellHandler::getUniqueID()
+{
+	// Starts at 1 because 0 is a "Undefined" id
+	static uint64_t id = 1;
+	
+	if (id == UINT64_MAX)
+		id = 1;
+	
+	return id++;
 }

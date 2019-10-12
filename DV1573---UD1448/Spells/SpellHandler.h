@@ -17,6 +17,9 @@ public:
 	void renderSpell();
 
 private:
+	const uint64_t getUniqueID();
+
+private:
 	std::vector<AttackSpell> normalSpell;
 	AttackSpell* tempSpell;
 	std::vector<EnhanceAttackSpell> enhanceAttackSpell;

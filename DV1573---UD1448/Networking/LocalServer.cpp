@@ -203,9 +203,20 @@ void LocalServer::processAndHandlePackets()
 			spellPacket.Serialize(false, bsIn);
 			bsIn.SetReadOffset(0);
 
-			logTrace("[SERVER] " + spellPacket.toString());
-			m_activeSpells[spellPacket.SpellGUID.g] = spellPacket;
+			auto item = m_activeSpells.find(spellPacket.CreatorGUID.g);
 
+			if (item == m_activeSpells.end()) {
+				std::vector<SpellPacket> spellVec;
+				spellVec.reserve(10);
+				spellVec.emplace_back(spellPacket);
+				m_activeSpells[spellPacket.CreatorGUID.g] = spellVec;
+				logTrace("[SERVER] Created a new list with spells for player {0}, spell ID {1}", spellPacket.CreatorGUID.ToString(), spellPacket.SpellID);
+			}
+			else {
+				logTrace("[SERVER] Added spell to spell list for player {0}, spell ID {1}", spellPacket.CreatorGUID.ToString(), spellPacket.SpellID);
+				item._Ptr->_Myval.second.emplace_back(spellPacket);
+			}
+		
 			for (size_t i = 0; i < m_connectedPlayers.size(); i++)
 			{
 				// Don't send it back to the sender
@@ -224,14 +235,18 @@ void LocalServer::processAndHandlePackets()
 			spellPacket.Serialize(false, bsIn);
 			bsIn.SetReadOffset(0);
 
-			logTrace("[SERVER] Update spell {0}", spellPacket.SpellGUID.ToString());
-
-			auto item = m_activeSpells.find(spellPacket.SpellGUID.g);
+			//logTrace("[SERVER] Update spell {0}", spellPacket.toString());
+			auto item = m_activeSpells.find(spellPacket.CreatorGUID.g);
 
 			if (item != m_activeSpells.end()) {
-				auto& spell = item._Ptr->_Myval.second;
-				spell.Position = spellPacket.Position;
-				spell.Rotation = spellPacket.Rotation;
+				auto& spellVec = item._Ptr->_Myval.second;
+
+				for (size_t i = 0; i < spellVec.size(); i++) {
+					if (spellVec[i].SpellID == spellPacket.SpellID) {
+						spellVec[i].Position = spellPacket.Position;
+						spellVec[i].Rotation = spellPacket.Rotation;
+					}
+				}
 
 				for (size_t i = 0; i < m_connectedPlayers.size(); i++)
 				{
@@ -255,12 +270,27 @@ void LocalServer::processAndHandlePackets()
 			spellPacket.Serialize(false, bsIn);
 			bsIn.SetReadOffset(0);
 
-			logTrace("[SERVER] Destroyed spell {0}", spellPacket.SpellGUID.ToString());
-
-			auto item = m_activeSpells.find(spellPacket.SpellGUID.g);
+			auto item = m_activeSpells.find(spellPacket.CreatorGUID.g);
 
 			if (item != m_activeSpells.end()) {
-				m_activeSpells.erase(item);
+				//logTrace("Going to delete spell: {0}", spellPacket.toString());
+				auto& spellVec = item._Ptr->_Myval.second;
+				bool deleted = false;
+				for (size_t i = 0; i < spellVec.size() && !deleted; i++) {
+					
+					if (spellVec[i].SpellID == spellPacket.SpellID) {
+						logTrace("[SERVER] Deleted a spell with spell ID: {0} from client {1}", spellVec[i].SpellID, spellVec[i].CreatorGUID.ToString());
+						spellVec.erase(spellVec.begin() + i);
+						deleted = true;
+					}
+				}
+
+				if (spellVec.size() == 0)
+				{
+					logTrace("[SERVER] Deleted the local spell container for client with ID {0}", spellPacket.CreatorGUID.ToString());
+					m_activeSpells.erase(item);
+				}
+
 			}
 
 			for (size_t i = 0; i < m_connectedPlayers.size(); i++)

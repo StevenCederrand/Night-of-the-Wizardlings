@@ -15,7 +15,7 @@ public:
 	float getTravelTime();
 	glm::vec3 getSpellPos();
 	glm::vec3 getDirection();
-	const RakNet::RakNetGUID& getGUID() const;
+	const uint64_t& getUniqueID() const;
 
 	//----Set-----//
 	void setDamage(int damage);
@@ -24,14 +24,14 @@ public:
 	void setCooldown(float cooldown);
 	void setTravelTime(float travelTime);
 	void setDirection(glm::vec3 direction);
-	void setGUID(const RakNet::RakNetGUID& guid);
+	void setUniqueID(const uint64_t& uniqueID);
 	void update(float dt);
 
 	void destroySpell();
 	
 
 private:
-	RakNet::RakNetGUID m_guid;
+	uint64_t m_uniqueID = 0;
 	int spellDamage;
 	float spellSpeed; 
 	float spellCoolDown = 0;

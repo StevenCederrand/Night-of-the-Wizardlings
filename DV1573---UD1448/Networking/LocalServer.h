@@ -28,7 +28,7 @@ private:
 	bool m_shutdownServer;
 	std::mutex m_cleanupMutex;
 	std::vector<PlayerPacket> m_connectedPlayers;
-	std::unordered_map<uint64_t, SpellPacket> m_activeSpells;
+	std::unordered_map<uint64_t, std::vector<SpellPacket>> m_activeSpells;
 
 	ServerInfo m_serverInfo;
 	bool m_initialized = false;

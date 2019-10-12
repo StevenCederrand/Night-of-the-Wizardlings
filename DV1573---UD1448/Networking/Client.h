@@ -29,7 +29,7 @@ public:
 	const std::vector<std::pair<unsigned int, ServerInfo>>& getServerList() const;
 	const std::vector<PlayerPacket>& getConnectedPlayers() const;
 	NetworkPlayers& getNetworkPlayersREF();
-	const std::unordered_map<uint64_t, SpellPacket>& getNetworkSpells();
+	const std::unordered_map<uint64_t, std::vector<SpellPacket>>& getNetworkSpells();
 	void refreshServerList();
 	bool doneRefreshingServerList();
 	const bool& isInitialized() const;
@@ -66,7 +66,10 @@ private:
 	NetworkPlayers m_playerEntities;
 	std::mutex m_cleanupMutex;
 	
-	std::unordered_map<uint64_t, SpellPacket> m_activeSpells;
+	std::unordered_map<uint64_t, std::vector<SpellPacket>> m_activeSpells;
+	
+	std::vector<SpellPacket> m_spellQueue;
+
 };
 
 #endif

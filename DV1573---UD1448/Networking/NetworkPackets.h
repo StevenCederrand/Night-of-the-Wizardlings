@@ -49,14 +49,16 @@ struct PlayerPacket {
 
 struct SpellPacket{
 	SpellPacket() {}
-	RakNet::RakNetGUID SpellGUID = RakNet::UNASSIGNED_RAKNET_GUID;
+	RakNet::MessageID packetType;
+	uint64_t SpellID = 0;
 	RakNet::RakNetGUID CreatorGUID = RakNet::UNASSIGNED_RAKNET_GUID;
 	glm::vec3 Position = glm::vec3(0.0f);
 	glm::vec3 Rotation = glm::vec3(0.0f);
 	SPELL_TYPE SpellType = SPELL_TYPE::UNKNOWN;
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
-		stream.Serialize(writeToStream, SpellGUID);
+		stream.Serialize(writeToStream, packetType);
+		stream.Serialize(writeToStream, SpellID);
 		stream.Serialize(writeToStream, CreatorGUID);
 		stream.Serialize(writeToStream, Position);
 		stream.Serialize(writeToStream, Rotation);
@@ -65,7 +67,7 @@ struct SpellPacket{
 
 	std::string toString() const {
 		std::string str = "---Spell Packet---\n";
-		str +=	"Spell ID: " + std::string(SpellGUID.ToString()) + "\n";
+		str +=	"Spell ID: " + std::to_string(SpellID) + "\n";
 		str +=	"Creator ID: " + std::string(CreatorGUID.ToString()) + "\n" ;
 		str += "Position: (" + std::to_string(Position.x) + ", " + std::to_string(Position.y) + ", " + std::to_string(Position.z) + ")\n";
 		str += "Rotation: (" + std::to_string(Rotation.x) + ", " + std::to_string(Rotation.y) + ", " + std::to_string(Rotation.z) + ")\n";
