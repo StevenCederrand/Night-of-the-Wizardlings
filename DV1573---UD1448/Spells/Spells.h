@@ -18,6 +18,12 @@ struct AttackSpellBase
 	{
 		m_mesh = nullptr;
 		m_material = nullptr;
+
+		m_damage = 0;
+		m_speed = 0;
+		m_coolDown = 0;
+		m_lifeTime = 0;
+		m_maxBounces = 0;
 	}
 	~AttackSpellBase()
 	{
