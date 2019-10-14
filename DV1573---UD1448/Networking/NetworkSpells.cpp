@@ -12,6 +12,10 @@ NetworkSpells::NetworkSpells()
 
 NetworkSpells::~NetworkSpells()
 {
+	for (size_t i = 0; i < m_entities.size(); i++) {
+		if (m_entities[i].tempObject != nullptr)
+			delete m_entities[i].tempObject;
+	}
 
 }
 
