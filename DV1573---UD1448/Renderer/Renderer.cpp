@@ -14,17 +14,16 @@ Renderer::Renderer()
 	int x = -10;
 	int z = -40;
 
-	m_pLights.reserve(P_LIGHT_COUNT);
+	//m_pLights.reserve(P_LIGHT_COUNT);
 	
-	for (int i = 0; i < P_LIGHT_COUNT; i++) {
+	/*for (int i = 0; i < 1; i++) {
 		Pointlight pL;
 		pL.position = glm::vec3(0, 0, 0);
 
 		pL.radius = 5.0f;
 		pL.attenuation = glm::vec3(1.0f, 0.09f, 0.032f);
 		m_pLights.push_back(pL);
-	}
-
+	}*/
 
 	//Define Work Groups
 	workGroups.x = (SCREEN_WIDTH + (SCREEN_WIDTH % TILE_SIZE)) / TILE_SIZE;
@@ -194,62 +193,65 @@ void Renderer::render() {
 	glm::mat4 modelMatrix;
 
 #pragma region Depth_Render
-	ShaderMap::getInstance()->useByName(DEPTH_MAP);
+	if (m_pLights.size() > 0) {
+		ShaderMap::getInstance()->useByName(DEPTH_MAP);
 
-	//Bind and draw the objects to the depth-buffer
-	bindMatrixes(DEPTH_MAP);
-	glBindFramebuffer(GL_FRAMEBUFFER, m_depthFBO);
-	glClear(GL_DEPTH_BUFFER_BIT);
-	
-	//Loop through all of the gameobjects
-	for (GameObject* object : m_staticObjects)
-	{
-		//Then through all of the meshes
-		for (size_t j = 0; j < object->getMeshesCount(); j++)
+		//Bind and draw the objects to the depth-buffer
+		bindMatrixes(DEPTH_MAP);
+		glBindFramebuffer(GL_FRAMEBUFFER, m_depthFBO);
+		glClear(GL_DEPTH_BUFFER_BIT);
+
+		//Loop through all of the gameobjects
+		for (GameObject* object : m_staticObjects)
 		{
-			modelMatrix = glm::mat4(1.0f);
-			//Fetch the current mesh and its transform
-			mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
-			transform = object->getTransform(j);
+			//Then through all of the meshes
+			for (size_t j = 0; j < object->getMeshesCount(); j++)
+			{
+				modelMatrix = glm::mat4(1.0f);
+				//Fetch the current mesh and its transform
+				mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
+				transform = object->getTransform(j);
 
-			modelMatrix = object->getMatrix(j);
+				modelMatrix = object->getMatrix(j);
 
-			glBindVertexArray(mesh->getBuffers().vao);
+				glBindVertexArray(mesh->getBuffers().vao);
 
-			//Bind the modelmatrix
-			ShaderMap::getInstance()->getShader(DEPTH_MAP)->setMat4("modelMatrix", modelMatrix);
-			
-			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+				//Bind the modelmatrix
+				ShaderMap::getInstance()->getShader(DEPTH_MAP)->setMat4("modelMatrix", modelMatrix);
 
-			glBindVertexArray(0);
+				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+				glBindVertexArray(0);
+			}
 		}
-	}
-	
-	//Animated static objects
-	//TODO: Consider animation for the depth shader
-	for (GameObject* object : m_anistaticObjects)
-	{
-		//Then through all of the meshes
-		for (size_t j = 0; j < object->getMeshesCount(); j++)
+
+		//Animated static objects
+		//TODO: Consider animation for the depth shader
+		for (GameObject* object : m_anistaticObjects)
 		{
-			modelMatrix = glm::mat4(1.0f);
-			//Fetch the current mesh and its transform
-			mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
-			transform = object->getTransform(j);
+			//Then through all of the meshes
+			for (size_t j = 0; j < object->getMeshesCount(); j++)
+			{
+				modelMatrix = glm::mat4(1.0f);
+				//Fetch the current mesh and its transform
+				mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
+				transform = object->getTransform(j);
 
-			modelMatrix = object->getMatrix(j);
+				modelMatrix = object->getMatrix(j);
 
-			glBindVertexArray(mesh->getBuffers().vao);
+				glBindVertexArray(mesh->getBuffers().vao);
 
-			//Bind the modelmatrix
-			ShaderMap::getInstance()->getShader(DEPTH_MAP)->setMat4("modelMatrix", modelMatrix);
+				//Bind the modelmatrix
+				ShaderMap::getInstance()->getShader(DEPTH_MAP)->setMat4("modelMatrix", modelMatrix);
 
-			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
-			glBindVertexArray(0);
+				glBindVertexArray(0);
+			}
 		}
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 #pragma endregion
 	
 #pragma region Light_Culling
@@ -287,8 +289,9 @@ void Renderer::render() {
 	//Bind view- and projection matrix
 	bindMatrixes(BASIC_FORWARD);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
-
+	
 	//Add a step where we insert lights into the scene
+	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("LightCount", m_pLights.size());
 	if (m_pLights.size() > 0) {
 		for (int i = 0; i < P_LIGHT_COUNT; i++) {
 			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setVec3("pLights[" + std::to_string(i) + "].position", m_pLights[i].position);
@@ -353,9 +356,9 @@ void Renderer::render() {
 			}
 		}
 	}
-#pragma endregion	
+#pragma endregion
+
 #pragma region Animation_Render
-	//m_timer.start();
 	//TODO: Evaluate this implementation, should be an easier way to bind values to shaders as they're changed
 	// Possibly extract functions. Only difference in rendering is the shader and the binding of bone matrices
 	ShaderMap::getInstance()->useByName(ANIMATION);
@@ -427,8 +430,6 @@ void Renderer::renderSpell(const AttackSpellBase* spellBase) {
 
 	glBindVertexArray(0);
 }
-
-
 
 Camera* Renderer::getMainCamera() const
 {

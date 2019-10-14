@@ -1,5 +1,5 @@
 #version 430
-#define LIGHTS_MAX 1
+#define LIGHTS_MAX 64
 
 //#define PLANE_COUNT
 layout(std430, binding = 0) readonly buffer LightIndexBuffer {
@@ -27,7 +27,7 @@ uniform vec3 Ambient_Color;
 uniform vec3 Diffuse_Color;
 uniform vec3 Specular_Color;
 uniform bool HasTex;
-
+uniform int LightCount;
 uniform sampler2D albedoTexture;
 
 uniform P_LIGHT pLights[LIGHTS_MAX];
@@ -58,12 +58,9 @@ void main() {
     vec3 position = vec3(0);
 
     vec3 result = ambientCol;
-    //vec3 lightDir = normalize(-lightDirection);
-    //We need to add support for the directional light now
-
-
+    
     //This is a light accumilation over the point lights
-    for(int i = 0; i < LIGHTS_MAX && lightIndexBuffer.index[i] != -1; i++) {
+    for(int i = 0; i < LightCount && lightIndexBuffer.index[i] != -1; i++) {
         uint lightIndex = lightIndexBuffer.index[i];
         position += pLights[lightIndex].position;
 

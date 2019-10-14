@@ -17,7 +17,7 @@
 #include <Renderer/SkyBox.h>
 #include <System/Timer.h>
 
-#define P_LIGHT_COUNT 1
+#define P_LIGHT_COUNT 64
 
 struct ObjectRenderData {
 	Buffers buffer;
@@ -56,7 +56,8 @@ private:
 	std::vector<GameObject*> m_dynamicObjects;
 	std::vector<GameObject*> m_anistaticObjects;
 	std::vector<GameObject*> m_anidynamicObjects;
-	std::vector<GameObject*> m_spells;
+	std::vector<GameObject*> m_spells; 
+	
 	//Buffers
 	unsigned int m_depthFBO;
 	unsigned int m_depthMap;
@@ -68,12 +69,12 @@ private:
 	unsigned int m_lightIndexSSBO;
 	
 	glm::vec2 workGroups;
-	std::vector<Pointlight> m_pLights;
-
+	std::vector<Pointlight> m_pLights;//The size of the vector is the number of lights
 	
 	void createDepthMap();
 	void initShaders();
 	void bindMatrixes(const std::string& shaderName);
+	
 	
 	
 	Renderer();
