@@ -2,12 +2,14 @@
 #include "SpellHandler.h"
 #include <Networking/Client.h>
 
-SpellHandler::SpellHandler(glm::vec3 playerPosition, glm::vec3 directionVector)
+SpellHandler::SpellHandler(glm::vec3 playerPosition, glm::vec3 directionVector, BulletPhysics* bp)
 {
 	this->directionVector = directionVector;
 	this->spellPos = playerPosition;
 	tempSpell = new AttackSpell("Spell", playerPosition, directionVector, 50, 2, "TestSphere.mesh", 0);
 	tempEnhanceAttackSpell = new EnhanceAttackSpell("EnhanceSpell", playerPosition, directionVector, 10, 4, "TestCube.mesh", 0, 3);
+
+	m_bp = bp;
 }
 
 SpellHandler::~SpellHandler()
@@ -22,6 +24,7 @@ void SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 di
 	{
 		if(tempSpell->getCooldown() <= 0)
 		{
+			//m_bp->createObject()
 			AttackSpell tempSpell2 = *tempSpell;
 			tempSpell2.createSpell(deltaTime, spellPos, directionVector);
 			normalSpell.push_back(tempSpell2);
@@ -94,7 +97,6 @@ void SpellHandler::spellCollisionCheck()
 {
 	
 	//BEGIN TEST=========================================== BEGIN TEST
-	for (int i = 0; i < normalSpell.size(); i++) {
 		glm::vec3 playerPos = glm::vec3(0.0f, 1.0f, -2.0f);
 
 		glm::vec3 xAxis = glm::vec3(1.0f, 0.0f, 0.0f);
@@ -105,22 +107,17 @@ void SpellHandler::spellCollisionCheck()
 		axis.emplace_back(xAxis);
 		axis.emplace_back(yAxis);
 		axis.emplace_back(zAxis);
+		//NORMAL spells
+	for (int i = 0; i < normalSpell.size(); i++) {
 
-
-
-		glm::vec3 spherePos = normalSpell.at(i).getTransform().position;
-		glm::vec3 closestPoint = OBBclosestPoint(spherePos, axis, playerPos);
-		float sphereRadius = 0.6f;
-		glm::vec3 v = closestPoint - spherePos;
-
-		float temp = sphereRadius * sphereRadius;
-		float temp2 = glm::dot(v, v);
-			
-		if (glm::dot(v, v) <= sphereRadius * sphereRadius)
-		{
-			//COLLISION!
-			logTrace("COLLISION spell and player");
-		}
+		glm::vec3 spellPos = normalSpell.at(i).getTransform().position;
+		specificSpellCollision(spellPos, playerPos, axis);
+	}
+	//ENCHANCEATTACK spells
+	for (int i = 0; i < enhanceAttackSpell.size(); i++)
+	{
+		glm::vec3 spellPos = enhanceAttackSpell.at(i).getTransform().position;
+		specificSpellCollision(spellPos, playerPos, axis);
 	}
 	
 	//END TEST=========================================== END TEST
@@ -163,6 +160,23 @@ void SpellHandler::spellCollisionCheck()
 		}
 	}
 	//check the collision with your spells and you!
+}
+
+bool SpellHandler::specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis)
+{
+	bool collision = false;
+	float sphereRadius = 0.6f;
+
+	glm::vec3 closestPoint = OBBclosestPoint(spellPos, axis, playerPos);
+	glm::vec3 v = closestPoint - spellPos;
+
+	if (glm::dot(v, v) <= sphereRadius * sphereRadius)
+	{
+		//COLLISION!
+		logTrace("COLLISION spell and player");
+		collision = true;
+	}
+	return collision;
 }
 
 glm::vec3 SpellHandler::OBBclosestPoint(glm::vec3& spherePos, std::vector<glm::vec3>& axis, glm::vec3& playerPos)
