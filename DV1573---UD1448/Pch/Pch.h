@@ -29,6 +29,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/common.hpp>
 #include "glm/ext.hpp"
+#include <System/Lerp.h>
 
 #include "System/Log.h"
 //Raknet

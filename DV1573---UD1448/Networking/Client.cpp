@@ -191,7 +191,7 @@ void Client::processAndHandlePackets()
 				player.Serialize(false, bsIn);
 				m_connectedPlayers.emplace_back(player);
 
-				std::lock_guard<std::mutex> lockGuard(m_playerEntities.m_mutex);
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::gameSyncMutex);
 				NetworkPlayers::PlayerEntity* pE = new NetworkPlayers::PlayerEntity();
 
 				pE->data = player;
@@ -213,7 +213,7 @@ void Client::processAndHandlePackets()
 			m_connectedPlayers.emplace_back(player);
 
 
-			std::lock_guard<std::mutex> lockGuard(m_playerEntities.m_mutex);
+			std::lock_guard<std::mutex> lockGuard(NetGlobals::gameSyncMutex);
 			NetworkPlayers::PlayerEntity* pE = new NetworkPlayers::PlayerEntity();
 
 			pE->data = player;
@@ -302,15 +302,25 @@ void Client::processAndHandlePackets()
 			}
 		}
 		break;
-
+		// Note, Can a thread have multiple mutexes at the same time? 
+	
 		case SPELL_CREATED:
 		{
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			SpellPacket spellPacket;
 			spellPacket.Serialize(false, bsIn);
+			logTrace("[CLIENT] Added spell to spell list for player {0}, spell ID {1}", spellPacket.CreatorGUID.ToString(), spellPacket.SpellID);
+			NetworkSpells::SpellEntity se;
 
-
-			auto item = m_activeSpells.find(spellPacket.CreatorGUID.g);
+			se.spellData = spellPacket;
+			se.flag = NetworkSpells::FLAG::ADD;
+			se.tempObject = nullptr;
+			std::lock_guard<std::mutex> lockGuard(NetGlobals::gameSyncMutex);
+			m_spellEntities.m_entities.emplace_back(se);
+			
+			m_activeSpells.emplace_back(spellPacket);
+			
+		/*	auto item = m_activeSpells.find(spellPacket.CreatorGUID.g);
 
 			if (item == m_activeSpells.end()) {
 				logTrace("[CLIENT] Created a new list with spells for player {0}, spell ID {1}", spellPacket.CreatorGUID.ToString(), spellPacket.SpellID);
@@ -323,7 +333,7 @@ void Client::processAndHandlePackets()
 				logTrace("[CLIENT] Added spell to spell list for player {0}, spell ID {1}", spellPacket.CreatorGUID.ToString(), spellPacket.SpellID);
 				item._Ptr->_Myval.second.emplace_back(spellPacket);
 			}
-			
+			*/
 		}
 
 		break;
@@ -333,10 +343,22 @@ void Client::processAndHandlePackets()
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			SpellPacket spellPacket;
 			spellPacket.Serialize(false, bsIn);
-
-			auto item = m_activeSpells.find(spellPacket.CreatorGUID.g);
-
-			if (item != m_activeSpells.end()) {
+			std::lock_guard<std::mutex> lockGuard(NetGlobals::gameSyncMutex);
+			//logTrace("[CLIENT] Updating spell");
+			SpellPacket* sp = findActiveSpell(spellPacket);
+			//logTrace("[CLIENT] {0}", spellPacket.toString());
+			if (sp != nullptr) {
+				sp->Position = spellPacket.Position;
+				sp->Rotation = spellPacket.Rotation;
+				
+				NetworkSpells::SpellEntity* ne = findSpellEntityInNetworkSpells(spellPacket);
+				if (ne != nullptr) {
+					ne->spellData.Position = spellPacket.Position;
+					ne->spellData.Rotation = spellPacket.Rotation;
+				}
+			}
+			
+			/*if (item != m_activeSpells.end()) {
 				auto& spellVec = item._Ptr->_Myval.second;
 				
 				for (size_t i = 0; i < spellVec.size(); i++) {
@@ -346,7 +368,7 @@ void Client::processAndHandlePackets()
 					}
 				}
 				
-			}
+			}*/
 		}
 
 		break;
@@ -357,10 +379,19 @@ void Client::processAndHandlePackets()
 			SpellPacket spellPacket;
 			spellPacket.Serialize(false, bsIn);
 			bsIn.SetReadOffset(0);
+			logTrace("[CLIENT] SPELL DESTROYED");
+			
+			std::lock_guard<std::mutex> lockGuard(NetGlobals::gameSyncMutex);
+			
+			NetworkSpells::SpellEntity* ne = findSpellEntityInNetworkSpells(spellPacket);
+			if(ne != nullptr)
+				ne->flag = NetworkSpells::FLAG::REMOVE;
+			
+			
+			removeActiveSpell(spellPacket);
+			//auto item = m_activeSpells.find(spellPacket.CreatorGUID.g);
 
-			auto item = m_activeSpells.find(spellPacket.CreatorGUID.g);
-
-			if (item != m_activeSpells.end()) {
+		/*	if (item != m_activeSpells.end()) {
 				auto& spellVec = item._Ptr->_Myval.second;
 				bool deleted = false;
 				for (size_t i = 0; i < spellVec.size() && !deleted; i++) {
@@ -377,7 +408,7 @@ void Client::processAndHandlePackets()
 					m_activeSpells.erase(item);
 				}
 
-			}
+			}*/
 
 		}
 		break;
@@ -416,7 +447,7 @@ void Client::createSpellOnNetwork(Spell& spell)
 	SpellPacket spellPacket;
 	spellPacket.packetType = SPELL_CREATED;
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
-	spellPacket.Position = spell.getSpellPos();
+	spellPacket.Position = spell.getTransform().position;
 	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Rotation = glm::vec3(0.0f);
 	spellPacket.SpellType = SPELL_TYPE::UNKNOWN; // Type needs to be present in Spell class and not in sub classes.
@@ -429,7 +460,7 @@ void Client::updateSpellOnNetwork(Spell& spell)
 	SpellPacket spellPacket;
 	spellPacket.packetType = SPELL_UPDATE;
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
-	spellPacket.Position = spell.getSpellPos();
+	spellPacket.Position = spell.getTransform().position;
 	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Rotation = glm::vec3(0.0f);
 	spellPacket.SpellType = SPELL_TYPE::UNKNOWN; // Type needs to be present in Spell class and not in sub classes.
@@ -442,7 +473,7 @@ void Client::destroySpellOnNetwork(Spell& spell)
 	SpellPacket spellPacket;
 	spellPacket.packetType = SPELL_DESTROY;
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
-	spellPacket.Position = spell.getSpellPos();
+	spellPacket.Position = spell.getTransform().position;
 	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Rotation = glm::vec3(0.0f);
 	spellPacket.SpellType = SPELL_TYPE::UNKNOWN; // Type needs to be present in Spell class and not in sub classes.
@@ -450,10 +481,13 @@ void Client::destroySpellOnNetwork(Spell& spell)
 	m_spellQueue.emplace_back(spellPacket);
 }
 
-void Client::updateNetworkedPlayers(const float& dt)
+void Client::updateNetworkEntities(const float& dt)
 {
-	if(m_initialized && m_isConnectedToAnServer)
+	if (m_initialized && m_isConnectedToAnServer) {
 		m_playerEntities.update(dt);
+		m_spellEntities.update(dt);
+	}
+
 }
 
 void Client::sendStartRequestToServer()
@@ -505,7 +539,12 @@ NetworkPlayers& Client::getNetworkPlayersREF()
 	return m_playerEntities;
 }
 
-const std::unordered_map<uint64_t, std::vector<SpellPacket>>& Client::getNetworkSpells()
+NetworkSpells& Client::getNetworkSpellsREF()
+{
+	return m_spellEntities;
+}
+
+const std::vector<SpellPacket>& Client::getNetworkSpells()
 {
 	return m_activeSpells;
 }
@@ -606,6 +645,51 @@ unsigned char Client::getPacketID(RakNet::Packet* p)
 		return (unsigned char)p->data[sizeof(RakNet::MessageID) + sizeof(RakNet::Time)];
 	else
 		return (unsigned char)p->data[0];
+}
+
+SpellPacket* Client::findActiveSpell(const SpellPacket& packet)
+{
+	//logTrace("[CLIENT] Finding active spell");
+	for (size_t i = 0; i < m_activeSpells.size(); i++) {
+		SpellPacket& sp = m_activeSpells[i];
+
+		if (sp.CreatorGUID == packet.CreatorGUID && sp.SpellID == packet.SpellID) {
+			//logTrace("[CLIENT] Returning active spell");
+			return &sp;
+		}
+	}
+
+	return nullptr;
+}
+
+NetworkSpells::SpellEntity* Client::findSpellEntityInNetworkSpells(const SpellPacket& packet)
+{
+	//logTrace("[CLIENT] Finding spell entity");
+	for (size_t i = 0; i < m_spellEntities.m_entities.size(); i++) {
+		
+		SpellPacket& sp = m_spellEntities.m_entities[i].spellData;
+	
+		if (sp.CreatorGUID == packet.CreatorGUID && sp.SpellID == packet.SpellID) {
+			//logTrace("[CLIENT] Returning spell entity");
+			return &m_spellEntities.m_entities[i];
+		}
+	}
+
+	return nullptr;
+}
+
+void Client::removeActiveSpell(const SpellPacket& packet)
+{
+	for (size_t i = 0; i < m_activeSpells.size(); i++) {
+		SpellPacket& sp = m_activeSpells[i];
+
+		if (sp.CreatorGUID == packet.CreatorGUID && sp.SpellID == packet.SpellID) {
+			m_activeSpells.erase(m_activeSpells.begin() + i);
+			logTrace("[CLIENT] Deleted a spell with spell ID: {0} from client {1}", sp.SpellID, sp.CreatorGUID.ToString());
+			return;
+		}
+			
+	}
 }
 
 void Client::printAllConnectedPlayers()

@@ -9,7 +9,7 @@ namespace NetGlobals {
 	constexpr int tickRate = 128;
 	constexpr unsigned int threadSleepTime = (1.0f / static_cast<float>(tickRate)) * 1000u;
 	constexpr unsigned short timeoutTimeMS = 5 * 1000;
-
+	static std::mutex gameSyncMutex;
 
 
 	enum ServerState {

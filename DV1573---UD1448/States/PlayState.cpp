@@ -72,7 +72,7 @@ PlayState::~PlayState()
 void PlayState::update(float dt)
 {	
 
-	Client::getInstance()->updateNetworkedPlayers(dt);
+	Client::getInstance()->updateNetworkEntities(dt);
 	m_bPhysics->update(dt);
 	Renderer::getInstance()->update(dt);
 	m_player->update(dt);
@@ -90,20 +90,35 @@ void PlayState::render()
 	Renderer::getInstance()->renderSkybox(*m_skybox);
 	m_player->renderSpell();
 
-	auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
+	// Renderer networked players
+	auto& networkedPlayerList = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
 
-	for (size_t i = 0; i < list.size(); i++)
+	for (size_t i = 0; i < networkedPlayerList.size(); i++)
 	{
-		if (list[i]->gameobject == nullptr) continue;
+		if (networkedPlayerList[i]->gameobject == nullptr) continue;
 
-		for (int j = 0; j < list[i]->gameobject->getMeshesCount(); j++)
+		for (int j = 0; j < networkedPlayerList[i]->gameobject->getMeshesCount(); j++)
 		{
-			list[i]->gameobject->bindMaterialToShader("Basic_Forward", j);
-			Renderer::getInstance()->render(*list[i]->gameobject, j);
+			networkedPlayerList[i]->gameobject->bindMaterialToShader("Basic_Forward", j);
+			Renderer::getInstance()->render(*networkedPlayerList[i]->gameobject, j);
 
 		}	
 	}
 
+	// Renderer networked Spells
+	auto& networkedSpellList = Client::getInstance()->getNetworkSpellsREF().getSpellEntitiesREF();
+
+	for (size_t i = 0; i < networkedSpellList.size(); i++)
+	{
+		if (networkedSpellList[i].tempObject == nullptr) continue;
+
+		for (int j = 0; j < networkedSpellList[i].tempObject->getMeshesCount(); j++)
+		{
+			networkedSpellList[i].tempObject->bindMaterialToShader("Basic_Forward", j);
+			Renderer::getInstance()->render(*networkedSpellList[i].tempObject, j);
+
+		}
+	}
 
 
 	for (GameObject* object : m_objects)

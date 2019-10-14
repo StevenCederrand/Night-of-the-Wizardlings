@@ -73,6 +73,7 @@
     <ClInclude Include="System\BulletPhysics.h" />
     <ClInclude Include="Networking\NetworkSpells.h" />
     <ClInclude Include="Spells\SpellTypes.h" />
+    <ClInclude Include="System\Lerp.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

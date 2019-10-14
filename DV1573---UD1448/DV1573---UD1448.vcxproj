@@ -278,6 +278,7 @@
     <ClInclude Include="System\Application.h" />
     <ClInclude Include="System\BulletPhysics.h" />
     <ClInclude Include="System\Input.h" />
+    <ClInclude Include="System\Lerp.h" />
     <ClInclude Include="System\Log.h" />
     <ClInclude Include="System\State.h" />
     <ClInclude Include="System\StateManager.h" />

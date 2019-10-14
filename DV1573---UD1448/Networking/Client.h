@@ -1,6 +1,7 @@
 #ifndef _CLIENT_H
 #define _CLIENT_H
 #include <Pch/Pch.h>
+#include <Spells/Spell.h>
 #include "NetworkPlayers.h"
 #include "NetworkSpells.h"
 
@@ -24,12 +25,15 @@ public:
 	void createSpellOnNetwork(Spell& spell);
 	void updateSpellOnNetwork(Spell& spell);
 	void destroySpellOnNetwork(Spell& spell);
-	void updateNetworkedPlayers(const float& dt);
+	void updateNetworkEntities(const float& dt);
 	void sendStartRequestToServer();
 	const std::vector<std::pair<unsigned int, ServerInfo>>& getServerList() const;
 	const std::vector<PlayerPacket>& getConnectedPlayers() const;
+	
 	NetworkPlayers& getNetworkPlayersREF();
-	const std::unordered_map<uint64_t, std::vector<SpellPacket>>& getNetworkSpells();
+	NetworkSpells& getNetworkSpellsREF();
+
+	const std::vector<SpellPacket>& getNetworkSpells();
 	void refreshServerList();
 	bool doneRefreshingServerList();
 	const bool& isInitialized() const;
@@ -41,11 +45,13 @@ public:
 	const bool& connectionFailed() const;
 
 private:
-	void updateDataOnServer();
 
+	void updateDataOnServer();
 	void findAllServerAddresses();
 	unsigned char getPacketID(RakNet::Packet* p);
-
+	SpellPacket* findActiveSpell(const SpellPacket& packet);
+	NetworkSpells::SpellEntity* findSpellEntityInNetworkSpells(const SpellPacket& packet);
+	void removeActiveSpell(const SpellPacket& packet);
 	void printAllConnectedPlayers();
 
 private:
@@ -64,10 +70,12 @@ private:
 	std::vector<PlayerPacket> m_connectedPlayers;
 	PlayerPacket m_playerData;
 	NetworkPlayers m_playerEntities;
+	NetworkSpells m_spellEntities;
 	std::mutex m_cleanupMutex;
 	
-	std::unordered_map<uint64_t, std::vector<SpellPacket>> m_activeSpells;
-	
+
+	//std::unordered_map<uint64_t, std::vector<SpellPacket>> m_activeSpells;
+	std::vector<SpellPacket> m_activeSpells;
 	std::vector<SpellPacket> m_spellQueue;
 
 };
