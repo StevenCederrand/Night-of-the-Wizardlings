@@ -7,7 +7,7 @@ class EnhanceAttackSpell : public Spell
 {
 public:
 	EnhanceAttackSpell(glm::vec3 pos);
-	EnhanceAttackSpell(std::string name, glm::vec3 pos, glm::vec3 direction, float speed, float travelTime, std::string meshName, float cooldown, float nrOfEnhancedAttacks);
+	EnhanceAttackSpell(std::string name, glm::vec3 pos, glm::vec3 m_direction, float speed, float m_travelTime, std::string meshName, float cooldown, float nrOfEnhancedAttacks);
 	~EnhanceAttackSpell();
 
 	float getThreeAttacks();
@@ -16,8 +16,8 @@ public:
 	void spellCooldownUpdate(float deltaTime);
 	void createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector);
 
+	void update(float deltaTime);
 
-	void update(float dt);
 
 private:
 

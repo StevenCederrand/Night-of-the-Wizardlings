@@ -13,7 +13,7 @@
 class Player
 {
 public:
-	Player(BulletPhysics* bp, std::string name = "", glm::vec3 playerPosition = glm::vec3(0.0f, 0.0f, 0.0f), Camera* camera = NULL);
+	Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Camera* camera, SpellHandler* spellHandler);
 	~Player();
 
 	void update(float deltaTime);
@@ -21,7 +21,6 @@ public:
 	void move(float deltaTime);
 	void attack(float deltaTime);
 	void createRay(); //create ray for spells
-	void renderSpell();
 	void spawnPlayer(glm::vec3 pos);
 	void selectSpell();
 	bool isDead();
@@ -47,7 +46,7 @@ private:
 
 	Camera* playerCamera;
 	float attackCooldown;
-	float spellSpeed = 1;
+	float m_spellSpeed = 1;
 	float speed;
 	int nrOfSpells;
 	int health;

@@ -1,93 +1,74 @@
 #include "Pch/Pch.h"
 #include "SpellHandler.h"
+#include <Loader/BGLoader.h>
 
-SpellHandler::SpellHandler(glm::vec3 playerPosition, glm::vec3 directionVector)
+SpellHandler::SpellHandler()
 {
-	this->directionVector = directionVector;
-	this->spellPos = playerPosition;
-	tempSpell = new AttackSpell("Spell", playerPosition, directionVector, 50, 2, "TestSphere.mesh", 0);
-	tempEnhanceAttackSpell = new EnhanceAttackSpell("EnhanceSpell", playerPosition, directionVector, 10, 4, "TestCube.mesh", 0, 3);
+	attackBase = nullptr;
+	initAttackSpell();
+}
+
+void SpellHandler::initAttackSpell()
+{
+	attackBase = new AttackSpellBase();
+	attackBase->m_mesh = new Mesh();
+	attackBase->m_material = new Material();
+
+	BGLoader tempLoader;	// The file loader
+	tempLoader.LoadMesh(MESHPATH + "TestSphere.mesh");
+	attackBase->m_mesh->saveFilePath(tempLoader.GetFileName(), 0);
+	attackBase->m_mesh->nameMesh(tempLoader.GetMeshName());
+	attackBase->m_mesh->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
+
+	const Material& newMaterial = tempLoader.GetMaterial();
+	attackBase->m_material->ambient = newMaterial.ambient;
+	attackBase->m_material->diffuse = newMaterial.diffuse;
+	attackBase->m_material->name = newMaterial.name;
+	attackBase->m_material->specular = newMaterial.specular;
+	tempLoader.Unload();
+
+	attackBase->m_damage = 34;
+	attackBase->m_speed = 10;
+	attackBase->m_coolDown = 1;
+	attackBase->m_lifeTime = 5;
+	attackBase->m_maxBounces = 3;
 }
 
 SpellHandler::~SpellHandler()
 {
-	delete tempSpell;
-	delete tempEnhanceAttackSpell;
+	if (attackBase)
+		delete attackBase;
+	for (Spell* element : spells)
+		delete element;
+	spells.clear();
 }
 
 void SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector, TYPE type)
 {
+
 	if (type == NORMALATTACK)
 	{
-		if(tempSpell->getCooldown() <= 0)
-		{
-			AttackSpell tempSpell2 = *tempSpell;
-			tempSpell2.createSpell(deltaTime, spellPos, directionVector);
-			normalSpell.push_back(tempSpell2);
-			tempSpell->setCooldown(1.0f);
-			Renderer::getInstance()->submit(tempSpell, DYNAMIC);
-		}
+		spells.emplace_back(new AttackSpell(spellPos, directionVector, attackBase));
+		logTrace("Created spell");
 	}
 
 	if (type == ENHANCEATTACK)
 	{
-		if (tempEnhanceAttackSpell->getCooldown() <= 0)//&& tempEnhanceAttackSpell->getThreeAttacks() <= 0)
-		{
-			EnhanceAttackSpell tempSpell2 = *tempEnhanceAttackSpell;
-			tempSpell2.createSpell(deltaTime, spellPos, directionVector);
-			enhanceAttackSpell.push_back(tempSpell2);
-			tempEnhanceAttackSpell->setCooldown(5.0f);
-			Renderer::getInstance()->submit(&tempSpell2, DYNAMIC);
-		}
+		//spells.emplace_back(new EnhanceAttackSpell(spellPos, directionVector));
 	}	
 }
 
 void SpellHandler::spellUpdate(float deltaTime)
 {
-		for (int i = 0; i < normalSpell.size(); i++)
+	for (int i = 0; i < spells.size(); i++)
+	{
+		spells[i]->update(deltaTime);
+
+		if (spells[i]->getTravelTime() <= 0)
 		{
-			normalSpell[i].updateActiveSpell(deltaTime);
-
-			if (normalSpell[i].getTravelTime() <= 0)
-			{
-				Renderer::getInstance()->removeDynamic(tempSpell);
-				normalSpell.erase(normalSpell.begin() + i);
-
-			}
+			delete spells[i];
+			spells.erase(spells.begin() + i);
+			logTrace("Deleted spell");
 		}
-	
-		for (int i = 0; i < enhanceAttackSpell.size(); i++)
-		{
-	
-			enhanceAttackSpell[i].updateActiveSpell(deltaTime);
-			if (enhanceAttackSpell[i].getTravelTime() <= 0)
-			{
-				enhanceAttackSpell.erase(enhanceAttackSpell.begin() + i);
-			}
-		}
-}
-
-void SpellHandler::spellCooldown(float deltaTime)
-{
-	
-	tempSpell->spellCooldownUpdate(deltaTime);
-	tempEnhanceAttackSpell->spellCooldownUpdate(deltaTime);
-}
-
-void SpellHandler::renderSpell()
-{
-	
-
-		for (AttackSpell object : normalSpell)
-		{
-			object.bindMaterialToShader("Basic_Forward");
-			//Renderer::getInstance)
-		}
-	
-		for (EnhanceAttackSpell object : enhanceAttackSpell)
-		{
-			object.bindMaterialToShader("Basic_Forward");
-			//Renderer::getInstance()->render(object);
-		}
-	
+	}
 }

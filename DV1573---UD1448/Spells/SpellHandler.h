@@ -3,26 +3,26 @@
 #include <GameObject/GameObject.h>
 #include <Spells/AttackSpell.h>
 #include <Spells/EnhanceAttackSpell.h>
+#include <Spells/Spells.h>
 
 enum TYPE { NORMALATTACK, ENHANCEATTACK };
 
 class SpellHandler
 {
 public:
-	SpellHandler(glm::vec3 playerPosition, glm::vec3 directionVector);
+	SpellHandler();
+	void initAttackSpell();
 	~SpellHandler();
 	void createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector, TYPE type);
 	void spellUpdate(float deltaTime);
-	void spellCooldown(float deltaTime);
-	void renderSpell();
+	const AttackSpellBase& getAttackSpellBase() const { return *attackBase; }
+	const Spell& getSpell(int index) const { return *spells[index]; }
 
 private:
-	std::vector<AttackSpell> normalSpell;
-	AttackSpell* tempSpell;
+	std::vector<Spell*> spells;
 	std::vector<EnhanceAttackSpell> enhanceAttackSpell;
-	EnhanceAttackSpell* tempEnhanceAttackSpell;
 
-	glm::vec3 directionVector;
-	glm::vec3 spellPos;
+	AttackSpellBase* attackBase;
+
 
 };

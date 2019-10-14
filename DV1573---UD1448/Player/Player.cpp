@@ -4,7 +4,7 @@
 
 
 
-Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Camera *camera)
+Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Camera *camera, SpellHandler* spellHandler)
 {
 	if (camera == NULL) {
 		 playerCamera = new Camera();
@@ -23,8 +23,8 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	//tempSpell = new AttackSpell("Spell", playerPosition, directionVector, 50, 2, "TestSphere.mesh");
 
 	this->spellType = NORMALATTACK;
-	spellhandler = new SpellHandler(playerPosition, directionVector);
 
+	this->spellhandler = spellHandler;
 
 	m_bp = bp;
 	m_character = m_bp->createCharacter();
@@ -33,7 +33,6 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 Player::~Player()
 {
 	delete playerCamera;
-	delete spellhandler;
 }
 
 void Player::update(float deltaTime)
@@ -41,7 +40,6 @@ void Player::update(float deltaTime)
 	m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
 	selectSpell();
 	move(deltaTime);
-	spellhandler->spellUpdate(deltaTime);
 	attack(deltaTime);
 	Client* client = Client::getInstance();
 	client->updatePlayerData(this);
@@ -111,19 +109,23 @@ void Player::move(float deltaTime)
 	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY()* 2, playerPos.getZ());
 	
 	playerCamera->setCameraPos(m_playerPosition);
-	playerCamera->update(playerCamera->getWindow());	
+	playerCamera->update(playerCamera->getWindow());
+
+
+	attackCooldown -= deltaTime; // Cooldown reduces with time
 }
 
 void Player::attack(float deltaTime)
 {
-	if (glfwGetMouseButton(playerCamera->getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)// && tempSpell->getCooldown() <= 0
+	if (glfwGetMouseButton(playerCamera->getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 	{
-		createRay();
-		spellhandler->createSpell(deltaTime, m_playerPosition, directionVector, spellType);
-
+		if (attackCooldown <= 0)
+		{
+			createRay();
+			spellhandler->createSpell(deltaTime, m_playerPosition, directionVector, spellType);
+			attackCooldown = spellhandler->getAttackSpellBase().m_coolDown; // Put attack on cooldown
+		}
 	}
-	spellhandler->spellCooldown(deltaTime);
-
 }
 
 void Player::createRay()
@@ -139,11 +141,6 @@ void Player::createRay()
 	rayEye = glm::vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);
 	glm::vec4 rayWorldTemp = glm::vec4(inverse(playerCamera->getViewMat()) * rayEye);
 	directionVector = normalize(glm::vec3(rayWorldTemp.x, rayWorldTemp.y, rayWorldTemp.z));
-}
-
-void Player::renderSpell()
-{
-	spellhandler->renderSpell();
 }
 
 void Player::setPlayerPos(glm::vec3 pos)
