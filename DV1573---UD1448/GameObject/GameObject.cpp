@@ -146,9 +146,11 @@ void GameObject::loadMesh(std::string fileName)
 }
 //Update each individual modelmatrix for the meshes
 void GameObject::updateModelMatrix() {
+	
 	Transform transform;
 	for (size_t i = 0; i < m_modelMatrixes.size(); i++)
 	{
+		m_modelMatrixes[i] = glm::mat4(1.0f);
 		transform = getTransform(i);
 		m_modelMatrixes[i] = glm::translate(m_modelMatrixes.at(i), transform.position);
 		m_modelMatrixes[i] = glm::scale(m_modelMatrixes[i], transform.scale);

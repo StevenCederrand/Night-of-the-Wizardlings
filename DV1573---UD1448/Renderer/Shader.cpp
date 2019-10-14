@@ -255,9 +255,8 @@ void Shader::setInt(std::string name, int num)
 	glUniform1i(uniformLoc, num);
 }
 
-
+//Assumption is that you are using the shader
 void Shader::setMaterial(std::string materialName) {
-	use();
 	Material* mat = MaterialMap::getInstance()->getMaterial(materialName);
 	setVec3("Ambient_Color", mat->ambient);
 	setVec3("Diffuse_Color", mat->diffuse);

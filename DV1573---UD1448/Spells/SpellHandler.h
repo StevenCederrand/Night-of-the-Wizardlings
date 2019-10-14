@@ -1,11 +1,14 @@
 #pragma once
 #include <Pch/Pch.h>
+#include <Spells/Spells.h>
 #include <GameObject/GameObject.h>
 #include <Spells/AttackSpell.h>
 #include <Spells/EnhanceAttackSpell.h>
 #include <Spells/Spells.h>
 
 enum TYPE { NORMALATTACK, ENHANCEATTACK };
+
+
 
 class SpellHandler
 {

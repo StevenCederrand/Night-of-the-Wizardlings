@@ -72,3 +72,21 @@ void SpellHandler::spellUpdate(float deltaTime)
 		}
 	}
 }
+	
+
+
+void SpellHandler::renderSpell()
+{
+	for (AttackSpell object : normalSpell)
+	{
+		ShaderMap::getInstance()->useByName(BASIC_FORWARD);
+		object.bindMaterialToShader("Basic_Forward");
+		Renderer::getInstance()->renderSpell(object); //Why is object null??
+	}
+	
+	for (EnhanceAttackSpell object : enhanceAttackSpell)
+	{
+		object.bindMaterialToShader("Basic_Forward");
+		Renderer::getInstance()->renderSpell(object);
+	}
+}

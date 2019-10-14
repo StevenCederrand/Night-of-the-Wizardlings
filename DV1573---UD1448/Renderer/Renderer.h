@@ -36,7 +36,8 @@ enum ObjectType {
 	STATIC,
 	DYNAMIC,
 	ANIMATEDSTATIC,
-	ANIMATEDDYNAMIC
+	ANIMATEDDYNAMIC,
+	SPELL
 };
 
 class Renderer
@@ -53,7 +54,7 @@ private:
 	std::vector<GameObject*> m_dynamicObjects;
 	std::vector<GameObject*> m_anistaticObjects;
 	std::vector<GameObject*> m_anidynamicObjects;
-
+	std::vector<GameObject*> m_spells;
 	//Buffers
 	unsigned int m_depthFBO;
 	unsigned int m_depthMap;
@@ -85,9 +86,11 @@ public:
 
 	void destroy();
 	void submit(GameObject* gameObject, ObjectType objType);
+	
 	void removeDynamic(GameObject* gameObject); //Remove an object from the dynamic array
 	void renderSkybox(const SkyBox& skybox);
 	void render();
+	void renderSpell(const GameObject& gameObject);
 	Camera* getMainCamera() const;
 };
 

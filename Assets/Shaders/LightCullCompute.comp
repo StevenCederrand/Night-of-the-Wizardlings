@@ -104,7 +104,7 @@ void main() {
     {
         for(uint j = 0; j < PLANE_COUNT; j++)
         {
-            distance = dot(vec4(lights[lightIndex].position, 1.0), planes[j]);
+            distance = dot(vec4(lights[lightIndex].position, 1.0), planes[j]) + lights[lightIndex].radius;
 
             if(distance <= 0.0) {
                 break;
