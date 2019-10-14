@@ -21,13 +21,10 @@ public:
 
 private:
 	
-
-
-
 	std::vector<AttackSpell> normalSpell;
-	AttackSpell tempSpell;
+	AttackSpell* tempSpell;
 	std::vector<EnhanceAttackSpell> enhanceAttackSpell;
-	EnhanceAttackSpell tempEnhanceAttackSpell;
+	EnhanceAttackSpell* tempEnhanceAttackSpell;
 
 	glm::vec3 directionVector;
 	glm::vec3 spellPos;

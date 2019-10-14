@@ -111,10 +111,8 @@ void PlayState::render()
 {
 	//Move the render skybox to be a private renderer function
 	Renderer::getInstance()->renderSkybox(*m_skybox);
-	
-	m_player->renderSpell();
-
 	Renderer::getInstance()->render();
+	m_player->renderSpell();
 }
 
 //This function is called everytime two collision objects collide

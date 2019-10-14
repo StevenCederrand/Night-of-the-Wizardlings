@@ -6,7 +6,6 @@
 class EnhanceAttackSpell : public Spell
 {
 public:
-	EnhanceAttackSpell();
 	EnhanceAttackSpell(glm::vec3 pos);
 	EnhanceAttackSpell(std::string name, glm::vec3 pos, glm::vec3 direction, float speed, float travelTime, std::string meshName, float cooldown, float nrOfEnhancedAttacks);
 	~EnhanceAttackSpell();

@@ -1,10 +1,7 @@
 #include "Pch/Pch.h"
 #include "EnhanceAttackSpell.h"
 
-EnhanceAttackSpell::EnhanceAttackSpell()
-	: Spell(glm::vec3(0))
-{
-}
+
 
 EnhanceAttackSpell::EnhanceAttackSpell(glm::vec3 pos)
 	: Spell(pos)

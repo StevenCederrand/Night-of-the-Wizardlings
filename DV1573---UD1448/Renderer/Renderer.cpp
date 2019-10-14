@@ -354,7 +354,6 @@ void Renderer::render() {
 		}
 	}
 #pragma endregion	
-	/*
 #pragma region Animation_Render
 	//m_timer.start();
 	//TODO: Evaluate this implementation, should be an easier way to bind values to shaders as they're changed
@@ -403,16 +402,29 @@ void Renderer::render() {
 	}
 #pragma endregion
 
-	*/
 }
 
-void Renderer::renderSpell() {
-	
-	//all submited spells
-	for (size_t i = 0; i < m_spells.size(); i++)
-	{
 
-	}
+
+void Renderer::renderSpell(const GameObject& gameObject) {
+	
+	Mesh* meshRef = MeshMap::getInstance()->getMesh(gameObject.getMeshName(0));
+	const Transform meshTransform = gameObject.getTransform();
+
+	glBindVertexArray(meshRef->getBuffers().vao);
+
+	glm::mat4 modelMatrix = glm::mat4(1.0f);
+	modelMatrix = glm::translate(modelMatrix, meshTransform.position);
+	modelMatrix = glm::scale(modelMatrix, meshTransform.scale);
+	modelMatrix *= glm::mat4_cast(meshTransform.rotation);
+
+	//Set matrices TODO: function exists for this, evaluate what to keep
+	bindMatrixes(BASIC_FORWARD);
+	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
+
+	glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+	glBindVertexArray(0);
 }
 
 
