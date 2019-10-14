@@ -440,6 +440,8 @@ void Client::processAndHandlePackets()
 
 void Client::updatePlayerData(Player* player)
 {
+	if (!m_initialized || !m_isConnectedToAnServer) return;
+
 	m_playerData.health = player->getHealth();
 	m_playerData.position = player->getPlayerPos();
 	m_playerData.rotation = glm::vec3(
@@ -454,6 +456,8 @@ void Client::updatePlayerData(Player* player)
 // very noticable moment.
 void Client::createSpellOnNetwork(Spell& spell)
 {
+	if (!m_initialized || !m_isConnectedToAnServer) return;
+
 	SpellPacket spellPacket;
 	spellPacket.packetType = SPELL_CREATED;
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
@@ -467,6 +471,8 @@ void Client::createSpellOnNetwork(Spell& spell)
 
 void Client::updateSpellOnNetwork(Spell& spell)
 {
+	if (!m_initialized || !m_isConnectedToAnServer) return;
+
 	SpellPacket spellPacket;
 	spellPacket.packetType = SPELL_UPDATE;
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
@@ -480,6 +486,8 @@ void Client::updateSpellOnNetwork(Spell& spell)
 
 void Client::destroySpellOnNetwork(Spell& spell)
 {
+	if (!m_initialized || !m_isConnectedToAnServer) return;
+
 	SpellPacket spellPacket;
 	spellPacket.packetType = SPELL_DESTROY;
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
