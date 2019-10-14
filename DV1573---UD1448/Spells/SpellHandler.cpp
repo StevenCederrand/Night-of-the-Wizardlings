@@ -20,40 +20,69 @@ SpellHandler::~SpellHandler()
 
 void SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector, TYPE type)
 {
+	CollisionObject obj = sphere;
+	btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.x);
 	if (type == NORMALATTACK)
 	{
 		if(tempSpell->getCooldown() <= 0)
 		{
-			CollisionObject obj = box;
-			//m_bp->createObject()
+			//bullet create
+			m_BulletNormalSpell.emplace_back(
+				m_bp->createObject(obj, 1.0f, spellPos+directionVector*2, glm::vec3(1.0f, 0.0f, 0.0f)));
+			
 			AttackSpell tempSpell2 = *tempSpell;
-			tempSpell2.createSpell(deltaTime, spellPos, directionVector);
+			tempSpell2.createSpell(deltaTime, spellPos+directionVector*2, directionVector);
 			normalSpell.push_back(tempSpell2);
 			tempSpell->setCooldown(1.0f);
+
+			//bullet
+			int size = m_BulletNormalSpell.size();
+			float spellSpeed = tempSpell2.getSpellSpeed();
+			m_BulletNormalSpell.at(size - 1)->setLinearVelocity(direction*deltaTime*spellSpeed);
+			m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
+			m_BulletNormalSpell.at(size - 1)->setUserPointer(m_BulletNormalSpell.at(size - 1));
 		}
 	}
 
 	if (type == ENHANCEATTACK)
 	{
-		if (tempEnhanceAttackSpell->getCooldown() <= 0)//&& tempEnhanceAttackSpell->getThreeAttacks() <= 0)
+		if (tempEnhanceAttackSpell->getCooldown() <= 0) //&& tempEnhanceAttackSpell->getThreeAttacks() <= 0)
 		{
+			m_BulletEnhanceAttackSpell.emplace_back(
+				m_bp->createObject(obj, 1.0f, spellPos+directionVector*2, glm::vec3(1.0f, 0.0f, 0.0f)));
+
+
 			EnhanceAttackSpell tempSpell2 = *tempEnhanceAttackSpell;
 			tempSpell2.createSpell(deltaTime, spellPos, directionVector);
 			enhanceAttackSpell.push_back(tempSpell2);
 			tempEnhanceAttackSpell->setCooldown(5.0f);
+
+			int size = m_BulletEnhanceAttackSpell.size();
+			float spellSpeed = tempSpell2.getSpellSpeed();
+			m_BulletEnhanceAttackSpell.at(size - 1)->setLinearVelocity(direction);
+			m_BulletEnhanceAttackSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
+
 		}
 	}	
 }
 
 void SpellHandler::spellUpdate(float deltaTime)
 {
-	deltaTime = 0.005f;
+	//deltaTime = 0.005f;
 	for (int i = 0; i < normalSpell.size(); i++)
 	{
-		normalSpell[i].updateActiveSpell(deltaTime);
+		normalSpell[i].updateActiveSpell(deltaTime, m_BulletNormalSpell.at(i));
+		glm::vec3 pos = normalSpell[i].getSpellPos();
+		logTrace("\n\npos for the spell: ");
+		logTrace(pos.x);
+		logTrace(pos.y);
+		logTrace(pos.z);
+
 		if (normalSpell[i].getTravelTime() <= 0)
 		{
 			normalSpell.erase(normalSpell.begin() + i);
+			m_BulletNormalSpell.erase(m_BulletNormalSpell.begin() + i);
+
 		}
 	}
 	

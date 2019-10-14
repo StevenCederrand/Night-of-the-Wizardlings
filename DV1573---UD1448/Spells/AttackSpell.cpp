@@ -16,11 +16,45 @@ AttackSpell::~AttackSpell()
 {
 }
 
-void AttackSpell::updateActiveSpell(float deltaTime)
+void AttackSpell::updateActiveSpell(float deltaTime, btRigidBody* body)
 {
 	
-	translate(getDirection() * deltaTime * getSpellSpeed());
+
+	//pos is for the spell to have the bodys position
+	glm::vec3 pos = glm::vec3(
+		body->getWorldTransform().getOrigin().getX(),
+		body->getWorldTransform().getOrigin().getY(),
+		body->getWorldTransform().getOrigin().getZ());
+
+	//change the bodys velocity every frame based on dt
+	btVector3 pos2 = btVector3(
+		getDirection().x * deltaTime * getSpellSpeed(),
+		getDirection().y * deltaTime * getSpellSpeed(),
+		getDirection().z * deltaTime * getSpellSpeed())*10;
+
+
+	logTrace("\n\npos: ");
+	logTrace(pos.x /deltaTime /getSpellSpeed() /10);
+	logTrace(pos.y);
+	logTrace(pos.z);
+	
+
+	/*logTrace("\npos2: ");
+	logTrace(pos2.getX());
+	logTrace(pos2.getY());
+	logTrace(pos2.getZ());*/
+
+	body->setLinearVelocity(pos2);
+
+	
+	//translate(getDirection() * deltaTime * getSpellSpeed());
+	setWorldPosition(pos);
 	setTravelTime(getTravelTime() - 1 * deltaTime);
+
+	/*logTrace("\npos: " );
+	logTrace(pos.x);
+	logTrace(pos.y);
+	logTrace(pos.z);*/
 
 }
 
