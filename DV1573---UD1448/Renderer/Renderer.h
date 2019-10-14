@@ -91,6 +91,7 @@ public:
 	void renderSkybox(const SkyBox& skybox);
 	void render();
 	void renderSpell();
+	void renderDebug();
 	Camera* getMainCamera() const;
 };
 

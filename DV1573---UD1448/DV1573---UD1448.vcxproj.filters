@@ -38,6 +38,7 @@
     <ClCompile Include="Mesh\AnimationMap.cpp" />
     <ClCompile Include="GameObject\AnimatedObject.cpp" />
     <ClCompile Include="System\Timer.cpp" />
+    <ClCompile Include="DebugDrawer\DebugDrawer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GFX\MaterialMap.h" />
@@ -81,6 +82,7 @@
     <ClInclude Include="Networking\ChaosServerMode.h" />
     <ClInclude Include="System\Timer.h" />
     <ClInclude Include="Spells\Spells.h" />
+    <ClInclude Include="DebugDrawer\DebugDrawer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

@@ -66,14 +66,13 @@ PlayState::PlayState()
 
 	for (int i = 1; i < m_objects.size(); i++)
 	{
-		Transform temp = m_objects.at(i)->getTransform();
+		/*Transform temp = m_objects.at(i)->getTransform();
 
 		m_bPhysics->createObject(obj, 0.0f, temp.position,
-			glm::vec3(temp.scale.x/2, temp.scale.y, temp.scale.y/2));
+			glm::vec3(temp.scale.x/2, temp.scale.y, temp.scale.y/2));*/
+		m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);
+		m_objects.at(i)->createDebugDrawer();
 	}
-
-
-
 
 	logTrace("Playstate created");
 }
@@ -115,6 +114,7 @@ void PlayState::render()
 	m_player->renderSpell();
 
 	Renderer::getInstance()->render();
+	Renderer::getInstance()->renderDebug();
 }
 
 //This function is called everytime two collision objects collide

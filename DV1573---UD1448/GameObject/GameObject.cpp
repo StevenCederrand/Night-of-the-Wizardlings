@@ -6,12 +6,16 @@ GameObject::GameObject()
 {
 	m_objectName = "Empty";
 	type = 0;
+	m_body = nullptr;
+	m_debugDraw = nullptr;
 }
 
 GameObject::GameObject(std::string objectName)
 {
 	m_objectName = objectName;
 	type = 0;
+	m_body = nullptr;
+	m_debugDraw = nullptr;
 }
 
 GameObject::~GameObject()
@@ -25,6 +29,11 @@ GameObject::~GameObject()
 		//	for (int j = 0; j < (int)material->textureID.size(); j++)
 		//		glDeleteTextures(1, &material->textureID[j]);
 	}
+
+	if(m_debugDraw != nullptr)
+		delete m_debugDraw;
+
+	//Deletion of m_body is done in the destructor of BulletPhysics
 }
 
 void GameObject::loadMesh(std::string fileName)
@@ -233,4 +242,16 @@ void GameObject::bindMaterialToShader(std::string shaderName, int meshIndex)
 {
 	
 	ShaderMap::getInstance()->getShader(shaderName)->setMaterial(MeshMap::getInstance()->getMesh(m_meshes[meshIndex].name)->getMaterial());
+}
+
+void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
+{
+	Transform tempForm = getTransform();
+	m_body = bp->createObject(shape, 0.0f, tempForm.position, glm::vec3(tempForm.scale.x / 2, tempForm.scale.y, tempForm.scale.y / 2));
+}
+
+void GameObject::createDebugDrawer()
+{
+	m_debugDraw = new DebugDrawer();
+	m_debugDraw->setUpMesh(*m_body);
 }
