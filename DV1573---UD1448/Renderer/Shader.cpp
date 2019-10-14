@@ -270,6 +270,19 @@ void Shader::setMaterial(std::string materialName) {
 	
 }
 
+void Shader::setMaterial(const Material* material)
+{
+	setVec3("Ambient_Color", material->ambient);
+	setVec3("Diffuse_Color", material->diffuse);
+	setInt("HasTex", material->texture);
+	//setVec3("Specular_Color", mat->specular);
+
+	for (size_t i = 0; i < material->textureID.size(); i++) {
+		glActiveTexture(GL_TEXTURE0 + i);
+		glBindTexture(GL_TEXTURE_2D, material->textureID.at(i));
+	}
+}
+
 
 void Shader::clearIDs() {
 	m_IDMap.clear();

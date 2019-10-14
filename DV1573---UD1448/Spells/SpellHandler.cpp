@@ -19,6 +19,7 @@ void SpellHandler::initAttackSpell()
 	attackBase->m_mesh->saveFilePath(tempLoader.GetFileName(), 0);
 	attackBase->m_mesh->nameMesh(tempLoader.GetMeshName());
 	attackBase->m_mesh->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
+	attackBase->m_mesh->setUpBuffers();
 
 	const Material& newMaterial = tempLoader.GetMaterial();
 	attackBase->m_material->ambient = newMaterial.ambient;
@@ -28,7 +29,7 @@ void SpellHandler::initAttackSpell()
 	tempLoader.Unload();
 
 	attackBase->m_damage = 34;
-	attackBase->m_speed = 10;
+	attackBase->m_speed = 25;
 	attackBase->m_coolDown = 1;
 	attackBase->m_lifeTime = 5;
 	attackBase->m_maxBounces = 3;
@@ -49,6 +50,7 @@ void SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, TY
 	if (type == NORMALATTACK)
 	{
 		spells.emplace_back(new AttackSpell(spellPos, directionVector, attackBase));
+		Renderer::getInstance()->submit(spells.back(), SPELL);
 		logTrace("Created spell");
 	}
 
@@ -74,19 +76,14 @@ void SpellHandler::spellUpdate(float deltaTime)
 }
 	
 
-
 void SpellHandler::renderSpell()
 {
-	for (AttackSpell object : normalSpell)
-	{
-		ShaderMap::getInstance()->useByName(BASIC_FORWARD);
-		object.bindMaterialToShader("Basic_Forward");
-		Renderer::getInstance()->renderSpell(object); //Why is object null??
-	}
+	ShaderMap::getInstance()->useByName(BASIC_FORWARD);
+	Renderer::getInstance()->renderSpell(attackBase); //Why is object null??
 	
-	for (EnhanceAttackSpell object : enhanceAttackSpell)
-	{
-		object.bindMaterialToShader("Basic_Forward");
-		Renderer::getInstance()->renderSpell(object);
-	}
+	//for (EnhanceAttackSpell object : enhanceAttackSpell)
+	//{
+	//	object.bindMaterialToShader("Basic_Forward");
+	//	Renderer::getInstance()->renderSpell(object);
+	//}
 }

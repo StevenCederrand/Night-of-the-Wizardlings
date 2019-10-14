@@ -43,20 +43,20 @@ PlayState::PlayState()
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -1.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 	
-	////Animated rectangle
-	m_objects.push_back(new AnimatedObject("TestRectangle"));
-	m_objects[m_objects.size() - 1]->loadMesh("TestRectangle.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -4.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
-
-	//Animated goblino
-	m_objects.push_back(new AnimatedObject("TestGoblino"));
-	m_objects[m_objects.size() - 1]->loadMesh("ElGoblino.mesh");
-	Transform tempTransform;
-	tempTransform.scale = glm::vec3(0.03f, 0.03f, 0.03f);
-	tempTransform.position = glm::vec3(-3.0f, 0.0f, 3.0f);
-	m_objects[m_objects.size() - 1]->setTransform(tempTransform);
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
+	//////Animated rectangle
+	//m_objects.push_back(new AnimatedObject("TestRectangle"));
+	//m_objects[m_objects.size() - 1]->loadMesh("TestRectangle.mesh");
+	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -4.0f));
+	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
+	//
+	////Animated goblino
+	//m_objects.push_back(new AnimatedObject("TestGoblino"));
+	//m_objects[m_objects.size() - 1]->loadMesh("ElGoblino.mesh");
+	//Transform tempTransform;
+	//tempTransform.scale = glm::vec3(0.03f, 0.03f, 0.03f);
+	//tempTransform.position = glm::vec3(-3.0f, 0.0f, 3.0f);
+	//m_objects[m_objects.size() - 1]->setTransform(tempTransform);
+	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
 
 
 
@@ -113,7 +113,7 @@ void PlayState::render()
 	//Move the render skybox to be a private renderer function
 	Renderer::getInstance()->renderSkybox(*m_skybox);
 	Renderer::getInstance()->render();
-	m_player->renderSpell();
+	m_spellHandler.renderSpell();
 }
 
 //This function is called everytime two collision objects collide

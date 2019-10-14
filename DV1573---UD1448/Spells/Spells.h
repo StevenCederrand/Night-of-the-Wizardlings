@@ -10,7 +10,7 @@ struct AttackSpellBase
 	float m_damage;
 	float m_speed;
 	float m_coolDown;
-	
+
 	float m_lifeTime;
 	float m_maxBounces;
 

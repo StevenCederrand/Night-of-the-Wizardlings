@@ -12,6 +12,8 @@
 #include <GameObject/GameObject.h>
 #include <GameObject/AnimatedObject.h>
 #include <Mesh/MeshFormat.h>
+#include <Spells/Spell.h>
+#include <Spells/Spells.h>
 #include <Renderer/SkyBox.h>
 #include <System/Timer.h>
 
@@ -90,7 +92,8 @@ public:
 	void removeDynamic(GameObject* gameObject); //Remove an object from the dynamic array
 	void renderSkybox(const SkyBox& skybox);
 	void render();
-	void renderSpell(const GameObject& gameObject);
+
+	void renderSpell(const AttackSpellBase* spellBase);
 	Camera* getMainCamera() const;
 };
 

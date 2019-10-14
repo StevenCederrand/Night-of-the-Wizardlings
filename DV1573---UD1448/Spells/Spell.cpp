@@ -11,6 +11,10 @@ Spell::Spell(glm::vec3 pos, glm::vec3 m_direction)
 	//m_spellCoolDown = cooldown;
 	m_type = -1;
 	setWorldPosition(pos + m_direction);
+
+	Transform tempTransform;
+	tempTransform.scale = glm::vec3(0.3f, 0.3f, 0.3f);
+	setTransform(tempTransform);
 }
 
 Spell::~Spell()

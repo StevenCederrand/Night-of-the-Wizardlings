@@ -21,6 +21,7 @@ public:
 	const AttackSpellBase& getAttackSpellBase() const { return *attackBase; }
 	const Spell& getSpell(int index) const { return *spells[index]; }
 	const std::vector<Spell*>& getSpells() const { return spells; }
+	void renderSpell();
 
 private:
 	std::vector<Spell*> spells;
