@@ -27,55 +27,62 @@ public:
 	void destroySpellOnNetwork(Spell& spell);
 	void updateNetworkEntities(const float& dt);
 	void sendStartRequestToServer();
+	void refreshServerList();
+	
 	const std::vector<std::pair<unsigned int, ServerInfo>>& getServerList() const;
 	const std::vector<PlayerPacket>& getConnectedPlayers() const;
+	const std::vector<SpellPacket>& getNetworkSpells();
+	const ServerInfo& getServerByID(const unsigned int& ID) const;
 	
 	NetworkPlayers& getNetworkPlayersREF();
 	NetworkSpells& getNetworkSpellsREF();
 
-	const std::vector<SpellPacket>& getNetworkSpells();
-	void refreshServerList();
-	bool doneRefreshingServerList();
+
+
+	const bool& doneRefreshingServerList() const;
 	const bool& isInitialized() const;
-
-	const ServerInfo& getServerByID(const unsigned int& ID) const;
 	const bool doesServerExist(const unsigned int& ID) const;
-
 	const bool& isConnectedToSever() const;
 	const bool& connectionFailed() const;
 
 private:
+	
+	unsigned char getPacketID(RakNet::Packet* p);
 
 	void updateDataOnServer();
 	void findAllServerAddresses();
-	unsigned char getPacketID(RakNet::Packet* p);
-	SpellPacket* findActiveSpell(const SpellPacket& packet);
-	NetworkSpells::SpellEntity* findSpellEntityInNetworkSpells(const SpellPacket& packet);
-	NetworkPlayers::PlayerEntity* findPlayerEntityInNetworkPlayers(const RakNet::AddressOrGUID& guid);
+	
 	void removeActiveSpell(const SpellPacket& packet);
 	void removeConnectedPlayer(const RakNet::AddressOrGUID& guid);
+	
+	SpellPacket* findActiveSpell(const SpellPacket& packet);
+	
+	NetworkSpells::SpellEntity* findSpellEntityInNetworkSpells(const SpellPacket& packet);
+	NetworkPlayers::PlayerEntity* findPlayerEntityInNetworkPlayers(const RakNet::AddressOrGUID& guid);
 
 private:
 	RakNet::RakPeerInterface* m_clientPeer;
 	RakNet::SystemAddress m_serverAddress;
 	std::vector<std::pair<unsigned int, ServerInfo>> m_serverList;
+
 	bool m_isRefreshingServerList;
 	bool m_isConnectedToAnServer;
 	bool m_failedToConnect;
 	bool m_serverOwner;
 
-	std::thread m_processThread;
 	bool m_shutdownThread;
 	bool m_initialized = false;
+
+	std::thread m_processThread;
+	
+	PlayerPacket m_myPlayerDataPacket;
 	
 	std::vector<PlayerPacket> m_connectedPlayers;
-	PlayerPacket m_playerData;
-	NetworkPlayers m_playerEntities;
-	NetworkSpells m_spellEntities;
+	NetworkPlayers m_networkPlayers;
+	NetworkSpells m_networkSpells;
+	
 	std::mutex m_cleanupMutex;
 	
-
-	//std::unordered_map<uint64_t, std::vector<SpellPacket>> m_activeSpells;
 	std::vector<SpellPacket> m_activeSpells;
 	std::vector<SpellPacket> m_spellQueue;
 
