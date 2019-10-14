@@ -13,7 +13,7 @@ public:
 	SpellHandler();
 	void initAttackSpell();
 	~SpellHandler();
-	void createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector, TYPE type);
+	void createSpell(glm::vec3 spellPos, glm::vec3 directionVector, TYPE type);
 	void spellUpdate(float deltaTime);
 	const AttackSpellBase& getAttackSpellBase() const { return *attackBase; }
 	const Spell& getSpell(int index) const { return *spells[index]; }

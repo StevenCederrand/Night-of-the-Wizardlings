@@ -43,7 +43,7 @@ SpellHandler::~SpellHandler()
 	spells.clear();
 }
 
-void SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector, TYPE type)
+void SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, TYPE type)
 {
 
 	if (type == NORMALATTACK)

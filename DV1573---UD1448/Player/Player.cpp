@@ -40,7 +40,7 @@ void Player::update(float deltaTime)
 	m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
 	selectSpell();
 	move(deltaTime);
-	attack(deltaTime);
+	attack();
 	Client* client = Client::getInstance();
 	client->updatePlayerData(this);
 
@@ -115,14 +115,14 @@ void Player::move(float deltaTime)
 	attackCooldown -= deltaTime; // Cooldown reduces with time
 }
 
-void Player::attack(float deltaTime)
+void Player::attack()
 {
 	if (glfwGetMouseButton(playerCamera->getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 	{
 		if (attackCooldown <= 0)
 		{
 			createRay();
-			spellhandler->createSpell(deltaTime, m_playerPosition, directionVector, spellType);
+			spellhandler->createSpell(m_playerPosition, directionVector, spellType);
 			attackCooldown = spellhandler->getAttackSpellBase().m_coolDown; // Put attack on cooldown
 		}
 	}
