@@ -24,6 +24,7 @@ void SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 di
 	{
 		if(tempSpell->getCooldown() <= 0)
 		{
+			CollisionObject obj = box;
 			//m_bp->createObject()
 			AttackSpell tempSpell2 = *tempSpell;
 			tempSpell2.createSpell(deltaTime, spellPos, directionVector);
