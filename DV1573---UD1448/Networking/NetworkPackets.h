@@ -26,7 +26,7 @@ struct ServerInfo {
 	RakNet::SystemAddress serverAddress;
 	unsigned short maxPlayers;
 	unsigned short connectedPlayers;
-	NetGlobals::ServerState currentState;
+	NetGlobals::SERVER_STATE currentState;
 };
 #pragma pack(pop)
 struct newPlayerInfo {
@@ -87,7 +87,7 @@ struct SpellPacket{
 };
 
 struct ServerStateChange {
-	NetGlobals::ServerState currentState;
+	NetGlobals::SERVER_STATE currentState;
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
 		stream.Serialize(writeToStream, currentState);

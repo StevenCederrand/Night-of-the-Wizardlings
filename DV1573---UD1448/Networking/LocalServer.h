@@ -20,7 +20,7 @@ public:
 private:
 	unsigned char getPacketID(RakNet::Packet* p);
 	bool handleLostPlayer(const RakNet::Packet& packet, const RakNet::BitStream& bsIn);
-	void stateChange(NetGlobals::ServerState newState);
+	void stateChange(NetGlobals::SERVER_STATE newState);
 	void sendStreamToAllClients(RakNet::BitStream& stream);
 private:
 	RakNet::RakPeerInterface* m_serverPeer = nullptr;

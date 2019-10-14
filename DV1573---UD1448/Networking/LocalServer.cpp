@@ -27,7 +27,7 @@ void LocalServer::startup(const std::string& serverName)
 		m_serverPeer->SetMaximumIncomingConnections(NetGlobals::MaximumIncomingConnections);
 
 		memcpy(&m_serverInfo.serverName, serverName.c_str(), serverName.length());
-		m_serverInfo.currentState = NetGlobals::ServerState::WaitingForPlayers;
+		m_serverInfo.currentState = NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS;
 		m_serverInfo.maxPlayers = NetGlobals::MaximumConnections;
 		m_serverInfo.connectedPlayers = 0;
 		m_connectedPlayers.reserve(NetGlobals::MaximumConnections);
@@ -102,7 +102,7 @@ void LocalServer::processAndHandlePackets()
 		{
 			logTrace("[SERVER] New connection from {0}\nAssigned GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
 			
-			if (m_connectedPlayers.size() >= NetGlobals::MaximumConnections || m_serverInfo.currentState != NetGlobals::ServerState::WaitingForPlayers)
+			if (m_connectedPlayers.size() >= NetGlobals::MaximumConnections || m_serverInfo.currentState != NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS)
 			{
 				m_serverPeer->CloseConnection(packet->guid, true);
 				m_serverPeer->DeallocatePacket(packet);
@@ -203,7 +203,7 @@ void LocalServer::processAndHandlePackets()
 		
 		case SERVER_CHANGE_STATE:
 		{
-			stateChange(NetGlobals::ServerState::GameStarted);
+			stateChange(NetGlobals::SERVER_STATE::GAME_IN_SESSION);
 		}
 		break;
 
@@ -385,11 +385,11 @@ bool LocalServer::handleLostPlayer(const RakNet::Packet& packet, const RakNet::B
 
 }
 
-void LocalServer::stateChange(NetGlobals::ServerState newState)
+void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 {
 	if (newState == m_serverInfo.currentState) return;
 
-	if(newState == NetGlobals::ServerState::GameStarted)
+	if(newState == NetGlobals::SERVER_STATE::GAME_IN_SESSION)
 		logTrace("[SERVER] Admin requested to start the game!");
 
 	m_serverInfo.currentState = newState;
@@ -398,7 +398,7 @@ void LocalServer::stateChange(NetGlobals::ServerState newState)
 	RakNet::BitStream stream;
 	stream.Write((RakNet::MessageID)SERVER_CURRENT_STATE);
 	ServerStateChange statePacket;
-	statePacket.currentState = NetGlobals::ServerState::GameStarted;
+	statePacket.currentState = NetGlobals::SERVER_STATE::GAME_IN_SESSION;
 	statePacket.Serialize(true, stream);
 	sendStreamToAllClients(stream);
 

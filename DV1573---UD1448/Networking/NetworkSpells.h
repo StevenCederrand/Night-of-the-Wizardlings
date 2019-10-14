@@ -7,17 +7,11 @@
 class NetworkSpells{
 
 public:
-	enum FLAG {
-		REMOVE,
-		ADD,
-		NONE
-	};
-
 
 	struct SpellEntity {
 		SpellPacket spellData;
-		GameObject* tempObject; // Should be deleted when particles is done!!
-		FLAG flag = FLAG::NONE;
+		GameObject* gameobject = nullptr;
+		NetGlobals::THREAD_FLAG flag = NetGlobals::THREAD_FLAG::NONE;
 	};
 
 public:

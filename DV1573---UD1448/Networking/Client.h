@@ -51,8 +51,9 @@ private:
 	unsigned char getPacketID(RakNet::Packet* p);
 	SpellPacket* findActiveSpell(const SpellPacket& packet);
 	NetworkSpells::SpellEntity* findSpellEntityInNetworkSpells(const SpellPacket& packet);
+	NetworkPlayers::PlayerEntity* findPlayerEntityInNetworkPlayers(const RakNet::AddressOrGUID& guid);
 	void removeActiveSpell(const SpellPacket& packet);
-	void printAllConnectedPlayers();
+	void removeConnectedPlayer(const RakNet::AddressOrGUID& guid);
 
 private:
 	RakNet::RakPeerInterface* m_clientPeer;

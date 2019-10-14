@@ -64,7 +64,7 @@ PlayState::PlayState()
 	m_bPhysics->createObject(obj, 0.0f, glm::vec3(0.0f, -1.5f, 0.0f), glm::vec3(100.0f, 2.0f, 100.0f), 1.0);
 	gContactAddedCallback = callbackFunc;
 
-	for (int i = 1; i < m_objects.size(); i++)
+	for (size_t i = 1; i < m_objects.size(); i++)
 	{
 		Transform temp = m_objects.at(i)->getTransform();
 
