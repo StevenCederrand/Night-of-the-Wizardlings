@@ -12,7 +12,8 @@ SpellHandler::SpellHandler(glm::vec3 playerPosition, glm::vec3 directionVector)
 
 SpellHandler::~SpellHandler()
 {
-
+	delete tempSpell;
+	delete tempEnhanceAttackSpell;
 }
 
 void SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector, SPELL_TYPE type)
