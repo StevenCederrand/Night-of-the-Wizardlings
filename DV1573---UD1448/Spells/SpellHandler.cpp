@@ -155,29 +155,6 @@ void SpellHandler::renderSpell()
 	
 }
 
-bool SpellHandler::isSpellReadyToCast(TYPE type)
-{
-	if (type == ENHANCEATTACK)
-	{
-		if (tempEnhanceAttackSpell->getCooldown() <= 0)
-		{
-			return true;
-		}
-		else
-			return false;
-	}
-
-	if (type == FLAMESTRIKE)
-	{
-		if (tempFlamestrike->getCooldown() <= 0)
-		{
-			return true;
-		}
-		else
-			return false;
-	}
-}
-
 void SpellHandler::setType(TYPE type)
 {
 	m_spellType = type;
