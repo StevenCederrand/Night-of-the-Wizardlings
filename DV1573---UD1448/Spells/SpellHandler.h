@@ -23,6 +23,7 @@ private:
 	std::vector<Spell*> spells;
 	std::vector<EnhanceAttackSpell> enhanceAttackSpell;
 
+	// The base for all basic attack spells
 	AttackSpellBase* attackBase;
 
 
