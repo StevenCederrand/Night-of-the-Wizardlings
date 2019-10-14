@@ -108,6 +108,7 @@ void Client::ThreadedUpdate()
 	// Client has been told to shutdown here so send a disconnection packet if you're still connected
 	if (m_isConnectedToAnServer)
 	{
+		logTrace("[CLIENT] Sent a disconnect package to server :)");
 		RakNet::BitStream stream;
 		stream.Write((RakNet::MessageID)ID_DISCONNECTION_NOTIFICATION);
 		m_clientPeer->Send(&stream,IMMEDIATE_PRIORITY , RELIABLE_ORDERED, 0,m_serverAddress, false);
@@ -189,6 +190,7 @@ void Client::processAndHandlePackets()
 
 		case INFO_ABOUT_OTHER_PLAYERS:
 		{
+			logTrace("[CLIENT] 1 !\n");
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			size_t nrOfConnectedPlayers;
 			bsIn.Read(nrOfConnectedPlayers);
@@ -234,6 +236,7 @@ void Client::processAndHandlePackets()
 		break;
 		case PLAYER_DISCONNECTED:
 		{
+			logTrace("[CLIENT] 1 !\n");
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			RakNet::AddressOrGUID guidOfDisconnectedPlayer;
 			bsIn.Read(guidOfDisconnectedPlayer);

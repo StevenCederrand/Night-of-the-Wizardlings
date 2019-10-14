@@ -103,15 +103,14 @@ bool FindServerState::onBackToMenuClicked(const CEGUI::EventArgs& e)
 
 bool FindServerState::onJoinServerClicked(const CEGUI::EventArgs& e)
 {
-	
 	CEGUI::ListboxItem* item = m_serverList->getFirstSelectedItem();
-	logTrace("ID: {0}", item->getID());
+	
 	if (item != NULL)
 	{
 		std::string serverName = item->getText().c_str();
 		unsigned int serverID = item->getID();
 		item = m_serverList->getNextSelected(item);
-		logTrace("ID: {0}", item->getID());
+	
 		if (Client::getInstance()->doesServerExist(serverID))
 		{
 			const ServerInfo& serverInfo = Client::getInstance()->getServerByID(serverID);

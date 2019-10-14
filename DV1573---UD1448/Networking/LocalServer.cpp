@@ -104,15 +104,12 @@ void LocalServer::processAndHandlePackets()
 			
 			if (m_connectedPlayers.size() >= NetGlobals::MaximumConnections || m_serverInfo.currentState != NetGlobals::ServerState::WaitingForPlayers)
 			{
-				/*RakNet::BitStream stream;
-				stream.Write((RakNet::MessageID)ID_DISCONNECTION_NOTIFICATION);
-				m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->guid, false);*/
-
 				m_serverPeer->CloseConnection(packet->guid, true);
+				m_serverPeer->DeallocatePacket(packet);
 				return;
 			}
 
-			
+			logTrace("[SERVER] Actually creating a player");
 
 			RakNet::BitStream acceptStream;
 			acceptStream.Write((RakNet::MessageID)PLAYER_ACCEPTED_TO_SERVER);
@@ -158,29 +155,28 @@ void LocalServer::processAndHandlePackets()
 			m_serverInfo.connectedPlayers++;
 			m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
 
-			
-
 		}
 		break;
 
 		case ID_DISCONNECTION_NOTIFICATION:
 		{
-			logTrace("[SERVER] Player disconnected with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
-			handleLostPlayer(*packet, bsIn);
-			m_serverInfo.connectedPlayers--;
-			m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
-
+			bool playerWasAccepted = handleLostPlayer(*packet, bsIn);
+			if (playerWasAccepted) {
+				logTrace("[SERVER] Player disconnected with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
+				m_serverInfo.connectedPlayers--;
+				m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
+			}
 		}
 		break;
 
 		case ID_CONNECTION_LOST:
 		{
-			logTrace("[SERVER] Lost connection with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
-			handleLostPlayer(*packet, bsIn);
-			
-			// Update the general server information.
-			m_serverInfo.connectedPlayers--;
-			m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
+			bool playerWasAccepted = handleLostPlayer(*packet, bsIn);
+			if (playerWasAccepted) {
+				logTrace("[SERVER] Lost connection with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
+				m_serverInfo.connectedPlayers--;
+				m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
+			}
 		}
 		break;
 
@@ -353,7 +349,7 @@ unsigned char LocalServer::getPacketID(RakNet::Packet* p)
 		return (unsigned char)p->data[0];
 }
 
-void LocalServer::handleLostPlayer(const RakNet::Packet& packet, const RakNet::BitStream& bsIn)
+bool LocalServer::handleLostPlayer(const RakNet::Packet& packet, const RakNet::BitStream& bsIn)
 {
 	RakNet::AddressOrGUID guid = packet.guid;
 
@@ -369,16 +365,22 @@ void LocalServer::handleLostPlayer(const RakNet::Packet& packet, const RakNet::B
 		{
 			indexOfDisconnectedPlayer = i;
 		}
-		else
-		{
-			logTrace("Sending disconnection packets to guid: {0}", m_connectedPlayers[i].guid.ToString());
-			m_serverPeer->Send(&stream_disconnectedPlayer, IMMEDIATE_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_connectedPlayers[i].guid, false);
-		}
 	}
 
 	// Remove the disconnected player from the local list of clients
-	if(indexOfDisconnectedPlayer != -1)
+	if (indexOfDisconnectedPlayer != -1) {
 		m_connectedPlayers.erase(m_connectedPlayers.begin() + indexOfDisconnectedPlayer);
+		
+		// Only send them if the player that left/disconnected was accepted otherwise
+		// the clients have no track record of them so they don't need to know anything
+		for (size_t i = 0; i < m_connectedPlayers.size(); i++) {
+			logTrace("[SERVER] Sending disconnection packets to guid: {0}", m_connectedPlayers[i].guid.ToString());
+			m_serverPeer->Send(&stream_disconnectedPlayer, IMMEDIATE_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_connectedPlayers[i].guid, false);
+		}
+		return true;
+	}
+
+	return false;
 
 
 }
