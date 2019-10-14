@@ -2,6 +2,7 @@
 #define _NETWORK_PLAYERS_H
 #include <Pch/Pch.h>
 #include <GameObject/WorldObject.h>
+#include <Renderer/Renderer.h>
 
 class NetworkPlayers {
 public:

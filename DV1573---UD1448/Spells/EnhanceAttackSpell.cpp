@@ -1,6 +1,8 @@
 #include "Pch/Pch.h"
 #include "EnhanceAttackSpell.h"
 
+
+
 EnhanceAttackSpell::EnhanceAttackSpell(glm::vec3 pos)
 	: Spell(pos)
 {

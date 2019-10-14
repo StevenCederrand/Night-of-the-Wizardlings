@@ -25,6 +25,7 @@ public:
 	void setTravelTime(float travelTime);
 	void setDirection(glm::vec3 direction);
 	void setUniqueID(const uint64_t& uniqueID);
+
 	void update(float dt);
 
 	void destroySpell();

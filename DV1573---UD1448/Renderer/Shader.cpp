@@ -158,6 +158,24 @@ void Shader::setMat4(std::string name, glm::mat4 mat)
 
 	glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &mat[0][0]);
 }
+void Shader::setVec2(std::string name, glm::vec2 vec)
+{
+	GLint uniformLoc = getUniformLocation(name);
+	if (uniformLoc == -1)
+	{
+		uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
+
+		if (uniformLoc == -1)
+		{
+			logError("Could not find uniform {0}", name);
+			return;
+		}
+
+		m_IDMap[name] = uniformLoc; //Save the ID to the hashmap
+	}
+
+	glUniform2fv(uniformLoc, 1, &vec[0]);
+}
 //uniform vec3
 void Shader::setVec3(std::string name, glm::vec3 vec)
 {
@@ -237,11 +255,12 @@ void Shader::setInt(std::string name, int num)
 	glUniform1i(uniformLoc, num);
 }
 
+//Assumption is that you are using the shader
 void Shader::setMaterial(std::string materialName) {
-	use();
 	Material* mat = MaterialMap::getInstance()->getMaterial(materialName);
 	setVec3("Ambient_Color", mat->ambient);
 	setVec3("Diffuse_Color", mat->diffuse);
+	setInt("HasTex", mat->texture);
 	//setVec3("Specular_Color", mat->specular);
 	
 	for (size_t i = 0; i < mat->textureID.size(); i++) {

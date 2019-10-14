@@ -42,12 +42,14 @@ void NetworkSpells::update(const float& dt)
 					}
 				
 					e.tempObject->setWorldPosition(e.spellData.Position);
+					Renderer::getInstance()->submit(e.tempObject, DYNAMIC);
 					e.flag == FLAG::NONE;
 
 				}
 			}
 			else if (e.flag == FLAG::REMOVE)
 			{
+				Renderer::getInstance()->removeDynamic(e.tempObject);
 				delete e.tempObject;
 				m_entities.erase(m_entities.begin() + i);
 				i--;

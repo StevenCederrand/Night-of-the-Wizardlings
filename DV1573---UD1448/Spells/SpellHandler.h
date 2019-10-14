@@ -1,9 +1,12 @@
 #pragma once
 #include <Pch/Pch.h>
+#include <Spells/Spells.h>
 #include <GameObject/GameObject.h>
 #include <Spells/AttackSpell.h>
 #include <Spells/EnhanceAttackSpell.h>
 #include "SpellTypes.h"
+
+
 
 
 class SpellHandler
@@ -20,6 +23,7 @@ private:
 	const uint64_t getUniqueID();
 
 private:
+
 	std::vector<AttackSpell> normalSpell;
 	AttackSpell* tempSpell;
 	std::vector<EnhanceAttackSpell> enhanceAttackSpell;

@@ -12,8 +12,7 @@ SpellHandler::SpellHandler(glm::vec3 playerPosition, glm::vec3 directionVector)
 
 SpellHandler::~SpellHandler()
 {
-	delete tempSpell;
-	delete tempEnhanceAttackSpell;
+
 }
 
 void SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector, SPELL_TYPE type)
@@ -34,7 +33,7 @@ void SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 di
 
 	if (type == ENHANCEATTACK)
 	{
-		if (tempEnhanceAttackSpell->getCooldown() <= 0)//&& tempEnhanceAttackSpell->getThreeAttacks() <= 0)
+		if (tempEnhanceAttackSpell->getCooldown() <= 0)
 		{
 			EnhanceAttackSpell tempSpell2 = *tempEnhanceAttackSpell;
 			tempSpell2.createSpell(deltaTime, spellPos, directionVector);
@@ -52,10 +51,13 @@ void SpellHandler::spellUpdate(float deltaTime)
 		{
 			normalSpell[i].updateActiveSpell(deltaTime);
 			Client::getInstance()->updateSpellOnNetwork(normalSpell[i]);
+
 			if (normalSpell[i].getTravelTime() <= 0)
 			{
 				Client::getInstance()->destroySpellOnNetwork(normalSpell[i]);
+				Renderer::getInstance()->removeDynamic(tempSpell);
 				normalSpell.erase(normalSpell.begin() + i);
+
 			}
 		}
 	
@@ -81,18 +83,19 @@ void SpellHandler::spellCooldown(float deltaTime)
 
 void SpellHandler::renderSpell()
 {
-		for (AttackSpell object : normalSpell)
-		{
-			object.bindMaterialToShader("Basic_Forward");
-			Renderer::getInstance()->render(object);
-		}
+	for (AttackSpell object : normalSpell)
+	{
+		ShaderMap::getInstance()->useByName(BASIC_FORWARD);
+		object.bindMaterialToShader("Basic_Forward");
+		Renderer::getInstance()->renderSpell(object); //Why is object null??
+	}
 	
-		for (EnhanceAttackSpell object : enhanceAttackSpell)
-		{
-			object.bindMaterialToShader("Basic_Forward");
-			Renderer::getInstance()->render(object);
-		}
-	
+	for (EnhanceAttackSpell object : enhanceAttackSpell)
+	{
+		object.bindMaterialToShader("Basic_Forward");
+		Renderer::getInstance()->renderSpell(object);
+	}
+
 }
 
 const uint64_t SpellHandler::getUniqueID()

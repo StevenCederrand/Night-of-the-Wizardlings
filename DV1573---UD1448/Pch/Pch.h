@@ -53,6 +53,8 @@
 #include <Mesh/MeshFormat.h>
 #include <Mesh/Mesh.h>
 #include <Mesh/MeshMap.h>
+#include <Mesh/SkeletonMap.h>
+#include <Mesh/AnimationMap.h>
 #include <Renderer/Shader.h>
 #include <Renderer/ShaderMap.h>
 #include <Renderer/Camera.h>
@@ -66,10 +68,13 @@ const std::string MESHPATH = "Assets/Meshes/";
 
 const unsigned int SCREEN_WIDTH = 1280;
 const unsigned int SCREEN_HEIGHT = 720;
+const int MAX_BONES = 64;
 
 namespace col
 {
 	extern bool characterCollided;
 }
+
+
 
 #endif
