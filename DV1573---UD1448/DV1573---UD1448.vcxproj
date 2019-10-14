@@ -281,6 +281,7 @@
     <ClInclude Include="Renderer\SkyBox.h" />
     <ClInclude Include="Mesh\SkeletonMap.h" />
     <ClInclude Include="Spells\SpellHandler.h" />
+    <ClInclude Include="Spells\Spells.h" />
     <ClInclude Include="States\FindServerState.h" />
     <ClInclude Include="States\LobbyState.h" />
     <ClInclude Include="States\MenuState.h" />

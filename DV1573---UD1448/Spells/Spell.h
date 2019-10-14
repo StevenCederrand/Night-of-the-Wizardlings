@@ -22,7 +22,6 @@ public:
 	void setCooldown(float cooldown);
 	void setTravelTime(float travelTime);
 	void setDirection(glm::vec3 direction);
-
 	void update(float dt);
 
 	void destroySpell();

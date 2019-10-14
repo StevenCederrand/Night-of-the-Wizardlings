@@ -5,38 +5,37 @@ SpellHandler::SpellHandler(glm::vec3 playerPosition, glm::vec3 directionVector)
 {
 	this->directionVector = directionVector;
 	this->spellPos = playerPosition;
-	tempSpell = new AttackSpell("Spell", playerPosition, directionVector, 50, 2, "TestSphere.mesh", 0);
-	tempEnhanceAttackSpell = new EnhanceAttackSpell("EnhanceSpell", playerPosition, directionVector, 10, 4, "TestCube.mesh", 0, 3);
+	tempSpell = AttackSpell("Spell", playerPosition, directionVector, 50, 2, "TestSphere.mesh", 0);
+	tempEnhanceAttackSpell = EnhanceAttackSpell("EnhanceSpell", playerPosition, directionVector, 10, 4, "TestCube.mesh", 0, 3);
 }
 
 SpellHandler::~SpellHandler()
 {
-	delete tempSpell;
-	delete tempEnhanceAttackSpell;
+
 }
 
 void SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector, TYPE type)
 {
 	if (type == NORMALATTACK)
 	{
-		if(tempSpell->getCooldown() <= 0)
+		if(tempSpell.getCooldown() <= 0)
 		{
-			AttackSpell tempSpell2 = *tempSpell;
+			AttackSpell tempSpell2 = tempSpell;
 			tempSpell2.createSpell(deltaTime, spellPos, directionVector);
 			normalSpell.push_back(tempSpell2);
-			tempSpell->setCooldown(1.0f);
-			Renderer::getInstance()->submit(tempSpell, DYNAMIC);
+			tempSpell.setCooldown(1.0f);
+			Renderer::getInstance()->submit(&tempSpell2, DYNAMIC);
 		}
 	}
 
 	if (type == ENHANCEATTACK)
 	{
-		if (tempEnhanceAttackSpell->getCooldown() <= 0)//&& tempEnhanceAttackSpell->getThreeAttacks() <= 0)
+		if (tempEnhanceAttackSpell.getCooldown() <= 0)//&& tempEnhanceAttackSpell->getThreeAttacks() <= 0)
 		{
-			EnhanceAttackSpell tempSpell2 = *tempEnhanceAttackSpell;
+			EnhanceAttackSpell tempSpell2 = tempEnhanceAttackSpell;
 			tempSpell2.createSpell(deltaTime, spellPos, directionVector);
 			enhanceAttackSpell.push_back(tempSpell2);
-			tempEnhanceAttackSpell->setCooldown(5.0f);
+			tempEnhanceAttackSpell.setCooldown(5.0f);
 			Renderer::getInstance()->submit(&tempSpell2, DYNAMIC);
 		}
 	}	
@@ -50,7 +49,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 
 			if (normalSpell[i].getTravelTime() <= 0)
 			{
-				Renderer::getInstance()->removeDynamic(tempSpell);
+				Renderer::getInstance()->removeDynamic(&tempSpell);
 				normalSpell.erase(normalSpell.begin() + i);
 
 			}
@@ -70,24 +69,19 @@ void SpellHandler::spellUpdate(float deltaTime)
 void SpellHandler::spellCooldown(float deltaTime)
 {
 	
-	tempSpell->spellCooldownUpdate(deltaTime);
-	tempEnhanceAttackSpell->spellCooldownUpdate(deltaTime);
+	tempSpell.spellCooldownUpdate(deltaTime);
+	tempEnhanceAttackSpell.spellCooldownUpdate(deltaTime);
 }
 
 void SpellHandler::renderSpell()
 {
-	
-
 		for (AttackSpell object : normalSpell)
 		{
 			object.bindMaterialToShader("Basic_Forward");
-			//Renderer::getInstance)
 		}
 	
 		for (EnhanceAttackSpell object : enhanceAttackSpell)
 		{
 			object.bindMaterialToShader("Basic_Forward");
-			//Renderer::getInstance()->render(object);
 		}
-	
 }

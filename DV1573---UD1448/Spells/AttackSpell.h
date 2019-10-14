@@ -6,6 +6,7 @@
 class AttackSpell : public Spell
 {
 public:
+	AttackSpell();
 	AttackSpell(glm::vec3 pos);
 	AttackSpell(std::string name, glm::vec3 pos, glm::vec3 direction, float speed, float travelTime, std::string meshName, float cooldown);
 	~AttackSpell();

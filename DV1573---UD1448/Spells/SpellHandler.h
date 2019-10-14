@@ -1,10 +1,13 @@
 #pragma once
 #include <Pch/Pch.h>
+#include <Spells/Spells.h>
 #include <GameObject/GameObject.h>
 #include <Spells/AttackSpell.h>
 #include <Spells/EnhanceAttackSpell.h>
 
 enum TYPE { NORMALATTACK, ENHANCEATTACK };
+
+
 
 class SpellHandler
 {
@@ -17,10 +20,14 @@ public:
 	void renderSpell();
 
 private:
+	
+
+
+
 	std::vector<AttackSpell> normalSpell;
-	AttackSpell* tempSpell;
+	AttackSpell tempSpell;
 	std::vector<EnhanceAttackSpell> enhanceAttackSpell;
-	EnhanceAttackSpell* tempEnhanceAttackSpell;
+	EnhanceAttackSpell tempEnhanceAttackSpell;
 
 	glm::vec3 directionVector;
 	glm::vec3 spellPos;

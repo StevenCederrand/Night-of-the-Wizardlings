@@ -2,6 +2,11 @@
 #include <Pch/Pch.h>
 #include "AttackSpell.h"
 
+AttackSpell::AttackSpell() 
+	: Spell(glm::vec3(0))
+{
+}
+
 AttackSpell::AttackSpell(glm::vec3 pos)
 	: Spell(pos)
 {

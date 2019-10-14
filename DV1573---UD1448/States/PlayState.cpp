@@ -29,7 +29,7 @@ PlayState::PlayState()
 	//Cube and sphere centered in scene
 	m_objects.push_back(new WorldObject("TestCube"));
 	m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -2.0f));
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 0.0f, 0.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
 	m_objects.push_back(new WorldObject("TestSphere"));

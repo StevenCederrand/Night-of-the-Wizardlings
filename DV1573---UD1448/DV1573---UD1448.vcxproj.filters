@@ -80,6 +80,7 @@
     <ClInclude Include="System\BulletPhysics.h" />
     <ClInclude Include="Networking\ChaosServerMode.h" />
     <ClInclude Include="System\Timer.h" />
+    <ClInclude Include="Spells\Spells.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />
