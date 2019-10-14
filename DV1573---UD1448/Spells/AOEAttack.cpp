@@ -41,6 +41,8 @@ void AOEAttack::updateActiveSpell(float deltaTime)
 
 	setTravelTime(getTravelTime() - 1 * deltaTime);
 
+	//std::cout << getSpellPos().x << " " << getSpellPos().y << " " << getSpellPos().z << std::endl;
+
 	//AOE
 	if (getSpellPos().y <= 0)
 	{
@@ -64,9 +66,7 @@ void AOEAttack::updateActiveSpell(float deltaTime)
 		fireIsGone += 1 * deltaTime;
 		if (fireIsGone >= 5)
 			setTravelTime(0);
-			
-		
-			
+
 	}
 }
 
