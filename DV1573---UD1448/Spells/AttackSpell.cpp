@@ -18,7 +18,12 @@ AttackSpell::~AttackSpell()
 
 void AttackSpell::updateActiveSpell(float deltaTime)
 {
-	
+	setSpellPos(getDirection() * deltaTime * getSpellSpeed());
+	m_tempPos += getSpellPos();
+	setSpellPos(m_tempPos);
+
+	//std::cout << getSpellPos().x << " " << getSpellPos().y << " " << getSpellPos().z << std::endl;
+
 	translate(getDirection() * deltaTime * getSpellSpeed());
 	setTravelTime(getTravelTime() - 1 * deltaTime);
 

@@ -34,6 +34,7 @@
     <ClCompile Include="Spells\SpellHandler.cpp" />
     <ClCompile Include="System\BulletPhysics.cpp" />
     <ClCompile Include="Spells\AOEAttack.cpp" />
+    <ClCompile Include="Spells\fire.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GFX\MaterialMap.h" />
@@ -72,6 +73,7 @@
     <ClInclude Include="Spells\SpellHandler.h" />
     <ClInclude Include="System\BulletPhysics.h" />
     <ClInclude Include="Spells\AOEAttack.h" />
+    <ClInclude Include="Spells\fire.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

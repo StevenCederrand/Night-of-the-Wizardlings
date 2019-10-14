@@ -208,6 +208,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Spells\EnhanceAttackSpell.cpp" />
+    <ClCompile Include="Spells\fire.cpp" />
     <ClCompile Include="Spells\Spell.cpp" />
     <ClCompile Include="Renderer\SkyBox.cpp" />
     <ClCompile Include="Spells\SpellHandler.cpp" />
@@ -267,6 +268,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Spells\EnhanceAttackSpell.h" />
+    <ClInclude Include="Spells\fire.h" />
     <ClInclude Include="Spells\Spell.h" />
     <ClInclude Include="Renderer\SkyBox.h" />
     <ClInclude Include="Spells\SpellHandler.h" />

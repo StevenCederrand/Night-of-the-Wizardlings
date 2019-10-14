@@ -1,7 +1,9 @@
 #pragma once
 #include <Pch/Pch.h>
 #include <GameObject/GameObject.h>
+#include <GameObject/WorldObject.h>
 #include <Spells/Spell.h>
+#include <Spells/fire.h>
 
 class AOEAttack : public Spell
 {
@@ -15,8 +17,19 @@ public:
 	void spellCooldownUpdate(float deltaTime);
 	void update(float dt);
 
+	bool isAOE();
+
 
 private:
 	glm::vec3 gravityVector = glm::vec3(0,-1,0);
 	glm::vec3 newVer = glm::vec3(0, 0, 0);
+	glm::vec3 tempVer = glm::vec3(0, 0, 0);
+	glm::vec3 pos;
+	glm::vec3 radiusVector = glm::vec3(0, 0, 0);
+
+	fire *tempFire;
+	float fireIsGone;
+	bool loadFire = true;
+	bool test123 = false;
+	bool m_updateSpellPos = true;
 };

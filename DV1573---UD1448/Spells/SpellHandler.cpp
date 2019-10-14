@@ -3,18 +3,19 @@
 
 SpellHandler::SpellHandler(glm::vec3 playerPosition, glm::vec3 directionVector)
 {
-	this->directionVector = directionVector;
-	tempSpell = new AttackSpell("Spell", playerPosition, directionVector, 50, 2, "TestSphere.mesh", 0);
-	tempEnhanceAttackSpell = new EnhanceAttackSpell("EnhanceSpell", playerPosition, directionVector, 150, 1, "TestCube.mesh", 0, 3, 1, 0);
-	tempFlamestrike = new AOEAttack("Flamestrike", playerPosition, directionVector, 10, 20, "TestCube.mesh", 0);
-
+	this->m_directionVector = directionVector;
+	m_tempSpell = new AttackSpell("Spell", playerPosition, directionVector, 50, 2, "TestSphere.mesh", 0);
+	m_tempEnhanceAttackSpell = new EnhanceAttackSpell("EnhanceSpell", playerPosition, directionVector, 150, 1, "TestCube.mesh", 0, 3, 1, 0);
+	m_tempFlamestrike = new AOEAttack("Flamestrike", playerPosition, directionVector, 10, 20, "TestCube.mesh", 0);
+	tempFire = new fire("Flamestrike", playerPosition, directionVector, 10, 20, "TestFireCylinder.mesh", 0);
 }
 
 SpellHandler::~SpellHandler()
 {
-	delete tempSpell;
-	delete tempEnhanceAttackSpell;
-	delete tempFlamestrike;
+	delete m_tempSpell;
+	delete m_tempEnhanceAttackSpell;
+	delete m_tempFlamestrike;
+	
 }
 
 bool SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector, TYPE type)
@@ -22,34 +23,34 @@ bool SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 di
 	bool spellIsOver = false;
 	if (type == NORMALATTACK)
 	{
-		if(tempSpell->getCooldown() <= 0)
+		if(m_tempSpell->getCooldown() <= 0)
 		{
-			AttackSpell tempSpell2 = *tempSpell;
+			AttackSpell tempSpell2 = *m_tempSpell;
 			tempSpell2.createSpell(deltaTime, spellPos, directionVector);
-			normalSpell.push_back(tempSpell2);
-			tempSpell->setCooldown(1.0f);
+			m_normalSpell.push_back(tempSpell2);
+			m_tempSpell->setCooldown(1.0f);
 		}
 	}
 
 	if (type == ENHANCEATTACK)
 	{
-		if (tempEnhanceAttackSpell->getCooldown() <= 0)
+		if (m_tempEnhanceAttackSpell->getCooldown() <= 0)
 		{
-			if (tempEnhanceAttackSpell->getAttackCooldown() <= 0)
+			if (m_tempEnhanceAttackSpell->getAttackCooldown() <= 0)
 			{
-				EnhanceAttackSpell tempSpell2 = *tempEnhanceAttackSpell;
+				EnhanceAttackSpell tempSpell2 = *m_tempEnhanceAttackSpell;
 				tempSpell2.createSpell(deltaTime, spellPos, directionVector);
-				enhanceAttackSpell.push_back(tempSpell2);
-				tempEnhanceAttackSpell->setAttackCooldown(0.3f);
-				tempEnhanceAttackSpell->reduceNrOfAttacks(1.0f);
+				m_enhanceAttackSpell.push_back(tempSpell2);
+				m_tempEnhanceAttackSpell->setAttackCooldown(0.3f);
+				m_tempEnhanceAttackSpell->reduceNrOfAttacks(1.0f);
 			}
-			if (tempEnhanceAttackSpell->getNrOfAttacks() <= 0)
+			if (m_tempEnhanceAttackSpell->getNrOfAttacks() <= 0)
 			{
-				tempEnhanceAttackSpell->setCooldown(10.0f);
-				tempEnhanceAttackSpell->setNrOfAttacks(3);
+				m_tempEnhanceAttackSpell->setCooldown(10.0f);
+				m_tempEnhanceAttackSpell->setNrOfAttacks(3);
 
 				//-----Return true if the spell is done in order to get the normal attack back-----//
-				tempSpell->setCooldown(1.0f);
+				m_tempSpell->setCooldown(1.0f);
 				setType(NORMALATTACK);
 				spellIsOver = true;
 			}
@@ -59,14 +60,14 @@ bool SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 di
 
 	if (type == FLAMESTRIKE)
 	{
-		if (tempFlamestrike->getCooldown() <= 0)
+		if (m_tempFlamestrike->getCooldown() <= 0)
 		{
-			AOEAttack tempSpell2 = *tempFlamestrike;
+			AOEAttack tempSpell2 = *m_tempFlamestrike;
 			tempSpell2.createSpell(deltaTime, spellPos, directionVector);
-			flamestrike.push_back(tempSpell2);
-			tempFlamestrike->setCooldown(1.0f);
+			m_flamestrike.push_back(tempSpell2);
+			m_tempFlamestrike->setCooldown(7.0f);
 
-			tempSpell->setCooldown(1.0f);
+			m_tempSpell->setCooldown(1.0f);
 			setType(NORMALATTACK);
 			spellIsOver = true;
 		}
@@ -76,79 +77,94 @@ bool SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 di
 
 void SpellHandler::spellUpdate(float deltaTime)
 {
-		for (int i = 0; i < normalSpell.size(); i++)
+		for (int i = 0; i < m_normalSpell.size(); i++)
 		{
-			normalSpell[i].updateActiveSpell(deltaTime);
-			if (normalSpell[i].getTravelTime() <= 0)
+			m_normalSpell[i].updateActiveSpell(deltaTime);
+			if (m_normalSpell[i].getTravelTime() <= 0)
 			{
-				normalSpell.erase(normalSpell.begin() + i);
+				m_normalSpell.erase(m_normalSpell.begin() + i);
 			}
 		}
 	
-		for (int i = 0; i < enhanceAttackSpell.size(); i++)
+		for (int i = 0; i < m_enhanceAttackSpell.size(); i++)
 		{
-			enhanceAttackSpell[i].updateActiveSpell(deltaTime);
-			if (enhanceAttackSpell[i].getTravelTime() <= 0)
+			m_enhanceAttackSpell[i].updateActiveSpell(deltaTime);
+			if (m_enhanceAttackSpell[i].getTravelTime() <= 0)
 			{
-				enhanceAttackSpell.erase(enhanceAttackSpell.begin() + i);
+				m_enhanceAttackSpell.erase(m_enhanceAttackSpell.begin() + i);
 			}
 		}
 
-		for (int i = 0; i < flamestrike.size(); i++)
+		for (int i = 0; i < m_flamestrike.size(); i++)
 		{
 
-			flamestrike[i].updateActiveSpell(deltaTime);
-			if (flamestrike[i].getTravelTime() <= 0)
+			m_flamestrike[i].updateActiveSpell(deltaTime);
+			
+			std::cout << m_flamestrike[i].getSpellPos().x << " " << m_flamestrike[i].getSpellPos().y << " " << m_flamestrike[i].getSpellPos().z << std::endl;
+			tempFire->setWorldPosition(m_flamestrike[i].getSpellPos());
+			
+			if (m_flamestrike[i].isAOE())
 			{
-				flamestrike.erase(flamestrike.begin() + i);
+				tempFire->translate(m_flamestrike[i].getSpellPos());
+			}
+			
+
+			if (m_flamestrike[i].getTravelTime() <= 0)
+			{
+				m_flamestrike.erase(m_flamestrike.begin() + i);
 			}
 		}
-
-
 }
 
 void SpellHandler::spellCooldown(float deltaTime)
 {
-	tempSpell->spellCooldownUpdate(deltaTime);
-	tempEnhanceAttackSpell->spellCooldownUpdate(deltaTime);
-	tempEnhanceAttackSpell->attackCooldownUpdate(deltaTime);
-	tempFlamestrike->spellCooldownUpdate(deltaTime);
+	m_tempSpell->spellCooldownUpdate(deltaTime);
+	m_tempEnhanceAttackSpell->spellCooldownUpdate(deltaTime);
+	m_tempEnhanceAttackSpell->attackCooldownUpdate(deltaTime);
+	m_tempFlamestrike->spellCooldownUpdate(deltaTime);
 }
 
 void SpellHandler::renderSpell()
 {
 	
-
-		for (AttackSpell object : normalSpell)
+		for (AttackSpell object : m_normalSpell)
 		{
 			object.bindMaterialToShader("Basic_Forward");
 			Renderer::getInstance()->render(object);
 		}
 	
-		for (EnhanceAttackSpell object : enhanceAttackSpell)
+		for (EnhanceAttackSpell object : m_enhanceAttackSpell)
 		{
 			object.bindMaterialToShader("Basic_Forward");
 			Renderer::getInstance()->render(object);
 		}
 
-		for (AOEAttack object : flamestrike)
+		for (AOEAttack object : m_flamestrike)
 		{
 			object.bindMaterialToShader("Basic_Forward");
 			Renderer::getInstance()->render(object);
+		}
+		for (int i = 0; i < m_flamestrike.size(); i++)
+		{
+			if (m_flamestrike[i].isAOE())
+			{
+				tempFire->bindMaterialToShader("Basic_Forward");
+				Renderer::getInstance()->render(*tempFire);
+			}
 		}
 	
 }
 
 void SpellHandler::setType(TYPE type)
 {
-	this->spellType = type;
+	m_spellType = type;
 }
 
 
 
 TYPE SpellHandler::getType()
 {
-	return this->spellType;
+	return m_spellType;
 }
 
 

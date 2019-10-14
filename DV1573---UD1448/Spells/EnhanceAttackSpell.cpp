@@ -9,37 +9,37 @@ EnhanceAttackSpell::EnhanceAttackSpell(glm::vec3 pos)
 EnhanceAttackSpell::EnhanceAttackSpell(std::string name, glm::vec3 pos, glm::vec3 direction, float speed, float travelTime, std::string meshName, float cooldown, float nrOfEnhancedAttacks, float attackCooldown, float spellActiveTime)
 	: Spell(name, pos, direction, speed, travelTime, meshName, cooldown)
 {
-	this->nrOfAttacks = nrOfEnhancedAttacks;
-	this->spellActiveTime = spellActiveTime;
+	m_nrOfAttacks = nrOfEnhancedAttacks;
+	m_spellActiveTime = spellActiveTime;
 }
 
 EnhanceAttackSpell::~EnhanceAttackSpell()
 {
 }
 
-float EnhanceAttackSpell::getNrOfAttacks()
+float EnhanceAttackSpell::getNrOfAttacks() const
 {
-	return this->nrOfAttacks;
+	return m_nrOfAttacks;
 }
 
-float EnhanceAttackSpell::getAttackCooldown()
+float EnhanceAttackSpell::getAttackCooldown() const
 {
-	return this->attackCooldown;
+	return m_attackCooldown;
 }
 
 void EnhanceAttackSpell::setNrOfAttacks(float nrOfEnhancedAttacks)
 {
-	 this->nrOfAttacks = nrOfEnhancedAttacks;
+	 m_nrOfAttacks = nrOfEnhancedAttacks;
 }
 
 void EnhanceAttackSpell::reduceNrOfAttacks(float nrOfEnhancedAttacks)
 {
-	this->nrOfAttacks -= nrOfEnhancedAttacks;
+	m_nrOfAttacks -= nrOfEnhancedAttacks;
 }
 
 void EnhanceAttackSpell::setAttackCooldown(float attackCooldown)
 {
-	this->attackCooldown = attackCooldown;
+	m_attackCooldown = attackCooldown;
 }
 
 void EnhanceAttackSpell::updateActiveSpell(float deltaTime)

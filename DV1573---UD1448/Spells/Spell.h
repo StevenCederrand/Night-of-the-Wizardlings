@@ -10,11 +10,11 @@ public:
 	~Spell();
 
 	//-----Get-----//
-	float getCooldown();
-	float getSpellSpeed();
-	float getTravelTime();
-	glm::vec3 getSpellPos();
-	glm::vec3 getDirection();
+	float getCooldown() const;
+	float getSpellSpeed() const;
+	float getTravelTime() const;
+	glm::vec3 getSpellPos() const;
+	glm::vec3 getDirection() const;
 	//----Set-----//
 	void setDamage(int damage);
 	void setSpellSpeed(float speed);
@@ -22,6 +22,7 @@ public:
 	void setCooldown(float cooldown);
 	void setTravelTime(float travelTime);
 	void setDirection(glm::vec3 direction);
+	void updateSpellPos(glm::vec3 newPos);
 
 	void update(float dt);
 
@@ -29,12 +30,12 @@ public:
 	
 
 private:
-	int spellDamage;
-	float spellSpeed; 
-	float spellCoolDown = 0;
-	float travelTime = 0;
-	glm::vec3 direction;
-	glm::vec3 spellPosition = glm::vec3(0,0,0);
+	int m_spellDamage;
+	float m_spellSpeed; 
+	float m_spellCoolDown = 0;
+	float m_travelTime = 0;
+	glm::vec3 m_direction;
+	glm::vec3 m_spellPosition = glm::vec3(0,0,0);
 	
 	
 };

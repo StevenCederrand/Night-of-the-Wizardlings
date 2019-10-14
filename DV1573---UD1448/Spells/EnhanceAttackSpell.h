@@ -11,8 +11,8 @@ public:
 	~EnhanceAttackSpell();
 
 
-	float getNrOfAttacks();
-	float getAttackCooldown();
+	float getNrOfAttacks() const;
+	float getAttackCooldown() const;
 
 	void setNrOfAttacks(float nrOfEnhancedAttacks);
 	void reduceNrOfAttacks(float nrOfEnhancedAttacks);
@@ -31,7 +31,7 @@ public:
 
 private:
 
-	float nrOfAttacks = 3;
-	float attackCooldown = 0;
-	float spellActiveTime = 0;
+	float m_nrOfAttacks = 3;
+	float m_attackCooldown = 0;
+	float m_spellActiveTime = 0;
 };

@@ -9,7 +9,9 @@ AOEAttack::AOEAttack(glm::vec3 pos)
 AOEAttack::AOEAttack(std::string name, glm::vec3 pos, glm::vec3 direction, float speed, float travelTime, std::string meshName, float cooldown)
 	: Spell(name, pos, direction, speed, travelTime, meshName, cooldown)
 {
-
+	fireIsGone = 0;
+	this->pos = pos;
+	loadMesh("TestFireCylinder.mesh");
 }
 
 AOEAttack::~AOEAttack()
@@ -19,26 +21,52 @@ AOEAttack::~AOEAttack()
 
 void AOEAttack::updateActiveSpell(float deltaTime)
 {
-	setSpellPos(getDirection() * deltaTime * getSpellSpeed());
-	newVer += getSpellPos();
-	setSpellPos(newVer);
+	if (m_updateSpellPos == true)
+	{
+		setSpellPos(getDirection() * deltaTime * getSpellSpeed());
+		newVer += getSpellPos();
+		setSpellPos(newVer);
+	}
+	
+	//updateSpellPos(getSpellPos());
 
 	setDirection(getDirection() + deltaTime * gravityVector);
 
-	if(getSpellPos().y >= 0)
+	if (getSpellPos().y >= 0)
+	{
 		translate(getDirection());
+	}
+		
+	std::cout << getSpellPos().x << " " << getSpellPos().y << " " << getSpellPos().z << std::endl;
 
 	setTravelTime(getTravelTime() - 1 * deltaTime);
-	std::cout << getSpellPos().x << " " << getSpellPos().y << " " << getSpellPos().z << std::endl;
 
 	//AOE
 	if (getSpellPos().y <= 0)
 	{
-		std::cout << "Fire! You are burning" << std::endl;
+		m_updateSpellPos = false;
 
-		setTravelTime(0);
-		//std::cout << getSpellPos().x << " " << getSpellPos().y << " " << getSpellPos().z << std::endl;
-		//setWorldPosition(getSpellPos());
+		radiusVector = getSpellPos() + glm::vec3(5, 0, 0);
+
+		////std::cout << "Fire! You are burning" << std::endl;
+		//if (loadFire == true)
+		//{		
+		//	//tempVer = ;
+		//	tempFire->loadMesh("TestFireCylinder.mesh");
+		//	tempFire->setWorldPosition(glm::vec3(getSpellPos()));
+		//	tempFire->translate(glm::vec3(getSpellPos()));
+		//	std::cout << pos.x << " " << pos.y << " " << pos.z << std::endl;
+		//	loadFire = false;
+		//}
+		//tempFire->bindMaterialToShader("Basic_Forward");
+		//Renderer::getInstance()->render(*tempFire);
+		////test123 = true;
+		fireIsGone += 1 * deltaTime;
+		if (fireIsGone >= 5)
+			setTravelTime(0);
+			
+		
+			
 	}
 }
 
@@ -59,4 +87,12 @@ void AOEAttack::spellCooldownUpdate(float deltaTime)
 void AOEAttack::update(float dt)
 {
 
+}
+
+bool AOEAttack::isAOE()
+{
+	if (m_updateSpellPos == false)
+		return true;
+	else
+		return false;
 }

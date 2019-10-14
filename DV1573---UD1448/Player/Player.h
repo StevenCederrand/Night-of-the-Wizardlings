@@ -43,22 +43,22 @@ public:
 private:
 	SpellHandler* spellhandler;
 
-	glm::vec3 directionVector;
+	glm::vec3 m_directionVector;
 	glm::vec3 m_playerPosition;
-	glm::vec3 inputVector;
-	glm::vec3 moveDir;
+	glm::vec3 m_inputVector;
+	glm::vec3 m_moveDir;
 
-	Camera* playerCamera;
+	Camera* m_playerCamera;
 	btRigidBody* m_body;
-	float attackCooldown;
-	float spellSpeed = 1;
-	float speed;
-	int nrOfSpells;
-	int health;
-	int frameCount;
-	std::string name;
+	float m_attackCooldown;
+	float m_spellSpeed = 1;
+	float m_speed;
+	int m_nrOfSpells;
+	int m_health;
+	int m_frameCount;
+	std::string m_name;
 
-	TYPE spellType;
+	TYPE m_spellType;
 	BulletPhysics* m_bp;
 	btKinematicCharacterController* controller;
 

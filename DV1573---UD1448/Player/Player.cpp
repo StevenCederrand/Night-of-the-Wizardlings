@@ -7,19 +7,19 @@
 Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Camera *camera)
 {
 	if (camera == NULL) {
-		 playerCamera = new Camera();
+		 m_playerCamera = new Camera();
 	}
-	this->playerCamera = camera;
-	this->m_playerPosition = playerPosition;
-	this->name = name;
-	this->speed = 5;
-	this->health = 100;
-	this->attackCooldown = 0;
-	this->nrOfSpells = 0;
-	this->directionVector = glm::vec3(0, 0, 0);
-	this->moveDir = glm::vec3(0.0f);
-	this->spellType = NORMALATTACK;
-	spellhandler = new SpellHandler(playerPosition, directionVector);
+	m_playerCamera = camera;
+	m_playerPosition = playerPosition;
+	m_name = name;
+	m_speed = 5;
+	m_health = 100;
+	m_attackCooldown = 0;
+	m_nrOfSpells = 0;
+	m_directionVector = glm::vec3(0, 0, 0);
+	m_moveDir = glm::vec3(0.0f);
+	m_spellType = NORMALATTACK;
+	spellhandler = new SpellHandler(playerPosition, m_directionVector);
 
 
 	btConvexShape* playerShape = new btCapsuleShape(0.25, 1);
@@ -49,12 +49,12 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_body = new btRigidBody(rbInfo);
 
 	bp->getDynamicsWorld()->addRigidBody(m_body);*/
-	frameCount = 0;
+	m_frameCount = 0;
 }
 
 Player::~Player()
 {
-	delete playerCamera;
+	delete m_playerCamera;
 	delete spellhandler;
 }
 
@@ -69,46 +69,46 @@ void Player::update(float deltaTime)
 
 void Player::move(float deltaTime)
 {
-	frameCount++;
-	if (frameCount < 2)
+	m_frameCount++;
+	if (m_frameCount < 2)
 	{
 		return;
 	}
-	glm::vec3 camFace = playerCamera->getCamFace();
-	glm::vec3 camRight = playerCamera->getCamRight();
+	glm::vec3 camFace = m_playerCamera->getCamFace();
+	glm::vec3 camRight = m_playerCamera->getCamRight();
 	float xspeed = 1.0f;
 
 	//camFace.y = 0;
 	//auto& totalForce = m_body->getLinearVelocity();
 	btVector3 totalForce = controller->getLinearVelocity();
 	
-	moveDir = glm::vec3(0.0f);
+	m_moveDir = glm::vec3(0.0f);
 
 	//m_body->activate();
-	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_A) == GLFW_PRESS)
+	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_A) == GLFW_PRESS)
 	{
-		moveDir -= camRight;
+		m_moveDir -= camRight;
 	}
-	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_D) == GLFW_PRESS)
+	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_D) == GLFW_PRESS)
 	{
-		moveDir += camRight;
+		m_moveDir += camRight;
 	}
-	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_W) == GLFW_PRESS)
+	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_W) == GLFW_PRESS)
 	{
-		moveDir += camFace;
+		m_moveDir += camFace;
 	}
-	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_S) == GLFW_PRESS)
+	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_S) == GLFW_PRESS)
 	{
-		moveDir -= camFace;
+		m_moveDir -= camFace;
 	}
 
-	if (glm::length(moveDir) >= 0.01f)
-		moveDir = glm::normalize(moveDir);
+	if (glm::length(m_moveDir) >= 0.01f)
+		m_moveDir = glm::normalize(m_moveDir);
 
-	m_playerPosition += moveDir * speed * deltaTime;
+	m_playerPosition += m_moveDir * m_speed * deltaTime;
 	setPlayerPos(m_playerPosition);
-	playerCamera->setCameraPos(m_playerPosition);
-	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
+	m_playerCamera->setCameraPos(m_playerPosition);
+	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
 	{
 		//controller->jump(btVector3(0, 10, 0));		
 		logTrace(controller->canJump());
@@ -129,9 +129,9 @@ void Player::move(float deltaTime)
 	y = yint / 10000;
 	//btScalar yValue = controller->getGhostObject()->getWorldTransform().getOrigin().getY();
 	btVector3 translate; //= btVector3(0.0f, 0.0f, 0.0f);
-	translate = btVector3(moveDir.x * speed * deltaTime*xspeed, 
+	translate = btVector3(m_moveDir.x * m_speed * deltaTime*xspeed, 
 		y,
-		moveDir.z * speed * deltaTime*xspeed);
+		m_moveDir.z * m_speed * deltaTime*xspeed);
 	//m_body->setLinearVelocity(translate);
 
 	btScalar h = controller->getLinearVelocity().getY();
@@ -149,8 +149,8 @@ void Player::move(float deltaTime)
 	btVector3 playerPos = controller->getGhostObject()->getWorldTransform().getOrigin();
 	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY()* 2, playerPos.getZ());
 	//setPlayerPos(m_playerPosition);
-	playerCamera->setCameraPos(m_playerPosition);
-	playerCamera->update(playerCamera->getWindow());
+	m_playerCamera->setCameraPos(m_playerPosition);
+	m_playerCamera->update(m_playerCamera->getWindow());
 	//m_body->getWorldTransform().setOrigin(playerPos);
 
 	
@@ -174,38 +174,38 @@ void Player::move(float deltaTime)
 
 void Player::attack(float deltaTime)
 {
-	if (glfwGetMouseButton(playerCamera->getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+	if (glfwGetMouseButton(m_playerCamera->getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 	{
 		createRay();
-		spellhandler->setType(spellType);
-		if (spellhandler->createSpell(deltaTime, m_playerPosition, directionVector, spellhandler->getType()))
+		spellhandler->setType(m_spellType);
+		if (spellhandler->createSpell(deltaTime, m_playerPosition, m_directionVector, spellhandler->getType()))
 		{
-			this->spellType = NORMALATTACK;
+			m_spellType = NORMALATTACK;
 		}
 	}
 
-	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_2) == GLFW_PRESS)
+	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_2) == GLFW_PRESS)
 	{
-		this->spellType = ENHANCEATTACK;
+		m_spellType = ENHANCEATTACK;
 	}
 
-	if (spellType == ENHANCEATTACK)
+	if (m_spellType == ENHANCEATTACK)
 	{
 		createRay();
-		spellhandler->setType(spellType);
-		if (spellhandler->createSpell(deltaTime, m_playerPosition, directionVector, spellhandler->getType()))
+		spellhandler->setType(m_spellType);
+		if (spellhandler->createSpell(deltaTime, m_playerPosition, m_directionVector, spellhandler->getType()))
 		{
-			this->spellType = NORMALATTACK;
+			m_spellType = NORMALATTACK;
 		}
 	}
 
-	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_3) == GLFW_PRESS)
+	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_3) == GLFW_PRESS)
 	{
 		createRay();
 		spellhandler->setType(FLAMESTRIKE);
-		if (spellhandler->createSpell(deltaTime, m_playerPosition, directionVector, spellhandler->getType()))
+		if (spellhandler->createSpell(deltaTime, m_playerPosition, m_directionVector, spellhandler->getType()))
 		{
-			this->spellType = NORMALATTACK;
+			m_spellType = NORMALATTACK;
 		}
 	}
 
@@ -215,17 +215,17 @@ void Player::attack(float deltaTime)
 
 void Player::createRay()
 {
-	float x = (2.0f * static_cast<float>(playerCamera->getXpos())) / SCREEN_WIDTH - 1.0f;
-	float y = 1.0f - (2.0f * static_cast<float>(playerCamera->getYpos())) / SCREEN_HEIGHT;
+	float x = (2.0f * static_cast<float>(m_playerCamera->getXpos())) / SCREEN_WIDTH - 1.0f;
+	float y = 1.0f - (2.0f * static_cast<float>(m_playerCamera->getYpos())) / SCREEN_HEIGHT;
 	float z = 1.0f;
 
 	//-----Spaces-----//
 	glm::vec3 rayNDC = glm::vec3(x, y, z);
 	glm::vec4 rayClip = glm::vec4(rayNDC.x, rayNDC.y, -1.0f, 1.0f);
-	glm::vec4 rayEye = inverse(playerCamera->getProjMat()) * rayClip;
+	glm::vec4 rayEye = inverse(m_playerCamera->getProjMat()) * rayClip;
 	rayEye = glm::vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);
-	glm::vec4 rayWorldTemp = glm::vec4(inverse(playerCamera->getViewMat()) * rayEye);
-	directionVector = normalize(glm::vec3(rayWorldTemp.x, rayWorldTemp.y, rayWorldTemp.z));
+	glm::vec4 rayWorldTemp = glm::vec4(inverse(m_playerCamera->getViewMat()) * rayEye);
+	m_directionVector = normalize(glm::vec3(rayWorldTemp.x, rayWorldTemp.y, rayWorldTemp.z));
 }
 
 void Player::renderSpell()
@@ -238,12 +238,12 @@ void Player::renderSpell()
 
 void Player::setPlayerPos(glm::vec3 pos)
 {
-	this->m_playerPosition = pos;
+	m_playerPosition = pos;
 }
 
 void Player::spawnPlayer(glm::vec3 pos)
 {
-	this->m_playerPosition = pos;
+	m_playerPosition = pos;
 }
 
 void Player::createRigidBody(BulletPhysics* bp)
@@ -261,37 +261,37 @@ void Player::forceUp()
 
 void Player::setHealth(int health)
 {
-	this->health = health;
+	m_health = health;
 }
 
 void Player::setSpeed(float speed)
 {
-	this->speed = speed;
+	m_speed = speed;
 }
 
 glm::vec3 Player::getPlayerPos() const
 {
-	return this->m_playerPosition;
+	return m_playerPosition;
 }
 
 int Player::getHealth() const
 {
-	return this->health;
+	return m_health;
 }
 
 Camera* Player::getCamera()
 {
-	return playerCamera;
+	return m_playerCamera;
 }
 
 std::string Player::getName() const
 {
-	return this->name;
+	return m_name;
 }
 
 bool Player::isDead()
 {
-	if (this->health <= 0)
+	if (m_health <= 0)
 	{
 		return true;
 	}
