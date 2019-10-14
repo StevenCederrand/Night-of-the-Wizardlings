@@ -17,13 +17,25 @@ FindServerState::FindServerState()
 
 FindServerState::~FindServerState()
 {
+	removeAllRows();
 	Gui::getInstance()->clearWidgetsInSection(GUI_SECTION);
 }
 
 void FindServerState::update(float dt)
 {
-	if (Input::isKeyHeldDown(GLFW_KEY_F3)) {
-		m_stateManager->clearAllAndSetState(new MenuState());
+	if (Input::isKeyPressed(GLFW_KEY_G)) {
+		static int i = 0;
+		m_serverList->addRow();
+		CEGUI::ListboxTextItem* itemMultiColumnList;
+		itemMultiColumnList = new CEGUI::ListboxTextItem("Dummy", i );
+		itemMultiColumnList->setSelectionBrushImage("TaharezLook/MultiListSelectionBrush");
+		m_serverList->setItem(itemMultiColumnList, 0, static_cast<CEGUI::uint>(i)); // ColumnID, RowID
+		itemMultiColumnList = new CEGUI::ListboxTextItem(std::string("1337") + "/" + std::string("1337"), i + 1);
+		m_serverList->setItem(itemMultiColumnList, 1, static_cast<CEGUI::uint>(i)); // ColumnID, RowID
+		i++;
+	}
+	else if (Input::isKeyPressed(GLFW_KEY_H)) {
+		removeAllRows();
 	}
 
 	if (m_serverListRefreshing && Client::getInstance()->doneRefreshingServerList())
@@ -61,12 +73,8 @@ void FindServerState::loadGui()
 
 void FindServerState::loadServersIntoList()
 {
-	logTrace("[LoadServersIntoList]");
 	auto& servers = Client::getInstance()->getServerList();
-	for (size_t i = 0; i < m_serverList->getRowCount(); i++) {
-		//auto* c = m_serverList->getChildAtIdx(i);
-		m_serverList->removeRow(m_serverList->getRowID(static_cast<CEGUI::uint>(i)));
-	}
+	removeAllRows();
 
 
 	for (size_t i = 0; i < servers.size(); i++) {
@@ -80,6 +88,13 @@ void FindServerState::loadServersIntoList()
 	}
 }
 
+void FindServerState::removeAllRows()
+{
+	for (int i = m_serverList->getRowCount() - 1; i >= 0 ; i--) {
+		m_serverList->removeRow(i);
+	}
+}
+
 bool FindServerState::onBackToMenuClicked(const CEGUI::EventArgs& e)
 {
 	m_stateManager->clearAllAndSetState(new MenuState());
@@ -90,17 +105,16 @@ bool FindServerState::onJoinServerClicked(const CEGUI::EventArgs& e)
 {
 	
 	CEGUI::ListboxItem* item = m_serverList->getFirstSelectedItem();
-	
+	logTrace("ID: {0}", item->getID());
 	if (item != NULL)
 	{
 		std::string serverName = item->getText().c_str();
 		unsigned int serverID = item->getID();
 		item = m_serverList->getNextSelected(item);
-
+		logTrace("ID: {0}", item->getID());
 		if (Client::getInstance()->doesServerExist(serverID))
 		{
 			const ServerInfo& serverInfo = Client::getInstance()->getServerByID(serverID);
-
 			Client::getInstance()->connectToAnotherServer(serverInfo);
 		}
 
@@ -108,7 +122,8 @@ bool FindServerState::onJoinServerClicked(const CEGUI::EventArgs& e)
 		while (!Client::getInstance()->isConnectedToSever())
 		{
 			if (Client::getInstance()->connectionFailed()) {
-				std::printf("Server is full!\n");
+				std::printf("Server is full or in session!\n");
+				m_serverList->removeRow(serverID);
 				return true;
 			}
 		}
@@ -117,7 +132,6 @@ bool FindServerState::onJoinServerClicked(const CEGUI::EventArgs& e)
 	}
 
 	
-
 	return true;
 }
 

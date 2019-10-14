@@ -130,10 +130,7 @@ void Client::processAndHandlePackets()
 		{
 		case ID_CONNECTION_REQUEST_ACCEPTED:
 		{
-			logTrace("[CLIENT] Connected to server.\n");
-			m_serverAddress = packet->systemAddress;
-			m_isConnectedToAnServer = true;
-			m_playerData.guid = m_clientPeer->GetMyGUID();
+			logTrace("[CLIENT] Connected to server but not sure if actually accepted to the server.\n");
 		}
 		break;
 
@@ -180,6 +177,16 @@ void Client::processAndHandlePackets()
 			m_isConnectedToAnServer = false;
 			m_shutdownThread = true;
 			break;
+
+		case PLAYER_ACCEPTED_TO_SERVER:
+		{
+			logTrace("[CLIENT] Connected and accepted by server! Welcome!.\n");
+			m_serverAddress = packet->systemAddress;
+			m_isConnectedToAnServer = true;
+			m_playerData.guid = m_clientPeer->GetMyGUID();
+		}
+			break;
+
 		case INFO_ABOUT_OTHER_PLAYERS:
 		{
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));

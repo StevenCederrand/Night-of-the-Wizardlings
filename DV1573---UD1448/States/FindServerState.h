@@ -17,7 +17,7 @@ public:
 private:
 	void loadGui();
 	void loadServersIntoList();
-
+	void removeAllRows();
 private:
 	CEGUI::PushButton* m_backToMenu;
 	CEGUI::PushButton* m_joinServer;

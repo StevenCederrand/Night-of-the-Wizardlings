@@ -101,6 +101,23 @@ void LocalServer::processAndHandlePackets()
 		case ID_NEW_INCOMING_CONNECTION:
 		{
 			logTrace("[SERVER] New connection from {0}\nAssigned GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
+			
+			if (m_connectedPlayers.size() >= NetGlobals::MaximumConnections || m_serverInfo.currentState != NetGlobals::ServerState::WaitingForPlayers)
+			{
+				/*RakNet::BitStream stream;
+				stream.Write((RakNet::MessageID)ID_DISCONNECTION_NOTIFICATION);
+				m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->guid, false);*/
+
+				m_serverPeer->CloseConnection(packet->guid, true);
+				return;
+			}
+
+			
+
+			RakNet::BitStream acceptStream;
+			acceptStream.Write((RakNet::MessageID)PLAYER_ACCEPTED_TO_SERVER);
+			m_serverPeer->Send(&acceptStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->guid, false);
+
 
 			// Is it safe enough to assume that the first player that joins is the admin?
 			if (m_adminID == RakNet::UNASSIGNED_RAKNET_GUID) {
@@ -110,8 +127,6 @@ void LocalServer::processAndHandlePackets()
 				m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_adminID, false);
 
 			}
-
-			if (m_connectedPlayers.size() >= NetGlobals::MaximumConnections) logError("[SERVER]  Trying to add more clients than allowed!");
 
 			RakNet::BitStream stream_otherPlayers;
 
@@ -362,7 +377,8 @@ void LocalServer::handleLostPlayer(const RakNet::Packet& packet, const RakNet::B
 	}
 
 	// Remove the disconnected player from the local list of clients
-	m_connectedPlayers.erase(m_connectedPlayers.begin() + indexOfDisconnectedPlayer);
+	if(indexOfDisconnectedPlayer != -1)
+		m_connectedPlayers.erase(m_connectedPlayers.begin() + indexOfDisconnectedPlayer);
 
 
 }
