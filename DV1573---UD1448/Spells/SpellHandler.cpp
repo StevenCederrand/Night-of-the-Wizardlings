@@ -11,7 +11,8 @@ SpellHandler::SpellHandler(glm::vec3 playerPosition, glm::vec3 directionVector)
 
 SpellHandler::~SpellHandler()
 {
-
+	delete tempSpell;
+	delete tempEnhanceAttackSpell;
 }
 
 void SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector, TYPE type)
@@ -24,6 +25,7 @@ void SpellHandler::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 di
 			tempSpell2.createSpell(deltaTime, spellPos, directionVector);
 			normalSpell.push_back(tempSpell2);
 			tempSpell->setCooldown(1.0f);
+
 		}
 	}
 
@@ -47,6 +49,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 
 			if (normalSpell[i].getTravelTime() <= 0)
 			{
+				
 				Renderer::getInstance()->removeDynamic(tempSpell);
 				normalSpell.erase(normalSpell.begin() + i);
 
