@@ -17,6 +17,7 @@ public:
 	void spellUpdate(float deltaTime);
 	const AttackSpellBase& getAttackSpellBase() const { return *attackBase; }
 	const Spell& getSpell(int index) const { return *spells[index]; }
+	const std::vector<Spell*>& getSpells() const { return spells; }
 
 private:
 	std::vector<Spell*> spells;
