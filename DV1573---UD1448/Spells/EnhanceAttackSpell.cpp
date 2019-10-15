@@ -1,13 +1,15 @@
 #include "Pch/Pch.h"
 #include "EnhanceAttackSpell.h"
 
+
+
 EnhanceAttackSpell::EnhanceAttackSpell(glm::vec3 pos)
 	: Spell(pos)
 {
 }
 
-EnhanceAttackSpell::EnhanceAttackSpell(std::string name, glm::vec3 pos, glm::vec3 direction, float speed, float travelTime, std::string meshName, float cooldown, float nrOfEnhancedAttacks)
-	: Spell(name, pos, direction, speed, travelTime, meshName, cooldown)
+EnhanceAttackSpell::EnhanceAttackSpell(std::string name, glm::vec3 pos, glm::vec3 m_direction, float speed, float m_travelTime, std::string meshName, float cooldown, float nrOfEnhancedAttacks)
+	: Spell(name, pos, m_direction, speed, m_travelTime, meshName, cooldown)
 {
 	this->nrOfEnhancedAttacks = nrOfEnhancedAttacks;
 }
@@ -43,8 +45,4 @@ void EnhanceAttackSpell::createSpell(float deltaTime, glm::vec3 spellPos, glm::v
 	setSpellPos(glm::vec3(spellPos.x, spellPos.y - 1.8f, spellPos.z) + directionVector); //-1.8 = spwn point for spell, spell need to be 0 and playerPos is set to (0,1.8,0)
 	translate(getSpellPos());
 	setDirection(directionVector);
-}
-
-void EnhanceAttackSpell::update(float dt)
-{
 }

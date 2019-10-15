@@ -7,6 +7,7 @@
 #include <GameObject/GameObject.h>
 #include <Player/Player.h>
 #include <GameObject/WorldObject.h>
+#include <GameObject/AnimatedObject.h>
 #include <Spells/Spell.h>
 #include <System/BulletPhysics.h>
 
@@ -28,6 +29,7 @@ private:
 	//Any inherited GameObject class added to this vector will support basic rendering
 	std::vector<GameObject*> m_objects;
 
+	SpellHandler m_spellHandler;
 	Player* m_player;
 	Camera* m_camera;
 	SkyBox* m_skybox;

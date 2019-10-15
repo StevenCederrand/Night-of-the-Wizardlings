@@ -99,6 +99,8 @@ namespace BGLoading
 		float duration;
 		float rate;
 		int keyframeCount;
+
+		//char mesh[NAME_SIZE_L];
 	};
 
 	struct KeyFrame
@@ -109,6 +111,7 @@ namespace BGLoading
 
 	struct Transform
 	{
+		int joinId;
 		float transform[3];
 		float rotate[4];
 		float scale[3];

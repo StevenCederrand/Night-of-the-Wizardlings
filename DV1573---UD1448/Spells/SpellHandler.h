@@ -1,30 +1,37 @@
 #pragma once
 #include <Pch/Pch.h>
+#include <Spells/Spells.h>
 #include <GameObject/GameObject.h>
 #include <Spells/AttackSpell.h>
 #include <Spells/EnhanceAttackSpell.h>
 #include <System/BulletPhysics.h>
+#include "SpellTypes.h"
 
-enum TYPE { NORMALATTACK, ENHANCEATTACK };
+
+//enum TYPE { NORMALATTACK, ENHANCEATTACK };
+
 
 class SpellHandler
 {
 public:
-	SpellHandler(glm::vec3 playerPosition, glm::vec3 directionVector, BulletPhysics* bp);
+	SpellHandler(BulletPhysics* bp);
+	void initAttackSpell();
 	~SpellHandler();
-	void createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector, TYPE type);
+	void createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SPELL_TYPE type);
+
 	void spellUpdate(float deltaTime);
-	void spellCooldown(float deltaTime);
+	const AttackSpellBase& getAttackSpellBase() const { return *attackBase; }
+	const Spell& getSpell(int index) const { return *spells[index]; }
+	const std::vector<Spell*>& getSpells() const { return spells; }
 	void renderSpell();
 
 private:
-	std::vector<AttackSpell> normalSpell;
-	AttackSpell* tempSpell;
+	std::vector<Spell*> spells;
 	std::vector<EnhanceAttackSpell> enhanceAttackSpell;
-	EnhanceAttackSpell* tempEnhanceAttackSpell;
 
-	glm::vec3 directionVector;
-	glm::vec3 spellPos;
+	// The base for all basic attack spells
+	AttackSpellBase* attackBase;
+
 
 	void spellCollisionCheck();
 	bool specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis);

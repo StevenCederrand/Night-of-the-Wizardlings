@@ -174,7 +174,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GameObject\AnimatedObject.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Mesh\AnimationMap.cpp" />
     <ClCompile Include="Mesh\MeshMap.cpp" />
+    <ClCompile Include="Networking\ChaosServerMode.cpp" />
     <ClCompile Include="Networking\Client.cpp" />
     <ClCompile Include="Networking\LocalServer.cpp" />
     <ClCompile Include="GameObject\GameObject.cpp" />
@@ -206,10 +211,10 @@
     <ClCompile Include="Spells\AttackSpell.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Spells\EnhanceAttackSpell.cpp" />
     <ClCompile Include="Spells\Spell.cpp" />
     <ClCompile Include="Renderer\SkyBox.cpp" />
     <ClCompile Include="Spells\SpellHandler.cpp" />
+    <ClCompile Include="Mesh\SkeletonMap.cpp" />
     <ClCompile Include="States\FindServerState.cpp" />
     <ClCompile Include="States\LobbyState.cpp" />
     <ClCompile Include="States\MenuState.cpp" />
@@ -230,6 +235,7 @@
     </ClCompile>
     <ClCompile Include="System\Main.cpp" />
     <ClCompile Include="System\StateManager.cpp" />
+    <ClCompile Include="System\Timer.cpp" />
     <ClCompile Include="Texture\stb_image.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -238,7 +244,12 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GameObject\AnimatedObject.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Mesh\AnimationMap.h" />
     <ClInclude Include="Mesh\MeshMap.h" />
+    <ClInclude Include="Networking\ChaosServerMode.h" />
     <ClInclude Include="Networking\Client.h" />
     <ClInclude Include="Networking\LocalServer.h" />
     <ClInclude Include="Networking\NetworkGlobals.h" />
@@ -264,10 +275,12 @@
     <ClInclude Include="Spells\AttackSpell.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Spells\EnhanceAttackSpell.h" />
     <ClInclude Include="Spells\Spell.h" />
     <ClInclude Include="Renderer\SkyBox.h" />
+    <ClInclude Include="Mesh\SkeletonMap.h" />
     <ClInclude Include="Spells\SpellHandler.h" />
+    <ClInclude Include="Spells\Spells.h" />
+    <ClInclude Include="Spells\SpellTypes.h" />
     <ClInclude Include="States\FindServerState.h" />
     <ClInclude Include="States\LobbyState.h" />
     <ClInclude Include="States\MenuState.h" />
@@ -278,6 +291,7 @@
     <ClInclude Include="System\Log.h" />
     <ClInclude Include="System\State.h" />
     <ClInclude Include="System\StateManager.h" />
+    <ClInclude Include="System\Timer.h" />
     <ClInclude Include="Texture\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
