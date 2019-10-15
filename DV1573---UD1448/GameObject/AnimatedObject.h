@@ -1,4 +1,3 @@
-#pragma once
 #ifndef _ANIMATEDOBJECT_h
 #define _ANIMATEDOBJECT_h
 #include <GameObject/GameObject.h>

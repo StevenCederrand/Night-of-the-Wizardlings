@@ -37,11 +37,9 @@ public:
 	NetworkPlayers& getNetworkPlayersREF();
 	NetworkSpells& getNetworkSpellsREF();
 
-
-
-	const bool& doneRefreshingServerList() const;
-	const bool& isInitialized() const;
+	const bool doneRefreshingServerList() const;
 	const bool doesServerExist(const unsigned int& ID) const;
+	const bool& isInitialized() const;
 	const bool& isConnectedToSever() const;
 	const bool& connectionFailed() const;
 

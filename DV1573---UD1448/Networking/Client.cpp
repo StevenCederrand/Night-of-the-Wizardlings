@@ -573,7 +573,7 @@ void Client::refreshServerList()
 	findAllServerAddresses();
 }
 
-const bool& Client::doneRefreshingServerList() const
+const bool Client::doneRefreshingServerList() const
 {
 	return !m_isRefreshingServerList;
 }

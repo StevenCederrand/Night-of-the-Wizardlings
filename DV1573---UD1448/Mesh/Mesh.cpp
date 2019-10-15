@@ -45,6 +45,16 @@ void Mesh::setUpMesh(std::vector<Vertex2> vertices, std::vector<Face> faces)
 	m_faces = faces;
 }
 
+void Mesh::loadMesh(std::string fileName)
+{
+	BGLoader tempLoader;	// The file loader
+	tempLoader.LoadMesh(MESHPATH + fileName);
+
+	saveFilePath(tempLoader.GetFileName(), 0);
+	nameMesh(tempLoader.GetMeshName());
+	setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
+}
+
 void Mesh::nameMesh(std::string name)
 {
 	m_name = name;

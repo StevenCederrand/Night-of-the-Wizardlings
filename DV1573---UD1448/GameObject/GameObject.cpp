@@ -186,13 +186,24 @@ void GameObject::translate(const glm::vec3& translationVector)
 
 const Transform GameObject::getTransform() const
 {
-	Mesh* mesh = MeshMap::getInstance()->getMesh(m_meshes[0].name);
+	Mesh* mesh = nullptr;
+	if (m_meshes.size() > 0)
+		mesh = MeshMap::getInstance()->getMesh(m_meshes[0].name);
 	
 	// Adds the inherited transforms together to get the world position of a mesh
 	Transform world_transform;
-	world_transform.position = m_transform.position + m_meshes[0].transform.position + mesh->getTransform().position;
-	world_transform.rotation = m_transform.rotation + m_meshes[0].transform.rotation +  mesh->getTransform().rotation;
-	world_transform.scale = m_transform.scale * m_meshes[0].transform.scale * mesh->getTransform().scale;
+	if (mesh)
+	{
+		world_transform.position = m_transform.position + m_meshes[0].transform.position + mesh->getTransform().position;
+		world_transform.rotation = m_transform.rotation + m_meshes[0].transform.rotation +  mesh->getTransform().rotation;
+		world_transform.scale = m_transform.scale * m_meshes[0].transform.scale * mesh->getTransform().scale;
+	}
+	else
+	{
+		world_transform.position = m_transform.position;
+		world_transform.rotation = m_transform.rotation;
+		world_transform.scale = m_transform.scale;
+	}
 
 	return world_transform;
 }

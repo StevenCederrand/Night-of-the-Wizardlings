@@ -5,18 +5,21 @@
 #include <Spells/AttackSpell.h>
 #include <Spells/EnhanceAttackSpell.h>
 #include "SpellTypes.h"
-
-
+#include <Spells/Spells.h>
 
 
 class SpellHandler
 {
 public:
-	SpellHandler(glm::vec3 playerPosition, glm::vec3 directionVector);
+	SpellHandler();
+	void initAttackSpell();
 	~SpellHandler();
-	void createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector, SPELL_TYPE type);
+	void createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SPELL_TYPE type);
+
 	void spellUpdate(float deltaTime);
-	void spellCooldown(float deltaTime);
+	const AttackSpellBase& getAttackSpellBase() const { return *attackBase; }
+	const Spell& getSpell(int index) const { return *spells[index]; }
+	const std::vector<Spell*>& getSpells() const { return spells; }
 	void renderSpell();
 
 private:
@@ -24,12 +27,12 @@ private:
 
 private:
 
-	std::vector<AttackSpell> normalSpell;
-	AttackSpell* tempSpell;
-	std::vector<EnhanceAttackSpell> enhanceAttackSpell;
-	EnhanceAttackSpell* tempEnhanceAttackSpell;
+	std::vector<Spell*> spells;
 
-	glm::vec3 directionVector;
-	glm::vec3 spellPos;
+	std::vector<EnhanceAttackSpell> enhanceAttackSpell;
+
+	// The base for all basic attack spells
+	AttackSpellBase* attackBase;
+
 
 };

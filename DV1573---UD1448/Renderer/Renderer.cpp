@@ -407,23 +407,26 @@ void Renderer::render() {
 
 }
 
-void Renderer::renderSpell(const GameObject& gameObject) {
+
+void Renderer::renderSpell(const AttackSpellBase* spellBase) {
 	
-	Mesh* meshRef = MeshMap::getInstance()->getMesh(gameObject.getMeshName(0));
-	const Transform meshTransform = gameObject.getTransform();
-
+	Mesh* meshRef = spellBase->m_mesh;
 	glBindVertexArray(meshRef->getBuffers().vao);
+	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(spellBase->m_material);
 
-	glm::mat4 modelMatrix = glm::mat4(1.0f);
-	modelMatrix = glm::translate(modelMatrix, meshTransform.position);
-	modelMatrix = glm::scale(modelMatrix, meshTransform.scale);
-	modelMatrix *= glm::mat4_cast(meshTransform.rotation);
+	for (int i = 0; i < m_spells.size(); i++)
+	{
+		const Transform meshTransform = m_spells[i]->getTransform();
+		glm::mat4 modelMatrix = glm::mat4(1.0f);
+		modelMatrix = glm::translate(modelMatrix, meshTransform.position);
+		modelMatrix = glm::scale(modelMatrix, meshTransform.scale);
+		modelMatrix *= glm::mat4_cast(meshTransform.rotation);
+		bindMatrixes(BASIC_FORWARD);
+		ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
 
-	//Set matrices TODO: function exists for this, evaluate what to keep
-	bindMatrixes(BASIC_FORWARD);
-	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
-
-	glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+		glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+		
+	}
 
 	glBindVertexArray(0);
 }

@@ -1,6 +1,7 @@
 #ifndef _MESH_h
 #define _MESH_h
 #include <Pch/Pch.h>
+#include <Loader/BGLoader.h>
 
 class Mesh
 {
@@ -28,6 +29,7 @@ public:
 
 	void setUpMesh(std::vector<Vertex> vertices, std::vector<Face> faces);
 	void setUpMesh(std::vector<Vertex2> vertices, std::vector<Face> faces);
+	void loadMesh(std::string fileName);
 	void nameMesh(std::string name);
 	void saveFilePath(std::string name, int index);
 	void setUpBuffers();

@@ -12,7 +12,7 @@ PlayState::PlayState()
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
 	Renderer::getInstance();
 	m_camera = new Camera();
-	m_player = new Player(m_bPhysics, "Player", glm::vec3(0.0f, 1.8f, 0.0f), m_camera);
+	m_player = new Player(m_bPhysics, "Player", glm::vec3(0.0f, 1.8f, 0.0f), m_camera, &m_spellHandler);
 
 	Renderer::getInstance()->setupCamera(m_player->getCamera());
 
@@ -43,20 +43,20 @@ PlayState::PlayState()
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -1.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 	
-	////Animated rectangle
-	m_objects.push_back(new AnimatedObject("TestRectangle"));
-	m_objects[m_objects.size() - 1]->loadMesh("TestRectangle.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -4.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
-
-	//Animated goblino
-	m_objects.push_back(new AnimatedObject("TestGoblino"));
-	m_objects[m_objects.size() - 1]->loadMesh("ElGoblino.mesh");
-	Transform tempTransform;
-	tempTransform.scale = glm::vec3(0.03f, 0.03f, 0.03f);
-	tempTransform.position = glm::vec3(-3.0f, 0.0f, 3.0f);
-	m_objects[m_objects.size() - 1]->setTransform(tempTransform);
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
+	//////Animated rectangle
+	//m_objects.push_back(new AnimatedObject("TestRectangle"));
+	//m_objects[m_objects.size() - 1]->loadMesh("TestRectangle.mesh");
+	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -4.0f));
+	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
+	//
+	////Animated goblino
+	//m_objects.push_back(new AnimatedObject("TestGoblino"));
+	//m_objects[m_objects.size() - 1]->loadMesh("ElGoblino.mesh");
+	//Transform tempTransform;
+	//tempTransform.scale = glm::vec3(0.03f, 0.03f, 0.03f);
+	//tempTransform.position = glm::vec3(-3.0f, 0.0f, 3.0f);
+	//m_objects[m_objects.size() - 1]->setTransform(tempTransform);
+	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
 
 
 
@@ -99,6 +99,7 @@ void PlayState::update(float dt)
 	Client::getInstance()->updateNetworkEntities(dt);
 	m_bPhysics->update(dt);
 	Renderer::getInstance()->update(dt);
+	m_spellHandler.spellUpdate(dt);
 	m_player->update(dt);
 	for (GameObject* object : m_objects)
 	{
@@ -117,48 +118,7 @@ void PlayState::render()
 	//Move the render skybox to be a private renderer function
 	Renderer::getInstance()->renderSkybox(*m_skybox);
 	Renderer::getInstance()->render();
-	m_player->renderSpell();
-//<<<<<<< HEAD
-//
-//	// Renderer networked players
-//	auto& networkedPlayerList = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
-//
-//	for (size_t i = 0; i < networkedPlayerList.size(); i++)
-//	{
-//		if (networkedPlayerList[i]->gameobject == nullptr) continue;
-//
-//		for (int j = 0; j < networkedPlayerList[i]->gameobject->getMeshesCount(); j++)
-//		{
-//			networkedPlayerList[i]->gameobject->bindMaterialToShader("Basic_Forward", j);
-//			Renderer::getInstance()->render(*networkedPlayerList[i]->gameobject, j);
-//
-//		}	
-//	}
-//
-//	// Renderer networked Spells
-//	auto& networkedSpellList = Client::getInstance()->getNetworkSpellsREF().getSpellEntitiesREF();
-//
-//	for (size_t i = 0; i < networkedSpellList.size(); i++)
-//	{
-//		if (networkedSpellList[i].tempObject == nullptr) continue;
-//
-//		for (int j = 0; j < networkedSpellList[i].tempObject->getMeshesCount(); j++)
-//		{
-//			networkedSpellList[i].tempObject->bindMaterialToShader("Basic_Forward", j);
-//			Renderer::getInstance()->render(*networkedSpellList[i].tempObject, j);
-//
-//		}
-//	}
-//
-//
-//	for (GameObject* object : m_objects)
-//	{
-//		for (int i = 0; i < object->getMeshesCount(); i++)
-//		{
-//			object->bindMaterialToShader("Basic_Forward", i);
-//			Renderer::getInstance()->render(*object, i);
-//		}
-//	}
+	m_spellHandler.renderSpell();
 
 }
 

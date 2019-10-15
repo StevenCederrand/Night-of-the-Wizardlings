@@ -30,7 +30,6 @@
     <ClCompile Include="Networking\NetworkPlayers.cpp" />
     <ClCompile Include="Renderer\SkyBox.cpp" />
     <ClCompile Include="Mesh\MeshMap.cpp" />
-    <ClCompile Include="Spells\EnhanceAttackSpell.cpp" />
     <ClCompile Include="Spells\SpellHandler.cpp" />
     <ClCompile Include="System\BulletPhysics.cpp" />
     <ClCompile Include="Networking\NetworkSpells.cpp" />
@@ -76,7 +75,6 @@
     <ClInclude Include="Mesh\SkeletonMap.h" />
     <ClInclude Include="Mesh\AnimationMap.h" />
     <ClInclude Include="GameObject\AnimatedObject.h" />
-    <ClInclude Include="Spells\EnhanceAttackSpell.h" />
     <ClInclude Include="Spells\SpellHandler.h" />
     <ClInclude Include="System\BulletPhysics.h" />
     <ClInclude Include="Networking\NetworkSpells.h" />
