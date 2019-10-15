@@ -227,6 +227,34 @@ void Client::processAndHandlePackets()
 
 		}
 		break;
+
+		case SPELL_ALL_EXISTING_SPELLS:
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			size_t nrOfSpellsInGame;
+			bsIn.Read(nrOfSpellsInGame);
+			logTrace("[CLIENT] Got packet with all the existing spells");
+			for (size_t i = 0; i < nrOfSpellsInGame; i++) {
+				SpellPacket spellPacket;
+				spellPacket.Serialize(false, bsIn);
+				NetworkSpells::SpellEntity se;
+
+				se.spellData = spellPacket;
+				se.flag = NetGlobals::THREAD_FLAG::ADD;
+				se.gameobject = nullptr;
+
+				{
+					std::lock_guard<std::mutex> lockGuard(m_networkSpells.m_mutex);
+					m_networkSpells.m_entities.emplace_back(se);
+				}
+
+				m_activeSpells.emplace_back(spellPacket);
+
+			}
+		}
+
+		break;
+
 		case PLAYER_JOINED:
 		{
 			/* This is called whenever a player is joining the server, wheter it's your server or someone else's.

@@ -137,6 +137,27 @@ void LocalServer::processAndHandlePackets()
 			}
 			m_serverPeer->Send(&stream_otherPlayers, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->systemAddress, false);
 
+			// Send info about all existing spells to the new player
+			RakNet::BitStream stream_existingSpells;
+			stream_existingSpells.Write((RakNet::MessageID)SPELL_ALL_EXISTING_SPELLS);
+
+			size_t totalNumSpells = 0;
+			for (auto const& item : m_activeSpells)
+			{
+				totalNumSpells += item.second.size();
+			}
+			stream_existingSpells.Write(totalNumSpells);
+
+			for (auto& item : m_activeSpells)
+			{
+				auto& vec = item.second;
+
+				for (size_t i = 0; i < vec.size(); i++) {
+					vec[i].Serialize(true, stream_existingSpells);
+				}
+			}
+			m_serverPeer->Send(&stream_existingSpells, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->systemAddress, false);
+
 			// Create the new player and assign it the correct GUID
 			PlayerPacket player;
 			player.guid = packet->guid;
@@ -162,6 +183,24 @@ void LocalServer::processAndHandlePackets()
 		{
 			bool playerWasAccepted = handleLostPlayer(*packet, bsIn);
 			if (playerWasAccepted) {
+				auto item = m_activeSpells.find(packet->guid.g);
+
+				if (item != m_activeSpells.end()) {
+					//logTrace("Going to delete spell: {0}", spellPacket.toString());
+					auto& spellVec = item._Ptr->_Myval.second;
+
+					for (size_t i = 0; i < spellVec.size(); i++) {
+						RakNet::BitStream stream;
+						stream.Write((RakNet::MessageID)SPELL_DESTROY);
+						
+						spellVec[i].Serialize(true, stream);
+
+						sendStreamToAllClients(stream);
+					}
+
+					m_activeSpells.erase(item);
+				}
+
 				logTrace("[SERVER] Player disconnected with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
 				m_serverInfo.connectedPlayers--;
 				m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
