@@ -6,12 +6,14 @@ GameObject::GameObject()
 {
 	m_objectName = "Empty";
 	type = 0;
+	m_bPhysics = nullptr;
 }
 
 GameObject::GameObject(std::string objectName)
 {
 	m_objectName = objectName;
 	type = 0;
+	m_bPhysics = nullptr;
 }
 
 GameObject::~GameObject()
@@ -143,6 +145,40 @@ void GameObject::loadMesh(std::string fileName)
 	}
 
 	tempLoader.Unload();
+}
+void GameObject::genBullet(BulletPhysics* bPhysics)
+{
+	if (!m_bPhysics)
+		m_bPhysics = bPhysics;
+
+	// TEMPLATE
+	//m_bPhysics->createObject(obj, 0.0f, glm::vec3(0.0f, -1.5f, 0.0f), glm::vec3(100.0f, 2.0f, 100.0f), 1.0);
+
+	Transform temp = getTransform();
+
+	MeshMap::getInstance()->getMesh(m_meshes[0].name)->getVertices()[0].position;
+
+	glm::vec3 min = m_meshes[0].name()[0].position;
+
+	glm::vec3 max = entityMesh.GetVertices()[0].position;
+
+	for (int i = 1; i < entityMesh.GetVertices().size(); i++)
+	{
+		min.x = fminf(entityMesh.GetVertices()[i].position.x, min.x);
+		min.y = fminf(entityMesh.GetVertices()[i].position.y, min.y);
+		min.z = fminf(entityMesh.GetVertices()[i].position.z, min.z);
+
+		max.x = fmaxf(entityMesh.GetVertices()[i].position.x, max.x);
+		max.y = fmaxf(entityMesh.GetVertices()[i].position.y, max.y);
+		max.z = fmaxf(entityMesh.GetVertices()[i].position.z, max.z);
+	}
+
+	glm::vec3 center = glm::vec3((min + max) * 0.5f);
+	glm::vec3 halfSize = glm::vec3((max - min) * 0.5f);
+
+	m_bPhysics->createObject(box, 0.0f, temp.position,
+		glm::vec3(temp.scale.x / 2, temp.scale.y, temp.scale.y / 2));
+	
 }
 //Update each individual modelmatrix for the meshes
 void GameObject::updateModelMatrix() {

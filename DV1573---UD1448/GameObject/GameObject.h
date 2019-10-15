@@ -4,6 +4,7 @@
 #include <Mesh/Mesh.h>
 #include <GFX/MaterialMap.h>
 #include <Mesh/Mesh.h>
+#include <System/BulletPhysics.h>
 
 class GameObject {
 public:
@@ -15,6 +16,7 @@ public:
 
 	//Loads all the meshes from the file into the GameObject
 	void loadMesh(std::string fileName);
+	void genBullet(BulletPhysics* bPhysics);
 	//Bind all of the material values to the shader, i.e colors
 	void bindMaterialToShader(std::string shaderName);
 	void bindMaterialToShader(std::string shaderName, int matIndex);
@@ -47,6 +49,7 @@ private:
 
 	std::string m_objectName;
 	Transform m_transform;
+	BulletPhysics* m_bPhysics;
 
 protected:
 	std::vector<glm::mat4> m_modelMatrixes;
