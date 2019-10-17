@@ -5,9 +5,8 @@
 #include <Spells/EnhanceAttackSpell.h>
 #include <Spells/SpellHandler.h>
 
-#include <System/BulletPhysics.h>
-
-
+#include "System/BulletPhysics.h"
+class Client;
 
 class Player
 {
@@ -56,7 +55,7 @@ private:
 	//removed in bulletPhysics.cpp
 	BulletPhysics* m_bp;
 	btKinematicCharacterController* m_character;
-
+	Client* m_client;
 
 
 };

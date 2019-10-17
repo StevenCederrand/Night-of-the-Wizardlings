@@ -4,7 +4,6 @@
 //Name, Pos, Direction, Speed, TravelTime
 Spell::Spell(glm::vec3 pos, glm::vec3 m_direction)
 {
-
 	m_type = -1;
 	setWorldPosition(pos + m_direction);
 
@@ -36,3 +35,4 @@ void Spell::setDirection(glm::vec3 direction)
 {
 	m_direction = direction;
 }
+

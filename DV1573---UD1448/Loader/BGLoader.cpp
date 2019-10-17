@@ -168,7 +168,7 @@ void BGLoader::BGFormatData()
 			bggMeshes[meshId].bggSkeleton.name = skeletonsD[meshId].joint[0].name;
 			bggMeshes[meshId].bggSkeleton.joints.resize(loaderMesh[meshId].skeleton.jointCount);
 
-			for (int j = 0; j < bggMeshes[meshId].bggSkeleton.joints.size(); j++)
+			for (size_t j = 0; j < bggMeshes[meshId].bggSkeleton.joints.size(); j++)
 			{
 				bggMeshes[meshId].bggSkeleton.joints[j].name = skeletonsD[meshId].joint[j].name;
 				bggMeshes[meshId].bggSkeleton.joints[j].invBindPose = glm::make_mat4(skeletonsD[meshId].joint[j].invBindPose);
@@ -180,7 +180,7 @@ void BGLoader::BGFormatData()
 		}
 
 		// Animation
-		for (int i = 0; i < bggMeshes[meshId].bggAnimation.size(); i++)
+		for (size_t i = 0; i < bggMeshes[meshId].bggAnimation.size(); i++)
 		{
 			Animation& ani		= bggMeshes[meshId].bggAnimation[i];
 			ani.name			= animationsD[meshId].animations[0].ani.name;
@@ -190,7 +190,7 @@ void BGLoader::BGFormatData()
 			ani.keyframeLast	= animationsD[meshId].animations[0].ani.keyframeLast;
 
 			ani.keyframes.resize(animationsD[meshId].animations[0].ani.keyframeCount);
-			for (int k = 0; k < ani.keyframes.size(); k++)
+			for (size_t k = 0; k < ani.keyframes.size(); k++)
 			{
 				ani.keyframes[k].id = animationsD[meshId].animations[0].keyFrames[k].key.id;
 

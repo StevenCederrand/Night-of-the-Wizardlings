@@ -11,6 +11,8 @@ public:
 	float getTravelTime() { return m_travelTime; }
 	glm::vec3 getDirection() { return m_direction; }
 	const uint64_t& getUniqueID() const;
+	
+	//----Set-----//
 
 	void setUniqueID(const uint64_t& uniqueID);
 	void setTravelTime(float m_travelTime);
@@ -21,11 +23,10 @@ public:
 	virtual void updateRigidbody(float deltaTime, btRigidBody* body) = 0;
 
 private:
-	
 	uint64_t m_uniqueID = 0;
 	float m_travelTime;
 	glm::vec3 m_direction;
-	
+
 protected:
 	int m_type;
 };

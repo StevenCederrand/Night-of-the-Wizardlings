@@ -6,31 +6,24 @@
 
 class NetworkPlayers {
 public:
-	enum FLAG {
-		REMOVE,
-		ADD,
-		NONE
-	};
-
 	struct PlayerEntity {
 		PlayerPacket data;
-		GameObject* gameobject = nullptr; // This is created on the MAIN thread!
-		FLAG flag = FLAG::NONE;
+		GameObject* gameobject = nullptr;
+		NetGlobals::THREAD_FLAG flag = NetGlobals::THREAD_FLAG::NONE;
 
 	};
-
 
 	NetworkPlayers();
 	~NetworkPlayers();
 
 	void update(const float& dt);
-	std::vector<PlayerEntity*>& getPlayersREF();
+	std::vector<PlayerEntity>& getPlayersREF();
 	
 
 private:
 	friend class Client;
 	std::mutex m_mutex;
-	std::vector<PlayerEntity*> m_players;
+	std::vector<PlayerEntity> m_players;
 	float m_lerpSpeed = 15.f;
 
 };

@@ -3,6 +3,7 @@
 #include <Networking/Client.h>
 #include <Loader/BGLoader.h>
 
+
 SpellHandler::SpellHandler(BulletPhysics * bp)
 {
 	attackBase = nullptr;
@@ -60,6 +61,7 @@ void SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SP
 		logTrace("Created spell");
 
 
+
 		//bullet create
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.x);
 		m_BulletNormalSpell.emplace_back(
@@ -68,8 +70,6 @@ void SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SP
 		int size = m_BulletNormalSpell.size();
 		m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 		m_BulletNormalSpell.at(size - 1)->setUserPointer(m_BulletNormalSpell.at(size - 1));
-
-
 	}
 
 	if (type == ENHANCEATTACK)
@@ -80,13 +80,17 @@ void SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SP
 
 void SpellHandler::spellUpdate(float deltaTime)
 {
+
 	for (int i = 0; i < spells.size(); i++)
 	{
 		spells[i]->update(deltaTime);
 		spells[i]->updateRigidbody(deltaTime, m_BulletNormalSpell.at(i));
 
+		Client::getInstance()->updateSpellOnNetwork(*spells[i]);
+		
 		if (spells[i]->getTravelTime() <= 0)
 		{
+			Client::getInstance()->destroySpellOnNetwork(*spells[i]);
 			delete spells[i];
 			spells.erase(spells.begin() + i);
 			logTrace("Deleted spell");
@@ -102,12 +106,17 @@ void SpellHandler::renderSpell()
 {
 	ShaderMap::getInstance()->useByName(BASIC_FORWARD);
 	Renderer::getInstance()->renderSpell(attackBase); //Why is object null??
+}
+
+const uint64_t SpellHandler::getUniqueID()
+{
+	// Starts at 1 because 0 is a "Undefined" id
+	static uint64_t id = 1;
 	
-	//for (EnhanceAttackSpell object : enhanceAttackSpell)
-	//{
-	//	object.bindMaterialToShader("Basic_Forward");
-	//	Renderer::getInstance()->renderSpell(object);
-	//}
+	if (id == UINT64_MAX)
+		id = 1;
+	
+	return id++;
 }
 
 void SpellHandler::spellCollisionCheck()
@@ -146,8 +155,8 @@ void SpellHandler::spellCollisionCheck()
 
 	for (size_t i = 0; i < list.size(); i++)
 	{
-		glm::vec3 playerPos = list[i]->data.position;
-		list[i]->data.rotation;
+		glm::vec3 playerPos = list[i].data.position;
+		list[i].data.rotation;
 
 		//create the axis and rotate them
 		glm::vec3 xAxis = glm::vec3(1.0f, 0.0f, 0.0f);
@@ -155,9 +164,9 @@ void SpellHandler::spellCollisionCheck()
 		glm::vec3 zAxis = glm::vec3(0.0f, 0.0f, 1.0f);
 		std::vector<glm::vec3> axis;
 
-		glm::rotateX(xAxis, list[i]->data.rotation.x);
-		glm::rotateY(xAxis, list[i]->data.rotation.y);
-		glm::rotateZ(xAxis, list[i]->data.rotation.z);
+		glm::rotateX(xAxis, list[i].data.rotation.x);
+		glm::rotateY(xAxis, list[i].data.rotation.y);
+		glm::rotateZ(xAxis, list[i].data.rotation.z);
 
 		axis.emplace_back(xAxis);
 		axis.emplace_back(yAxis);

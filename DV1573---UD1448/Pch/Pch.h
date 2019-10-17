@@ -29,6 +29,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/common.hpp>
 #include "glm/ext.hpp"
+#include <System/Lerp.h>
 
 #include "System/Log.h"
 //Raknet
@@ -38,6 +39,8 @@
 #include <raknet/RakSleep.h>
 #include <raknet/GetTime.h>
 #include <raknet/BitStream.h>
+#include <RakNet/NetworkIDObject.h>
+#include <RakNet/NetworkIDManager.h>
 
 #include <Networking/NetworkGlobals.h>
 #include <Networking/NetworkPackets.h>

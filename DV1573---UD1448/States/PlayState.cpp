@@ -7,10 +7,11 @@
 PlayState::PlayState()
 {
 	m_bPhysics = new BulletPhysics(-10);
+	m_spellHandler = new SpellHandler(m_bPhysics);
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
 	Renderer::getInstance();
 	m_camera = new Camera();
-	m_player = new Player(m_bPhysics, "Player", glm::vec3(0.0f, 1.8f, 0.0f), m_camera, &m_spellHandler);
+	m_player = new Player(m_bPhysics, "Player", glm::vec3(0.0f, 1.8f, 0.0f), m_camera, m_spellHandler);
 
 	Renderer::getInstance()->setupCamera(m_player->getCamera());
 
@@ -61,7 +62,7 @@ PlayState::PlayState()
 	m_bPhysics->createObject(obj, 0.0f, glm::vec3(0.0f, -1.5f, 0.0f), glm::vec3(100.0f, 2.0f, 100.0f), 1.0);
 	gContactAddedCallback = callbackFunc;
 
-	for (int i = 1; i < m_objects.size(); i++)
+	for (size_t i = 1; i < m_objects.size(); i++)
 	{
 		Transform temp = m_objects.at(i)->getTransform();
 
@@ -79,6 +80,7 @@ PlayState::~PlayState()
 	delete m_skybox;
 	delete m_player;
 	delete m_bPhysics;
+	delete m_spellHandler;
 
 	MaterialMap::getInstance()->destroy();
 	MeshMap::getInstance()->destroy();
@@ -88,10 +90,10 @@ PlayState::~PlayState()
 
 void PlayState::update(float dt)
 {	
-	Client::getInstance()->updateNetworkedPlayers(dt);
+	Client::getInstance()->updateNetworkEntities(dt);
 	m_bPhysics->update(dt);
 	Renderer::getInstance()->update(dt);
-	m_spellHandler.spellUpdate(dt);
+	m_spellHandler->spellUpdate(dt);
 	m_player->update(dt);
 
 	for (GameObject* object : m_objects)
@@ -100,6 +102,10 @@ void PlayState::update(float dt)
 	}
 
 
+	if (Input::isKeyPressed(GLFW_KEY_P)) {
+		auto& list = Client::getInstance()->getNetworkSpells();
+		logTrace("Active spells on client: {0}", list.size());
+	}
 }
 
 void PlayState::render()
@@ -107,7 +113,7 @@ void PlayState::render()
 	//Move the render skybox to be a private renderer function
 	Renderer::getInstance()->renderSkybox(*m_skybox);
 	Renderer::getInstance()->render();
-	m_spellHandler.renderSpell();
+	m_spellHandler->renderSpell();
 
 }
 

@@ -10,7 +10,6 @@
 
 //enum TYPE { NORMALATTACK, ENHANCEATTACK };
 
-
 class SpellHandler
 {
 public:
@@ -26,7 +25,12 @@ public:
 	void renderSpell();
 
 private:
+	const uint64_t getUniqueID();
+
+private:
+
 	std::vector<Spell*> spells;
+
 	std::vector<EnhanceAttackSpell> enhanceAttackSpell;
 
 	// The base for all basic attack spells

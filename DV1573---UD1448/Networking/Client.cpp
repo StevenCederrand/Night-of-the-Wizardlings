@@ -19,6 +19,7 @@ Client* Client::getInstance()
 void Client::startup()
 {
 	if (!m_initialized) {
+		m_spellQueue.reserve(250);
 		m_connectedPlayers.reserve(NetGlobals::MaximumConnections);
 		m_clientPeer = RakNet::RakPeerInterface::GetInstance();
 		m_clientPeer->Startup(1, &RakNet::SocketDescriptor(), 1);
@@ -30,21 +31,18 @@ void Client::destroy()
 {
 	if (m_initialized) {
 		
-		// In it's own scope	
+		// In it's own scope
 		{
 			std::lock_guard<std::mutex> lockGuard(m_cleanupMutex);
 			m_shutdownThread = true;
 		}
 
-		logTrace("Waiting for client thread to finish...");
-		if(m_processThread.joinable())
+		if (m_processThread.joinable()) {
 			m_processThread.join();
-		logTrace("Client process thread shutdown");
-		
+		}
+
 		m_initialized = false;
 		RakNet::RakPeerInterface::DestroyInstance(m_clientPeer);
-
-
 	}
 }
 
@@ -56,10 +54,11 @@ void Client::connectToAnotherServer(const ServerInfo& server)
 	m_serverOwner = false;
 
 	bool status = m_clientPeer->Connect(server.serverAddress.ToString(false), server.serverAddress.GetPort(), 0, 0, 0) == RakNet::CONNECTION_ATTEMPT_STARTED;
-	assert((status == true, "Client connecting to {0} failed!", server.serverName));
+	assert((status == true, "[CLIENT] Client connecting to {0} failed!", server.serverName));
 
-	if (m_processThread.joinable())
+	if (m_processThread.joinable()) {
 		m_processThread.join();
+	}
 
 	m_clientPeer->SetTimeoutTime(NetGlobals::timeoutTimeMS, server.serverAddress);
 	m_processThread = std::thread(&Client::ThreadedUpdate, this);
@@ -76,9 +75,9 @@ void Client::connectToMyServer()
 	bool status = m_clientPeer->Connect("localhost", NetGlobals::ServerPort, 0, 0, 0) == RakNet::CONNECTION_ATTEMPT_STARTED;
 	assert((status == true, "Client connecting to localhost failed!"));
 	
-	if (m_processThread.joinable())
+	if (m_processThread.joinable()) {
 		m_processThread.join();
-
+	}
 	
 	m_processThread = std::thread(&Client::ThreadedUpdate, this);
 }
@@ -86,29 +85,34 @@ void Client::connectToMyServer()
 void Client::ThreadedUpdate()
 {
 	bool clientRunning = true;
-
+	
 	while (clientRunning)
 	{	
 		
 		processAndHandlePackets();
+		/* Sends my data (such as my position, my spells) to the server and to 
+		   all the other clients */
 		updateDataOnServer();
 		
-		// Scope
+		/* Checking for cleanups, it's in its own scope due to the lock guard
+		   releases the mutex upon destruction. */ 
 		{
 			std::lock_guard<std::mutex> lockGuard(m_cleanupMutex);
 			if (m_shutdownThread == true)
 				clientRunning = false;
 		}
-	
+		
+		/* Put the thread to sleep, the tick rate is in NetGlobals class */
 		RakSleep(NetGlobals::threadSleepTime);
 	}
 
 	// Client has been told to shutdown here so send a disconnection packet if you're still connected
 	if (m_isConnectedToAnServer)
 	{
+		logTrace("[CLIENT] Sent a disconnect package to server :)");
 		RakNet::BitStream stream;
 		stream.Write((RakNet::MessageID)ID_DISCONNECTION_NOTIFICATION);
-		m_clientPeer->Send(&stream,IMMEDIATE_PRIORITY , RELIABLE_ORDERED, 0,m_serverAddress, false);
+		m_clientPeer->Send(&stream, IMMEDIATE_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
 		RakSleep(250);
 	}
 
@@ -116,22 +120,21 @@ void Client::ThreadedUpdate()
 
 void Client::processAndHandlePackets()
 {
+	/* This is the meat of the client, processing every packet that is coming in and sending packets to the server respectively */
+
 	for (RakNet::Packet* packet = m_clientPeer->Receive(); packet; m_clientPeer->DeallocatePacket(packet), packet = m_clientPeer->Receive())
 	{
-
-		RakNet::BitStream bsOut;
+		/* Construct the bitstream with the data from the packet */
 		RakNet::BitStream bsIn(packet->data, packet->length, false);
 
+		/* Get the ID of the packet so we know which packet it is */
 		auto packetID = getPacketID(packet);
 
 		switch (packetID)
 		{
 		case ID_CONNECTION_REQUEST_ACCEPTED:
 		{
-			logTrace("[CLIENT] Connected to server.\n");
-			m_serverAddress = packet->systemAddress;
-			m_isConnectedToAnServer = true;
-			m_playerData.guid = m_clientPeer->GetMyGUID();
+			logTrace("[CLIENT] Connected to server but not sure if actually accepted to the server.\n");
 		}
 		break;
 
@@ -178,8 +181,23 @@ void Client::processAndHandlePackets()
 			m_isConnectedToAnServer = false;
 			m_shutdownThread = true;
 			break;
+
+		case PLAYER_ACCEPTED_TO_SERVER:
+		{
+			/* The server accepted you which means that the server had room for you & wasn't in session */
+			logTrace("[CLIENT] Connected and accepted by server! Welcome!.\n");
+			m_serverAddress = packet->systemAddress;
+			m_isConnectedToAnServer = true;
+			m_myPlayerDataPacket.guid = m_clientPeer->GetMyGUID();
+		}
+			break;
+
 		case INFO_ABOUT_OTHER_PLAYERS:
 		{
+			/* You will get this package upon joining and getting accepted to a server. 
+			   this is information or "PlayerPackets" of every player that already was present 
+			   on the server before you. */
+
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			size_t nrOfConnectedPlayers;
 			bsIn.Read(nrOfConnectedPlayers);
@@ -189,21 +207,60 @@ void Client::processAndHandlePackets()
 				player.Serialize(false, bsIn);
 				m_connectedPlayers.emplace_back(player);
 
-				std::lock_guard<std::mutex> lockGuard(m_playerEntities.m_mutex);
-				NetworkPlayers::PlayerEntity* pE = new NetworkPlayers::PlayerEntity();
+				NetworkPlayers::PlayerEntity pE;
 
-				pE->data = player;
-				pE->flag = NetworkPlayers::FLAG::ADD;
-				pE->gameobject = nullptr;
-				m_playerEntities.m_players.emplace_back(pE);
+				pE.data = player;
+				pE.flag = NetGlobals::THREAD_FLAG::ADD;
+				pE.gameobject = nullptr;
+				
+				/* Thread lock guard because this needs to be synced with the main game thread because
+				   this thread will add data to a list that is created and present in the main thread.
 
+				   it's in its own scope because the mutex is released upon destruction
+				   (whenever the lock guard goes out of scope.). This will make it synced &
+				   avoid deadlocks. */
+				{
+					std::lock_guard<std::mutex> lockGuard(NetGlobals::gameSyncMutex);
+					m_networkPlayers.m_players.emplace_back(pE);
+				}
 			}
-			printAllConnectedPlayers();
 
 		}
 		break;
+
+		case SPELL_ALL_EXISTING_SPELLS:
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			size_t nrOfSpellsInGame;
+			bsIn.Read(nrOfSpellsInGame);
+			logTrace("[CLIENT] Got packet with all the existing spells");
+			for (size_t i = 0; i < nrOfSpellsInGame; i++) {
+				SpellPacket spellPacket;
+				spellPacket.Serialize(false, bsIn);
+				NetworkSpells::SpellEntity se;
+
+				se.spellData = spellPacket;
+				se.flag = NetGlobals::THREAD_FLAG::ADD;
+				se.gameobject = nullptr;
+
+				{
+					std::lock_guard<std::mutex> lockGuard(m_networkSpells.m_mutex);
+					m_networkSpells.m_entities.emplace_back(se);
+				}
+
+				m_activeSpells.emplace_back(spellPacket);
+
+			}
+		}
+
+		break;
+
 		case PLAYER_JOINED:
 		{
+			/* This is called whenever a player is joining the server, wheter it's your server or someone else's.
+			   This works just as "INFO_ABOUT_OTHER_PLAYERS". The reason why there is two different ID's that does the same
+			   thing is that, whenever a client joins a server he/she needs to know about ALL the players that are present on the server before
+			   doing anything else. This one is just called whenever a player joins the server. */
 			logTrace("New player joined!");
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			PlayerPacket player;
@@ -211,70 +268,64 @@ void Client::processAndHandlePackets()
 			m_connectedPlayers.emplace_back(player);
 
 
-			std::lock_guard<std::mutex> lockGuard(m_playerEntities.m_mutex);
-			NetworkPlayers::PlayerEntity* pE = new NetworkPlayers::PlayerEntity();
+			std::lock_guard<std::mutex> lockGuard(m_networkPlayers.m_mutex);
+			NetworkPlayers::PlayerEntity pE;
 
-			pE->data = player;
-			pE->flag = NetworkPlayers::FLAG::ADD;
-			pE->gameobject = nullptr;
-			m_playerEntities.m_players.emplace_back(pE);
-
-			printAllConnectedPlayers();
+			pE.data = player;
+			pE.flag = NetGlobals::THREAD_FLAG::ADD;
+			pE.gameobject = nullptr;
+			m_networkPlayers.m_players.emplace_back(pE);
 
 		}
 		break;
 		case PLAYER_DISCONNECTED:
 		{
+			/* Again, thread synchronization because this thread is modifying something in another thread so a lock guard is used here.
+			   This package is pretty self explanatory. It's whenever someone disconnected the server so in here the client removes 
+			   the disconnected player from the internal list & flags the main thread that the object over there should be removed and cleaned up. */
+
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			RakNet::AddressOrGUID guidOfDisconnectedPlayer;
 			bsIn.Read(guidOfDisconnectedPlayer);
-
-			bool found = false;
-			for (size_t i = 0; i < m_connectedPlayers.size() && !found; i++) {
-				if (guidOfDisconnectedPlayer == m_connectedPlayers[i].guid) {
-
-					if (m_playerEntities.m_players[i]->data.guid == guidOfDisconnectedPlayer)
-					{
-						m_playerEntities.m_players[i]->flag = NetworkPlayers::FLAG::REMOVE;
-					}
-					else
-					{
-						logError("Well shit, client thread and main thread is not synched up, so the removal of a client is not going to happen..");
-					}
-
-					m_connectedPlayers.erase(m_connectedPlayers.begin() + i);
-					found = true;
-				}
+			
+			{
+				std::lock_guard<std::mutex> lockGuard(m_networkPlayers.m_mutex);
+				NetworkPlayers::PlayerEntity* pE = findPlayerEntityInNetworkPlayers(guidOfDisconnectedPlayer);
+				if (pE != nullptr)
+					pE->flag = NetGlobals::THREAD_FLAG::REMOVE;
 			}
 
-
-			printAllConnectedPlayers();
+			removeConnectedPlayer(guidOfDisconnectedPlayer);		
 		}
 		break;
 		case PLAYER_UPDATE_PACKET:
 		{
-			//logTrace("Player data received from server");
+			
+			/* Well i also modify values here that is present on the main thread but there is no lock guard here. 
+			   The reason for that is no objects are added/removed, this is just pure information so if there is a problem 
+			   there client that is supposed to be updated isn't then it won't be a problem. It will resolve itself the next couple of updates.
+			   
+			   This problem will ONLY occur whenever someone disconnected, so this thread tries to update that player on the main thread because that client is still 
+			   present here but not on the main thread or vice versa. Over the next couple of updates/frames this problem is solved by itself. 
+			   Not sure if you can really call it a problem. */
+
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			PlayerPacket pData;
 			pData.Serialize(false, bsIn);
 
 			for (size_t i = 0; i < m_connectedPlayers.size(); i++)
 			{
-				//logTrace("GUID: {0}, Looking for guid: {1}",pData.guid.ToString(), m_connectedPlayers[i]->getData().guid.ToString());
+			
 				if (m_connectedPlayers[i].guid == pData.guid)
 				{
 					m_connectedPlayers[i] = pData;
-					/*logTrace("Updated player with GUID: {0}, new position: {1}, {2}, {3}", m_connectedPlayers[i]->m_data.guid.ToString(),
-						m_connectedPlayers[i]->m_data.position.x,
-						m_connectedPlayers[i]->m_data.position.y,
-						m_connectedPlayers[i]->m_data.position.z);*/
-
-					if (m_playerEntities.m_players[i]->data.guid == pData.guid)
+				
+					if (m_networkPlayers.m_players[i].data.guid == pData.guid)
 					{
-						m_playerEntities.m_players[i]->data = pData;
+						m_networkPlayers.m_players[i].data = pData;
 					}
 					else {
-						logError("Well fuck, now the update between the server and client is not synched up with the main thread, let's hope that this message never shows!");
+						logWarning("[CLIENT] Client skipped a update on a client due to sync problems. (Should resolve itself with time)");
 					}
 
 					break;
@@ -285,19 +336,119 @@ void Client::processAndHandlePackets()
 		break;
 		case ADMIN_PACKET:
 		{
+			/* You get this if you are the one that started the server, essentially this means that the
+			   server confirmed that you are the admin/serve creator. */
 			m_serverOwner = true;
-			logTrace("[CLIENT-ADMIN]Press E to start game!");
+			logTrace("[CLIENT-ADMIN] Press E to start game!");
 		}
 		break;
 		case SERVER_CURRENT_STATE:
 		{
+			/* Whenever the server or more specifically the admin/server creator decides to change the state of the server
+			   (for example changing the state from "Waiting for other players" to "Starting the actual game") this package is received
+			   so every client is aware of the server state change */
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			ServerStateChange stateChange;
 			stateChange.Serialize(false, bsIn);
 
-			if (stateChange.currentState == NetGlobals::ServerState::GameStarted) {
+			if (stateChange.currentState == NetGlobals::SERVER_STATE::GAME_IN_SESSION) {
 				logTrace("[SERVER->CLIENT]******** GAME STARTED ********");
 			}
+		}
+		break;
+
+		case SPELL_CREATED:
+		{
+			/* Whenever a client (that is not you) cast a spell you receive this with all the necessary information 
+			   and the same logic about the threads that is applied whenever we create/delete/update a player is also present here. */
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			SpellPacket spellPacket;
+			spellPacket.Serialize(false, bsIn);
+			NetworkSpells::SpellEntity se;
+
+			se.spellData = spellPacket;
+			se.flag = NetGlobals::THREAD_FLAG::ADD;
+			se.gameobject = nullptr;
+			
+			{
+				std::lock_guard<std::mutex> lockGuard(m_networkSpells.m_mutex);
+				m_networkSpells.m_entities.emplace_back(se);
+			}
+
+			m_activeSpells.emplace_back(spellPacket);
+			
+		}
+
+		break;
+		
+		case SPELL_UPDATE:
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			SpellPacket spellPacket;
+			spellPacket.Serialize(false, bsIn);
+			
+			for (size_t i = 0; i < m_activeSpells.size(); i++)
+			{
+				SpellPacket& activeSpell = m_activeSpells[i];
+
+				/* If the spell packet matches the creator ID and spell ID */
+				if (activeSpell.CreatorGUID == spellPacket.CreatorGUID &&
+					activeSpell.SpellID == spellPacket.SpellID)
+				{
+					/* Update the internal information about the spell */
+					activeSpell.Position = spellPacket.Position;
+					activeSpell.Rotation = spellPacket.Rotation;
+					
+					/* Get the entity on the main thread */
+					NetworkSpells::SpellEntity& spellEntity = m_networkSpells.m_entities[i];
+
+					/* If it also matches then update the values of that entity. That entity is the same one that
+					   will later on get renderer by the main thread */
+					if (spellEntity.spellData.CreatorGUID == spellPacket.CreatorGUID &&
+						spellEntity.spellData.SpellID == spellPacket.SpellID)
+					{
+						spellEntity.spellData.Position = spellPacket.Position;
+						spellEntity.spellData.Rotation = spellPacket.Rotation;
+					}
+					else {
+						/* Just as the "PLAYER_UPDATE" this will resolve itself a couple of frames later */
+						logWarning("[CLIENT] Client skipped a update on a spell due to sync problems. (Should resolve itself with time)");
+					}
+
+					break;
+				}
+			}
+
+		}
+
+		break;
+
+		case SPELL_DESTROY:
+		{
+			/* Destroying a spell that was created by another client both internally (in this class "m_activeSpells") 
+			   and on the main thread, and that is why a lock guard is used here. */
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			SpellPacket spellPacket;
+			spellPacket.Serialize(false, bsIn);
+			bsIn.SetReadOffset(0);
+			
+			// The scope
+			{
+				std::lock_guard<std::mutex> lockGuard(m_networkSpells.m_mutex);
+				NetworkSpells::SpellEntity* ne = findSpellEntityInNetworkSpells(spellPacket);
+				if (ne != nullptr) {
+					ne->flag = NetGlobals::THREAD_FLAG::REMOVE;
+				}
+			}
+
+			removeActiveSpell(spellPacket);
+		
+		}
+		break;
+
+		case SPELL_PLAYER_HIT:
+		{
+
 		}
 		break;
 
@@ -309,22 +460,78 @@ void Client::processAndHandlePackets()
 		}
 	}
 }
-
+/* Update the local information about the player (my player).
+   This will get sent to the server whenever the processing thread
+   wakes up from its beauty sleep. */
 void Client::updatePlayerData(Player* player)
 {
-	m_playerData.health = player->getHealth();
-	m_playerData.position = player->getPlayerPos();
-	m_playerData.rotation = glm::vec3(
+	if (!m_initialized || !m_isConnectedToAnServer) return;
+
+	m_myPlayerDataPacket.health = player->getHealth();
+	m_myPlayerDataPacket.position = player->getPlayerPos();
+	m_myPlayerDataPacket.rotation = glm::vec3(
 		player->getCamera()->getViewMat()[1][0] - glm::radians(90.0f),
 		player->getCamera()->getViewMat()[1][1] - glm::radians(90.0f),
 		player->getCamera()->getViewMat()[1][2] - glm::radians(90.0f)
 	);
 }
 
-void Client::updateNetworkedPlayers(const float& dt)
+/* You created a spell locally and wants to tell the server and all the other clients that.
+   You put it in a queue that will get emptied and sent to the server whenever the processing thread 
+   wakes up from its beauty sleep. */
+void Client::createSpellOnNetwork(Spell& spell)
 {
-	if(m_initialized && m_isConnectedToAnServer)
-		m_playerEntities.update(dt);
+	if (!m_initialized || !m_isConnectedToAnServer) return;
+
+	SpellPacket spellPacket;
+	spellPacket.packetType = SPELL_CREATED;
+	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
+	spellPacket.Position = spell.getTransform().position;
+	spellPacket.SpellID = spell.getUniqueID();
+	spellPacket.Rotation = glm::vec3(0.0f);
+	spellPacket.SpellType = SPELL_TYPE::UNKNOWN; // Type needs to be present in Spell class and not in sub classes.
+
+	m_spellQueue.emplace_back(spellPacket);
+}
+
+
+void Client::updateSpellOnNetwork(Spell& spell)
+{
+	if (!m_initialized || !m_isConnectedToAnServer) return;
+
+	SpellPacket spellPacket;
+	spellPacket.packetType = SPELL_UPDATE;
+	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
+	spellPacket.Position = spell.getTransform().position;
+	spellPacket.SpellID = spell.getUniqueID();
+	spellPacket.Rotation = glm::vec3(0.0f);
+	spellPacket.SpellType = SPELL_TYPE::UNKNOWN; // Type needs to be present in Spell class and not in sub classes.
+
+	m_spellQueue.emplace_back(spellPacket);
+}
+
+void Client::destroySpellOnNetwork(Spell& spell)
+{
+	if (!m_initialized || !m_isConnectedToAnServer) return;
+
+	SpellPacket spellPacket;
+	spellPacket.packetType = SPELL_DESTROY;
+	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
+	spellPacket.Position = spell.getTransform().position;
+	spellPacket.SpellID = spell.getUniqueID();
+	spellPacket.Rotation = glm::vec3(0.0f);
+	spellPacket.SpellType = SPELL_TYPE::UNKNOWN; // Type needs to be present in Spell class and not in sub classes.
+
+	m_spellQueue.emplace_back(spellPacket);
+}
+
+void Client::updateNetworkEntities(const float& dt)
+{
+	if (m_initialized && m_isConnectedToAnServer) {
+		m_networkPlayers.update(dt);
+		m_networkSpells.update(dt);
+	}
+
 }
 
 void Client::sendStartRequestToServer()
@@ -333,7 +540,7 @@ void Client::sendStartRequestToServer()
 		RakNet::BitStream stream;
 		stream.Write((RakNet::MessageID)SERVER_CHANGE_STATE);
 		ServerStateChange stateChange;
-		stateChange.currentState = NetGlobals::ServerState::GameStarted;
+		stateChange.currentState = NetGlobals::SERVER_STATE::GAME_IN_SESSION;
 		stateChange.Serialize(true, stream);
 		m_clientPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
 	}
@@ -344,8 +551,20 @@ void Client::updateDataOnServer()
 	// Player data sent to server
 	RakNet::BitStream bsOut;
 	bsOut.Write((RakNet::MessageID)PLAYER_UPDATE_PACKET);
-	m_playerData.Serialize(true, bsOut);
+	m_myPlayerDataPacket.Serialize(true, bsOut);
 	m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
+
+	// Empty out the spell queue
+	for (size_t i = 0; i < m_spellQueue.size(); i++) {
+	
+		RakNet::BitStream bsOut;
+		bsOut.Write(m_spellQueue[i].packetType);
+		m_spellQueue[i].Serialize(true, bsOut);
+		m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
+	}
+
+	// Empty it
+	m_spellQueue.clear();
 }
 
 
@@ -361,18 +580,28 @@ const std::vector<PlayerPacket>& Client::getConnectedPlayers() const
 
 NetworkPlayers& Client::getNetworkPlayersREF()
 {
-	return m_playerEntities;
+	return m_networkPlayers;
+}
+
+NetworkSpells& Client::getNetworkSpellsREF()
+{
+	return m_networkSpells;
+}
+
+const std::vector<SpellPacket>& Client::getNetworkSpells()
+{
+	return m_activeSpells;
 }
 
 void Client::refreshServerList()
 {
-	logTrace("Fetching server list...");
+	logTrace("[CLIENT] Fetching server list...");
 	m_isRefreshingServerList = true;
 	m_serverList.clear();
 	findAllServerAddresses();
 }
 
-bool Client::doneRefreshingServerList()
+const bool Client::doneRefreshingServerList() const
 {
 	return !m_isRefreshingServerList;
 }
@@ -415,7 +644,6 @@ const bool& Client::connectionFailed() const
 	return m_failedToConnect;
 }
 
-/* When we have a UI this will most likely be threaded */
 void Client::findAllServerAddresses()
 {
 	m_clientPeer->Ping("255.255.255.255", NetGlobals::ServerPort, false);
@@ -440,7 +668,7 @@ void Client::findAllServerAddresses()
 
 					// If the pinged server is full or in session then don't add it to the server list
 					if (info.connectedPlayers >= info.maxPlayers) continue;
-					if (info.currentState == NetGlobals::ServerState::GameStarted) continue;
+					if (info.currentState == NetGlobals::SERVER_STATE::GAME_IN_SESSION) continue;
 
 					info.serverAddress = packet->systemAddress;
 					m_serverList.emplace_back(std::make_pair(ID++, info));
@@ -462,9 +690,69 @@ unsigned char Client::getPacketID(RakNet::Packet* p)
 		return (unsigned char)p->data[0];
 }
 
-void Client::printAllConnectedPlayers()
+SpellPacket* Client::findActiveSpell(const SpellPacket& packet)
 {
-	/*for (size_t i = 0; i < m_connectedPlayers.size(); i++) {
-		logTrace("Client ({0})\n{3}\n{1}\n{2}", (i + 1), m_connectedPlayers[i]->toString(), "________________________", "________________________");
-	}*/
+	for (size_t i = 0; i < m_activeSpells.size(); i++) {
+		SpellPacket& sp = m_activeSpells[i];
+
+		if (sp.CreatorGUID == packet.CreatorGUID && sp.SpellID == packet.SpellID) {
+			return &sp;
+		}
+	}
+
+	return nullptr;
+}
+
+NetworkSpells::SpellEntity* Client::findSpellEntityInNetworkSpells(const SpellPacket& packet)
+{
+	for (size_t i = 0; i < m_networkSpells.m_entities.size(); i++) {
+		
+		SpellPacket& sp = m_networkSpells.m_entities[i].spellData;
+	
+		if (sp.CreatorGUID == packet.CreatorGUID && sp.SpellID == packet.SpellID) {
+			return &m_networkSpells.m_entities[i];
+		}
+	}
+
+	return nullptr;
+}
+
+NetworkPlayers::PlayerEntity* Client::findPlayerEntityInNetworkPlayers(const RakNet::AddressOrGUID& guid)
+{
+	for (size_t i = 0; i < m_networkPlayers.m_players.size(); i++) {
+
+		PlayerPacket& p = m_networkPlayers.m_players[i].data;
+
+		if (p.guid == guid) {
+			return &m_networkPlayers.m_players[i];
+		}
+	}
+
+	return nullptr;
+}
+
+void Client::removeActiveSpell(const SpellPacket& packet)
+{
+	for (size_t i = 0; i < m_activeSpells.size(); i++) {
+		SpellPacket& sp = m_activeSpells[i];
+
+		if (sp.CreatorGUID == packet.CreatorGUID && sp.SpellID == packet.SpellID) {
+			m_activeSpells.erase(m_activeSpells.begin() + i);
+			return;
+		}
+			
+	}
+}
+
+void Client::removeConnectedPlayer(const RakNet::AddressOrGUID& guid)
+{
+	for (size_t i = 0; i < m_connectedPlayers.size(); i++) {
+		PlayerPacket& p = m_connectedPlayers[i];
+
+		if (p.guid == guid) {
+			m_connectedPlayers.erase(m_connectedPlayers.begin() + i);
+			return;
+		}
+
+	}
 }

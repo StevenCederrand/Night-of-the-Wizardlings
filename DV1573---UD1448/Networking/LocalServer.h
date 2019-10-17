@@ -1,7 +1,6 @@
 #ifndef _LOCAL_SERVER_H
 #define _LOCAL_SERVER_H
 #include <Pch/Pch.h>
-#include "ChaosServerMode.h"
 
 class LocalServer
 {
@@ -20,8 +19,8 @@ public:
 
 private:
 	unsigned char getPacketID(RakNet::Packet* p);
-	void handleLostPlayer(const RakNet::Packet& packet, const RakNet::BitStream& bsIn);
-	void onStateChange(NetGlobals::ServerState newState);
+	bool handleLostPlayer(const RakNet::Packet& packet, const RakNet::BitStream& bsIn);
+	void stateChange(NetGlobals::SERVER_STATE newState);
 	void sendStreamToAllClients(RakNet::BitStream& stream);
 private:
 	RakNet::RakPeerInterface* m_serverPeer = nullptr;
@@ -29,9 +28,10 @@ private:
 	bool m_shutdownServer;
 	std::mutex m_cleanupMutex;
 	std::vector<PlayerPacket> m_connectedPlayers;
+	std::unordered_map<uint64_t, std::vector<SpellPacket>> m_activeSpells;
+
 	ServerInfo m_serverInfo;
 	bool m_initialized = false;
-	ChaosServerMode m_chaosMode;
 	RakNet::RakNetGUID m_adminID;
 
 };

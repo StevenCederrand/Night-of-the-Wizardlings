@@ -73,7 +73,7 @@ void GameObject::loadMesh(std::string fileName)
 			}
 
 			// Get animation
-			for (int a = 0; a < tempLoader.GetAnimation(i).size(); a++)
+			for (size_t a = 0; a < tempLoader.GetAnimation(i).size(); a++)
 			{
 				Animation tempAnimation = tempLoader.GetAnimation(i)[a];
 				std::string animationName = tempAnimation.name + "_" + m_objectName;
@@ -226,10 +226,10 @@ const std::string& GameObject::getMeshName(int meshIndex) const
 	return m_meshes[meshIndex].name;
 }
 
-const glm::mat4& GameObject::getMatrix(int i) const
+const glm::mat4& GameObject::getMatrix(const int& i) const
 {
 	//if we are trying to access a matrix beyond our count
-	if (i > m_modelMatrixes.size()) {
+	if (i > static_cast<int>(m_modelMatrixes.size())) {
 		return glm::mat4(1.0f);
 	}
 	return m_modelMatrixes[i];

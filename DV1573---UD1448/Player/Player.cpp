@@ -27,6 +27,8 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 
 	m_bp = bp;
 	m_character = m_bp->createCharacter();
+
+	m_client = Client::getInstance();
 }
 
 Player::~Player()
@@ -39,14 +41,17 @@ void Player::update(float deltaTime)
 	m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
 	selectSpell();
 	move(deltaTime);
-	attack();
-	Client* client = Client::getInstance();
-	client->updatePlayerData(this);
 
-	if (Input::isKeyReleased(GLFW_KEY_E)) {
-		client->sendStartRequestToServer();
+	attack();
+	
+	if (m_client->isConnectedToSever()) {
+		m_client->updatePlayerData(this);
 	}
 
+	if (Input::isKeyReleased(GLFW_KEY_E)) {
+		m_client->sendStartRequestToServer();
+	}
+	
 }
 
 void Player::move(float deltaTime)
@@ -123,6 +128,7 @@ void Player::attack()
 			spellhandler->createSpell(m_playerPosition, directionVector, spellType);
 			attackCooldown = spellhandler->getAttackSpellBase().m_coolDown; // Put attack on cooldown
 		}
+
 	}
 }
 
