@@ -21,25 +21,25 @@ PlayState::PlayState()
 	m_skybox->prepareBuffers();
 
 	//Test enviroment with 4 meshes inside 1 GameObject, inherited transforms
-	m_objects.push_back(new WorldObject("TestScene"));
-	m_objects[m_objects.size() - 1]->loadMesh("TestScene.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
-	
-	//Cube and sphere centered in scene
-	m_objects.push_back(new WorldObject("TestCube"));
-	m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 0.0f, 0.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+	//m_objects.push_back(new WorldObject("TestScene"));
+	//m_objects[m_objects.size() - 1]->loadMesh("TestScene.mesh");
+	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+	//
+	////Cube and sphere centered in scene
+	//m_objects.push_back(new WorldObject("TestCube"));
+	//m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
+	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 0.0f, 0.0f));
+	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+	//
+	//m_objects.push_back(new WorldObject("TestSphere"));
+	//m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
+	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -4.0f));
+	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 1.0f, -2.0f));
+	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
-	m_objects.push_back(new WorldObject("TestSphere"));
-	m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -4.0f));
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 1.0f, -2.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
-
 	m_objects.push_back(new WorldObject("TestCube"));
-	m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
+	m_objects[m_objects.size() - 1]->loadMesh("Playground.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -1.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 	
@@ -59,13 +59,10 @@ PlayState::PlayState()
 	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
 
 
-
 	gContactAddedCallback = callbackFunc;
 	// Geneterate bullet objects / hitboxes
-	for (int i = 1; i < m_objects.size(); i++)
+	for (int i = 0; i < m_objects.size(); i++)
 		m_objects[i]->genBullet(m_bPhysics);
-
-
 
 
 	logTrace("Playstate created");

@@ -154,30 +154,30 @@ void GameObject::genBullet(BulletPhysics* bPhysics)
 	// TEMPLATE
 	//m_bPhysics->createObject(obj, 0.0f, glm::vec3(0.0f, -1.5f, 0.0f), glm::vec3(100.0f, 2.0f, 100.0f), 1.0);
 
-	Transform temp = getTransform();
-
-	MeshMap::getInstance()->getMesh(m_meshes[0].name)->getVertices()[0].position;
-
-	glm::vec3 min = m_meshes[0].name()[0].position;
-
-	glm::vec3 max = entityMesh.GetVertices()[0].position;
-
-	for (int i = 1; i < entityMesh.GetVertices().size(); i++)
+	for (int i = 0; i < m_meshes.size(); i++)
 	{
-		min.x = fminf(entityMesh.GetVertices()[i].position.x, min.x);
-		min.y = fminf(entityMesh.GetVertices()[i].position.y, min.y);
-		min.z = fminf(entityMesh.GetVertices()[i].position.z, min.z);
+		const std::vector<Vertex>& vertices = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getVertices();
+		glm::vec3 min = vertices[0].position;
+		glm::vec3 max = vertices[0].position;
 
-		max.x = fmaxf(entityMesh.GetVertices()[i].position.x, max.x);
-		max.y = fmaxf(entityMesh.GetVertices()[i].position.y, max.y);
-		max.z = fmaxf(entityMesh.GetVertices()[i].position.z, max.z);
+		for (int i = 1; i < vertices.size(); i++)
+		{
+			min.x = fminf(vertices[i].position.x, min.x);
+			min.y = fminf(vertices[i].position.y, min.y);
+			min.z = fminf(vertices[i].position.z, min.z);
+
+			max.x = fmaxf(vertices[i].position.x, max.x);
+			max.y = fmaxf(vertices[i].position.y, max.y);
+			max.z = fmaxf(vertices[i].position.z, max.z);
+		}
+
+
+		glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(i).position;
+		glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale;
+		m_bPhysics->createObject(box, 0.0f, center, halfSize);
+		// TODO: ROTATE
+
 	}
-
-	glm::vec3 center = glm::vec3((min + max) * 0.5f);
-	glm::vec3 halfSize = glm::vec3((max - min) * 0.5f);
-
-	m_bPhysics->createObject(box, 0.0f, temp.position,
-		glm::vec3(temp.scale.x / 2, temp.scale.y, temp.scale.y / 2));
 	
 }
 //Update each individual modelmatrix for the meshes
@@ -188,9 +188,10 @@ void GameObject::updateModelMatrix() {
 	{
 		m_modelMatrixes[i] = glm::mat4(1.0f);
 		transform = getTransform(i);
+
 		m_modelMatrixes[i] = glm::translate(m_modelMatrixes.at(i), transform.position);
-		m_modelMatrixes[i] = glm::scale(m_modelMatrixes[i], transform.scale);
 		m_modelMatrixes[i] *= glm::mat4_cast(transform.rotation);
+		m_modelMatrixes[i] = glm::scale(m_modelMatrixes[i], transform.scale);
 	}
 }
 
@@ -203,8 +204,8 @@ void GameObject::setTransform(Transform transform)
 void GameObject::setTransform(glm::vec3 worldPosition = glm::vec3(.0f), glm::quat worldRot = glm::quat(), glm::vec3 worldScale = glm::vec3(1.0f))
 {
 	m_transform.position = worldPosition;
-	m_transform.rotation = worldRot;
 	m_transform.scale = worldScale;
+	m_transform.rotation = worldRot;
 	updateModelMatrix();
 }
 
@@ -231,7 +232,7 @@ const Transform GameObject::getTransform() const
 	if (mesh)
 	{
 		world_transform.position = m_transform.position + m_meshes[0].transform.position + mesh->getTransform().position;
-		world_transform.rotation = m_transform.rotation + m_meshes[0].transform.rotation +  mesh->getTransform().rotation;
+		world_transform.rotation = m_transform.rotation * m_meshes[0].transform.rotation *  mesh->getTransform().rotation;
 		world_transform.scale = m_transform.scale * m_meshes[0].transform.scale * mesh->getTransform().scale;
 	}
 	else
@@ -251,7 +252,7 @@ const Transform GameObject::getTransform(int meshIndex) const
 	// Adds the inherited transforms together to get the world position of a mesh
 	Transform world_transform;
 	world_transform.position = m_transform.position + m_meshes[meshIndex].transform.position + mesh->getTransform().position;
-	world_transform.rotation = m_transform.rotation + m_meshes[meshIndex].transform.rotation + mesh->getTransform().rotation;
+	world_transform.rotation = m_transform.rotation * m_meshes[meshIndex].transform.rotation * mesh->getTransform().rotation;
 	world_transform.scale = m_transform.scale * m_meshes[meshIndex].transform.scale * mesh->getTransform().scale;
 
 	return world_transform;

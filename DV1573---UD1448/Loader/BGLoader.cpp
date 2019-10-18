@@ -126,6 +126,10 @@ void BGLoader::BGFormatData()
 		
 		// Transforms
 		bggMeshes[meshId].bggPositions = glm::make_vec3(loaderMesh[meshId].translation);
+
+		glm::vec3 rotation1 = glm::make_vec3(loaderMesh[meshId].rotation);
+		glm::vec3 rads1 = glm::radians(rotation1);
+		glm::quat quat1 = glm::quat(rads1);
 		bggMeshes[meshId].bggRotation = glm::quat(glm::radians(glm::make_vec3(loaderMesh[meshId].rotation)));
 		bggMeshes[meshId].bggScale = glm::make_vec3(loaderMesh[meshId].scale);
 

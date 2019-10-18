@@ -82,12 +82,13 @@ void Player::move(float deltaTime)
 		moveDir -= camFace;
 	}
 
-	if (glm::length(moveDir) >= 0.01f)
+	if (glm::length(moveDir) >= 0.0001f)
 		moveDir = glm::normalize(moveDir);
 
 	m_playerPosition += moveDir * speed * deltaTime;
 	setPlayerPos(m_playerPosition);
 	playerCamera->setCameraPos(m_playerPosition);
+
 	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
 	{		
 		if (m_character->canJump())
