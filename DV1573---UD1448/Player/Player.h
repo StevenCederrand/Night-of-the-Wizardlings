@@ -17,7 +17,6 @@ public:
 	~Player();
 
 	void update(float deltaTime);
-	void playerJump();
 	void move(float deltaTime);
 	void attack();
 	void createRay(); //create ray for spells
@@ -39,25 +38,29 @@ public:
 	void setSpeed(float speed);
 
 private:
-	SpellHandler* spellhandler;
-
+	std::string m_name;
 	glm::vec3 m_directionVector;
 	glm::vec3 m_playerPosition;
 	glm::vec3 m_inputVector;
 	glm::vec3 m_moveDir;
+	Camera* m_playerCamera;
 
-	Camera* playerCamera;
-	float attackCooldown;
+
+	SpellHandler* m_spellhandler;
+	SPELLTYPE m_spellType;
+	
+	float m_attackCooldown;
+	float m_specialCooldown;
+
 	float m_spellSpeed = 1;
-	float speed;
-	int nrOfSpells;
-	int health;
+	float m_speed;
+	int m_nrOfSpells;
+	int m_health;
 	int m_frameCount;
-	std::string name;
-	TYPE spellType;
 
+
+	
 	//removed in bulletPhysics.cpp
-	TYPE m_spellType;
 	BulletPhysics* m_bp;
 	btKinematicCharacterController* m_character;
 

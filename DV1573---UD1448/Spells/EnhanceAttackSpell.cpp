@@ -1,18 +1,16 @@
 #include "Pch/Pch.h"
 #include "EnhanceAttackSpell.h"
+#include <Spells/SpellHandler.h>
 
 
-
-EnhanceAttackSpell::EnhanceAttackSpell(glm::vec3 pos)
-	: Spell(pos)
+EnhanceAttackSpell::EnhanceAttackSpell(const EnhanceHanderSpellBase* spellBase)
+	: Spell(glm::vec3(0), glm::vec3(0))
 {
-}
+	m_type = ENHANCEATTACK;
+	m_spellBase = spellBase;
 
-EnhanceAttackSpell::EnhanceAttackSpell(std::string name, glm::vec3 pos, glm::vec3 direction, float speed, float travelTime, std::string meshName, float cooldown, float nrOfEnhancedAttacks, float attackCooldown, float spellActiveTime)
-	: Spell(name, pos, direction, speed, travelTime, meshName, cooldown)
-{
-	m_nrOfAttacks = nrOfEnhancedAttacks;
-	m_spellActiveTime = spellActiveTime;
+	setWorldPosition(glm::vec3(0));
+	setDirection(glm::vec3(0));
 }
 
 EnhanceAttackSpell::~EnhanceAttackSpell()
@@ -44,19 +42,6 @@ void EnhanceAttackSpell::setAttackCooldown(float attackCooldown)
 	m_attackCooldown = attackCooldown;
 }
 
-void EnhanceAttackSpell::updateActiveSpell(float deltaTime)
-{
-	translate(getDirection() * deltaTime * getSpellSpeed());
-	setTravelTime(getTravelTime() - 1 * deltaTime);
-
-}
-
-void EnhanceAttackSpell::spellCooldownUpdate(float deltaTime)
-{
-	if (getCooldown() > 0)
-		setCooldown(getCooldown() - 1 * deltaTime);
-}
-
 void EnhanceAttackSpell::attackCooldownUpdate(float deltaTime)
 {
 	if (getAttackCooldown() > 0)
@@ -65,9 +50,32 @@ void EnhanceAttackSpell::attackCooldownUpdate(float deltaTime)
 	}
 }
 
-void EnhanceAttackSpell::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector)
-{
-	setSpellPos(glm::vec3(spellPos.x, spellPos.y - 1.8f, spellPos.z) + directionVector); //-1.8 = spwn point for spell, spell need to be 0 and playerPos is set to (0,1.8,0)
-	translate(getSpellPos());
-	setDirection(directionVector);
-}
+
+//void EnhanceAttackSpell::update(float deltaTime)
+//{
+//	if (m_attackCooldown)
+//	{
+//		EnhanceAttackSpell tempSpell2 = *m_tempEnhanceAttackSpell;
+//		tempSpell2.createSpell(deltaTime, spellPos, directionVector);
+//		m_enhanceAttackSpell.push_back(tempSpell2);
+//		m_tempEnhanceAttackSpell->setAttackCooldown(0.3f);
+//		m_tempEnhanceAttackSpell->reduceNrOfAttacks(1.0f);
+//	}
+//	if (m_tempEnhanceAttackSpell->getNrOfAttacks() <= 0)
+//	{
+//		m_tempEnhanceAttackSpell->setCooldown(10.0f);
+//		m_tempEnhanceAttackSpell->setNrOfAttacks(3);
+//
+//		//-----Return true if the spell is done in order to get the normal attack back-----//
+//		m_tempSpell->setCooldown(1.0f);
+//		setType(NORMALATTACK);
+//		spellIsOver = true;
+//	}
+//
+//
+//
+//
+//
+//	translate(getDirection() * deltaTime * m_spellBase->m_speed);
+//	setTravelTime(getTravelTime() - 1 * deltaTime);
+//}

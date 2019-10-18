@@ -9,22 +9,22 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	if (camera == NULL) {
 		 m_playerCamera = new Camera();
 	}
-	this->playerCamera = camera;
-	this->m_playerPosition = playerPosition;
-	this->name = name;
-	this->speed = 5;
-	this->health = 100;
-	this->attackCooldown = 0;
-	this->nrOfSpells = 0;
-	this->directionVector = glm::vec3(0, 0, 0);
-	this->moveDir = glm::vec3(0.0f);
+	m_playerCamera = camera;
+	m_playerPosition = playerPosition;
+	m_name = name;
+	m_speed = 5;
+	m_health = 100;
+	m_attackCooldown = 0;
+	m_specialCooldown = 0;
+	m_nrOfSpells = 0;
+	m_directionVector = glm::vec3(0, 0, 0);
+	m_moveDir = glm::vec3(0.0f);
 
 	//m_frameCount = 0;
 	//tempSpell = new AttackSpell("Spell", playerPosition, directionVector, 50, 2, "TestSphere.mesh");
 
-	this->spellType = NORMALATTACK;
-
-	this->spellhandler = spellHandler;
+	
+	m_spellhandler = spellHandler;
 
 	m_bp = bp;
 	m_character = m_bp->createCharacter();
@@ -32,13 +32,12 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 
 Player::~Player()
 {
-	delete playerCamera;
+	delete m_playerCamera;
 }
 
 void Player::update(float deltaTime)
 {
 	m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
-	selectSpell();
 	move(deltaTime);
 	attack();
 	Client* client = Client::getInstance();
@@ -58,38 +57,38 @@ void Player::move(float deltaTime)
 	{
 		return;
 	}
-	glm::vec3 camFace = playerCamera->getCamFace();
-	glm::vec3 camRight = playerCamera->getCamRight();
+	glm::vec3 camFace = m_playerCamera->getCamFace();
+	glm::vec3 camRight = m_playerCamera->getCamRight();
 
 	btVector3 totalForce = m_character->getLinearVelocity();
 	
 	m_moveDir = glm::vec3(0.0f);
 
-	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_A) == GLFW_PRESS)
+	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_A) == GLFW_PRESS)
 	{
-		moveDir -= camRight;
+		m_moveDir -= camRight;
 	}
-	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_D) == GLFW_PRESS)
+	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_D) == GLFW_PRESS)
 	{
-		moveDir += camRight;
+		m_moveDir += camRight;
 	}
-	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_W) == GLFW_PRESS)
+	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_W) == GLFW_PRESS)
 	{
-		moveDir += camFace;
+		m_moveDir += camFace;
 	}
-	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_S) == GLFW_PRESS)
+	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_S) == GLFW_PRESS)
 	{
-		moveDir -= camFace;
+		m_moveDir -= camFace;
 	}
 
-	if (glm::length(moveDir) >= 0.0001f)
-		moveDir = glm::normalize(moveDir);
+	if (glm::length(m_moveDir) >= 0.0001f)
+		m_moveDir = glm::normalize(m_moveDir);
 
 	m_playerPosition += m_moveDir * m_speed * deltaTime;
 	setPlayerPos(m_playerPosition);
-	playerCamera->setCameraPos(m_playerPosition);
+	m_playerCamera->setCameraPos(m_playerPosition);
 
-	if (glfwGetKey(playerCamera->getWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
+	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
 	{		
 		if (m_character->canJump())
 		{			
@@ -100,64 +99,56 @@ void Player::move(float deltaTime)
 
 	btScalar yValue = std::ceil(m_character->getLinearVelocity().getY()*100.0) / 100.0;	//Round to two decimals
 	btVector3 translate = btVector3
-		(moveDir.x * speed * deltaTime,
+		(m_moveDir.x * m_speed * deltaTime,
 		yValue,
-		moveDir.z * speed * deltaTime);
+		m_moveDir.z * m_speed * deltaTime);
 	m_character->setLinearVelocity(translate);
 
 	//update playercamera position
 	btVector3 playerPos = m_character->getGhostObject()->getWorldTransform().getOrigin();
 	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY()* 2, playerPos.getZ());
 	
-	playerCamera->setCameraPos(m_playerPosition);
-	playerCamera->update(playerCamera->getWindow());
+	m_playerCamera->setCameraPos(m_playerPosition);
+	m_playerCamera->update(m_playerCamera->getWindow());
 
 
-	attackCooldown -= deltaTime; // Cooldown reduces with time
+	m_attackCooldown -= deltaTime; // Cooldown reduces with time
+	m_specialCooldown -= deltaTime; // Cooldown reduces with time
 }
 
 void Player::attack()
 {
-	if (glfwGetMouseButton(playerCamera->getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+	if (glfwGetMouseButton(m_playerCamera->getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 	{
-		if (attackCooldown <= 0)
+		if (m_attackCooldown <= 0)
 		{
 			createRay();
-			spellhandler->createSpell(m_playerPosition, directionVector, spellType);
-			attackCooldown = spellhandler->getAttackSpellBase().m_coolDown; // Put attack on cooldown
+			m_spellhandler->createSpell(m_playerPosition, m_directionVector, NORMALATTACK);
+			m_attackCooldown = m_spellhandler->getSpellBase(NORMALATTACK).m_coolDown; // Put attack on cooldown
 		}
 	}
-void Player::attack(float deltaTime)
-{
-	
 
-	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_2) == GLFW_PRESS) //&& spellhandler->isSpellReadyToCast(ENHANCEATTACK) == true)
+	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_Q) == GLFW_PRESS)
 	{
-		m_spellType = ENHANCEATTACK;
-	}
-
-	if (m_spellType == ENHANCEATTACK)
-	{
-		createRay();
-		spellhandler->setType(m_spellType);
-		if (spellhandler->createSpell(deltaTime, m_playerPosition, m_directionVector, spellhandler->getType()))
+		if (m_specialCooldown <= 0)
 		{
-			m_spellType = NORMALATTACK;
-		}
-	}
-
-	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_3) == GLFW_PRESS) //&& spellhandler->isSpellReadyToCast(FLAMESTRIKE) == true)
-	{
-		createRay();
-		spellhandler->setType(FLAMESTRIKE);
-		if (spellhandler->createSpell(deltaTime, m_playerPosition, m_directionVector, spellhandler->getType()))
-		{
-			m_spellType = NORMALATTACK;
+			createRay();
+			m_spellType = ENHANCEHANDLER;
+			m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_spellType);
+			m_specialCooldown = m_spellhandler->getSpellBase(m_spellType).m_coolDown; // Put attack on cooldown
 		}
 	}
 
 
-	spellhandler->spellCooldown(deltaTime);
+	//if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_3) == GLFW_PRESS) //&& spellhandler->isSpellReadyToCast(FLAMESTRIKE) == true)
+	//{
+	//	createRay();
+	//	spellhandler->setType(FLAMESTRIKE);
+	//	if (spellhandler->createSpell(deltaTime, m_playerPosition, m_directionVector, spellhandler->getType()))
+	//	{
+	//		m_spellType = NORMALATTACK;
+	//	}
+	//}
 }
 
 void Player::createRay()
@@ -172,6 +163,8 @@ void Player::createRay()
 	glm::vec4 rayEye = inverse(m_playerCamera->getProjMat()) * rayClip;
 	rayEye = glm::vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);
 	glm::vec4 rayWorldTemp = glm::vec4(inverse(m_playerCamera->getViewMat()) * rayEye);
+
+
 	m_directionVector = normalize(glm::vec3(rayWorldTemp.x, rayWorldTemp.y, rayWorldTemp.z));
 }
 
@@ -185,52 +178,41 @@ void Player::spawnPlayer(glm::vec3 pos)
 	this->m_playerPosition = pos;
 }
 
-void Player::createRigidBody(BulletPhysics* bp)
-{
-	CollisionObject object = capsule;
 
-	m_body = bp->createObject(object, 10.0f, m_playerPosition, glm::vec3(1.0f, 3.0f,1.0f));
-	m_body->setUserPointer(this);
-}
-
-void Player::forceUp()
-{
-	m_body->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
-}
 
 void Player::setHealth(int health)
 {
-	this->health = health;
+	m_health = health;
 }
 
 void Player::setSpeed(float speed)
 {
-	this->speed = speed;
+	m_speed = speed;
 }
 
 glm::vec3 Player::getPlayerPos() const
 {
-	return this->m_playerPosition;
+	return m_playerPosition;
 }
 
 int Player::getHealth() const
 {
-	return this->health;
+	return m_health;
 }
 
 Camera* Player::getCamera()
 {
-	return playerCamera;
+	return m_playerCamera;
 }
 
 std::string Player::getName() const
 {
-	return this->name;
+	return m_name;
 }
 
 bool Player::isDead()
 {
-	if (this->health <= 0)
+	if (m_health <= 0)
 	{
 		return true;
 	}
