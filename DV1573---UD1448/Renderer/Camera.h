@@ -46,8 +46,11 @@ public:
 	double getXpos() const;
 	double getYpos() const;
 
-	glm::vec3 getCamFace();
+	glm::vec3 getCamFace(); //trashkod
 	glm::vec3 getCamRight();
+	const glm::vec3& getPosition() const;
+	const glm::vec3& getDirection() const;
+
 	GLFWwindow* getWindow();
 
 

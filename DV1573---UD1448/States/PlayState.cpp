@@ -50,13 +50,16 @@ PlayState::PlayState()
 	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
 	//
 	////Animated goblino
-	//m_objects.push_back(new AnimatedObject("TestGoblino"));
-	//m_objects[m_objects.size() - 1]->loadMesh("ElGoblino.mesh");
-	//Transform tempTransform;
-	//tempTransform.scale = glm::vec3(0.03f, 0.03f, 0.03f);
+	m_firstPerson = new AnimatedObject("TestFps");
+	m_firstPerson->loadMesh("FirstPersonMesh.mesh");
+
+	m_objects.push_back(m_firstPerson);
+	//m_objects[m_objects.size() - 1]->loadMesh("FirstPersonMesh.mesh");
+	Transform tempTransform;
+	tempTransform.scale = glm::vec3(0.53f, 0.53f, 0.53f);
 	//tempTransform.position = glm::vec3(-3.0f, 0.0f, 3.0f);
 	//m_objects[m_objects.size() - 1]->setTransform(tempTransform);
-	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
 
 	CollisionObject obj = box;
 	m_bPhysics->createObject(obj, 0.0f, glm::vec3(0.0f, -1.5f, 0.0f), glm::vec3(100.0f, 2.0f, 100.0f), 1.0);
@@ -95,7 +98,9 @@ void PlayState::update(float dt)
 	Renderer::getInstance()->update(dt);
 	m_spellHandler->spellUpdate(dt);
 	m_player->update(dt);
+	m_firstPerson->setWorldPosition(m_camera->getPosition());
 
+	//m_firstPerson.set
 	for (GameObject* object : m_objects)
 	{
 		object->update(dt);
