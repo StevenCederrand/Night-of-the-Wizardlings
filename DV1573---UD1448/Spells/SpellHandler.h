@@ -6,29 +6,48 @@
 #include <Spells/EnhanceAttackSpell.h>
 #include <Spells/Spells.h>
 
-enum TYPE { NORMALATTACK, ENHANCEATTACK };
 
-
+enum SPELLTYPE { NORMALATTACK, ENHANCEATTACK, FLAMESTRIKE };
 
 class SpellHandler
 {
 public:
 	SpellHandler();
 	void initAttackSpell();
+	void initEnhanceSpell();
+
+
 	~SpellHandler();
-	void createSpell(glm::vec3 spellPos, glm::vec3 directionVector, TYPE type);
+	void createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SPELLTYPE type);
 	void spellUpdate(float deltaTime);
-	const AttackSpellBase& getAttackSpellBase() const { return *attackBase; }
+	const AttackSpellBase& getSpellBase(SPELLTYPE spelltype);
 	const Spell& getSpell(int index) const { return *spells[index]; }
 	const std::vector<Spell*>& getSpells() const { return spells; }
 	void renderSpell();
+	//bool isSpellReadyToCast(SPELLTYPE type);
+
 
 private:
 	std::vector<Spell*> spells;
-	std::vector<EnhanceAttackSpell> enhanceAttackSpell;
 
 	// The base for all basic attack spells
 	AttackSpellBase* attackBase;
+	AttackSpellBase* enhanceAtkBase;
 
+
+
+	//std::vector<AOEAttack> m_flamestrike;
+	//AOEAttack* m_tempFlamestrike;
+	//fire* tempFire;
+	//fire* m_fire;
+
+
+	//other things
+	glm::vec3 m_directionVector;
+	glm::vec3 m_spellPos;
+	glm::vec3 m_saveValues = glm::vec3(0,0,0);
+	SPELLTYPE m_spellType;
+
+	bool test123 = false;
 
 };

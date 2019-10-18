@@ -39,6 +39,8 @@
     <ClCompile Include="GameObject\AnimatedObject.cpp" />
     <ClCompile Include="System\Timer.cpp" />
     <ClCompile Include="DebugDrawer\DebugDrawer.cpp" />
+    <ClCompile Include="Spells\AOEAttack.cpp" />
+    <ClCompile Include="Spells\fire.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GFX\MaterialMap.h" />
@@ -83,6 +85,8 @@
     <ClInclude Include="System\Timer.h" />
     <ClInclude Include="Spells\Spells.h" />
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
+    <ClInclude Include="Spells\AOEAttack.h" />
+    <ClInclude Include="Spells\fire.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

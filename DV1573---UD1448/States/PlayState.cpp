@@ -87,7 +87,6 @@ PlayState::~PlayState()
 
 void PlayState::update(float dt)
 {	
-
 	Client::getInstance()->updateNetworkedPlayers(dt);
 	m_bPhysics->update(dt);
 	Renderer::getInstance()->update(dt);
@@ -97,7 +96,6 @@ void PlayState::update(float dt)
 	{
 		object->update(dt);
 	}
-
 }
 
 void PlayState::render()

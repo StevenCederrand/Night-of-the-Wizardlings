@@ -5,7 +5,9 @@
 SpellHandler::SpellHandler()
 {
 	attackBase = nullptr;
+	enhanceAtkBase = nullptr;
 	initAttackSpell();
+	initEnhanceSpell();
 }
 
 void SpellHandler::initAttackSpell()
@@ -35,6 +37,38 @@ void SpellHandler::initAttackSpell()
 	attackBase->m_maxBounces = 3;
 }
 
+
+void SpellHandler::initEnhanceSpell()
+{
+	enhanceAtkBase = new AttackSpellBase();
+	enhanceAtkBase->m_mesh = new Mesh();
+	enhanceAtkBase->m_material = new Material();
+
+	BGLoader tempLoader;	// The file loader
+	tempLoader.LoadMesh(MESHPATH + "TestSphere.mesh");
+	enhanceAtkBase->m_mesh = new Mesh();
+	enhanceAtkBase->m_mesh->saveFilePath(tempLoader.GetFileName(), 0);
+	enhanceAtkBase->m_mesh->nameMesh(tempLoader.GetMeshName());
+	enhanceAtkBase->m_mesh->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
+	enhanceAtkBase->m_mesh->setUpBuffers();
+
+	const Material& newMaterial = tempLoader.GetMaterial();
+	enhanceAtkBase->m_material->ambient = newMaterial.ambient;
+	enhanceAtkBase->m_material->diffuse = newMaterial.diffuse;
+	enhanceAtkBase->m_material->name = newMaterial.name;
+	enhanceAtkBase->m_material->specular = newMaterial.specular;
+	tempLoader.Unload();
+
+	enhanceAtkBase->m_damage = 34;
+	enhanceAtkBase->m_speed = 100;
+	enhanceAtkBase->m_coolDown = 1;
+	enhanceAtkBase->m_lifeTime = 5;
+	enhanceAtkBase->m_maxBounces = 3;
+}
+
+
+
+
 SpellHandler::~SpellHandler()
 {
 	if (attackBase)
@@ -44,7 +78,9 @@ SpellHandler::~SpellHandler()
 	spells.clear();
 }
 
-void SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, TYPE type)
+
+
+void SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SPELLTYPE type)
 {
 
 	if (type == NORMALATTACK)
@@ -56,8 +92,31 @@ void SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, TY
 
 	if (type == ENHANCEATTACK)
 	{
-		//spells.emplace_back(new EnhanceAttackSpell(spellPos, directionVector));
-	}	
+		spells.emplace_back(new AttackSpell(spellPos, directionVector, enhanceAtkBase));
+		Renderer::getInstance()->submit(spells.back(), SPELL);
+		logTrace("Created spell");
+	}
+
+
+	
+	
+
+
+	//if (type == FLAMESTRIKE)
+	//{
+	//	if (m_tempFlamestrike->getCooldown() <= 0)
+	//	{
+	//		AOEAttack tempSpell2 = *m_tempFlamestrike;
+	//		tempSpell2.createSpell(deltaTime, spellPos, directionVector);
+	//		m_flamestrike.push_back(tempSpell2);
+	//		m_tempFlamestrike->setCooldown(7.0f);
+	//
+	//		m_tempSpell->setCooldown(1.0f);
+	//		setType(NORMALATTACK);
+	//		spellIsOver = true;
+	//	}
+	//}
+	//return spellIsOver;
 }
 
 void SpellHandler::spellUpdate(float deltaTime)
@@ -65,7 +124,6 @@ void SpellHandler::spellUpdate(float deltaTime)
 	for (int i = 0; i < spells.size(); i++)
 	{
 		spells[i]->update(deltaTime);
-
 		if (spells[i]->getTravelTime() <= 0)
 		{
 			delete spells[i];
@@ -73,8 +131,36 @@ void SpellHandler::spellUpdate(float deltaTime)
 			logTrace("Deleted spell");
 		}
 	}
+
+	//for (int i = 0; i < m_flamestrike.size(); i++)
+	//{
+	//
+	//	m_flamestrike[i].updateActiveSpell(deltaTime);
+	//	
+	//	std::cout << m_flamestrike[i].getSpellPos().x << " " << m_flamestrike[i].getSpellPos().y << " " << m_flamestrike[i].getSpellPos().z << std::endl;
+	//	tempFire->setWorldPosition(m_flamestrike[i].getSpellPos());
+	//	
+	//	if (m_flamestrike[i].isAOE())
+	//	{
+	//		tempFire->translate(m_flamestrike[i].getSpellPos());
+	//	}
+	//	
+	//
+	//	if (m_flamestrike[i].getTravelTime() <= 0)
+	//	{
+	//		m_flamestrike.erase(m_flamestrike.begin() + i);
+	//	}
+	//}
 }
-	
+
+const AttackSpellBase& SpellHandler::getSpellBase(SPELLTYPE spelltype)
+{
+	if (spelltype == NORMALATTACK)
+		return *attackBase;
+	//else if(spelltype == ENHANCEATTACK)
+		//return *
+}
+
 
 void SpellHandler::renderSpell()
 {
@@ -86,4 +172,35 @@ void SpellHandler::renderSpell()
 	//	object.bindMaterialToShader("Basic_Forward");
 	//	Renderer::getInstance()->renderSpell(object);
 	//}
+	
+	//for (AttackSpell object : m_normalSpell)
+	//{
+	//	object.bindMaterialToShader("Basic_Forward");
+	//	Renderer::getInstance()->render(object);
+	//}
+	//
+	//for (EnhanceAttackSpell object : m_enhanceAttackSpell)
+	//{
+	//	object.bindMaterialToShader("Basic_Forward");
+	//	Renderer::getInstance()->render(object);
+	//}
+	//
+	//for (AOEAttack object : m_flamestrike)
+	//{
+	//	object.bindMaterialToShader("Basic_Forward");
+	//	Renderer::getInstance()->render(object);
+	//}
+	//for (int i = 0; i < m_flamestrike.size(); i++)
+	//{
+	//	if (m_flamestrike[i].isAOE())
+	//	{
+	//		tempFire->bindMaterialToShader("Basic_Forward");
+	//		Renderer::getInstance()->render(*tempFire);
+	//	}
+	//}
+	
 }
+
+
+
+
