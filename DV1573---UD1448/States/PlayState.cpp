@@ -121,5 +121,34 @@ void PlayState::render()
 bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
 	const btCollisionObjectWrapper* obj2, int id2, int index2)
 {
+	AttackSpell* sp1 = reinterpret_cast<AttackSpell*>(obj1->getCollisionObject()->getUserPointer());
+	AttackSpell* sp2 = reinterpret_cast<AttackSpell*>(obj2->getCollisionObject()->getUserPointer());
+
+	//Spell* sp = dynamic_cast<Spell*>(obj1->getCollisionObject()->getUserPointer());
+	if (sp1 != nullptr) {
+		logTrace("sp1: Spell collided");
+
+		int local = sp2->getLocalBounce();
+		int bounce = sp2->getNrofBounce();
+		if (local == bounce)
+		{
+			glm::vec3 normal = glm::vec3(cp.m_normalWorldOnB.getX(), cp.m_normalWorldOnB.getY(), cp.m_normalWorldOnB.getZ());
+
+			sp2->setBounceNormal(normal);
+		}
+
+	}
+	else if (sp2 != nullptr) {
+		int local = sp2->getLocalBounce();
+		int bounce = sp2->getNrofBounce();
+		if (local == bounce)
+		{
+		glm::vec3 normal = glm::vec3(cp.m_normalWorldOnB.getX(), cp.m_normalWorldOnB.getY(), cp.m_normalWorldOnB.getZ());
+
+		sp2->setBounceNormal(normal);
+		}
+	}
+
+
 	return false;
 }

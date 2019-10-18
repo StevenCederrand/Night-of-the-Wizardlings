@@ -19,6 +19,16 @@ const uint64_t& Spell::getUniqueID() const
 	return m_uniqueID;
 }
 
+const int& Spell::getNrofBounce() const
+{
+	return 0;
+}
+
+const int& Spell::getLocalBounce() const
+{
+	return 0;
+}
+
 void Spell::setTravelTime(float travelTime)
 {
 	m_travelTime = travelTime;
@@ -32,5 +42,11 @@ void Spell::setUniqueID(const uint64_t& uniqueID)
 void Spell::setDirection(glm::vec3 direction)
 {
 	m_direction = direction;
+}
+
+void Spell::setBounceNormal(glm::vec3& normal)
+{
+	m_bounceNormal = normal;
+	//m_localBounce++;
 }
 
