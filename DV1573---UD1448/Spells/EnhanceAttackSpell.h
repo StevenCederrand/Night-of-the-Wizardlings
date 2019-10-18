@@ -25,6 +25,7 @@ public:
 	void attackCooldownUpdate(float deltaTime);
 	void createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector);
 
+	void update(float deltaTime);
 
 
 	void update(float dt);

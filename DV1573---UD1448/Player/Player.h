@@ -7,22 +7,20 @@
 
 
 #include "System/BulletPhysics.h"
-#include <Bullet/BulletDynamics/Character/btKinematicCharacterController.h>
-#include <Bullet/BulletCollision/CollisionDispatch/btGhostObject.h>
+
 
 
 class Player
 {
 public:
-	Player(BulletPhysics* bp, std::string name = "", glm::vec3 playerPosition = glm::vec3(0.0f, 0.0f, 0.0f), Camera* camera = NULL);
+	Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Camera* camera, SpellHandler* spellHandler);
 	~Player();
 
 	void update(float deltaTime);
 	void playerJump();
 	void move(float deltaTime);
-	void attack(float deltaTime);
+	void attack();
 	void createRay(); //create ray for spells
-	void renderSpell();
 	void spawnPlayer(glm::vec3 pos);
 
 	void createRigidBody(BulletPhysics* bp);
@@ -48,19 +46,21 @@ private:
 	glm::vec3 m_inputVector;
 	glm::vec3 m_moveDir;
 
-	Camera* m_playerCamera;
-	btRigidBody* m_body;
-	float m_attackCooldown;
+	Camera* playerCamera;
+	float attackCooldown;
 	float m_spellSpeed = 1;
-	float m_speed;
-	int m_nrOfSpells;
-	int m_health;
+	float speed;
+	int nrOfSpells;
+	int health;
 	int m_frameCount;
-	std::string m_name;
+	std::string name;
+	TYPE spellType;
 
+	//removed in bulletPhysics.cpp
 	TYPE m_spellType;
 	BulletPhysics* m_bp;
-	btKinematicCharacterController* controller;
+	btKinematicCharacterController* m_character;
+
 
 
 };

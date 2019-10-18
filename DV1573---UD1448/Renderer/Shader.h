@@ -18,6 +18,7 @@ public:
 
 	void setMat3(std::string name, glm::mat3 mat);
 	void setMat4(std::string name, glm::mat4 mat);
+	void setVec2(std::string name, glm::vec2 vec);
 	void setVec3(std::string name, glm::vec3 vec);
 	void setVec4(std::string name, glm::vec4 vec);
 	void setFloat(std::string name, float num);
@@ -25,6 +26,7 @@ public:
 	void setName(std::string name);
 	//Sets a standard material
 	void setMaterial(std::string materalName);
+	void setMaterial(const Material* material);
 
 	bool getValid() const;
 	int getShaderID() const;

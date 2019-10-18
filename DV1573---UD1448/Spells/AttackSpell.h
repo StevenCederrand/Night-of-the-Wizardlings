@@ -2,19 +2,15 @@
 #include <Pch/Pch.h>
 #include <GameObject/GameObject.h>
 #include <Spells/Spell.h>
+#include <Spells/Spells.h>
 
 class AttackSpell : public Spell
 {
 public:
-	AttackSpell(glm::vec3 pos);
-	AttackSpell(std::string name, glm::vec3 pos, glm::vec3 direction, float speed, float travelTime, std::string meshName, float cooldown);
+	AttackSpell(glm::vec3 pos, glm::vec3 direction, const AttackSpellBase* spellBase);
 	~AttackSpell();
-	void updateActiveSpell(float deltaTime);
-	void createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector);
-	void spellCooldownUpdate(float deltaTime);
-
-	void update(float dt);
+	void update(float deltaTime);
 
 private:
-	glm::vec3 m_tempPos = glm::vec3(0.0f, 0.0f, 0.0f);
+	const AttackSpellBase* m_spellBase;
 };

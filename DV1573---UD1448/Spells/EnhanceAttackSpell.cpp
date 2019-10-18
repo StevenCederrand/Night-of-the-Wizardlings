@@ -1,6 +1,8 @@
 #include "Pch/Pch.h"
 #include "EnhanceAttackSpell.h"
 
+
+
 EnhanceAttackSpell::EnhanceAttackSpell(glm::vec3 pos)
 	: Spell(pos)
 {
@@ -68,8 +70,4 @@ void EnhanceAttackSpell::createSpell(float deltaTime, glm::vec3 spellPos, glm::v
 	setSpellPos(glm::vec3(spellPos.x, spellPos.y - 1.8f, spellPos.z) + directionVector); //-1.8 = spwn point for spell, spell need to be 0 and playerPos is set to (0,1.8,0)
 	translate(getSpellPos());
 	setDirection(directionVector);
-}
-
-void EnhanceAttackSpell::update(float dt)
-{
 }

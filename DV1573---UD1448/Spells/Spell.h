@@ -5,37 +5,32 @@
 class Spell : public GameObject
 {
 public:
-	Spell(glm::vec3 pos);
-	Spell(std::string name, glm::vec3 pos, glm::vec3 direction, float speed, float travelTime, std::string meshName, float cooldown);
+	Spell(glm::vec3 pos, glm::vec3 m_direction);
 	~Spell();
 
 	//-----Get-----//
-	float getCooldown() const;
-	float getSpellSpeed() const;
-	float getTravelTime() const;
-	glm::vec3 getSpellPos() const;
-	glm::vec3 getDirection() const;
+	//float getCooldown();
+	//float getSpellSpeed();
+	float getTravelTime() { return m_travelTime; }
+	glm::vec3 getDirection() { return m_direction; }
 	//----Set-----//
-	void setDamage(int damage);
-	void setSpellSpeed(float speed);
-	void setSpellPos(glm::vec3 pos);
-	void setCooldown(float cooldown);
-	void setTravelTime(float travelTime);
-	void setDirection(glm::vec3 direction);
-	void updateSpellPos(glm::vec3 newPos);
+	//void setDamage(int damage);
+	//void setSpellSpeed(float speed);
+	//void setSpellPos(glm::vec3 pos);
+	//void setCooldown(float cooldown);
+	void setTravelTime(float m_travelTime);
+	void setDirection(glm::vec3 m_direction);
+	const int& getType() const { return m_type; }
 
-	void update(float dt);
-
-	void destroySpell();
-	
+	virtual void update(float dt) = 0;
 
 private:
-	int m_spellDamage;
-	float m_spellSpeed; 
-	float m_spellCoolDown = 0;
-	float m_travelTime = 0;
+	//int m_spellDamage;
+	//float m_spellSpeed; 
+	//float m_spellCoolDown = 0;
+	float m_travelTime;
 	glm::vec3 m_direction;
-	glm::vec3 m_spellPosition = glm::vec3(0,0,0);
 	
-	
+protected:
+	int m_type;
 };

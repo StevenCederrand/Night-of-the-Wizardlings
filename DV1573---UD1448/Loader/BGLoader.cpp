@@ -37,17 +37,16 @@ BGLoader::~BGLoader()
 
 void BGLoader::Unload()
 {	
-	animationsD.clear();
-	skeletonsD.clear();
+	for (bggMeshData bggMesh : bggMeshes)
+	{
+		bggMesh.bggSkeleVertices.clear();
+		bggMesh.bggVertices.clear();
+		bggMesh.bggFaces.clear();
+		bggMesh.bggAnimation.clear();
+
+	}
+	bggMeshes.clear();
 	bggMaterials.clear();
-
-	for (std::vector<Vertices> vector : bggVertices)
-		vector.clear();
-	bggVertices.clear();
-
-	for (std::vector<Face> vector : bggFaces)
-		vector.clear();
-	bggFaces.clear();
 
 	for (BGLoading::Vertex* v : meshVert)
 		delete[] v;
@@ -56,6 +55,9 @@ void BGLoader::Unload()
 	for (BGLoading::Face* f : meshFace)
 		delete[] f;
 	meshFace.clear();
+
+	animationsD.clear();
+	skeletonsD.clear();
 
 
 	if (meshGroup)
@@ -68,7 +70,6 @@ void BGLoader::Unload()
 		delete[] dirLight;
 	if (pointLight)
 		delete[] pointLight;
-
 
 	meshGroup = nullptr;
 	material = nullptr;
@@ -90,58 +91,127 @@ void BGLoader::BGFormatData()
 {
 	meshCount = fileHeader.meshCount;
 	matCount = fileHeader.materialCount;
-
-	// Synced mesh vectors
-	bggVertices.resize(meshCount);
-	bggFaces.resize(meshCount);
-	bgPositions.resize(meshCount);
-	bgRotation.resize(meshCount);
-	bgScale.resize(meshCount);
-	bggTransforms.resize(meshCount);
+	
+	// Mesh vector
+	bggMeshes.resize(meshCount);
 
 	// Material vector
 	bggMaterials.resize(matCount);
 
 	for (int meshId = 0; meshId < meshCount; meshId++)
 	{
-		bggVertices[meshId].resize(GetVertexCount(meshId));
-		bggFaces[meshId].resize(GetFaceCount(meshId));
-
+		bggMeshes[meshId].bggVertices.resize(GetVertexCount(meshId));
+		bggMeshes[meshId].bggFaces.resize(GetFaceCount(meshId));
 		// Vertices
-		for (size_t v = 0; v < bggVertices[meshId].size(); v++)
+		for (size_t v = 0; v < bggMeshes[meshId].bggVertices.size(); v++)
 		{
-			bggVertices[meshId][v].position[0] = meshVert[meshId][v].position[0];
-			bggVertices[meshId][v].position[1] = meshVert[meshId][v].position[1];
-			bggVertices[meshId][v].position[2] = meshVert[meshId][v].position[2];
-
-			bggVertices[meshId][v].UV[0] = meshVert[meshId][v].uv[0];
-			bggVertices[meshId][v].UV[1] = meshVert[meshId][v].uv[1];
-
-			bggVertices[meshId][v].Normals[0] = meshVert[meshId][v].normal[0];
-			bggVertices[meshId][v].Normals[1] = meshVert[meshId][v].normal[1];
-			bggVertices[meshId][v].Normals[2] = meshVert[meshId][v].normal[2];
+			Vertex& vert = bggMeshes[meshId].bggVertices[v];
+			vert.position[0] = meshVert[meshId][v].position[0];
+			vert.position[1] = meshVert[meshId][v].position[1];
+			vert.position[2] = meshVert[meshId][v].position[2];
+			vert.UV[0] = meshVert[meshId][v].uv[0];
+			vert.UV[1] = meshVert[meshId][v].uv[1];
+			vert.Normals[0] = meshVert[meshId][v].normal[0];
+			vert.Normals[1] = meshVert[meshId][v].normal[1];
+			vert.Normals[2] = meshVert[meshId][v].normal[2];
 		}
-
 		// Faces
-		for (size_t f = 0; f < bggFaces[meshId].size(); f++)
+		for (size_t f = 0; f < bggMeshes[meshId].bggFaces.size(); f++)
 		{
-			bggFaces[meshId][f].indices[0] = meshFace[meshId][f].indices[0];
-			bggFaces[meshId][f].indices[1] = meshFace[meshId][f].indices[1];
-			bggFaces[meshId][f].indices[2] = meshFace[meshId][f].indices[2];
+			Face& face = bggMeshes[meshId].bggFaces[f];
+			face.indices[0] = meshFace[meshId][f].indices[0];
+			face.indices[1] = meshFace[meshId][f].indices[1];
+			face.indices[2] = meshFace[meshId][f].indices[2];
 		}
-
 		
 		// Transforms
-		bgPositions[meshId] = glm::make_vec3(loaderMesh[meshId].translation);
-		bgRotation[meshId] = glm::quat(glm::radians(glm::make_vec3(loaderMesh[meshId].rotation)));
-		bgScale[meshId] = glm::make_vec3(loaderMesh[meshId].scale);
+		bggMeshes[meshId].bggPositions = glm::make_vec3(loaderMesh[meshId].translation);
+
+		glm::vec3 rotation1 = glm::make_vec3(loaderMesh[meshId].rotation);
+		glm::vec3 rads1 = glm::radians(rotation1);
+		glm::quat quat1 = glm::quat(rads1);
+		bggMeshes[meshId].bggRotation = glm::quat(glm::radians(glm::make_vec3(loaderMesh[meshId].rotation)));
+		bggMeshes[meshId].bggScale = glm::make_vec3(loaderMesh[meshId].scale);
 
 		Transform newTransform;
-		newTransform.position = bgPositions[meshId];
-		newTransform.rotation = bgRotation[meshId];
-		newTransform.scale = bgScale[meshId];
-		bggTransforms[meshId] = newTransform;
+		newTransform.position = bggMeshes[meshId].bggPositions;
+		newTransform.rotation = bggMeshes[meshId].bggRotation;
+		newTransform.scale = bggMeshes[meshId].bggScale;
+		bggMeshes[meshId].bggTransforms = newTransform;
 
+		// Skeleton
+		if (loaderMesh[meshId].skeleton.jointCount > 0)
+		{
+			bggMeshes[meshId].bggVertices.clear();
+			bggMeshes[meshId].bggSkeleVertices.resize(GetVertexCount(meshId));
+			for (size_t v = 0; v < bggMeshes[meshId].bggSkeleVertices.size(); v++)
+			{
+				Vertex2& vert = bggMeshes[meshId].bggSkeleVertices[v];
+				vert.position[0] = meshVert[meshId][v].position[0];
+				vert.position[1] = meshVert[meshId][v].position[1];
+				vert.position[2] = meshVert[meshId][v].position[2];
+				vert.UV[0] = meshVert[meshId][v].uv[0];
+				vert.UV[1] = meshVert[meshId][v].uv[1];
+				vert.Normals[0] = meshVert[meshId][v].normal[0];
+				vert.Normals[1] = meshVert[meshId][v].normal[1];
+				vert.Normals[2] = meshVert[meshId][v].normal[2];
+
+				vert.bone[0] = (int)meshVert[meshId][v].bone[0];
+				vert.bone[1] = (int)meshVert[meshId][v].bone[1];
+				vert.bone[2] = (int)meshVert[meshId][v].bone[2];
+				vert.bone[3] = (int)meshVert[meshId][v].bone[3];
+
+				vert.weight[0] = meshVert[meshId][v].weight[0];
+				vert.weight[1] = meshVert[meshId][v].weight[1];
+				vert.weight[2] = meshVert[meshId][v].weight[2];
+				vert.weight[3] = meshVert[meshId][v].weight[3];
+			}
+
+
+			//bggMeshes[meshId].bggSkeleton.name = loaderMesh[meshId].skeleton.name;
+			bggMeshes[meshId].bggSkeleton.name = skeletonsD[meshId].joint[0].name;
+			bggMeshes[meshId].bggSkeleton.joints.resize(loaderMesh[meshId].skeleton.jointCount);
+
+			for (int j = 0; j < bggMeshes[meshId].bggSkeleton.joints.size(); j++)
+			{
+				bggMeshes[meshId].bggSkeleton.joints[j].name = skeletonsD[meshId].joint[j].name;
+				bggMeshes[meshId].bggSkeleton.joints[j].invBindPose = glm::make_mat4(skeletonsD[meshId].joint[j].invBindPose);
+				bggMeshes[meshId].bggSkeleton.joints[j].parentIndex = skeletonsD[meshId].joint[j].parentIndex;
+			}
+
+			// Animation resize
+			bggMeshes[meshId].bggAnimation.resize(loaderMesh[meshId].skeleton.aniCount);
+		}
+
+		// Animation
+		for (int i = 0; i < bggMeshes[meshId].bggAnimation.size(); i++)
+		{
+			Animation& ani		= bggMeshes[meshId].bggAnimation[i];
+			ani.name			= animationsD[meshId].animations[0].ani.name;
+			ani.duration		= animationsD[meshId].animations[0].ani.duration;
+			ani.rate			= animationsD[meshId].animations[0].ani.rate;
+			ani.keyframeFirst	= animationsD[meshId].animations[0].ani.keyframeFirst;
+			ani.keyframeLast	= animationsD[meshId].animations[0].ani.keyframeLast;
+
+			ani.keyframes.resize(animationsD[meshId].animations[0].ani.keyframeCount);
+			for (int k = 0; k < ani.keyframes.size(); k++)
+			{
+				ani.keyframes[k].id = animationsD[meshId].animations[0].keyFrames[k].key.id;
+
+				int transformCount = (int)animationsD[meshId].animations[0].keyFrames[k].transforms.size();
+				ani.keyframes[k].local_joint_t.resize(transformCount);
+				for (int t = 0; t < transformCount; t++)
+				{
+					Transform tempTransform;
+					tempTransform.position = glm::make_vec3(animationsD[meshId].animations[0].keyFrames[k].transforms[t].t.transform);
+					tempTransform.rotation = glm::make_quat(animationsD[meshId].animations[0].keyFrames[k].transforms[t].t.rotate);
+					tempTransform.scale = glm::make_vec3(animationsD[meshId].animations[0].keyFrames[k].transforms[t].t.scale);
+
+					ani.keyframes[k].local_joint_t[t].transform = tempTransform;
+					ani.keyframes[k].local_joint_t[t].jointid = animationsD[meshId].animations[0].keyFrames[k].transforms[t].t.joinId;
+				}
+			}
+		}
 	}
 
 	for (int i = 0; i < matCount; i++)
@@ -154,11 +224,15 @@ void BGLoader::BGFormatData()
 		bggMaterials[i].ambient = glm::vec3(*material[i].ambient);
 	}
 
+
+	
+
 }
 
-bool BGLoader::LoadMesh(std::string fileName)
+bool BGLoader::LoadMesh(std::string file)
 {
 	Unload();
+	fileName = file;
 
 	std::ifstream binFile(fileName, std::ios::binary);
 	if (!binFile)
@@ -257,8 +331,6 @@ bool BGLoader::LoadMesh(std::string fileName)
 
 			animationsD.push_back(newAnimations);
 			skeletonsD.push_back(newSkeleton);
-
-			
 		}
 
 		for (int i = 0; i < fileHeader.materialCount; i++)

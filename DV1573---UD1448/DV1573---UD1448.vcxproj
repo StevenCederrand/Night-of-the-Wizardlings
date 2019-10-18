@@ -72,14 +72,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin-intermediate\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)dependencies/include/;$(SolutionDir)$(MSBuildProjectName);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)dependencies/include/;$(SolutionDir)$(MSBuildProjectName);$(SolutionDir)dependencies/include/Bullet;$(IncludePath);</IncludePath>
     <ReferencePath>$(ReferencePath)</ReferencePath>
     <LibraryPath>$(SolutionDir)dependencies/lib/x64/;$(LibraryPath)</LibraryPath>
     <SourcePath>%(SolutionDir)DV1573---UD1448/;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
-    <IncludePath>$(SolutionDir)dependencies/include/;$(SolutionDir)$(MSBuildProjectName);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)dependencies/include/;$(SolutionDir)$(MSBuildProjectName);$(SolutionDir)dependencies/include/Bullet;$(IncludePath);$(SolutionDir)dependencies/include/Bullet</IncludePath>
     <ReferencePath>$(ReferencePath)</ReferencePath>
     <LibraryPath>$(SolutionDir)dependencies/lib/x64/;$(LibraryPath)</LibraryPath>
     <IntDir>$(SolutionDir)bin-intermediate\$(Platform)\$(Configuration)\</IntDir>
@@ -96,7 +96,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LibraryPath>$(SolutionDir)dependencies/lib/x32/;$(LibraryPath)</LibraryPath>
     <ReferencePath>$(ReferencePath)</ReferencePath>
-    <IncludePath>$(SolutionDir)dependencies/include/;$(SolutionDir)dependencies/include/Bullet;$(SolutionDir)$(MSBuildProjectName);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)dependencies/include/;$(SolutionDir)dependencies/include/Bullet;$(SolutionDir)$(MSBuildProjectName);$(IncludePath);$(SolutionDir)dependencies/include/Bullet</IncludePath>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin-intermediate\$(Platform)\$(Configuration)\</IntDir>
     <SourcePath>%(SolutionDir)DV1573---UD1448/;$(SourcePath)</SourcePath>
@@ -174,7 +174,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GameObject\AnimatedObject.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Mesh\AnimationMap.cpp" />
     <ClCompile Include="Mesh\MeshMap.cpp" />
+    <ClCompile Include="Networking\ChaosServerMode.cpp" />
     <ClCompile Include="Networking\Client.cpp" />
     <ClCompile Include="Networking\LocalServer.cpp" />
     <ClCompile Include="GameObject\GameObject.cpp" />
@@ -207,11 +212,15 @@
     <ClCompile Include="Spells\AttackSpell.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Spells\EnhanceAttackSpell.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Spells\EnhanceAttackSpell.cpp" />
     <ClCompile Include="Spells\fire.cpp" />
     <ClCompile Include="Spells\Spell.cpp" />
     <ClCompile Include="Renderer\SkyBox.cpp" />
     <ClCompile Include="Spells\SpellHandler.cpp" />
+    <ClCompile Include="Mesh\SkeletonMap.cpp" />
     <ClCompile Include="States\FindServerState.cpp" />
     <ClCompile Include="States\LobbyState.cpp" />
     <ClCompile Include="States\MenuState.cpp" />
@@ -232,6 +241,7 @@
     </ClCompile>
     <ClCompile Include="System\Main.cpp" />
     <ClCompile Include="System\StateManager.cpp" />
+    <ClCompile Include="System\Timer.cpp" />
     <ClCompile Include="Texture\stb_image.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -240,7 +250,12 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GameObject\AnimatedObject.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Mesh\AnimationMap.h" />
     <ClInclude Include="Mesh\MeshMap.h" />
+    <ClInclude Include="Networking\ChaosServerMode.h" />
     <ClInclude Include="Networking\Client.h" />
     <ClInclude Include="Networking\LocalServer.h" />
     <ClInclude Include="Networking\NetworkGlobals.h" />
@@ -267,11 +282,16 @@
     <ClInclude Include="Spells\AttackSpell.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Spells\EnhanceAttackSpell.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Spells\EnhanceAttackSpell.h" />
     <ClInclude Include="Spells\fire.h" />
     <ClInclude Include="Spells\Spell.h" />
     <ClInclude Include="Renderer\SkyBox.h" />
+    <ClInclude Include="Mesh\SkeletonMap.h" />
     <ClInclude Include="Spells\SpellHandler.h" />
+    <ClInclude Include="Spells\Spells.h" />
     <ClInclude Include="States\FindServerState.h" />
     <ClInclude Include="States\LobbyState.h" />
     <ClInclude Include="States\MenuState.h" />
@@ -282,6 +302,7 @@
     <ClInclude Include="System\Log.h" />
     <ClInclude Include="System\State.h" />
     <ClInclude Include="System\StateManager.h" />
+    <ClInclude Include="System\Timer.h" />
     <ClInclude Include="Texture\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
