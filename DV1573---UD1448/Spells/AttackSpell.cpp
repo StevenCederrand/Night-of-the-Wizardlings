@@ -5,7 +5,7 @@
 AttackSpell::AttackSpell(glm::vec3 pos, glm::vec3 direction, const AttackSpellBase* spellBase)
 	: Spell(pos, direction)
 {
-	m_type = 0;
+	m_type = SPELL_TYPE::NORMALATTACK;
 	m_spellBase = spellBase;
 	setTravelTime(spellBase->m_lifeTime);
 

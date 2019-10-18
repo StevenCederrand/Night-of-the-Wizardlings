@@ -14,17 +14,6 @@ Renderer::Renderer()
 	int x = -10;
 	int z = -40;
 
-	//m_pLights.reserve(P_LIGHT_COUNT);
-	
-	/*for (int i = 0; i < 1; i++) {
-		Pointlight pL;
-		pL.position = glm::vec3(0, 0, 0);
-
-		pL.radius = 5.0f;
-		pL.attenuation = glm::vec3(1.0f, 0.09f, 0.032f);
-		m_pLights.push_back(pL);
-	}*/
-
 	//Define Work Groups
 	workGroups.x = (SCREEN_WIDTH + (SCREEN_WIDTH % TILE_SIZE)) / TILE_SIZE;
 	workGroups.y = (SCREEN_HEIGHT + (SCREEN_HEIGHT % TILE_SIZE)) / TILE_SIZE;
@@ -142,20 +131,41 @@ void Renderer::submit(GameObject* gameObject, ObjectType objType)
 	
 }
 
-void Renderer::removeDynamic(GameObject* gameObject)
+void Renderer::removeDynamic(GameObject* gameObject, ObjectType objType)
 {
 	int index = -1;
-	//Find the index of the object
-	for (size_t i = 0; i < m_dynamicObjects.size(); i++)
-	{
-		if (m_dynamicObjects[i] == gameObject) {
-			index = i;
-			break;
+	
+	if (objType == DYNAMIC) { //Remove dynamic objet from the dynamic objet vector
+		//Find the index of the object
+		for (size_t i = 0; i < m_dynamicObjects.size(); i++)
+		{
+			if (m_dynamicObjects[i] == gameObject) {
+				index = i;
+				break;
+			}
+		}
+		if (index > -1) {
+			m_dynamicObjects.erase(m_dynamicObjects.begin() + index);
 		}
 	}
-	if (index > -1) {
-		m_dynamicObjects.erase(m_dynamicObjects.begin() + index);
+	else if (objType == SPELL) { //remove spells from the spell vector!!
+		//Find the index of the object
+		for (size_t i = 0; i < m_spells.size(); i++)
+		{
+			if (m_spells[i] == gameObject) {
+				index = i;
+				break;
+			}
+		}
+		if (index > -1) {
+			logWarning(m_spells.size());
+			m_spells.erase(m_spells.begin() + index);
+			logWarning(m_spells.size());
+		}
+		logWarning("index", index);
 	}
+
+	
 }
 
 void Renderer::destroy()
@@ -192,8 +202,8 @@ void Renderer::render() {
 	Transform transform;
 	glm::mat4 modelMatrix;
 
-#pragma region Depth_Render
-	if (m_pLights.size() > 0) {
+#pragma region Depth_Render & Light_Cull
+	if (m_spells.size() > 0) {
 		ShaderMap::getInstance()->useByName(DEPTH_MAP);
 
 		//Bind and draw the objects to the depth-buffer
@@ -250,19 +260,16 @@ void Renderer::render() {
 			}
 		}
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}
 
-#pragma endregion
-	
-#pragma region Light_Culling
-	//If we have got pointlights in the scene the we check the light culling
-	if (m_pLights.size() > 0) {
+		#pragma region Light_Culling
 		ShaderMap::getInstance()->useByName(LIGHT_CULL);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
 		bindMatrixes(LIGHT_CULL);
 
 		glm::vec2 screenSize = glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT);
 		ShaderMap::getInstance()->getShader(LIGHT_CULL)->setVec2("screenSize", screenSize);
+		ShaderMap::getInstance()->getShader(LIGHT_CULL)->setInt("lightCount", m_spells.size());//Set the number of active pointlights in the scene 
+
 
 		//Bind the depthmap	
 		glActiveTexture(GL_TEXTURE0);
@@ -271,18 +278,20 @@ void Renderer::render() {
 
 
 		//Send all of the light data into the compute shader	
-		for (int i = 0; i < P_LIGHT_COUNT; i++) {
-			ShaderMap::getInstance()->getShader(LIGHT_CULL)->setVec3("lights[" + std::to_string(i) + "].position", m_pLights[i].position);
-			ShaderMap::getInstance()->getShader(LIGHT_CULL)->setFloat("lights[" + std::to_string(i) + "].radius", m_pLights[i].radius);
+		for (size_t i = 0; i < m_spells.size(); i++) {
+			ShaderMap::getInstance()->getShader(LIGHT_CULL)->setVec3("lights[" + std::to_string(i) + "].position", m_spells[i]->getTransform().position);
+			ShaderMap::getInstance()->getShader(LIGHT_CULL)->setFloat("lights[" + std::to_string(i) + "].radius", P_LIGHT_RADIUS);
 		}
 
 		glDispatchCompute(workGroups.x, workGroups.y, 1);
 		//Unbind the depth
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, 0);
+		#pragma endregion
 	}
 
 #pragma endregion
+	
 
 #pragma region Color_Render
 	ShaderMap::getInstance()->useByName(BASIC_FORWARD);
@@ -291,12 +300,12 @@ void Renderer::render() {
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
 	
 	//Add a step where we insert lights into the scene
-	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("LightCount", m_pLights.size());
-	if (m_pLights.size() > 0) {
-		for (int i = 0; i < P_LIGHT_COUNT; i++) {
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setVec3("pLights[" + std::to_string(i) + "].position", m_pLights[i].position);
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setVec3("pLights[" + std::to_string(i) + "].attenuation", m_pLights[i].attenuation);
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setFloat("pLights[" + std::to_string(i) + "].radius", m_pLights[i].radius);
+	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("LightCount", m_spells.size());
+	if (m_spells.size() > 0) {
+		for (size_t i = 0; i < m_spells.size(); i++) {
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[i]->getTransform().position);
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setVec3("pLights[" + std::to_string(i) + "].attenuation", glm::vec3(1.0f, 0.09f, 0.032f));
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setFloat("pLights[" + std::to_string(i) + "].radius", P_LIGHT_RADIUS);
 		}
 	}
 	//Render Static objects
@@ -361,48 +370,52 @@ void Renderer::render() {
 #pragma region Animation_Render
 	//TODO: Evaluate this implementation, should be an easier way to bind values to shaders as they're changed
 	// Possibly extract functions. Only difference in rendering is the shader and the binding of bone matrices
-	ShaderMap::getInstance()->useByName(ANIMATION);
-	//Bind view- and projection matrix
-	bindMatrixes(ANIMATION);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
+	if (m_anistaticObjects.size() > 0) {
+		ShaderMap::getInstance()->useByName(ANIMATION);
+		//Bind view- and projection matrix
+		bindMatrixes(ANIMATION);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
 
-	//Add a step where we insert lights into the scene
-	if (m_pLights.size() > 0) {
-		for (int i = 0; i < P_LIGHT_COUNT; i++) {
-			ShaderMap::getInstance()->getShader(ANIMATION)->setVec3("pLights[" + std::to_string(i) + "].position", m_pLights[i].position);
-			ShaderMap::getInstance()->getShader(ANIMATION)->setVec3("pLights[" + std::to_string(i) + "].attenuation", m_pLights[i].attenuation);
-			ShaderMap::getInstance()->getShader(ANIMATION)->setFloat("pLights[" + std::to_string(i) + "].radius", m_pLights[i].radius);
+		//Add a step where we insert lights into the scene
+		ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("LightCount", m_spells.size());
+		if (m_spells.size() > 0) {
+			for (size_t i = 0; i < m_spells.size(); i++) {
+				ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[i]->getTransform().position);
+				ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setVec3("pLights[" + std::to_string(i) + "].attenuation", glm::vec3(1.0f, 0.09f, 0.032f));
+				ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setFloat("pLights[" + std::to_string(i) + "].radius", P_LIGHT_RADIUS);
+			}
 		}
-	}
-	for (GameObject* object : m_anistaticObjects)
-	{
-		//Then through all of the meshes
-		for (int j = 0; j < object->getMeshesCount(); j++)
+		for (GameObject* object : m_anistaticObjects)
 		{
-			//Fetch the current mesh and its transform
-			mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
-			//Bind calculated bone matrices
-			static_cast<AnimatedObject*>(object)->BindAnimation(j);
-			transform = object->getTransform(j);
+			//Then through all of the meshes
+			for (size_t j = 0; j < object->getMeshesCount(); j++)
+			{
+				//Fetch the current mesh and its transform
+				mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
+				//Bind calculated bone matrices
+				static_cast<AnimatedObject*>(object)->BindAnimation(j);
+				transform = object->getTransform(j);
 
-			//Bind the material
-			object->bindMaterialToShader(ANIMATION, j);
+				//Bind the material
+				object->bindMaterialToShader(ANIMATION, j);
 
-			modelMatrix = glm::mat4(1.0f);
-			modelMatrix = glm::translate(modelMatrix, transform.position);
-			modelMatrix = glm::scale(modelMatrix, transform.scale);
-			modelMatrix *= glm::mat4_cast(transform.rotation);
+				modelMatrix = glm::mat4(1.0f);
+				modelMatrix = glm::translate(modelMatrix, transform.position);
+				modelMatrix = glm::scale(modelMatrix, transform.scale);
+				modelMatrix *= glm::mat4_cast(transform.rotation);
 
-			//Bind the modelmatrix
-			ShaderMap::getInstance()->getShader(ANIMATION)->setMat4("modelMatrix", modelMatrix);
+				//Bind the modelmatrix
+				ShaderMap::getInstance()->getShader(ANIMATION)->setMat4("modelMatrix", modelMatrix);
 
-			glBindVertexArray(mesh->getBuffers().vao);
+				glBindVertexArray(mesh->getBuffers().vao);
 
-			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
-			glBindVertexArray(0);
+				glBindVertexArray(0);
+			}
 		}
 	}
+	
 #pragma endregion
 
 }

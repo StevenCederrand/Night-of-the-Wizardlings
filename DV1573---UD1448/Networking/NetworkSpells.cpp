@@ -38,14 +38,14 @@ void NetworkSpells::update(const float& dt)
 					}
 				
 					e.gameobject->setWorldPosition(e.spellData.Position);
-					Renderer::getInstance()->submit(e.gameobject, DYNAMIC);
+					Renderer::getInstance()->submit(e.gameobject, SPELL);
 					e.flag = NetGlobals::THREAD_FLAG::NONE;
 
 				}
 			}
 			else if (e.flag == NetGlobals::THREAD_FLAG::REMOVE)
 			{
-				Renderer::getInstance()->removeDynamic(e.gameobject);
+				Renderer::getInstance()->removeDynamic(e.gameobject, SPELL);
 				delete e.gameobject;
 				m_entities.erase(m_entities.begin() + i);
 				i--;

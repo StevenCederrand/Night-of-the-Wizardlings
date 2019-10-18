@@ -44,19 +44,19 @@ PlayState::PlayState()
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 	
 	//////Animated rectangle
-	//m_objects.push_back(new AnimatedObject("TestRectangle"));
-	//m_objects[m_objects.size() - 1]->loadMesh("TestRectangle.mesh");
-	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -4.0f));
-	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
-	//
-	////Animated goblino
-	//m_objects.push_back(new AnimatedObject("TestGoblino"));
-	//m_objects[m_objects.size() - 1]->loadMesh("ElGoblino.mesh");
-	//Transform tempTransform;
-	//tempTransform.scale = glm::vec3(0.03f, 0.03f, 0.03f);
-	//tempTransform.position = glm::vec3(-3.0f, 0.0f, 3.0f);
-	//m_objects[m_objects.size() - 1]->setTransform(tempTransform);
-	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
+	m_objects.push_back(new AnimatedObject("TestRectangle"));
+	m_objects[m_objects.size() - 1]->loadMesh("TestRectangle.mesh");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -4.0f));
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
+	
+	//Animated goblino
+	m_objects.push_back(new AnimatedObject("TestGoblino"));
+	m_objects[m_objects.size() - 1]->loadMesh("ElGoblino.mesh");
+	Transform tempTransform;
+	tempTransform.scale = glm::vec3(0.03f, 0.03f, 0.03f);
+	tempTransform.position = glm::vec3(-3.0f, 0.0f, 3.0f);
+	m_objects[m_objects.size() - 1]->setTransform(tempTransform);
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
 
 	CollisionObject obj = box;
 	m_bPhysics->createObject(obj, 0.0f, glm::vec3(0.0f, -1.5f, 0.0f), glm::vec3(100.0f, 2.0f, 100.0f), 1.0);

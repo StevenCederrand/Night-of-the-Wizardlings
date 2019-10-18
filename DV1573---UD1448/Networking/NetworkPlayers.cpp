@@ -38,7 +38,7 @@ void NetworkPlayers::update(const float& dt)
 		else if (p.flag == NetGlobals::THREAD_FLAG::REMOVE)
 		{
 
-			Renderer::getInstance()->removeDynamic(p.gameobject);
+			Renderer::getInstance()->removeDynamic(p.gameobject, DYNAMIC);
 			delete p.gameobject;
 			m_players.erase(m_players.begin() + i);
 			i--;

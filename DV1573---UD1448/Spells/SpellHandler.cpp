@@ -91,6 +91,8 @@ void SpellHandler::spellUpdate(float deltaTime)
 		if (spells[i]->getTravelTime() <= 0)
 		{
 			logTrace("Deleted spell");
+			Renderer::getInstance()->removeDynamic(spells[i], SPELL);
+
 			Client::getInstance()->destroySpellOnNetwork(*spells[i]);
 			delete spells[i];
 			spells.erase(spells.begin() + i);

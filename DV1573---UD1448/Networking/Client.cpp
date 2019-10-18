@@ -496,9 +496,8 @@ void Client::createSpellOnNetwork(Spell& spell)
 	spellPacket.Position = spell.getTransform().position;
 	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Rotation = glm::vec3(0.0f);
-	spellPacket.SpellType = SPELL_TYPE::UNKNOWN; // Type needs to be present in Spell class and not in sub classes.
+	spellPacket.SpellType = (SPELL_TYPE)spell.getType();
 
-	//m_spellQueue.emplace_back(spellPacket);
 	m_removeOrAddSpellQueue.emplace_back(spellPacket);
 }
 
@@ -513,7 +512,7 @@ void Client::updateSpellOnNetwork(Spell& spell)
 	spellPacket.Position = spell.getTransform().position;
 	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Rotation = glm::vec3(0.0f);
-	spellPacket.SpellType = SPELL_TYPE::UNKNOWN; // Type needs to be present in Spell class and not in sub classes.
+	spellPacket.SpellType = (SPELL_TYPE)spell.getType(); 
 
 	m_updateSpellQueue.emplace_back(spellPacket);
 }
@@ -528,7 +527,7 @@ void Client::destroySpellOnNetwork(Spell& spell)
 	spellPacket.Position = spell.getTransform().position;
 	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Rotation = glm::vec3(0.0f);
-	spellPacket.SpellType = SPELL_TYPE::UNKNOWN; // Type needs to be present in Spell class and not in sub classes.
+	spellPacket.SpellType = (SPELL_TYPE)spell.getType();
 
 	m_removeOrAddSpellQueue.emplace_back(spellPacket);
 }
