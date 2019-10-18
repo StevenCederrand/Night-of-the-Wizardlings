@@ -87,6 +87,29 @@ struct SpellPacket{
 	}
 };
 
+struct HitPacket {
+
+	uint64_t SpellID = 0;
+	RakNet::RakNetGUID CreatorGUID = RakNet::UNASSIGNED_RAKNET_GUID;
+	RakNet::RakNetGUID playerHitGUID = RakNet::UNASSIGNED_RAKNET_GUID;
+	glm::vec3 Position = glm::vec3(0.0f);
+	glm::quat Rotation = glm::quat();
+	float damage = 0.0f;
+	SPELL_TYPE SpellType = SPELL_TYPE::UNKNOWN;
+
+	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
+		stream.Serialize(writeToStream, SpellID);
+		stream.Serialize(writeToStream, CreatorGUID);
+		stream.Serialize(writeToStream, playerHitGUID);
+		stream.Serialize(writeToStream, Position);
+		stream.Serialize(writeToStream, Rotation);
+		stream.Serialize(writeToStream, damage);
+		stream.Serialize(writeToStream, SpellType);
+	}
+
+
+};
+
 struct ServerStateChange {
 	NetGlobals::SERVER_STATE currentState;
 

@@ -2,7 +2,6 @@
 #include <Pch/Pch.h>
 #include <GameObject/GameObject.h>
 #include <Spells/Spell.h>
-#include <Spells/Spells.h>
 
 class AttackSpell : public Spell
 {
@@ -19,6 +18,7 @@ public:
 //=======
 	virtual void update(float deltaTime);
 	void updateRigidbody(float deltaTime, btRigidBody* body);
+	const AttackSpellBase* getSpellBase();
 
 private:
 	const AttackSpellBase* m_spellBase;

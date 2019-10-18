@@ -90,10 +90,10 @@ void SpellHandler::spellUpdate(float deltaTime)
 		
 		if (spells[i]->getTravelTime() <= 0)
 		{
+			logTrace("Deleted spell");
 			Client::getInstance()->destroySpellOnNetwork(*spells[i]);
 			delete spells[i];
 			spells.erase(spells.begin() + i);
-			logTrace("Deleted spell");
 			m_BulletNormalSpell.erase(m_BulletNormalSpell.begin() + i);
 		}
 	}
@@ -144,9 +144,13 @@ void SpellHandler::spellCollisionCheck()
 		axis.emplace_back(zAxis);
 		
 		//create a box, obb or AABB? from the player position
-		for (int i = 0; i < spells.size(); i++) {
-			glm::vec3 spellPos = spells.at(i)->getTransform().position;
-			specificSpellCollision(spellPos, playerPos, axis);		
+		for (size_t j = 0; j < spells.size(); j++) {
+			glm::vec3 spellPos = spells.at(j)->getTransform().position;
+			if (specificSpellCollision(spellPos, playerPos, axis))
+			{
+				Client::getInstance()->sendHitRequest(*spells[j], list[i]);
+				spells[j]->setTravelTime(0.0f);
+			}
 		}
 	}
 }

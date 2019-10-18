@@ -19,7 +19,9 @@ Client* Client::getInstance()
 void Client::startup()
 {
 	if (!m_initialized) {
-		m_spellQueue.reserve(250);
+		m_updateSpellQueue.reserve(250);
+		m_spellsHitQueue.reserve(250);
+		m_removeOrAddSpellQueue.reserve(250);
 		m_connectedPlayers.reserve(NetGlobals::MaximumConnections);
 		m_clientPeer = RakNet::RakPeerInterface::GetInstance();
 		m_clientPeer->Startup(1, &RakNet::SocketDescriptor(), 1);
@@ -448,7 +450,13 @@ void Client::processAndHandlePackets()
 
 		case SPELL_PLAYER_HIT:
 		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			PlayerPacket playerPacket;
+			playerPacket.Serialize(false, bsIn);
 
+			m_myPlayerDataPacket.health = playerPacket.health;
+
+			logTrace("[CLIENT] My health is {0}", m_myPlayerDataPacket.health);
 		}
 		break;
 
@@ -467,7 +475,6 @@ void Client::updatePlayerData(Player* player)
 {
 	if (!m_initialized || !m_isConnectedToAnServer) return;
 
-	m_myPlayerDataPacket.health = player->getHealth();
 	m_myPlayerDataPacket.position = player->getPlayerPos();
 	m_myPlayerDataPacket.rotation = glm::vec3(
 		player->getCamera()->getViewMat()[1][0] - glm::radians(90.0f),
@@ -491,7 +498,8 @@ void Client::createSpellOnNetwork(Spell& spell)
 	spellPacket.Rotation = glm::vec3(0.0f);
 	spellPacket.SpellType = SPELL_TYPE::UNKNOWN; // Type needs to be present in Spell class and not in sub classes.
 
-	m_spellQueue.emplace_back(spellPacket);
+	//m_spellQueue.emplace_back(spellPacket);
+	m_removeOrAddSpellQueue.emplace_back(spellPacket);
 }
 
 
@@ -507,7 +515,7 @@ void Client::updateSpellOnNetwork(Spell& spell)
 	spellPacket.Rotation = glm::vec3(0.0f);
 	spellPacket.SpellType = SPELL_TYPE::UNKNOWN; // Type needs to be present in Spell class and not in sub classes.
 
-	m_spellQueue.emplace_back(spellPacket);
+	m_updateSpellQueue.emplace_back(spellPacket);
 }
 
 void Client::destroySpellOnNetwork(Spell& spell)
@@ -522,7 +530,22 @@ void Client::destroySpellOnNetwork(Spell& spell)
 	spellPacket.Rotation = glm::vec3(0.0f);
 	spellPacket.SpellType = SPELL_TYPE::UNKNOWN; // Type needs to be present in Spell class and not in sub classes.
 
-	m_spellQueue.emplace_back(spellPacket);
+	m_removeOrAddSpellQueue.emplace_back(spellPacket);
+}
+
+void Client::sendHitRequest(Spell& spell, NetworkPlayers::PlayerEntity& playerThatWasHit)
+{
+	if (!m_initialized || !m_isConnectedToAnServer) return;
+
+	HitPacket hitPacket;
+	hitPacket.SpellID = spell.getUniqueID();
+	hitPacket.CreatorGUID = m_clientPeer->GetMyGUID();
+	hitPacket.playerHitGUID = playerThatWasHit.data.guid.rakNetGuid;
+	hitPacket.Position = spell.getTransform().position;
+	hitPacket.Rotation = spell.getTransform().rotation;
+	hitPacket.damage = spell.getSpellBase()->m_damage;
+
+	m_spellsHitQueue.emplace_back(hitPacket);
 }
 
 void Client::updateNetworkEntities(const float& dt)
@@ -554,17 +577,49 @@ void Client::updateDataOnServer()
 	m_myPlayerDataPacket.Serialize(true, bsOut);
 	m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
 
-	// Empty out the spell queue
-	for (size_t i = 0; i < m_spellQueue.size(); i++) {
+	//// Empty out the spell queue
+	//for (size_t i = 0; i < m_spellQueue.size(); i++) {
+	//
+	//	RakNet::BitStream bsOut;
+	//	bsOut.Write(m_spellQueue[i].packetType);
+	//	m_spellQueue[i].Serialize(true, bsOut);
+	//	m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
+	//}
+
+	// Update all spells first
+	for (size_t i = 0; i < m_updateSpellQueue.size(); i++) {
 	
 		RakNet::BitStream bsOut;
-		bsOut.Write(m_spellQueue[i].packetType);
-		m_spellQueue[i].Serialize(true, bsOut);
+		bsOut.Write(m_updateSpellQueue[i].packetType);
+		m_updateSpellQueue[i].Serialize(true, bsOut);
 		m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
 	}
 
-	// Empty it
-	m_spellQueue.clear();
+	// Check collision with them
+	for (size_t i = 0; i < m_spellsHitQueue.size(); i++) {
+
+		RakNet::BitStream bsOut;
+		bsOut.Write((RakNet::MessageID)SPELL_PLAYER_HIT);
+		m_spellsHitQueue[i].Serialize(true, bsOut);
+		m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
+	}
+
+	// remove or add new spells on the network
+	for (size_t i = 0; i < m_removeOrAddSpellQueue.size(); i++) {
+
+		RakNet::BitStream bsOut;
+		bsOut.Write(m_removeOrAddSpellQueue[i].packetType);
+		m_removeOrAddSpellQueue[i].Serialize(true, bsOut);
+		m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
+	}
+
+	// Empty all the queues
+	m_updateSpellQueue.clear();
+	m_spellsHitQueue.clear();
+	m_removeOrAddSpellQueue.clear();
+
+
+	//m_spellQueue.clear();
 }
 
 

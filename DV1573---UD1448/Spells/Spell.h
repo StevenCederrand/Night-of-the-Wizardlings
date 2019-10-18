@@ -1,6 +1,7 @@
 #pragma once
 #include <Pch/Pch.h>
 #include <GameObject/GameObject.h>
+#include "Spells.h"
 
 class Spell : public GameObject
 {
@@ -21,7 +22,7 @@ public:
 
 	virtual void update(float dt) = 0;
 	virtual void updateRigidbody(float deltaTime, btRigidBody* body) = 0;
-
+	virtual const AttackSpellBase* getSpellBase() = 0;
 private:
 	uint64_t m_uniqueID = 0;
 	float m_travelTime;

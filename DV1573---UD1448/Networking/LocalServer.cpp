@@ -358,16 +358,132 @@ void LocalServer::processAndHandlePackets()
 			  
 		case SPELL_PLAYER_HIT:
 		{
+			logTrace("PLAYER HIT PACKAGE");
 
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			HitPacket hitPacket;
+			hitPacket.Serialize(false, bsIn);
+			bsIn.SetReadOffset(0);
+
+			PlayerPacket* pp = getSpecificPlayer(hitPacket.playerHitGUID);
+			SpellPacket* sp = getSpecificSpell(hitPacket.CreatorGUID.g, hitPacket.SpellID);
+			if (pp == nullptr || sp == nullptr) {
+				logTrace("[SERVER] Player or spell was null");
+				return;
+			}
+
+			//create the axis and rotate them
+			glm::vec3 xAxis = glm::vec3(1.0f, 0.0f, 0.0f);
+			glm::vec3 yAxis = glm::vec3(0.0f, 1.0f, 0.0f);
+			glm::vec3 zAxis = glm::vec3(0.0f, 0.0f, 1.0f);
+			std::vector<glm::vec3> axis;
+
+			glm::rotateX(xAxis, pp->rotation.x);
+			glm::rotateY(xAxis, pp->rotation.y);
+			glm::rotateZ(xAxis, pp->rotation.z);
+
+			axis.emplace_back(xAxis);
+			axis.emplace_back(yAxis);
+			axis.emplace_back(zAxis);
+
+		
+			if (specificSpellCollision(sp->Position, pp->position, axis))
+			{
+				logTrace("[SERVER] sending hit package to client");
+				pp->health -= static_cast<int>(hitPacket.damage);
+
+				if (pp->health < 0) {
+					pp->health = 0;
+				}
+
+				RakNet::BitStream bsOut;
+				bsOut.Write((RakNet::MessageID)SPELL_PLAYER_HIT);
+				pp->Serialize(true, bsOut);
+				m_serverPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, hitPacket.playerHitGUID, false);
+
+
+			}
 		}
 
 		break;
 
 		default:
+		{
+			logTrace("Unknown package");
+		}
 			break;
 		}
 
 	}
+}
+
+bool LocalServer::specificSpellCollision(const glm::vec3& spellPos, const glm::vec3& playerPos, const std::vector<glm::vec3>& axis) {
+
+	bool collision = false;
+	float sphereRadius = 0.6f;
+
+	glm::vec3 closestPoint = OBBclosestPoint(spellPos, axis, playerPos);
+	glm::vec3 v = closestPoint - spellPos;
+
+	if (glm::dot(v, v) <= sphereRadius * sphereRadius)
+	{
+		collision = true;
+	}
+	return collision;
+}
+
+glm::vec3 LocalServer::OBBclosestPoint(const glm::vec3& spherePos, const std::vector<glm::vec3>& axis, const glm::vec3& playerPos) {
+
+	float boxSize = 0.25f;
+	//closest point on obb
+	glm::vec3 boxPoint = playerPos;
+	glm::vec3 ray = glm::vec3(spherePos - playerPos);
+
+	for (int j = 0; j < 3; j++) {
+		float distance = glm::dot(ray, axis.at(j));
+		float distance2 = 0;
+
+		if (distance > boxSize)
+			distance2 = boxSize;
+
+		if (distance < -boxSize)
+			distance2 = -boxSize;
+
+
+		boxPoint += distance2 * axis.at(j);
+	}
+
+	return boxPoint;
+}
+
+PlayerPacket* LocalServer::getSpecificPlayer(const RakNet::RakNetGUID& guid)
+{
+	for (size_t i = 0; i < m_connectedPlayers.size(); i++) {
+		if (m_connectedPlayers[i].guid.rakNetGuid == guid)
+		{
+			return &m_connectedPlayers[i];
+		}
+	}
+
+	return nullptr;
+}
+
+SpellPacket* LocalServer::getSpecificSpell(const uint64_t& creatorGUID, const uint64_t& spellID)
+{
+	auto item = m_activeSpells.find(creatorGUID);
+
+	if (item != m_activeSpells.end()) {
+		auto& spellVec = item._Ptr->_Myval.second;
+
+		for (size_t i = 0; i < spellVec.size(); i++) {
+
+			if (spellVec[i].SpellID == spellID) {
+				return &spellVec[i];
+			}
+		}
+	}
+
+	return nullptr;
 }
 
 const bool& LocalServer::isInitialized() const

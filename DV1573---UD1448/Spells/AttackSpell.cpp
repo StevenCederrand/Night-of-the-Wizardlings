@@ -35,3 +35,8 @@ void AttackSpell::updateRigidbody(float deltaTime, btRigidBody* body)
 	btVector3 pos = body->getWorldTransform().getOrigin();
 	setWorldPosition(glm::vec3(pos.getX(), pos.getY(), pos.getZ()));
 }
+
+const AttackSpellBase* AttackSpell::getSpellBase()
+{
+	return m_spellBase;
+}
