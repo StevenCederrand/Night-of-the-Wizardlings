@@ -93,6 +93,8 @@ public:
 	void removeDynamic(GameObject* gameObject); //Remove an object from the dynamic array
 	void renderSkybox(const SkyBox& skybox);
 	void render();
+	//void renderSpell();
+	void renderDebug();
 
 	void renderSpell(const AttackSpellBase* spellBase);
 	Camera* getMainCamera() const;
