@@ -25,8 +25,11 @@ PlayState::PlayState()
 	//TODO: organized loading system?
 	
 	//Test enviroment with 4 meshes inside 1 GameObject, inherited transforms
-	m_objects.push_back(new WorldObject("TestScene"));
-	m_objects[m_objects.size() - 1]->loadMesh("TestScene.mesh");
+	//m_objects.push_back(new WorldObject("TestScene"));
+	//m_objects[m_objects.size() - 1]->loadMesh("TestScene.mesh");
+	m_objects.push_back(new WorldObject("Playground"));
+	m_objects[m_objects.size() - 1]->loadMesh("Playground.mesh");
+
 	
 	//Cube and sphere centered in scene
 	m_objects.push_back(new WorldObject("TestCube"));
