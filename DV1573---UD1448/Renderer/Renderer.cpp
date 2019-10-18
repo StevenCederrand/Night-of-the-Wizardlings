@@ -441,11 +441,8 @@ void Renderer::renderDebug()
 	for (int i = 0; i < m_staticObjects.size(); i++)
 	{		
 		for (size_t j = 0; j < m_staticObjects.at(i)->getDebugDrawers().size(); j++)
-		{
-			//Bind the material
-			//m_staticObjects.at(i)->bindMaterialToShader(DEBUG, 0);
+		{			
 			modelMatrix = glm::mat4(1.0f);
-
 			//Bind the modelmatrix
 			ShaderMap::getInstance()->getShader(DEBUG)->setMat4("modelMatrix", modelMatrix);
 			//Then through all of the meshes
