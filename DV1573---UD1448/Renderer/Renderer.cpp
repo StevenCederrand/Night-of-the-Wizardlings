@@ -408,8 +408,9 @@ void Renderer::render() {
 }
 
 
-void Renderer::renderSpell(const AttackSpellBase* spellBase) {
-	
+void Renderer::renderSpell(const AttackSpellBase* spellBase) 
+{
+
 	Mesh* meshRef = spellBase->m_mesh;
 	glBindVertexArray(meshRef->getBuffers().vao);
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(spellBase->m_material);
@@ -425,8 +426,8 @@ void Renderer::renderSpell(const AttackSpellBase* spellBase) {
 		ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
 
 		glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-		
 	}
+}
 
 void Renderer::renderDebug()
 {
@@ -438,25 +439,29 @@ void Renderer::renderDebug()
 	//Render Static objects
 	for (int i = 0; i < m_staticObjects.size(); i++)
 	{		
-		//Bind the material
-		m_staticObjects.at(i)->bindMaterialToShader(BASIC_FORWARD, i);
-		modelMatrix = glm::mat4(1.0f);
+		for (size_t j = 0; j < m_staticObjects.at(i)->getDebugDrawers().size(); j++)
+		{
+			//Bind the material
+			m_staticObjects.at(i)->bindMaterialToShader(BASIC_FORWARD, 0);
+			modelMatrix = glm::mat4(1.0f);
 
-		modelMatrix = m_staticObjects.at(i)->getMatrix(i);
-		//Bind the modelmatrix
-		ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
+			//Bind the modelmatrix
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
+			//Then through all of the meshes
 
-		glBindVertexArray(m_staticObjects.at(i)->getDebugDrawer().getBuffers().vao);
+			modelMatrix = m_staticObjects.at(i)->getMatrix(j);
+			glBindVertexArray(m_staticObjects.at(i)->getDebugDrawers()[j]->getBuffers().vao);
 
-		glDisable(GL_CULL_FACE);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			glDisable(GL_CULL_FACE);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-		glDrawElements(GL_TRIANGLES, m_staticObjects.at(i)->getDebugDrawer().getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+			glDrawElements(GL_TRIANGLES, m_staticObjects.at(i)->getDebugDrawers()[j]->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
-		glEnable(GL_CULL_FACE);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			glEnable(GL_CULL_FACE);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-		glBindVertexArray(0);		
+			glBindVertexArray(0);
+		}
 	}
 }
 

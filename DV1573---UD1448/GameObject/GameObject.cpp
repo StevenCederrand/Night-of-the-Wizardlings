@@ -6,8 +6,6 @@ GameObject::GameObject()
 {
 	m_objectName = "Empty";
 	type = 0;
-	m_body = nullptr;
-	m_debugDraw = nullptr;
 	m_bPhysics = nullptr;
 }
 
@@ -15,8 +13,6 @@ GameObject::GameObject(std::string objectName)
 {
 	m_objectName = objectName;
 	type = 0;
-	m_body = nullptr;
-	m_debugDraw = nullptr;
 	m_bPhysics = nullptr;
 }
 
@@ -32,8 +28,9 @@ GameObject::~GameObject()
 		//		glDeleteTextures(1, &material->textureID[j]);
 	}
 
-	if(m_debugDraw != nullptr)
-		delete m_debugDraw;
+	for (DebugDrawer* dd : m_debugDrawers)
+		if(dd != nullptr)
+			delete dd;
 
 	//Deletion of m_body is done in the destructor of BulletPhysics
 }
@@ -154,41 +151,9 @@ void GameObject::loadMesh(std::string fileName)
 	}
 
 	tempLoader.Unload();
+
 }
-void GameObject::genBullet(BulletPhysics* bPhysics)
-{
-	if (!m_bPhysics)
-		m_bPhysics = bPhysics;
 
-	// TEMPLATE
-	//m_bPhysics->createObject(obj, 0.0f, glm::vec3(0.0f, -1.5f, 0.0f), glm::vec3(100.0f, 2.0f, 100.0f), 1.0);
-
-	for (int i = 0; i < m_meshes.size(); i++)
-	{
-		const std::vector<Vertex>& vertices = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getVertices();
-		glm::vec3 min = vertices[0].position;
-		glm::vec3 max = vertices[0].position;
-
-		for (int i = 1; i < vertices.size(); i++)
-		{
-			min.x = fminf(vertices[i].position.x, min.x);
-			min.y = fminf(vertices[i].position.y, min.y);
-			min.z = fminf(vertices[i].position.z, min.z);
-
-			max.x = fmaxf(vertices[i].position.x, max.x);
-			max.y = fmaxf(vertices[i].position.y, max.y);
-			max.z = fmaxf(vertices[i].position.z, max.z);
-		}
-
-
-		glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(i).position;
-		glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale;
-		m_bPhysics->createObject(box, 0.0f, center, halfSize);
-		// TODO: ROTATE
-
-	}
-	
-}
 //Update each individual modelmatrix for the meshes
 void GameObject::updateModelMatrix() {
 	
@@ -294,12 +259,38 @@ void GameObject::bindMaterialToShader(std::string shaderName, int meshIndex)
 
 void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 {
-	Transform tempForm = getTransform();
-	m_body = bp->createObject(shape, 0.0f, tempForm.position, glm::vec3(tempForm.scale.x / 2, tempForm.scale.y, tempForm.scale.y / 2));
+	if (!m_bPhysics)
+		m_bPhysics = bp;
+
+	for (int i = 0; i < m_meshes.size(); i++)
+	{
+		const std::vector<Vertex>& vertices = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getVertices();
+		glm::vec3 min = vertices[0].position;
+		glm::vec3 max = vertices[0].position;
+
+		for (int i = 1; i < vertices.size(); i++)
+		{
+			min.x = fminf(vertices[i].position.x, min.x);
+			min.y = fminf(vertices[i].position.y, min.y);
+			min.z = fminf(vertices[i].position.z, min.z);
+
+			max.x = fmaxf(vertices[i].position.x, max.x);
+			max.y = fmaxf(vertices[i].position.y, max.y);
+			max.z = fmaxf(vertices[i].position.z, max.z);
+		}
+
+		glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(i).position;
+		glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale;
+		// TODO: ROTATE
+		m_bodies.emplace_back(m_bPhysics->createObject(shape, 0.0f, center, halfSize));
+	}
 }
 
 void GameObject::createDebugDrawer()
 {
-	m_debugDraw = new DebugDrawer();
-	m_debugDraw->setUpMesh(*m_body);
+	for (int i = 0; i < m_bodies.size(); i++)
+	{
+		m_debugDrawers.emplace_back(new DebugDrawer());
+		m_debugDrawers[i]->setUpMesh(*m_bodies[i]);
+	}
 }

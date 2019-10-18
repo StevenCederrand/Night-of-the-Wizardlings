@@ -79,7 +79,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 void SpellHandler::renderSpell()
 {
 	ShaderMap::getInstance()->useByName(BASIC_FORWARD);
-	Renderer::getInstance()->renderSpell(attackBase); //Why is object null??
+	Renderer::getInstance()->renderSpell(attackBase);
 	
 	//for (EnhanceAttackSpell object : enhanceAttackSpell)
 	//{
