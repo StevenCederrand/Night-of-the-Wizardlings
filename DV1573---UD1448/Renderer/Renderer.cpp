@@ -215,7 +215,7 @@ void Renderer::render() {
 		for (GameObject* object : m_staticObjects)
 		{
 			//Then through all of the meshes
-			for (size_t j = 0; j < object->getMeshesCount(); j++)
+			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
@@ -240,7 +240,7 @@ void Renderer::render() {
 		for (GameObject* object : m_anistaticObjects)
 		{
 			//Then through all of the meshes
-			for (size_t j = 0; j < object->getMeshesCount(); j++)
+			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
@@ -312,7 +312,7 @@ void Renderer::render() {
 	for (GameObject* object : m_staticObjects)
 	{
 		//Then through all of the meshes
-		for (size_t j = 0; j < object->getMeshesCount(); j++)
+		for (int j = 0; j < object->getMeshesCount(); j++)
 		{
 			//Fetch the current mesh and its transform
 			mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
@@ -343,7 +343,7 @@ void Renderer::render() {
 			}
 			
 			//Then through all of the meshes
-			for (size_t j = 0; j < object->getMeshesCount(); j++)
+			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
 				//Fetch the current mesh and its transform
 				mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));

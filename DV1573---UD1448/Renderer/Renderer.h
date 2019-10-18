@@ -63,7 +63,8 @@ private:
 	//Storage Buffer for light indecies
 	unsigned int m_lightIndexSSBO;
 	
-	glm::vec2 workGroups;
+	glm::uvec2 workGroups;
+
 	
 	void createDepthMap();
 	void initShaders();

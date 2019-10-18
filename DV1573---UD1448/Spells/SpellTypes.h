@@ -1,0 +1,10 @@
+#ifndef _SPELL_TYPES_H
+#define _SPELL_TYPES_H
+
+enum SPELL_TYPE {
+	UNKNOWN,
+	NORMALATTACK, 
+	ENHANCEATTACK
+};
+
+#endif
