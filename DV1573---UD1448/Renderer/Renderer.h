@@ -18,16 +18,11 @@
 #include <System/Timer.h>
 
 #define P_LIGHT_COUNT 64
+#define P_LIGHT_RADIUS 2
 
 struct ObjectRenderData {
 	Buffers buffer;
 	glm::vec3 worldPos;
-};
-
-struct Pointlight {
-	glm::vec3 position; //EXPAND ONE OF THESE VEC3's TO ALSO INCLUDE THE RADIUS!!!
-	glm::vec3 attenuation; //EXPAND ONE OF THESE VEC3's TO ALSO INCLUDE THE RADIUS!!!
-	float radius;
 };
 
 struct LightIndex {
@@ -57,7 +52,7 @@ private:
 	std::vector<GameObject*> m_anistaticObjects;
 	std::vector<GameObject*> m_anidynamicObjects;
 	std::vector<GameObject*> m_spells; 
-	
+
 	//Buffers
 	unsigned int m_depthFBO;
 	unsigned int m_depthMap;
@@ -69,12 +64,10 @@ private:
 	unsigned int m_lightIndexSSBO;
 	
 	glm::vec2 workGroups;
-	std::vector<Pointlight> m_pLights;//The size of the vector is the number of lights
 	
 	void createDepthMap();
 	void initShaders();
 	void bindMatrixes(const std::string& shaderName);
-	
 	
 	
 	Renderer();
@@ -90,7 +83,7 @@ public:
 	void destroy();
 	void submit(GameObject* gameObject, ObjectType objType);
 	
-	void removeDynamic(GameObject* gameObject); //Remove an object from the dynamic array
+	void removeDynamic(GameObject* gameObject, ObjectType objType); //Remove an object from the dynamic array
 	void renderSkybox(const SkyBox& skybox);
 	void render();
 

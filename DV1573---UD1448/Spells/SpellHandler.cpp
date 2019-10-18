@@ -68,6 +68,8 @@ void SpellHandler::spellUpdate(float deltaTime)
 
 		if (spells[i]->getTravelTime() <= 0)
 		{
+			Renderer::getInstance()->removeDynamic(spells[i], SPELL);
+			//logWarning(spells[i]);
 			delete spells[i];
 			spells.erase(spells.begin() + i);
 			logTrace("Deleted spell");

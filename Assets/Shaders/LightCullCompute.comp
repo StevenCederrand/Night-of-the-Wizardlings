@@ -18,7 +18,7 @@ uniform sampler2D depthMap;
 uniform mat4 viewMatrix;
 uniform mat4 projMatrix;
 uniform vec2 screenSize;
-uniform int lightCount = LIGHTS_MAX;
+uniform int lightCount;
 
 //Shared data between all of the threads
 shared vec4 planes[PLANE_COUNT];
