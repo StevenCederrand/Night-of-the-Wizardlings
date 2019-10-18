@@ -7,6 +7,7 @@
 #define DEPTH_MAP "Depth_Map"
 #define SKYBOX "Skybox_Shader"
 #define ANIMATION "Basic_Animation"
+#define DEBUG "Debug_Forward"
 
 #include <Pch/Pch.h>
 #include <GameObject/GameObject.h>

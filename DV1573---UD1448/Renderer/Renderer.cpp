@@ -94,6 +94,7 @@ void Renderer::initShaders() {
 	ShaderMap::getInstance()->createShader(ANIMATION, "Animation.vert", "FragShader.frag");
 	ShaderMap::getInstance()->createShader("Skybox_Shader", "Skybox.vs", "Skybox.fs");
 	ShaderMap::getInstance()->getShader("Skybox_Shader")->setInt("skyBox", 4);
+	ShaderMap::getInstance()->createShader(DEBUG, "VertexShader.vert", "DebugFragShader.frag");
 }
 
 void Renderer::bindMatrixes(const std::string& shaderName) {
@@ -432,9 +433,9 @@ void Renderer::renderSpell(const AttackSpellBase* spellBase)
 void Renderer::renderDebug()
 {
 	glm::mat4 modelMatrix;
-	ShaderMap::getInstance()->useByName(BASIC_FORWARD);
+	ShaderMap::getInstance()->useByName(DEBUG);
 	//Bind view- and projection matrix
-	bindMatrixes(BASIC_FORWARD);	
+	bindMatrixes(DEBUG);	
 	
 	//Render Static objects
 	for (int i = 0; i < m_staticObjects.size(); i++)
@@ -442,11 +443,11 @@ void Renderer::renderDebug()
 		for (size_t j = 0; j < m_staticObjects.at(i)->getDebugDrawers().size(); j++)
 		{
 			//Bind the material
-			m_staticObjects.at(i)->bindMaterialToShader(BASIC_FORWARD, 0);
+			//m_staticObjects.at(i)->bindMaterialToShader(DEBUG, 0);
 			modelMatrix = glm::mat4(1.0f);
 
 			//Bind the modelmatrix
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
+			ShaderMap::getInstance()->getShader(DEBUG)->setMat4("modelMatrix", modelMatrix);
 			//Then through all of the meshes
 
 			modelMatrix = m_staticObjects.at(i)->getMatrix(j);
