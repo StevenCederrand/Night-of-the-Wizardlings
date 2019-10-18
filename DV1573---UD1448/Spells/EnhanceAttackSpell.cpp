@@ -3,14 +3,18 @@
 #include <Spells/SpellHandler.h>
 
 
-EnhanceAttackSpell::EnhanceAttackSpell(const EnhanceHanderSpellBase* spellBase)
+EnhanceAttackSpell::EnhanceAttackSpell()
 	: Spell(glm::vec3(0), glm::vec3(0))
 {
-	m_type = ENHANCEATTACK;
-	m_spellBase = spellBase;
+
+	m_currentAttackCooldown = m_attackCooldown;
+	m_currentAttack = m_nrOfAttacks;
 
 	setWorldPosition(glm::vec3(0));
 	setDirection(glm::vec3(0));
+
+	m_done = true;
+	m_ready = false;
 }
 
 EnhanceAttackSpell::~EnhanceAttackSpell()
@@ -29,53 +33,46 @@ float EnhanceAttackSpell::getAttackCooldown() const
 
 void EnhanceAttackSpell::setNrOfAttacks(float nrOfEnhancedAttacks)
 {
-	 m_nrOfAttacks = nrOfEnhancedAttacks;
+	m_currentAttack = nrOfEnhancedAttacks;
 }
 
 void EnhanceAttackSpell::reduceNrOfAttacks(float nrOfEnhancedAttacks)
 {
-	m_nrOfAttacks -= nrOfEnhancedAttacks;
+	m_currentAttack -= nrOfEnhancedAttacks;
 }
 
 void EnhanceAttackSpell::setAttackCooldown(float attackCooldown)
 {
-	m_attackCooldown = attackCooldown;
+	m_currentAttackCooldown = attackCooldown;
 }
 
-void EnhanceAttackSpell::attackCooldownUpdate(float deltaTime)
+void EnhanceAttackSpell::update(float deltaTime)
 {
-	if (getAttackCooldown() > 0)
+	if (!m_done)
 	{
-		setAttackCooldown(getAttackCooldown() - 1 * deltaTime);
+		m_currentAttackCooldown -= deltaTime;
+
+		if (m_currentAttackCooldown <= 0)
+		{
+			m_ready = true;
+
+			m_currentAttackCooldown = m_attackCooldown;
+			m_currentAttack -= 1;
+		}
+		if (m_currentAttack <= 0)
+		{
+			m_currentAttack = m_nrOfAttacks;
+			m_done = true;
+		}
 	}
 }
 
+void EnhanceAttackSpell::start()
+{
+	m_done = false;
+}
 
-//void EnhanceAttackSpell::update(float deltaTime)
-//{
-//	if (m_attackCooldown)
-//	{
-//		EnhanceAttackSpell tempSpell2 = *m_tempEnhanceAttackSpell;
-//		tempSpell2.createSpell(deltaTime, spellPos, directionVector);
-//		m_enhanceAttackSpell.push_back(tempSpell2);
-//		m_tempEnhanceAttackSpell->setAttackCooldown(0.3f);
-//		m_tempEnhanceAttackSpell->reduceNrOfAttacks(1.0f);
-//	}
-//	if (m_tempEnhanceAttackSpell->getNrOfAttacks() <= 0)
-//	{
-//		m_tempEnhanceAttackSpell->setCooldown(10.0f);
-//		m_tempEnhanceAttackSpell->setNrOfAttacks(3);
-//
-//		//-----Return true if the spell is done in order to get the normal attack back-----//
-//		m_tempSpell->setCooldown(1.0f);
-//		setType(NORMALATTACK);
-//		spellIsOver = true;
-//	}
-//
-//
-//
-//
-//
-//	translate(getDirection() * deltaTime * m_spellBase->m_speed);
-//	setTravelTime(getTravelTime() - 1 * deltaTime);
-//}
+void EnhanceAttackSpell::attacked()
+{
+	m_ready = false;
+}

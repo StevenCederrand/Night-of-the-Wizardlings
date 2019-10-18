@@ -19,10 +19,10 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_nrOfSpells = 0;
 	m_directionVector = glm::vec3(0, 0, 0);
 	m_moveDir = glm::vec3(0.0f);
+	m_spellType = ENHANCEATTACK;
 
 	//m_frameCount = 0;
 	//tempSpell = new AttackSpell("Spell", playerPosition, directionVector, 50, 2, "TestSphere.mesh");
-
 	
 	m_spellhandler = spellHandler;
 
@@ -43,10 +43,29 @@ void Player::update(float deltaTime)
 	Client* client = Client::getInstance();
 	client->updatePlayerData(this);
 
+
+
 	if (Input::isKeyReleased(GLFW_KEY_E)) {
 		client->sendStartRequestToServer();
 	}
 
+
+	// ENHANCE ATTACK
+	if (!m_enhanceAttack.isComplete())
+	{
+		m_enhanceAttack.update(deltaTime);
+		if (m_enhanceAttack.canAttack()) //CAN ATTACK
+		{
+			createRay();
+			m_spellhandler->createSpell(m_playerPosition, m_directionVector, ENHANCEATTACK);
+			m_enhanceAttack.attacked();
+			// Start loop
+		}
+		if (m_enhanceAttack.isComplete()) //DONE
+		{
+			m_specialCooldown = m_enhanceAttack.getCooldown(); // GET from enhance attack
+		}
+	}
 }
 
 
@@ -132,10 +151,15 @@ void Player::attack()
 	{
 		if (m_specialCooldown <= 0)
 		{
-			createRay();
-			m_spellType = ENHANCEHANDLER;
-			m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_spellType);
-			m_specialCooldown = m_spellhandler->getSpellBase(m_spellType).m_coolDown; // Put attack on cooldown
+			if (m_spellType == ENHANCEATTACK)
+			{
+				// Start loop
+				m_enhanceAttack.start();
+			}
+			//createRay();
+			//m_spellType = ENHANCEHANDLER;
+			//m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_spellType);
+			//m_specialCooldown = m_spellhandler->getSpellBase(m_spellType).m_coolDown; // Put attack on cooldown
 		}
 	}
 
@@ -177,8 +201,6 @@ void Player::spawnPlayer(glm::vec3 pos)
 {
 	this->m_playerPosition = pos;
 }
-
-
 
 void Player::setHealth(int health)
 {

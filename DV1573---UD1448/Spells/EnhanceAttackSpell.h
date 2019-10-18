@@ -7,24 +7,32 @@
 class EnhanceAttackSpell : public Spell
 {
 public:
-	EnhanceAttackSpell(const EnhanceHanderSpellBase* spellBase);
+	EnhanceAttackSpell();
 	~EnhanceAttackSpell();
 
 	float getNrOfAttacks() const;
 	float getAttackCooldown() const;
+	float getCooldown() const { return m_coolDown; }
 
 	void setNrOfAttacks(float nrOfEnhancedAttacks);
 	void reduceNrOfAttacks(float nrOfEnhancedAttacks);
 	void setAttackCooldown(float attackCooldown);
-	void attackCooldownUpdate(float deltaTime);
-
 	void update(float deltaTime);
 
+	void start();
+	bool isComplete() { return m_done; }
+	bool canAttack() { return m_ready; }
+	void attacked();
+
 private:
-	const EnhanceHanderSpellBase* m_spellBase;
+
+	const float m_coolDown = 10.0f;
+	const float m_attackCooldown = 0.2f;
+	const float m_nrOfAttacks = 3;
+	float m_currentAttackCooldown;
+	float m_currentAttack;
 
 
-	float m_attackCooldown;
-	float m_nrOfAttacks;
-
+	bool m_ready;
+	bool m_done;
 };

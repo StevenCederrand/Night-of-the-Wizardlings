@@ -45,8 +45,9 @@ private:
 	glm::vec3 m_moveDir;
 	Camera* m_playerCamera;
 
-
 	SpellHandler* m_spellhandler;
+	EnhanceAttackSpell m_enhanceAttack;
+
 	SPELLTYPE m_spellType;
 	
 	float m_attackCooldown;

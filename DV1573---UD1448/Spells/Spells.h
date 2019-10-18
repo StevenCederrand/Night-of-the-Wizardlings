@@ -44,19 +44,6 @@ struct AttackSpellBase
 };
 
 
-struct EnhanceHanderSpellBase
-{
-	float m_attackCooldown;
-	float m_nrOfAttacks;
-
-	EnhanceHanderSpellBase()
-	{
-		m_attackCooldown = 0;
-		m_nrOfAttacks = 0;
-	}
-
-};
-
 struct EnhanceAtkSpellBase
 {
 	Mesh* m_mesh;

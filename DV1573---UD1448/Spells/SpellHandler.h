@@ -7,7 +7,7 @@
 #include <Spells/Spells.h>
 
 
-enum SPELLTYPE { NORMALATTACK, ENHANCEHANDLER, ENHANCEATTACK, FLAMESTRIKE };
+enum SPELLTYPE { NORMALATTACK, ENHANCEATTACK, FLAMESTRIKE };
 
 class SpellHandler
 {
@@ -32,8 +32,7 @@ private:
 
 	// The base for all basic attack spells
 	AttackSpellBase* attackBase;
-	EnhanceHanderSpellBase* enhanceHandlerBase;
-	EnhanceAtkSpellBase* enhanceatkBase;
+	AttackSpellBase* enhanceAtkBase;
 
 
 

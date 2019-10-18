@@ -5,7 +5,9 @@
 SpellHandler::SpellHandler()
 {
 	attackBase = nullptr;
+	enhanceAtkBase = nullptr;
 	initAttackSpell();
+	initEnhanceSpell();
 }
 
 void SpellHandler::initAttackSpell()
@@ -38,34 +40,30 @@ void SpellHandler::initAttackSpell()
 
 void SpellHandler::initEnhanceSpell()
 {
-	enhanceHandlerBase = new EnhanceHanderSpellBase();
-	enhanceHandlerBase->m_attackCooldown = 0.3f;
-	enhanceHandlerBase->m_nrOfAttacks = 3;
-
-	enhanceatkBase = new EnhanceAtkSpellBase();
-	enhanceatkBase->m_material = new Material();
+	enhanceAtkBase = new AttackSpellBase();
+	enhanceAtkBase->m_mesh = new Mesh();
+	enhanceAtkBase->m_material = new Material();
 
 	BGLoader tempLoader;	// The file loader
 	tempLoader.LoadMesh(MESHPATH + "TestSphere.mesh");
-
-	enhanceatkBase->m_mesh = new Mesh();
-	enhanceatkBase->m_mesh->saveFilePath(tempLoader.GetFileName(), 0);
-	enhanceatkBase->m_mesh->nameMesh(tempLoader.GetMeshName());
-	enhanceatkBase->m_mesh->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
-	enhanceatkBase->m_mesh->setUpBuffers();
+	enhanceAtkBase->m_mesh = new Mesh();
+	enhanceAtkBase->m_mesh->saveFilePath(tempLoader.GetFileName(), 0);
+	enhanceAtkBase->m_mesh->nameMesh(tempLoader.GetMeshName());
+	enhanceAtkBase->m_mesh->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
+	enhanceAtkBase->m_mesh->setUpBuffers();
 
 	const Material& newMaterial = tempLoader.GetMaterial();
-	enhanceatkBase->m_material->ambient = newMaterial.ambient;
-	enhanceatkBase->m_material->diffuse = newMaterial.diffuse;
-	enhanceatkBase->m_material->name = newMaterial.name;
-	enhanceatkBase->m_material->specular = newMaterial.specular;
+	enhanceAtkBase->m_material->ambient = newMaterial.ambient;
+	enhanceAtkBase->m_material->diffuse = newMaterial.diffuse;
+	enhanceAtkBase->m_material->name = newMaterial.name;
+	enhanceAtkBase->m_material->specular = newMaterial.specular;
 	tempLoader.Unload();
 
-	enhanceatkBase->m_damage = 34;
-	enhanceatkBase->m_speed = 50;
-	enhanceatkBase->m_coolDown = 1;
-	enhanceatkBase->m_lifeTime = 5;
-	enhanceatkBase->m_maxBounces = 3;
+	enhanceAtkBase->m_damage = 34;
+	enhanceAtkBase->m_speed = 100;
+	enhanceAtkBase->m_coolDown = 1;
+	enhanceAtkBase->m_lifeTime = 5;
+	enhanceAtkBase->m_maxBounces = 3;
 }
 
 
@@ -92,18 +90,14 @@ void SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SP
 		logTrace("Created spell");
 	}
 
-	if (type == ENHANCEHANDLER)
+	if (type == ENHANCEATTACK)
 	{
-		spells.emplace_back(new EnhanceAttackSpell(enhanceHandlerBase));
+		spells.emplace_back(new AttackSpell(spellPos, directionVector, enhanceAtkBase));
+		Renderer::getInstance()->submit(spells.back(), SPELL);
 		logTrace("Created spell");
 	}
 
-	if (type == ENHANCEATTACK)
-	{
-		//spells.emplace_back(new EnhanceAttackSpell(spellPos, directionVector, enhanceatkBase));
-		//Renderer::getInstance()->submit(spells.back(), SPELL);
-		//logTrace("Created spell");
-	}
+
 	
 	
 
