@@ -4,21 +4,23 @@
 #include <GameObject/GameObject.h>
 #include <Spells/AttackSpell.h>
 #include <Spells/EnhanceAttackSpell.h>
-#include <Spells/Spells.h>
+#include <System/BulletPhysics.h>
+#include "SpellTypes.h"
 
 
-enum SPELLTYPE { NORMALATTACK, ENHANCEATTACK, FLAMESTRIKE };
+//enum TYPE { NORMALATTACK, ENHANCEATTACK };
 
 class SpellHandler
 {
 public:
-	SpellHandler();
+	SpellHandler(BulletPhysics* bp);
 	void initAttackSpell();
 	void initEnhanceSpell();
 
 
 	~SpellHandler();
-	void createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SPELLTYPE type);
+	void createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SPELL_TYPE type);
+
 	void spellUpdate(float deltaTime);
 	const AttackSpellBase& getSpellBase(SPELLTYPE spelltype);
 	const Spell& getSpell(int index) const { return *spells[index]; }
@@ -28,7 +30,12 @@ public:
 
 
 private:
+	const uint64_t getUniqueID();
+
+private:
+
 	std::vector<Spell*> spells;
+	std::vector<EnhanceAttackSpell> enhanceAttackSpell;
 
 	// The base for all basic attack spells
 	AttackSpellBase* attackBase;
@@ -49,5 +56,14 @@ private:
 	SPELLTYPE m_spellType;
 
 	bool test123 = false;
+
+	void spellCollisionCheck();
+	bool specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis);
+	glm::vec3 OBBclosestPoint(glm::vec3 &spherePos, std::vector<glm::vec3> &axis, glm::vec3 &playerPos);
+	BulletPhysics* m_bp;
+
+	std::vector<btRigidBody*> m_BulletNormalSpell;
+	std::vector<btRigidBody*> m_BulletEnhanceAttackSpell;
+
 
 };

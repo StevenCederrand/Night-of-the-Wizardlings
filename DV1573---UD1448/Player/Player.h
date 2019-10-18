@@ -5,10 +5,8 @@
 #include <Spells/EnhanceAttackSpell.h>
 #include <Spells/SpellHandler.h>
 
-
 #include "System/BulletPhysics.h"
-
-
+class Client;
 
 class Player
 {
@@ -58,13 +56,13 @@ private:
 	int m_nrOfSpells;
 	int m_health;
 	int m_frameCount;
+	std::string name;
+	SPELL_TYPE spellType;
 
-
-	
 	//removed in bulletPhysics.cpp
 	BulletPhysics* m_bp;
 	btKinematicCharacterController* m_character;
-
+	Client* m_client;
 
 
 };

@@ -1,18 +1,17 @@
 #include <Pch/Pch.h>
 #include "PlayState.h"
 
-
 // TODO move to mesh
 #include <Networking/Client.h>
-
 
 PlayState::PlayState()
 {
 	m_bPhysics = new BulletPhysics(-10);
+	m_spellHandler = new SpellHandler(m_bPhysics);
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
 	Renderer::getInstance();
 	m_camera = new Camera();
-	m_player = new Player(m_bPhysics, "Player", glm::vec3(0.0f, 1.8f, 0.0f), m_camera, &m_spellHandler);
+	m_player = new Player(m_bPhysics, "Player", glm::vec3(0.0f, 1.8f, 0.0f), m_camera, m_spellHandler);
 
 	Renderer::getInstance()->setupCamera(m_player->getCamera());
 
@@ -31,10 +30,12 @@ PlayState::PlayState()
 	m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 0.0f, 0.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
-	//
+
+
 	m_objects.push_back(new WorldObject("TestSphere"));
 	m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 1.0f, -2.0f));
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -4.0f));
+	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 1.0f, -2.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
 	//m_objects.push_back(new WorldObject("TestCube"));
@@ -43,21 +44,22 @@ PlayState::PlayState()
 	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 	
 	//////Animated rectangle
-	//m_objects.push_back(new AnimatedObject("TestRectangle"));
-	//m_objects[m_objects.size() - 1]->loadMesh("TestRectangle.mesh");
-	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -4.0f));
-	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
-	//
-	////Animated goblino
-	//m_objects.push_back(new AnimatedObject("TestGoblino"));
-	//m_objects[m_objects.size() - 1]->loadMesh("ElGoblino.mesh");
-	//Transform tempTransform;
-	//tempTransform.scale = glm::vec3(0.03f, 0.03f, 0.03f);
-	//tempTransform.position = glm::vec3(-3.0f, 0.0f, 3.0f);
-	//m_objects[m_objects.size() - 1]->setTransform(tempTransform);
-	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
+	m_objects.push_back(new AnimatedObject("TestRectangle"));
+	m_objects[m_objects.size() - 1]->loadMesh("TestRectangle.mesh");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -4.0f));
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
+	
+	//Animated goblino
+	m_objects.push_back(new AnimatedObject("TestGoblino"));
+	m_objects[m_objects.size() - 1]->loadMesh("ElGoblino.mesh");
+	Transform tempTransform;
+	tempTransform.scale = glm::vec3(0.03f, 0.03f, 0.03f);
+	tempTransform.position = glm::vec3(-3.0f, 0.0f, 3.0f);
+	m_objects[m_objects.size() - 1]->setTransform(tempTransform);
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
 
-
+	
+	
 	gContactAddedCallback = callbackFunc;
 	// Geneterate bullet objects / hitboxes
 	for (int i = 0; i < m_objects.size(); i++)
@@ -77,6 +79,7 @@ PlayState::~PlayState()
 	delete m_skybox;
 	delete m_player;
 	delete m_bPhysics;
+	delete m_spellHandler;
 
 	MaterialMap::getInstance()->destroy();
 	MeshMap::getInstance()->destroy();
@@ -86,14 +89,21 @@ PlayState::~PlayState()
 
 void PlayState::update(float dt)
 {	
-	Client::getInstance()->updateNetworkedPlayers(dt);
+	Client::getInstance()->updateNetworkEntities(dt);
 	m_bPhysics->update(dt);
 	Renderer::getInstance()->update(dt);
-	m_spellHandler.spellUpdate(dt);
+	m_spellHandler->spellUpdate(dt);
 	m_player->update(dt);
+
 	for (GameObject* object : m_objects)
 	{
 		object->update(dt);
+	}
+
+
+	if (Input::isKeyPressed(GLFW_KEY_P)) {
+		auto& list = Client::getInstance()->getNetworkSpells();
+		logTrace("Active spells on client: {0}", list.size());
 	}
 }
 
@@ -102,8 +112,9 @@ void PlayState::render()
 	//Move the render skybox to be a private renderer function
 	Renderer::getInstance()->renderSkybox(*m_skybox);
 	Renderer::getInstance()->render();
+	m_spellHandler->renderSpell();
 	Renderer::getInstance()->renderDebug();
-	m_spellHandler.renderSpell();
+	
 }
 
 //This function is called everytime two collision objects collide

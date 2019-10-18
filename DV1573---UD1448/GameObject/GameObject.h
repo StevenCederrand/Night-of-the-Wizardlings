@@ -40,7 +40,7 @@ public:
 	const Transform getTransform(int meshIndex) const;
 	const std::string& getMeshName(int meshIndex) const;
 	const int getMeshesCount() const { return (int)m_meshes.size(); }
-	const const glm::mat4& getMatrix(int i) const;
+	const glm::mat4& getMatrix(const int& i) const;
 	const int getType() const { return type; }
 	const std::vector<btRigidBody*>& getRigidBodies()  { return m_bodies; }
 	const std::vector<DebugDrawer*>& getDebugDrawers()  { return m_debugDrawers; }

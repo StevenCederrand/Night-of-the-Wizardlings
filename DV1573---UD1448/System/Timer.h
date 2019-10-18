@@ -1,14 +1,13 @@
 #ifndef _TIMER_h
 #define _TIMER_h
-#include <chrono>
-#include <iostream>
+#include <Pch/Pch.h>
+
 class Timer {
 private:
 
 	std::chrono::steady_clock::time_point startPoint;
 	std::chrono::steady_clock::time_point endPoint;
 	
-
 public:
 	Timer();
 	

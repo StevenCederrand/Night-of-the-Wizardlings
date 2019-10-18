@@ -2,9 +2,8 @@
 #include "Player.h"
 #include <Networking/Client.h>
 
-
-
 Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Camera *camera, SpellHandler* spellHandler)
+
 {
 	if (camera == NULL) {
 		 m_playerCamera = new Camera();
@@ -28,6 +27,8 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 
 	m_bp = bp;
 	m_character = m_bp->createCharacter();
+
+	m_client = Client::getInstance();
 }
 
 Player::~Player()
@@ -39,14 +40,17 @@ void Player::update(float deltaTime)
 {
 	m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
 	move(deltaTime);
+
 	attack();
-	Client* client = Client::getInstance();
-	client->updatePlayerData(this);
+	
+	if (m_client->isConnectedToSever()) {
+		m_client->updatePlayerData(this);
+	}
 
 
 
 	if (Input::isKeyReleased(GLFW_KEY_E)) {
-		client->sendStartRequestToServer();
+		m_client->sendStartRequestToServer();
 	}
 
 
@@ -67,7 +71,6 @@ void Player::update(float deltaTime)
 		}
 	}
 }
-
 
 void Player::move(float deltaTime)
 {
@@ -161,6 +164,7 @@ void Player::attack()
 			//m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_spellType);
 			//m_specialCooldown = m_spellhandler->getSpellBase(m_spellType).m_coolDown; // Put attack on cooldown
 		}
+
 	}
 
 

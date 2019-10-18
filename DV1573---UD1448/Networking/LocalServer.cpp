@@ -27,7 +27,7 @@ void LocalServer::startup(const std::string& serverName)
 		m_serverPeer->SetMaximumIncomingConnections(NetGlobals::MaximumIncomingConnections);
 
 		memcpy(&m_serverInfo.serverName, serverName.c_str(), serverName.length());
-		m_serverInfo.currentState = NetGlobals::ServerState::WaitingForPlayers;
+		m_serverInfo.currentState = NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS;
 		m_serverInfo.maxPlayers = NetGlobals::MaximumConnections;
 		m_serverInfo.connectedPlayers = 0;
 		m_connectedPlayers.reserve(NetGlobals::MaximumConnections);
@@ -38,8 +38,6 @@ void LocalServer::startup(const std::string& serverName)
 		logTrace("[SERVER] Tickrate: {0}", NetGlobals::tickRate);
 		logTrace("[SERVER] Thread sleep time {0}", NetGlobals::threadSleepTime);
 		m_serverPeer->SetTimeoutTime(NetGlobals::timeoutTimeMS, RakNet::UNASSIGNED_SYSTEM_ADDRESS);
-
-		m_chaosMode.registerCallbackOnServerStateChange(std::bind(&LocalServer::onStateChange, this, std::placeholders::_1));
 	}
 }
 
@@ -103,6 +101,20 @@ void LocalServer::processAndHandlePackets()
 		case ID_NEW_INCOMING_CONNECTION:
 		{
 			logTrace("[SERVER] New connection from {0}\nAssigned GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
+			
+			if (m_connectedPlayers.size() >= NetGlobals::MaximumConnections || m_serverInfo.currentState != NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS)
+			{
+				m_serverPeer->CloseConnection(packet->guid, true);
+				m_serverPeer->DeallocatePacket(packet);
+				return;
+			}
+
+			logTrace("[SERVER] Actually creating a player");
+
+			RakNet::BitStream acceptStream;
+			acceptStream.Write((RakNet::MessageID)PLAYER_ACCEPTED_TO_SERVER);
+			m_serverPeer->Send(&acceptStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->guid, false);
+
 
 			// Is it safe enough to assume that the first player that joins is the admin?
 			if (m_adminID == RakNet::UNASSIGNED_RAKNET_GUID) {
@@ -112,8 +124,6 @@ void LocalServer::processAndHandlePackets()
 				m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_adminID, false);
 
 			}
-
-			if (m_connectedPlayers.size() >= NetGlobals::MaximumConnections) logError("[SERVER]  Trying to add more clients than allowed!");
 
 			RakNet::BitStream stream_otherPlayers;
 
@@ -126,6 +136,27 @@ void LocalServer::processAndHandlePackets()
 				m_connectedPlayers[i].Serialize(true, stream_otherPlayers);
 			}
 			m_serverPeer->Send(&stream_otherPlayers, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->systemAddress, false);
+
+			// Send info about all existing spells to the new player
+			RakNet::BitStream stream_existingSpells;
+			stream_existingSpells.Write((RakNet::MessageID)SPELL_ALL_EXISTING_SPELLS);
+
+			size_t totalNumSpells = 0;
+			for (auto const& item : m_activeSpells)
+			{
+				totalNumSpells += item.second.size();
+			}
+			stream_existingSpells.Write(totalNumSpells);
+
+			for (auto& item : m_activeSpells)
+			{
+				auto& vec = item.second;
+
+				for (size_t i = 0; i < vec.size(); i++) {
+					vec[i].Serialize(true, stream_existingSpells);
+				}
+			}
+			m_serverPeer->Send(&stream_existingSpells, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->systemAddress, false);
 
 			// Create the new player and assign it the correct GUID
 			PlayerPacket player;
@@ -145,29 +176,46 @@ void LocalServer::processAndHandlePackets()
 			m_serverInfo.connectedPlayers++;
 			m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
 
-			
-
 		}
 		break;
 
 		case ID_DISCONNECTION_NOTIFICATION:
 		{
-			logTrace("[SERVER] Player disconnected with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
-			handleLostPlayer(*packet, bsIn);
-			m_serverInfo.connectedPlayers--;
-			m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
+			bool playerWasAccepted = handleLostPlayer(*packet, bsIn);
+			if (playerWasAccepted) {
+				auto item = m_activeSpells.find(packet->guid.g);
 
+				if (item != m_activeSpells.end()) {
+					//logTrace("Going to delete spell: {0}", spellPacket.toString());
+					auto& spellVec = item._Ptr->_Myval.second;
+
+					for (size_t i = 0; i < spellVec.size(); i++) {
+						RakNet::BitStream stream;
+						stream.Write((RakNet::MessageID)SPELL_DESTROY);
+						
+						spellVec[i].Serialize(true, stream);
+
+						sendStreamToAllClients(stream);
+					}
+
+					m_activeSpells.erase(item);
+				}
+
+				logTrace("[SERVER] Player disconnected with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
+				m_serverInfo.connectedPlayers--;
+				m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
+			}
 		}
 		break;
 
 		case ID_CONNECTION_LOST:
 		{
-			logTrace("[SERVER] Lost connection with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
-			handleLostPlayer(*packet, bsIn);
-			
-			// Update the general server information.
-			m_serverInfo.connectedPlayers--;
-			m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
+			bool playerWasAccepted = handleLostPlayer(*packet, bsIn);
+			if (playerWasAccepted) {
+				logTrace("[SERVER] Lost connection with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
+				m_serverInfo.connectedPlayers--;
+				m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
+			}
 		}
 		break;
 
@@ -192,12 +240,250 @@ void LocalServer::processAndHandlePackets()
 		}
 		break;
 		
+		case SERVER_CHANGE_STATE:
+		{
+			stateChange(NetGlobals::SERVER_STATE::GAME_IN_SESSION);
+		}
+		break;
+
+		case SPELL_CREATED:
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			SpellPacket spellPacket;
+			spellPacket.Serialize(false, bsIn);
+			bsIn.SetReadOffset(0);
+
+			auto item = m_activeSpells.find(spellPacket.CreatorGUID.g);
+
+			if (item == m_activeSpells.end()) {
+				std::vector<SpellPacket> spellVec;
+				spellVec.reserve(10);
+				spellVec.emplace_back(spellPacket);
+				m_activeSpells[spellPacket.CreatorGUID.g] = spellVec;
+				logTrace("[SERVER] Created a new list with spells for player {0}, spell ID {1}", spellPacket.CreatorGUID.ToString(), spellPacket.SpellID);
+			}
+			else {
+				logTrace("[SERVER] Added spell to spell list for player {0}, spell ID {1}", spellPacket.CreatorGUID.ToString(), spellPacket.SpellID);
+				item._Ptr->_Myval.second.emplace_back(spellPacket);
+			}
+		
+			for (size_t i = 0; i < m_connectedPlayers.size(); i++)
+			{
+				// Don't send it back to the sender
+				if (packet->guid != m_connectedPlayers[i].guid.rakNetGuid) {
+					m_serverPeer->Send(&bsIn, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_connectedPlayers[i].guid, false);
+				}
+
+			}
+		}
+		break;
+
+		case SPELL_UPDATE:
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			SpellPacket spellPacket;
+			spellPacket.Serialize(false, bsIn);
+			bsIn.SetReadOffset(0);
+
+			//logTrace("[SERVER] Update spell {0}", spellPacket.toString());
+			auto item = m_activeSpells.find(spellPacket.CreatorGUID.g);
+
+			if (item != m_activeSpells.end()) {
+				auto& spellVec = item._Ptr->_Myval.second;
+
+				for (size_t i = 0; i < spellVec.size(); i++) {
+					if (spellVec[i].SpellID == spellPacket.SpellID) {
+						spellVec[i].Position = spellPacket.Position;
+						spellVec[i].Rotation = spellPacket.Rotation;
+					}
+				}
+
+				for (size_t i = 0; i < m_connectedPlayers.size(); i++)
+				{
+					// Don't send it back to the sender
+					if (packet->guid != m_connectedPlayers[i].guid.rakNetGuid) {
+						m_serverPeer->Send(&bsIn, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_connectedPlayers[i].guid, false);
+					}
+
+				}
+			
+			}
+
+		
+		}
+		break;
+
+		case SPELL_DESTROY:
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			SpellPacket spellPacket;
+			spellPacket.Serialize(false, bsIn);
+			bsIn.SetReadOffset(0);
+
+			auto item = m_activeSpells.find(spellPacket.CreatorGUID.g);
+
+			if (item != m_activeSpells.end()) {
+				//logTrace("Going to delete spell: {0}", spellPacket.toString());
+				auto& spellVec = item._Ptr->_Myval.second;
+				bool deleted = false;
+				for (size_t i = 0; i < spellVec.size() && !deleted; i++) {
+					
+					if (spellVec[i].SpellID == spellPacket.SpellID) {
+						logTrace("[SERVER] Deleted a spell with spell ID: {0} from client {1}", spellVec[i].SpellID, spellVec[i].CreatorGUID.ToString());
+						spellVec.erase(spellVec.begin() + i);
+						deleted = true;
+					}
+				}
+
+				if (spellVec.size() == 0)
+				{
+					logTrace("[SERVER] Deleted the local spell container for client with ID {0}", spellPacket.CreatorGUID.ToString());
+					m_activeSpells.erase(item);
+				}
+
+			}
+
+			for (size_t i = 0; i < m_connectedPlayers.size(); i++)
+			{
+				// Don't send it back to the sender
+				if (packet->guid != m_connectedPlayers[i].guid.rakNetGuid) {
+					m_serverPeer->Send(&bsIn, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_connectedPlayers[i].guid, false);
+				}
+
+			}
+
+		}
+
+		break;
+			  
+		case SPELL_PLAYER_HIT:
+		{
+			logTrace("PLAYER HIT PACKAGE");
+
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			HitPacket hitPacket;
+			hitPacket.Serialize(false, bsIn);
+			bsIn.SetReadOffset(0);
+
+			PlayerPacket* pp = getSpecificPlayer(hitPacket.playerHitGUID);
+			SpellPacket* sp = getSpecificSpell(hitPacket.CreatorGUID.g, hitPacket.SpellID);
+			if (pp == nullptr || sp == nullptr) {
+				logTrace("[SERVER] Player or spell was null");
+				return;
+			}
+
+			//create the axis and rotate them
+			glm::vec3 xAxis = glm::vec3(1.0f, 0.0f, 0.0f);
+			glm::vec3 yAxis = glm::vec3(0.0f, 1.0f, 0.0f);
+			glm::vec3 zAxis = glm::vec3(0.0f, 0.0f, 1.0f);
+			std::vector<glm::vec3> axis;
+
+			glm::rotateX(xAxis, pp->rotation.x);
+			glm::rotateY(xAxis, pp->rotation.y);
+			glm::rotateZ(xAxis, pp->rotation.z);
+
+			axis.emplace_back(xAxis);
+			axis.emplace_back(yAxis);
+			axis.emplace_back(zAxis);
+
+		
+			if (specificSpellCollision(sp->Position, pp->position, axis))
+			{
+				logTrace("[SERVER] sending hit package to client");
+				pp->health -= static_cast<int>(hitPacket.damage);
+
+				if (pp->health < 0) {
+					pp->health = 0;
+				}
+
+				RakNet::BitStream bsOut;
+				bsOut.Write((RakNet::MessageID)SPELL_PLAYER_HIT);
+				pp->Serialize(true, bsOut);
+				m_serverPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, hitPacket.playerHitGUID, false);
+
+
+			}
+		}
+
+		break;
+
 		default:
-			m_chaosMode.update(bsIn, packetID, packet->guid, m_connectedPlayers);
+		{
+			logTrace("Unknown package");
+		}
 			break;
 		}
 
 	}
+}
+
+bool LocalServer::specificSpellCollision(const glm::vec3& spellPos, const glm::vec3& playerPos, const std::vector<glm::vec3>& axis) {
+
+	bool collision = false;
+	float sphereRadius = 0.6f;
+
+	glm::vec3 closestPoint = OBBclosestPoint(spellPos, axis, playerPos);
+	glm::vec3 v = closestPoint - spellPos;
+
+	if (glm::dot(v, v) <= sphereRadius * sphereRadius)
+	{
+		collision = true;
+	}
+	return collision;
+}
+
+glm::vec3 LocalServer::OBBclosestPoint(const glm::vec3& spherePos, const std::vector<glm::vec3>& axis, const glm::vec3& playerPos) {
+
+	float boxSize = 0.25f;
+	//closest point on obb
+	glm::vec3 boxPoint = playerPos;
+	glm::vec3 ray = glm::vec3(spherePos - playerPos);
+
+	for (int j = 0; j < 3; j++) {
+		float distance = glm::dot(ray, axis.at(j));
+		float distance2 = 0;
+
+		if (distance > boxSize)
+			distance2 = boxSize;
+
+		if (distance < -boxSize)
+			distance2 = -boxSize;
+
+
+		boxPoint += distance2 * axis.at(j);
+	}
+
+	return boxPoint;
+}
+
+PlayerPacket* LocalServer::getSpecificPlayer(const RakNet::RakNetGUID& guid)
+{
+	for (size_t i = 0; i < m_connectedPlayers.size(); i++) {
+		if (m_connectedPlayers[i].guid.rakNetGuid == guid)
+		{
+			return &m_connectedPlayers[i];
+		}
+	}
+
+	return nullptr;
+}
+
+SpellPacket* LocalServer::getSpecificSpell(const uint64_t& creatorGUID, const uint64_t& spellID)
+{
+	auto item = m_activeSpells.find(creatorGUID);
+
+	if (item != m_activeSpells.end()) {
+		auto& spellVec = item._Ptr->_Myval.second;
+
+		for (size_t i = 0; i < spellVec.size(); i++) {
+
+			if (spellVec[i].SpellID == spellID) {
+				return &spellVec[i];
+			}
+		}
+	}
+
+	return nullptr;
 }
 
 const bool& LocalServer::isInitialized() const
@@ -218,7 +504,7 @@ unsigned char LocalServer::getPacketID(RakNet::Packet* p)
 		return (unsigned char)p->data[0];
 }
 
-void LocalServer::handleLostPlayer(const RakNet::Packet& packet, const RakNet::BitStream& bsIn)
+bool LocalServer::handleLostPlayer(const RakNet::Packet& packet, const RakNet::BitStream& bsIn)
 {
 	RakNet::AddressOrGUID guid = packet.guid;
 
@@ -234,24 +520,31 @@ void LocalServer::handleLostPlayer(const RakNet::Packet& packet, const RakNet::B
 		{
 			indexOfDisconnectedPlayer = i;
 		}
-		else
-		{
-			logTrace("Sending disconnection packets to guid: {0}", m_connectedPlayers[i].guid.ToString());
-			m_serverPeer->Send(&stream_disconnectedPlayer, IMMEDIATE_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_connectedPlayers[i].guid, false);
-		}
 	}
 
 	// Remove the disconnected player from the local list of clients
-	m_connectedPlayers.erase(m_connectedPlayers.begin() + indexOfDisconnectedPlayer);
+	if (indexOfDisconnectedPlayer != -1) {
+		m_connectedPlayers.erase(m_connectedPlayers.begin() + indexOfDisconnectedPlayer);
+		
+		// Only send them if the player that left/disconnected was accepted otherwise
+		// the clients have no track record of them so they don't need to know anything
+		for (size_t i = 0; i < m_connectedPlayers.size(); i++) {
+			logTrace("[SERVER] Sending disconnection packets to guid: {0}", m_connectedPlayers[i].guid.ToString());
+			m_serverPeer->Send(&stream_disconnectedPlayer, IMMEDIATE_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_connectedPlayers[i].guid, false);
+		}
+		return true;
+	}
+
+	return false;
 
 
 }
 
-void LocalServer::onStateChange(NetGlobals::ServerState newState)
+void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 {
 	if (newState == m_serverInfo.currentState) return;
 
-	if(newState == NetGlobals::ServerState::GameStarted)
+	if(newState == NetGlobals::SERVER_STATE::GAME_IN_SESSION)
 		logTrace("[SERVER] Admin requested to start the game!");
 
 	m_serverInfo.currentState = newState;
@@ -260,7 +553,7 @@ void LocalServer::onStateChange(NetGlobals::ServerState newState)
 	RakNet::BitStream stream;
 	stream.Write((RakNet::MessageID)SERVER_CURRENT_STATE);
 	ServerStateChange statePacket;
-	statePacket.currentState = NetGlobals::ServerState::GameStarted;
+	statePacket.currentState = NetGlobals::SERVER_STATE::GAME_IN_SESSION;
 	statePacket.Serialize(true, stream);
 	sendStreamToAllClients(stream);
 
