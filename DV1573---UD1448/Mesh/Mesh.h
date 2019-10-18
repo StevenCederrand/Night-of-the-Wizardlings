@@ -56,6 +56,7 @@ public:
 	
 	const std::vector<Face>& getFaces() { return m_faces; }
 	const std::vector<Vertex>& getVertices() { return m_vertices; }
+	const std::vector<Vertex2>& getVerticesSkele() { return m_skeleVertices; }
 	const Transform& getTransform() const { return m_transform; }
 };
 

@@ -1,6 +1,7 @@
 #pragma once
 #include <Pch/Pch.h>
 #include "AttackSpell.h"
+#include <Spells/SpellHandler.h>
 
 AttackSpell::AttackSpell(glm::vec3 pos, glm::vec3 direction, const AttackSpellBase* spellBase)
 	: Spell(pos, direction)
@@ -8,6 +9,10 @@ AttackSpell::AttackSpell(glm::vec3 pos, glm::vec3 direction, const AttackSpellBa
 	m_type = SPELL_TYPE::NORMALATTACK;
 	m_spellBase = spellBase;
 	setTravelTime(spellBase->m_lifeTime);
+
+	Transform tempTransform;
+	tempTransform.scale = glm::vec3(0.2f, 0.2f, 0.2f);
+	setTransform(tempTransform);
 
 	setWorldPosition(pos);
 	setDirection(direction);

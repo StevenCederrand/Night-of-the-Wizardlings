@@ -7,6 +7,7 @@
 #define DEPTH_MAP "Depth_Map"
 #define SKYBOX "Skybox_Shader"
 #define ANIMATION "Basic_Animation"
+#define DEBUG "Debug_Forward"
 
 #include <Pch/Pch.h>
 #include <GameObject/GameObject.h>
@@ -87,6 +88,8 @@ public:
 	void removeDynamic(GameObject* gameObject, ObjectType objType); //Remove an object from the dynamic array
 	void renderSkybox(const SkyBox& skybox);
 	void render();
+	//void renderSpell();
+	void renderDebug();
 
 	void renderSpell(const AttackSpellBase* spellBase);
 	Camera* getMainCamera() const;

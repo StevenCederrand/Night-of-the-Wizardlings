@@ -83,6 +83,7 @@ void Renderer::initShaders() {
 	ShaderMap::getInstance()->createShader(ANIMATION, "Animation.vert", "FragShader.frag");
 	ShaderMap::getInstance()->createShader("Skybox_Shader", "Skybox.vs", "Skybox.fs");
 	ShaderMap::getInstance()->getShader("Skybox_Shader")->setInt("skyBox", 4);
+	ShaderMap::getInstance()->createShader(DEBUG, "VertexShader.vert", "DebugFragShader.frag");
 }
 
 void Renderer::bindMatrixes(const std::string& shaderName) {
@@ -421,8 +422,9 @@ void Renderer::render() {
 }
 
 
-void Renderer::renderSpell(const AttackSpellBase* spellBase) {
-	
+void Renderer::renderSpell(const AttackSpellBase* spellBase) 
+{
+
 	Mesh* meshRef = spellBase->m_mesh;
 	glBindVertexArray(meshRef->getBuffers().vao);
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(spellBase->m_material);
@@ -438,10 +440,40 @@ void Renderer::renderSpell(const AttackSpellBase* spellBase) {
 		ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
 
 		glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-		
 	}
+}
 
-	glBindVertexArray(0);
+void Renderer::renderDebug()
+{
+	glm::mat4 modelMatrix;
+	ShaderMap::getInstance()->useByName(DEBUG);
+	//Bind view- and projection matrix
+	bindMatrixes(DEBUG);	
+	
+	//Render Static objects
+	for (int i = 0; i < m_staticObjects.size(); i++)
+	{		
+		for (size_t j = 0; j < m_staticObjects.at(i)->getDebugDrawers().size(); j++)
+		{			
+			modelMatrix = glm::mat4(1.0f);
+			//Bind the modelmatrix
+			ShaderMap::getInstance()->getShader(DEBUG)->setMat4("modelMatrix", modelMatrix);
+			//Then through all of the meshes
+
+			modelMatrix = m_staticObjects.at(i)->getMatrix(j);
+			glBindVertexArray(m_staticObjects.at(i)->getDebugDrawers()[j]->getBuffers().vao);
+
+			glDisable(GL_CULL_FACE);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+			glDrawElements(GL_TRIANGLES, m_staticObjects.at(i)->getDebugDrawers()[j]->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+			glEnable(GL_CULL_FACE);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+			glBindVertexArray(0);
+		}
+	}
 }
 
 Camera* Renderer::getMainCamera() const

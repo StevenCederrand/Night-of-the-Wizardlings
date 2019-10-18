@@ -7,8 +7,10 @@
 SpellHandler::SpellHandler(BulletPhysics * bp)
 {
 	attackBase = nullptr;
+	enhanceAtkBase = nullptr;
 	initAttackSpell();
 	m_bp = bp;
+	initEnhanceSpell();
 }
 
 void SpellHandler::initAttackSpell()
@@ -31,12 +33,48 @@ void SpellHandler::initAttackSpell()
 	attackBase->m_material->specular = newMaterial.specular;
 	tempLoader.Unload();
 
+	attackBase->m_material->diffuse = glm::vec3(0.65f, 1.0f, 1.0f);
+	attackBase->m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
+
 	attackBase->m_damage = 34;
 	attackBase->m_speed = 25;
 	attackBase->m_coolDown = 1;
 	attackBase->m_lifeTime = 5;
 	attackBase->m_maxBounces = 3;
 }
+
+
+void SpellHandler::initEnhanceSpell()
+{
+	enhanceAtkBase = new AttackSpellBase();
+	enhanceAtkBase->m_mesh = new Mesh();
+	enhanceAtkBase->m_material = new Material();
+
+
+	BGLoader tempLoader;	// The file loader
+	tempLoader.LoadMesh(MESHPATH + "TestSphere.mesh");
+	enhanceAtkBase->m_mesh = new Mesh();
+	enhanceAtkBase->m_mesh->saveFilePath(tempLoader.GetFileName(), 0);
+	enhanceAtkBase->m_mesh->nameMesh(tempLoader.GetMeshName());
+	enhanceAtkBase->m_mesh->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
+	enhanceAtkBase->m_mesh->setUpBuffers();
+
+	const Material& newMaterial = tempLoader.GetMaterial();
+	enhanceAtkBase->m_material->ambient = newMaterial.ambient;
+	enhanceAtkBase->m_material->diffuse = newMaterial.diffuse;
+	enhanceAtkBase->m_material->name = newMaterial.name;
+	enhanceAtkBase->m_material->specular = newMaterial.specular;
+	tempLoader.Unload();
+
+	enhanceAtkBase->m_damage = 34;
+	enhanceAtkBase->m_speed = 100;
+	enhanceAtkBase->m_coolDown = 1;
+	enhanceAtkBase->m_lifeTime = 5;
+	enhanceAtkBase->m_maxBounces = 3;
+}
+
+
+
 
 SpellHandler::~SpellHandler()
 {
@@ -46,6 +84,8 @@ SpellHandler::~SpellHandler()
 		delete element;
 	spells.clear();
 }
+
+
 
 void SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SPELL_TYPE type)
 {
@@ -74,8 +114,43 @@ void SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SP
 
 	if (type == ENHANCEATTACK)
 	{
-		//spells.emplace_back(new EnhanceAttackSpell(spellPos, directionVector));
-	}	
+		auto spell = new AttackSpell(spellPos, directionVector, enhanceAtkBase);
+		spell->setUniqueID(getUniqueID());
+		Client::getInstance()->createSpellOnNetwork(*spell);
+		spells.emplace_back(spell);
+		Renderer::getInstance()->submit(spells.back(), SPELL);
+		logTrace("Created spell");
+
+		//bullet create
+		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.x);
+		m_BulletNormalSpell.emplace_back(
+			m_bp->createObject(obj, 1.0f, spellPos + directionVector * 2, glm::vec3(1.0f, 0.0f, 0.0f)));
+
+		int size = m_BulletNormalSpell.size();
+		m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
+		m_BulletNormalSpell.at(size - 1)->setUserPointer(m_BulletNormalSpell.at(size - 1));
+	}
+
+
+	
+	
+
+
+	//if (type == FLAMESTRIKE)
+	//{
+	//	if (m_tempFlamestrike->getCooldown() <= 0)
+	//	{
+	//		AOEAttack tempSpell2 = *m_tempFlamestrike;
+	//		tempSpell2.createSpell(deltaTime, spellPos, directionVector);
+	//		m_flamestrike.push_back(tempSpell2);
+	//		m_tempFlamestrike->setCooldown(7.0f);
+	//
+	//		m_tempSpell->setCooldown(1.0f);
+	//		setType(NORMALATTACK);
+	//		spellIsOver = true;
+	//	}
+	//}
+	//return spellIsOver;
 }
 
 void SpellHandler::spellUpdate(float deltaTime)
@@ -99,10 +174,36 @@ void SpellHandler::spellUpdate(float deltaTime)
 			m_BulletNormalSpell.erase(m_BulletNormalSpell.begin() + i);
 		}
 	}
-	spellCollisionCheck();
 
+	//for (int i = 0; i < m_flamestrike.size(); i++)
+	//{
+	//
+	//	m_flamestrike[i].updateActiveSpell(deltaTime);
+	//	
+	//	std::cout << m_flamestrike[i].getSpellPos().x << " " << m_flamestrike[i].getSpellPos().y << " " << m_flamestrike[i].getSpellPos().z << std::endl;
+	//	tempFire->setWorldPosition(m_flamestrike[i].getSpellPos());
+	//	
+	//	if (m_flamestrike[i].isAOE())
+	//	{
+	//		tempFire->translate(m_flamestrike[i].getSpellPos());
+	//	}
+	//	
+	//
+	//	if (m_flamestrike[i].getTravelTime() <= 0)
+	//	{
+	//		m_flamestrike.erase(m_flamestrike.begin() + i);
+	//	}
+	//}
 }
-	
+
+const AttackSpellBase& SpellHandler::getSpellBase(SPELL_TYPE spelltype)
+{
+	if (spelltype == NORMALATTACK)
+		return *attackBase;
+	//else if(spelltype == ENHANCEATTACK)
+		//return *
+}
+
 
 void SpellHandler::renderSpell()
 {
@@ -197,3 +298,7 @@ glm::vec3 SpellHandler::OBBclosestPoint(glm::vec3& spherePos, std::vector<glm::v
 
 	return boxPoint;
 }
+
+
+
+

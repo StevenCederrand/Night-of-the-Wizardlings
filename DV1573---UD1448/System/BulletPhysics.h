@@ -10,7 +10,6 @@ enum CollisionObject
 	box,
 	sphere,
 	capsule
-
 };
 
 class BulletPhysics

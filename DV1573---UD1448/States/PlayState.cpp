@@ -24,8 +24,8 @@ PlayState::PlayState()
 	m_objects[m_objects.size() - 1]->loadMesh("TestScene.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
-	
-	//Cube and sphere centered in scene
+	//
+	////Cube and sphere centered in scene
 	m_objects.push_back(new WorldObject("TestCube"));
 	m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 0.0f, 0.0f));
@@ -38,10 +38,10 @@ PlayState::PlayState()
 	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 1.0f, -2.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
-	m_objects.push_back(new WorldObject("TestCube"));
-	m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -1.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+	//m_objects.push_back(new WorldObject("TestCube"));
+	//m_objects[m_objects.size() - 1]->loadMesh("Playground.mesh");
+	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -1.0f));
+	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 	
 	//////Animated rectangle
 	m_objects.push_back(new AnimatedObject("TestRectangle"));
@@ -58,17 +58,16 @@ PlayState::PlayState()
 	m_objects[m_objects.size() - 1]->setTransform(tempTransform);
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
 
-	CollisionObject obj = box;
-	m_bPhysics->createObject(obj, 0.0f, glm::vec3(0.0f, -1.5f, 0.0f), glm::vec3(100.0f, 2.0f, 100.0f), 1.0);
+	
+	
 	gContactAddedCallback = callbackFunc;
-
-	for (size_t i = 1; i < m_objects.size(); i++)
+	// Geneterate bullet objects / hitboxes
+	for (int i = 0; i < m_objects.size(); i++)
 	{
-		Transform temp = m_objects.at(i)->getTransform();
-
-		m_bPhysics->createObject(obj, 0.0f, temp.position,
-			glm::vec3(temp.scale.x/2, temp.scale.y, temp.scale.y/2));
+		m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);
+		m_objects.at(i)->createDebugDrawer();
 	}
+
 	logTrace("Playstate created");
 }
 
@@ -114,7 +113,8 @@ void PlayState::render()
 	Renderer::getInstance()->renderSkybox(*m_skybox);
 	Renderer::getInstance()->render();
 	m_spellHandler->renderSpell();
-
+	Renderer::getInstance()->renderDebug();
+	
 }
 
 //This function is called everytime two collision objects collide
