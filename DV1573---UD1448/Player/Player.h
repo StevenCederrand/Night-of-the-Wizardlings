@@ -46,7 +46,7 @@ private:
 	SpellHandler* m_spellhandler;
 	EnhanceAttackSpell m_enhanceAttack;
 
-	SPELLTYPE m_spellType;
+	SPELL_TYPE m_spellType;
 	
 	float m_attackCooldown;
 	float m_specialCooldown;

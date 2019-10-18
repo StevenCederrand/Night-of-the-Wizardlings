@@ -22,7 +22,7 @@ public:
 	void createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SPELL_TYPE type);
 
 	void spellUpdate(float deltaTime);
-	const AttackSpellBase& getSpellBase(SPELLTYPE spelltype);
+	const AttackSpellBase& getSpellBase(SPELL_TYPE spelltype);
 	const Spell& getSpell(int index) const { return *spells[index]; }
 	const std::vector<Spell*>& getSpells() const { return spells; }
 	void renderSpell();
@@ -35,7 +35,6 @@ private:
 private:
 
 	std::vector<Spell*> spells;
-	std::vector<EnhanceAttackSpell> enhanceAttackSpell;
 
 	// The base for all basic attack spells
 	AttackSpellBase* attackBase;
@@ -53,7 +52,7 @@ private:
 	glm::vec3 m_directionVector;
 	glm::vec3 m_spellPos;
 	glm::vec3 m_saveValues = glm::vec3(0,0,0);
-	SPELLTYPE m_spellType;
+	SPELL_TYPE m_spellType;
 
 	bool test123 = false;
 

@@ -4,14 +4,10 @@
 
 
 EnhanceAttackSpell::EnhanceAttackSpell()
-	: Spell(glm::vec3(0), glm::vec3(0))
 {
-
 	m_currentAttackCooldown = m_attackCooldown;
 	m_currentAttack = m_nrOfAttacks;
 
-	setWorldPosition(glm::vec3(0));
-	setDirection(glm::vec3(0));
 
 	m_done = true;
 	m_ready = false;

@@ -265,24 +265,51 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 	for (int i = 0; i < m_meshes.size(); i++)
 	{
 		const std::vector<Vertex>& vertices = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getVertices();
-		glm::vec3 min = vertices[0].position;
-		glm::vec3 max = vertices[0].position;
-
-		for (int i = 1; i < vertices.size(); i++)
+		if (vertices.size() == 0)
 		{
-			min.x = fminf(vertices[i].position.x, min.x);
-			min.y = fminf(vertices[i].position.y, min.y);
-			min.z = fminf(vertices[i].position.z, min.z);
+			const std::vector<Vertex2>& vertices2 = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getVerticesSkele();
 
-			max.x = fmaxf(vertices[i].position.x, max.x);
-			max.y = fmaxf(vertices[i].position.y, max.y);
-			max.z = fmaxf(vertices[i].position.z, max.z);
+			glm::vec3 min = vertices2[0].position;
+			glm::vec3 max = vertices2[0].position;
+
+			for (int i = 1; i < vertices2.size(); i++)
+			{
+				min.x = fminf(vertices2[i].position.x, min.x);
+				min.y = fminf(vertices2[i].position.y, min.y);
+				min.z = fminf(vertices2[i].position.z, min.z);
+
+				max.x = fmaxf(vertices2[i].position.x, max.x);
+				max.y = fmaxf(vertices2[i].position.y, max.y);
+				max.z = fmaxf(vertices2[i].position.z, max.z);
+			}
+
+			glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(i).position;
+			glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale;
+			// TODO: ROTATE
+			m_bodies.emplace_back(m_bPhysics->createObject(shape, 0.0f, center, halfSize));
+		}
+		else
+		{
+			glm::vec3 min = vertices[0].position;
+			glm::vec3 max = vertices[0].position;
+
+			for (int i = 1; i < vertices.size(); i++)
+			{
+				min.x = fminf(vertices[i].position.x, min.x);
+				min.y = fminf(vertices[i].position.y, min.y);
+				min.z = fminf(vertices[i].position.z, min.z);
+
+				max.x = fmaxf(vertices[i].position.x, max.x);
+				max.y = fmaxf(vertices[i].position.y, max.y);
+				max.z = fmaxf(vertices[i].position.z, max.z);
+			}
+
+			glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(i).position;
+			glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale;
+			// TODO: ROTATE
+			m_bodies.emplace_back(m_bPhysics->createObject(shape, 0.0f, center, halfSize));
 		}
 
-		glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(i).position;
-		glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale;
-		// TODO: ROTATE
-		m_bodies.emplace_back(m_bPhysics->createObject(shape, 0.0f, center, halfSize));
 	}
 }
 

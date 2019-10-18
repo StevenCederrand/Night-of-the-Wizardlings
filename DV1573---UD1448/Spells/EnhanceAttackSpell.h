@@ -4,7 +4,7 @@
 #include <GameObject/GameObject.h>
 #include <Spells/Spell.h>
 
-class EnhanceAttackSpell : public Spell
+class EnhanceAttackSpell
 {
 public:
 	EnhanceAttackSpell();

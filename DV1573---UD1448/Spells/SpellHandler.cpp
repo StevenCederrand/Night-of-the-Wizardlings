@@ -87,7 +87,7 @@ SpellHandler::~SpellHandler()
 
 
 
-void SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SPELLTYPE type)
+void SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SPELL_TYPE type)
 {
 
 	CollisionObject obj = sphere;
@@ -114,9 +114,21 @@ void SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SP
 
 	if (type == ENHANCEATTACK)
 	{
-		spells.emplace_back(new AttackSpell(spellPos, directionVector, enhanceAtkBase));
+		auto spell = new AttackSpell(spellPos, directionVector, enhanceAtkBase);
+		spell->setUniqueID(getUniqueID());
+		Client::getInstance()->createSpellOnNetwork(*spell);
+		spells.emplace_back(spell);
 		Renderer::getInstance()->submit(spells.back(), SPELL);
 		logTrace("Created spell");
+
+		//bullet create
+		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.x);
+		m_BulletNormalSpell.emplace_back(
+			m_bp->createObject(obj, 1.0f, spellPos + directionVector * 2, glm::vec3(1.0f, 0.0f, 0.0f)));
+
+		int size = m_BulletNormalSpell.size();
+		m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
+		m_BulletNormalSpell.at(size - 1)->setUserPointer(m_BulletNormalSpell.at(size - 1));
 	}
 
 
@@ -184,7 +196,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 	//}
 }
 
-const AttackSpellBase& SpellHandler::getSpellBase(SPELLTYPE spelltype)
+const AttackSpellBase& SpellHandler::getSpellBase(SPELL_TYPE spelltype)
 {
 	if (spelltype == NORMALATTACK)
 		return *attackBase;
