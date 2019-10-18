@@ -16,7 +16,8 @@ void DebugDrawer::setUpMesh(btRigidBody& body)
 	m_mesh = new Mesh();
 
 	btVector3 tempMin;
-	btVector3 tempMax;
+	btVector3 tempMax;	
+	btVector3 tempOrigin = body.getWorldTransform().getOrigin();
 
 	body.getAabb(tempMin, tempMax);
 
@@ -27,13 +28,13 @@ void DebugDrawer::setUpMesh(btRigidBody& body)
 	faces.resize(12);
 
 	vertices[0].position = glm::vec3(tempMin.getX(), tempMin.getY(), tempMin.getZ());
-	vertices[1].position = glm::vec3(vertices[0].position.x + 1 * 2, vertices[0].position.y, vertices[0].position.z);
-	vertices[2].position = glm::vec3(vertices[1].position.x, vertices[1].position.y, vertices[1].position.z + 1 * 2);
-	vertices[3].position = glm::vec3(vertices[0].position.x, vertices[0].position.y, vertices[0].position.z + 1 * 2);
+	vertices[1].position = glm::vec3(vertices[0].position.x + (tempMax.getX() - tempOrigin.getX()) *2, vertices[0].position.y, vertices[0].position.z);
+	vertices[2].position = glm::vec3(vertices[1].position.x, vertices[1].position.y, vertices[1].position.z + (tempMax.getZ() - tempOrigin.getZ()) * 2);
+	vertices[3].position = glm::vec3(vertices[0].position.x, vertices[0].position.y, vertices[0].position.z + (tempMax.getZ() - tempOrigin.getZ()) * 2);
 	vertices[4].position = glm::vec3(tempMax.getX(), tempMax.getY(), tempMax.getZ());
-	vertices[5].position = glm::vec3(vertices[4].position.x - 1 * 2, vertices[4].position.y, vertices[4].position.z);
-	vertices[6].position = glm::vec3(vertices[5].position.x, vertices[5].position.y, vertices[5].position.z - 1 * 2);
-	vertices[7].position = glm::vec3(vertices[4].position.x, vertices[4].position.y, vertices[4].position.z - 1 * 2);
+	vertices[5].position = glm::vec3(vertices[4].position.x - (tempMax.getX() - tempOrigin.getX()) * 2, vertices[4].position.y, vertices[4].position.z);
+	vertices[6].position = glm::vec3(vertices[5].position.x, vertices[5].position.y, vertices[5].position.z - (tempMax.getZ() - tempOrigin.getZ()) * 2);
+	vertices[7].position = glm::vec3(vertices[4].position.x, vertices[4].position.y, vertices[4].position.z - (tempMax.getZ() - tempOrigin.getZ()) * 2);
 
 	faces[0].indices[0] = 0;
 	faces[0].indices[1] = 1;
