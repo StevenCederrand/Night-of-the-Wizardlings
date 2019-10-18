@@ -30,6 +30,9 @@ void SpellHandler::initAttackSpell()
 	attackBase->m_material->specular = newMaterial.specular;
 	tempLoader.Unload();
 
+	attackBase->m_material->diffuse = glm::vec3(0.8f, 1.0f, 1.0f);
+	attackBase->m_material->ambient = glm::vec3(0.8f, 1.0f, 1.0f);
+
 	attackBase->m_damage = 34;
 	attackBase->m_speed = 25;
 	attackBase->m_coolDown = 1;
@@ -43,6 +46,7 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase = new AttackSpellBase();
 	enhanceAtkBase->m_mesh = new Mesh();
 	enhanceAtkBase->m_material = new Material();
+
 
 	BGLoader tempLoader;	// The file loader
 	tempLoader.LoadMesh(MESHPATH + "TestSphere.mesh");

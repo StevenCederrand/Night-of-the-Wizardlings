@@ -10,6 +10,10 @@ AttackSpell::AttackSpell(glm::vec3 pos, glm::vec3 direction, const AttackSpellBa
 	m_spellBase = spellBase;
 	setTravelTime(spellBase->m_lifeTime);
 
+	Transform tempTransform;
+	tempTransform.scale = glm::vec3(0.2f, 0.2f, 0.2f);
+	setTransform(tempTransform);
+
 	setWorldPosition(pos);
 	setDirection(direction);
 }
