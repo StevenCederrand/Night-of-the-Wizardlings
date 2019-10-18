@@ -121,35 +121,6 @@ const uint64_t SpellHandler::getUniqueID()
 
 void SpellHandler::spellCollisionCheck()
 {
-	
-	//BEGIN TEST=========================================== BEGIN TEST
-		glm::vec3 playerPos = glm::vec3(0.0f, 1.0f, -2.0f);
-
-		glm::vec3 xAxis = glm::vec3(1.0f, 0.0f, 0.0f);
-		glm::vec3 yAxis = glm::vec3(0.0f, 1.0f, 0.0f);
-		glm::vec3 zAxis = glm::vec3(0.0f, 0.0f, 1.0f);
-		std::vector<glm::vec3> axis;
-
-		axis.emplace_back(xAxis);
-		axis.emplace_back(yAxis);
-		axis.emplace_back(zAxis);
-		//NORMAL spells
-	for (int i = 0; i < spells.size(); i++) {
-
-		glm::vec3 spellPos = spells.at(i)->getTransform().position;
-		//glm::vec3 spellPos = spells.at(i).getTransform().position;
-		specificSpellCollision(spellPos, playerPos, axis);
-	}
-	//ENCHANCEATTACK spells
-	for (int i = 0; i < enhanceAttackSpell.size(); i++)
-	{
-		glm::vec3 spellPos = enhanceAttackSpell.at(i).getTransform().position;
-		specificSpellCollision(spellPos, playerPos, axis);
-	}
-	
-	//END TEST=========================================== END TEST
-
-	
 	//get the list of att the players on the network
 	auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
 
@@ -174,19 +145,10 @@ void SpellHandler::spellCollisionCheck()
 		
 		//create a box, obb or AABB? from the player position
 		for (int i = 0; i < spells.size(); i++) {
-			glm::vec3 spherePos = spells.at(i)->getTransform().position;
-			glm::vec3 closestPoint = OBBclosestPoint(spherePos, axis,playerPos);
-			float sphereRadius = 1.0f;
-			glm::vec3 v = closestPoint - spherePos;
-
-			if (glm::dot(v, v) <= sphereRadius * sphereRadius)
-			{
-				//COLLISION!
-				logTrace("COLLISION spell and player");
-			}			
+			glm::vec3 spellPos = spells.at(i)->getTransform().position;
+			specificSpellCollision(spellPos, playerPos, axis);		
 		}
 	}
-	//check the collision with your spells and you!
 }
 
 bool SpellHandler::specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis)

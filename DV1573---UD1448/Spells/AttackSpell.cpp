@@ -19,24 +19,19 @@ AttackSpell::~AttackSpell()
 
 void AttackSpell::update(float deltaTime)
 {
-
-
-	translate(getDirection() * deltaTime * m_spellBase->m_speed);
 	setTravelTime(getTravelTime() - deltaTime);
 
-
-
-
 	//DEBUG
-	//logTrace("Current spell pos {0}, {1}, {2}", getTransform().position.x, getTransform().position.y, getTransform().position.z);
 }
 
 void AttackSpell::updateRigidbody(float deltaTime, btRigidBody* body)
 {
 	btVector3 pos2 = btVector3(
-		getDirection().x * deltaTime,
-		getDirection().y * deltaTime,
-		getDirection().z * deltaTime * 10);
+		getDirection().x,
+		getDirection().y,
+		getDirection().z) * m_spellBase->m_speed;
 	body->setLinearVelocity(pos2);
 
+	btVector3 pos = body->getWorldTransform().getOrigin();
+	setWorldPosition(glm::vec3(pos.getX(), pos.getY(), pos.getZ()));
 }
