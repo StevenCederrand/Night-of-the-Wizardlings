@@ -47,27 +47,35 @@ void AttackSpell::update(float deltaTime)
 
 void AttackSpell::updateRigidbody(float deltaTime, btRigidBody* body)
 {
-
-	if (m_localBounce != m_nrOfBounce)
+	//setNewDir check if 0.2 second have passed since last calculation
+	if (m_localBounce != m_nrOfBounce && m_setNewDir == true)
 	{
-		setDirection(m_bounceNormal);
-		m_nrOfBounce = m_localBounce;
+		//reflect
+		glm::vec3 oldDir = getDirection();
+		glm::vec3 nlength = (glm::dot(oldDir, -m_bounceNormal) * m_bounceNormal);
+		glm::vec3 u = nlength + oldDir;
+		glm::vec3 newDir = -oldDir + 2 * u;
+		newDir = glm::normalize(newDir);
 		
+		setDirection(newDir);
+		m_setNewDir = false;
+	}
+	m_bounceTime += deltaTime;
+	if (m_bounceTime > 0.2)
+	{
+		m_bounceTime = 0;
+		m_nrOfBounce = m_localBounce;
+		m_setNewDir = true;
 	}
 
-	btVector3 pos2 = btVector3(
-		getDirection().x,
-		getDirection().y,
-		getDirection().z) * m_spellBase->m_speed;
+	glm::vec3 direction = getDirection();
+		body->setLinearVelocity(btVector3(
+			direction.x,
+			direction.y,
+			direction.z) * m_spellBase->m_speed);
 
-	
-	body->setLinearVelocity(btVector3(
-		getDirection().x,
-		getDirection().y,
-		getDirection().z) * m_spellBase->m_speed);
-
-	btVector3 pos = body->getWorldTransform().getOrigin();
-	setWorldPosition(glm::vec3(pos.getX(), pos.getY(), pos.getZ()));
+	btVector3 rigidBodyPos = body->getWorldTransform().getOrigin();
+	setWorldPosition(glm::vec3(rigidBodyPos.getX(), rigidBodyPos.getY(), rigidBodyPos.getZ()));
 }
 
 const AttackSpellBase* AttackSpell::getSpellBase()

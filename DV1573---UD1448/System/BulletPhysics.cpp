@@ -134,7 +134,7 @@ btKinematicCharacterController* BulletPhysics::createCharacter()
 	m_playerShape = new btCapsuleShape(0.8, 1);
 	m_ghostObject = new btPairCachingGhostObject();
 	
-	m_ghostObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 20, 0)));
+	m_ghostObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 40, 0)));
 
 	m_dynamicsWorld->getPairCache()->setInternalGhostPairCallback(m_ghostCallback);
 	m_ghostObject->setCollisionShape(m_playerShape);

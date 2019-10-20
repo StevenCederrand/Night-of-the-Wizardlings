@@ -100,16 +100,15 @@ void SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SP
 		Renderer::getInstance()->submit(spells.back(), SPELL);
 		logTrace("Created spell");
 
-
-
 		//bullet create
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.x);
 		m_BulletNormalSpell.emplace_back(
-			m_bp->createObject(obj, 1.0f, spellPos+directionVector*2, glm::vec3(0.1f, 0.1f, 0.1f)));
+			m_bp->createObject(obj, 1.0f, spellPos+(directionVector*2), glm::vec3(0.3f, 0.3f, 0.3f)));
 			
 		int size = m_BulletNormalSpell.size();
 		m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
-		m_BulletNormalSpell.at(size - 1)->setUserPointer(m_BulletNormalSpell.at(size - 1));
+		m_BulletNormalSpell.at(size - 1)->setUserPointer(spell);
+		m_BulletNormalSpell.at(size - 1)->setLinearVelocity(direction*spell->getSpellBase()->m_speed);
 	}
 
 	if (type == ENHANCEATTACK)
@@ -171,7 +170,9 @@ void SpellHandler::spellUpdate(float deltaTime)
 			Client::getInstance()->destroySpellOnNetwork(*spells[i]);
 			delete spells[i];
 			spells.erase(spells.begin() + i);
+			m_BulletNormalSpell.at(i)->getWorldTransform().setOrigin(btVector3(0.0f,100.0f+i*2,0.0f));
 			m_BulletNormalSpell.erase(m_BulletNormalSpell.begin() + i);
+			
 		}
 	}
 

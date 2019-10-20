@@ -23,6 +23,7 @@ public:
 	virtual void update(float dt) override;
 	virtual void render() override;
 
+
 private:
 	int key = 1;
 
@@ -34,7 +35,6 @@ private:
 	Camera* m_camera;
 	SkyBox* m_skybox;
 	BulletPhysics* m_bPhysics;
-
 
 };
 

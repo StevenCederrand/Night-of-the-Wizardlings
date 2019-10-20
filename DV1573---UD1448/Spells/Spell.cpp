@@ -44,9 +44,3 @@ void Spell::setDirection(glm::vec3 direction)
 	m_direction = direction;
 }
 
-void Spell::setBounceNormal(glm::vec3& normal)
-{
-	m_bounceNormal = normal;
-	//m_localBounce++;
-}
-

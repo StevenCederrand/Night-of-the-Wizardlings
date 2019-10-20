@@ -11,7 +11,7 @@ PlayState::PlayState()
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
 	Renderer::getInstance();
 	m_camera = new Camera();
-	m_player = new Player(m_bPhysics, "Player", glm::vec3(0.0f, 1.8f, 0.0f), m_camera, m_spellHandler);
+	m_player = new Player(m_bPhysics, "Player", glm::vec3(0.0f, 10.8f, 0.0f), m_camera, m_spellHandler);
 
 	Renderer::getInstance()->setupCamera(m_player->getCamera());
 
@@ -64,7 +64,8 @@ PlayState::PlayState()
 	// Geneterate bullet objects / hitboxes
 	for (int i = 0; i < m_objects.size(); i++)
 	{
-		m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);
+		
+		m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);	
 		m_objects.at(i)->createDebugDrawer();
 	}
 
@@ -121,15 +122,15 @@ void PlayState::render()
 bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
 	const btCollisionObjectWrapper* obj2, int id2, int index2)
 {
-	AttackSpell* sp1 = reinterpret_cast<AttackSpell*>(obj1->getCollisionObject()->getUserPointer());
-	AttackSpell* sp2 = reinterpret_cast<AttackSpell*>(obj2->getCollisionObject()->getUserPointer());
+	Spell* sp1 = reinterpret_cast<Spell*>(obj1->getCollisionObject()->getUserPointer());
+	Spell* sp2 = reinterpret_cast<Spell*>(obj2->getCollisionObject()->getUserPointer());
 
 	//Spell* sp = dynamic_cast<Spell*>(obj1->getCollisionObject()->getUserPointer());
 	if (sp1 != nullptr) {
 		logTrace("sp1: Spell collided");
 
-		int local = sp2->getLocalBounce();
-		int bounce = sp2->getNrofBounce();
+		int local = sp1->getLocalBounce();
+		int bounce = sp1->getNrofBounce();
 		if (local == bounce)
 		{
 			glm::vec3 normal = glm::vec3(cp.m_normalWorldOnB.getX(), cp.m_normalWorldOnB.getY(), cp.m_normalWorldOnB.getZ());
