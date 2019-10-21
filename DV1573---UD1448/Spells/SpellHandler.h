@@ -17,6 +17,7 @@ public:
 	SpellHandler(BulletPhysics* bp);
 	void initAttackSpell();
 	void initEnhanceSpell();
+	void initFlamestrikeSpell();
 	void initReflectSpell();
 	~SpellHandler();
 
@@ -42,6 +43,7 @@ private:
 	AttackSpellBase* attackBase;
 	AttackSpellBase* enhanceAtkBase;
 	ReflectSpellBase* reflectBase;
+	FlamestrikeSpellBase* flamestrikeBase;
 
 	void spellCollisionCheck();
 	bool specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis);

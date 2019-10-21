@@ -10,10 +10,12 @@ SpellHandler::SpellHandler(BulletPhysics * bp)
 
 	attackBase = nullptr;
 	enhanceAtkBase = nullptr;
+	flamestrikeBase = nullptr;
 	reflectBase = nullptr;
 
 	initAttackSpell();
 	initEnhanceSpell();
+	initFlamestrikeSpell();
 	initReflectSpell();
 }
 
@@ -77,6 +79,36 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase->m_maxBounces = 3;
 }
 
+void SpellHandler::initFlamestrikeSpell()
+{
+	flamestrikeBase = new FlamestrikeSpellBase();
+	flamestrikeBase->m_mesh = new Mesh();
+	flamestrikeBase->m_material = new Material();
+
+	BGLoader tempLoader;	// The file loader
+	tempLoader.LoadMesh(MESHPATH + "TestSphere.mesh");
+	flamestrikeBase->m_mesh->saveFilePath(tempLoader.GetFileName(), 0);
+	flamestrikeBase->m_mesh->nameMesh(tempLoader.GetMeshName());
+	flamestrikeBase->m_mesh->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
+	flamestrikeBase->m_mesh->setUpBuffers();
+
+	const Material & newMaterial = tempLoader.GetMaterial();
+	flamestrikeBase->m_material->ambient = newMaterial.ambient;
+	flamestrikeBase->m_material->diffuse = newMaterial.diffuse;
+	flamestrikeBase->m_material->name = newMaterial.name;
+	flamestrikeBase->m_material->specular = newMaterial.specular;
+	tempLoader.Unload();
+
+	flamestrikeBase->m_material->diffuse = glm::vec3(0.65f, 1.0f, 1.0f);
+	flamestrikeBase->m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
+
+	flamestrikeBase->m_damage = 10;
+	flamestrikeBase->m_speed = 25;
+	flamestrikeBase->m_coolDown = 1;
+	flamestrikeBase->m_lifeTime = 5;
+	flamestrikeBase->m_maxBounces = 3;
+}
+
 void SpellHandler::initReflectSpell()
 {
 	reflectBase = new ReflectSpellBase();
@@ -110,6 +142,8 @@ SpellHandler::~SpellHandler()
 		delete attackBase;
 	if (enhanceAtkBase)
 		delete enhanceAtkBase;
+	if (flamestrikeBase)
+		delete flamestrikeBase;
 	if (reflectBase)
 		delete reflectBase;
 
