@@ -257,6 +257,7 @@ void SpellHandler::spellCollisionCheck()
 			float scale = spells.at(j)->getTransform().scale.x;
 			if (specificSpellCollision(spellPos, playerPos, axis, scale))
 			{
+				logTrace("COLLISION SPELL");
 				Client::getInstance()->sendHitRequest(*spells[j], list[i]);
 				spells[j]->setTravelTime(0.0f);
 			}
