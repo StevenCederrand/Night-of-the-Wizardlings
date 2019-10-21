@@ -417,7 +417,7 @@ void LocalServer::processAndHandlePackets()
 			axis.emplace_back(zAxis);
 
 		
-			if (specificSpellCollision(sp->Position, pp->position, axis))
+			if (specificSpellCollision(*sp, pp->position, axis))
 			{
 				logTrace("[SERVER] sending hit package to client");
 				pp->health -= static_cast<int>(hitPacket.damage);
@@ -450,13 +450,13 @@ void LocalServer::processAndHandlePackets()
 	}
 }
 
-bool LocalServer::specificSpellCollision(const glm::vec3& spellPos, const glm::vec3& playerPos, const std::vector<glm::vec3>& axis) {
+bool LocalServer::specificSpellCollision(const SpellPacket& spellPacket, const glm::vec3& playerPos, const std::vector<glm::vec3>& axis) {
 
 	bool collision = false;
-	float sphereRadius = 0.6f;
+	float sphereRadius = 1.0f * spellPacket.Scale.x * 2;
 
-	glm::vec3 closestPoint = OBBclosestPoint(spellPos, axis, playerPos);
-	glm::vec3 v = closestPoint - spellPos;
+	glm::vec3 closestPoint = OBBclosestPoint(spellPacket, axis, playerPos);
+	glm::vec3 v = closestPoint - spellPacket.Position;
 
 	if (glm::dot(v, v) <= sphereRadius * sphereRadius)
 	{
@@ -465,12 +465,12 @@ bool LocalServer::specificSpellCollision(const glm::vec3& spellPos, const glm::v
 	return collision;
 }
 
-glm::vec3 LocalServer::OBBclosestPoint(const glm::vec3& spherePos, const std::vector<glm::vec3>& axis, const glm::vec3& playerPos) {
+glm::vec3 LocalServer::OBBclosestPoint(const SpellPacket& spellPacket, const std::vector<glm::vec3>& axis, const glm::vec3& playerPos) {
 
-	float boxSize = 0.25f;
+	float boxSize = 0.5f;
 	//closest point on obb
 	glm::vec3 boxPoint = playerPos;
-	glm::vec3 ray = glm::vec3(spherePos - playerPos);
+	glm::vec3 ray = glm::vec3(spellPacket.Position - playerPos);
 
 	for (int j = 0; j < 3; j++) {
 		float distance = glm::dot(ray, axis.at(j));

@@ -30,8 +30,8 @@ private:
 	void sendStreamToAllClients(RakNet::BitStream& stream);
 
 	// Collision with players
-	bool specificSpellCollision(const glm::vec3& spellPos, const glm::vec3& playerPos, const std::vector<glm::vec3>& axis);
-	glm::vec3 OBBclosestPoint(const glm::vec3& spherePos, const std::vector<glm::vec3>& axis, const glm::vec3& playerPos);
+	bool specificSpellCollision(const SpellPacket& spellPacket, const glm::vec3& playerPos, const std::vector<glm::vec3>& axis);
+	glm::vec3 OBBclosestPoint(const SpellPacket& spellPacket, const std::vector<glm::vec3>& axis, const glm::vec3& playerPos);
 	PlayerPacket* getSpecificPlayer(const RakNet::RakNetGUID& guid);
 	SpellPacket* getSpecificSpell(const uint64_t& creatorGUID, const uint64_t& spellID);
 

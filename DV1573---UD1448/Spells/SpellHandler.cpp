@@ -180,8 +180,6 @@ void SpellHandler::spellUpdate(float deltaTime)
 	}
 	spellCollisionCheck();
 
-	spellCollisionCheck();
-
 	//for (int i = 0; i < m_flamestrike.size(); i++)
 	//{
 	//
