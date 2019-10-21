@@ -41,12 +41,13 @@ private:
 
 	CEGUI::PushButton* m_mainMenu;
 	CEGUI::PushButton* m_quit;
+	CEGUI::MultiColumnList* m_scoreBoard;
 
 private: 
 	bool onMainMenuClick(const CEGUI::EventArgs& e);
 	bool onQuitClick(const CEGUI::EventArgs& e);
 	void GUIHandler();
-	void GUILoad();
+	void GUILoadButtons();
 	void GUIclear();
 };
 

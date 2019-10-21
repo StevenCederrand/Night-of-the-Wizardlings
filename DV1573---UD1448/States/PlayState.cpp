@@ -69,6 +69,15 @@ PlayState::PlayState()
 		m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);
 		m_objects.at(i)->createDebugDrawer();
 	}
+
+	//Create the scoreboard
+	m_scoreBoard = static_cast<CEGUI::MultiColumnList*>(Gui::getInstance()->createWidget(PLAYSECTION, "TaharezLook/MultiColumnList", glm::vec4(0.20f, 0.25f, 0.60f, 0.40f), glm::vec4(0.0f), "serverlist"));
+	m_scoreBoard->addColumn("Player: ", 0, CEGUI::UDim(0.33f, 0));
+	m_scoreBoard->addColumn("Score: ", 1, CEGUI::UDim(0.33f, 0));
+	m_scoreBoard->addColumn("Deaths: ", 2, CEGUI::UDim(0.34f, 0));
+
+	m_scoreBoard->setSelectionMode(CEGUI::MultiColumnList::RowSingle);
+
 	logTrace("Playstate created");
 }
 
@@ -106,12 +115,6 @@ void PlayState::update(float dt)
 		auto& list = Client::getInstance()->getNetworkSpells();
 		logTrace("Active spells on client: {0}", list.size());
 	}
-
-	if (Input::isKeyPressed(GLFW_KEY_N)) {
-		Renderer::getInstance()->clear();
-		glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-		m_stateManager->clearAllAndSetState(new MenuState());
-	}
 }
 
 void PlayState::render()
@@ -133,7 +136,7 @@ void PlayState::GUIHandler()
 			glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 			m_camera->enableFP(false);
 			m_player->logicStop(true);
-			GUILoad();
+			GUILoadButtons();
 		}
 		else {
 			glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -144,7 +147,7 @@ void PlayState::GUIHandler()
 	}
 }
 
-void PlayState::GUILoad()
+void PlayState::GUILoadButtons()
 {
 	m_mainMenu = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(PLAYSECTION, "TaharezLook/Button", glm::vec4(0.45f, 0.45f, 0.1f, 0.05f), glm::vec4(0.0f), "Exit To Main Menu"));
 	m_mainMenu->setText("Main Menu");

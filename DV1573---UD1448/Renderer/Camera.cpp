@@ -159,4 +159,13 @@ void Camera::update(GLFWwindow* window)
 
 void Camera::enableFP(const bool& fpEnable) {
 	m_fpEnabled = fpEnable;
+	//when enabling the fps camera
+	if (m_fpEnabled) {
+		int wSizeX, wSizeY;
+		glfwGetWindowSize(glfwGetCurrentContext(), &wSizeX, &wSizeY);
+		lastX = static_cast<float>(wSizeX / 2);
+		lastY = static_cast<float>(wSizeY / 2);
+
+		glfwSetCursorPos(glfwGetCurrentContext(), lastX, lastY);
+	}
 }

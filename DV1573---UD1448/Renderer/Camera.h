@@ -31,7 +31,7 @@ private:
 
 	void mouse_callback(GLFWwindow* window);
 	bool m_fpEnabled;
-
+	glm::vec2 oldPosition;
 public:
 	Camera();
 	~Camera();

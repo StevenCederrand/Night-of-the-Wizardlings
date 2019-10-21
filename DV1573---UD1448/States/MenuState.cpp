@@ -23,11 +23,6 @@ void MenuState::update(float dt)
 	if (Input::isKeyHeldDown(GLFW_KEY_F3)) {
 		m_stateManager->clearAllAndSetState(new FindServerState());
 	}
-	
-	if (Input::isKeyPressed(GLFW_KEY_B)) {
-		glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		m_stateManager->clearAllAndSetState(new PlayState());
-	}
 }
 
 void MenuState::render()
