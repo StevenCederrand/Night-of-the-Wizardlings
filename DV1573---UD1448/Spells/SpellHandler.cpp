@@ -176,6 +176,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 		}
 	}
 
+	spellCollisionCheck();
 	//for (int i = 0; i < m_flamestrike.size(); i++)
 	//{
 	//
@@ -250,7 +251,8 @@ void SpellHandler::spellCollisionCheck()
 		//create a box, obb or AABB? from the player position
 		for (size_t j = 0; j < spells.size(); j++) {
 			glm::vec3 spellPos = spells.at(j)->getTransform().position;
-			if (specificSpellCollision(spellPos, playerPos, axis))
+			float scale = spells.at(j)->getTransform().scale.x;
+			if (specificSpellCollision(spellPos, playerPos, axis, scale))
 			{
 				Client::getInstance()->sendHitRequest(*spells[j], list[i]);
 				spells[j]->setTravelTime(0.0f);
@@ -259,10 +261,10 @@ void SpellHandler::spellCollisionCheck()
 	}
 }
 
-bool SpellHandler::specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis)
+bool SpellHandler::specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis, float scale)
 {
 	bool collision = false;
-	float sphereRadius = 0.6f;
+	float sphereRadius = 0.6f * scale;
 
 	glm::vec3 closestPoint = OBBclosestPoint(spellPos, axis, playerPos);
 	glm::vec3 v = closestPoint - spellPos;
