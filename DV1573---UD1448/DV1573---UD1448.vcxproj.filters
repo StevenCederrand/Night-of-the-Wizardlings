@@ -5,7 +5,6 @@
     <ClCompile Include="GameObject\AnimatedObject.cpp" />
     <ClCompile Include="Mesh\AnimationMap.cpp" />
     <ClCompile Include="Mesh\MeshMap.cpp" />
-    <ClCompile Include="Networking\ChaosServerMode.cpp" />
     <ClCompile Include="Networking\Client.cpp" />
     <ClCompile Include="Networking\LocalServer.cpp" />
     <ClCompile Include="GameObject\GameObject.cpp" />
@@ -62,13 +61,13 @@
     <ClCompile Include="GameObject\AnimatedObject.cpp" />
     <ClCompile Include="System\Timer.cpp" />
     <ClCompile Include="Texture\stb_image.cpp" />
+    <ClCompile Include="Spells\ReflectSpell.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
     <ClInclude Include="GameObject\AnimatedObject.h" />
     <ClInclude Include="Mesh\AnimationMap.h" />
     <ClInclude Include="Mesh\MeshMap.h" />
-    <ClInclude Include="Networking\ChaosServerMode.h" />
     <ClInclude Include="Networking\Client.h" />
     <ClInclude Include="Networking\LocalServer.h" />
     <ClInclude Include="Networking\NetworkGlobals.h" />
@@ -134,6 +133,7 @@
     <ClInclude Include="System\Timer.h" />
     <ClInclude Include="Spells\Spells.h" />
     <ClInclude Include="Spells\SpellTypes.h" />
+    <ClInclude Include="Spells\ReflectSpell.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

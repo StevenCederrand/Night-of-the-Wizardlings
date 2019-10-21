@@ -22,10 +22,13 @@ public:
 	void createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SPELL_TYPE type);
 
 	void spellUpdate(float deltaTime);
+	void updateReflection(glm::vec3 position, glm::vec3 direction);
+
 	const AttackSpellBase& getSpellBase(SPELL_TYPE spelltype);
 	const Spell& getSpell(int index) const { return *spells[index]; }
 	const std::vector<Spell*>& getSpells() const { return spells; }
 	void renderSpell();
+
 	//bool isSpellReadyToCast(SPELLTYPE type);
 
 
@@ -40,29 +43,13 @@ private:
 	AttackSpellBase* attackBase;
 	AttackSpellBase* enhanceAtkBase;
 
-
-
-	//std::vector<AOEAttack> m_flamestrike;
-	//AOEAttack* m_tempFlamestrike;
-	//fire* tempFire;
-	//fire* m_fire;
-
-
-	//other things
-	glm::vec3 m_directionVector;
-	glm::vec3 m_spellPos;
-	glm::vec3 m_saveValues = glm::vec3(0,0,0);
-	SPELL_TYPE m_spellType;
-
-	bool test123 = false;
-
 	void spellCollisionCheck();
 	bool specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis);
 	glm::vec3 OBBclosestPoint(glm::vec3 &spherePos, std::vector<glm::vec3> &axis, glm::vec3 &playerPos);
-	BulletPhysics* m_bp;
+	
+	void reflectCollisionCheck();
 
+	BulletPhysics* m_bp;
 	std::vector<btRigidBody*> m_BulletNormalSpell;
 	std::vector<btRigidBody*> m_BulletEnhanceAttackSpell;
-
-
 };

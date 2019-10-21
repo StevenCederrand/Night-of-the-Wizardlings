@@ -175,33 +175,21 @@ void SpellHandler::spellUpdate(float deltaTime)
 		}
 	}
 
-	//for (int i = 0; i < m_flamestrike.size(); i++)
-	//{
-	//
-	//	m_flamestrike[i].updateActiveSpell(deltaTime);
-	//	
-	//	std::cout << m_flamestrike[i].getSpellPos().x << " " << m_flamestrike[i].getSpellPos().y << " " << m_flamestrike[i].getSpellPos().z << std::endl;
-	//	tempFire->setWorldPosition(m_flamestrike[i].getSpellPos());
-	//	
-	//	if (m_flamestrike[i].isAOE())
-	//	{
-	//		tempFire->translate(m_flamestrike[i].getSpellPos());
-	//	}
-	//	
-	//
-	//	if (m_flamestrike[i].getTravelTime() <= 0)
-	//	{
-	//		m_flamestrike.erase(m_flamestrike.begin() + i);
-	//	}
-	//}
+	
+	spellCollisionCheck();
+	reflectCollisionCheck();
+}
+
+void SpellHandler::updateReflection(glm::vec3 position, glm::vec3 direction)
+{
 }
 
 const AttackSpellBase& SpellHandler::getSpellBase(SPELL_TYPE spelltype)
 {
 	if (spelltype == NORMALATTACK)
 		return *attackBase;
-	//else if(spelltype == ENHANCEATTACK)
-		//return *
+	else if (spelltype == ENHANCEATTACK)
+		return *enhanceAtkBase;
 }
 
 
@@ -298,6 +286,23 @@ glm::vec3 SpellHandler::OBBclosestPoint(glm::vec3& spherePos, std::vector<glm::v
 
 	return boxPoint;
 }
+
+void SpellHandler::reflectCollisionCheck()
+{
+	auto& list = Client::getInstance()->getNetworkSpells();
+	for (size_t i = 0; i < list.size(); i++)
+	{
+		list[i].Position;
+		list[i].Rotation;
+
+
+
+
+
+	}
+}
+
+
 
 
 
