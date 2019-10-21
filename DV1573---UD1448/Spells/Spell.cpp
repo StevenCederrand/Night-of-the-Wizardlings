@@ -19,6 +19,16 @@ const uint64_t& Spell::getUniqueID() const
 	return m_uniqueID;
 }
 
+const int& Spell::getNrofBounce() const
+{
+	return 0;
+}
+
+const int& Spell::getLocalBounce() const
+{
+	return 0;
+}
+
 void Spell::setTravelTime(float travelTime)
 {
 	m_travelTime = travelTime;
