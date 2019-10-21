@@ -20,6 +20,10 @@ PlayState::PlayState()
 	m_skybox = new SkyBox();
 	m_skybox->prepareBuffers();
 
+	m_bloom = new BloomBlur;
+	m_bloom->createHdrFBO();
+	m_bloom->createPingPingFBO();
+
 	//Test enviroment with 4 meshes inside 1 GameObject, inherited transforms
 	m_objects.push_back(new WorldObject("TestScene"));
 	m_objects[m_objects.size() - 1]->loadMesh("TestScene.mesh");
@@ -111,9 +115,12 @@ void PlayState::update(float dt)
 void PlayState::render()
 {
 	//Move the render skybox to be a private renderer function
+	m_bloom->bindHdrFBO();
 	Renderer::getInstance()->renderSkybox(*m_skybox);
-	Renderer::getInstance()->render();
 	m_spellHandler->renderSpell();
+	Renderer::getInstance()->render();
+
+	//m_spellHandler->renderSpell();
 	Renderer::getInstance()->renderDebug();
 	
 }

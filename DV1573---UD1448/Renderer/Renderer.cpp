@@ -84,6 +84,27 @@ void Renderer::initShaders() {
 	ShaderMap::getInstance()->createShader("Skybox_Shader", "Skybox.vs", "Skybox.fs");
 	ShaderMap::getInstance()->getShader("Skybox_Shader")->setInt("skyBox", 4);
 	ShaderMap::getInstance()->createShader(DEBUG, "VertexShader.vert", "DebugFragShader.frag");
+
+	/*=====================================================*/
+	ShaderMap::getInstance()->createShader(BLOOM, "Bloom.vs", "Bloom.fs");
+	ShaderMap::getInstance()->useByName(BLOOM);
+	ShaderMap::getInstance()->getShader(BLOOM)->setInt("albedoTexture", 0);
+
+	ShaderMap::getInstance()->createShader(BLUR, "Blur.vs", "Blur.fs");
+	ShaderMap::getInstance()->useByName(BLUR);
+	ShaderMap::getInstance()->getShader(BLUR)->setInt("brightImage", 0);
+
+	ShaderMap::getInstance()->createShader(BLOOM_BLUR, "BloomBlur.vs", "BloomBlur.fs");
+	ShaderMap::getInstance()->useByName(BLOOM_BLUR);
+	ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("bloomImage", 0);
+	ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("sceneImage", 1);
+
+	m_bloom = new BloomBlur;
+	m_bloom->createHdrFBO();
+	m_bloom->createPingPingFBO();
+	/*=====================================================*/
+
+
 }
 
 void Renderer::bindMatrixes(const std::string& shaderName) {
@@ -202,7 +223,7 @@ void Renderer::render() {
 	Mesh* mesh;
 	Transform transform;
 	glm::mat4 modelMatrix;
-
+	
 #pragma region Depth_Render & Light_Cull
 	if (m_spells.size() > 0) {
 		ShaderMap::getInstance()->useByName(DEPTH_MAP);
@@ -210,7 +231,7 @@ void Renderer::render() {
 		//Bind and draw the objects to the depth-buffer
 		bindMatrixes(DEPTH_MAP);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_depthFBO);
-		glClear(GL_DEPTH_BUFFER_BIT);
+		//glClear(GL_DEPTH_BUFFER_BIT);
 
 		//Loop through all of the gameobjects
 		for (GameObject* object : m_staticObjects)
@@ -293,7 +314,8 @@ void Renderer::render() {
 
 #pragma endregion
 	
-
+	//BLOOMBLUR MISSION STEP 1: SAMPLE
+	m_bloom->bindHdrFBO();
 #pragma region Color_Render
 	ShaderMap::getInstance()->useByName(BASIC_FORWARD);
 	//Bind view- and projection matrix
@@ -368,6 +390,8 @@ void Renderer::render() {
 	}
 #pragma endregion
 
+
+
 #pragma region Animation_Render
 	//TODO: Evaluate this implementation, should be an easier way to bind values to shaders as they're changed
 	// Possibly extract functions. Only difference in rendering is the shader and the binding of bone matrices
@@ -418,6 +442,34 @@ void Renderer::render() {
 	}
 	
 #pragma endregion
+
+	// MISSION COMPLEATE = OUTPUT 2 TEXTURES
+
+	
+	//BLOOMBLUR MISSION STEP 2: BLUR TEXTURE
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	ShaderMap::getInstance()->useByName("Blur_Shader");
+
+	ShaderMap::getInstance()->getShader("Blur_Shader")->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
+	m_bloom->blurIteration(0);
+
+	for (unsigned int i = 0; i < m_bloom->getAmount() - 1; i++)
+	{
+
+		ShaderMap::getInstance()->getShader("Blur_Shader")->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
+
+		m_bloom->blurIteration(1);
+
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	//BLOOMBLUR MISSION 3: COMBINE TEXTURES
+
+	ShaderMap::getInstance()->useByName(BLOOM_BLUR);
+	m_bloom->sendTextureLastPass();
+
+	m_bloom->renderQuad();
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 }
 

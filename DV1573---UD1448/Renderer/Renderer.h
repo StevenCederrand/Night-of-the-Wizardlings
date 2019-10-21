@@ -8,6 +8,10 @@
 #define SKYBOX "Skybox_Shader"
 #define ANIMATION "Basic_Animation"
 #define DEBUG "Debug_Forward"
+#define BLOOM "Bloom_Shader"
+#define BLUR "Blur_Shader"
+#define BLOOM_BLUR "BloomBlur_Shader"
+
 
 #include <Pch/Pch.h>
 #include <GameObject/GameObject.h>
@@ -17,6 +21,8 @@
 #include <Spells/Spells.h>
 #include <Renderer/SkyBox.h>
 #include <System/Timer.h>
+#include <Renderer/BloomBlur.h>
+#include <Spells/SpellHandler.h>
 
 #define P_LIGHT_COUNT 64
 #define P_LIGHT_RADIUS 2
@@ -71,7 +77,9 @@ private:
 	void initShaders();
 	void bindMatrixes(const std::string& shaderName);
 	
-	
+	BloomBlur* m_bloom;
+	//SpellHandler* m_spellHandler;
+
 	Renderer();
 public:
 
@@ -93,6 +101,7 @@ public:
 
 	void renderSpell(const AttackSpellBase* spellBase);
 	Camera* getMainCamera() const;
+
 };
 
 #endif
