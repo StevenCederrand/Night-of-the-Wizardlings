@@ -235,6 +235,9 @@ void SpellHandler::spellCollisionCheck()
 
 	for (size_t i = 0; i < list.size(); i++)
 	{
+		if (list[i].data.health <= 0)
+			continue;
+
 		glm::vec3 playerPos = list[i].data.position;
 		list[i].data.rotation;
 
