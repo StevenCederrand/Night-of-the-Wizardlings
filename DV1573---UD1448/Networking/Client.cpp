@@ -542,7 +542,7 @@ void Client::sendHitRequest(Spell& spell, NetworkPlayers::PlayerEntity& playerTh
 	hitPacket.playerHitGUID = playerThatWasHit.data.guid.rakNetGuid;
 	hitPacket.Position = spell.getTransform().position;
 	hitPacket.Rotation = spell.getTransform().rotation;
-	hitPacket.damage = spell.getSpellBase()->m_damage;
+	hitPacket.damage = spell.getDamage();
 
 	m_spellsHitQueue.emplace_back(hitPacket);
 }

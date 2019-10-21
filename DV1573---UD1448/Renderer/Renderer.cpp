@@ -422,24 +422,66 @@ void Renderer::render() {
 }
 
 
-void Renderer::renderSpell(const AttackSpellBase* spellBase) 
+void Renderer::renderSpell() 
 {
-
-	Mesh* meshRef = spellBase->m_mesh;
-	glBindVertexArray(meshRef->getBuffers().vao);
-	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(spellBase->m_material);
 
 	for (int i = 0; i < m_spells.size(); i++)
 	{
-		const Transform meshTransform = m_spells[i]->getTransform();
-		glm::mat4 modelMatrix = glm::mat4(1.0f);
-		modelMatrix = glm::translate(modelMatrix, meshTransform.position);
-		modelMatrix = glm::scale(modelMatrix, meshTransform.scale);
-		modelMatrix *= glm::mat4_cast(meshTransform.rotation);
-		bindMatrixes(BASIC_FORWARD);
-		ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
+		if (dynamic_cast<Spell*>(m_spells[i])->getType() == NORMALATTACK)
+		{
+			Mesh* meshRef = dynamic_cast<AttackSpell*>(m_spells[i])->getBase()->m_mesh;
+			glBindVertexArray(meshRef->getBuffers().vao);
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(dynamic_cast<AttackSpell*>(m_spells[i])->getBase()->m_material);
 
-		glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+			// TODO: Fix below
+			const Transform meshTransform = m_spells[i]->getTransform();
+			glm::mat4 modelMatrix = glm::mat4(1.0f);
+			modelMatrix = glm::translate(modelMatrix, meshTransform.position);
+			modelMatrix = glm::scale(modelMatrix, meshTransform.scale);
+			modelMatrix *= glm::mat4_cast(meshTransform.rotation);
+			bindMatrixes(BASIC_FORWARD);
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
+
+			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+		}
+
+		if (dynamic_cast<Spell*>(m_spells[i])->getType() == ENHANCEATTACK)
+		{
+			Mesh* meshRef = dynamic_cast<AttackSpell*>(m_spells[i])->getBase()->m_mesh;
+			glBindVertexArray(meshRef->getBuffers().vao);
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(dynamic_cast<AttackSpell*>(m_spells[i])->getBase()->m_material);
+
+			// TODO: Fix below
+			const Transform meshTransform = m_spells[i]->getTransform();
+			glm::mat4 modelMatrix = glm::mat4(1.0f);
+			modelMatrix = glm::translate(modelMatrix, meshTransform.position);
+			modelMatrix = glm::scale(modelMatrix, meshTransform.scale);
+			modelMatrix *= glm::mat4_cast(meshTransform.rotation);
+			bindMatrixes(BASIC_FORWARD);
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
+
+			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+		}
+
+		if (dynamic_cast<Spell*>(m_spells[i])->getType() == REFLECT)
+		{
+			Mesh* meshRef = dynamic_cast<ReflectSpell*>(m_spells[i])->getBase()->m_mesh;
+			glBindVertexArray(meshRef->getBuffers().vao);
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(dynamic_cast<ReflectSpell*>(m_spells[i])->getBase()->m_material);
+
+			// TODO: Fix below
+			const Transform meshTransform = m_spells[i]->getTransform();
+			glm::mat4 modelMatrix = glm::mat4(1.0f);
+			modelMatrix = glm::translate(modelMatrix, meshTransform.position);
+			modelMatrix = glm::scale(modelMatrix, meshTransform.scale);
+			modelMatrix *= glm::mat4_cast(meshTransform.rotation);
+			bindMatrixes(BASIC_FORWARD);
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
+
+			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+		}
+
+
 	}
 }
 

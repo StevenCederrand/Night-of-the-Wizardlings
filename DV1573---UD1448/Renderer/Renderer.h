@@ -15,6 +15,8 @@
 #include <Mesh/MeshFormat.h>
 #include <Spells/Spell.h>
 #include <Spells/Spells.h>
+#include <Spells/AttackSpell.h>
+#include <Spells/ReflectSpell.h>
 #include <Renderer/SkyBox.h>
 #include <System/Timer.h>
 
@@ -91,7 +93,7 @@ public:
 	//void renderSpell();
 	void renderDebug();
 
-	void renderSpell(const AttackSpellBase* spellBase);
+	void renderSpell();
 	Camera* getMainCamera() const;
 };
 

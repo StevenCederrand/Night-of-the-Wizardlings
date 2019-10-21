@@ -4,6 +4,7 @@
 #include <GameObject/GameObject.h>
 #include <Spells/AttackSpell.h>
 #include <Spells/EnhanceAttackSpell.h>
+#include <Spells/ReflectSpell.h>
 #include <System/BulletPhysics.h>
 #include "SpellTypes.h"
 
@@ -16,15 +17,15 @@ public:
 	SpellHandler(BulletPhysics* bp);
 	void initAttackSpell();
 	void initEnhanceSpell();
-
-
+	void initReflectSpell();
 	~SpellHandler();
-	void createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SPELL_TYPE type);
+
+	float createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SPELL_TYPE type);
 
 	void spellUpdate(float deltaTime);
-	void updateReflection(glm::vec3 position, glm::vec3 direction);
+	void setSpellPosition(glm::vec3 position);
+	void setSpellDirection(glm::vec3 direction);
 
-	const AttackSpellBase& getSpellBase(SPELL_TYPE spelltype);
 	const Spell& getSpell(int index) const { return *spells[index]; }
 	const std::vector<Spell*>& getSpells() const { return spells; }
 	void renderSpell();
@@ -35,13 +36,12 @@ public:
 private:
 	const uint64_t getUniqueID();
 
-private:
-
 	std::vector<Spell*> spells;
 
 	// The base for all basic attack spells
 	AttackSpellBase* attackBase;
 	AttackSpellBase* enhanceAtkBase;
+	ReflectSpellBase* reflectBase;
 
 	void spellCollisionCheck();
 	bool specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis);

@@ -114,7 +114,6 @@ void PlayState::render()
 	Renderer::getInstance()->render();
 	m_spellHandler->renderSpell();
 	Renderer::getInstance()->renderDebug();
-	
 }
 
 //This function is called everytime two collision objects collide
