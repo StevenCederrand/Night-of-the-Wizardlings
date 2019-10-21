@@ -61,7 +61,7 @@ void AttackSpell::updateRigidbody(float deltaTime, btRigidBody* body)
 		m_setNewDir = false;
 
 		m_bounceCounter++;
-		if (m_bounceCounter == 4)
+		if (m_bounceCounter == m_maxBounce + 1)
 		{
 			setTravelTime(0);
 		}
