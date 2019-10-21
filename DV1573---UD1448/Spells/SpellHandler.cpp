@@ -6,11 +6,15 @@
 
 SpellHandler::SpellHandler(BulletPhysics * bp)
 {
+	m_bp = bp;
+
 	attackBase = nullptr;
 	enhanceAtkBase = nullptr;
+	reflectBase = nullptr;
+
 	initAttackSpell();
-	m_bp = bp;
 	initEnhanceSpell();
+	initReflectSpell();
 }
 
 void SpellHandler::initAttackSpell()
@@ -43,17 +47,14 @@ void SpellHandler::initAttackSpell()
 	attackBase->m_maxBounces = 3;
 }
 
-
 void SpellHandler::initEnhanceSpell()
 {
 	enhanceAtkBase = new AttackSpellBase();
 	enhanceAtkBase->m_mesh = new Mesh();
 	enhanceAtkBase->m_material = new Material();
 
-
 	BGLoader tempLoader;	// The file loader
-	tempLoader.LoadMesh(MESHPATH + "TestSphere.mesh");
-	enhanceAtkBase->m_mesh = new Mesh();
+	tempLoader.LoadMesh(MESHPATH + "TestCube.mesh");
 	enhanceAtkBase->m_mesh->saveFilePath(tempLoader.GetFileName(), 0);
 	enhanceAtkBase->m_mesh->nameMesh(tempLoader.GetMeshName());
 	enhanceAtkBase->m_mesh->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
@@ -66,6 +67,9 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase->m_material->specular = newMaterial.specular;
 	tempLoader.Unload();
 
+	attackBase->m_material->diffuse = glm::vec3(0.65f, 0.7f, 1.0f);
+	attackBase->m_material->ambient = glm::vec3(0.65f, 0.7f, 1.0f);
+
 	enhanceAtkBase->m_damage = 34;
 	enhanceAtkBase->m_speed = 100;
 	enhanceAtkBase->m_coolDown = 1;
@@ -73,39 +77,68 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase->m_maxBounces = 3;
 }
 
+void SpellHandler::initReflectSpell()
+{
+	reflectBase = new ReflectSpellBase();
+	reflectBase->m_mesh = new Mesh();
+	reflectBase->m_material = new Material();
 
+	BGLoader tempLoader;	// The file loader
+	tempLoader.LoadMesh(MESHPATH + "TestCube.mesh");
+	reflectBase->m_mesh->saveFilePath(tempLoader.GetFileName(), 0);
+	reflectBase->m_mesh->nameMesh(tempLoader.GetMeshName());
+	reflectBase->m_mesh->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
+	reflectBase->m_mesh->setUpBuffers();
 
+	const Material& newMaterial = tempLoader.GetMaterial();
+	reflectBase->m_material->ambient = newMaterial.ambient;
+	reflectBase->m_material->diffuse = newMaterial.diffuse;
+	reflectBase->m_material->name = newMaterial.name;
+	reflectBase->m_material->specular = newMaterial.specular;
+	tempLoader.Unload();
+
+	reflectBase->m_material->diffuse = glm::vec3(1.0f, 0.0f, 0.0f);
+	reflectBase->m_material->ambient = glm::vec3(1.0f, 0.0f, 0.0f);
+
+	reflectBase->m_coolDown = 2;
+	reflectBase->m_lifeTime = 2;
+}
 
 SpellHandler::~SpellHandler()
 {
 	if (attackBase)
 		delete attackBase;
+	if (enhanceAtkBase)
+		delete enhanceAtkBase;
+	if (reflectBase)
+		delete reflectBase;
+
+
 	for (Spell* element : spells)
 		delete element;
+
 	spells.clear();
 }
 
-
-
-void SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SPELL_TYPE type)
+float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SPELL_TYPE type)
 {
-
+	float cooldown = 0.0f;
 	CollisionObject obj = sphere;
 	if (type == NORMALATTACK)
 	{
 		auto spell = new AttackSpell(spellPos, directionVector, attackBase);
+		cooldown = attackBase->m_coolDown;
+
 		spell->setUniqueID(getUniqueID());
 		Client::getInstance()->createSpellOnNetwork(*spell);
 		spells.emplace_back(spell);
 		Renderer::getInstance()->submit(spells.back(), SPELL);
-		logTrace("Created spell");
-
-
+		logTrace("Created attack spell");
 
 		//bullet create
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.x);
 		m_BulletNormalSpell.emplace_back(
-			m_bp->createObject(obj, 1.0f, spellPos+directionVector*2, glm::vec3(1.0f, 0.0f, 0.0f)));
+			m_bp->createObject(obj, 1.0f, spellPos+directionVector*2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
 			
 		int size = m_BulletNormalSpell.size();
 		m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
@@ -115,16 +148,38 @@ void SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SP
 	if (type == ENHANCEATTACK)
 	{
 		auto spell = new AttackSpell(spellPos, directionVector, enhanceAtkBase);
+		cooldown = enhanceAtkBase->m_coolDown;
+
 		spell->setUniqueID(getUniqueID());
 		Client::getInstance()->createSpellOnNetwork(*spell);
 		spells.emplace_back(spell);
 		Renderer::getInstance()->submit(spells.back(), SPELL);
-		logTrace("Created spell");
+		logTrace("Created enhanceattack spell");
 
 		//bullet create
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.x);
 		m_BulletNormalSpell.emplace_back(
-			m_bp->createObject(obj, 1.0f, spellPos + directionVector * 2, glm::vec3(1.0f, 0.0f, 0.0f)));
+			m_bp->createObject(obj, 1.0f, spellPos + directionVector * 2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
+
+		int size = m_BulletNormalSpell.size();
+		m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
+		m_BulletNormalSpell.at(size - 1)->setUserPointer(m_BulletNormalSpell.at(size - 1));
+	}
+
+	if (type == REFLECT)
+	{
+		auto spell = new ReflectSpell(spellPos, directionVector, reflectBase);
+		cooldown = reflectBase->m_coolDown;
+		//Client::getInstance()->createSpellOnNetwork(*spell);
+		spell->setUniqueID(getUniqueID());
+		spells.emplace_back(spell);
+		Renderer::getInstance()->submit(spells.back(), SPELL);
+		logTrace("Created reflect spell");
+
+		//bullet create
+		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.x);
+		m_BulletNormalSpell.emplace_back(
+			m_bp->createObject(obj, 1.0f, spellPos + directionVector * 2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
 
 		int size = m_BulletNormalSpell.size();
 		m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
@@ -132,30 +187,11 @@ void SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SP
 	}
 
 
-	
-	
-
-
-	//if (type == FLAMESTRIKE)
-	//{
-	//	if (m_tempFlamestrike->getCooldown() <= 0)
-	//	{
-	//		AOEAttack tempSpell2 = *m_tempFlamestrike;
-	//		tempSpell2.createSpell(deltaTime, spellPos, directionVector);
-	//		m_flamestrike.push_back(tempSpell2);
-	//		m_tempFlamestrike->setCooldown(7.0f);
-	//
-	//		m_tempSpell->setCooldown(1.0f);
-	//		setType(NORMALATTACK);
-	//		spellIsOver = true;
-	//	}
-	//}
-	//return spellIsOver;
+	return cooldown;
 }
 
 void SpellHandler::spellUpdate(float deltaTime)
 {
-
 	for (int i = 0; i < spells.size(); i++)
 	{
 		spells[i]->update(deltaTime);
@@ -174,41 +210,15 @@ void SpellHandler::spellUpdate(float deltaTime)
 			m_BulletNormalSpell.erase(m_BulletNormalSpell.begin() + i);
 		}
 	}
-
-	//for (int i = 0; i < m_flamestrike.size(); i++)
-	//{
-	//
-	//	m_flamestrike[i].updateActiveSpell(deltaTime);
-	//	
-	//	std::cout << m_flamestrike[i].getSpellPos().x << " " << m_flamestrike[i].getSpellPos().y << " " << m_flamestrike[i].getSpellPos().z << std::endl;
-	//	tempFire->setWorldPosition(m_flamestrike[i].getSpellPos());
-	//	
-	//	if (m_flamestrike[i].isAOE())
-	//	{
-	//		tempFire->translate(m_flamestrike[i].getSpellPos());
-	//	}
-	//	
-	//
-	//	if (m_flamestrike[i].getTravelTime() <= 0)
-	//	{
-	//		m_flamestrike.erase(m_flamestrike.begin() + i);
-	//	}
-	//}
+	
+	spellCollisionCheck();
+	reflectCollisionCheck();
 }
-
-const AttackSpellBase& SpellHandler::getSpellBase(SPELL_TYPE spelltype)
-{
-	if (spelltype == NORMALATTACK)
-		return *attackBase;
-	//else if(spelltype == ENHANCEATTACK)
-		//return *
-}
-
 
 void SpellHandler::renderSpell()
 {
 	ShaderMap::getInstance()->useByName(BASIC_FORWARD);
-	Renderer::getInstance()->renderSpell(attackBase); //Why is object null??
+	Renderer::getInstance()->renderSpell();
 }
 
 const uint64_t SpellHandler::getUniqueID()
@@ -291,13 +301,29 @@ glm::vec3 SpellHandler::OBBclosestPoint(glm::vec3& spherePos, std::vector<glm::v
 
 		if (distance < -boxSize)
 			distance2 = -boxSize;
-
 		
 		boxPoint += distance2 * axis.at(j);
 	}
 
 	return boxPoint;
 }
+
+void SpellHandler::reflectCollisionCheck()
+{
+	auto& list = Client::getInstance()->getNetworkSpells();
+	for (size_t i = 0; i < list.size(); i++)
+	{
+		list[i].Position;
+		list[i].Rotation;
+
+
+
+
+
+	}
+}
+
+
 
 
 

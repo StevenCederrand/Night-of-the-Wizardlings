@@ -14,16 +14,16 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_speed = 5;
 	m_health = 100;
 	m_attackCooldown = 0;
-	m_specialCooldown = 0;
+	m_special2Cooldown = 0;
 	m_nrOfSpells = 0;
 	m_directionVector = glm::vec3(0, 0, 0);
 	m_moveDir = glm::vec3(0.0f);
-	m_spellType = ENHANCEATTACK;
 
-	//m_frameCount = 0;
-	//tempSpell = new AttackSpell("Spell", playerPosition, directionVector, 50, 2, "TestSphere.mesh");
-	
 	m_spellhandler = spellHandler;
+	m_spellType = NORMALATTACK;
+	m_specialSpelltype = REFLECT;
+	m_specialSpellType2 = ENHANCEATTACK;
+
 
 	m_bp = bp;
 	m_character = m_bp->createCharacter();
@@ -40,12 +40,12 @@ void Player::update(float deltaTime)
 {
 	m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
 	move(deltaTime);
-	attack(deltaTime);
+	attack();
+
 	
 	if (m_client->isConnectedToSever()) {
 		m_client->updatePlayerData(this);
 	}
-
 	if (Input::isKeyReleased(GLFW_KEY_E)) {
 		m_client->sendStartRequestToServer();
 	}
@@ -59,11 +59,10 @@ void Player::update(float deltaTime)
 			createRay();
 			m_spellhandler->createSpell(m_playerPosition, m_directionVector, ENHANCEATTACK);
 			m_enhanceAttack.attacked();
-			// Start loop
 		}
 		if (m_enhanceAttack.isComplete()) //DONE
 		{
-			m_specialCooldown = m_enhanceAttack.getCooldown(); // GET from enhance attack
+			m_special2Cooldown = m_enhanceAttack.getCooldown(); // GET from enhance attack handler
 		}
 	}
 }
@@ -127,16 +126,24 @@ void Player::attack(float deltaTime)
 		if (m_attackCooldown <= 0)
 		{
 			createRay();
-			m_spellhandler->createSpell(m_playerPosition, m_directionVector, NORMALATTACK);
-			m_attackCooldown = m_spellhandler->getSpellBase(NORMALATTACK).m_coolDown; // Put attack on cooldown
+			m_attackCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_spellType); // Put attack on cooldown
+		}
+	}
+
+	if (glfwGetMouseButton(m_playerCamera->getWindow(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+	{
+		if (m_specialCooldown <= 0)
+		{
+			createRay();
+			m_specialCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_specialSpelltype); // Put attack on cooldown
 		}
 	}
 
 	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_Q) == GLFW_PRESS)
 	{
-		if (m_specialCooldown <= 0)
+		if (m_special2Cooldown <= 0)
 		{
-			if (m_spellType == ENHANCEATTACK)
+			if (m_specialSpellType2 == ENHANCEATTACK)
 			{
 				// Start loop
 				m_enhanceAttack.start();
