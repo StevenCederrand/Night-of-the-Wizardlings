@@ -16,7 +16,10 @@ enum {
 	SPELL_CREATED,
 	SPELL_UPDATE,
 	SPELL_DESTROY,
-	SPELL_PLAYER_HIT
+	SPELL_PLAYER_HIT,
+	GAME_START_COUNTDOWN,
+	RESPAWN_TIME,
+	RESPAWN_PLAYER
 };
 
 /* To make sure the compiler aligns the bits */
@@ -47,6 +50,15 @@ struct PlayerPacket {
 		stream.Serialize(writeToStream, health);
 		stream.Serialize(writeToStream, position);
 		stream.Serialize(writeToStream, rotation);
+	}
+};
+
+struct CountdownPacket {
+	uint32_t timeLeft;
+
+	void Serialize(bool writeToStream, RakNet::BitStream& stream)
+	{
+		stream.Serialize(writeToStream, timeLeft);
 	}
 };
 

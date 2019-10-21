@@ -353,8 +353,12 @@ void Client::processAndHandlePackets()
 			ServerStateChange stateChange;
 			stateChange.Serialize(false, bsIn);
 
-			if (stateChange.currentState == NetGlobals::SERVER_STATE::GAME_IN_SESSION) {
-				logTrace("[SERVER->CLIENT]******** GAME STARTED ********");
+			if (stateChange.currentState == NetGlobals::SERVER_STATE::GAME_IS_STARTING) {
+				for(size_t i = 0; i < 10; i++)
+					logTrace("[GAME SERVER]******** GAME IS STARTING ********");
+			}else if (stateChange.currentState == NetGlobals::SERVER_STATE::GAME_IN_SESSION) {
+				for (size_t i = 0; i < 10; i++)
+					logTrace("[GAME SERVER]******** GAME HAS STARTED ********");
 			}
 		}
 		break;
@@ -460,6 +464,35 @@ void Client::processAndHandlePackets()
 		}
 		break;
 
+		case GAME_START_COUNTDOWN:
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			CountdownPacket countdownPacket;
+			countdownPacket.Serialize(false, bsIn);
+			logTrace("[GAME SERVER] Starts game in {0}...", countdownPacket.timeLeft / 1000);
+		}
+		break;
+
+		case RESPAWN_TIME:
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			CountdownPacket countdownPacket;
+			countdownPacket.Serialize(false, bsIn);
+			logTrace("[GAME SERVER] Respawn in {0}...", countdownPacket.timeLeft / 1000);
+		}
+		break;
+
+		case RESPAWN_PLAYER:
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			PlayerPacket playerPacket;
+			playerPacket.Serialize(false, bsIn);
+
+			m_myPlayerDataPacket.health = playerPacket.health;
+
+		}
+		break;
+
 		default:
 		{
 			logWarning("[CLIENT] Unknown packet received!");
@@ -486,7 +519,7 @@ void Client::updatePlayerData(Player* player)
 /* You created a spell locally and wants to tell the server and all the other clients that.
    You put it in a queue that will get emptied and sent to the server whenever the processing thread 
    wakes up from its beauty sleep. */
-void Client::createSpellOnNetwork(Spell& spell)
+void Client::createSpellOnNetwork(const Spell& spell)
 {
 	if (!m_initialized || !m_isConnectedToAnServer) return;
 
@@ -502,7 +535,7 @@ void Client::createSpellOnNetwork(Spell& spell)
 }
 
 
-void Client::updateSpellOnNetwork(Spell& spell)
+void Client::updateSpellOnNetwork(const Spell& spell)
 {
 	if (!m_initialized || !m_isConnectedToAnServer) return;
 
@@ -517,7 +550,7 @@ void Client::updateSpellOnNetwork(Spell& spell)
 	m_updateSpellQueue.emplace_back(spellPacket);
 }
 
-void Client::destroySpellOnNetwork(Spell& spell)
+void Client::destroySpellOnNetwork(const Spell& spell)
 {
 	if (!m_initialized || !m_isConnectedToAnServer) return;
 
@@ -543,7 +576,7 @@ void Client::sendHitRequest(Spell& spell, NetworkPlayers::PlayerEntity& playerTh
 	hitPacket.Position = spell.getTransform().position;
 	hitPacket.Rotation = spell.getTransform().rotation;
 	hitPacket.damage = spell.getSpellBase()->m_damage;
-
+	
 	m_spellsHitQueue.emplace_back(hitPacket);
 }
 
@@ -562,7 +595,7 @@ void Client::sendStartRequestToServer()
 		RakNet::BitStream stream;
 		stream.Write((RakNet::MessageID)SERVER_CHANGE_STATE);
 		ServerStateChange stateChange;
-		stateChange.currentState = NetGlobals::SERVER_STATE::GAME_IN_SESSION;
+		stateChange.currentState = NetGlobals::SERVER_STATE::GAME_IS_STARTING;
 		stateChange.Serialize(true, stream);
 		m_clientPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
 	}
