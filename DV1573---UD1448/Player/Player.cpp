@@ -40,19 +40,15 @@ void Player::update(float deltaTime)
 {
 	m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
 	move(deltaTime);
-
-	attack();
+	attack(deltaTime);
 	
 	if (m_client->isConnectedToSever()) {
 		m_client->updatePlayerData(this);
 	}
 
-
-
 	if (Input::isKeyReleased(GLFW_KEY_E)) {
 		m_client->sendStartRequestToServer();
 	}
-
 
 	// ENHANCE ATTACK
 	if (!m_enhanceAttack.isComplete())
@@ -80,10 +76,8 @@ void Player::move(float deltaTime)
 		return;
 	}
 	glm::vec3 camFace = m_playerCamera->getCamFace();
+	camFace.y = 0.0f;
 	glm::vec3 camRight = m_playerCamera->getCamRight();
-
-	btVector3 totalForce = m_character->getLinearVelocity();
-	
 	m_moveDir = glm::vec3(0.0f);
 
 	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_A) == GLFW_PRESS)
@@ -102,14 +96,6 @@ void Player::move(float deltaTime)
 	{
 		m_moveDir -= camFace;
 	}
-
-	if (glm::length(m_moveDir) >= 0.0001f)
-		m_moveDir = glm::normalize(m_moveDir);
-
-	m_playerPosition += m_moveDir * m_speed * deltaTime;
-	setPlayerPos(m_playerPosition);
-	m_playerCamera->setCameraPos(m_playerPosition);
-
 	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
 	{		
 		if (m_character->canJump())
@@ -118,27 +104,23 @@ void Player::move(float deltaTime)
 		}					
 	}	
 
-
+	if (glm::length(m_moveDir) >= 0.0001f)
+		m_moveDir = glm::normalize(m_moveDir);
+	
+	//update player position
 	btScalar yValue = std::ceil(m_character->getLinearVelocity().getY()*100.0) / 100.0;	//Round to two decimals
-	btVector3 translate = btVector3
-		(m_moveDir.x * m_speed * deltaTime,
-		yValue,
-		m_moveDir.z * m_speed * deltaTime);
+	btVector3 translate = btVector3(m_moveDir.x * m_speed * deltaTime, yValue, m_moveDir.z * m_speed * deltaTime);
 	m_character->setLinearVelocity(translate);
-
+	
 	//update playercamera position
 	btVector3 playerPos = m_character->getGhostObject()->getWorldTransform().getOrigin();
 	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY()* 2, playerPos.getZ());
 	
 	m_playerCamera->setCameraPos(m_playerPosition);
 	m_playerCamera->update(m_playerCamera->getWindow());
-
-
-	m_attackCooldown -= deltaTime; // Cooldown reduces with time
-	m_specialCooldown -= deltaTime; // Cooldown reduces with time
 }
 
-void Player::attack()
+void Player::attack(float deltaTime)
 {
 	if (glfwGetMouseButton(m_playerCamera->getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 	{
@@ -159,24 +141,10 @@ void Player::attack()
 				// Start loop
 				m_enhanceAttack.start();
 			}
-			//createRay();
-			//m_spellType = ENHANCEHANDLER;
-			//m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_spellType);
-			//m_specialCooldown = m_spellhandler->getSpellBase(m_spellType).m_coolDown; // Put attack on cooldown
 		}
-
 	}
-
-
-	//if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_3) == GLFW_PRESS) //&& spellhandler->isSpellReadyToCast(FLAMESTRIKE) == true)
-	//{
-	//	createRay();
-	//	spellhandler->setType(FLAMESTRIKE);
-	//	if (spellhandler->createSpell(deltaTime, m_playerPosition, m_directionVector, spellhandler->getType()))
-	//	{
-	//		m_spellType = NORMALATTACK;
-	//	}
-	//}
+	m_attackCooldown -= deltaTime; // Cooldown reduces with time
+	m_specialCooldown -= deltaTime; // Cooldown reduces with time
 }
 
 void Player::createRay()
@@ -191,7 +159,6 @@ void Player::createRay()
 	glm::vec4 rayEye = inverse(m_playerCamera->getProjMat()) * rayClip;
 	rayEye = glm::vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);
 	glm::vec4 rayWorldTemp = glm::vec4(inverse(m_playerCamera->getViewMat()) * rayEye);
-
 
 	m_directionVector = normalize(glm::vec3(rayWorldTemp.x, rayWorldTemp.y, rayWorldTemp.z));
 }

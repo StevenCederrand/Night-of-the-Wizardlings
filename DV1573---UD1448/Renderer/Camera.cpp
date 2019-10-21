@@ -76,14 +76,14 @@ void Camera::fpsControls(float deltaTime)
 	float m_CamSpeed = camSpeed * deltaTime;
 
 	//WASD controls
-	if (Input::isKeyHeldDown(GLFW_KEY_A))
+	/*if (Input::isKeyHeldDown(GLFW_KEY_A))
 		camPos -= m_CamSpeed * camRight;
 	if (Input::isKeyHeldDown(GLFW_KEY_D))
 		camPos += m_CamSpeed * camRight;
 	if (Input::isKeyHeldDown(GLFW_KEY_W))
 		camPos += m_CamSpeed * camFace;
 	if (Input::isKeyHeldDown(GLFW_KEY_S))
-		camPos -= m_CamSpeed * camFace;
+		camPos -= m_CamSpeed * camFace;*/
 
 	calcVectors();
 }

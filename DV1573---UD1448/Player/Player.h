@@ -16,7 +16,7 @@ public:
 
 	void update(float deltaTime);
 	void move(float deltaTime);
-	void attack();
+	void attack(float deltaTime);
 	void createRay(); //create ray for spells
 	void spawnPlayer(glm::vec3 pos);
 
@@ -50,12 +50,13 @@ private:
 	
 	float m_attackCooldown;
 	float m_specialCooldown;
-
 	float m_spellSpeed = 1;
 	float m_speed;
+
 	int m_nrOfSpells;
 	int m_health;
 	int m_frameCount;
+
 	std::string name;
 	SPELL_TYPE spellType;
 

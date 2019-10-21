@@ -20,43 +20,43 @@ PlayState::PlayState()
 	m_skybox->prepareBuffers();
 
 	//Test enviroment with 4 meshes inside 1 GameObject, inherited transforms
-	m_objects.push_back(new WorldObject("TestScene"));
+	/*m_objects.push_back(new WorldObject("TestScene"));
 	m_objects[m_objects.size() - 1]->loadMesh("TestScene.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);*/
 	//
 	////Cube and sphere centered in scene
-	m_objects.push_back(new WorldObject("TestCube"));
+	/*m_objects.push_back(new WorldObject("TestCube"));
 	m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 0.0f, 0.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);*/
 
 
-	m_objects.push_back(new WorldObject("TestSphere"));
-	m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -4.0f));
-	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 1.0f, -2.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
-
-	//m_objects.push_back(new WorldObject("TestCube"));
-	//m_objects[m_objects.size() - 1]->loadMesh("Playground.mesh");
-	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -1.0f));
+	//m_objects.push_back(new WorldObject("TestSphere"));
+	//m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
+	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -4.0f));
+	////m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 1.0f, -2.0f));
 	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+
+	m_objects.push_back(new WorldObject("Playground"));
+	m_objects[m_objects.size() - 1]->loadMesh("Playground.mesh");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -1.0f));
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 	
 	//////Animated rectangle
-	m_objects.push_back(new AnimatedObject("TestRectangle"));
+	/*m_objects.push_back(new AnimatedObject("TestRectangle"));
 	m_objects[m_objects.size() - 1]->loadMesh("TestRectangle.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -4.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);*/
 	
 	//Animated goblino
-	m_objects.push_back(new AnimatedObject("TestGoblino"));
+	/*m_objects.push_back(new AnimatedObject("TestGoblino"));
 	m_objects[m_objects.size() - 1]->loadMesh("ElGoblino.mesh");
 	Transform tempTransform;
 	tempTransform.scale = glm::vec3(0.03f, 0.03f, 0.03f);
 	tempTransform.position = glm::vec3(-3.0f, 0.0f, 3.0f);
 	m_objects[m_objects.size() - 1]->setTransform(tempTransform);
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);*/
 
 	
 	
