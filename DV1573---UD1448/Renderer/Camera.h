@@ -30,6 +30,7 @@ private:
 	float sensitivity;
 
 	void mouse_callback(GLFWwindow* window);
+	bool m_fpEnabled;
 
 public:
 	Camera();
@@ -50,6 +51,7 @@ public:
 	glm::vec3 getCamRight();
 	GLFWwindow* getWindow();
 
+	void enableFP(const bool& fpEnable);
 
 	void update(GLFWwindow* window);
 	

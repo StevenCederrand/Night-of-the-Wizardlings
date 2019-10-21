@@ -14,7 +14,11 @@ Application::~Application() {
 	delete m_stateManager;
 	ShaderMap::getInstance()->destroy();
 	Renderer::getInstance()->destroy();
-
+	MaterialMap::getInstance()->destroy();
+	MeshMap::getInstance()->destroy();
+	AnimationMap::getInstance()->destroy();
+	SkeletonMap::getInstance()->destroy();
+	
 	if(Client::getInstance()->isInitialized())
 		Client::getInstance()->destroy();
 
@@ -100,7 +104,7 @@ void Application::run()
 		glfwPollEvents();
 
 		// Quick way to close the app
-		if (Input::isKeyReleased(GLFW_KEY_ESCAPE))
+		if (Input::isKeyReleased(GLFW_KEY_DELETE))
 		{
 			glfwSetWindowShouldClose(m_window, true);
 		}

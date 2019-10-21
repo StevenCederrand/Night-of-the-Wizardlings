@@ -14,6 +14,7 @@ MenuState::MenuState()
 
 MenuState::~MenuState()
 {
+	logTrace("Deleting Menu State..");
 	Gui::getInstance()->clearWidgetsInSection(GUI_SECTION);
 }
 
@@ -23,6 +24,10 @@ void MenuState::update(float dt)
 		m_stateManager->clearAllAndSetState(new FindServerState());
 	}
 	
+	if (Input::isKeyPressed(GLFW_KEY_B)) {
+		glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		m_stateManager->clearAllAndSetState(new PlayState());
+	}
 }
 
 void MenuState::render()
@@ -32,6 +37,7 @@ void MenuState::render()
 
 void MenuState::loadGui()
 {
+
 	m_startWithoutServerBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION,"TaharezLook/Button", glm::vec4(0.45f, 0.45f, 0.1f, 0.05f), glm::vec4(0.0f), "StartWithoutServerBtn"));
 	m_startWithoutServerBtn->setText("Start offline");
 	m_startWithoutServerBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&MenuState::onStartOfflineClicked, this));

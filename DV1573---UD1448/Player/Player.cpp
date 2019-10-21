@@ -39,9 +39,10 @@ Player::~Player()
 void Player::update(float deltaTime)
 {
 	m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
-	move(deltaTime);
-
-	attack();
+	if (!m_logicStop) {
+		move(deltaTime);
+		attack();
+	}
 	
 	if (m_client->isConnectedToSever()) {
 		m_client->updatePlayerData(this);
@@ -214,6 +215,11 @@ void Player::setHealth(int health)
 void Player::setSpeed(float speed)
 {
 	m_speed = speed;
+}
+
+void Player::logicStop(const bool& stop)
+{
+	m_logicStop = stop;
 }
 
 glm::vec3 Player::getPlayerPos() const
