@@ -73,8 +73,10 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase->m_maxBounces = 3;
 }
 
-
-
+void SpellHandler::initnrOfRigidBodys()
+{
+	m_nrOfOtherrigidBodys = m_bp->getDynamicsWorld()->getNumCollisionObjects();
+}
 
 SpellHandler::~SpellHandler()
 {
@@ -170,13 +172,13 @@ void SpellHandler::spellUpdate(float deltaTime)
 			Client::getInstance()->destroySpellOnNetwork(*spells[i]);
 			delete spells[i];
 			spells.erase(spells.begin() + i);
-			m_BulletNormalSpell.at(i)->getWorldTransform().setOrigin(btVector3(0.0f,100.0f+i*2,0.0f));
 			m_BulletNormalSpell.erase(m_BulletNormalSpell.begin() + i);
+			m_bp->removeObject(m_nrOfOtherrigidBodys);
 			
 		}
 	}
-
 	spellCollisionCheck();
+
 	//for (int i = 0; i < m_flamestrike.size(); i++)
 	//{
 	//

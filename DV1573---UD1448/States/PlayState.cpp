@@ -57,8 +57,6 @@ PlayState::PlayState()
 	tempTransform.position = glm::vec3(-3.0f, 0.0f, 3.0f);
 	m_objects[m_objects.size() - 1]->setTransform(tempTransform);
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
-
-	
 	
 	gContactAddedCallback = callbackFunc;
 	// Geneterate bullet objects / hitboxes
@@ -68,6 +66,8 @@ PlayState::PlayState()
 		m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);	
 		m_objects.at(i)->createDebugDrawer();
 	}
+	m_spellHandler->initnrOfRigidBodys();
+
 
 	logTrace("Playstate created");
 }
@@ -114,8 +114,7 @@ void PlayState::render()
 	Renderer::getInstance()->renderSkybox(*m_skybox);
 	Renderer::getInstance()->render();
 	m_spellHandler->renderSpell();
-	Renderer::getInstance()->renderDebug();
-	
+	Renderer::getInstance()->renderDebug();	
 }
 
 //This function is called everytime two collision objects collide
@@ -125,27 +124,22 @@ bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int
 	Spell* sp1 = reinterpret_cast<Spell*>(obj1->getCollisionObject()->getUserPointer());
 	Spell* sp2 = reinterpret_cast<Spell*>(obj2->getCollisionObject()->getUserPointer());
 
-	//Spell* sp = dynamic_cast<Spell*>(obj1->getCollisionObject()->getUserPointer());
 	if (sp1 != nullptr) {
 		logTrace("sp1: Spell collided");
 
 		int local = sp1->getLocalBounce();
 		int bounce = sp1->getNrofBounce();
-		if (local == bounce)
-		{
+		if (local == bounce){
 			glm::vec3 normal = glm::vec3(cp.m_normalWorldOnB.getX(), cp.m_normalWorldOnB.getY(), cp.m_normalWorldOnB.getZ());
-
 			sp2->setBounceNormal(normal);
 		}
-
 	}
+	//if sp2 is a spell get the normal of the manifoldpoint and send that to the spell
 	else if (sp2 != nullptr) {
 		int local = sp2->getLocalBounce();
 		int bounce = sp2->getNrofBounce();
-		if (local == bounce)
-		{
+		if (local == bounce){
 		glm::vec3 normal = glm::vec3(cp.m_normalWorldOnB.getX(), cp.m_normalWorldOnB.getY(), cp.m_normalWorldOnB.getZ());
-
 		sp2->setBounceNormal(normal);
 		}
 	}

@@ -24,6 +24,7 @@ public:
 
 	btDiscreteDynamicsWorld* getDynamicsWorld() const;
 	btKinematicCharacterController* createCharacter();
+	void removeObject(int& i);
 
 	void update(float dt);
 

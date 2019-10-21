@@ -48,6 +48,8 @@ void AttackSpell::update(float deltaTime)
 void AttackSpell::updateRigidbody(float deltaTime, btRigidBody* body)
 {
 	//setNewDir check if 0.2 second have passed since last calculation
+	//and check of localbounce (callback func) is the same as spells own bounce
+	//and calculate the reflect
 	if (m_localBounce != m_nrOfBounce && m_setNewDir == true)
 	{
 		//reflect

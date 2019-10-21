@@ -16,6 +16,7 @@ public:
 	SpellHandler(BulletPhysics* bp);
 	void initAttackSpell();
 	void initEnhanceSpell();
+	void initnrOfRigidBodys();
 
 
 	~SpellHandler();
@@ -63,6 +64,7 @@ private:
 
 	std::vector<btRigidBody*> m_BulletNormalSpell;
 	std::vector<btRigidBody*> m_BulletEnhanceAttackSpell;
+	int m_nrOfOtherrigidBodys = 0;
 
 
 };
