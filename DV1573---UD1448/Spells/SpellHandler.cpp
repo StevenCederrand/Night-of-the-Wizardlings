@@ -103,7 +103,7 @@ void SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SP
 		logTrace("Created spell");
 
 		//bullet create
-		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.x);
+		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
 		m_BulletNormalSpell.emplace_back(
 			m_bp->createObject(obj, 1.0f, spellPos+(directionVector*2), glm::vec3(0.3f, 0.3f, 0.3f)));
 			
