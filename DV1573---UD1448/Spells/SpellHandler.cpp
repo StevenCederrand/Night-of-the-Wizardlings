@@ -174,7 +174,8 @@ void SpellHandler::spellUpdate(float deltaTime)
 			delete spells[i];
 			spells.erase(spells.begin() + i);
 			m_BulletNormalSpell.erase(m_BulletNormalSpell.begin() + i);
-			m_bp->removeObject(m_nrOfOtherrigidBodys);
+			int temp = m_nrOfOtherrigidBodys + i;
+			m_bp->removeObject(temp);
 			
 		}
 	}
