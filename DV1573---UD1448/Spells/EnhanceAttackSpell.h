@@ -24,6 +24,7 @@ public:
 	bool canAttack() { return m_ready; }
 	void attacked();
 
+
 private:
 
 	const float m_coolDown = 10.0f;
@@ -35,4 +36,5 @@ private:
 
 	bool m_ready;
 	bool m_done;
+
 };

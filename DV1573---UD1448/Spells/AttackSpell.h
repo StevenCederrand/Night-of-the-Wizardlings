@@ -21,6 +21,7 @@ private:
 	const AttackSpellBase* m_spellBase;
 	int m_localBounce = 0;
 	int m_nrOfBounce = 0;
+	int m_bounceCounter = 0;
 	float m_bounceTime = 0;
 	glm::vec3 m_bounceNormal;
 	bool m_setNewDir = true;
