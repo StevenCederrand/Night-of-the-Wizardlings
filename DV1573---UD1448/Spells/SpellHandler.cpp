@@ -266,9 +266,9 @@ void SpellHandler::spellCollisionCheck()
 
 bool SpellHandler::specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis, float scale)
 { 
-	// scale might be wrong, the 0.6 too
+	// sphereradius is wrong
 	bool collision = false;
-	float sphereRadius = 0.6f * scale * 2;
+	float sphereRadius = 0.6f * scale * 4;
 
 	glm::vec3 closestPoint = OBBclosestPoint(spellPos, axis, playerPos);
 	glm::vec3 v = closestPoint - spellPos;
