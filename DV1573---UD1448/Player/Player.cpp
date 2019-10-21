@@ -40,6 +40,7 @@ void Player::update(float deltaTime)
 {
 	m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
 	move(deltaTime);
+	createRay();
 	attack();
 
 	
@@ -56,7 +57,6 @@ void Player::update(float deltaTime)
 		m_enhanceAttack.update(deltaTime);
 		if (m_enhanceAttack.canAttack()) //CAN ATTACK
 		{
-			createRay();
 			m_spellhandler->createSpell(m_playerPosition, m_directionVector, ENHANCEATTACK);
 			m_enhanceAttack.attacked();
 		}
@@ -65,6 +65,9 @@ void Player::update(float deltaTime)
 			m_special2Cooldown = m_enhanceAttack.getCooldown(); // GET from enhance attack handler
 		}
 	}
+
+	m_spellhandler->setSpawnerDirection(m_directionVector);
+	m_spellhandler->setSpawnerPosition(m_playerPosition);
 
 	m_attackCooldown -= deltaTime; // Cooldown reduces with time
 	m_specialCooldown -= deltaTime; // Cooldown reduces with time
@@ -129,7 +132,6 @@ void Player::attack()
 	{
 		if (m_attackCooldown <= 0)
 		{
-			createRay();
 			m_attackCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_spellType); // Put attack on cooldown
 		}
 	}
@@ -138,7 +140,6 @@ void Player::attack()
 	{
 		if (m_specialCooldown <= 0)
 		{
-			createRay();
 			m_specialCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_specialSpelltype); // Put attack on cooldown
 		}
 	}

@@ -23,8 +23,8 @@ public:
 	float createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SPELL_TYPE type);
 
 	void spellUpdate(float deltaTime);
-	void setSpellPosition(glm::vec3 position);
-	void setSpellDirection(glm::vec3 direction);
+	void setSpawnerPosition(glm::vec3 position);
+	void setSpawnerDirection(glm::vec3 direction);
 
 	const Spell& getSpell(int index) const { return *spells[index]; }
 	const std::vector<Spell*>& getSpells() const { return spells; }
@@ -37,6 +37,8 @@ private:
 	const uint64_t getUniqueID();
 
 	std::vector<Spell*> spells;
+	glm::vec3 m_spawnerPos;
+	glm::vec3 m_spawnerDir;
 
 	// The base for all basic attack spells
 	AttackSpellBase* attackBase;
