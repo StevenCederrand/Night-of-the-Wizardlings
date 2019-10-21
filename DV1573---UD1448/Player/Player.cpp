@@ -65,6 +65,10 @@ void Player::update(float deltaTime)
 			m_special2Cooldown = m_enhanceAttack.getCooldown(); // GET from enhance attack handler
 		}
 	}
+
+	m_attackCooldown -= deltaTime; // Cooldown reduces with time
+	m_specialCooldown -= deltaTime; // Cooldown reduces with time
+	m_special2Cooldown -= deltaTime; // Cooldown reduces with time
 }
 
 void Player::move(float deltaTime)
@@ -119,7 +123,7 @@ void Player::move(float deltaTime)
 	m_playerCamera->update(m_playerCamera->getWindow());
 }
 
-void Player::attack(float deltaTime)
+void Player::attack()
 {
 	if (glfwGetMouseButton(m_playerCamera->getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 	{
@@ -150,8 +154,7 @@ void Player::attack(float deltaTime)
 			}
 		}
 	}
-	m_attackCooldown -= deltaTime; // Cooldown reduces with time
-	m_specialCooldown -= deltaTime; // Cooldown reduces with time
+	
 }
 
 void Player::createRay()

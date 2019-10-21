@@ -16,7 +16,7 @@ public:
 
 	void update(float deltaTime);
 	void move(float deltaTime);
-	void attack(float deltaTime);
+	void attack();
 	void createRay(); //create ray for spells
 	void spawnPlayer(glm::vec3 pos);
 
