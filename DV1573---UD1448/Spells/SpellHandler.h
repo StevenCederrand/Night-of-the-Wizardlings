@@ -42,7 +42,6 @@ private:
 	AttackSpellBase* enhanceAtkBase;
 
 
-
 	//std::vector<AOEAttack> m_flamestrike;
 	//AOEAttack* m_tempFlamestrike;
 	//fire* tempFire;

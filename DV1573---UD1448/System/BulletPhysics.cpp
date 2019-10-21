@@ -131,7 +131,7 @@ btDiscreteDynamicsWorld* BulletPhysics::getDynamicsWorld() const
 btKinematicCharacterController* BulletPhysics::createCharacter()
 {
 	//create the character and add him to the dynamicsWorld
-	m_playerShape = new btCapsuleShape(0.8, 1);
+	m_playerShape = new btCapsuleShape(1.0, 1);
 	m_ghostObject = new btPairCachingGhostObject();
 	
 	m_ghostObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 40, 0)));
