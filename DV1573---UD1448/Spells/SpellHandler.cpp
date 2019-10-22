@@ -389,8 +389,6 @@ void SpellHandler::REFLECTupdate(float deltaTime, int i)
 		if (reflectSpell->checkReflectCollision(spellList[i].Position, spellList[i].Direction, hitboxRadius))
 		{
 			//TODO: Delete incoming spell
-			//spells[i]->setTravelTime(0.0f);
-
 
 			createSpell(m_spawnerPos, m_spawnerDir, spellList[i].SpellType);
 			logTrace("Collision with reflection");
