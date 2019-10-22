@@ -176,7 +176,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 			m_BulletNormalSpell.erase(m_BulletNormalSpell.begin() + i);
 			int temp = m_nrOfOtherrigidBodys + i;
 			m_bp->removeObject(temp);
-			
+			i--;
 		}
 	}
 	spellCollisionCheck();
