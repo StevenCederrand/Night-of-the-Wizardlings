@@ -324,6 +324,7 @@ void LocalServer::processAndHandlePackets()
 					if (spellVec[i].SpellID == spellPacket.SpellID) {
 						spellVec[i].Position = spellPacket.Position;
 						spellVec[i].Rotation = spellPacket.Rotation;
+						spellVec[i].Direction = spellPacket.Direction;
 					}
 				}
 

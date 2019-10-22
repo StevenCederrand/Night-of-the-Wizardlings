@@ -71,6 +71,7 @@ struct SpellPacket{
 	glm::vec3 Position = glm::vec3(0.0f);
 	glm::vec3 Rotation = glm::vec3(0.0f);
 	glm::vec3 Scale = glm::vec3(1.0f);
+	glm::vec3 Direction = glm::vec3(0.0f);
 	SPELL_TYPE SpellType = SPELL_TYPE::UNKNOWN;
 
 
@@ -81,6 +82,7 @@ struct SpellPacket{
 		stream.Serialize(writeToStream, Position);
 		stream.Serialize(writeToStream, Rotation);
 		stream.Serialize(writeToStream, Scale);
+		stream.Serialize(writeToStream, Direction);
 		stream.Serialize(writeToStream, SpellType);
 	}
 
@@ -110,6 +112,7 @@ struct HitPacket {
 	RakNet::RakNetGUID playerHitGUID = RakNet::UNASSIGNED_RAKNET_GUID;
 	glm::vec3 Position = glm::vec3(0.0f);
 	glm::vec3 Scale = glm::vec3(1.0f);
+	glm::vec3 SpellDirection = glm::vec3(0.0f);
 	glm::quat Rotation = glm::quat();
 	float damage = 0.0f;
 	SPELL_TYPE SpellType = SPELL_TYPE::UNKNOWN;
@@ -120,6 +123,7 @@ struct HitPacket {
 		stream.Serialize(writeToStream, playerHitGUID);
 		stream.Serialize(writeToStream, Position);
 		stream.Serialize(writeToStream, Scale);
+		stream.Serialize(writeToStream, SpellDirection);
 		stream.Serialize(writeToStream, Rotation);
 		stream.Serialize(writeToStream, damage);
 		stream.Serialize(writeToStream, SpellType);
