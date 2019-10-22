@@ -4,11 +4,14 @@
 
 SkyBox::SkyBox()
 {
-	cubemapTexture = createCubeMap(faces);
+	m_buffer.CubemapTextureID = createCubeMap(faces);
 }
 
 SkyBox::~SkyBox()
 {
+	glDeleteVertexArrays(1, &m_buffer.VAO);
+	glDeleteBuffers(1, &m_buffer.VBO);
+	glDeleteTextures(1, &m_buffer.CubemapTextureID);
 }
 
 unsigned int SkyBox::createCubeMap(std::vector<std::string> faces)
@@ -41,21 +44,21 @@ unsigned int SkyBox::createCubeMap(std::vector<std::string> faces)
 
 const GLuint& SkyBox::getVAO() const
 {
-	return sky_Buffer.VAO;
+	return m_buffer.VAO;
 }
 
 unsigned int SkyBox::getCubeMapTexture() const
 {
-	return cubemapTexture;
+	return m_buffer.CubemapTextureID;
 }
 
 void SkyBox::prepareBuffers()
 {
-	glGenVertexArrays(1, &sky_Buffer.VAO);
-	glGenBuffers(1, &sky_Buffer.VBO);
+	glGenVertexArrays(1, &m_buffer.VAO);
+	glGenBuffers(1, &m_buffer.VBO);
 
-	glBindVertexArray(sky_Buffer.VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, sky_Buffer.VBO);
+	glBindVertexArray(m_buffer.VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_buffer.VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
