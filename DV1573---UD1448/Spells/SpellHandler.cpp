@@ -53,7 +53,6 @@ void SpellHandler::initEnhanceSpell()
 
 	BGLoader tempLoader;	// The file loader
 	tempLoader.LoadMesh(MESHPATH + "TestSphere.mesh");
-	enhanceAtkBase->m_mesh = new Mesh();
 	enhanceAtkBase->m_mesh->saveFilePath(tempLoader.GetFileName(), 0);
 	enhanceAtkBase->m_mesh->nameMesh(tempLoader.GetMeshName());
 	enhanceAtkBase->m_mesh->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
@@ -83,6 +82,7 @@ SpellHandler::~SpellHandler()
 	for (Spell* element : spells)
 		delete element;
 	spells.clear();
+	delete enhanceAtkBase;
 }
 
 
