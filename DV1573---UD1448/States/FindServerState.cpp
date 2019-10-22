@@ -80,6 +80,20 @@ void FindServerState::removeAllRows()
 	}
 }
 
+void FindServerState::usernameInput()
+{
+	//is write text open?
+	if (!m_inputTextOpen) {
+		//Create a text area
+		auto* text = Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/StaticText", glm::vec4(0.425f, 0.45f, 0.15f, 0.05f), glm::vec4(0.0f), "Username");
+		text->setText("Username: ");
+		m_usernameBox = static_cast<CEGUI::Combobox*>(Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/Combobox", glm::vec4(0.425f, 0.55f, 0.15f, 0.05f), glm::vec4(0.0f), "username(join)"));
+		m_inputTextOpen = true;
+	}
+
+	m_usernameBox->getText().c_str();
+}
+
 bool FindServerState::onBackToMenuClicked(const CEGUI::EventArgs& e)
 {
 	m_stateManager->clearAllAndSetState(new MenuState());
@@ -89,6 +103,11 @@ bool FindServerState::onBackToMenuClicked(const CEGUI::EventArgs& e)
 bool FindServerState::onJoinServerClicked(const CEGUI::EventArgs& e)
 {
 	CEGUI::ListboxItem* item = m_serverList->getFirstSelectedItem();
+	
+	usernameInput();
+	if (m_usernameBox->getText() == "") {
+		return false;
+	}
 	
 	if (item != NULL)
 	{
@@ -100,6 +119,7 @@ bool FindServerState::onJoinServerClicked(const CEGUI::EventArgs& e)
 		{
 			const ServerInfo& serverInfo = Client::getInstance()->getServerByID(serverID);
 			Client::getInstance()->connectToAnotherServer(serverInfo);
+			Client::getInstance()->setUsername(m_usernameBox->getText().c_str());
 		}
 
 

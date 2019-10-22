@@ -18,13 +18,17 @@ private:
 	void loadGui();
 	void loadServersIntoList();
 	void removeAllRows();
+	void usernameInput();
+
 private:
 	CEGUI::PushButton* m_backToMenu;
 	CEGUI::PushButton* m_joinServer;
 	CEGUI::PushButton* m_refreshServerList;
 	CEGUI::MultiColumnList* m_serverList;
-	
+	CEGUI::Combobox* m_usernameBox;
+
 	bool m_serverListRefreshing;
+	bool m_inputTextOpen;
 
 private:
 	bool onBackToMenuClicked(const CEGUI::EventArgs& e);

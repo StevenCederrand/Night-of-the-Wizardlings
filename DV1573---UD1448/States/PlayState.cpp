@@ -154,7 +154,7 @@ void PlayState::GUIHandler()
 		m_scoreBoard->addRow();
 		CEGUI::ListboxTextItem* itemMultiColumnList;
 
-		itemMultiColumnList = new CEGUI::ListboxTextItem("Player 0");
+		itemMultiColumnList = new CEGUI::ListboxTextItem(Client::getInstance()->getMyData().userName);
 		itemMultiColumnList->setSelectionBrushImage("TaharezLook/MultiListSelectionBrush");
 		m_scoreBoard->setItem(itemMultiColumnList, 0, static_cast<CEGUI::uint>(0)); // ColumnID, RowID
 
@@ -165,15 +165,11 @@ void PlayState::GUIHandler()
 		{
 			m_scoreBoard->addRow();
 			CEGUI::ListboxTextItem* itemMultiColumnList;
-
-			itemMultiColumnList = new CEGUI::ListboxTextItem("Player " + std::to_string(i + 1));
+			itemMultiColumnList = new CEGUI::ListboxTextItem(list.at(i).data.userName);
+			//itemMultiColumnList = new CEGUI::ListboxTextItem("Player " + std::to_string(i + 1));
 			itemMultiColumnList->setSelectionBrushImage("TaharezLook/MultiListSelectionBrush");
 			m_scoreBoard->setItem(itemMultiColumnList, 0, static_cast<CEGUI::uint>(i + 1)); // ColumnID, RowID
-
-			//itemMultiColumnList = new CEGUI::ListboxTextItem(std::to_string(servers[i].second.connectedPlayers) + "/" + std::to_string(servers[i].second.maxPlayers), servers[i].first + 1);
-		}
-		
-		 
+		}		 
 	}
 	if (Input::isKeyReleased(GLFW_KEY_TAB)) {
 		GUIclear();

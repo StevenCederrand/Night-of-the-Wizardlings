@@ -697,6 +697,17 @@ void Client::refreshServerList()
 	findAllServerAddresses();
 }
 
+void Client::setUsername(const std::string& userName)
+{
+	if (userName.size() > 16) {
+		std::memcpy(m_userName, userName.c_str(), 16);
+	}
+	std::memcpy(m_myPlayerDataPacket.userName, userName.c_str(), userName.size());
+
+	//m_myPlayerDataPacket.userName = m_userName;
+
+}
+
 const bool Client::doneRefreshingServerList() const
 {
 	return !m_isRefreshingServerList;
