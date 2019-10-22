@@ -30,6 +30,11 @@ Renderer::Renderer()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
+Renderer::~Renderer()
+{
+	delete m_bloom;
+}
+
 void Renderer::createDepthMap() {
 
 	//Create a depth map texture for the rendering system

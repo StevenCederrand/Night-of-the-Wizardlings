@@ -81,6 +81,7 @@ private:
 	//SpellHandler* m_spellHandler;
 
 	Renderer();
+	~Renderer();
 public:
 
 
