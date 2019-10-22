@@ -422,16 +422,16 @@ void Renderer::render() {
 }
 
 
-void Renderer::renderSpell() 
+void Renderer::renderSpell(SpellHandler* spellHandler)
 {
 
 	for (int i = 0; i < m_spells.size(); i++)
 	{
 		if (static_cast <Spell*>(m_spells[i])->getType() == NORMALATTACK)
 		{
-			Mesh* meshRef = static_cast <AttackSpell*>(m_spells[i])->getBase()->m_mesh;
+			Mesh* meshRef = spellHandler->getAttackBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(static_cast <AttackSpell*>(m_spells[i])->getBase()->m_material);
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(spellHandler->getAttackBase()->m_material);
 
 			// TODO: Fix below
 			const Transform meshTransform = m_spells[i]->getTransform();
@@ -447,9 +447,9 @@ void Renderer::renderSpell()
 
 		if (static_cast<Spell*>(m_spells[i])->getType() == ENHANCEATTACK)
 		{
-			Mesh* meshRef = static_cast<AttackSpell*>(m_spells[i])->getBase()->m_mesh;
+			Mesh* meshRef = spellHandler->getEnhAttackBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(static_cast <AttackSpell*>(m_spells[i])->getBase()->m_material);
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(spellHandler->getEnhAttackBase()->m_material);
 
 			// TODO: Fix below
 			const Transform meshTransform = m_spells[i]->getTransform();
@@ -465,9 +465,9 @@ void Renderer::renderSpell()
 
 		if (static_cast<Spell*>(m_spells[i])->getType() == REFLECT)
 		{
-			Mesh* meshRef = static_cast<ReflectSpell*>(m_spells[i])->getBase()->m_mesh;
+			Mesh* meshRef = spellHandler->getReflectBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(static_cast<ReflectSpell*>(m_spells[i])->getBase()->m_material);
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(spellHandler->getReflectBase()->m_material);
 
 			// TODO: Fix below
 			const Transform meshTransform = m_spells[i]->getTransform();

@@ -13,10 +13,7 @@
 #include <GameObject/GameObject.h>
 #include <GameObject/AnimatedObject.h>
 #include <Mesh/MeshFormat.h>
-#include <Spells/Spell.h>
-#include <Spells/Spells.h>
-#include <Spells/AttackSpell.h>
-#include <Spells/ReflectSpell.h>
+#include <Spells/SpellHandler.h>
 #include <Renderer/SkyBox.h>
 #include <System/Timer.h>
 
@@ -93,7 +90,7 @@ public:
 	//void renderSpell();
 	void renderDebug();
 
-	void renderSpell();
+	void renderSpell(SpellHandler* spellHandler);
 	Camera* getMainCamera() const;
 };
 

@@ -236,11 +236,11 @@ void SpellHandler::spellUpdate(float deltaTime)
 			REFLECTupdate(deltaTime, i);
 		}
 
-		
+		// These update the spells positions, they have to be last to be synced with current values
 		spells[i]->update(deltaTime);
 		spells[i]->updateRigidbody(deltaTime, m_BulletNormalSpell.at(i));
 		Client::getInstance()->updateSpellOnNetwork(*spells[i]);
-		
+
 		if (spells[i]->getTravelTime() <= 0)
 		{
 			logTrace("Deleted spell");
@@ -251,6 +251,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 			spells.erase(spells.begin() + i);
 			m_BulletNormalSpell.erase(m_BulletNormalSpell.begin() + i);
 		}
+		
 	}
 	
 	spellCollisionCheck();
@@ -269,7 +270,7 @@ void SpellHandler::setSpawnerDirection(glm::vec3 direction)
 void SpellHandler::renderSpell()
 {
 	ShaderMap::getInstance()->useByName(BASIC_FORWARD);
-	Renderer::getInstance()->renderSpell();
+	Renderer::getInstance()->renderSpell(this);
 }
 
 const uint64_t SpellHandler::getUniqueID()
@@ -389,7 +390,7 @@ void SpellHandler::REFLECTupdate(float deltaTime, int i)
 		if (reflectSpell->checkReflectCollision(spellList[i].Position, spellList[i].Direction, hitboxRadius))
 		{
 			//TODO: Delete incoming spell
-			//Client::getInstance()->destroySpellOnNetwork(*spells[i]);
+			//spells[i]->setTravelTime(0.0f);
 			createSpell(m_spawnerPos, m_spawnerDir, spellList[i].SpellType);
 			logTrace("Collision with reflection");
 		}
