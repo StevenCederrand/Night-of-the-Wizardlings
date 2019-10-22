@@ -38,11 +38,11 @@ Player::~Player()
 
 void Player::update(float deltaTime)
 {
+	m_directionVector = glm::normalize(m_playerCamera->getCamFace());	// Update this first so that subsequent uses are synced
+	move(deltaTime);													// Update this first so that subsequent uses are synced
 	m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
-	move(deltaTime);
-	createRay();
-	m_directionVector = glm::normalize(m_playerCamera->getCamFace());
 	attack();
+	//createRay();
 
 	
 	if (m_client->isConnectedToSever()) {
@@ -79,43 +79,34 @@ void Player::move(float deltaTime)
 {
 	m_frameCount++;
 	if (m_frameCount < 5)
-	{
 		return;
-	}
-	glm::vec3 camFace = m_playerCamera->getCamFace();
-	camFace.y = 0.0f;
-	glm::vec3 camRight = m_playerCamera->getCamRight();
+
+	glm::vec3 lookDirection = m_directionVector;
+	lookDirection.y = 0.0f;
+	glm::vec3 lookRightVector = m_playerCamera->getCamRight();
+
+	// Move
 	m_moveDir = glm::vec3(0.0f);
-
 	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_A) == GLFW_PRESS)
-	{
-		m_moveDir -= camRight;
-	}
+		m_moveDir -= lookRightVector;
 	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_D) == GLFW_PRESS)
-	{
-		m_moveDir += camRight;
-	}
+		m_moveDir += lookRightVector;
 	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_W) == GLFW_PRESS)
-	{
-		m_moveDir += camFace;
-	}
+		m_moveDir += lookDirection;
 	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_S) == GLFW_PRESS)
-	{
-		m_moveDir -= camFace;
-	}
-	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
-	{		
-		if (m_character->canJump())
-		{			
-			m_character->jump(btVector3(0.0f, 3.0f, 0.0f));
-		}					
-	}	
+		m_moveDir -= lookDirection;
 
+	// Jump
+	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
+		if (m_character->canJump())
+			m_character->jump(btVector3(0.0f, 3.0f, 0.0f));
+
+	// Make sure moving is a constant speed
 	if (glm::length(m_moveDir) >= 0.0001f)
 		m_moveDir = glm::normalize(m_moveDir);
 	
 	//update player position
-	btScalar yValue = std::ceil(m_character->getLinearVelocity().getY()*100.0) / 100.0;	//Round to two decimals
+	btScalar yValue = std::ceil(m_character->getLinearVelocity().getY() * 100.0) / 100.0;	//Round to two decimals
 	btVector3 translate = btVector3(m_moveDir.x * m_speed * deltaTime, yValue, m_moveDir.z * m_speed * deltaTime);
 	m_character->setLinearVelocity(translate);
 	
