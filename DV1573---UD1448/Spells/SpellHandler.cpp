@@ -202,38 +202,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 
 		if (static_cast<Spell*>(spells[i])->getType() == REFLECT)
 		{
-			ReflectSpell* reflectSpell = static_cast<ReflectSpell*>(spells[i]);
-			reflectSpell->updateReflection(deltaTime, m_BulletNormalSpell.at(i), m_spawnerPos, m_spawnerDir);
-
-			auto& spellList = Client::getInstance()->getNetworkSpells();
-			for (size_t i = 0; i < spellList.size(); i++)
-			{	
-				float hitboxRadius = 0.0f;
-				SPELL_TYPE type = spellList[i].SpellType;
-				switch (type)
-				{
-					case NORMALATTACK:
-						hitboxRadius = attackBase->m_radius;
-						break;
-					case ENHANCEATTACK:
-						hitboxRadius = enhanceAtkBase->m_radius;
-						break;
-					case REFLECT:
-						hitboxRadius = reflectBase->m_radius;
-						break;
-					default:
-						break;
-				}
-
-				if (reflectSpell->checkReflectCollision(spellList[i].Position, spellList[i].Rotation, hitboxRadius))
-				{
-					logTrace("Collision with reflection");
-				}
-
-
-
-			}
-
+			REFLECTupdate(deltaTime, i);
 		}
 
 
@@ -359,9 +328,39 @@ glm::vec3 SpellHandler::OBBclosestPoint(glm::vec3& spherePos, std::vector<glm::v
 	return boxPoint;
 }
 
-void SpellHandler::reflectCollisionCheck()
+void SpellHandler::REFLECTupdate(float deltaTime, int i)
 {
-	
+	ReflectSpell* reflectSpell = static_cast<ReflectSpell*>(spells[i]);
+	reflectSpell->updateReflection(deltaTime, m_BulletNormalSpell.at(i), m_spawnerPos, m_spawnerDir);
+
+	auto& spellList = Client::getInstance()->getNetworkSpells();
+	for (size_t i = 0; i < spellList.size(); i++)
+	{
+		float hitboxRadius = 0.0f;
+		SPELL_TYPE type = spellList[i].SpellType;
+		switch (type)
+		{
+		case NORMALATTACK:
+			hitboxRadius = attackBase->m_radius;
+			break;
+		case ENHANCEATTACK:
+			hitboxRadius = enhanceAtkBase->m_radius;
+			break;
+		case REFLECT:
+			hitboxRadius = reflectBase->m_radius;
+			break;
+		default:
+			break;
+		}
+
+		if (reflectSpell->checkReflectCollision(spellList[i].Position, spellList[i].Direction, hitboxRadius))
+		{
+			//TODO: Delete incoming spell
+			//Client::getInstance()->destroySpellOnNetwork(*spells[i]);
+			createSpell(m_spawnerPos, m_spawnerDir, spellList[i].SpellType);
+			logTrace("Collision with reflection");
+		}
+	}
 }
 
 

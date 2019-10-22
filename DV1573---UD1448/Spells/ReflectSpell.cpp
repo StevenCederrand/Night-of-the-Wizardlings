@@ -9,7 +9,7 @@ ReflectSpell::ReflectSpell(glm::vec3 pos, glm::vec3 direction, const ReflectSpel
 	hitboxRadius = spellBase->m_radius;
 
 	Transform tempTransform;
-	tempTransform.scale = glm::vec3(0.1f, 0.1f, 0.1f);
+	tempTransform.scale = glm::vec3(0.01f, 0.01f, 0.01f);
 	setTransform(tempTransform);
 	m_transform = tempTransform;
 
@@ -39,16 +39,14 @@ const float ReflectSpell::getDamage()
 
 void ReflectSpell::updateReflection(float deltaTime, btRigidBody* body, glm::vec3 position, glm::vec3 direction)
 {
-	m_transform.position = position + (direction * 2);
+	m_transform.position = position + (direction * 0.5f);
 	m_direction = glm::normalize(direction);
 }
 
 bool ReflectSpell::checkReflectCollision(glm::vec3 position, glm::vec3 direction, float radius)
 {
-	// TODO: not set here
-	float sphereThis = 1.0f;
 
-	int radiusSquared = sphereThis + radius;
+	int radiusSquared = m_spellBase->m_radius + radius;
 	radiusSquared *= radiusSquared;
 
 	glm::vec3 difVec = m_transform.position - position;
@@ -60,14 +58,11 @@ bool ReflectSpell::checkReflectCollision(glm::vec3 position, glm::vec3 direction
 	
 	if (distance <= radiusSquared)
 	{
-		float angle = glm::acos(glm::dot(m_direction, glm::normalize(direction)));
+		float angle = glm::dot(m_direction, direction);
 		logTrace("Collision angle: {0}", angle);
 
-		if (glm::acos(glm::dot(m_direction, glm::normalize(difVec))) >= 90.0f)
+		if (glm::dot(direction, m_direction) <= -0.2f)
 		{
-
-
-
 			return true;
 		}
 	}
