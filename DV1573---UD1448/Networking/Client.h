@@ -37,6 +37,7 @@ public:
 	
 	NetworkPlayers& getNetworkPlayersREF();
 	NetworkSpells& getNetworkSpellsREF();
+	const PlayerPacket& getMyData() const;
 
 	const bool doneRefreshingServerList() const;
 	const bool doesServerExist(const unsigned int& ID) const;

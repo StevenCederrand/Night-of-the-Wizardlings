@@ -679,6 +679,11 @@ NetworkSpells& Client::getNetworkSpellsREF()
 	return m_networkSpells;
 }
 
+const PlayerPacket& Client::getMyData() const
+{
+	return m_myPlayerDataPacket;
+}
+
 const std::vector<SpellPacket>& Client::getNetworkSpells()
 {
 	return m_activeSpells;

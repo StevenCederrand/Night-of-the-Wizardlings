@@ -91,6 +91,8 @@ SpellHandler::~SpellHandler()
 
 void SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SPELL_TYPE type)
 {
+	if (Client::getInstance()->getMyData().health <= 0)
+		return;
 
 	CollisionObject obj = sphere;
 	if (type == NORMALATTACK)
@@ -100,8 +102,7 @@ void SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SP
 		Client::getInstance()->createSpellOnNetwork(*spell);
 		spells.emplace_back(spell);
 		Renderer::getInstance()->submit(spells.back(), SPELL);
-		logTrace("Created spell");
-
+		
 		//bullet create
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
 		m_BulletNormalSpell.emplace_back(
@@ -120,8 +121,7 @@ void SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SP
 		Client::getInstance()->createSpellOnNetwork(*spell);
 		spells.emplace_back(spell);
 		Renderer::getInstance()->submit(spells.back(), SPELL);
-		logTrace("Created spell");
-
+	
 		//bullet create
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
 		m_BulletNormalSpell.emplace_back(
@@ -167,7 +167,6 @@ void SpellHandler::spellUpdate(float deltaTime)
 		
 		if (spells[i]->getTravelTime() <= 0)
 		{
-			logTrace("Deleted spell");
 			Renderer::getInstance()->removeDynamic(spells[i], SPELL);
 
 			Client::getInstance()->destroySpellOnNetwork(*spells[i]);
@@ -261,7 +260,6 @@ void SpellHandler::spellCollisionCheck()
 			float scale = spells.at(j)->getTransform().scale.x;
 			if (specificSpellCollision(spellPos, playerPos, axis, scale))
 			{
-				logTrace("COLLISION SPELL");
 				Client::getInstance()->sendHitRequest(*spells[j], list[i]);
 				spells[j]->setTravelTime(0.0f);
 			}
@@ -280,8 +278,6 @@ bool SpellHandler::specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPo
 
 	if (glm::dot(v, v) <= sphereRadius * sphereRadius)
 	{
-		//COLLISION!
-		logTrace("COLLISION spell and player");
 		collision = true;
 	}
 	return collision;
