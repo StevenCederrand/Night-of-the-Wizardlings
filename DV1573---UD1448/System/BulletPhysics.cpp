@@ -131,10 +131,10 @@ btDiscreteDynamicsWorld* BulletPhysics::getDynamicsWorld() const
 btKinematicCharacterController* BulletPhysics::createCharacter()
 {
 	//create the character and add him to the dynamicsWorld
-	m_playerShape = new btCapsuleShape(0.8, 1);
+	m_playerShape = new btCapsuleShape(1.0, 1);
 	m_ghostObject = new btPairCachingGhostObject();
 	
-	m_ghostObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 20, 0)));
+	m_ghostObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 40, 0)));
 
 	m_dynamicsWorld->getPairCache()->setInternalGhostPairCallback(m_ghostCallback);
 	m_ghostObject->setCollisionShape(m_playerShape);
@@ -149,6 +149,25 @@ btKinematicCharacterController* BulletPhysics::createCharacter()
 	m_character->setUp(btVector3(0.0f, 1.0f, 0.0f));
 
 	return m_character;
+}
+
+void BulletPhysics::removeObject(int& i)
+{
+
+	btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
+	btRigidBody* body = btRigidBody::upcast(obj);
+	if (body && body->getMotionState())
+	{
+		delete body->getMotionState();
+	}
+	m_dynamicsWorld->removeCollisionObject(obj);
+
+	delete obj;
+
+
+	btCollisionShape* shape = m_collisionShapes[i];
+	m_collisionShapes[i] = 0;
+	delete shape;
 }
 
 void BulletPhysics::update(float dt)

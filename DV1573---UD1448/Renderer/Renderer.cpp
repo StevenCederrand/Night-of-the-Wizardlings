@@ -347,7 +347,7 @@ void Renderer::render() {
 		for (GameObject* object : m_dynamicObjects)
 		{
 			
-			if (object == nullptr) {
+			if (object == nullptr || !object->getShouldRender()) {
 				continue;
 			}
 			

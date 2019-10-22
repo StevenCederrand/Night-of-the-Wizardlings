@@ -7,6 +7,7 @@ GameObject::GameObject()
 	m_objectName = "Empty";
 	type = 0;
 	m_bPhysics = nullptr;
+	m_shouldRender = true;
 }
 
 GameObject::GameObject(std::string objectName)
@@ -154,6 +155,11 @@ void GameObject::loadMesh(std::string fileName)
 
 }
 
+const bool& GameObject::getShouldRender() const
+{
+	return m_shouldRender;
+}
+
 //Update each individual modelmatrix for the meshes
 void GameObject::updateModelMatrix() {
 	
@@ -193,6 +199,11 @@ void GameObject::translate(const glm::vec3& translationVector)
 {
 	m_transform.position += translationVector;
 	updateModelMatrix();
+}
+
+void GameObject::setShouldRender(bool condition)
+{
+	m_shouldRender = condition;
 }
 
 const Transform GameObject::getTransform() const

@@ -16,6 +16,7 @@ public:
 	SpellHandler(BulletPhysics* bp);
 	void initAttackSpell();
 	void initEnhanceSpell();
+	void initnrOfRigidBodys();
 
 
 	~SpellHandler();
@@ -41,7 +42,6 @@ private:
 	AttackSpellBase* enhanceAtkBase;
 
 
-
 	//std::vector<AOEAttack> m_flamestrike;
 	//AOEAttack* m_tempFlamestrike;
 	//fire* tempFire;
@@ -57,12 +57,12 @@ private:
 	bool test123 = false;
 
 	void spellCollisionCheck();
-	bool specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis);
+	bool specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis, float scale);
 	glm::vec3 OBBclosestPoint(glm::vec3 &spherePos, std::vector<glm::vec3> &axis, glm::vec3 &playerPos);
 	BulletPhysics* m_bp;
 
 	std::vector<btRigidBody*> m_BulletNormalSpell;
 	std::vector<btRigidBody*> m_BulletEnhanceAttackSpell;
-
+	int m_nrOfOtherrigidBodys = 0;
 
 };
