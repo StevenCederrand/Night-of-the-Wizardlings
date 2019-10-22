@@ -57,7 +57,7 @@ BulletPhysics::~BulletPhysics()
 	m_collisionShapes.clear();
 }
 
-btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, glm::vec3 position, glm::vec3 extend, glm::vec3 rotation = glm::vec3(), float friction)
+btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, glm::vec3 position, glm::vec3 extend, glm::quat rotation, float friction)
 {
 	btCollisionShape* objectShape;
 	switch (object)
@@ -68,14 +68,15 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 			btScalar(extend.y),
 			btScalar(extend.z)));
 		break;
+
 	case sphere:
 		objectShape = new btSphereShape(btScalar(extend.x));
-
 		break;
+
 	case capsule:
 		objectShape = new btCapsuleShape(extend.x, extend.y);
-
 		break;
+
 	default:
 		break;
 	}
@@ -92,7 +93,7 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 		rot.setEuler(0, 0, 0);
 		startTransform.setRotation(rot);
 	}*/
-
+	//startTransform.setRotation(rotation);
 	startTransform.setOrigin(btVector3(position.x, position.y, position.z));
 
 	btScalar mass(inMass);
