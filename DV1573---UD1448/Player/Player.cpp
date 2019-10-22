@@ -23,7 +23,7 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_spellType = NORMALATTACK;
 	m_specialSpelltype = REFLECT;
 	m_specialSpellType2 = ENHANCEATTACK;
-
+	m_specialSpellType3 = FLAMESTRIKE;
 
 	m_bp = bp;
 	m_character = m_bp->createCharacter();
@@ -74,6 +74,7 @@ void Player::update(float deltaTime)
 	m_attackCooldown -= deltaTime; // Cooldown reduces with time
 	m_specialCooldown -= deltaTime; // Cooldown reduces with time
 	m_special2Cooldown -= deltaTime; // Cooldown reduces with time
+	m_special3Cooldown -= deltaTime; // Cooldown reduces with time
 }
 
 void Player::move(float deltaTime)
@@ -145,6 +146,14 @@ void Player::attack()
 				// Start loop
 				m_enhanceAttack.start();
 			}
+		}
+	}
+
+	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_E) == GLFW_PRESS)
+	{
+		if (m_special3Cooldown <= 0)
+		{
+			m_special3Cooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_specialSpellType3); // Put attack on cooldown
 		}
 	}
 	

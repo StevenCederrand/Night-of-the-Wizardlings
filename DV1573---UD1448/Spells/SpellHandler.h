@@ -5,6 +5,7 @@
 #include <Spells/AttackSpell.h>
 #include <Spells/EnhanceAttackSpell.h>
 #include <Spells/ReflectSpell.h>
+#include <Spells/AOEAttack.h>
 #include <System/BulletPhysics.h>
 #include "SpellTypes.h"
 
@@ -62,4 +63,5 @@ private:
 	BulletPhysics* m_bp;
 	std::vector<btRigidBody*> m_BulletNormalSpell;
 	std::vector<btRigidBody*> m_BulletEnhanceAttackSpell;
+	std::vector<btRigidBody*> m_BulletFlamestrikeSpell;
 };
