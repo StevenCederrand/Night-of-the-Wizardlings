@@ -37,14 +37,14 @@ Player::~Player()
 }
 
 void Player::update(float deltaTime)
-{
-	m_playerCamera->update(m_playerCamera->getWindow());
+{																		
+																		// IMPORTANT; DOING THESE WRONG WILL CAUSE INPUT LAG
+	m_playerCamera->update(m_playerCamera->getWindow());				// Update this first so that subsequent uses are synced
 	m_directionVector = glm::normalize(m_playerCamera->getCamFace());	// Update this first so that subsequent uses are synced
 	move(deltaTime);													// Update this first so that subsequent uses are synced
 	m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
 	attack();
 	//createRay();
-
 	
 	if (m_client->isConnectedToSever()) {
 		m_client->updatePlayerData(this);
