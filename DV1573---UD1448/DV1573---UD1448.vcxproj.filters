@@ -5,7 +5,6 @@
     <ClCompile Include="GameObject\AnimatedObject.cpp" />
     <ClCompile Include="Mesh\AnimationMap.cpp" />
     <ClCompile Include="Mesh\MeshMap.cpp" />
-    <ClCompile Include="Networking\ChaosServerMode.cpp" />
     <ClCompile Include="Networking\Client.cpp" />
     <ClCompile Include="Networking\LocalServer.cpp" />
     <ClCompile Include="GameObject\GameObject.cpp" />
@@ -21,10 +20,8 @@
     <ClCompile Include="Renderer\Renderer.cpp" />
     <ClCompile Include="Renderer\Shader.cpp" />
     <ClCompile Include="Renderer\ShaderMap.cpp" />
-    <ClCompile Include="Spells\AOEAttack.cpp" />
     <ClCompile Include="Spells\AttackSpell.cpp" />
     <ClCompile Include="Spells\EnhanceAttackSpell.cpp" />
-    <ClCompile Include="Spells\fire.cpp" />
     <ClCompile Include="Spells\Spell.cpp" />
     <ClCompile Include="Renderer\SkyBox.cpp" />
     <ClCompile Include="Spells\SpellHandler.cpp" />
@@ -68,7 +65,6 @@
     <ClInclude Include="GameObject\AnimatedObject.h" />
     <ClInclude Include="Mesh\AnimationMap.h" />
     <ClInclude Include="Mesh\MeshMap.h" />
-    <ClInclude Include="Networking\ChaosServerMode.h" />
     <ClInclude Include="Networking\Client.h" />
     <ClInclude Include="Networking\LocalServer.h" />
     <ClInclude Include="Networking\NetworkGlobals.h" />
@@ -87,10 +83,8 @@
     <ClInclude Include="Renderer\Renderer.h" />
     <ClInclude Include="Renderer\Shader.h" />
     <ClInclude Include="Renderer\ShaderMap.h" />
-    <ClInclude Include="Spells\AOEAttack.h" />
     <ClInclude Include="Spells\AttackSpell.h" />
     <ClInclude Include="Spells\EnhanceAttackSpell.h" />
-    <ClInclude Include="Spells\fire.h" />
     <ClInclude Include="Spells\Spell.h" />
     <ClInclude Include="Renderer\SkyBox.h" />
     <ClInclude Include="Mesh\SkeletonMap.h" />

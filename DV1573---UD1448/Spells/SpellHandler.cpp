@@ -173,9 +173,12 @@ void SpellHandler::spellUpdate(float deltaTime)
 			Client::getInstance()->destroySpellOnNetwork(*spells[i]);
 			delete spells[i];
 			spells.erase(spells.begin() + i);
+
+			//this is not the way it should be done, we should remove it
+			//int temp = m_nrOfOtherrigidBodys + i;
+			//m_bp->removeObject(m_BulletNormalSpell.at(i), temp);
+			m_BulletNormalSpell.at(i)->getWorldTransform().setOrigin(btVector3(0.0f, 100.0f + i * 5.0f, 0.0f));
 			m_BulletNormalSpell.erase(m_BulletNormalSpell.begin() + i);
-			int temp = m_nrOfOtherrigidBodys + i;
-			m_bp->removeObject(temp);
 			i--;
 		}
 	}
