@@ -151,7 +151,7 @@ void GameObject::loadMesh(std::string fileName)
 	}
 
 	tempLoader.Unload();
-
+	updateModelMatrix();
 }
 
 //Update each individual modelmatrix for the meshes
@@ -309,8 +309,9 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 			glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(i).position;
 			glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale;
 			// TODO: ROTATE
-			m_bodies.emplace_back(m_bPhysics->createObject(shape, 0.0f, center, halfSize));
 
+			
+			m_bodies.emplace_back(m_bPhysics->createObject(shape, 0.0f, center, halfSize, getTransform(i).rotation));
 		}
 
 	}
