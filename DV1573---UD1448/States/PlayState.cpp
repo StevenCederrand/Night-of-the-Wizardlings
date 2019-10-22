@@ -92,6 +92,7 @@ PlayState::~PlayState()
 	delete m_player;
 	delete m_bPhysics;
 	delete m_spellHandler;
+	delete m_camera;
 	GUIclear();
 }
 

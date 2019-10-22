@@ -57,7 +57,6 @@ private:
 	float m_speed;
 	int m_nrOfSpells;
 	int m_health;
-	int m_frameCount;
 	std::string name;
 	SPELL_TYPE spellType;
 

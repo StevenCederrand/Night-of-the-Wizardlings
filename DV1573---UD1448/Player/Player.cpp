@@ -5,9 +5,6 @@
 Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Camera *camera, SpellHandler* spellHandler)
 
 {
-	if (camera == NULL) {
-		 m_playerCamera = new Camera();
-	}
 	m_playerCamera = camera;
 	m_playerPosition = playerPosition;
 	m_name = name;
@@ -33,7 +30,6 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 
 Player::~Player()
 {
-	delete m_playerCamera;
 }
 
 void Player::update(float deltaTime)
@@ -75,11 +71,6 @@ void Player::update(float deltaTime)
 
 void Player::move(float deltaTime)
 {
-	m_frameCount++;
-	if (m_frameCount < 5)
-	{
-		return;
-	}
 	glm::vec3 camFace = m_playerCamera->getCamFace();
 	glm::vec3 camRight = m_playerCamera->getCamRight();
 
