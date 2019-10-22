@@ -231,15 +231,14 @@ void SpellHandler::spellUpdate(float deltaTime)
 {
 	for (int i = 0; i < spells.size(); i++)
 	{
-		spells[i]->update(deltaTime);
-		spells[i]->updateRigidbody(deltaTime, m_BulletNormalSpell.at(i));
-
 		if (static_cast<Spell*>(spells[i])->getType() == REFLECT)
 		{
 			REFLECTupdate(deltaTime, i);
 		}
 
-
+		
+		spells[i]->update(deltaTime);
+		spells[i]->updateRigidbody(deltaTime, m_BulletNormalSpell.at(i));
 		Client::getInstance()->updateSpellOnNetwork(*spells[i]);
 		
 		if (spells[i]->getTravelTime() <= 0)

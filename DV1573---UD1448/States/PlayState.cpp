@@ -92,8 +92,8 @@ void PlayState::update(float dt)
 	Client::getInstance()->updateNetworkEntities(dt);
 	m_bPhysics->update(dt);
 	Renderer::getInstance()->update(dt);
-	m_spellHandler->spellUpdate(dt);
 	m_player->update(dt);
+	m_spellHandler->spellUpdate(dt);
 
 	for (GameObject* object : m_objects)
 	{

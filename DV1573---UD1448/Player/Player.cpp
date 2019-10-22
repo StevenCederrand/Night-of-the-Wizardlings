@@ -41,6 +41,7 @@ void Player::update(float deltaTime)
 	m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
 	move(deltaTime);
 	createRay();
+	m_directionVector = glm::normalize(m_playerCamera->getCamFace());
 	attack();
 
 	
