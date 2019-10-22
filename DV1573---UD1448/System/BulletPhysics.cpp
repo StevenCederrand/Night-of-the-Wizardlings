@@ -39,7 +39,13 @@ BulletPhysics::~BulletPhysics()
 	//Delete collsion shapes
 	for (int i = 0; i < m_collisionShapes.size(); i++)
 	{
+		if (m_collisionShapes[i] == 0)
+			continue;
+
 		btCollisionShape* shape = m_collisionShapes[i];
+		if (shape == nullptr)
+			continue;
+
 		m_collisionShapes[i] = 0;
 		delete shape;
 	}
@@ -151,26 +157,34 @@ btKinematicCharacterController* BulletPhysics::createCharacter()
 	return m_character;
 }
 
-void BulletPhysics::removeObject(int& i)
+void BulletPhysics::removeObject(btRigidBody* body, const int& i)
 {
 
-	btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
-	btRigidBody* body = btRigidBody::upcast(obj);
-	if (body && body->getMotionState())
-	{
-		delete body->getMotionState();
-	}
-	m_dynamicsWorld->removeCollisionObject(obj);
-
-	delete obj;
-
-
-	btCollisionShape* shape = m_collisionShapes[i];
 	m_collisionShapes[i] = 0;
-	delete shape;
+	delete body->getMotionState();
+	delete body->getCollisionShape();
+	m_dynamicsWorld->removeRigidBody(body);
+
+	delete body;
+//
+//	btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
+//	btRigidBody* body = btRigidBody::upcast(obj);
+//	if (body && body->getMotionState())
+//	{
+//		delete body->getMotionState();
+//	}
+//	m_dynamicsWorld->removeCollisionObject(obj);
+//
+//
+//	delete obj;
+//	
+//	btCollisionShape* shape = m_collisionShapes[i];
+//	m_collisionShapes[i] = 0;
+//	delete shape;
+//	delete body;
 }
 
 void BulletPhysics::update(float dt)
 {
-	m_dynamicsWorld->stepSimulation(1.0/60.0, 10);
+	m_dynamicsWorld->stepSimulation(dt, 1);
 }

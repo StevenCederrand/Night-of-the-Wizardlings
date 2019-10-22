@@ -70,7 +70,7 @@ void AttackSpell::updateRigidbody(float deltaTime, btRigidBody* body)
 		}
 	}
 	m_bounceTime += deltaTime;
-	if (m_bounceTime > 0.2)
+	if (m_bounceTime > 0.1)
 	{
 		m_bounceTime = 0;
 		m_nrOfBounce = m_localBounce;
