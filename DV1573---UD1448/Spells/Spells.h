@@ -135,6 +135,7 @@ struct FlamestrikeSpellBase
 	float m_damage;
 	float m_speed;
 	float m_coolDown;
+	float m_radius;
 
 	float m_lifeTime;
 	float m_maxBounces;
@@ -146,11 +147,12 @@ struct FlamestrikeSpellBase
 
 		m_damage = 0;
 		m_speed = 0;
+		m_radius = 0;
 		m_coolDown = 0;
+
 		m_lifeTime = 0;
 		m_maxBounces = 0;
 	}
-
 	~FlamestrikeSpellBase()
 	{
 		if (m_mesh)

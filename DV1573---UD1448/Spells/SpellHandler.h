@@ -57,4 +57,5 @@ private:
 	BulletPhysics* m_bp;
 	std::vector<btRigidBody*> m_BulletNormalSpell;
 	std::vector<btRigidBody*> m_BulletEnhanceAttackSpell;
+	std::vector<btRigidBody*> m_BulletFlamestrikeSpell;
 };

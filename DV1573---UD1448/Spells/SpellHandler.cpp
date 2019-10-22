@@ -232,7 +232,7 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 		Client::getInstance()->createSpellOnNetwork(*spell);
 		spells.emplace_back(spell);
 		Renderer::getInstance()->submit(spells.back(), SPELL);
-		logTrace("Created attack spell");
+		logTrace("Created flamestrike spell");
 
 		//bullet create
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.x);

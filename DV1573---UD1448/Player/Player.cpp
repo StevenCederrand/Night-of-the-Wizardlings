@@ -74,6 +74,7 @@ void Player::update(float deltaTime)
 	m_attackCooldown -= deltaTime; // Cooldown reduces with time
 	m_specialCooldown -= deltaTime; // Cooldown reduces with time
 	m_special2Cooldown -= deltaTime; // Cooldown reduces with time
+	m_special3Cooldown -= deltaTime; // Cooldown reduces with time
 }
 
 void Player::move(float deltaTime)
@@ -152,7 +153,6 @@ void Player::attack()
 	{
 		if (m_special3Cooldown <= 0)
 		{
-			createRay();
 			m_special3Cooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_specialSpellType3); // Put attack on cooldown
 		}
 	}
