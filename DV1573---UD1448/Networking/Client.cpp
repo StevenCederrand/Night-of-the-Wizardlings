@@ -43,6 +43,15 @@ void Client::destroy()
 			m_processThread.join();
 		}
 
+		m_serverList.clear();
+		m_connectedPlayers.clear();
+		m_activeSpells.clear();
+		m_spellsHitQueue.clear();
+		m_updateSpellQueue.clear();
+		m_removeOrAddSpellQueue.clear();
+		m_networkPlayers.cleanUp();
+		m_networkSpells.cleanUp();
+
 		m_initialized = false;
 		RakNet::RakPeerInterface::DestroyInstance(m_clientPeer);
 	}

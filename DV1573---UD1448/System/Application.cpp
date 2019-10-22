@@ -19,7 +19,7 @@ Application::~Application() {
 	AnimationMap::getInstance()->destroy();
 	SkeletonMap::getInstance()->destroy();
 
-	if (Client::getInstance()->isInitialized())
+	if(Client::getInstance()->isInitialized())
 		Client::getInstance()->destroy();
 
 	if (LocalServer::getInstance()->isInitialized())
@@ -103,6 +103,12 @@ void Application::run()
 
 		m_input->clearKeys();
 		glfwPollEvents();
+
+		// Quick way to close the app
+		if (Input::isKeyReleased(GLFW_KEY_DELETE))
+		{
+			glfwSetWindowShouldClose(m_window, true);
+		}
 
 		if (Input::isKeyPressed(GLFW_KEY_F1)) {
 			ShaderMap::getInstance()->reload();

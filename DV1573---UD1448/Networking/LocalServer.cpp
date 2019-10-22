@@ -35,7 +35,6 @@ void LocalServer::startup(const std::string& serverName)
 
 		m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
 
-
 		if (m_processThread.joinable()) {
 			m_processThread.join();
 		}
@@ -63,6 +62,10 @@ void LocalServer::destroy()
 			if(m_processThread.joinable())
 				m_processThread.join();
 			logTrace("Server thread shutdown");
+
+			m_connectedPlayers.clear();
+			m_respawnList.clear();
+			m_activeSpells.clear();
 		}
 		m_initialized = false;
 		RakNet::RakPeerInterface::DestroyInstance(m_serverPeer);

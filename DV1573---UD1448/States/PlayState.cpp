@@ -95,6 +95,7 @@ PlayState::~PlayState()
 	if (Client::getInstance()->isInitialized()) {
 		Client::getInstance()->destroy();
 	}
+
 }
 
 void PlayState::update(float dt)
