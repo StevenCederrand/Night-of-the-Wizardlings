@@ -225,7 +225,7 @@ void Gui::draw()
 
 void Gui::clearWidgetsInSection(const std::string& section)
 {
-	auto widgetSection = m_widgetMap.find(section);
+ 	auto widgetSection = m_widgetMap.find(section);
 	
 	if (widgetSection != m_widgetMap.end())
 	{
@@ -240,6 +240,5 @@ void Gui::clearWidgetsInSection(const std::string& section)
 		vec.clear();
 		m_widgetMap.erase(widgetSection);
 	}
-
 }
 

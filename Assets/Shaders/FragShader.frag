@@ -1,12 +1,11 @@
 #version 430
 #define LIGHTS_MAX 64
 
-//#define PLANE_COUNT
+
 layout(std430, binding = 0) readonly buffer LightIndexBuffer {
     //Point light indexes
     int index[LIGHTS_MAX];
 } lightIndexBuffer;
-
 
 struct P_LIGHT {
     vec3 position;
@@ -49,16 +48,27 @@ vec3 calcLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance, vec3
     return (ambient + diffuse) * attenuation;
 }
 
+
+//Calculate the directional light... Returns the diffuse color, post calculations
+vec3 calcDirLight(vec3 lightDirection, vec3 normal, vec3 diffuseColor);
+
 void main() {
     float ambientStr = 0.1f;
     vec3 ambientCol = (Ambient_Color + ambientStr);
+
     if (HasTex)
         ambientCol = (Ambient_Color + ambientStr) * texture(albedoTexture, f_UV).rgb;
 
     vec3 position = vec3(0);
-
     vec3 result = ambientCol;
-    
+
+    //Create the diffuse color once
+    vec3 diffuse = Diffuse_Color;
+    if(HasTex)
+        diffuse = (Diffuse_Color * texture(albedoTexture, f_UV).rgb);
+
+    result += calcDirLight(vec3(0.2, -0.2, 0.0), f_normal, diffuse);
+
     //This is a light accumilation over the point lights
     for(int i = 0; i < LightCount && lightIndexBuffer.index[i] != -1; i++) {
         uint lightIndex = lightIndexBuffer.index[i];
@@ -77,4 +87,13 @@ void main() {
 
 
     color = vec4(result, 1);
+}
+
+vec3 calcDirLight(vec3 lightDirection, vec3 normal, vec3 diffuseColor) {
+    float lightStr = 0.1f;
+    vec3 lightDir = normalize(-lightDirection);
+    float diff = max(dot(normal, lightDir), 0.0);
+
+    diffuseColor = (Diffuse_Color * texture(albedoTexture, f_UV).rgb) * diff * lightStr;
+    return diffuseColor;
 }

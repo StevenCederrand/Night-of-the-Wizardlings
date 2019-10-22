@@ -72,6 +72,7 @@ void LocalServer::destroy()
 void LocalServer::ThreadedUpdate()
 {
 	bool serverRunning = true;
+	m_shutdownServer = false;
 	uint32_t currentTimeMS = 0;
 	uint32_t lastTimeMS = 0;
 	uint32_t timeDiff = 0;

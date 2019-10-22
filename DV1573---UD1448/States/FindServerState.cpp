@@ -23,21 +23,6 @@ FindServerState::~FindServerState()
 
 void FindServerState::update(float dt)
 {
-	if (Input::isKeyPressed(GLFW_KEY_G)) {
-		static int i = 0;
-		m_serverList->addRow();
-		CEGUI::ListboxTextItem* itemMultiColumnList;
-		itemMultiColumnList = new CEGUI::ListboxTextItem("Dummy", i );
-		itemMultiColumnList->setSelectionBrushImage("TaharezLook/MultiListSelectionBrush");
-		m_serverList->setItem(itemMultiColumnList, 0, static_cast<CEGUI::uint>(i)); // ColumnID, RowID
-		itemMultiColumnList = new CEGUI::ListboxTextItem(std::string("1337") + "/" + std::string("1337"), i + 1);
-		m_serverList->setItem(itemMultiColumnList, 1, static_cast<CEGUI::uint>(i)); // ColumnID, RowID
-		i++;
-	}
-	else if (Input::isKeyPressed(GLFW_KEY_H)) {
-		removeAllRows();
-	}
-
 	if (m_serverListRefreshing && Client::getInstance()->doneRefreshingServerList())
 	{
 		loadServersIntoList();

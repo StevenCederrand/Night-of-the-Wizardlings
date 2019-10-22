@@ -250,6 +250,9 @@ const std::string& GameObject::getMeshName(int meshIndex) const
 
 const glm::mat4& GameObject::getMatrix(const int& i) const
 {
+	if (m_modelMatrixes.size() == 0) {
+		return glm::mat4(1.0f);
+	}
 	//if we are trying to access a matrix beyond our count
 	if (i > static_cast<int>(m_modelMatrixes.size())) {
 		return glm::mat4(1.0f);

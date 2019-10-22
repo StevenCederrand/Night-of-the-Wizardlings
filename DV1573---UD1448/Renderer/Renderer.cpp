@@ -132,6 +132,16 @@ void Renderer::submit(GameObject* gameObject, ObjectType objType)
 	
 }
 
+void Renderer::clear() {
+	
+	m_staticObjects.clear();
+	m_dynamicObjects.clear();
+	m_anistaticObjects.clear();
+	m_anidynamicObjects.clear();
+	m_spells.clear();
+
+}
+
 void Renderer::removeDynamic(GameObject* gameObject, ObjectType objType)
 {
 	int index = -1;
@@ -165,8 +175,6 @@ void Renderer::removeDynamic(GameObject* gameObject, ObjectType objType)
 		}
 		logWarning("index", index);
 	}
-
-	
 }
 
 void Renderer::destroy()
