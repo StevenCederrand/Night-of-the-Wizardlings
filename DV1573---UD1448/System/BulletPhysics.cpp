@@ -154,5 +154,5 @@ btKinematicCharacterController* BulletPhysics::createCharacter()
 
 void BulletPhysics::update(float dt)
 {
-	m_dynamicsWorld->stepSimulation(dt, 10);
+	m_dynamicsWorld->stepSimulation(dt, 1);
 }
