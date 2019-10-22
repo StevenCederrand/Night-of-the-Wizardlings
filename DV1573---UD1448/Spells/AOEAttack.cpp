@@ -23,6 +23,7 @@ AOEAttack::~AOEAttack()
 
 void AOEAttack::updateActiveSpell(float deltaTime)
 {
+	
 	//if (m_updateSpellPos == true)
 	//{
 	//	setSpellPos(getDirection() * deltaTime * getSpellSpeed());
@@ -32,7 +33,7 @@ void AOEAttack::updateActiveSpell(float deltaTime)
 	//
 	////updateSpellPos(getSpellPos());
 
-	//setDirection(getDirection() + deltaTime * gravityVector);
+	setDirection(getDirection() + deltaTime * gravityVector);
 
 	//if (getSpellPos().y >= 0)
 	//{

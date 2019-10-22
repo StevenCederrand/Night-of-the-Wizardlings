@@ -101,11 +101,11 @@ void SpellHandler::initFlamestrikeSpell()
 	flamestrikeBase->m_material->specular = newMaterial.specular;
 	tempLoader.Unload();
 
-	flamestrikeBase->m_material->diffuse = glm::vec3(0.65f, 1.0f, 1.0f);
-	flamestrikeBase->m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
+	flamestrikeBase->m_material->diffuse = glm::vec3(1.0f, 0.0f, 0.5f);
+	flamestrikeBase->m_material->ambient = glm::vec3(1.0f, 0.0f, 0.5f);
 
 	flamestrikeBase->m_damage = 10;
-	flamestrikeBase->m_speed = 25;
+	flamestrikeBase->m_speed = 50;
 	flamestrikeBase->m_coolDown = 1;
 	flamestrikeBase->m_lifeTime = 5;
 	flamestrikeBase->m_maxBounces = 3;
@@ -254,6 +254,11 @@ void SpellHandler::spellUpdate(float deltaTime)
 		if (static_cast<Spell*>(spells[i])->getType() == REFLECT)
 		{
 			REFLECTupdate(deltaTime, i);
+		}
+
+		if (static_cast<Spell*>(spells[i])->getType() == FLAMESTRIKE)
+		{
+			flamestrikeUpdate(deltaTime, i);
 		}
 
 		spells[i]->update(deltaTime);
@@ -414,6 +419,14 @@ void SpellHandler::REFLECTupdate(float deltaTime, int i)
 			logTrace("Collision with reflection");
 		}
 	}
+}
+
+void SpellHandler::flamestrikeUpdate(float deltaTime, int i)
+{
+	AOEAttack* flamestrike = static_cast<AOEAttack*>(spells[i]);
+	flamestrike->updateActiveSpell(deltaTime);
+
+
 }
 
 
