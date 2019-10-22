@@ -34,6 +34,12 @@ void LocalServer::startup(const std::string& serverName)
 		m_connectedPlayers.reserve(NetGlobals::MaximumConnections);
 
 		m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
+
+
+		if (m_processThread.joinable()) {
+			m_processThread.join();
+		}
+
 		m_processThread = std::thread(&LocalServer::ThreadedUpdate, this);
 		m_initialized = true;
 		logTrace("[SERVER] Tickrate: {0}", NetGlobals::tickRate);

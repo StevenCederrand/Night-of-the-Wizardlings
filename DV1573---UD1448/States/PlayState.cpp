@@ -1,8 +1,8 @@
 #include <Pch/Pch.h>
 #include "PlayState.h"
 
-// TODO move to mesh
 #include <Networking/Client.h>
+#include <Networking/LocalServer.h>
 
 PlayState::PlayState()
 {
@@ -81,7 +81,11 @@ PlayState::~PlayState()
 	delete m_player;
 	delete m_bPhysics;
 	delete m_spellHandler;
-
+	
+	if (LocalServer::getInstance()->isInitialized()) {
+		LocalServer::getInstance()->destroy();
+	}
+	
 	MaterialMap::getInstance()->destroy();
 	MeshMap::getInstance()->destroy();
 	AnimationMap::getInstance()->destroy();
