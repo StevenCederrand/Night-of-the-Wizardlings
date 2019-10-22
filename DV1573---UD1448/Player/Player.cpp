@@ -38,6 +38,7 @@ Player::~Player()
 
 void Player::update(float deltaTime)
 {
+	m_playerCamera->update(m_playerCamera->getWindow());
 	m_directionVector = glm::normalize(m_playerCamera->getCamFace());	// Update this first so that subsequent uses are synced
 	move(deltaTime);													// Update this first so that subsequent uses are synced
 	m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
@@ -115,7 +116,6 @@ void Player::move(float deltaTime)
 	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY()* 2, playerPos.getZ());
 	
 	m_playerCamera->setCameraPos(m_playerPosition);
-	m_playerCamera->update(m_playerCamera->getWindow());
 }
 
 void Player::attack()
