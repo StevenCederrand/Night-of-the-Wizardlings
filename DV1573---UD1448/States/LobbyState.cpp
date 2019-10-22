@@ -11,6 +11,8 @@
 LobbyState::LobbyState()
 {
 	loadGui();
+	m_selectedsNameInput = false;
+	m_selecteduNameInput = false;
 }
 
 LobbyState::~LobbyState()
@@ -20,6 +22,21 @@ LobbyState::~LobbyState()
 
 void LobbyState::update(float dt)
 {
+	//If we haven't changed the input, and select the input widget
+	if (m_sNameInput->getText() == "Server Name...") {
+		//Upon the initial select
+		if (m_sNameInput->isActive() && !m_selectedsNameInput) {
+			m_selectedsNameInput = true;
+			m_sNameInput->setText("");
+		}
+	}
+	if (m_uNameInput->getText() == "User Name...") {
+		//Upon the initial select
+		if (m_uNameInput->isActive() && !m_selecteduNameInput) {
+			m_selecteduNameInput = true;
+			m_uNameInput->setText("");
+		}
+	}
 }
 
 void LobbyState::render()
@@ -29,17 +46,22 @@ void LobbyState::render()
 void LobbyState::loadGui()
 {
 	//Server name text Widget
-	auto* text = Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/StaticText", glm::vec4(0.425f, 0.45f, 0.15f, 0.05f), glm::vec4(0.0f), "Servername-Text");
-	text->setText("Server name:");
+	//auto* text = Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/StaticText", glm::vec4(0.425f, 0.35f, 0.15f, 0.05f), glm::vec4(0.0f), "Servername-Text");
+	//text->setText("Server name:");
 	//Server name input
-	m_sNameInput = static_cast<CEGUI::Editbox*>(Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/Editbox", glm::vec4(0.425f, 0.50f, 0.15f, 0.05f), glm::vec4(0.0f), "ServerNameInput"));
-	
+	m_sNameInput = static_cast<CEGUI::Editbox*>(Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/Editbox", glm::vec4(0.425f, 0.40f, 0.15f, 0.05f), glm::vec4(0.0f), "ServerNameInput"));
+	m_sNameInput->setMaxTextLength(16);
+	m_sNameInput->setText("Server Name...");
+
 	//Username text widget
-	text = Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/StaticText", glm::vec4(0.425f, 0.55f, 0.15f, 0.05f), glm::vec4(0.0f), "Username-Text");
-	text->setText("User Name:");
-	//User name input
-	m_uNameInput = static_cast<CEGUI::Editbox*>(Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/Editbox", glm::vec4(0.425f, 0.60f, 0.15f, 0.05f), glm::vec4(0.0f), "UserNameInput"));
+	//text = Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/StaticText", glm::vec4(0.425f, 0.45f, 0.15f, 0.05f), glm::vec4(0.0f), "Username-Text");
+	//text->setText("User Name:");
 	
+	//User name input
+	m_uNameInput = static_cast<CEGUI::Editbox*>(Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/Editbox", glm::vec4(0.425f, 0.50f, 0.15f, 0.05f), glm::vec4(0.0f), "UserNameInput"));
+	m_uNameInput->setMaxTextLength(16);
+	m_uNameInput->setText("User Name...");
+
 	/* BUTTONS */
 	m_startServerBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/Button", glm::vec4(0.425f, 0.65f, 0.15f, 0.05f), glm::vec4(0.0f), "StartServer"));
 	m_startServerBtn->setText("Launch server");

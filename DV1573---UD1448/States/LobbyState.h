@@ -24,6 +24,10 @@ private:
 	CEGUI::Combobox* m_serverNameBox;
 	CEGUI::Editbox* m_sNameInput;
 	CEGUI::Editbox* m_uNameInput;
+
+	bool m_selectedsNameInput;
+	bool m_selecteduNameInput;
+
 };
 
 
