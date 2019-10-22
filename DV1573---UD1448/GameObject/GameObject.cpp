@@ -320,7 +320,8 @@ void GameObject::createDebugDrawer()
 {
 	for (int i = 0; i < m_bodies.size(); i++)
 	{
-		m_debugDrawers.emplace_back(new DebugDrawer());
-		m_debugDrawers[i]->setUpMesh(*m_bodies[i]);
+		// Temporarily off, rotation of drawers do not work
+		//m_debugDrawers.emplace_back(new DebugDrawer());
+		//m_debugDrawers[i]->setUpMesh(*m_bodies[i]);
 	}
 }
