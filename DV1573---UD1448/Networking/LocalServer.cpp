@@ -382,7 +382,7 @@ void LocalServer::processAndHandlePackets()
 		case SPELL_PLAYER_HIT:
 		{
 			if (m_serverInfo.currentState != NetGlobals::SERVER_STATE::GAME_IN_SESSION)
-				return
+				return;
 
 			logTrace("PLAYER HIT PACKAGE");
 
