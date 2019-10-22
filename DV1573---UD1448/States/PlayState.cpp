@@ -71,15 +71,6 @@ PlayState::PlayState()
 	}
 	m_spellHandler->initnrOfRigidBodys();
 
-
-	//Create the scoreboard
-	m_scoreBoard = static_cast<CEGUI::MultiColumnList*>(Gui::getInstance()->createWidget(PLAYSECTION, "TaharezLook/MultiColumnList", glm::vec4(0.20f, 0.25f, 0.60f, 0.40f), glm::vec4(0.0f), "serverlist"));
-	m_scoreBoard->addColumn("Player: ", 0, CEGUI::UDim(0.33f, 0));
-	m_scoreBoard->addColumn("Score: ", 1, CEGUI::UDim(0.33f, 0));
-	m_scoreBoard->addColumn("Deaths: ", 2, CEGUI::UDim(0.34f, 0));
-
-	m_scoreBoard->setSelectionMode(CEGUI::MultiColumnList::RowSingle);
-
 	logTrace("Playstate created");
 }
 
@@ -146,6 +137,21 @@ void PlayState::GUIHandler()
 			m_player->logicStop(false);
 			GUIclear();
 		}
+	}
+
+	if (Input::isKeyPressed(GLFW_KEY_TAB)) {
+		//Create the scoreboard
+		m_scoreBoard = static_cast<CEGUI::MultiColumnList*>(Gui::getInstance()->createWidget(PLAYSECTION, "TaharezLook/MultiColumnList", glm::vec4(0.20f, 0.25f, 0.60f, 0.40f), glm::vec4(0.0f), "Scoreboard"));
+		m_scoreBoard->addColumn("Player: ", 0, CEGUI::UDim(0.33f, 0));
+		m_scoreBoard->addColumn("Score: ", 1, CEGUI::UDim(0.33f, 0));
+		m_scoreBoard->addColumn("Deaths: ", 2, CEGUI::UDim(0.34f, 0));
+		
+		auto& list = Client::getInstance()->getNetworkPlayersREF();
+		
+		 
+	}
+	if (Input::isKeyReleased(GLFW_KEY_TAB)) {
+		GUIclear();
 	}
 }
 
