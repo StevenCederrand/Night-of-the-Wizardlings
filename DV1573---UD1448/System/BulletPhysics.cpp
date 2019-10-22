@@ -172,5 +172,5 @@ void BulletPhysics::removeObject(int& i)
 
 void BulletPhysics::update(float dt)
 {
-	m_dynamicsWorld->stepSimulation(1/60, 10);
+	m_dynamicsWorld->stepSimulation(1.0/60.0, 10);
 }
