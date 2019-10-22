@@ -499,10 +499,10 @@ void Renderer::renderDebug()
 		{			
 			modelMatrix = glm::mat4(1.0f);
 			//Bind the modelmatrix
+			//modelMatrix = m_staticObjects.at(i)->getMatrix(j);
 			ShaderMap::getInstance()->getShader(DEBUG)->setMat4("modelMatrix", modelMatrix);
 			//Then through all of the meshes
 
-			modelMatrix = m_staticObjects.at(i)->getMatrix(j);
 			glBindVertexArray(m_staticObjects.at(i)->getDebugDrawers()[j]->getBuffers().vao);
 
 			glDisable(GL_CULL_FACE);
