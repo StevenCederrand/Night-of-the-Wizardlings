@@ -100,7 +100,6 @@ void PlayState::update(float dt)
 		object->update(dt);
 	}
 
-
 	if (Input::isKeyPressed(GLFW_KEY_P)) {
 		auto& list = Client::getInstance()->getNetworkSpells();
 		logTrace("Active spells on client: {0}", list.size());
