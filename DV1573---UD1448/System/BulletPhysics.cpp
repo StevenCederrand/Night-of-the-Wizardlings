@@ -150,16 +150,16 @@ btKinematicCharacterController* BulletPhysics::createCharacter()
 
 	m_collisionShapes.push_back(m_playerShape);
 	m_dynamicsWorld->addAction(m_character);
-	m_character->setGravity(btVector3(0.0f, -5.0f, 0.0f));
+	m_character->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 	m_character->setMaxPenetrationDepth(0.1f);
 	m_character->setUp(btVector3(0.0f, 1.0f, 0.0f));
 
 	return m_character;
 }
 
-void BulletPhysics::removeObject(btRigidBody* body, const int& i)
+void BulletPhysics::removeObject(btRigidBody* body)
 {
-	m_collisionShapes[i] = 0;
+	//m_collisionShapes[i] = 0;
 	delete body->getMotionState();
 	m_collisionShapes.remove(body->getCollisionShape());
 	delete body->getCollisionShape();
@@ -170,5 +170,17 @@ void BulletPhysics::removeObject(btRigidBody* body, const int& i)
 
 void BulletPhysics::update(float dt)
 {
+	static int x = 0;
+	static bool done = false;
+	if (x>60 && !done)
+	{
+		m_character->setGravity(btVector3(0.0f, -5.0f, 0.0f));
+		done = true;
+	}
+	if (!done)
+	{
+		x++;
+	}
+
 	m_dynamicsWorld->stepSimulation(dt, 1);
 }

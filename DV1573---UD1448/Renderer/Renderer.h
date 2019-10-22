@@ -83,6 +83,7 @@ public:
 	void setupCamera(Camera* camera);
 
 	void destroy();
+	void clear();
 	void submit(GameObject* gameObject, ObjectType objType);
 	
 	void removeDynamic(GameObject* gameObject, ObjectType objType); //Remove an object from the dynamic array

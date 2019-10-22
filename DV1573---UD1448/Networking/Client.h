@@ -22,9 +22,9 @@ public:
 	void ThreadedUpdate();
 	void processAndHandlePackets();
 	void updatePlayerData(Player* player);
-	void createSpellOnNetwork(Spell& spell);
-	void updateSpellOnNetwork(Spell& spell);
-	void destroySpellOnNetwork(Spell& spell);
+	void createSpellOnNetwork(const Spell& spell);
+	void updateSpellOnNetwork(const Spell& spell);
+	void destroySpellOnNetwork(const Spell& spell);
 	void sendHitRequest(Spell& spell, NetworkPlayers::PlayerEntity& playerThatWasHit);
 	void updateNetworkEntities(const float& dt);
 	void sendStartRequestToServer();
@@ -37,6 +37,7 @@ public:
 	
 	NetworkPlayers& getNetworkPlayersREF();
 	NetworkSpells& getNetworkSpellsREF();
+	const PlayerPacket& getMyData() const;
 
 	const bool doneRefreshingServerList() const;
 	const bool doesServerExist(const unsigned int& ID) const;

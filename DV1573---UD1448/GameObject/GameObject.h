@@ -33,6 +33,7 @@ public:
 	void setTransform(glm::vec3 worldPosition, glm::quat worldRot, glm::vec3 worldScale);
 	void setWorldPosition(glm::vec3 worldPosition);
 	void translate(const glm::vec3& translationVector);
+	void setShouldRender(bool condition);
 
 	//Get functions
 	const Transform getTransform() const;
@@ -44,7 +45,7 @@ public:
 	const int getType() const { return type; }
 	const std::vector<btRigidBody*>& getRigidBodies()  { return m_bodies; }
 	const std::vector<DebugDrawer*>& getDebugDrawers()  { return m_debugDrawers; }
-
+	const bool& getShouldRender() const;
 private:
 	void updateModelMatrix();
 	struct MeshBox //Handles seperate transforms for same mesh
@@ -63,6 +64,7 @@ private:
 protected:
 	std::vector<glm::mat4> m_modelMatrixes;
 	std::vector<MeshBox> m_meshes;
+	bool m_shouldRender;
 	int type;
 };
 

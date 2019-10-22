@@ -1,8 +1,9 @@
 #ifndef _PLAYSTATE_H
 #define _PLAYSTATE_H
 #include <Pch/Pch.h>
-#include "System/State.h"
+#include <System/State.h>
 
+#include <GUI/Gui.h>
 #include <GFX/MaterialMap.h>
 #include <GameObject/GameObject.h>
 #include <Player/Player.h>
@@ -27,6 +28,8 @@ public:
 private:
 	int key = 1;
 
+	bool m_GUIOpen;
+	
 	//Any inherited GameObject class added to this vector will support basic rendering
 	std::vector<GameObject*> m_objects;
 
@@ -36,6 +39,16 @@ private:
 	SkyBox* m_skybox;
 	BulletPhysics* m_bPhysics;
 
+	CEGUI::PushButton* m_mainMenu;
+	CEGUI::PushButton* m_quit;
+	CEGUI::MultiColumnList* m_scoreBoard;
+
+private: 
+	bool onMainMenuClick(const CEGUI::EventArgs& e);
+	bool onQuitClick(const CEGUI::EventArgs& e);
+	void GUIHandler();
+	void GUILoadButtons();
+	void GUIclear();
 };
 
 

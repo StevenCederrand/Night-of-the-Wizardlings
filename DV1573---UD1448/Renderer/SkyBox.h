@@ -4,6 +4,7 @@
 struct SkyBuffer {
 	GLuint VAO;
 	GLuint VBO;
+	GLuint CubemapTextureID;
 };
 
 class SkyBox
@@ -12,16 +13,15 @@ private:
 	//Order of the texture are: Right, Left, Top, Bottom, Front and Back.
 	std::vector<std::string> faces
 	{
-	"Assets/Textures/Skybox/Daylight Box_Right.bmp",
-	"Assets/Textures/Skybox/Daylight Box_Left.bmp",
-	"Assets/Textures/Skybox/Daylight Box_Top.bmp",
-	"Assets/Textures/Skybox/Daylight Box_Bottom.bmp",
-	"Assets/Textures/Skybox/Daylight Box_Front.bmp",
-	"Assets/Textures/Skybox/Daylight Box_Back.bmp"
+	"Assets/Textures/Night_Skybox/right.bmp",
+	"Assets/Textures/Night_Skybox/left.bmp",
+	"Assets/Textures/Night_Skybox/top.bmp",
+	"Assets/Textures/Night_Skybox/bottom.bmp",
+	"Assets/Textures/Night_Skybox/front.bmp",
+	"Assets/Textures/Night_Skybox/back.bmp"
 	};
 
-	unsigned int cubemapTexture;
-	SkyBuffer sky_Buffer;
+	SkyBuffer m_buffer;
 
 
 

@@ -5,6 +5,7 @@
 LocalServer::LocalServer()
 {
 	m_adminID = RakNet::UNASSIGNED_RAKNET_GUID;
+	m_countdown = NetGlobals::serverCountdownTimeMS;
 }
 
 LocalServer::~LocalServer()
@@ -33,6 +34,11 @@ void LocalServer::startup(const std::string& serverName)
 		m_connectedPlayers.reserve(NetGlobals::MaximumConnections);
 
 		m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
+
+		if (m_processThread.joinable()) {
+			m_processThread.join();
+		}
+
 		m_processThread = std::thread(&LocalServer::ThreadedUpdate, this);
 		m_initialized = true;
 		logTrace("[SERVER] Tickrate: {0}", NetGlobals::tickRate);
@@ -56,6 +62,10 @@ void LocalServer::destroy()
 			if(m_processThread.joinable())
 				m_processThread.join();
 			logTrace("Server thread shutdown");
+
+			m_connectedPlayers.clear();
+			m_respawnList.clear();
+			m_activeSpells.clear();
 		}
 		m_initialized = false;
 		RakNet::RakPeerInterface::DestroyInstance(m_serverPeer);
@@ -65,8 +75,23 @@ void LocalServer::destroy()
 void LocalServer::ThreadedUpdate()
 {
 	bool serverRunning = true;
-
+	m_shutdownServer = false;
+	uint32_t currentTimeMS = 0;
+	uint32_t lastTimeMS = 0;
+	uint32_t timeDiff = 0;
 	while (serverRunning) {
+		
+		lastTimeMS = currentTimeMS;
+		currentTimeMS = RakNet::GetTimeMS();
+		timeDiff = (currentTimeMS - lastTimeMS);
+		
+		if (m_serverInfo.currentState == NetGlobals::SERVER_STATE::GAME_IS_STARTING) {
+			handleCountdown(timeDiff);
+		}
+
+		if (m_serverInfo.currentState == NetGlobals::SERVER_STATE::GAME_IN_SESSION) {
+			handleRespawns(timeDiff);
+		}
 
 		processAndHandlePackets();
 
@@ -233,6 +258,10 @@ void LocalServer::processAndHandlePackets()
 					bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 					playerPacket.Serialize(false, bsIn);
 					m_connectedPlayers[i] = playerPacket;
+				/*	m_connectedPlayers[i].guid = playerPacket.guid;
+					m_connectedPlayers[i].position = playerPacket.position;
+					m_connectedPlayers[i].rotation = playerPacket.rotation;*/
+					
 					bsIn.SetReadOffset(0);
 				}
 
@@ -242,7 +271,11 @@ void LocalServer::processAndHandlePackets()
 		
 		case SERVER_CHANGE_STATE:
 		{
-			stateChange(NetGlobals::SERVER_STATE::GAME_IN_SESSION);
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			ServerStateChange statePacket;
+			statePacket.Serialize(false, bsIn);
+
+			stateChange(statePacket.currentState);
 		}
 		break;
 
@@ -358,6 +391,9 @@ void LocalServer::processAndHandlePackets()
 			  
 		case SPELL_PLAYER_HIT:
 		{
+			if (m_serverInfo.currentState != NetGlobals::SERVER_STATE::GAME_IN_SESSION)
+				return;
+
 			logTrace("PLAYER HIT PACKAGE");
 
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
@@ -366,11 +402,15 @@ void LocalServer::processAndHandlePackets()
 			bsIn.SetReadOffset(0);
 
 			PlayerPacket* pp = getSpecificPlayer(hitPacket.playerHitGUID);
+			PlayerPacket* shooter = getSpecificPlayer(hitPacket.CreatorGUID);
 			SpellPacket* sp = getSpecificSpell(hitPacket.CreatorGUID.g, hitPacket.SpellID);
-			if (pp == nullptr || sp == nullptr) {
+			if (pp == nullptr || sp == nullptr || shooter == nullptr) {
 				logTrace("[SERVER] Player or spell was null");
 				return;
 			}
+
+			if (pp->health == 0.0f || shooter->health == 0.0f)
+				return;
 
 			//create the axis and rotate them
 			glm::vec3 xAxis = glm::vec3(1.0f, 0.0f, 0.0f);
@@ -387,20 +427,23 @@ void LocalServer::processAndHandlePackets()
 			axis.emplace_back(zAxis);
 
 		
-			if (specificSpellCollision(sp->Position, pp->position, axis))
+			if (specificSpellCollision(*sp, pp->position, axis))
 			{
 				logTrace("[SERVER] sending hit package to client");
 				pp->health -= static_cast<int>(hitPacket.damage);
 
-				if (pp->health < 0) {
+				if (pp->health <= 0) {
 					pp->health = 0;
+					Respawner respawner;
+					respawner.currentTime = NetGlobals::timeUntilRespawnMS;
+					respawner.player = pp;
+					m_respawnList.emplace_back(respawner);
 				}
 
 				RakNet::BitStream bsOut;
 				bsOut.Write((RakNet::MessageID)SPELL_PLAYER_HIT);
 				pp->Serialize(true, bsOut);
 				m_serverPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, hitPacket.playerHitGUID, false);
-
 
 			}
 		}
@@ -417,13 +460,13 @@ void LocalServer::processAndHandlePackets()
 	}
 }
 
-bool LocalServer::specificSpellCollision(const glm::vec3& spellPos, const glm::vec3& playerPos, const std::vector<glm::vec3>& axis) {
+bool LocalServer::specificSpellCollision(const SpellPacket& spellPacket, const glm::vec3& playerPos, const std::vector<glm::vec3>& axis) {
 
 	bool collision = false;
-	float sphereRadius = 0.6f;
+	float sphereRadius = 1.0f * spellPacket.Scale.x * 2;
 
-	glm::vec3 closestPoint = OBBclosestPoint(spellPos, axis, playerPos);
-	glm::vec3 v = closestPoint - spellPos;
+	glm::vec3 closestPoint = OBBclosestPoint(spellPacket, axis, playerPos);
+	glm::vec3 v = closestPoint - spellPacket.Position;
 
 	if (glm::dot(v, v) <= sphereRadius * sphereRadius)
 	{
@@ -432,12 +475,12 @@ bool LocalServer::specificSpellCollision(const glm::vec3& spellPos, const glm::v
 	return collision;
 }
 
-glm::vec3 LocalServer::OBBclosestPoint(const glm::vec3& spherePos, const std::vector<glm::vec3>& axis, const glm::vec3& playerPos) {
+glm::vec3 LocalServer::OBBclosestPoint(const SpellPacket& spellPacket, const std::vector<glm::vec3>& axis, const glm::vec3& playerPos) {
 
-	float boxSize = 0.25f;
+	float boxSize = 0.5f;
 	//closest point on obb
 	glm::vec3 boxPoint = playerPos;
-	glm::vec3 ray = glm::vec3(spherePos - playerPos);
+	glm::vec3 ray = glm::vec3(spellPacket.Position - playerPos);
 
 	for (int j = 0; j < 3; j++) {
 		float distance = glm::dot(ray, axis.at(j));
@@ -484,6 +527,54 @@ SpellPacket* LocalServer::getSpecificSpell(const uint64_t& creatorGUID, const ui
 	}
 
 	return nullptr;
+}
+
+void LocalServer::handleRespawns(const uint32_t& diff)
+{
+	for (size_t i = 0; i < m_respawnList.size(); i++) {
+		auto& rs = m_respawnList[i];
+
+		if (diff < rs.currentTime) {
+			rs.currentTime -= diff;
+			RakNet::BitStream stream;
+			stream.Write((RakNet::MessageID)RESPAWN_TIME);
+			CountdownPacket countdownPacket;
+			countdownPacket.timeLeft = rs.currentTime;
+			countdownPacket.Serialize(true, stream);
+			m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, rs.player->guid, false);
+		}
+		else {
+			
+			rs.currentTime = 0;
+			rs.player->health = NetGlobals::maxPlayerHealth;
+
+			RakNet::BitStream stream;
+			stream.Write((RakNet::MessageID)RESPAWN_PLAYER);
+			rs.player->Serialize(true, stream);
+			m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, rs.player->guid, false);
+
+			m_respawnList.erase(m_respawnList.begin() + i);
+			i--;
+		}
+	}
+}
+
+void LocalServer::handleCountdown(const uint32_t& diff)
+{
+	if (diff <= m_countdown) {
+		m_countdown -= diff;
+		RakNet::BitStream stream;
+		stream.Write((RakNet::MessageID)GAME_START_COUNTDOWN);
+		CountdownPacket countdownPacket;
+		countdownPacket.timeLeft = m_countdown;
+		countdownPacket.Serialize(true, stream);
+		sendStreamToAllClients(stream);
+
+	}
+	else {
+		m_countdown = 0;
+		stateChange(NetGlobals::SERVER_STATE::GAME_IN_SESSION);
+	}
 }
 
 const bool& LocalServer::isInitialized() const
@@ -544,8 +635,11 @@ void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 {
 	if (newState == m_serverInfo.currentState) return;
 
-	if(newState == NetGlobals::SERVER_STATE::GAME_IN_SESSION)
+	if (newState == NetGlobals::SERVER_STATE::GAME_IS_STARTING)
 		logTrace("[SERVER] Admin requested to start the game!");
+
+	if (newState == NetGlobals::SERVER_STATE::GAME_IN_SESSION)
+		logTrace("[SERVER] Game has officially started!");
 
 	m_serverInfo.currentState = newState;
 	m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
@@ -553,7 +647,7 @@ void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 	RakNet::BitStream stream;
 	stream.Write((RakNet::MessageID)SERVER_CURRENT_STATE);
 	ServerStateChange statePacket;
-	statePacket.currentState = NetGlobals::SERVER_STATE::GAME_IN_SESSION;
+	statePacket.currentState = newState;
 	statePacket.Serialize(true, stream);
 	sendStreamToAllClients(stream);
 
