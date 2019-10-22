@@ -130,7 +130,7 @@ void PlayState::GUIHandler()
 	if (Input::isKeyPressed(GLFW_KEY_ESCAPE)) {
 		m_GUIOpen = !m_GUIOpen;
 		if (m_GUIOpen) {
-			glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_NORMAL); 
 			m_camera->enableFP(false);
 			m_player->logicStop(true);
 			GUILoadButtons();
@@ -150,11 +150,28 @@ void PlayState::GUIHandler()
 		m_scoreBoard->addColumn("Score: ", 1, CEGUI::UDim(0.33f, 0));
 		m_scoreBoard->addColumn("Deaths: ", 2, CEGUI::UDim(0.34f, 0));
 		
-		//auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
-		//for (size_t i = 0; i < list.size(); i++)
-		//{
-		//	//m_scoreBoard->addRow()
-		//}
+		//Add the client
+		m_scoreBoard->addRow();
+		CEGUI::ListboxTextItem* itemMultiColumnList;
+
+		itemMultiColumnList = new CEGUI::ListboxTextItem("Player 0");
+		itemMultiColumnList->setSelectionBrushImage("TaharezLook/MultiListSelectionBrush");
+		m_scoreBoard->setItem(itemMultiColumnList, 0, static_cast<CEGUI::uint>(0)); // ColumnID, RowID
+
+		//Add other players
+		auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
+
+		for (size_t i = 0; i < list.size(); i++)
+		{
+			m_scoreBoard->addRow();
+			CEGUI::ListboxTextItem* itemMultiColumnList;
+
+			itemMultiColumnList = new CEGUI::ListboxTextItem("Player " + std::to_string(i + 1));
+			itemMultiColumnList->setSelectionBrushImage("TaharezLook/MultiListSelectionBrush");
+			m_scoreBoard->setItem(itemMultiColumnList, 0, static_cast<CEGUI::uint>(i + 1)); // ColumnID, RowID
+
+			//itemMultiColumnList = new CEGUI::ListboxTextItem(std::to_string(servers[i].second.connectedPlayers) + "/" + std::to_string(servers[i].second.maxPlayers), servers[i].first + 1);
+		}
 		
 		 
 	}
