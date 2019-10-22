@@ -220,6 +220,26 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 		m_BulletNormalSpell.at(size - 1)->setUserPointer(m_BulletNormalSpell.at(size - 1));
 	}
 
+	if (type == FLAMESTRIKE)
+	{
+		auto spell = new AOEAttack(spellPos, directionVector, flamestrikeBase);
+		cooldown = flamestrikeBase->m_coolDown;
+
+		spell->setUniqueID(getUniqueID());
+		Client::getInstance()->createSpellOnNetwork(*spell);
+		spells.emplace_back(spell);
+		Renderer::getInstance()->submit(spells.back(), SPELL);
+		logTrace("Created attack spell");
+
+		//bullet create
+		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.x);
+		m_BulletNormalSpell.emplace_back(
+			m_bp->createObject(obj, 1.0f, spellPos + directionVector * 2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
+
+		int size = m_BulletNormalSpell.size();
+		m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
+		m_BulletNormalSpell.at(size - 1)->setUserPointer(m_BulletNormalSpell.at(size - 1));
+	}
 
 	return cooldown;
 }
