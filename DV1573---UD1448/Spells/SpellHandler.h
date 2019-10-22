@@ -30,6 +30,12 @@ public:
 
 	const Spell& getSpell(int index) const { return *spells[index]; }
 	const std::vector<Spell*>& getSpells() const { return spells; }
+
+	const AttackSpellBase* getAttackBase() { return attackBase; }
+	const AttackSpellBase* getEnhAttackBase() { return enhanceAtkBase; }
+	const ReflectSpellBase* getReflectBase() { return reflectBase; }
+	const FlamestrikeSpellBase* getFlamestrikeBase() { return flamestrikeBase; }
+
 	void renderSpell();
 
 	//bool isSpellReadyToCast(SPELLTYPE type);
