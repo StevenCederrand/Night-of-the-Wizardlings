@@ -28,15 +28,20 @@ void LobbyState::render()
 
 void LobbyState::loadGui()
 {
-
-	auto* text = Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/StaticText", glm::vec4(0.425f, 0.45f, 0.15f, 0.05f), glm::vec4(0.0f), "LabelText");
+	//Server name text Widget
+	auto* text = Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/StaticText", glm::vec4(0.425f, 0.45f, 0.15f, 0.05f), glm::vec4(0.0f), "Servername-Text");
 	text->setText("Server name:");
+	//Server name input
+	m_sNameInput = static_cast<CEGUI::Editbox*>(Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/Editbox", glm::vec4(0.425f, 0.50f, 0.15f, 0.05f), glm::vec4(0.0f), "ServerNameInput"));
 	
-	m_serverNameBox = static_cast<CEGUI::Combobox*>(Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/Combobox", glm::vec4(0.425f, 0.50f, 0.15f, 0.05f), glm::vec4(0.0f), "SeverNameBox"));
-	//m_serverNameBox = static_cast<CEGUI::Combobox*>(Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/Combobox", glm::vec4(0.425f, 0.55f, 0.15f, 0.05f), glm::vec4(0.0f), "UserName"));
-	m_serverNameBox->setDragDropTarget(false);
-
-	m_startServerBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/Button", glm::vec4(0.425f, 0.60f, 0.15f, 0.05f), glm::vec4(0.0f), "StartServer"));
+	//Username text widget
+	text = Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/StaticText", glm::vec4(0.425f, 0.55f, 0.15f, 0.05f), glm::vec4(0.0f), "Username-Text");
+	text->setText("User Name:");
+	//User name input
+	m_uNameInput = static_cast<CEGUI::Editbox*>(Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/Editbox", glm::vec4(0.425f, 0.60f, 0.15f, 0.05f), glm::vec4(0.0f), "UserNameInput"));
+	
+	/* BUTTONS */
+	m_startServerBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/Button", glm::vec4(0.425f, 0.65f, 0.15f, 0.05f), glm::vec4(0.0f), "StartServer"));
 	m_startServerBtn->setText("Launch server");
 	m_startServerBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&LobbyState::onStartSeverClicked, this));
 
@@ -48,9 +53,9 @@ void LobbyState::loadGui()
 
 bool LobbyState::onStartSeverClicked(const CEGUI::EventArgs& e)
 {
-	LocalServer::getInstance()->startup(m_serverNameBox->getText().c_str());
+	LocalServer::getInstance()->startup(m_sNameInput->getText().c_str());
 	Client::getInstance()->startup();
-	Client::getInstance()->setUsername(m_serverNameBox->getText().c_str());
+	Client::getInstance()->setUsername(m_uNameInput->getText().c_str());
 	Client::getInstance()->connectToMyServer();
 
 	glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
