@@ -491,6 +491,18 @@ void Client::processAndHandlePackets()
 		}
 		break;
 
+		case GAME_ROUND_TIMER:
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			RoundTimePacket roundTimePacket;
+			roundTimePacket.Serialize(false, bsIn);
+			if(roundTimePacket.seconds >= 10)
+				logTrace("[GAME SERVER] Time left {0}:{1}", roundTimePacket.minutes, roundTimePacket.seconds);
+			else
+				logTrace("[GAME SERVER] Time left {0}:0{1}", roundTimePacket.minutes, roundTimePacket.seconds);
+		}
+		break;
+
 		case RESPAWN_PLAYER:
 		{
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));

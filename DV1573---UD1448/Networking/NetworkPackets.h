@@ -18,6 +18,7 @@ enum {
 	SPELL_DESTROY,
 	SPELL_PLAYER_HIT,
 	GAME_START_COUNTDOWN,
+	GAME_ROUND_TIMER,
 	RESPAWN_TIME,
 	RESPAWN_PLAYER
 };
@@ -60,6 +61,19 @@ struct CountdownPacket {
 	{
 		stream.Serialize(writeToStream, timeLeft);
 	}
+};
+
+struct RoundTimePacket {
+
+	uint32_t minutes;
+	uint32_t seconds;
+
+	void Serialize(bool writeToStream, RakNet::BitStream& stream)
+	{
+		stream.Serialize(writeToStream, minutes);
+		stream.Serialize(writeToStream, seconds);
+	}
+
 };
 
 struct SpellPacket{
