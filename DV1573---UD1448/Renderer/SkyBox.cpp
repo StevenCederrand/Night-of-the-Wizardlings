@@ -50,7 +50,7 @@ unsigned int SkyBox::getCubeMapTexture() const
 }
 
 void SkyBox::prepareBuffers()
-{
+{ 
 	glGenVertexArrays(1, &sky_Buffer.VAO);
 	glGenBuffers(1, &sky_Buffer.VBO);
 

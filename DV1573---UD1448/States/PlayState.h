@@ -10,7 +10,6 @@
 #include <GameObject/AnimatedObject.h>
 #include <Spells/Spell.h>
 #include <System/BulletPhysics.h>
-#include <Renderer/BloomBlur.h>
 
 
 bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
@@ -35,7 +34,6 @@ private:
 	Camera* m_camera;
 	SkyBox* m_skybox;
 	BulletPhysics* m_bPhysics;
-	BloomBlur* m_bloom;
 
 };
 

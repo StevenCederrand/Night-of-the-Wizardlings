@@ -7,7 +7,14 @@ BloomBlur::BloomBlur()
 
 BloomBlur::~BloomBlur()
 {
-	
+	glDeleteFramebuffers(1, &hdrFBO);
+	glDeleteTextures(2, colorBuffers);
+	for (int i = 0; i < 2; i++)
+	{
+		glDeleteFramebuffers(1, &pingpongFBO[i]);
+		glDeleteTextures(1, pingpongBuffer);
+	}
+
 }
 
 int BloomBlur::createHdrFBO()
@@ -139,7 +146,7 @@ void BloomBlur::blurIteration(int num)
 	bindPingPongFBO(horizontal);
 	glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
 	if (num == 0)
-		glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
+		glBindTexture(GL_TEXTURE_2D, colorBuffers[1]);
 	if (num == 1)
 		glBindTexture(GL_TEXTURE_2D, pingpongBuffer[!horizontal]);
 	//glBindTexture(GL_TEXTURE_2D, firstIteration ? colorBuffers[1] : pingpongBuffer[!horizontal]);
@@ -164,7 +171,7 @@ bool BloomBlur::getHorizontal()
 void BloomBlur::sendTextureLastPass()
 {
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, colorBuffers[1]);
+	glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, pingpongBuffer[1]);
 

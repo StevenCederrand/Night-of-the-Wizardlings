@@ -96,6 +96,7 @@ public:
 	void removeDynamic(GameObject* gameObject, ObjectType objType); //Remove an object from the dynamic array
 	void renderSkybox(const SkyBox& skybox);
 	void render();
+	void BloomRender(SkyBox* m_skybox, SpellHandler* m_spellHandler);
 	//void renderSpell();
 	void renderDebug();
 

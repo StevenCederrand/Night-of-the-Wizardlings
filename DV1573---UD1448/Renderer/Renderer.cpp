@@ -210,7 +210,6 @@ void Renderer::renderSkybox(const SkyBox& skybox)
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glDepthMask(GL_TRUE);
 	glBindVertexArray(0);
-	//glDepthMask(true);
 	glEnable(GL_CULL_FACE);
 }
 
@@ -473,10 +472,269 @@ void Renderer::render() {
 
 }
 
+void Renderer::BloomRender(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
+	Mesh* mesh;
+	Transform transform;
+	glm::mat4 modelMatrix;
+
+#pragma region Depth_Render & Light_Cull
+	if (m_spells.size() > 0) {
+		ShaderMap::getInstance()->useByName(DEPTH_MAP);
+
+		//Bind and draw the objects to the depth-buffer
+		bindMatrixes(DEPTH_MAP);
+		glBindFramebuffer(GL_FRAMEBUFFER, m_depthFBO);
+		//glClear(GL_DEPTH_BUFFER_BIT);
+
+		//Loop through all of the gameobjects
+		for (GameObject* object : m_staticObjects)
+		{
+			//Then through all of the meshes
+			for (int j = 0; j < object->getMeshesCount(); j++)
+			{
+				modelMatrix = glm::mat4(1.0f);
+				//Fetch the current mesh and its transform
+				mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
+				transform = object->getTransform(j);
+
+				modelMatrix = object->getMatrix(j);
+
+				glBindVertexArray(mesh->getBuffers().vao);
+
+				//Bind the modelmatrix
+				ShaderMap::getInstance()->getShader(DEPTH_MAP)->setMat4("modelMatrix", modelMatrix);
+
+				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+				glBindVertexArray(0);
+			}
+		}
+
+		//Animated static objects
+		//TODO: Consider animation for the depth shader
+		for (GameObject* object : m_anistaticObjects)
+		{
+			//Then through all of the meshes
+			for (int j = 0; j < object->getMeshesCount(); j++)
+			{
+				modelMatrix = glm::mat4(1.0f);
+				//Fetch the current mesh and its transform
+				mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
+				transform = object->getTransform(j);
+
+				modelMatrix = object->getMatrix(j);
+
+				glBindVertexArray(mesh->getBuffers().vao);
+
+				//Bind the modelmatrix
+				ShaderMap::getInstance()->getShader(DEPTH_MAP)->setMat4("modelMatrix", modelMatrix);
+
+				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+				glBindVertexArray(0);
+			}
+		}
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+#pragma region Light_Culling
+		ShaderMap::getInstance()->useByName(LIGHT_CULL);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
+		bindMatrixes(LIGHT_CULL);
+
+		glm::vec2 screenSize = glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT);
+		ShaderMap::getInstance()->getShader(LIGHT_CULL)->setVec2("screenSize", screenSize);
+		ShaderMap::getInstance()->getShader(LIGHT_CULL)->setInt("lightCount", m_spells.size());//Set the number of active pointlights in the scene 
+
+
+		//Bind the depthmap	
+		glActiveTexture(GL_TEXTURE0);
+		ShaderMap::getInstance()->getShader(LIGHT_CULL)->setInt("depthMap", 0); //Not sure if this has to happen every frame
+		glBindTexture(GL_TEXTURE_2D, m_depthMap);
+
+
+		//Send all of the light data into the compute shader	
+		for (size_t i = 0; i < m_spells.size(); i++) {
+			ShaderMap::getInstance()->getShader(LIGHT_CULL)->setVec3("lights[" + std::to_string(i) + "].position", m_spells[i]->getTransform().position);
+			ShaderMap::getInstance()->getShader(LIGHT_CULL)->setFloat("lights[" + std::to_string(i) + "].radius", P_LIGHT_RADIUS);
+		}
+
+		glDispatchCompute(workGroups.x, workGroups.y, 1);
+		//Unbind the depth
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+#pragma endregion
+	}
+
+#pragma endregion
+
+	//BLOOMBLUR MISSION STEP 1: SAMPLE
+	m_bloom->bindHdrFBO();
+	m_spellHandler->renderSpell();
+	renderSkybox(*m_skybox);
+	
+
+#pragma region Color_Render
+	ShaderMap::getInstance()->useByName(BASIC_FORWARD);
+	//Bind view- and projection matrix
+	bindMatrixes(BASIC_FORWARD);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
+
+	//Add a step where we insert lights into the scene
+	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("LightCount", m_spells.size());
+	if (m_spells.size() > 0) {
+		for (size_t i = 0; i < m_spells.size(); i++) {
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[i]->getTransform().position);
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setVec3("pLights[" + std::to_string(i) + "].attenuation", glm::vec3(1.0f, 0.09f, 0.032f));
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setFloat("pLights[" + std::to_string(i) + "].radius", P_LIGHT_RADIUS);
+		}
+	}
+	//Render Static objects
+	for (GameObject* object : m_staticObjects)
+	{
+		//Then through all of the meshes
+		for (int j = 0; j < object->getMeshesCount(); j++)
+		{
+			//Fetch the current mesh and its transform
+			mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
+
+			//Bind the material
+			object->bindMaterialToShader(BASIC_FORWARD, j);
+			modelMatrix = glm::mat4(1.0f);
+
+			modelMatrix = object->getMatrix(j);
+			//Bind the modelmatrix
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
+
+			glBindVertexArray(mesh->getBuffers().vao);
+
+			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+			glBindVertexArray(0);
+		}
+	}
+
+	//Dynamic objects
+	if (m_dynamicObjects.size() > 0) {
+		for (GameObject* object : m_dynamicObjects)
+		{
+
+			if (object == nullptr) {
+				continue;
+			}
+
+			//Then through all of the meshes
+			for (int j = 0; j < object->getMeshesCount(); j++)
+			{
+				//Fetch the current mesh and its transform
+				mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
+				//Bind the material
+				object->bindMaterialToShader(BASIC_FORWARD, j);
+
+				modelMatrix = glm::mat4(1.0f);
+				//Apply the transform to the matrix. This should actually be done automatically in the mesh!
+				modelMatrix = object->getMatrix(j);
+
+				//Bind the modelmatrix
+				ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
+
+				glBindVertexArray(mesh->getBuffers().vao);
+
+				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+				glBindVertexArray(0);
+			}
+		}
+	}
+#pragma endregion
+
+
+
+#pragma region Animation_Render
+	//TODO: Evaluate this implementation, should be an easier way to bind values to shaders as they're changed
+	// Possibly extract functions. Only difference in rendering is the shader and the binding of bone matrices
+	if (m_anistaticObjects.size() > 0) {
+		ShaderMap::getInstance()->useByName(ANIMATION);
+		//Bind view- and projection matrix
+		bindMatrixes(ANIMATION);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
+
+		//Add a step where we insert lights into the scene
+		ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("LightCount", m_spells.size());
+		if (m_spells.size() > 0) {
+			for (size_t i = 0; i < m_spells.size(); i++) {
+				ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[i]->getTransform().position);
+				ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setVec3("pLights[" + std::to_string(i) + "].attenuation", glm::vec3(1.0f, 0.09f, 0.032f));
+				ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setFloat("pLights[" + std::to_string(i) + "].radius", P_LIGHT_RADIUS);
+			}
+		}
+		for (GameObject* object : m_anistaticObjects)
+		{
+			//Then through all of the meshes
+			for (size_t j = 0; j < object->getMeshesCount(); j++)
+			{
+				//Fetch the current mesh and its transform
+				mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
+				//Bind calculated bone matrices
+				static_cast<AnimatedObject*>(object)->BindAnimation(j);
+				transform = object->getTransform(j);
+
+				//Bind the material
+				object->bindMaterialToShader(ANIMATION, j);
+
+				modelMatrix = glm::mat4(1.0f);
+				modelMatrix = glm::translate(modelMatrix, transform.position);
+				modelMatrix = glm::scale(modelMatrix, transform.scale);
+				modelMatrix *= glm::mat4_cast(transform.rotation);
+
+				//Bind the modelmatrix
+				ShaderMap::getInstance()->getShader(ANIMATION)->setMat4("modelMatrix", modelMatrix);
+
+				glBindVertexArray(mesh->getBuffers().vao);
+
+				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+				glBindVertexArray(0);
+			}
+		}
+	}
+
+#pragma endregion
+
+	// MISSION COMPLEATE = OUTPUT 2 TEXTURES
+
+
+	//BLOOMBLUR MISSION STEP 2: BLUR TEXTURE
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	ShaderMap::getInstance()->useByName("Blur_Shader");
+
+	ShaderMap::getInstance()->getShader("Blur_Shader")->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
+	m_bloom->blurIteration(0);
+
+	for (unsigned int i = 0; i < m_bloom->getAmount() - 1; i++)
+	{
+
+		ShaderMap::getInstance()->getShader("Blur_Shader")->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
+
+		m_bloom->blurIteration(1);
+
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	//BLOOMBLUR MISSION 3: COMBINE TEXTURES
+
+	ShaderMap::getInstance()->useByName(BLOOM_BLUR);
+	m_bloom->sendTextureLastPass();
+
+	glClear(GL_DEPTH_BUFFER);
+
+	m_bloom->renderQuad();
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+}
+
 
 void Renderer::renderSpell(const AttackSpellBase* spellBase) 
 {
-
 	Mesh* meshRef = spellBase->m_mesh;
 	glBindVertexArray(meshRef->getBuffers().vao);
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(spellBase->m_material);
