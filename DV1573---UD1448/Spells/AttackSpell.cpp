@@ -25,8 +25,6 @@ AttackSpell::~AttackSpell()
 void AttackSpell::update(float deltaTime)
 {
 	setTravelTime(getTravelTime() - deltaTime);
-
-	//DEBUG
 }
 
 void AttackSpell::updateRigidbody(float deltaTime, btRigidBody* body)
@@ -41,7 +39,13 @@ void AttackSpell::updateRigidbody(float deltaTime, btRigidBody* body)
 	setWorldPosition(glm::vec3(pos.getX(), pos.getY(), pos.getZ()));
 }
 
-const AttackSpellBase* AttackSpell::getSpellBase()
+const float AttackSpell::getDamage()
 {
-	return m_spellBase;
+	return m_spellBase->m_damage;
 }
+
+
+//const AttackSpellBase* AttackSpell::getSpellBase()
+//{
+//	return m_spellBase;
+//}

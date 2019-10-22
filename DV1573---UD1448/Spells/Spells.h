@@ -10,6 +10,7 @@ struct AttackSpellBase
 	float m_damage;
 	float m_speed;
 	float m_coolDown;
+	float m_radius;
 
 	float m_lifeTime;
 	float m_maxBounces;
@@ -21,7 +22,9 @@ struct AttackSpellBase
 
 		m_damage = 0;
 		m_speed = 0;
+		m_radius = 0;
 		m_coolDown = 0;
+
 		m_lifeTime = 0;
 		m_maxBounces = 0;
 	}
@@ -51,7 +54,7 @@ struct EnhanceAtkSpellBase
 
 	float m_damage;
 	float m_speed;
-	float m_coolDown;
+	float m_radius;
 
 	float m_lifeTime;
 	float m_maxBounces;
@@ -63,11 +66,94 @@ struct EnhanceAtkSpellBase
 
 		m_damage = 0;
 		m_speed = 0;
-		m_coolDown = 0;
+		m_radius = 0;
 		m_lifeTime = 0;
 		m_maxBounces = 0;
 	}
 	~EnhanceAtkSpellBase()
+	{
+		if (m_mesh)
+		{
+			m_mesh->Destroy();
+			delete m_mesh;
+			m_mesh = nullptr;
+		}
+
+		if (m_material)
+		{
+			//m_material.Destory();
+			delete m_material;
+			m_material = nullptr;
+		}
+	}
+
+};
+
+struct ReflectSpellBase
+{
+	Mesh* m_mesh;
+	Material* m_material;
+
+	float m_radius;
+	float m_coolDown;
+	float m_lifeTime;
+
+	ReflectSpellBase()
+	{
+		m_mesh = nullptr;
+		m_material = nullptr;
+
+		m_radius = 0;
+		m_coolDown = 0;
+		m_lifeTime = 0;
+	}
+	~ReflectSpellBase()
+	{
+		if (m_mesh)
+		{
+			m_mesh->Destroy();
+			delete m_mesh;
+			m_mesh = nullptr;
+		}
+
+		if (m_material)
+		{
+			//m_material.Destory();
+			delete m_material;
+			m_material = nullptr;
+		}
+	}
+
+};
+
+
+struct FlamestrikeSpellBase
+{
+	Mesh* m_mesh;
+	Material* m_material;
+
+	float m_damage;
+	float m_speed;
+	float m_coolDown;
+	float m_radius;
+
+	float m_lifeTime;
+	float m_maxBounces;
+
+	FlamestrikeSpellBase()
+	{
+		m_mesh = nullptr;
+		m_material = nullptr;
+
+		m_damage = 0;
+		m_speed = 0;
+		m_radius = 0;
+		m_coolDown = 0;
+
+		m_lifeTime = 0;
+		m_maxBounces = 0;
+	}
+	~FlamestrikeSpellBase()
 	{
 		if (m_mesh)
 		{

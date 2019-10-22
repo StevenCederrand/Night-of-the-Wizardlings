@@ -494,6 +494,7 @@ void Client::createSpellOnNetwork(Spell& spell)
 	spellPacket.packetType = SPELL_CREATED;
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
 	spellPacket.Position = spell.getTransform().position;
+	spellPacket.Direction = spell.getDirection();
 	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Rotation = glm::vec3(0.0f);
 	spellPacket.SpellType = (SPELL_TYPE)spell.getType();
@@ -511,6 +512,7 @@ void Client::updateSpellOnNetwork(Spell& spell)
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
 	spellPacket.Position = spell.getTransform().position;
 	spellPacket.SpellID = spell.getUniqueID();
+	spellPacket.Direction = spell.getDirection();
 	spellPacket.Rotation = glm::vec3(0.0f);
 	spellPacket.SpellType = (SPELL_TYPE)spell.getType(); 
 
@@ -526,6 +528,7 @@ void Client::destroySpellOnNetwork(Spell& spell)
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
 	spellPacket.Position = spell.getTransform().position;
 	spellPacket.SpellID = spell.getUniqueID();
+	spellPacket.Direction = spell.getDirection();
 	spellPacket.Rotation = glm::vec3(0.0f);
 	spellPacket.SpellType = (SPELL_TYPE)spell.getType();
 
@@ -542,7 +545,8 @@ void Client::sendHitRequest(Spell& spell, NetworkPlayers::PlayerEntity& playerTh
 	hitPacket.playerHitGUID = playerThatWasHit.data.guid.rakNetGuid;
 	hitPacket.Position = spell.getTransform().position;
 	hitPacket.Rotation = spell.getTransform().rotation;
-	hitPacket.damage = spell.getSpellBase()->m_damage;
+	hitPacket.damage = spell.getDamage();
+	hitPacket.SpellDirection = spell.getDirection();
 
 	m_spellsHitQueue.emplace_back(hitPacket);
 }

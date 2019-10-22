@@ -265,6 +265,8 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 	for (int i = 0; i < m_meshes.size(); i++)
 	{
 		const std::vector<Vertex>& vertices = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getVertices();
+
+		// Animated mesh case
 		if (vertices.size() == 0)
 		{
 			const std::vector<Vertex2>& vertices2 = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getVerticesSkele();
@@ -308,6 +310,7 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 			glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale;
 			// TODO: ROTATE
 			m_bodies.emplace_back(m_bPhysics->createObject(shape, 0.0f, center, halfSize));
+
 		}
 
 	}

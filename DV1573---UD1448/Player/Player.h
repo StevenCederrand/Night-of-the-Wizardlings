@@ -16,7 +16,7 @@ public:
 
 	void update(float deltaTime);
 	void move(float deltaTime);
-	void attack(float deltaTime);
+	void attack();
 	void createRay(); //create ray for spells
 	void spawnPlayer(glm::vec3 pos);
 
@@ -47,9 +47,15 @@ private:
 	EnhanceAttackSpell m_enhanceAttack;
 
 	SPELL_TYPE m_spellType;
+	SPELL_TYPE m_specialSpelltype;
+	SPELL_TYPE m_specialSpellType2;
+	SPELL_TYPE m_specialSpellType3;
 	
 	float m_attackCooldown;
 	float m_specialCooldown;
+	float m_special2Cooldown;
+	float m_special3Cooldown;
+
 	float m_spellSpeed = 1;
 	float m_speed;
 

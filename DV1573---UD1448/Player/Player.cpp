@@ -14,16 +14,16 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_speed = 5;
 	m_health = 100;
 	m_attackCooldown = 0;
-	m_specialCooldown = 0;
+	m_special2Cooldown = 0;
 	m_nrOfSpells = 0;
 	m_directionVector = glm::vec3(0, 0, 0);
 	m_moveDir = glm::vec3(0.0f);
-	m_spellType = ENHANCEATTACK;
 
-	//m_frameCount = 0;
-	//tempSpell = new AttackSpell("Spell", playerPosition, directionVector, 50, 2, "TestSphere.mesh");
-	
 	m_spellhandler = spellHandler;
+	m_spellType = NORMALATTACK;
+	m_specialSpelltype = REFLECT;
+	m_specialSpellType2 = ENHANCEATTACK;
+	m_specialSpellType3 = FLAMESTRIKE;
 
 	m_bp = bp;
 	m_character = m_bp->createCharacter();
@@ -37,15 +37,18 @@ Player::~Player()
 }
 
 void Player::update(float deltaTime)
-{
+{																		
+																		// IMPORTANT; DOING THESE WRONG WILL CAUSE INPUT LAG
+	m_playerCamera->update(m_playerCamera->getWindow());				// Update this first so that subsequent uses are synced
+	m_directionVector = glm::normalize(m_playerCamera->getCamFace());	// Update this first so that subsequent uses are synced
+	move(deltaTime);													// Update this first so that subsequent uses are synced
 	m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
-	move(deltaTime);
-	attack(deltaTime);
+	attack();
+	//createRay();
 	
 	if (m_client->isConnectedToSever()) {
 		m_client->updatePlayerData(this);
 	}
-
 	if (Input::isKeyReleased(GLFW_KEY_E)) {
 		m_client->sendStartRequestToServer();
 	}
@@ -56,59 +59,56 @@ void Player::update(float deltaTime)
 		m_enhanceAttack.update(deltaTime);
 		if (m_enhanceAttack.canAttack()) //CAN ATTACK
 		{
-			createRay();
 			m_spellhandler->createSpell(m_playerPosition, m_directionVector, ENHANCEATTACK);
 			m_enhanceAttack.attacked();
-			// Start loop
 		}
 		if (m_enhanceAttack.isComplete()) //DONE
 		{
-			m_specialCooldown = m_enhanceAttack.getCooldown(); // GET from enhance attack
+			m_special2Cooldown = m_enhanceAttack.getCooldown(); // GET from enhance attack handler
 		}
 	}
+
+	m_spellhandler->setSpawnerDirection(m_directionVector);
+	m_spellhandler->setSpawnerPosition(m_playerPosition);
+
+	m_attackCooldown -= deltaTime; // Cooldown reduces with time
+	m_specialCooldown -= deltaTime; // Cooldown reduces with time
+	m_special2Cooldown -= deltaTime; // Cooldown reduces with time
+	m_special3Cooldown -= deltaTime; // Cooldown reduces with time
 }
 
 void Player::move(float deltaTime)
 {
 	m_frameCount++;
 	if (m_frameCount < 5)
-	{
 		return;
-	}
-	glm::vec3 camFace = m_playerCamera->getCamFace();
-	camFace.y = 0.0f;
-	glm::vec3 camRight = m_playerCamera->getCamRight();
+
+	glm::vec3 lookDirection = m_directionVector;
+	lookDirection.y = 0.0f;
+	glm::vec3 lookRightVector = m_playerCamera->getCamRight();
+
+	// Move
 	m_moveDir = glm::vec3(0.0f);
-
 	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_A) == GLFW_PRESS)
-	{
-		m_moveDir -= camRight;
-	}
+		m_moveDir -= lookRightVector;
 	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_D) == GLFW_PRESS)
-	{
-		m_moveDir += camRight;
-	}
+		m_moveDir += lookRightVector;
 	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_W) == GLFW_PRESS)
-	{
-		m_moveDir += camFace;
-	}
+		m_moveDir += lookDirection;
 	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_S) == GLFW_PRESS)
-	{
-		m_moveDir -= camFace;
-	}
-	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
-	{		
-		if (m_character->canJump())
-		{			
-			m_character->jump(btVector3(0.0f, 3.0f, 0.0f));
-		}					
-	}	
+		m_moveDir -= lookDirection;
 
+	// Jump
+	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
+		if (m_character->canJump())
+			m_character->jump(btVector3(0.0f, 3.0f, 0.0f));
+
+	// Make sure moving is a constant speed
 	if (glm::length(m_moveDir) >= 0.0001f)
 		m_moveDir = glm::normalize(m_moveDir);
 	
 	//update player position
-	btScalar yValue = std::ceil(m_character->getLinearVelocity().getY()*100.0) / 100.0;	//Round to two decimals
+	btScalar yValue = std::ceil(m_character->getLinearVelocity().getY() * 100.0) / 100.0;	//Round to two decimals
 	btVector3 translate = btVector3(m_moveDir.x * m_speed * deltaTime, yValue, m_moveDir.z * m_speed * deltaTime);
 	m_character->setLinearVelocity(translate);
 	
@@ -117,34 +117,46 @@ void Player::move(float deltaTime)
 	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY()* 2, playerPos.getZ());
 	
 	m_playerCamera->setCameraPos(m_playerPosition);
-	m_playerCamera->update(m_playerCamera->getWindow());
 }
 
-void Player::attack(float deltaTime)
+void Player::attack()
 {
 	if (glfwGetMouseButton(m_playerCamera->getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 	{
 		if (m_attackCooldown <= 0)
 		{
-			createRay();
-			m_spellhandler->createSpell(m_playerPosition, m_directionVector, NORMALATTACK);
-			m_attackCooldown = m_spellhandler->getSpellBase(NORMALATTACK).m_coolDown; // Put attack on cooldown
+			m_attackCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_spellType); // Put attack on cooldown
+		}
+	}
+
+	if (glfwGetMouseButton(m_playerCamera->getWindow(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+	{
+		if (m_specialCooldown <= 0)
+		{
+			m_specialCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_specialSpelltype); // Put attack on cooldown
 		}
 	}
 
 	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_Q) == GLFW_PRESS)
 	{
-		if (m_specialCooldown <= 0)
+		if (m_special2Cooldown <= 0)
 		{
-			if (m_spellType == ENHANCEATTACK)
+			if (m_specialSpellType2 == ENHANCEATTACK)
 			{
 				// Start loop
 				m_enhanceAttack.start();
 			}
 		}
 	}
-	m_attackCooldown -= deltaTime; // Cooldown reduces with time
-	m_specialCooldown -= deltaTime; // Cooldown reduces with time
+
+	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_E) == GLFW_PRESS)
+	{
+		if (m_special3Cooldown <= 0)
+		{
+			m_special3Cooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_specialSpellType3); // Put attack on cooldown
+		}
+	}
+	
 }
 
 void Player::createRay()
