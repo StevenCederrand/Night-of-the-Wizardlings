@@ -78,7 +78,7 @@ void SpellHandler::initEnhanceSpell()
 SpellHandler::~SpellHandler()
 {
 	if (attackBase)
-		delete attackBase;
+		delete attackBase; 
 	for (Spell* element : spells)
 		delete element;
 	spells.clear();
@@ -174,8 +174,6 @@ void SpellHandler::spellUpdate(float deltaTime)
 			m_BulletNormalSpell.erase(m_BulletNormalSpell.begin() + i);
 		}
 	}
-
-	spellCollisionCheck();
 
 	//for (int i = 0; i < m_flamestrike.size(); i++)
 	//{
