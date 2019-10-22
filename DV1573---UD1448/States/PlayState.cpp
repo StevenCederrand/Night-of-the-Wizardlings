@@ -64,7 +64,7 @@ PlayState::PlayState()
 	{
 		
 		m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);	
-		m_objects.at(i)->createDebugDrawer();
+		//m_objects.at(i)->createDebugDrawer();
 	}
 	m_spellHandler->initnrOfRigidBodys();
 
@@ -114,7 +114,7 @@ void PlayState::render()
 	Renderer::getInstance()->renderSkybox(*m_skybox);
 	Renderer::getInstance()->render();
 	m_spellHandler->renderSpell();
-	Renderer::getInstance()->renderDebug();	
+	//Renderer::getInstance()->renderDebug();	
 }
 
 //This function is called everytime two collision objects collide
@@ -131,7 +131,7 @@ bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int
 		int bounce = sp1->getNrofBounce();
 		if (local == bounce){
 			glm::vec3 normal = glm::vec3(cp.m_normalWorldOnB.getX(), cp.m_normalWorldOnB.getY(), cp.m_normalWorldOnB.getZ());
-			sp2->setBounceNormal(normal);
+			sp2->setBounceNormal(normal);			
 		}
 	}
 	//if sp2 is a spell get the normal of the manifoldpoint and send that to the spell
@@ -140,10 +140,9 @@ bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int
 		int bounce = sp2->getNrofBounce();
 		if (local == bounce){
 		glm::vec3 normal = glm::vec3(cp.m_normalWorldOnB.getX(), cp.m_normalWorldOnB.getY(), cp.m_normalWorldOnB.getZ());
-		sp2->setBounceNormal(normal);
+		sp2->setBounceNormal(normal);		
 		}
 	}
-
 
 	return false;
 }

@@ -11,7 +11,7 @@ public:
 
 	const int& getNrofBounce() const;
 	const int& getLocalBounce() const;
-	void setBounceNormal(glm::vec3& normal);
+	void setBounceNormal(glm::vec3& normal);	
 
 	virtual void update(float deltaTime);
 	void updateRigidbody(float deltaTime, btRigidBody* body);
@@ -24,7 +24,7 @@ private:
 	int m_bounceCounter = 0;
 	float m_bounceTime = 0;
 	glm::vec3 m_bounceNormal;
-	bool m_setNewDir = true;
+	bool m_setNewDir = true;	
 
 
 };
