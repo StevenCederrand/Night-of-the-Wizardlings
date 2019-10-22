@@ -427,11 +427,11 @@ void Renderer::renderSpell()
 
 	for (int i = 0; i < m_spells.size(); i++)
 	{
-		if (dynamic_cast<Spell*>(m_spells[i])->getType() == NORMALATTACK)
+		if (static_cast <Spell*>(m_spells[i])->getType() == NORMALATTACK)
 		{
-			Mesh* meshRef = dynamic_cast<AttackSpell*>(m_spells[i])->getBase()->m_mesh;
+			Mesh* meshRef = static_cast <AttackSpell*>(m_spells[i])->getBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(dynamic_cast<AttackSpell*>(m_spells[i])->getBase()->m_material);
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(static_cast <AttackSpell*>(m_spells[i])->getBase()->m_material);
 
 			// TODO: Fix below
 			const Transform meshTransform = m_spells[i]->getTransform();
@@ -445,11 +445,11 @@ void Renderer::renderSpell()
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 		}
 
-		if (dynamic_cast<Spell*>(m_spells[i])->getType() == ENHANCEATTACK)
+		if (static_cast<Spell*>(m_spells[i])->getType() == ENHANCEATTACK)
 		{
-			Mesh* meshRef = dynamic_cast<AttackSpell*>(m_spells[i])->getBase()->m_mesh;
+			Mesh* meshRef = static_cast<AttackSpell*>(m_spells[i])->getBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(dynamic_cast<AttackSpell*>(m_spells[i])->getBase()->m_material);
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(static_cast <AttackSpell*>(m_spells[i])->getBase()->m_material);
 
 			// TODO: Fix below
 			const Transform meshTransform = m_spells[i]->getTransform();
@@ -463,11 +463,11 @@ void Renderer::renderSpell()
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 		}
 
-		if (dynamic_cast<Spell*>(m_spells[i])->getType() == REFLECT)
+		if (static_cast<Spell*>(m_spells[i])->getType() == REFLECT)
 		{
-			Mesh* meshRef = dynamic_cast<ReflectSpell*>(m_spells[i])->getBase()->m_mesh;
+			Mesh* meshRef = static_cast<ReflectSpell*>(m_spells[i])->getBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(dynamic_cast<ReflectSpell*>(m_spells[i])->getBase()->m_material);
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(static_cast<ReflectSpell*>(m_spells[i])->getBase()->m_material);
 
 			// TODO: Fix below
 			const Transform meshTransform = m_spells[i]->getTransform();

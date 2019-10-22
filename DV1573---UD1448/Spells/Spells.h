@@ -10,6 +10,7 @@ struct AttackSpellBase
 	float m_damage;
 	float m_speed;
 	float m_coolDown;
+	float m_radius;
 
 	float m_lifeTime;
 	float m_maxBounces;
@@ -21,7 +22,9 @@ struct AttackSpellBase
 
 		m_damage = 0;
 		m_speed = 0;
+		m_radius = 0;
 		m_coolDown = 0;
+
 		m_lifeTime = 0;
 		m_maxBounces = 0;
 	}
@@ -51,6 +54,7 @@ struct EnhanceAtkSpellBase
 
 	float m_damage;
 	float m_speed;
+	float m_radius;
 
 	float m_lifeTime;
 	float m_maxBounces;
@@ -62,6 +66,7 @@ struct EnhanceAtkSpellBase
 
 		m_damage = 0;
 		m_speed = 0;
+		m_radius = 0;
 		m_lifeTime = 0;
 		m_maxBounces = 0;
 	}
@@ -89,6 +94,7 @@ struct ReflectSpellBase
 	Mesh* m_mesh;
 	Material* m_material;
 
+	float m_radius;
 	float m_coolDown;
 	float m_lifeTime;
 
@@ -97,6 +103,7 @@ struct ReflectSpellBase
 		m_mesh = nullptr;
 		m_material = nullptr;
 
+		m_radius = 0;
 		m_coolDown = 0;
 		m_lifeTime = 0;
 	}
