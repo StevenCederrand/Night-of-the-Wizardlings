@@ -2,9 +2,9 @@
 #include "PlayState.h"
 #include <System/StateManager.h>
 #include "MenuState.h"
-
-// TODO move to mesh
 #include <Networking/Client.h>
+#include <Networking/LocalServer.h>
+
 #define PLAYSECTION "PLAYSTATE"
 
 PlayState::PlayState()
@@ -87,6 +87,10 @@ PlayState::~PlayState()
 	delete m_spellHandler;
 	delete m_camera;
 	GUIclear();
+	
+	if (LocalServer::getInstance()->isInitialized()) {
+		LocalServer::getInstance()->destroy();
+	}
 }
 
 void PlayState::update(float dt)
@@ -146,7 +150,11 @@ void PlayState::GUIHandler()
 		m_scoreBoard->addColumn("Score: ", 1, CEGUI::UDim(0.33f, 0));
 		m_scoreBoard->addColumn("Deaths: ", 2, CEGUI::UDim(0.34f, 0));
 		
-		auto& list = Client::getInstance()->getNetworkPlayersREF();
+		//auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
+		//for (size_t i = 0; i < list.size(); i++)
+		//{
+		//	//m_scoreBoard->addRow()
+		//}
 		
 		 
 	}
