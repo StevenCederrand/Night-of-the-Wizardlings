@@ -159,14 +159,14 @@ btKinematicCharacterController* BulletPhysics::createCharacter()
 
 void BulletPhysics::removeObject(btRigidBody* body, const int& i)
 {
-
 	m_collisionShapes[i] = 0;
 	delete body->getMotionState();
+	m_collisionShapes.remove(body->getCollisionShape());
 	delete body->getCollisionShape();
 	m_dynamicsWorld->removeRigidBody(body);
 
 	delete body;
-//
+
 //	btCollisionObject* obj = m_dynamicsWorld->getCollisionObjectArray()[i];
 //	btRigidBody* body = btRigidBody::upcast(obj);
 //	if (body && body->getMotionState())

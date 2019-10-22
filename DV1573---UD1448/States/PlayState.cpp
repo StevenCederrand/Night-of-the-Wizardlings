@@ -124,7 +124,7 @@ bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int
 	Spell* sp1 = reinterpret_cast<Spell*>(obj1->getCollisionObject()->getUserPointer());
 	Spell* sp2 = reinterpret_cast<Spell*>(obj2->getCollisionObject()->getUserPointer());
 
-	if (sp1 != nullptr) {
+	if (sp1 != nullptr && sp2 == nullptr) {
 		logTrace("sp1: Spell collided");
 
 		int local = sp1->getLocalBounce();
