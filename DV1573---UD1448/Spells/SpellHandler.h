@@ -65,5 +65,4 @@ private:
 	std::vector<btRigidBody*> m_BulletEnhanceAttackSpell;
 	int m_nrOfOtherrigidBodys = 0;
 
-
 };

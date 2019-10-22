@@ -157,7 +157,7 @@ void SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SP
 
 void SpellHandler::spellUpdate(float deltaTime)
 {
-
+	
 	for (int i = 0; i < spells.size(); i++)
 	{
 		spells[i]->update(deltaTime);
@@ -176,7 +176,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 			m_BulletNormalSpell.erase(m_BulletNormalSpell.begin() + i);
 			int temp = m_nrOfOtherrigidBodys + i;
 			m_bp->removeObject(temp);
-			
+			i--;
 		}
 	}
 	spellCollisionCheck();
