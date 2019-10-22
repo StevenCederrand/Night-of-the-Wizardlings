@@ -199,6 +199,10 @@ void BloomBlur::renderQuad()
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	}
+	glStencilMask(~0);
+	glDisable(GL_SCISSOR_TEST);
+	glClearStencil(0x0);
+	glClear(GL_STENCIL_BUFFER_BIT);
 	glBindVertexArray(quadVAO);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	glBindVertexArray(0);

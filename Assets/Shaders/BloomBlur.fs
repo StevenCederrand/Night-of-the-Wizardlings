@@ -9,8 +9,8 @@ in vec2 texCoords;
 
 void main() {
 
-    const float gamma = 1.5;
-    float exposure = 0.5;
+    const float gamma = 2.2;
+    float exposure = 1.0;
 
     vec3 hdrColor = texture(sceneImage, texCoords).rgb;
     vec3 bloomColor = texture(bloomImage, texCoords).rgb;

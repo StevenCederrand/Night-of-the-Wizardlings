@@ -12,7 +12,7 @@ private:
 
 	bool horizontal = true;
 	bool firstIteration = true;
-	int amount = 10;
+	int amount = 8;
 
 	unsigned int quadVAO = 0;
 	unsigned int quadVBO;

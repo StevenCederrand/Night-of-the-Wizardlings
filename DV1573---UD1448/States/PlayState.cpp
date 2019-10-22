@@ -110,12 +110,7 @@ void PlayState::update(float dt)
 
 void PlayState::render()
 {
-	//Move the render skybox to be a private renderer function
-	Renderer::getInstance()->BloomRender(m_skybox, m_spellHandler);
-
-	//m_spellHandler->renderSpell();
-	Renderer::getInstance()->renderDebug();
-	
+	Renderer::getInstance()->render(m_skybox, m_spellHandler);
 }
 
 //This function is called everytime two collision objects collide

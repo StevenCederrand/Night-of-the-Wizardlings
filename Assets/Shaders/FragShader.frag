@@ -37,7 +37,7 @@ vec3 calcLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance, vec3
     vec3 lightDir = normalize(lightPosition - position);
     float diff = max(dot(normal, lightDir), 0);
     vec3 ambient = vec3(0.1f) * lightCol * ambientStr;
-    vec3 diffuse = Diffuse_Color * diff * 5;
+    vec3 diffuse = Diffuse_Color * diff * 4;
     if(HasTex)
         diffuse = (Diffuse_Color * texture(albedoTexture, f_UV).rgb) * diff;
 
