@@ -64,7 +64,7 @@ PlayState::PlayState()
 	{
 		
 		m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);	
-		//m_objects.at(i)->createDebugDrawer();
+		m_objects.at(i)->createDebugDrawer();
 	}
 	m_spellHandler->initnrOfRigidBodys();
 
@@ -114,7 +114,7 @@ void PlayState::render()
 	Renderer::getInstance()->renderSkybox(*m_skybox);
 	Renderer::getInstance()->render();
 	m_spellHandler->renderSpell();
-	//Renderer::getInstance()->renderDebug();	
+	Renderer::getInstance()->renderDebug();	
 }
 
 //This function is called everytime two collision objects collide

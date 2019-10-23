@@ -51,45 +51,9 @@ void AttackSpell::updateRigidbody(float deltaTime, btRigidBody* body)
 	//and check of localbounce (callback func) is the same as spells own bounce
 	//and calculate the reflect
 	if (m_localBounce != m_nrOfBounce && m_setNewDir == true)
-	{		
-		//m_bounceNormal = glm::vec3(std::ceil(m_bounceNormal.x * 1000.0) / 1000.0, 
-		//	std::ceil(m_bounceNormal.y * 1000.0) / 1000.0,
-		//	std::ceil(m_bounceNormal.z * 1000.0) / 1000.0);	//Round to two decimals
-
-		//m_bounceNormal = glm::normalize(m_bounceNormal);
-
-		//if (m_bounceNormal.x < 0.001 && m_bounceNormal.x > -0.001)
-		//{
-		//	m_bounceNormal.x = 0.0f;
-		//}
-		//if (m_bounceNormal.y < 0.001 && m_bounceNormal.y > -0.001)
-		//{
-		//	m_bounceNormal.y = 0.0f;
-		//}
-		//if (m_bounceNormal.z < 0.001 && m_bounceNormal.z > -0.001)
-		//{
-		//	m_bounceNormal.z = 0.0f;
-		//}
-		////reflect
-		//glm::vec3 oldDir = getDirection();
-		//float cosOfAngle = (glm::dot(m_bounceNormal, -oldDir));
-
-		///*if (cosOfAngle < 0.0f)
-		//{
-		//	m_bounceNormal = -m_bounceNormal;
-		//}*/
-		//
-		//glm::vec3 nlength = (glm::dot(m_bounceNormal, -oldDir) * m_bounceNormal);
-		//glm::vec3 u = nlength + oldDir;
-		//glm::vec3 newDir = -oldDir + 2 * u;
-		//newDir = glm::normalize(newDir);
-
-		//setDirection(newDir);		
-
-	
+	{	
 		m_bounceCounter++;
 		m_setNewDir = false;
-
 		
 		if (m_bounceCounter == m_spellBase->m_maxBounces + 1)
 		{
@@ -107,7 +71,6 @@ void AttackSpell::updateRigidbody(float deltaTime, btRigidBody* body)
 	setDirection(glm::vec3(body->getLinearVelocity().getX(),
 		body->getLinearVelocity().getY(),
 		body->getLinearVelocity().getZ()));
-
 
 	btVector3 rigidBodyPos = body->getWorldTransform().getOrigin();
 	setWorldPosition(glm::vec3(rigidBodyPos.getX(), rigidBodyPos.getY(), rigidBodyPos.getZ()));	

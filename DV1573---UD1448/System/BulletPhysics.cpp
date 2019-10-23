@@ -121,9 +121,7 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 
 	//how much bounce and friction a object should have
 	
-	body->setRestitution(1.0f);
-
-	//body->setRestitution(0.0f);
+	body->setRestitution(1.0f);	
 	body->setFriction(friction);
 	body->setSpinningFriction(1.0f);
 
