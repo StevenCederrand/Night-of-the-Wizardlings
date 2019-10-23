@@ -238,7 +238,7 @@ bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int
 		int bounce = sp1->getNrofBounce();
 		if (local == bounce){
 			glm::vec3 normal = glm::vec3(cp.m_normalWorldOnB.getX(), cp.m_normalWorldOnB.getY(), cp.m_normalWorldOnB.getZ());
-			sp1->setBounceNormal(normal);
+			sp1->setBounceNormal(normal);			
 		}
 	}
 	//if sp2 is a spell get the normal of the manifoldpoint and send that to the spell
@@ -247,10 +247,9 @@ bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int
 		int bounce = sp2->getNrofBounce();
 		if (local == bounce){
 		glm::vec3 normal = glm::vec3(cp.m_normalWorldOnB.getX(), cp.m_normalWorldOnB.getY(), cp.m_normalWorldOnB.getZ());
-		sp2->setBounceNormal(normal);
+		sp2->setBounceNormal(normal);		
 		}
 	}
-
 
 	return false;
 }
