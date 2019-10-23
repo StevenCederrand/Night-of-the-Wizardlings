@@ -76,12 +76,13 @@ void SpellHandler::initEnhanceSpell()
 SpellHandler::~SpellHandler()
 {
 	if (attackBase)
-		delete attackBase;
+		delete attackBase; 
 	for (Spell* element : spells)
 		delete element;
 
 	delete enhanceAtkBase;
 	spells.clear();
+	delete enhanceAtkBase;
 }
 
 

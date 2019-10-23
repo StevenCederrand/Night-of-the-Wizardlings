@@ -30,6 +30,8 @@ public:
 	void sendStartRequestToServer();
 	void refreshServerList();
 	
+	void setUsername(const std::string& userName);
+
 	const std::vector<std::pair<unsigned int, ServerInfo>>& getServerList() const;
 	const std::vector<PlayerPacket>& getConnectedPlayers() const;
 	const std::vector<SpellPacket>& getNetworkSpells();
@@ -66,7 +68,8 @@ private:
 	RakNet::RakPeerInterface* m_clientPeer;
 	RakNet::SystemAddress m_serverAddress;
 	std::vector<std::pair<unsigned int, ServerInfo>> m_serverList;
-
+	char m_userName[16] = { ' ' };
+	
 	bool m_isRefreshingServerList;
 	bool m_isConnectedToAnServer;
 	bool m_failedToConnect;

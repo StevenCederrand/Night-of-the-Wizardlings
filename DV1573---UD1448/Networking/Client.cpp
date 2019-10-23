@@ -561,6 +561,7 @@ void Client::createSpellOnNetwork(const Spell& spell)
 	spellPacket.packetType = SPELL_CREATED;
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
 	spellPacket.Position = spell.getTransform().position;
+	spellPacket.Direction = spell.getDirection();
 	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Rotation = glm::vec3(0.0f);
 	spellPacket.Scale = spell.getTransform().scale;
@@ -579,6 +580,7 @@ void Client::updateSpellOnNetwork(const Spell& spell)
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
 	spellPacket.Position = spell.getTransform().position;
 	spellPacket.SpellID = spell.getUniqueID();
+	spellPacket.Direction = spell.getDirection();
 	spellPacket.Rotation = glm::vec3(0.0f);
 	spellPacket.Scale = spell.getTransform().scale;
 	spellPacket.SpellType = (SPELL_TYPE)spell.getType(); 
@@ -595,6 +597,7 @@ void Client::destroySpellOnNetwork(const Spell& spell)
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
 	spellPacket.Position = spell.getTransform().position;
 	spellPacket.SpellID = spell.getUniqueID();
+	spellPacket.Direction = spell.getDirection();
 	spellPacket.Rotation = glm::vec3(0.0f);
 	spellPacket.Scale = spell.getTransform().scale;
 	spellPacket.SpellType = (SPELL_TYPE)spell.getType();
@@ -613,6 +616,7 @@ void Client::sendHitRequest(Spell& spell, NetworkPlayers::PlayerEntity& playerTh
 	hitPacket.Position = spell.getTransform().position;
 	hitPacket.Rotation = spell.getTransform().rotation;
 	hitPacket.Scale = spell.getTransform().scale;
+	hitPacket.SpellDirection = spell.getDirection();
 	hitPacket.damage = spell.getSpellBase()->m_damage;
 	
 	m_spellsHitQueue.emplace_back(hitPacket);
@@ -734,6 +738,17 @@ void Client::refreshServerList()
 	m_isRefreshingServerList = true;
 	m_serverList.clear();
 	findAllServerAddresses();
+}
+
+void Client::setUsername(const std::string& userName)
+{
+	if (userName.size() > 16) {
+		std::memcpy(m_userName, userName.c_str(), 16);
+	}
+	std::memcpy(m_myPlayerDataPacket.userName, userName.c_str(), userName.size());
+
+	//m_myPlayerDataPacket.userName = m_userName;
+
 }
 
 const bool Client::doneRefreshingServerList() const
