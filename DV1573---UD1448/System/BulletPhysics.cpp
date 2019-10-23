@@ -180,6 +180,6 @@ void BulletPhysics::update(float dt)
 	}
 	if (!setGravity)
 		counter++;
-	btScalar time = btScalar(1.0 / 120.0);
+	btScalar time = btScalar(1.0 / 60.0);
 	m_dynamicsWorld->stepSimulation(time, 10);
 }

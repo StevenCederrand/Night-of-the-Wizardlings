@@ -36,7 +36,7 @@ void SpellHandler::initAttackSpell()
 	attackBase->m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
 
 	attackBase->m_damage = 34;
-	attackBase->m_speed = 25;
+	attackBase->m_speed = 45;
 	attackBase->m_coolDown = 1;
 	attackBase->m_lifeTime = 5;
 	attackBase->m_maxBounces = 3;

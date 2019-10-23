@@ -46,6 +46,7 @@ void AttackSpell::updateRigidbody(float deltaTime, btRigidBody* body)
 	{	
 		m_bounceCounter++;
 		m_shouldAddBounce = false;
+		m_hasCollided = false;
 		
 		if (m_bounceCounter == m_spellBase->m_maxBounces + 1)
 		{
