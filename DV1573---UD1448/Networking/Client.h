@@ -77,6 +77,7 @@ private:
 	
 	PlayerPacket m_myPlayerDataPacket;
 	
+
 	std::vector<PlayerPacket> m_connectedPlayers;
 	NetworkPlayers m_networkPlayers;
 	NetworkSpells m_networkSpells;

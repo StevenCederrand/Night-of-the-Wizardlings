@@ -361,13 +361,14 @@ void Client::processAndHandlePackets()
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			ServerStateChange stateChange;
 			stateChange.Serialize(false, bsIn);
-
-			if (stateChange.currentState == NetGlobals::SERVER_STATE::GAME_IS_STARTING) {
-				for(size_t i = 0; i < 10; i++)
+			if (stateChange.currentState == NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS) {
+					logTrace("[GAME SERVER]******** WARMUP ********");
+			}else if (stateChange.currentState == NetGlobals::SERVER_STATE::GAME_IS_STARTING) {
 					logTrace("[GAME SERVER]******** GAME IS STARTING ********");
 			}else if (stateChange.currentState == NetGlobals::SERVER_STATE::GAME_IN_SESSION) {
-				for (size_t i = 0; i < 10; i++)
 					logTrace("[GAME SERVER]******** GAME HAS STARTED ********");
+			}else if (stateChange.currentState == NetGlobals::SERVER_STATE::GAME_END_STATE) {
+				logTrace("[GAME SERVER]******** GAME HAS ENDED ********");
 			}
 		}
 		break;
