@@ -41,6 +41,7 @@ private:
 	CEGUI::PushButton* m_mainMenu;
 	CEGUI::PushButton* m_quit;
 	CEGUI::MultiColumnList* m_scoreBoard;
+	bool m_scoreboardExists;
 
 private: 
 

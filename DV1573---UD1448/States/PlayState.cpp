@@ -74,6 +74,7 @@ PlayState::PlayState()
 
 PlayState::~PlayState()
 {
+
 	logTrace("Deleting playstate..");
 	for (GameObject* object : m_objects)
 		delete object;
@@ -84,7 +85,6 @@ PlayState::~PlayState()
 	delete m_bPhysics;
 	delete m_spellHandler;
 	delete m_camera;
-	GUIclear();
 	
 	if (LocalServer::getInstance()->isInitialized()) {
 		LocalServer::getInstance()->destroy();
@@ -157,7 +157,7 @@ void PlayState::GUIHandler()
 }
 
 void PlayState::GUILoadScoreboard() {
-	if (m_scoreBoard == NULL) {
+	if (!m_scoreboardExists) {
 		//Create the scoreboard
 		m_scoreBoard = static_cast<CEGUI::MultiColumnList*>(Gui::getInstance()->createWidget(PLAYSECTION, "TaharezLook/MultiColumnList", glm::vec4(0.20f, 0.25f, 0.60f, 0.40f), glm::vec4(0.0f), "Scoreboard"));
 		m_scoreBoard->addColumn("Player: ", 0, CEGUI::UDim(0.33f, 0));
@@ -191,6 +191,7 @@ void PlayState::GUILoadScoreboard() {
 			itemMultiColumnList = new CEGUI::ListboxTextItem(std::to_string(list.at(i).data.numberOfDeaths));
 			m_scoreBoard->setItem(itemMultiColumnList, 2, static_cast<CEGUI::uint>(i + 1)); // ColumnID, RowID
 		}
+		m_scoreboardExists = true;
 	}
 }
 
@@ -209,8 +210,9 @@ void PlayState::GUILoadButtons()
 void PlayState::GUIclear()
 {
 	Gui::getInstance()->clearWidgetsInSection(PLAYSECTION);
-	m_scoreBoard = NULL;
+	m_scoreboardExists = false;
 }
+
 
 bool PlayState::onMainMenuClick(const CEGUI::EventArgs& e)
 {

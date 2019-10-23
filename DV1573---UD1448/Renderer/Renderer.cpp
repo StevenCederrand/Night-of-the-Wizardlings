@@ -191,11 +191,8 @@ void Renderer::removeDynamic(GameObject* gameObject, ObjectType objType)
 			}
 		}
 		if (index > -1) {
-			logWarning(m_spells.size());
 			m_spells.erase(m_spells.begin() + index);
-			logWarning(m_spells.size());
 		}
-		logWarning("index", index);
 	}
 }
 
