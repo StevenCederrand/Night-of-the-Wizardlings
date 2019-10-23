@@ -151,7 +151,7 @@ void LocalServer::processAndHandlePackets()
 			{
 				m_serverPeer->CloseConnection(packet->guid, true);
 				m_serverPeer->DeallocatePacket(packet);
-				continue;
+				return;
 			}
 
 			logTrace("[SERVER] Actually creating a player");
