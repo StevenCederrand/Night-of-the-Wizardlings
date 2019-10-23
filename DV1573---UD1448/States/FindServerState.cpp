@@ -116,7 +116,6 @@ void FindServerState::usernameInput()
 
 		m_inputTextOpen = true;
 	}
-
 }
 
 bool FindServerState::onBackToMenuClicked(const CEGUI::EventArgs& e)
@@ -129,14 +128,13 @@ bool FindServerState::onJoinServerClicked(const CEGUI::EventArgs& e)
 {
 	CEGUI::ListboxItem* item = m_serverList->getFirstSelectedItem();
 	
-	usernameInput();
-	if (m_usernameBox->getText() == "") {
-
-		return false;
-	}
 	
 	if (item != NULL)
 	{
+		usernameInput();
+		if (m_usernameBox->getText() == "Enter Username...") {
+			return false;
+		}
 		std::string serverName = item->getText().c_str();
 		unsigned int serverID = item->getID();
 		item = m_serverList->getNextSelected(item);

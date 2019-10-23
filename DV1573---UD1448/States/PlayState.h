@@ -44,9 +44,12 @@ private:
 	CEGUI::MultiColumnList* m_scoreBoard;
 
 private: 
+
 	bool onMainMenuClick(const CEGUI::EventArgs& e);
 	bool onQuitClick(const CEGUI::EventArgs& e);
+	
 	void GUIHandler();
+	void GUILoadScoreboard();
 	void GUILoadButtons();
 	void GUIclear();
 };
