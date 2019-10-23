@@ -31,14 +31,11 @@ struct AttackSpellBase
 		{
 			m_mesh->Destroy();
 			delete m_mesh;
-			m_mesh = nullptr;
 		}
 
 		if (m_material)
 		{
-			//m_material.Destory();
 			delete m_material;
-			m_material = nullptr;
 		}
 	}
 };

@@ -184,9 +184,7 @@ void BulletPhysics::update(float dt)
 		setGravity = true;
 	}
 	if (!setGravity)
-	{
 		counter++;
-		logTrace(counter);
-	}
+	 
 	m_dynamicsWorld->stepSimulation(dt, 10);
 }

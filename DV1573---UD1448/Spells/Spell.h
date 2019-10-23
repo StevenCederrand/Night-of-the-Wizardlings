@@ -9,8 +9,8 @@ public:
 	Spell(glm::vec3 pos, glm::vec3 m_direction);
 	~Spell();
 
-	float getTravelTime() { return m_travelTime; }
-	glm::vec3 getDirection() { return m_direction; }
+	float getTravelTime() { return m_travelTime; };
+	const glm::vec3& getDirection() const;
 	const uint64_t& getUniqueID() const;
 	virtual const int& getNrofBounce() const = 0;
 	virtual const int& getLocalBounce() const = 0;

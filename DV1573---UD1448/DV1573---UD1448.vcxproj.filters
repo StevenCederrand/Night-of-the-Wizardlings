@@ -60,6 +60,9 @@
     <ClCompile Include="System\Timer.cpp" />
     <ClCompile Include="Texture\stb_image.cpp" />
     <ClCompile Include="Gui\GameGUI.cpp" />
+    <ClCompile Include="Spells\AOEAttack.cpp" />
+    <ClCompile Include="Spells\fire.cpp" />
+    <ClCompile Include="System\TimedCallback.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
@@ -130,6 +133,9 @@
     <ClInclude Include="Spells\Spells.h" />
     <ClInclude Include="Spells\SpellTypes.h" />
     <ClInclude Include="Gui\GameGUI.h" />
+    <ClInclude Include="Spells\AOEAttack.h" />
+    <ClInclude Include="Spells\fire.h" />
+    <ClInclude Include="System\TimedCallback.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

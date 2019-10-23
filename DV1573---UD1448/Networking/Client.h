@@ -30,6 +30,8 @@ public:
 	void sendStartRequestToServer();
 	void refreshServerList();
 	
+	void setUsername(const std::string& userName);
+
 	const std::vector<std::pair<unsigned int, ServerInfo>>& getServerList() const;
 	const std::vector<PlayerPacket>& getConnectedPlayers() const;
 	const std::vector<SpellPacket>& getNetworkSpells();
@@ -37,7 +39,9 @@ public:
 	
 	NetworkPlayers& getNetworkPlayersREF();
 	NetworkSpells& getNetworkSpellsREF();
+	
 	const PlayerPacket& getMyData() const;
+	const ServerStateChange& getServerState() const;
 
 	const bool doneRefreshingServerList() const;
 	const bool doesServerExist(const unsigned int& ID) const;
@@ -64,6 +68,8 @@ private:
 	RakNet::RakPeerInterface* m_clientPeer;
 	RakNet::SystemAddress m_serverAddress;
 	std::vector<std::pair<unsigned int, ServerInfo>> m_serverList;
+	char m_userName[16] = { ' ' };
+	bool m_inGame;
 
 	bool m_isRefreshingServerList;
 	bool m_isConnectedToAnServer;
@@ -76,8 +82,8 @@ private:
 	std::thread m_processThread;
 	
 	PlayerPacket m_myPlayerDataPacket;
-	ServerStateChange m_stateChange;
-	
+	ServerStateChange m_serverState;
+
 	std::vector<PlayerPacket> m_connectedPlayers;
 	NetworkPlayers m_networkPlayers;
 	NetworkSpells m_networkSpells;

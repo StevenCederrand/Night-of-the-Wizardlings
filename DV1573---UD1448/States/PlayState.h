@@ -38,15 +38,18 @@ private:
 	Camera* m_camera;
 	SkyBox* m_skybox;
 	BulletPhysics* m_bPhysics;
-
+	bool m_stateSwap;
 	CEGUI::PushButton* m_mainMenu;
 	CEGUI::PushButton* m_quit;
 	CEGUI::MultiColumnList* m_scoreBoard;
 
 private: 
+
 	bool onMainMenuClick(const CEGUI::EventArgs& e);
 	bool onQuitClick(const CEGUI::EventArgs& e);
+	
 	void GUIHandler();
+	void GUILoadScoreboard();
 	void GUILoadButtons();
 	void GUIclear();
 };
