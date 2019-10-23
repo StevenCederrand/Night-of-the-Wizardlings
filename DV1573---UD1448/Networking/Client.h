@@ -69,7 +69,8 @@ private:
 	RakNet::SystemAddress m_serverAddress;
 	std::vector<std::pair<unsigned int, ServerInfo>> m_serverList;
 	char m_userName[16] = { ' ' };
-	
+	bool m_inGame;
+
 	bool m_isRefreshingServerList;
 	bool m_isConnectedToAnServer;
 	bool m_failedToConnect;

@@ -482,6 +482,7 @@ void Client::processAndHandlePackets()
 			CountdownPacket countdownPacket;
 			countdownPacket.Serialize(false, bsIn);
 			logTrace("[GAME SERVER] Starts game in {0}...", countdownPacket.timeLeft / 1000);
+			m_inGame = true;
 		}
 		break;
 
@@ -499,7 +500,8 @@ void Client::processAndHandlePackets()
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			RoundTimePacket roundTimePacket;
 			roundTimePacket.Serialize(false, bsIn);
-			if (roundTimePacket.seconds >= 10)
+
+			if(roundTimePacket.seconds >= 10)
 				logTrace("[GAME SERVER] Time left {0}:{1}", roundTimePacket.minutes, roundTimePacket.seconds);
 			else
 				logTrace("[GAME SERVER] Time left {0}:0{1}", roundTimePacket.minutes, roundTimePacket.seconds);

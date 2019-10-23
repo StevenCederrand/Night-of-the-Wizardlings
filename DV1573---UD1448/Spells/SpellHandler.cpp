@@ -82,7 +82,6 @@ SpellHandler::~SpellHandler()
 
 	delete enhanceAtkBase;
 	spells.clear();
-	delete enhanceAtkBase;
 }
 
 
