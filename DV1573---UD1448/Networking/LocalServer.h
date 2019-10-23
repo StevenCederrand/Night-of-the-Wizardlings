@@ -38,7 +38,8 @@ private:
 
 	// Helper funcs
 	void handleRespawns(const uint32_t& diff);
-	
+	void resetAllPlayers();
+
 	void handleCountdown(const uint32_t& diff);
 	void countdownExecutionLogic();
 

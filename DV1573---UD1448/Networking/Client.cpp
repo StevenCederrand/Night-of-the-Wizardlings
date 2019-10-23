@@ -123,7 +123,7 @@ void Client::ThreadedUpdate()
 		logTrace("[CLIENT] Sent a disconnect package to server :)");
 		RakNet::BitStream stream;
 		stream.Write((RakNet::MessageID)ID_DISCONNECTION_NOTIFICATION);
-		m_clientPeer->Send(&stream, IMMEDIATE_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
+		m_clientPeer->Send(&stream, IMMEDIATE_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_serverAddress, false);
 		RakSleep(250);
 	}
 
