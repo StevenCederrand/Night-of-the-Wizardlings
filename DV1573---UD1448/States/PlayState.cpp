@@ -63,7 +63,7 @@ PlayState::PlayState()
 	
 	gContactAddedCallback = callbackFunc;
 	// Geneterate bullet objects / hitboxes
-	for (int i = 0; i < m_objects.size(); i++)
+	for (size_t i = 0; i < m_objects.size(); i++)
 	{
 		
 		m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);	

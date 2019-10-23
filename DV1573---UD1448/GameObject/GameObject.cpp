@@ -276,7 +276,7 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 	if (!m_bPhysics)
 		m_bPhysics = bp;
 
-	for (int i = 0; i < m_meshes.size(); i++)
+	for (size_t i = 0; i < m_meshes.size(); i++)
 	{
 		const std::vector<Vertex>& vertices = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getVertices();
 		if (vertices.size() == 0)
@@ -286,7 +286,7 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 			glm::vec3 min = vertices2[0].position;
 			glm::vec3 max = vertices2[0].position;
 
-			for (int i = 1; i < vertices2.size(); i++)
+			for (size_t i = 1; i < vertices2.size(); i++)
 			{
 				min.x = fminf(vertices2[i].position.x, min.x);
 				min.y = fminf(vertices2[i].position.y, min.y);
@@ -307,7 +307,7 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 			glm::vec3 min = vertices[0].position;
 			glm::vec3 max = vertices[0].position;
 
-			for (int i = 1; i < vertices.size(); i++)
+			for (size_t i = 1; i < vertices.size(); i++)
 			{
 				min.x = fminf(vertices[i].position.x, min.x);
 				min.y = fminf(vertices[i].position.y, min.y);
@@ -329,7 +329,7 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 
 void GameObject::createDebugDrawer()
 {
-	for (int i = 0; i < m_bodies.size(); i++)
+	for (size_t i = 0; i < m_bodies.size(); i++)
 	{
 		// Temporarily off, rotations do not work on them yet
 		//m_debugDrawers.emplace_back(new DebugDrawer());

@@ -154,7 +154,7 @@ void SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SP
 
 void SpellHandler::spellUpdate(float deltaTime)
 {
-	for (int i = 0; i < spells.size(); i++)
+	for (size_t i = 0; i < spells.size(); i++)
 	{
 		if (spells[i]->getTravelTime() > 0)
 		{
@@ -203,12 +203,14 @@ void SpellHandler::spellUpdate(float deltaTime)
 	//}
 }
 
-const AttackSpellBase& SpellHandler::getSpellBase(SPELL_TYPE spelltype)
+const AttackSpellBase* SpellHandler::getSpellBase(SPELL_TYPE spelltype)
 {
 	if (spelltype == NORMALATTACK)
-		return *attackBase;
+		return attackBase;
 	//else if(spelltype == ENHANCEATTACK)
 		//return *
+	
+	return nullptr;
 }
 
 

@@ -397,7 +397,7 @@ void Renderer::render() {
 		for (GameObject* object : m_anistaticObjects)
 		{
 			//Then through all of the meshes
-			for (size_t j = 0; j < object->getMeshesCount(); j++)
+			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
 				//Fetch the current mesh and its transform
 				mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
@@ -437,7 +437,7 @@ void Renderer::renderSpell(const AttackSpellBase* spellBase)
 	glBindVertexArray(meshRef->getBuffers().vao);
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(spellBase->m_material);
 
-	for (int i = 0; i < m_spells.size(); i++)
+	for (size_t i = 0; i < m_spells.size(); i++)
 	{
 		const Transform meshTransform = m_spells[i]->getTransform();
 		glm::mat4 modelMatrix = glm::mat4(1.0f);
@@ -459,7 +459,7 @@ void Renderer::renderDebug()
 	bindMatrixes(DEBUG);	
 	
 	//Render Static objects
-	for (int i = 0; i < m_staticObjects.size(); i++)
+	for (size_t i = 0; i < m_staticObjects.size(); i++)
 	{		
 		for (size_t j = 0; j < m_staticObjects.at(i)->getDebugDrawers().size(); j++)
 		{			
