@@ -35,6 +35,48 @@ Renderer::~Renderer()
 	delete m_bloom;
 }
 
+void Renderer::renderHUD()
+{
+	glEnable(GL_BLEND);
+	// Get it ONCE instead of every iteration....
+	auto* shader = ShaderMap::getInstance()->getShader(HUD);
+	shader->use();
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	//shader->setMat4("projectionMatrix", m_camera->getProjMat());
+	//shader->setMat4("viewMatrix", m_camera->getViewMat());
+	
+
+	for (auto& item : m_2DHudMap) {
+
+		auto& vec = item.second;
+		
+		if (vec.size() == 0)
+			continue;
+		
+		auto* hudObjectDummy = vec[0];
+		
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, hudObjectDummy->getTextureID());
+
+		for (size_t i = 0; i < vec.size(); i++)
+		{
+
+			auto* hudObject = vec[i];
+
+			shader->setMat4("modelMatrix", hudObject->getModelMatrix());
+
+			glBindVertexArray(hudObject->getVAO());
+
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+			glBindVertexArray(0);
+		}
+
+		glBindTexture(GL_TEXTURE_2D, NULL);
+	}
+}
+
 void Renderer::createDepthMap() {
 
 	//Create a depth map texture for the rendering system
@@ -105,7 +147,10 @@ void Renderer::initShaders() {
 	m_bloom->createPingPingFBO();
 	/*=====================================================*/
 
-
+	/* Hud */
+	auto* shader = ShaderMap::getInstance()->createShader(HUD, "HUD.vs", "HUD.fs");
+	shader->use();
+	shader->setInt("textureSampler", 0);
 }
 
 void Renderer::bindMatrixes(const std::string& shaderName) {
@@ -154,6 +199,26 @@ void Renderer::submit(GameObject* gameObject, ObjectType objType)
 	
 }
 
+void Renderer::submit2DHUD(HudObject* hud)
+{
+	auto item = m_2DHudMap.find(hud->getTextureID());
+
+	if (item != m_2DHudMap.end()) {
+		auto& vec = item._Ptr->_Myval.second;
+
+		vec.emplace_back(hud);
+		logTrace("Placed a hud object in an existing vector");
+		return;
+	} else
+	{
+		std::vector<HudObject*> newVec;
+		newVec.reserve(5);
+		newVec.emplace_back(hud);
+		m_2DHudMap[hud->getTextureID()] = newVec;
+		logTrace("Made a new vector for an hud object");
+	}
+}
+
 void Renderer::clear() {
 	
 	m_staticObjects.clear();
@@ -161,6 +226,7 @@ void Renderer::clear() {
 	m_anistaticObjects.clear();
 	m_anidynamicObjects.clear();
 	m_spells.clear();
+	m_2DHudMap.clear();
 
 }
 
@@ -213,8 +279,9 @@ void Renderer::renderSkybox(const SkyBox& skybox)
 	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.getCubeMapTexture());
 	glBindVertexArray(skybox.getVAO());
 	glDrawArrays(GL_TRIANGLES, 0, 36);
-	glDepthMask(GL_TRUE);
 	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, NULL);
+	glDepthMask(GL_TRUE);
 	glEnable(GL_CULL_FACE);
 }
 
@@ -285,7 +352,10 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 				glBindVertexArray(0);
 			}
 		}
+		
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
 
 #pragma region Light_Culling
 		ShaderMap::getInstance()->useByName(LIGHT_CULL);
@@ -318,12 +388,12 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 
 #pragma endregion
 
+	
 	//BLOOMBLUR MISSION STEP 1: SAMPLE
 	m_bloom->bindHdrFBO();
-	m_spellHandler->renderSpell();
 	renderSkybox(*m_skybox);
+	m_spellHandler->renderSpell();
 	
-
 #pragma region Color_Render
 	ShaderMap::getInstance()->useByName(BASIC_FORWARD);
 	//Bind view- and projection matrix
@@ -397,6 +467,7 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 	}
 #pragma endregion
 
+	
 #pragma region Animation_Render
 	//TODO: Evaluate this implementation, should be an easier way to bind values to shaders as they're changed
 	// Possibly extract functions. Only difference in rendering is the shader and the binding of bone matrices
@@ -462,6 +533,7 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 
 	}
 	m_bloom->unbindTextures();
+	
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	ShaderMap::getInstance()->useByName(BLOOM_BLUR);
 	m_bloom->sendTextureLastPass();
@@ -469,8 +541,12 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 	m_bloom->renderQuad();
 	
 	m_bloom->unbindTextures();
-
+	
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	glClear(GL_DEPTH_BUFFER_BIT);
+	renderHUD();
+	
 
 }
 

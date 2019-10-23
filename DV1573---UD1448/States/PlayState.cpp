@@ -12,14 +12,16 @@ PlayState::PlayState()
 	m_bPhysics = new BulletPhysics(-10);
 	m_spellHandler = new SpellHandler(m_bPhysics);
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
-	Renderer::getInstance();
 	m_camera = new Camera();
 	m_player = new Player(m_bPhysics, "Player", glm::vec3(0.0f, 5.0f, 0.0f), m_camera, m_spellHandler);
-
 	Renderer::getInstance()->setupCamera(m_player->getCamera());
 	//TODO: organized loading system?
 	m_skybox = new SkyBox();
 	m_skybox->prepareBuffers();
+
+	// HUD
+	m_crosshairHUD = new HudObject("Assets/Textures/Crosshair.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(64.0f, 64.0f));
+	Renderer::getInstance()->submit2DHUD(m_crosshairHUD);
 
 	//Test enviroment with 4 meshes inside 1 GameObject, inherited transforms
 	m_objects.push_back(new WorldObject("TestScene"));
@@ -68,6 +70,9 @@ PlayState::PlayState()
 		m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);	
 		m_objects.at(i)->createDebugDrawer();
 	}
+
+	
+
 	logTrace("Playstate created");
 }
 
@@ -86,7 +91,7 @@ PlayState::~PlayState()
 	delete m_bPhysics;
 	delete m_spellHandler;
 	delete m_camera;
-	
+	delete m_crosshairHUD;
 	if (LocalServer::getInstance()->isInitialized()) {
 		LocalServer::getInstance()->destroy();
 	}

@@ -209,6 +209,8 @@
     <ClCompile Include="Renderer\Camera.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Renderer\HudObject.cpp" />
+    <ClCompile Include="Renderer\HudTextureMap.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
@@ -293,6 +295,8 @@
     <ClInclude Include="Renderer\Camera.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Renderer\HudObject.h" />
+    <ClInclude Include="Renderer\HudTextureMap.h" />
     <ClInclude Include="Renderer\Renderer.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
