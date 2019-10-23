@@ -14,7 +14,7 @@ PlayState::PlayState()
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
 	Renderer::getInstance();
 	m_camera = new Camera();
-	m_player = new Player(m_bPhysics, "Player", glm::vec3(0.0f, 10.8f, 0.0f), m_camera, m_spellHandler);
+	m_player = new Player(m_bPhysics, "Player", glm::vec3(0.0f, 5.0f, 0.0f), m_camera, m_spellHandler);
 
 	Renderer::getInstance()->setupCamera(m_player->getCamera());
 	//TODO: organized loading system?
@@ -209,7 +209,7 @@ bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int
 		int bounce = sp1->getNrofBounce();
 		if (local == bounce){
 			glm::vec3 normal = glm::vec3(cp.m_normalWorldOnB.getX(), cp.m_normalWorldOnB.getY(), cp.m_normalWorldOnB.getZ());
-			sp2->setBounceNormal(normal);
+			sp1->setBounceNormal(normal);
 		}
 	}
 	//if sp2 is a spell get the normal of the manifoldpoint and send that to the spell

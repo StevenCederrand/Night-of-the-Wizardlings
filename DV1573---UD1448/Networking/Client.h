@@ -76,6 +76,7 @@ private:
 	std::thread m_processThread;
 	
 	PlayerPacket m_myPlayerDataPacket;
+	ServerStateChange m_stateChange;
 	
 	std::vector<PlayerPacket> m_connectedPlayers;
 	NetworkPlayers m_networkPlayers;

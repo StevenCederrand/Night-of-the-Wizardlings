@@ -392,7 +392,7 @@ void LocalServer::processAndHandlePackets()
 		case SPELL_PLAYER_HIT:
 		{
 			if (m_serverInfo.currentState != NetGlobals::SERVER_STATE::GAME_IN_SESSION)
-				return;
+				continue;
 
 			logTrace("PLAYER HIT PACKAGE");
 
@@ -406,11 +406,11 @@ void LocalServer::processAndHandlePackets()
 			SpellPacket* sp = getSpecificSpell(hitPacket.CreatorGUID.g, hitPacket.SpellID);
 			if (pp == nullptr || sp == nullptr || shooter == nullptr) {
 				logTrace("[SERVER] Player or spell was null");
-				return;
+				continue;
 			}
 
 			if (pp->health == 0.0f || shooter->health == 0.0f)
-				return;
+				continue;
 
 			//create the axis and rotate them
 			glm::vec3 xAxis = glm::vec3(1.0f, 0.0f, 0.0f);

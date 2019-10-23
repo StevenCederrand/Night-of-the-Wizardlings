@@ -359,13 +359,12 @@ void Client::processAndHandlePackets()
 			   (for example changing the state from "Waiting for other players" to "Starting the actual game") this package is received
 			   so every client is aware of the server state change */
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
-			ServerStateChange stateChange;
-			stateChange.Serialize(false, bsIn);
+			m_stateChange.Serialize(false, bsIn);
 
-			if (stateChange.currentState == NetGlobals::SERVER_STATE::GAME_IS_STARTING) {
+			if (m_stateChange.currentState == NetGlobals::SERVER_STATE::GAME_IS_STARTING) {
 				for(size_t i = 0; i < 10; i++)
 					logTrace("[GAME SERVER]******** GAME IS STARTING ********");
-			}else if (stateChange.currentState == NetGlobals::SERVER_STATE::GAME_IN_SESSION) {
+			}else if (m_stateChange.currentState == NetGlobals::SERVER_STATE::GAME_IN_SESSION) {
 				for (size_t i = 0; i < 10; i++)
 					logTrace("[GAME SERVER]******** GAME HAS STARTED ********");
 			}
@@ -579,7 +578,7 @@ void Client::destroySpellOnNetwork(const Spell& spell)
 
 void Client::sendHitRequest(Spell& spell, NetworkPlayers::PlayerEntity& playerThatWasHit)
 {
-	if (!m_initialized || !m_isConnectedToAnServer) return;
+	if (!m_initialized || !m_isConnectedToAnServer || m_stateChange.currentState == NetGlobals::SERVER_STATE::GAME_IN_SESSION) return;
 
 	HitPacket hitPacket;
 	hitPacket.SpellID = spell.getUniqueID();
