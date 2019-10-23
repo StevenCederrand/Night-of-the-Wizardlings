@@ -156,10 +156,14 @@ void SpellHandler::spellUpdate(float deltaTime)
 {
 	for (int i = 0; i < spells.size(); i++)
 	{
+		if (spells[i]->getTravelTime() > 0)
+		{
+
 		spells[i]->update(deltaTime);
 		spells[i]->updateRigidbody(deltaTime, m_BulletNormalSpell.at(i));
 
 		Client::getInstance()->updateSpellOnNetwork(*spells[i]);
+		}
 		
 		if (spells[i]->getTravelTime() <= 0)
 		{
@@ -236,7 +240,7 @@ void SpellHandler::spellCollisionCheck()
 			continue;
 
 		glm::vec3 playerPos = list[i].data.position;
-		list[i].data.rotation;
+		//list[i].data.rotation;
 
 		//create the axis and rotate them
 		glm::vec3 xAxis = glm::vec3(1.0f, 0.0f, 0.0f);
@@ -258,8 +262,8 @@ void SpellHandler::spellCollisionCheck()
 			float scale = spells.at(j)->getTransform().scale.x;
 			if (specificSpellCollision(spellPos, playerPos, axis, scale))
 			{
-				Client::getInstance()->sendHitRequest(*spells[j], list[i]);
 				spells[j]->setTravelTime(0.0f);
+				Client::getInstance()->sendHitRequest(*spells[j], list[i]);
 			}
 		}
 	}

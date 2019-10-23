@@ -123,7 +123,7 @@ void Client::ThreadedUpdate()
 		logTrace("[CLIENT] Sent a disconnect package to server :)");
 		RakNet::BitStream stream;
 		stream.Write((RakNet::MessageID)ID_DISCONNECTION_NOTIFICATION);
-		m_clientPeer->Send(&stream, IMMEDIATE_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
+		m_clientPeer->Send(&stream, IMMEDIATE_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_serverAddress, false);
 		RakSleep(250);
 	}
 
@@ -359,6 +359,7 @@ void Client::processAndHandlePackets()
 			   (for example changing the state from "Waiting for other players" to "Starting the actual game") this package is received
 			   so every client is aware of the server state change */
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+
 			m_serverState.Serialize(false, bsIn);
 			if (m_serverState.currentState == NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS) {
 				logTrace("[GAME SERVER]******** WARMUP ********");
@@ -371,6 +372,7 @@ void Client::processAndHandlePackets()
 			}
 			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GAME_END_STATE) {
 				logTrace("[GAME SERVER]******** GAME HAS ENDED ********");
+
 			}
 		}
 		break;
@@ -609,7 +611,7 @@ void Client::destroySpellOnNetwork(const Spell& spell)
 
 void Client::sendHitRequest(Spell& spell, NetworkPlayers::PlayerEntity& playerThatWasHit)
 {
-	if (!m_initialized || !m_isConnectedToAnServer) return;
+	if (!m_initialized || !m_isConnectedToAnServer || m_serverState.currentState != NetGlobals::SERVER_STATE::GAME_IN_SESSION) return;
 
 	HitPacket hitPacket;
 	hitPacket.SpellID = spell.getUniqueID();

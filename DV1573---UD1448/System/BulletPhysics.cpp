@@ -134,13 +134,13 @@ btDiscreteDynamicsWorld* BulletPhysics::getDynamicsWorld() const
 	return m_dynamicsWorld;
 }
 
-btKinematicCharacterController* BulletPhysics::createCharacter()
+btKinematicCharacterController* BulletPhysics::createCharacter(float& spawnHeight)
 {
 	//create the character and add him to the dynamicsWorld
 	m_playerShape = new btCapsuleShape(1.0, 1);
 	m_ghostObject = new btPairCachingGhostObject();
 	
-	m_ghostObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 40, 0)));
+	m_ghostObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, spawnHeight, 0)));
 
 	m_dynamicsWorld->getPairCache()->setInternalGhostPairCallback(m_ghostCallback);
 	m_ghostObject->setCollisionShape(m_playerShape);
@@ -159,28 +159,26 @@ btKinematicCharacterController* BulletPhysics::createCharacter()
 
 void BulletPhysics::removeObject(btRigidBody* body)
 {
-	//m_collisionShapes[i] = 0;
+	logTrace(m_dynamicsWorld->getNumCollisionObjects());
 	delete body->getMotionState();
 	m_collisionShapes.remove(body->getCollisionShape());
 	delete body->getCollisionShape();
 	m_dynamicsWorld->removeRigidBody(body);
+	logTrace(m_dynamicsWorld->getNumCollisionObjects());
 
 	delete body;
 }
 
 void BulletPhysics::update(float dt)
 {
-	static int x = 0;
-	static bool done = false;
-	if (x>60 && !done)
+	//counter to make sure that the gravity starts after 60 frames
+	if (counter >60 && !setGravity)
 	{
 		m_character->setGravity(btVector3(0.0f, -5.0f, 0.0f));
-		done = true;
+		setGravity = true;
 	}
-	if (!done)
-	{
-		x++;
-	}
-
-	m_dynamicsWorld->stepSimulation(dt, 1);
+	if (!setGravity)
+		counter++;
+	 
+	m_dynamicsWorld->stepSimulation(dt, 10);
 }
