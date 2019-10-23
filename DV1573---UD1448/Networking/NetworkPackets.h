@@ -44,6 +44,8 @@ struct PlayerPacket {
 	glm::vec3 position = glm::vec3(0.0f);
 	glm::vec3 rotation = glm::vec3(0.0f);
 	char userName[16] = { ' ' };
+	int kills = 0;
+	int deaths = 0;
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream)
 	{
@@ -52,6 +54,9 @@ struct PlayerPacket {
 		stream.Serialize(writeToStream, position);
 		stream.Serialize(writeToStream, rotation);
 		stream.Serialize(writeToStream, userName);
+		stream.Serialize(writeToStream, kills);
+		stream.Serialize(writeToStream, deaths);
+
 	}
 };
 

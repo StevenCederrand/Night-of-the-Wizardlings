@@ -109,6 +109,8 @@ void PlayState::update(float dt)
 		object->update(dt);
 	}
 
+	
+
 	//Enable GUI
 	GUIHandler();
 

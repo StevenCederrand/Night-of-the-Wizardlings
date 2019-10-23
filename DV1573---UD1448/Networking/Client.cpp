@@ -479,6 +479,7 @@ void Client::processAndHandlePackets()
 			CountdownPacket countdownPacket;
 			countdownPacket.Serialize(false, bsIn);
 			logTrace("[GAME SERVER] Starts game in {0}...", countdownPacket.timeLeft / 1000);
+			m_inGame = true;
 		}
 		break;
 
@@ -708,6 +709,11 @@ NetworkSpells& Client::getNetworkSpellsREF()
 const PlayerPacket& Client::getMyData() const
 {
 	return m_myPlayerDataPacket;
+}
+
+const uint32_t& Client::getRoundTime() const
+{
+	return m_roundTime;
 }
 
 const std::vector<SpellPacket>& Client::getNetworkSpells()
