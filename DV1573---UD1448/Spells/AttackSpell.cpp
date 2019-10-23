@@ -22,20 +22,14 @@ AttackSpell::~AttackSpell()
 {
 }
 
-const int& AttackSpell::getNrofBounce() const
+const bool& AttackSpell::getHasCollided() const
 {
-	return m_nrOfBounce;
+	return m_hasCollided;
 }
 
-const int& AttackSpell::getLocalBounce() const
+void AttackSpell::hasCollided()
 {
-	return m_localBounce;
-}
-
-void AttackSpell::setBounceNormal(glm::vec3& normal)
-{
-	m_bounceNormal = normal;
-	m_localBounce++;
+	m_hasCollided = true;
 }
 
 void AttackSpell::update(float deltaTime)
@@ -47,13 +41,11 @@ void AttackSpell::update(float deltaTime)
 
 void AttackSpell::updateRigidbody(float deltaTime, btRigidBody* body)
 {
-	//setNewDir check if 0.2 second have passed since last calculation
-	//and check of localbounce (callback func) is the same as spells own bounce
-	//and calculate the reflect
-	if (m_localBounce != m_nrOfBounce && m_setNewDir == true)
+	//shouldAddBounce check if 0.2 second have passed since last bounce add
+	if (m_hasCollided && m_shouldAddBounce)
 	{	
 		m_bounceCounter++;
-		m_setNewDir = false;
+		m_shouldAddBounce = false;
 		
 		if (m_bounceCounter == m_spellBase->m_maxBounces + 1)
 		{
@@ -65,8 +57,7 @@ void AttackSpell::updateRigidbody(float deltaTime, btRigidBody* body)
 	if (m_bounceTime > 0.2)
 	{		
 		m_bounceTime = 0;
-		m_nrOfBounce = m_localBounce;
-		m_setNewDir = true;
+		m_shouldAddBounce = true;
 	}
 
 	setDirection(glm::vec3(body->getLinearVelocity().getX(),

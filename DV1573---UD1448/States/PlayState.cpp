@@ -229,21 +229,14 @@ bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int
 	if (sp1 != nullptr && sp2 == nullptr) {
 		logTrace("sp1: Spell collided");
 
-		int local = sp1->getLocalBounce();
-		int bounce = sp1->getNrofBounce();
-		if (local == bounce){
-			//glm::vec3 normal = glm::vec3(cp.m_normalWorldOnB.getX(), cp.m_normalWorldOnB.getY(), cp.m_normalWorldOnB.getZ());
-			sp1->addBounce();
-		}
+		if (!sp1->getHasCollided())
+			sp1->hasCollided();	
 	}
-	//if sp2 is a spell get the normal of the manifoldpoint and send that to the spell
+
 	else if (sp2 != nullptr) {
-		int local = sp2->getLocalBounce();
-		int bounce = sp2->getNrofBounce();
-		if (local == bounce){
-		//glm::vec3 normal = glm::vec3(cp.m_normalWorldOnB.getX(), cp.m_normalWorldOnB.getY(), cp.m_normalWorldOnB.getZ());
-		sp2->addBounce();
-		}
+		
+		if (!sp2->getHasCollided())
+			sp2->hasCollided();
 	}
 	return false;
 }

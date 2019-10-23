@@ -9,9 +9,8 @@ public:
 	AttackSpell(glm::vec3 pos, glm::vec3 direction, const AttackSpellBase* spellBase);
 	~AttackSpell();
 
-	const int& getNrofBounce() const;
-	const int& getLocalBounce() const;
-	void setBounceNormal(glm::vec3& normal);	
+	virtual const bool& getHasCollided() const;
+	virtual void hasCollided();
 
 	virtual void update(float deltaTime);
 	void updateRigidbody(float deltaTime, btRigidBody* body);
@@ -19,12 +18,12 @@ public:
 
 private:
 	const AttackSpellBase* m_spellBase;
-	int m_localBounce = 0;
-	int m_nrOfBounce = 0;
+	//int m_localBounce = 0;
+	//int m_nrOfBounce = 0;
+	bool m_hasCollided = false;
 	int m_bounceCounter = 0;
 	float m_bounceTime = 0;
-	glm::vec3 m_bounceNormal;
-	bool m_setNewDir = true;	
+	bool m_shouldAddBounce = true;	
 
 
 };
