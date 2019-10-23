@@ -77,7 +77,9 @@ PlayState::~PlayState()
 	logTrace("Deleting playstate..");
 	for (GameObject* object : m_objects)
 		delete object;
-
+	if (!m_scoreboardExists) {
+		GUIclear();
+	}
 	m_objects.clear();
 	delete m_skybox;
 	delete m_player;
