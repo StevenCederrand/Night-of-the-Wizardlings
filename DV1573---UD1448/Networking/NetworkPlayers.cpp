@@ -8,6 +8,11 @@ NetworkPlayers::NetworkPlayers()
 
 NetworkPlayers::~NetworkPlayers()
 {
+	cleanUp();
+}
+
+void NetworkPlayers::cleanUp()
+{
 	for (size_t i = 0; i < m_players.size(); i++)
 	{
 		PlayerEntity& p = m_players[i];

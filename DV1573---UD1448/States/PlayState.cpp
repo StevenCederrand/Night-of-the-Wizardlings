@@ -69,8 +69,6 @@ PlayState::PlayState()
 		m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);	
 		m_objects.at(i)->createDebugDrawer();
 	}
-	m_spellHandler->initnrOfRigidBodys();
-
 	logTrace("Playstate created");
 }
 
@@ -91,6 +89,11 @@ PlayState::~PlayState()
 	if (LocalServer::getInstance()->isInitialized()) {
 		LocalServer::getInstance()->destroy();
 	}
+
+	if (Client::getInstance()->isInitialized()) {
+		Client::getInstance()->destroy();
+	}
+
 }
 
 void PlayState::update(float dt)
@@ -212,7 +215,7 @@ bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int
 	Spell* sp1 = reinterpret_cast<Spell*>(obj1->getCollisionObject()->getUserPointer());
 	Spell* sp2 = reinterpret_cast<Spell*>(obj2->getCollisionObject()->getUserPointer());
 
-	if (sp1 != nullptr) {
+	if (sp1 != nullptr && sp2 == nullptr) {
 		logTrace("sp1: Spell collided");
 
 		int local = sp1->getLocalBounce();

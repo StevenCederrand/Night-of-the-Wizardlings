@@ -43,6 +43,15 @@ void Client::destroy()
 			m_processThread.join();
 		}
 
+		m_serverList.clear();
+		m_connectedPlayers.clear();
+		m_activeSpells.clear();
+		m_spellsHitQueue.clear();
+		m_updateSpellQueue.clear();
+		m_removeOrAddSpellQueue.clear();
+		m_networkPlayers.cleanUp();
+		m_networkSpells.cleanUp();
+
 		m_initialized = false;
 		RakNet::RakPeerInterface::DestroyInstance(m_clientPeer);
 	}
@@ -479,6 +488,18 @@ void Client::processAndHandlePackets()
 			CountdownPacket countdownPacket;
 			countdownPacket.Serialize(false, bsIn);
 			logTrace("[GAME SERVER] Respawn in {0}...", countdownPacket.timeLeft / 1000);
+		}
+		break;
+
+		case GAME_ROUND_TIMER:
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			RoundTimePacket roundTimePacket;
+			roundTimePacket.Serialize(false, bsIn);
+			if(roundTimePacket.seconds >= 10)
+				logTrace("[GAME SERVER] Time left {0}:{1}", roundTimePacket.minutes, roundTimePacket.seconds);
+			else
+				logTrace("[GAME SERVER] Time left {0}:0{1}", roundTimePacket.minutes, roundTimePacket.seconds);
 		}
 		break;
 

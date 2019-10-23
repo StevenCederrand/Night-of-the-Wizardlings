@@ -6,6 +6,7 @@ LocalServer::LocalServer()
 {
 	m_adminID = RakNet::UNASSIGNED_RAKNET_GUID;
 	m_countdown = NetGlobals::serverCountdownTimeMS;
+	m_roundTimer = NetGlobals::roundTime;
 }
 
 LocalServer::~LocalServer()
@@ -35,7 +36,6 @@ void LocalServer::startup(const std::string& serverName)
 
 		m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
 
-
 		if (m_processThread.joinable()) {
 			m_processThread.join();
 		}
@@ -63,6 +63,10 @@ void LocalServer::destroy()
 			if(m_processThread.joinable())
 				m_processThread.join();
 			logTrace("Server thread shutdown");
+
+			m_connectedPlayers.clear();
+			m_respawnList.clear();
+			m_activeSpells.clear();
 		}
 		m_initialized = false;
 		RakNet::RakPeerInterface::DestroyInstance(m_serverPeer);
@@ -72,6 +76,7 @@ void LocalServer::destroy()
 void LocalServer::ThreadedUpdate()
 {
 	bool serverRunning = true;
+	m_shutdownServer = false;
 	uint32_t currentTimeMS = 0;
 	uint32_t lastTimeMS = 0;
 	uint32_t timeDiff = 0;
@@ -87,6 +92,7 @@ void LocalServer::ThreadedUpdate()
 
 		if (m_serverInfo.currentState == NetGlobals::SERVER_STATE::GAME_IN_SESSION) {
 			handleRespawns(timeDiff);
+			handleRoundTime(timeDiff);
 		}
 
 		processAndHandlePackets();
@@ -569,8 +575,35 @@ void LocalServer::handleCountdown(const uint32_t& diff)
 
 	}
 	else {
-		m_countdown = 0;
+		m_countdown = NetGlobals::serverCountdownTimeMS;
 		stateChange(NetGlobals::SERVER_STATE::GAME_IN_SESSION);
+	}
+}
+
+void LocalServer::handleRoundTime(const uint32_t& diff)
+{
+	static float t = 1000.f;
+
+	if (diff <= m_roundTimer) {
+		m_roundTimer -= diff;
+		t -= diff;
+		
+		if (t <= 0.0f) {
+			t = 1000.f;
+			RakNet::BitStream stream;
+			stream.Write((RakNet::MessageID)GAME_ROUND_TIMER);
+			RoundTimePacket roundTimePacket;
+			roundTimePacket.minutes = (m_roundTimer / 1000) / 60;
+			roundTimePacket.seconds = (m_roundTimer / 1000) % 60;
+			roundTimePacket.Serialize(true, stream);
+			sendStreamToAllClients(stream);
+		}
+	}
+	else {
+		m_roundTimer = NetGlobals::roundTime;
+		t = 1000.f;
+		stateChange(NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS);
+		// RESTART
 	}
 }
 

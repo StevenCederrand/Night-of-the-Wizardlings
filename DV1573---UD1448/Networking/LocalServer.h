@@ -38,6 +38,7 @@ private:
 	// Helper funcs
 	void handleRespawns(const uint32_t& diff);
 	void handleCountdown(const uint32_t& diff);
+	void handleRoundTime(const uint32_t& diff);
 
 private:
 	RakNet::RakPeerInterface* m_serverPeer = nullptr;
@@ -52,6 +53,7 @@ private:
 	bool m_initialized = false;
 	RakNet::RakNetGUID m_adminID;
 	uint32_t m_countdown;
+	uint32_t m_roundTimer;
 };
 
 #endif

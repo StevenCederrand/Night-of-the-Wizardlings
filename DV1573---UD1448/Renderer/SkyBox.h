@@ -4,6 +4,7 @@
 struct SkyBuffer {
 	GLuint VAO;
 	GLuint VBO;
+	GLuint CubemapTextureID;
 };
 
 class SkyBox
@@ -20,8 +21,7 @@ private:
 	"Assets/Textures/Night_Skybox/back.bmp"
 	};
 
-	unsigned int cubemapTexture;
-	SkyBuffer sky_Buffer;
+	SkyBuffer m_buffer;
 
 
 

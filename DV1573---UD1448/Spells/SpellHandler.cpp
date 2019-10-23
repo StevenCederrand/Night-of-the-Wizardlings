@@ -72,10 +72,6 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase->m_maxBounces = 3;
 }
 
-void SpellHandler::initnrOfRigidBodys()
-{
-	m_nrOfOtherrigidBodys = m_bp->getDynamicsWorld()->getNumCollisionObjects();
-}
 
 SpellHandler::~SpellHandler()
 {
@@ -83,6 +79,8 @@ SpellHandler::~SpellHandler()
 		delete attackBase; 
 	for (Spell* element : spells)
 		delete element;
+
+	delete enhanceAtkBase;
 	spells.clear();
 	delete enhanceAtkBase;
 }
@@ -157,7 +155,6 @@ void SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SP
 
 void SpellHandler::spellUpdate(float deltaTime)
 {
-	
 	for (int i = 0; i < spells.size(); i++)
 	{
 		spells[i]->update(deltaTime);
@@ -172,9 +169,11 @@ void SpellHandler::spellUpdate(float deltaTime)
 			Client::getInstance()->destroySpellOnNetwork(*spells[i]);
 			delete spells[i];
 			spells.erase(spells.begin() + i);
+
+			////this is not the way it should be done, we should remove it	
+			m_bp->removeObject(m_BulletNormalSpell.at(i));
+			//m_BulletNormalSpell.at(i)->getWorldTransform().setOrigin(btVector3(0.0f, 100.0f + i * 5.0f, 0.0f));
 			m_BulletNormalSpell.erase(m_BulletNormalSpell.begin() + i);
-			int temp = m_nrOfOtherrigidBodys + i;
-			m_bp->removeObject(temp);
 			i--;
 		}
 	}

@@ -18,7 +18,7 @@ Application::~Application() {
 	MeshMap::getInstance()->destroy();
 	AnimationMap::getInstance()->destroy();
 	SkeletonMap::getInstance()->destroy();
-	
+
 	if(Client::getInstance()->isInitialized())
 		Client::getInstance()->destroy();
 
@@ -28,6 +28,7 @@ Application::~Application() {
 	Gui::getInstance()->destroy();
 
 	glfwTerminate();
+
 }
 
 bool Application::init() {
@@ -70,7 +71,7 @@ bool Application::init() {
 	}
 	
 	// Vsync
-	glfwSwapInterval(1);
+	glfwSwapInterval(0);
 	
 	m_input = new Input();
 
@@ -108,10 +109,11 @@ void Application::run()
 		{
 			glfwSetWindowShouldClose(m_window, true);
 		}
-	
+
 		if (Input::isKeyPressed(GLFW_KEY_F1)) {
 			ShaderMap::getInstance()->reload();
 		}
+
 		//Skip the first frame, this is because we 
 		if (initialFrame == false) {
 			timeNow = static_cast<float>(glfwGetTime());
