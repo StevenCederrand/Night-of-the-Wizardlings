@@ -138,7 +138,7 @@ void Player::attack()
 		{
 			createRay();
 			m_spellhandler->createSpell(m_playerPosition, m_directionVector, NORMALATTACK);
-			m_attackCooldown = m_spellhandler->getSpellBase(NORMALATTACK).m_coolDown; // Put attack on cooldown
+			m_attackCooldown = m_spellhandler->getSpellBase(NORMALATTACK)->m_coolDown; // Put attack on cooldown
 		}
 	}
 

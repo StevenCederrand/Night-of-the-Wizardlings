@@ -60,10 +60,9 @@ PlayState::PlayState()
 	//m_objects[m_objects.size() - 1]->setTransform(tempTransform);
 	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
 
-	
 	gContactAddedCallback = callbackFunc;
 	// Geneterate bullet objects / hitboxes
-	for (int i = 0; i < m_objects.size(); i++)
+	for (size_t i = 0; i < m_objects.size(); i++)
 	{
 		
 		m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);	
@@ -93,7 +92,6 @@ PlayState::~PlayState()
 	if (Client::getInstance()->isInitialized()) {
 		Client::getInstance()->destroy();
 	}
-
 }
 
 void PlayState::update(float dt)
@@ -108,8 +106,6 @@ void PlayState::update(float dt)
 	{
 		object->update(dt);
 	}
-
-	
 
 	//Enable GUI
 	GUIHandler();
@@ -226,7 +222,6 @@ bool PlayState::onQuitClick(const CEGUI::EventArgs& e) {
 	return true;
 }
 
-
 //This function is called everytime two collision objects collide
 bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
 	const btCollisionObjectWrapper* obj2, int id2, int index2)
@@ -237,23 +232,14 @@ bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int
 	if (sp1 != nullptr && sp2 == nullptr) {
 		logTrace("sp1: Spell collided");
 
-		int local = sp1->getLocalBounce();
-		int bounce = sp1->getNrofBounce();
-		if (local == bounce){
-			glm::vec3 normal = glm::vec3(cp.m_normalWorldOnB.getX(), cp.m_normalWorldOnB.getY(), cp.m_normalWorldOnB.getZ());
-			sp1->setBounceNormal(normal);
-		}
+		if (!sp1->getHasCollided())
+			sp1->hasCollided();	
 	}
-	//if sp2 is a spell get the normal of the manifoldpoint and send that to the spell
+
 	else if (sp2 != nullptr) {
-		int local = sp2->getLocalBounce();
-		int bounce = sp2->getNrofBounce();
-		if (local == bounce){
-		glm::vec3 normal = glm::vec3(cp.m_normalWorldOnB.getX(), cp.m_normalWorldOnB.getY(), cp.m_normalWorldOnB.getZ());
-		sp2->setBounceNormal(normal);
-		}
+		
+		if (!sp2->getHasCollided())
+			sp2->hasCollided();
 	}
-
-
 	return false;
 }

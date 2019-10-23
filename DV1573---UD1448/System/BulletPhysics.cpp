@@ -120,7 +120,8 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
 
 	//how much bounce and friction a object should have
-	body->setRestitution(0.0f);
+	
+	body->setRestitution(1.0f);	
 	body->setFriction(friction);
 	body->setSpinningFriction(1.0f);
 
@@ -179,6 +180,6 @@ void BulletPhysics::update(float dt)
 	}
 	if (!setGravity)
 		counter++;
-	 
-	m_dynamicsWorld->stepSimulation(dt, 10);
+	btScalar time = btScalar(1.0 / 120.0);
+	m_dynamicsWorld->stepSimulation(time, 10);
 }
