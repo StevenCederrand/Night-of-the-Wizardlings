@@ -71,7 +71,7 @@ bool Application::init() {
 	}
 	
 	// Vsync
-	glfwSwapInterval(0);
+	glfwSwapInterval(1);
 	
 	m_input = new Input();
 

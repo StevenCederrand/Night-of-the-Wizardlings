@@ -381,6 +381,7 @@ void Client::processAndHandlePackets()
 		{
 			/* Whenever a client (that is not you) cast a spell you receive this with all the necessary information
 			   and the same logic about the threads that is applied whenever we create/delete/update a player is also present here. */
+			logTrace("Someone fired a spell");
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			SpellPacket spellPacket;
 			spellPacket.Serialize(false, bsIn);
@@ -432,7 +433,7 @@ void Client::processAndHandlePackets()
 					}
 					else {
 						/* Just as the "PLAYER_UPDATE" this will resolve itself a couple of frames later */
-						logWarning("[CLIENT] Client skipped a update on a spell due to sync problems. (Should resolve itself with time)");
+						//logWarning("[CLIENT] Client skipped a update on a spell due to sync problems. (Should resolve itself with time)");
 					}
 
 					break;
@@ -750,9 +751,6 @@ void Client::setUsername(const std::string& userName)
 		std::memcpy(m_userName, userName.c_str(), 16);
 	}
 	std::memcpy(m_myPlayerDataPacket.userName, userName.c_str(), userName.size());
-
-	//m_myPlayerDataPacket.userName = m_userName;
-
 }
 
 const bool Client::doneRefreshingServerList() const

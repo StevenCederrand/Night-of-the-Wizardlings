@@ -151,14 +151,14 @@ void LocalServer::processAndHandlePackets()
 			{
 				m_serverPeer->CloseConnection(packet->guid, true);
 				m_serverPeer->DeallocatePacket(packet);
-				return;
+				continue;
 			}
 
 			logTrace("[SERVER] Actually creating a player");
 
 			RakNet::BitStream acceptStream;
 			acceptStream.Write((RakNet::MessageID)PLAYER_ACCEPTED_TO_SERVER);
-			m_serverPeer->Send(&acceptStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->guid, false);
+			m_serverPeer->Send(&acceptStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, packet->guid, false);
 
 
 			// Is it safe enough to assume that the first player that joins is the admin?
@@ -166,7 +166,7 @@ void LocalServer::processAndHandlePackets()
 				m_adminID = packet->guid;
 				RakNet::BitStream stream;
 				stream.Write((RakNet::MessageID)ADMIN_PACKET);
-				m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_adminID, false);
+				m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_adminID, false);
 
 			}
 
@@ -180,7 +180,7 @@ void LocalServer::processAndHandlePackets()
 			{
 				m_connectedPlayers[i].Serialize(true, stream_otherPlayers);
 			}
-			m_serverPeer->Send(&stream_otherPlayers, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->systemAddress, false);
+			m_serverPeer->Send(&stream_otherPlayers, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, packet->systemAddress, false);
 
 			// Send info about all existing spells to the new player
 			RakNet::BitStream stream_existingSpells;
@@ -201,7 +201,7 @@ void LocalServer::processAndHandlePackets()
 					vec[i].Serialize(true, stream_existingSpells);
 				}
 			}
-			m_serverPeer->Send(&stream_existingSpells, HIGH_PRIORITY, RELIABLE_ORDERED, 0, packet->systemAddress, false);
+			m_serverPeer->Send(&stream_existingSpells, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, packet->systemAddress, false);
 
 			// Create the new player and assign it the correct GUID
 			PlayerPacket player;
@@ -212,7 +212,7 @@ void LocalServer::processAndHandlePackets()
 			stream_newPlayer.Write((RakNet::MessageID)PLAYER_JOINED);
 			player.Serialize(true, stream_newPlayer);
 
-			sendStreamToAllClients(stream_newPlayer);
+			sendStreamToAllClients(stream_newPlayer, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
 
 			// Lastly, add the new player to the local list of connected players
 			m_connectedPlayers.emplace_back(player);
@@ -240,7 +240,7 @@ void LocalServer::processAndHandlePackets()
 						
 						spellVec[i].Serialize(true, stream);
 
-						sendStreamToAllClients(stream);
+						sendStreamToAllClients(stream, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
 					}
 
 					m_activeSpells.erase(item);
@@ -294,7 +294,6 @@ void LocalServer::processAndHandlePackets()
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			ServerStateChange statePacket;
 			statePacket.Serialize(false, bsIn);
-
 			stateChange(statePacket.currentState);
 		}
 		break;
@@ -324,7 +323,7 @@ void LocalServer::processAndHandlePackets()
 			{
 				// Don't send it back to the sender
 				if (packet->guid != m_connectedPlayers[i].guid.rakNetGuid) {
-					m_serverPeer->Send(&bsIn, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_connectedPlayers[i].guid, false);
+					m_serverPeer->Send(&bsIn, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_connectedPlayers[i].guid, false);
 				}
 
 			}
@@ -401,7 +400,7 @@ void LocalServer::processAndHandlePackets()
 			{
 				// Don't send it back to the sender
 				if (packet->guid != m_connectedPlayers[i].guid.rakNetGuid) {
-					m_serverPeer->Send(&bsIn, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_connectedPlayers[i].guid, false);
+					m_serverPeer->Send(&bsIn, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_connectedPlayers[i].guid, false);
 				}
 
 			}
@@ -465,14 +464,14 @@ void LocalServer::processAndHandlePackets()
 					RakNet::BitStream shooterPacketStream;
 					shooterPacketStream.Write((RakNet::MessageID)SCORE_UPDATE);
 					shooter->Serialize(true, shooterPacketStream);
-					m_serverPeer->Send(&shooterPacketStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, shooter->guid, false);
+					m_serverPeer->Send(&shooterPacketStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, shooter->guid, false);
 
 					
 					playerThatWasHit->numberOfDeaths++;
 					RakNet::BitStream hitPlayerStream;
 					hitPlayerStream.Write((RakNet::MessageID)SCORE_UPDATE);
 					playerThatWasHit->Serialize(true, hitPlayerStream);
-					m_serverPeer->Send(&hitPlayerStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, playerThatWasHit->guid, false);
+					m_serverPeer->Send(&hitPlayerStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, playerThatWasHit->guid, false);
 
 				}
 
@@ -488,7 +487,7 @@ void LocalServer::processAndHandlePackets()
 
 		default:
 		{
-			logTrace("Unknown package");
+			//logTrace("Unknown package");
 		}
 			break;
 		}
@@ -760,14 +759,14 @@ void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 	ServerStateChange statePacket;
 	statePacket.currentState = newState;
 	statePacket.Serialize(true, stream);
-	sendStreamToAllClients(stream);
+	sendStreamToAllClients(stream, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
 
 }
 
-void LocalServer::sendStreamToAllClients(RakNet::BitStream& stream)
+void LocalServer::sendStreamToAllClients(RakNet::BitStream& stream, PacketReliability flag)
 {
 	for (size_t i = 0; i < m_connectedPlayers.size(); i++)
 	{
-		m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_connectedPlayers[i].guid, false);
+		m_serverPeer->Send(&stream, HIGH_PRIORITY, flag, 0, m_connectedPlayers[i].guid, false);
 	}
 }
