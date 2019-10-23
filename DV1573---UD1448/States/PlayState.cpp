@@ -148,6 +148,9 @@ void PlayState::GUIHandler()
 		}
 	}
 
+	if (Client::getInstance()->getServerState().currentState == NetGlobals::SERVER_STATE::GAME_END_STATE && m_stateSwap) {
+		GUILoadScoreboard();
+	}
 	if (Input::isKeyPressed(GLFW_KEY_TAB)) {
 		GUILoadScoreboard();
 	}
@@ -157,31 +160,40 @@ void PlayState::GUIHandler()
 }
 
 void PlayState::GUILoadScoreboard() {
-	//Create the scoreboard
-	m_scoreBoard = static_cast<CEGUI::MultiColumnList*>(Gui::getInstance()->createWidget(PLAYSECTION, "TaharezLook/MultiColumnList", glm::vec4(0.20f, 0.25f, 0.60f, 0.40f), glm::vec4(0.0f), "Scoreboard"));
-	m_scoreBoard->addColumn("Player: ", 0, CEGUI::UDim(0.33f, 0));
-	m_scoreBoard->addColumn("Score: ", 1, CEGUI::UDim(0.33f, 0));
-	m_scoreBoard->addColumn("Deaths: ", 2, CEGUI::UDim(0.34f, 0));
+	if (m_scoreBoard == NULL) {
+		//Create the scoreboard
+		m_scoreBoard = static_cast<CEGUI::MultiColumnList*>(Gui::getInstance()->createWidget(PLAYSECTION, "TaharezLook/MultiColumnList", glm::vec4(0.20f, 0.25f, 0.60f, 0.40f), glm::vec4(0.0f), "Scoreboard"));
+		m_scoreBoard->addColumn("Player: ", 0, CEGUI::UDim(0.33f, 0));
+		m_scoreBoard->addColumn("Score: ", 1, CEGUI::UDim(0.33f, 0));
+		m_scoreBoard->addColumn("Deaths: ", 2, CEGUI::UDim(0.34f, 0));
 
-	//Add the client
-	m_scoreBoard->addRow();
-	CEGUI::ListboxTextItem* itemMultiColumnList;
-
-	itemMultiColumnList = new CEGUI::ListboxTextItem(Client::getInstance()->getMyData().userName);
-	itemMultiColumnList->setSelectionBrushImage("TaharezLook/MultiListSelectionBrush");
-	m_scoreBoard->setItem(itemMultiColumnList, 0, static_cast<CEGUI::uint>(0)); // ColumnID, RowID
-
-	//Add other players
-	auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
-
-	for (size_t i = 0; i < list.size(); i++)
-	{
+		//Add the client
 		m_scoreBoard->addRow();
 		CEGUI::ListboxTextItem* itemMultiColumnList;
-		itemMultiColumnList = new CEGUI::ListboxTextItem(list.at(i).data.userName);
-		//itemMultiColumnList = new CEGUI::ListboxTextItem("Player " + std::to_string(i + 1));
+
+		itemMultiColumnList = new CEGUI::ListboxTextItem(Client::getInstance()->getMyData().userName);
 		itemMultiColumnList->setSelectionBrushImage("TaharezLook/MultiListSelectionBrush");
-		m_scoreBoard->setItem(itemMultiColumnList, 0, static_cast<CEGUI::uint>(i + 1)); // ColumnID, RowID
+		m_scoreBoard->setItem(itemMultiColumnList, 0, static_cast<CEGUI::uint>(0)); // ColumnID, RowID
+		itemMultiColumnList = new CEGUI::ListboxTextItem(std::to_string(Client::getInstance()->getMyData().numberOfKills));
+		m_scoreBoard->setItem(itemMultiColumnList, 1, static_cast<CEGUI::uint>(0)); // ColumnID, RowID
+		itemMultiColumnList = new CEGUI::ListboxTextItem(std::to_string(Client::getInstance()->getMyData().numberOfDeaths));
+		m_scoreBoard->setItem(itemMultiColumnList, 2, static_cast<CEGUI::uint>(0)); // ColumnID, RowID
+		//Add other players
+		auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
+
+		for (size_t i = 0; i < list.size(); i++)
+		{
+			m_scoreBoard->addRow();
+			CEGUI::ListboxTextItem* itemMultiColumnList;
+			itemMultiColumnList = new CEGUI::ListboxTextItem(list.at(i).data.userName);
+			itemMultiColumnList->setSelectionBrushImage("TaharezLook/MultiListSelectionBrush");
+			m_scoreBoard->setItem(itemMultiColumnList, 0, static_cast<CEGUI::uint>(i + 1)); // ColumnID, RowID
+
+			itemMultiColumnList = new CEGUI::ListboxTextItem(std::to_string(list.at(i).data.numberOfKills));
+			m_scoreBoard->setItem(itemMultiColumnList, 1, static_cast<CEGUI::uint>(i + 1)); // ColumnID, RowID,
+			itemMultiColumnList = new CEGUI::ListboxTextItem(std::to_string(list.at(i).data.numberOfDeaths));
+			m_scoreBoard->setItem(itemMultiColumnList, 2, static_cast<CEGUI::uint>(i + 1)); // ColumnID, RowID
+		}
 	}
 }
 

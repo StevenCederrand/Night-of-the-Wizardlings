@@ -20,7 +20,8 @@ enum {
 	GAME_START_COUNTDOWN,
 	GAME_ROUND_TIMER,
 	RESPAWN_TIME,
-	RESPAWN_PLAYER
+	RESPAWN_PLAYER,
+	SCORE_UPDATE
 };
 
 /* To make sure the compiler aligns the bits */
@@ -44,8 +45,8 @@ struct PlayerPacket {
 	glm::vec3 position = glm::vec3(0.0f);
 	glm::vec3 rotation = glm::vec3(0.0f);
 	char userName[16] = { ' ' };
-	int kills = 0;
-	int deaths = 0;
+	int numberOfKills = 0;
+	int numberOfDeaths = 0;
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream)
 	{
@@ -54,9 +55,8 @@ struct PlayerPacket {
 		stream.Serialize(writeToStream, position);
 		stream.Serialize(writeToStream, rotation);
 		stream.Serialize(writeToStream, userName);
-		stream.Serialize(writeToStream, kills);
-		stream.Serialize(writeToStream, deaths);
-
+		stream.Serialize(writeToStream, numberOfKills);
+		stream.Serialize(writeToStream, numberOfDeaths);
 	}
 };
 

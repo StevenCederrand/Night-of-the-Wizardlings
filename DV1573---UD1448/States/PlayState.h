@@ -38,7 +38,7 @@ private:
 	Camera* m_camera;
 	SkyBox* m_skybox;
 	BulletPhysics* m_bPhysics;
-	bool m_playing;
+	bool m_stateSwap;
 	CEGUI::PushButton* m_mainMenu;
 	CEGUI::PushButton* m_quit;
 	CEGUI::MultiColumnList* m_scoreBoard;

@@ -422,15 +422,16 @@ void LocalServer::processAndHandlePackets()
 			hitPacket.Serialize(false, bsIn);
 			bsIn.SetReadOffset(0);
 
-			PlayerPacket* pp = getSpecificPlayer(hitPacket.playerHitGUID);
+			PlayerPacket* playerThatWasHit = getSpecificPlayer(hitPacket.playerHitGUID);
 			PlayerPacket* shooter = getSpecificPlayer(hitPacket.CreatorGUID);
-			SpellPacket* sp = getSpecificSpell(hitPacket.CreatorGUID.g, hitPacket.SpellID);
-			if (pp == nullptr || sp == nullptr || shooter == nullptr) {
+			SpellPacket* spell = getSpecificSpell(hitPacket.CreatorGUID.g, hitPacket.SpellID);
+			
+			if (playerThatWasHit == nullptr || spell == nullptr || shooter == nullptr) {
 				logTrace("[SERVER] Player or spell was null");
 				continue;
 			}
 
-			if (pp->health == 0.0f || shooter->health == 0.0f)
+			if (playerThatWasHit->health == 0.0f || shooter->health == 0.0f)
 				continue;
 
 			//create the axis and rotate them
@@ -439,31 +440,45 @@ void LocalServer::processAndHandlePackets()
 			glm::vec3 zAxis = glm::vec3(0.0f, 0.0f, 1.0f);
 			std::vector<glm::vec3> axis;
 
-			glm::rotateX(xAxis, pp->rotation.x);
-			glm::rotateY(xAxis, pp->rotation.y);
-			glm::rotateZ(xAxis, pp->rotation.z);
+			glm::rotateX(xAxis, playerThatWasHit->rotation.x);
+			glm::rotateY(xAxis, playerThatWasHit->rotation.y);
+			glm::rotateZ(xAxis, playerThatWasHit->rotation.z);
 
 			axis.emplace_back(xAxis);
 			axis.emplace_back(yAxis);
 			axis.emplace_back(zAxis);
 
 		
-			if (specificSpellCollision(*sp, pp->position, axis))
+			if (specificSpellCollision(*spell, playerThatWasHit->position, axis))
 			{
 				logTrace("[SERVER] sending hit package to client");
-				pp->health -= static_cast<int>(hitPacket.damage);
+				playerThatWasHit->health -= static_cast<int>(hitPacket.damage);
 
-				if (pp->health <= 0) {
-					pp->health = 0;
+				if (playerThatWasHit->health <= 0) {
+					playerThatWasHit->health = 0;
 					Respawner respawner;
 					respawner.currentTime = NetGlobals::timeUntilRespawnMS;
-					respawner.player = pp;
+					respawner.player = playerThatWasHit;
 					m_respawnList.emplace_back(respawner);
+					
+					playerThatWasHit->numberOfDeaths++;
+					shooter->numberOfKills++;
+					
+					RakNet::BitStream shooterPacketStream;
+					shooterPacketStream.Write((RakNet::MessageID)SCORE_UPDATE);
+					shooter->Serialize(true, shooterPacketStream);
+					m_serverPeer->Send(&shooterPacketStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, shooter->guid, false);
+
+					RakNet::BitStream hitPlayerStream;
+					hitPlayerStream.Write((RakNet::MessageID)SCORE_UPDATE);
+					shooter->Serialize(true, hitPlayerStream);
+					m_serverPeer->Send(&hitPlayerStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, playerThatWasHit->guid, false);
+
 				}
 
 				RakNet::BitStream bsOut;
 				bsOut.Write((RakNet::MessageID)SPELL_PLAYER_HIT);
-				pp->Serialize(true, bsOut);
+				playerThatWasHit->Serialize(true, bsOut);
 				m_serverPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, hitPacket.playerHitGUID, false);
 
 			}
