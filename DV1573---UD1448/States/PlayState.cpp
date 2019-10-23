@@ -147,6 +147,11 @@ void PlayState::GUIHandler()
 			GUIclear();
 		}
 	}
+
+	if (Client::getInstance()->getServerState().currentState == NetGlobals::GAME_END_STATE) {
+		GUILoadScoreboard();
+	}
+
 	if (Input::isKeyPressed(GLFW_KEY_TAB)) {
 		GUILoadScoreboard();
 	}
