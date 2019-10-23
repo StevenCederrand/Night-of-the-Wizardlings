@@ -13,12 +13,12 @@ private:
 	//Order of the texture are: Right, Left, Top, Bottom, Front and Back.
 	std::vector<std::string> faces
 	{
-	"Assets/Textures/Night_Skybox/right.bmp",
-	"Assets/Textures/Night_Skybox/left.bmp",
-	"Assets/Textures/Night_Skybox/top.bmp",
-	"Assets/Textures/Night_Skybox/bottom.bmp",
-	"Assets/Textures/Night_Skybox/front.bmp",
-	"Assets/Textures/Night_Skybox/back.bmp"
+		"Assets/Textures/Night_Skybox/right.bmp",
+		"Assets/Textures/Night_Skybox/left.bmp",
+		"Assets/Textures/Night_Skybox/top.bmp",
+		"Assets/Textures/Night_Skybox/bottom.bmp",
+		"Assets/Textures/Night_Skybox/front.bmp",
+		"Assets/Textures/Night_Skybox/back.bmp"
 	};
 
 	SkyBuffer m_buffer;

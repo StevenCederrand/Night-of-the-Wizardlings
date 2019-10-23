@@ -63,6 +63,7 @@
     <ClCompile Include="Spells\AOEAttack.cpp" />
     <ClCompile Include="Spells\fire.cpp" />
     <ClCompile Include="System\TimedCallback.cpp" />
+    <ClCompile Include="Renderer\BloomBlur.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
@@ -136,6 +137,7 @@
     <ClInclude Include="Spells\AOEAttack.h" />
     <ClInclude Include="Spells\fire.h" />
     <ClInclude Include="System\TimedCallback.h" />
+    <ClInclude Include="Renderer\BloomBlur.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

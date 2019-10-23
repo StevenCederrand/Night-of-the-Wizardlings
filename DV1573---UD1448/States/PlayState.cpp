@@ -122,11 +122,7 @@ void PlayState::update(float dt)
 
 void PlayState::render()
 {
-	//Move the render skybox to be a private renderer function
-	Renderer::getInstance()->renderSkybox(*m_skybox);
-	Renderer::getInstance()->render();
-	m_spellHandler->renderSpell();
-	Renderer::getInstance()->renderDebug();	
+	Renderer::getInstance()->render(m_skybox, m_spellHandler);
 }
 
 void PlayState::GUIHandler()
