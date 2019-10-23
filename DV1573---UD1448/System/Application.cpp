@@ -71,7 +71,7 @@ bool Application::init() {
 	}
 	
 	// Vsync
-	glfwSwapInterval(0);
+	glfwSwapInterval(1);
 	
 	m_input = new Input();
 
@@ -138,6 +138,7 @@ void Application::run()
 		Gui::getInstance()->update(deltaTime);
 		
 		m_stateManager->render();
+		glActiveTexture(GL_TEXTURE0);
 		Gui::getInstance()->draw();
 
 

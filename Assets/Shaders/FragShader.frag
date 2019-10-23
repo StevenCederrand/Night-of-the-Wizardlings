@@ -17,6 +17,7 @@ in vec2 f_UV;
 in vec3 f_normal;
 in vec4 f_position;
 out vec4 color;
+out vec4 brightColor;
 
 vec3 lightDirection = vec3(0.5f, -1.0f, 0.0f);
 vec3 lightCol = vec3(1);
@@ -35,7 +36,7 @@ vec3 calcLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance, vec3
     vec3 lightDir = normalize(lightPosition - position);
     float diff = max(dot(normal, lightDir), 0);
     vec3 ambient = vec3(0.1f) * lightCol * ambientStr;
-    vec3 diffuse = Diffuse_Color * diff;
+    vec3 diffuse = Diffuse_Color * diff * 4;
     if(HasTex)
         diffuse = (Diffuse_Color * texture(albedoTexture, f_UV).rgb) * diff;
 
@@ -86,7 +87,14 @@ void main() {
     }
 
 
+
     color = vec4(result, 1);
+    float brightness = dot(result, vec3(0.2126, 0.7152, 0.0722));
+    
+    if(brightness > 1.0)
+        brightColor = vec4(ambientCol + result, 1.0);
+    else
+        brightColor = vec4(0.0, 0.0, 0.0, 1.0);
 }
 
 vec3 calcDirLight(vec3 lightDirection, vec3 normal, vec3 diffuseColor) {

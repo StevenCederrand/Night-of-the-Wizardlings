@@ -30,6 +30,11 @@ Renderer::Renderer()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
+Renderer::~Renderer()
+{
+	delete m_bloom;
+}
+
 void Renderer::createDepthMap() {
 
 	//Create a depth map texture for the rendering system
@@ -52,22 +57,18 @@ void Renderer::createDepthMap() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	//HDR and a sperate colour buffer
-	glGenFramebuffers(1, &m_hdrFbo);
+	/*glGenFramebuffers(1, &m_hdrFbo);
 
 	glGenTextures(1, &m_colourBuffer);
 	glBindTexture(GL_TEXTURE_2D, m_colourBuffer);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	*/
 
 	glGenRenderbuffers(1, &m_rbo);
 	glBindRenderbuffer(GL_RENDERBUFFER, m_rbo);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCREEN_WIDTH, SCREEN_HEIGHT);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, m_hdrFbo);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_colourBuffer, 0);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_rbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	//Inits the shaders for forward+
 	initShaders();
@@ -84,6 +85,27 @@ void Renderer::initShaders() {
 	ShaderMap::getInstance()->createShader("Skybox_Shader", "Skybox.vs", "Skybox.fs");
 	ShaderMap::getInstance()->getShader("Skybox_Shader")->setInt("skyBox", 4);
 	ShaderMap::getInstance()->createShader(DEBUG, "VertexShader.vert", "DebugFragShader.frag");
+
+	/*=====================================================*/
+	ShaderMap::getInstance()->createShader(BLOOM, "Bloom.vs", "Bloom.fs");
+	ShaderMap::getInstance()->useByName(BLOOM);
+	ShaderMap::getInstance()->getShader(BLOOM)->setInt("albedoTexture", 0);
+
+	ShaderMap::getInstance()->createShader(BLUR, "Blur.vs", "Blur.fs");
+	ShaderMap::getInstance()->useByName(BLUR);
+	ShaderMap::getInstance()->getShader(BLUR)->setInt("brightImage", 0);
+
+	ShaderMap::getInstance()->createShader(BLOOM_BLUR, "BloomBlur.vs", "BloomBlur.fs");
+	ShaderMap::getInstance()->useByName(BLOOM_BLUR);
+	ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("sceneImage", 0);
+	ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("bloomImage", 1);
+
+	m_bloom = new BloomBlur;
+	m_bloom->createHdrFBO();
+	m_bloom->createPingPingFBO();
+	/*=====================================================*/
+
+
 }
 
 void Renderer::bindMatrixes(const std::string& shaderName) {
@@ -169,11 +191,8 @@ void Renderer::removeDynamic(GameObject* gameObject, ObjectType objType)
 			}
 		}
 		if (index > -1) {
-			logWarning(m_spells.size());
 			m_spells.erase(m_spells.begin() + index);
-			logWarning(m_spells.size());
 		}
-		logWarning("index", index);
 	}
 }
 
@@ -186,7 +205,6 @@ void Renderer::renderSkybox(const SkyBox& skybox)
 {
 	glDisable(GL_CULL_FACE);
 	glDepthMask(GL_FALSE);
-	//glDepthMask(false);
 	ShaderMap::getInstance()->useByName("Skybox_Shader");
 	ShaderMap::getInstance()->getShader("Skybox_Shader")->setMat4("viewMatrix", glm::mat4(glm::mat3(m_camera->getViewMat())));
 	ShaderMap::getInstance()->getShader("Skybox_Shader")->setMat4("projectionMatrix", m_camera->getProjMat());
@@ -197,7 +215,6 @@ void Renderer::renderSkybox(const SkyBox& skybox)
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glDepthMask(GL_TRUE);
 	glBindVertexArray(0);
-	//glDepthMask(true);
 	glEnable(GL_CULL_FACE);
 }
 
@@ -206,7 +223,8 @@ void Renderer::update(float dt) {
 	m_camera->update(m_gWindow);
 }
 
-void Renderer::render() {
+
+void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 	Mesh* mesh;
 	Transform transform;
 	glm::mat4 modelMatrix;
@@ -218,7 +236,6 @@ void Renderer::render() {
 		//Bind and draw the objects to the depth-buffer
 		bindMatrixes(DEPTH_MAP);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_depthFBO);
-		glClear(GL_DEPTH_BUFFER_BIT);
 
 		//Loop through all of the gameobjects
 		for (GameObject* object : m_staticObjects)
@@ -270,7 +287,7 @@ void Renderer::render() {
 		}
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		#pragma region Light_Culling
+#pragma region Light_Culling
 		ShaderMap::getInstance()->useByName(LIGHT_CULL);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
 		bindMatrixes(LIGHT_CULL);
@@ -296,10 +313,15 @@ void Renderer::render() {
 		//Unbind the depth
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, 0);
-		#pragma endregion
+#pragma endregion
 	}
 
 #pragma endregion
+
+	//BLOOMBLUR MISSION STEP 1: SAMPLE
+	m_bloom->bindHdrFBO();
+	m_spellHandler->renderSpell();
+	renderSkybox(*m_skybox);
 	
 
 #pragma region Color_Render
@@ -307,7 +329,7 @@ void Renderer::render() {
 	//Bind view- and projection matrix
 	bindMatrixes(BASIC_FORWARD);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
-	
+
 	//Add a step where we insert lights into the scene
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("LightCount", m_spells.size());
 	if (m_spells.size() > 0) {
@@ -333,7 +355,7 @@ void Renderer::render() {
 			modelMatrix = object->getMatrix(j);
 			//Bind the modelmatrix
 			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
-			
+
 			glBindVertexArray(mesh->getBuffers().vao);
 
 			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
@@ -345,12 +367,11 @@ void Renderer::render() {
 	//Dynamic objects
 	if (m_dynamicObjects.size() > 0) {
 		for (GameObject* object : m_dynamicObjects)
-		{
-			
+		{			
 			if (object == nullptr || !object->getShouldRender()) {
 				continue;
 			}
-			
+
 			//Then through all of the meshes
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
@@ -358,7 +379,7 @@ void Renderer::render() {
 				mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
 				//Bind the material
 				object->bindMaterialToShader(BASIC_FORWARD, j);
-				
+
 				modelMatrix = glm::mat4(1.0f);
 				//Apply the transform to the matrix. This should actually be done automatically in the mesh!
 				modelMatrix = object->getMatrix(j);
@@ -424,15 +445,38 @@ void Renderer::render() {
 			}
 		}
 	}
-	
+
 #pragma endregion
+
+	ShaderMap::getInstance()->useByName("Blur_Shader");
+
+	ShaderMap::getInstance()->getShader("Blur_Shader")->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
+	m_bloom->blurIteration(0);
+
+	for (unsigned int i = 0; i < m_bloom->getAmount() - 1; i++)
+	{
+
+		ShaderMap::getInstance()->getShader("Blur_Shader")->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
+
+		m_bloom->blurIteration(1);
+
+	}
+	m_bloom->unbindTextures();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	ShaderMap::getInstance()->useByName(BLOOM_BLUR);
+	m_bloom->sendTextureLastPass();
+	
+	m_bloom->renderQuad();
+	
+	m_bloom->unbindTextures();
+
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 }
 
 
 void Renderer::renderSpell(const AttackSpellBase* spellBase) 
 {
-
 	Mesh* meshRef = spellBase->m_mesh;
 	glBindVertexArray(meshRef->getBuffers().vao);
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(spellBase->m_material);

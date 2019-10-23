@@ -11,7 +11,7 @@ namespace NetGlobals {
 	constexpr unsigned short timeoutTimeMS = 5 * 1000;
 	constexpr uint32_t serverCountdownTimeMS = 1 * 1000;
 	constexpr uint32_t timeUntilRespawnMS = 3 * 1000;
-	constexpr uint32_t roundTimeMS = 2 * 1000;
+	constexpr uint32_t roundTimeMS = 10 * 1000;
 	constexpr uint32_t InGameEndStateTimeMS = 5 * 1000;
 	constexpr int maxPlayerHealth = 100;
 

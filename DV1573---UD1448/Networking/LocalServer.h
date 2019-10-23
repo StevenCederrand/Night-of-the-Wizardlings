@@ -28,7 +28,7 @@ private:
 	unsigned char getPacketID(RakNet::Packet* p);
 	bool handleLostPlayer(const RakNet::Packet& packet, const RakNet::BitStream& bsIn);
 	void stateChange(NetGlobals::SERVER_STATE newState);
-	void sendStreamToAllClients(RakNet::BitStream& stream);
+	void sendStreamToAllClients(RakNet::BitStream& stream, PacketReliability flag = RELIABLE_ORDERED);
 
 	// Collision with players
 	bool specificSpellCollision(const SpellPacket& spellPacket, const glm::vec3& playerPos, const std::vector<glm::vec3>& axis);
@@ -38,7 +38,8 @@ private:
 
 	// Helper funcs
 	void handleRespawns(const uint32_t& diff);
-	void resetAllPlayers();
+	void resetScores();
+	void respawnPlayers();
 
 	void handleCountdown(const uint32_t& diff);
 	void countdownExecutionLogic();
