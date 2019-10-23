@@ -22,20 +22,14 @@ AttackSpell::~AttackSpell()
 {
 }
 
-const int& AttackSpell::getNrofBounce() const
+const bool& AttackSpell::getHasCollided() const
 {
-	return m_nrOfBounce;
+	return m_hasCollided;
 }
 
-const int& AttackSpell::getLocalBounce() const
+void AttackSpell::hasCollided()
 {
-	return m_localBounce;
-}
-
-void AttackSpell::setBounceNormal(glm::vec3& normal)
-{
-	m_bounceNormal = normal;
-	m_localBounce++;
+	m_hasCollided = true;
 }
 
 void AttackSpell::update(float deltaTime)
@@ -47,22 +41,12 @@ void AttackSpell::update(float deltaTime)
 
 void AttackSpell::updateRigidbody(float deltaTime, btRigidBody* body)
 {
-	//setNewDir check if 0.2 second have passed since last calculation
-	//and check of localbounce (callback func) is the same as spells own bounce
-	//and calculate the reflect
-	if (m_localBounce != m_nrOfBounce && m_setNewDir == true)
-	{
-		//reflect
-		glm::vec3 oldDir = getDirection();
-		glm::vec3 nlength = (glm::dot(oldDir, -m_bounceNormal) * m_bounceNormal);
-		glm::vec3 u = nlength + oldDir;
-		glm::vec3 newDir = -oldDir + 2 * u;
-		newDir = glm::normalize(newDir);
-		
-		setDirection(newDir);
-		m_setNewDir = false;
-
+	//shouldAddBounce check if 0.2 second have passed since last bounce add
+	if (m_hasCollided && m_shouldAddBounce)
+	{	
 		m_bounceCounter++;
+		m_shouldAddBounce = false;
+		
 		if (m_bounceCounter == m_spellBase->m_maxBounces + 1)
 		{
 			logTrace("BOUNCE");
@@ -70,21 +54,18 @@ void AttackSpell::updateRigidbody(float deltaTime, btRigidBody* body)
 		}
 	}
 	m_bounceTime += deltaTime;
-	if (m_bounceTime > 0.1)
-	{
+	if (m_bounceTime > 0.2)
+	{		
 		m_bounceTime = 0;
-		m_nrOfBounce = m_localBounce;
-		m_setNewDir = true;
+		m_shouldAddBounce = true;
 	}
 
-	glm::vec3 direction = getDirection();
-		body->setLinearVelocity(btVector3(
-			direction.x,
-			direction.y,
-			direction.z) * m_spellBase->m_speed);
+	setDirection(glm::vec3(body->getLinearVelocity().getX(),
+		body->getLinearVelocity().getY(),
+		body->getLinearVelocity().getZ()));
 
 	btVector3 rigidBodyPos = body->getWorldTransform().getOrigin();
-	setWorldPosition(glm::vec3(rigidBodyPos.getX(), rigidBodyPos.getY(), rigidBodyPos.getZ()));
+	setWorldPosition(glm::vec3(rigidBodyPos.getX(), rigidBodyPos.getY(), rigidBodyPos.getZ()));	
 }
 
 const AttackSpellBase* AttackSpell::getSpellBase()
