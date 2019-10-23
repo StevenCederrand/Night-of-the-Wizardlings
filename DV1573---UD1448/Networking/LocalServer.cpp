@@ -594,11 +594,23 @@ void LocalServer::handleRespawns(const uint32_t& diff)
 	}
 }
 
-void LocalServer::resetAllPlayers()
+void LocalServer::respawnPlayers()
 {
 	for (size_t i = 0; i < m_connectedPlayers.size(); i++)
 	{
 		m_connectedPlayers[i].health = NetGlobals::maxPlayerHealth;
+	
+		RakNet::BitStream stream;
+		stream.Write((RakNet::MessageID)SCORE_UPDATE);
+		m_connectedPlayers[i].Serialize(true, stream);
+		m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_connectedPlayers[i].guid, false);
+	}
+}
+
+void LocalServer::resetScores()
+{
+	for (size_t i = 0; i < m_connectedPlayers.size(); i++)
+	{
 		m_connectedPlayers[i].numberOfDeaths = 0;
 		m_connectedPlayers[i].numberOfKills = 0;
 
@@ -728,6 +740,7 @@ void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 	if (newState == m_serverInfo.currentState) return;
 
 	if (newState == NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS) {
+		resetScores();
 		logTrace("[SERVER] Warmup!");
 	}
 
@@ -745,8 +758,7 @@ void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 
 	if (newState == NetGlobals::SERVER_STATE::GAME_END_STATE) {
 		logTrace("[SERVER] Game is over!");
-		resetAllPlayers();
-
+		respawnPlayers();
 		m_timedGameInEndStateTimer.restart();
 		m_timedGameInEndStateTimer.start();
 	}
