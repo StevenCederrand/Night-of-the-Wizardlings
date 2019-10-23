@@ -461,17 +461,17 @@ void LocalServer::processAndHandlePackets()
 					respawner.player = playerThatWasHit;
 					m_respawnList.emplace_back(respawner);
 					
-					playerThatWasHit->numberOfDeaths++;
 					shooter->numberOfKills++;
-					
 					RakNet::BitStream shooterPacketStream;
 					shooterPacketStream.Write((RakNet::MessageID)SCORE_UPDATE);
 					shooter->Serialize(true, shooterPacketStream);
 					m_serverPeer->Send(&shooterPacketStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, shooter->guid, false);
 
+					
+					playerThatWasHit->numberOfDeaths++;
 					RakNet::BitStream hitPlayerStream;
 					hitPlayerStream.Write((RakNet::MessageID)SCORE_UPDATE);
-					shooter->Serialize(true, hitPlayerStream);
+					playerThatWasHit->Serialize(true, hitPlayerStream);
 					m_serverPeer->Send(&hitPlayerStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, playerThatWasHit->guid, false);
 
 				}
