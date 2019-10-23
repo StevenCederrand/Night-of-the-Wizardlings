@@ -50,6 +50,7 @@ bool Application::init() {
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
 	m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", NULL, NULL);
+	
 	//glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	
 	if (m_window == nullptr) {
@@ -71,7 +72,7 @@ bool Application::init() {
 	}
 	
 	// Vsync
-	glfwSwapInterval(1);
+	glfwSwapInterval(0);
 	
 	m_input = new Input();
 
@@ -188,16 +189,17 @@ void Application::centerWindowOnMonitor()
 void Application::calcFPS(const float& dt)
 {
 	static unsigned fps = 0;
-	static float frameTimer = 1.0f;
+	static float frameTimer = 2.0f;
 
 	fps++;
 
 	frameTimer -= dt;
 	if (frameTimer <= 0.0f)
 	{
-		frameTimer = 1.0f;
-		std::string title = "Wizards 'n stuff | FPS: " + std::to_string(fps);
-		glfwSetWindowTitle(m_window, title.c_str());
+		frameTimer = 2.0f;
+		std::string title = "FPS: " + std::to_string(fps);
+		logTrace(title);
+		//glfwSetWindowTitle(m_window, title.c_str());
 		fps = 0;
 	}
 
