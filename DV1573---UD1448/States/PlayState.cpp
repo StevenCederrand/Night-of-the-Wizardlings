@@ -147,10 +147,6 @@ void PlayState::GUIHandler()
 			GUIclear();
 		}
 	}
-
-	if (Client::getInstance()->getServerState().currentState == NetGlobals::SERVER_STATE::GAME_END_STATE && m_stateSwap) {
-		GUILoadScoreboard();
-	}
 	if (Input::isKeyPressed(GLFW_KEY_TAB)) {
 		GUILoadScoreboard();
 	}
@@ -212,6 +208,7 @@ void PlayState::GUILoadButtons()
 void PlayState::GUIclear()
 {
 	Gui::getInstance()->clearWidgetsInSection(PLAYSECTION);
+	m_scoreBoard = NULL;
 }
 
 bool PlayState::onMainMenuClick(const CEGUI::EventArgs& e)
