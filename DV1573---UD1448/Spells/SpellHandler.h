@@ -23,7 +23,7 @@ public:
 	void createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SPELL_TYPE type);
 
 	void spellUpdate(float deltaTime);
-	const AttackSpellBase& getSpellBase(SPELL_TYPE spelltype);
+	const AttackSpellBase* getSpellBase(SPELL_TYPE spelltype);
 	const Spell& getSpell(int index) const { return *spells[index]; }
 	const std::vector<Spell*>& getSpells() const { return spells; }
 	void renderSpell();
