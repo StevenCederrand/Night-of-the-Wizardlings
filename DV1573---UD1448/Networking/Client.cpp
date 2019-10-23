@@ -359,15 +359,14 @@ void Client::processAndHandlePackets()
 			   (for example changing the state from "Waiting for other players" to "Starting the actual game") this package is received
 			   so every client is aware of the server state change */
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
-			ServerStateChange stateChange;
-			stateChange.Serialize(false, bsIn);
-			if (stateChange.currentState == NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS) {
+			m_serverState.Serialize(false, bsIn);
+			if (m_serverState.currentState == NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS) {
 					logTrace("[GAME SERVER]******** WARMUP ********");
-			}else if (stateChange.currentState == NetGlobals::SERVER_STATE::GAME_IS_STARTING) {
+			}else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GAME_IS_STARTING) {
 					logTrace("[GAME SERVER]******** GAME IS STARTING ********");
-			}else if (stateChange.currentState == NetGlobals::SERVER_STATE::GAME_IN_SESSION) {
+			}else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GAME_IN_SESSION) {
 					logTrace("[GAME SERVER]******** GAME HAS STARTED ********");
-			}else if (stateChange.currentState == NetGlobals::SERVER_STATE::GAME_END_STATE) {
+			}else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GAME_END_STATE) {
 				logTrace("[GAME SERVER]******** GAME HAS ENDED ********");
 			}
 		}
@@ -704,6 +703,11 @@ NetworkSpells& Client::getNetworkSpellsREF()
 const PlayerPacket& Client::getMyData() const
 {
 	return m_myPlayerDataPacket;
+}
+
+const ServerStateChange& Client::getServerState() const
+{
+	return m_serverState;
 }
 
 const std::vector<SpellPacket>& Client::getNetworkSpells()

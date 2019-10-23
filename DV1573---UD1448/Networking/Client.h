@@ -37,7 +37,9 @@ public:
 	
 	NetworkPlayers& getNetworkPlayersREF();
 	NetworkSpells& getNetworkSpellsREF();
+	
 	const PlayerPacket& getMyData() const;
+	const ServerStateChange& getServerState() const;
 
 	const bool doneRefreshingServerList() const;
 	const bool doesServerExist(const unsigned int& ID) const;
@@ -76,7 +78,7 @@ private:
 	std::thread m_processThread;
 	
 	PlayerPacket m_myPlayerDataPacket;
-	
+	ServerStateChange m_serverState;
 
 	std::vector<PlayerPacket> m_connectedPlayers;
 	NetworkPlayers m_networkPlayers;
