@@ -3,7 +3,6 @@
 #include <Networking/Client.h>
 #include <Loader/BGLoader.h>
 
-
 SpellHandler::SpellHandler(BulletPhysics * bp)
 {
 	attackBase = nullptr;
@@ -43,7 +42,6 @@ void SpellHandler::initAttackSpell()
 	attackBase->m_maxBounces = 3;
 }
 
-
 void SpellHandler::initEnhanceSpell()
 {
 	enhanceAtkBase = new AttackSpellBase();
@@ -72,7 +70,6 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase->m_maxBounces = 3;
 }
 
-
 SpellHandler::~SpellHandler()
 {
 	if (attackBase)
@@ -83,8 +80,6 @@ SpellHandler::~SpellHandler()
 	delete enhanceAtkBase;
 	spells.clear();
 }
-
-
 
 void SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SPELL_TYPE type)
 {
@@ -131,10 +126,6 @@ void SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SP
 	}
 
 
-	
-	
-
-
 	//if (type == FLAMESTRIKE)
 	//{
 	//	if (m_tempFlamestrike->getCooldown() <= 0)
@@ -173,9 +164,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 			delete spells[i];
 			spells.erase(spells.begin() + i);
 
-			////this is not the way it should be done, we should remove it	
 			m_bp->removeObject(m_BulletNormalSpell.at(i));
-			//m_BulletNormalSpell.at(i)->getWorldTransform().setOrigin(btVector3(0.0f, 100.0f + i * 5.0f, 0.0f));
 			m_BulletNormalSpell.erase(m_BulletNormalSpell.begin() + i);
 			i--;
 		}
@@ -212,7 +201,6 @@ const AttackSpellBase* SpellHandler::getSpellBase(SPELL_TYPE spelltype)
 	
 	return nullptr;
 }
-
 
 void SpellHandler::renderSpell()
 {
@@ -304,10 +292,8 @@ glm::vec3 SpellHandler::OBBclosestPoint(glm::vec3& spherePos, std::vector<glm::v
 		if (distance < -boxSize)
 			distance2 = -boxSize;
 
-		
 		boxPoint += distance2 * axis.at(j);
 	}
-
 	return boxPoint;
 }
 

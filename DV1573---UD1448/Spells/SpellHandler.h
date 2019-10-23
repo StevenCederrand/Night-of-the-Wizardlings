@@ -16,8 +16,6 @@ public:
 	SpellHandler(BulletPhysics* bp);
 	void initAttackSpell();
 	void initEnhanceSpell();
-	void initnrOfRigidBodys();
-
 
 	~SpellHandler();
 	void createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SPELL_TYPE type);
@@ -28,7 +26,6 @@ public:
 	const std::vector<Spell*>& getSpells() const { return spells; }
 	void renderSpell();
 	//bool isSpellReadyToCast(SPELLTYPE type);
-
 
 private:
 	const uint64_t getUniqueID();
@@ -47,7 +44,6 @@ private:
 	//fire* tempFire;
 	//fire* m_fire;
 
-
 	//other things
 	glm::vec3 m_directionVector;
 	glm::vec3 m_spellPos;
@@ -63,5 +59,4 @@ private:
 
 	std::vector<btRigidBody*> m_BulletNormalSpell;
 	std::vector<btRigidBody*> m_BulletEnhanceAttackSpell;
-
 };
