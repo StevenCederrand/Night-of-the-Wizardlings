@@ -12,12 +12,12 @@ private:
 	//Order of the texture are: Right, Left, Top, Bottom, Front and Back.
 	std::vector<std::string> faces
 	{
-	"Assets/Textures/Skybox/Daylight Box_Right.bmp",
-	"Assets/Textures/Skybox/Daylight Box_Left.bmp",
-	"Assets/Textures/Skybox/Daylight Box_Top.bmp",
-	"Assets/Textures/Skybox/Daylight Box_Bottom.bmp",
-	"Assets/Textures/Skybox/Daylight Box_Front.bmp",
-	"Assets/Textures/Skybox/Daylight Box_Back.bmp"
+	"Assets/Textures/Skybox/purpleSky_right.png",
+	"Assets/Textures/Skybox/purpleSky_left.png",
+	"Assets/Textures/Skybox/purpleSky_top.png",
+	"Assets/Textures/Skybox/purpleSky_bottom.png",
+	"Assets/Textures/Skybox/purpleSky_front.png",
+	"Assets/Textures/Skybox/purpleSky_back.png"
 	};
 
 	unsigned int cubemapTexture;
