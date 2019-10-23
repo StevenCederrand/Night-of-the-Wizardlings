@@ -14,6 +14,10 @@ Application::~Application() {
 	delete m_stateManager;
 	ShaderMap::getInstance()->destroy();
 	Renderer::getInstance()->destroy();
+	MaterialMap::getInstance()->destroy();
+	MeshMap::getInstance()->destroy();
+	AnimationMap::getInstance()->destroy();
+	SkeletonMap::getInstance()->destroy();
 
 	if(Client::getInstance()->isInitialized())
 		Client::getInstance()->destroy();
@@ -24,6 +28,7 @@ Application::~Application() {
 	Gui::getInstance()->destroy();
 
 	glfwTerminate();
+
 }
 
 bool Application::init() {
@@ -100,14 +105,15 @@ void Application::run()
 		glfwPollEvents();
 
 		// Quick way to close the app
-		if (Input::isKeyReleased(GLFW_KEY_ESCAPE))
+		if (Input::isKeyReleased(GLFW_KEY_DELETE))
 		{
 			glfwSetWindowShouldClose(m_window, true);
 		}
-	
+
 		if (Input::isKeyPressed(GLFW_KEY_F1)) {
 			ShaderMap::getInstance()->reload();
 		}
+
 		//Skip the first frame, this is because we 
 		if (initialFrame == false) {
 			timeNow = static_cast<float>(glfwGetTime());

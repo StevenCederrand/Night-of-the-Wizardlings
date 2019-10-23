@@ -18,6 +18,7 @@ public:
 	NetworkSpells();
 	~NetworkSpells();
 	void update(const float& dt);
+	void cleanUp();
 	std::vector<SpellEntity>& getSpellEntitiesREF();
 
 private:

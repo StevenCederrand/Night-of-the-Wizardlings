@@ -15,7 +15,6 @@ public:
 	~Player();
 
 	void update(float deltaTime);
-	void move(float deltaTime);
 	void attack();
 	void createRay(); //create ray for spells
 	void spawnPlayer(glm::vec3 pos);
@@ -34,15 +33,18 @@ public:
 	void setPlayerPos(glm::vec3 pos);
 	void setHealth(int health);
 	void setSpeed(float speed);
+	void logicStop(const bool& stop);
 
 private:
+	void move(float deltaTime); 
+
 	std::string m_name;
 	glm::vec3 m_directionVector;
 	glm::vec3 m_playerPosition;
 	glm::vec3 m_inputVector;
 	glm::vec3 m_moveDir;
 	Camera* m_playerCamera;
-
+	bool m_logicStop;
 	SpellHandler* m_spellhandler;
 	EnhanceAttackSpell m_enhanceAttack;
 
@@ -55,7 +57,6 @@ private:
 	float m_speed;
 	int m_nrOfSpells;
 	int m_health;
-	int m_frameCount;
 	std::string name;
 	SPELL_TYPE spellType;
 

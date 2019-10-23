@@ -1,0 +1,95 @@
+#include "Pch/Pch.h"
+#include "TimedCallback.h"
+
+TimedCallback::TimedCallback()
+{
+	m_hasCallbackRegistered = false;
+}
+
+TimedCallback::~TimedCallback()
+{
+}
+
+void TimedCallback::update(const float& dt)
+{
+
+	if (m_hasStarted == false) return;
+
+	if (m_runInfinity) {
+
+		m_intervalCounter += dt;
+
+		if (m_intervalCounter >= m_interval) {
+			m_intervalCounter = 0.0f;
+			m_callbackFunc();
+		}
+	}
+	else {
+		if (m_totalTimeLeft > 0.0f) {
+			m_totalTimeLeft -= dt;
+			
+			m_intervalCounter += dt;
+
+			if (m_intervalCounter >= m_interval) {
+				m_intervalCounter = 0.0f;
+				m_callbackFunc();
+			}
+		}
+		else {
+			m_doneExecuting = true;
+		}
+
+
+	}
+
+}
+
+void TimedCallback::registerCallback(std::function<void()> callbackFunc)
+{
+	m_callbackFunc = callbackFunc;
+	m_hasCallbackRegistered = true;
+}
+
+// Only really needed if you are not running an infinity loop
+void TimedCallback::restart()
+{
+	m_totalTimeLeft = m_initialTotalTime;
+	m_intervalCounter = 0.0f;
+	m_doneExecuting = false;
+}
+
+void TimedCallback::start()
+{
+	m_hasStarted = true;
+}
+
+void TimedCallback::stop()
+{
+	m_hasStarted = false;
+}
+
+const bool& TimedCallback::isDone() const
+{
+	return m_doneExecuting;
+}
+
+void TimedCallback::setTotalExecutionTime(float totalExecutionTime)
+{
+	m_initialTotalTime = totalExecutionTime;
+	m_totalTimeLeft = totalExecutionTime;
+}
+
+void TimedCallback::setExecutionInterval(float executionInterval)
+{
+	m_interval = executionInterval;
+}
+
+void TimedCallback::setInfinityExecutionTime(bool condition)
+{
+	m_runInfinity = condition;
+}
+
+const float& TimedCallback::getTimeLeft() const
+{
+	return m_totalTimeLeft;
+}

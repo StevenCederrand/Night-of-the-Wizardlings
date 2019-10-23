@@ -7,6 +7,7 @@ GameObject::GameObject()
 	m_objectName = "Empty";
 	type = 0;
 	m_bPhysics = nullptr;
+	m_shouldRender = true;
 }
 
 GameObject::GameObject(std::string objectName)
@@ -154,6 +155,11 @@ void GameObject::loadMesh(std::string fileName)
 
 }
 
+const bool& GameObject::getShouldRender() const
+{
+	return m_shouldRender;
+}
+
 //Update each individual modelmatrix for the meshes
 void GameObject::updateModelMatrix() {
 	
@@ -193,6 +199,11 @@ void GameObject::translate(const glm::vec3& translationVector)
 {
 	m_transform.position += translationVector;
 	updateModelMatrix();
+}
+
+void GameObject::setShouldRender(bool condition)
+{
+	m_shouldRender = condition;
 }
 
 const Transform GameObject::getTransform() const
@@ -239,6 +250,9 @@ const std::string& GameObject::getMeshName(int meshIndex) const
 
 const glm::mat4& GameObject::getMatrix(const int& i) const
 {
+	if (m_modelMatrixes.size() == 0) {
+		return glm::mat4(1.0f);
+	}
 	//if we are trying to access a matrix beyond our count
 	if (i > static_cast<int>(m_modelMatrixes.size())) {
 		return glm::mat4(1.0f);
@@ -317,7 +331,8 @@ void GameObject::createDebugDrawer()
 {
 	for (int i = 0; i < m_bodies.size(); i++)
 	{
-		m_debugDrawers.emplace_back(new DebugDrawer());
-		m_debugDrawers[i]->setUpMesh(*m_bodies[i]);
+		// Temporarily off, rotations do not work on them yet
+		//m_debugDrawers.emplace_back(new DebugDrawer());
+		//m_debugDrawers[i]->setUpMesh(*m_bodies[i]);
 	}
 }

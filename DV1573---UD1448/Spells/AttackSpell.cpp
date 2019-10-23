@@ -57,6 +57,7 @@ void AttackSpell::updateRigidbody(float deltaTime, btRigidBody* body)
 		
 		if (m_bounceCounter == m_spellBase->m_maxBounces + 1)
 		{
+			logTrace("BOUNCE");
 			setTravelTime(0);
 		}
 	}
