@@ -6,7 +6,21 @@ LocalServer::LocalServer()
 {
 	m_adminID = RakNet::UNASSIGNED_RAKNET_GUID;
 	m_countdown = NetGlobals::serverCountdownTimeMS;
-	m_roundTimer = NetGlobals::roundTime;
+	m_roundTimer = NetGlobals::roundTimeMS;
+
+	m_timedCountdownTimer.setTotalExecutionTime(NetGlobals::serverCountdownTimeMS);
+	m_timedCountdownTimer.setExecutionInterval(500);
+	m_timedCountdownTimer.registerCallback(std::bind(&LocalServer::countdownExecutionLogic, this));
+
+	m_timedRunTimer.setTotalExecutionTime(NetGlobals::roundTimeMS);
+	m_timedRunTimer.setExecutionInterval(500);
+	m_timedRunTimer.registerCallback(std::bind(&LocalServer::roundTimeExecutionLogic, this));
+
+	m_timedGameInEndStateTimer.setTotalExecutionTime(NetGlobals::InGameEndStateTimeMS);
+	m_timedGameInEndStateTimer.setExecutionInterval(500);
+	m_timedGameInEndStateTimer.registerCallback(std::bind(&LocalServer::endGameTimeExecutionLogic, this));
+
+
 }
 
 LocalServer::~LocalServer()
@@ -93,6 +107,10 @@ void LocalServer::ThreadedUpdate()
 		if (m_serverInfo.currentState == NetGlobals::SERVER_STATE::GAME_IN_SESSION) {
 			handleRespawns(timeDiff);
 			handleRoundTime(timeDiff);
+		}
+
+		if (m_serverInfo.currentState == NetGlobals::SERVER_STATE::GAME_END_STATE) {
+			handleEndGameStateTime(timeDiff);
 		}
 
 		processAndHandlePackets();
@@ -395,7 +413,7 @@ void LocalServer::processAndHandlePackets()
 		case SPELL_PLAYER_HIT:
 		{
 			if (m_serverInfo.currentState != NetGlobals::SERVER_STATE::GAME_IN_SESSION)
-				return;
+				continue;
 
 			logTrace("PLAYER HIT PACKAGE");
 
@@ -409,11 +427,11 @@ void LocalServer::processAndHandlePackets()
 			SpellPacket* sp = getSpecificSpell(hitPacket.CreatorGUID.g, hitPacket.SpellID);
 			if (pp == nullptr || sp == nullptr || shooter == nullptr) {
 				logTrace("[SERVER] Player or spell was null");
-				return;
+				continue;
 			}
 
 			if (pp->health == 0.0f || shooter->health == 0.0f)
-				return;
+				continue;
 
 			//create the axis and rotate them
 			glm::vec3 xAxis = glm::vec3(1.0f, 0.0f, 0.0f);
@@ -564,47 +582,62 @@ void LocalServer::handleRespawns(const uint32_t& diff)
 
 void LocalServer::handleCountdown(const uint32_t& diff)
 {
-	if (diff <= m_countdown) {
-		m_countdown -= diff;
-		RakNet::BitStream stream;
-		stream.Write((RakNet::MessageID)GAME_START_COUNTDOWN);
-		CountdownPacket countdownPacket;
-		countdownPacket.timeLeft = m_countdown;
-		countdownPacket.Serialize(true, stream);
-		sendStreamToAllClients(stream);
+	m_timedCountdownTimer.update(static_cast<float>(diff));
 
-	}
-	else {
-		m_countdown = NetGlobals::serverCountdownTimeMS;
+	if (m_timedCountdownTimer.isDone()) {
 		stateChange(NetGlobals::SERVER_STATE::GAME_IN_SESSION);
 	}
+
+}
+
+void LocalServer::countdownExecutionLogic()
+{
+	RakNet::BitStream stream;
+	stream.Write((RakNet::MessageID)GAME_START_COUNTDOWN);
+	CountdownPacket countdownPacket;
+	countdownPacket.timeLeft = static_cast<uint32_t>(m_timedCountdownTimer.getTimeLeft());
+	countdownPacket.Serialize(true, stream);
+	sendStreamToAllClients(stream);
 }
 
 void LocalServer::handleRoundTime(const uint32_t& diff)
 {
-	static float t = 1000.f;
+	m_timedRunTimer.update(static_cast<float>(diff));
 
-	if (diff <= m_roundTimer) {
-		m_roundTimer -= diff;
-		t -= diff;
-		
-		if (t <= 0.0f) {
-			t = 1000.f;
-			RakNet::BitStream stream;
-			stream.Write((RakNet::MessageID)GAME_ROUND_TIMER);
-			RoundTimePacket roundTimePacket;
-			roundTimePacket.minutes = (m_roundTimer / 1000) / 60;
-			roundTimePacket.seconds = (m_roundTimer / 1000) % 60;
-			roundTimePacket.Serialize(true, stream);
-			sendStreamToAllClients(stream);
-		}
+	if (m_timedRunTimer.isDone()) {
+		stateChange(NetGlobals::SERVER_STATE::GAME_END_STATE);
 	}
-	else {
-		m_roundTimer = NetGlobals::roundTime;
-		t = 1000.f;
+}
+
+void LocalServer::roundTimeExecutionLogic()
+{
+	RakNet::BitStream stream;
+	stream.Write((RakNet::MessageID)GAME_ROUND_TIMER);
+	RoundTimePacket roundTimePacket;
+	roundTimePacket.minutes = (static_cast<uint32_t>(m_timedRunTimer.getTimeLeft()) / 1000) / 60;
+	roundTimePacket.seconds = (static_cast<uint32_t>(m_timedRunTimer.getTimeLeft()) / 1000) % 60;
+	roundTimePacket.Serialize(true, stream);
+	sendStreamToAllClients(stream);
+}
+
+void LocalServer::handleEndGameStateTime(const uint32_t& diff)
+{
+	m_timedGameInEndStateTimer.update(static_cast<float>(diff));
+
+	if (m_timedGameInEndStateTimer.isDone()) {
 		stateChange(NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS);
-		// RESTART
 	}
+}
+
+void LocalServer::endGameTimeExecutionLogic()
+{
+	RakNet::BitStream stream;
+	stream.Write((RakNet::MessageID)GAME_ROUND_TIMER);
+	RoundTimePacket roundTimePacket;
+	roundTimePacket.minutes = (static_cast<uint32_t>(m_timedGameInEndStateTimer.getTimeLeft()) / 1000) / 60;
+	roundTimePacket.seconds = (static_cast<uint32_t>(m_timedGameInEndStateTimer.getTimeLeft()) / 1000) % 60;
+	roundTimePacket.Serialize(true, stream);
+	sendStreamToAllClients(stream);
 }
 
 const bool& LocalServer::isInitialized() const
@@ -665,11 +698,27 @@ void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 {
 	if (newState == m_serverInfo.currentState) return;
 
-	if (newState == NetGlobals::SERVER_STATE::GAME_IS_STARTING)
-		logTrace("[SERVER] Admin requested to start the game!");
+	if (newState == NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS) {
+		logTrace("[SERVER] Warmup!");
+	}
 
-	if (newState == NetGlobals::SERVER_STATE::GAME_IN_SESSION)
+	if (newState == NetGlobals::SERVER_STATE::GAME_IS_STARTING) {
+		logTrace("[SERVER] Admin requested to start the game!");
+		m_timedCountdownTimer.restart();
+		m_timedCountdownTimer.start();
+	}
+
+	if (newState == NetGlobals::SERVER_STATE::GAME_IN_SESSION) {
 		logTrace("[SERVER] Game has officially started!");
+		m_timedRunTimer.restart();
+		m_timedRunTimer.start();
+	}
+
+	if (newState == NetGlobals::SERVER_STATE::GAME_END_STATE) {
+		logTrace("[SERVER] Game is over!");
+		m_timedGameInEndStateTimer.restart();
+		m_timedGameInEndStateTimer.start();
+	}
 
 	m_serverInfo.currentState = newState;
 	m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));

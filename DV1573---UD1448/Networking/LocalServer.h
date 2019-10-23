@@ -1,6 +1,7 @@
 #ifndef _LOCAL_SERVER_H
 #define _LOCAL_SERVER_H
 #include <Pch/Pch.h>
+#include <System/TimedCallback.h>
 
 class LocalServer
 {
@@ -37,8 +38,15 @@ private:
 
 	// Helper funcs
 	void handleRespawns(const uint32_t& diff);
+	
 	void handleCountdown(const uint32_t& diff);
+	void countdownExecutionLogic();
+
 	void handleRoundTime(const uint32_t& diff);
+	void roundTimeExecutionLogic();
+
+	void handleEndGameStateTime(const uint32_t& diff);
+	void endGameTimeExecutionLogic();
 
 private:
 	RakNet::RakPeerInterface* m_serverPeer = nullptr;
@@ -54,6 +62,11 @@ private:
 	RakNet::RakNetGUID m_adminID;
 	uint32_t m_countdown;
 	uint32_t m_roundTimer;
+
+	TimedCallback m_timedRunTimer;
+	TimedCallback m_timedCountdownTimer;
+	TimedCallback m_timedGameInEndStateTimer;
+
 };
 
 #endif

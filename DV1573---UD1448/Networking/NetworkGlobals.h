@@ -11,7 +11,8 @@ namespace NetGlobals {
 	constexpr unsigned short timeoutTimeMS = 5 * 1000;
 	constexpr uint32_t serverCountdownTimeMS = 5 * 1000;
 	constexpr uint32_t timeUntilRespawnMS = 3 * 1000;
-	constexpr uint32_t roundTime = 2 * 60 * 1000;
+	constexpr uint32_t roundTimeMS = 10 * 1000;
+	constexpr uint32_t InGameEndStateTimeMS = 10 * 1000;
 	constexpr int maxPlayerHealth = 100;
 
 	static std::mutex gameSyncMutex;
@@ -26,6 +27,7 @@ namespace NetGlobals {
 		WAITING_FOR_PLAYERS = 0,
 		GAME_IS_STARTING,
 		GAME_IN_SESSION,
+		GAME_END_STATE
 	};
 }
 
