@@ -4,7 +4,7 @@
 
 SkyBox::SkyBox()
 {
-	m_skyboxPath = "Assets/Textures/SKBX_" + std::to_string((rand() % NUMBER_OF_SKYBOXES) + 1);
+	m_skyboxPath = "Assets/Textures/SKBX_" + std::to_string(2);
 	m_buffer.CubemapTextureID = createCubeMap(faces);
 }
 
@@ -19,7 +19,7 @@ unsigned int SkyBox::createCubeMap(std::vector<std::string> faces)
 {
 	unsigned int textureID;
 	glGenTextures(1, &textureID);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);	
 
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

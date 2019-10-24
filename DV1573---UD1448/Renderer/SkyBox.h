@@ -1,6 +1,5 @@
 #ifndef _SKYBOX_h
 #define _SKYBOX_h
-#define NUMBER_OF_SKYBOXES 3
 #include <Pch/Pch.h>
 
 struct SkyBuffer {
