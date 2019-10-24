@@ -268,17 +268,18 @@ void Renderer::destroy()
 	delete m_rendererInstance;
 }
 
-void Renderer::renderSkybox(const SkyBox& skybox)
+void Renderer::renderSkybox(SkyBox* m_skybox)
 {
 	glDisable(GL_CULL_FACE);
 	glDepthMask(GL_FALSE);
 	ShaderMap::getInstance()->useByName("Skybox_Shader");
+	ShaderMap::getInstance()->getShader("Skybox_Shader")->setMat4("modelMatrix", m_skybox->getModelMatrix());
 	ShaderMap::getInstance()->getShader("Skybox_Shader")->setMat4("viewMatrix", glm::mat4(glm::mat3(m_camera->getViewMat())));
 	ShaderMap::getInstance()->getShader("Skybox_Shader")->setMat4("projectionMatrix", m_camera->getProjMat());
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.getCubeMapTexture());
-	glBindVertexArray(skybox.getVAO());
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_skybox->getCubeMapTexture());
+	glBindVertexArray(m_skybox->getVAO());
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, NULL);
@@ -392,7 +393,7 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 	
 	//BLOOMBLUR MISSION STEP 1: SAMPLE
 	m_bloom->bindHdrFBO();
-	renderSkybox(*m_skybox);
+	renderSkybox(m_skybox);
 	m_spellHandler->renderSpell();
 	
 #pragma region Color_Render

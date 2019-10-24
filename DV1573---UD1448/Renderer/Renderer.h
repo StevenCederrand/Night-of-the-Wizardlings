@@ -52,6 +52,7 @@ private:
 	static Renderer* m_rendererInstance;
 	GLFWwindow* m_gWindow;
 	Camera* m_camera;
+	SkyBox* m_skyBox;
 
 	Timer m_timer;
 
@@ -101,7 +102,7 @@ public:
 	void submit(GameObject* gameObject, ObjectType objType);
 	void submit2DHUD(HudObject* hud);
 	void removeDynamic(GameObject* gameObject, ObjectType objType); //Remove an object from the dynamic array
-	void renderSkybox(const SkyBox& skybox);
+	void renderSkybox(SkyBox* skybox);
 	void render(SkyBox* m_skybox, SpellHandler* m_spellHandler);
 	//void renderSpell();
 	void renderDebug();

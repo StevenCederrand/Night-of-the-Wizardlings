@@ -78,4 +78,5 @@ public:
 	const GLuint& getVAO() const;
 	unsigned int getCubeMapTexture() const;
 	void prepareBuffers();
+	glm::mat4 getModelMatrix() const;
 };

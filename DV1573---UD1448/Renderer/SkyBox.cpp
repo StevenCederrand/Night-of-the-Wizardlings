@@ -63,3 +63,10 @@ void SkyBox::prepareBuffers()
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
 }
+
+glm::mat4 SkyBox::getModelMatrix() const
+{
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::rotate(model, (float)glfwGetTime() * 0.006f, glm::vec3(0.0f, 1.0f, 0.0f));
+	return model;
+}
