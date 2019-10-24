@@ -18,6 +18,18 @@ ReflectSpell::ReflectSpell(glm::vec3 pos, glm::vec3 direction, const ReflectSpel
 	setDirection(direction);
 }
 
+ReflectSpell::ReflectSpell(glm::vec3 pos) : Spell(pos, glm::vec3(0))
+{
+	m_type = SPELL_TYPE::REFLECT;
+
+	Transform tempTransform;
+	tempTransform.scale = glm::vec3(0.01f, 0.01f, 0.01f);
+	setTransform(tempTransform);
+	m_transform = tempTransform;
+
+	setWorldPosition(pos);
+}
+
 ReflectSpell::~ReflectSpell()
 {
 }

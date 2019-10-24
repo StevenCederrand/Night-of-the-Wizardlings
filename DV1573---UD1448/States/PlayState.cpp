@@ -13,15 +13,19 @@ PlayState::PlayState()
 	m_spellHandler = new SpellHandler(m_bPhysics);
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
 	m_camera = new Camera();
-	m_player = new Player(m_bPhysics, "Player", glm::vec3(0.0f, 5.0f, 0.0f), m_camera, m_spellHandler);
+	m_player = new Player(m_bPhysics, "Player", glm::vec3(0.0f, 2.0f, 0.0f), m_camera, m_spellHandler);
 	Renderer::getInstance()->setupCamera(m_player->getCamera());
 	//TODO: organized loading system?
 	m_skybox = new SkyBox();
 	m_skybox->prepareBuffers();
 
 	// HUD
-	m_crosshairHUD = new HudObject("Assets/Textures/Crosshair.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(64.0f, 64.0f));
+	m_crosshairHUD = new HudObject("Assets/Textures/Crosshair.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(32.0f, 32.0f));
 	Renderer::getInstance()->submit2DHUD(m_crosshairHUD);
+
+	m_damageOverlay = new HudObject("Assets/Textures/DamageOverlay.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(static_cast<float>(SCREEN_WIDTH), (static_cast<float>(SCREEN_HEIGHT))));
+	Renderer::getInstance()->submit2DHUD(m_damageOverlay);
+	m_player->setHealth(NetGlobals::maxPlayerHealth);
 
 	//Test enviroment with 4 meshes inside 1 GameObject, inherited transforms
 	//m_objects.push_back(new WorldObject("TestScene"));
@@ -70,21 +74,16 @@ PlayState::PlayState()
 		m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);	
 		m_objects.at(i)->createDebugDrawer();
 	}
-
-	
-
-	logTrace("Playstate created");
 }
 
 PlayState::~PlayState()
 {
 
-	logTrace("Deleting playstate..");
 	for (GameObject* object : m_objects)
 		delete object;
-	if (!m_scoreboardExists) {
-		GUIclear();
-	}
+	
+	GUIclear();
+
 	m_objects.clear();
 	delete m_skybox;
 	delete m_player;
@@ -92,6 +91,8 @@ PlayState::~PlayState()
 	delete m_spellHandler;
 	delete m_camera;
 	delete m_crosshairHUD;
+	delete m_damageOverlay;
+	
 	if (LocalServer::getInstance()->isInitialized()) {
 		LocalServer::getInstance()->destroy();
 	}
@@ -107,6 +108,18 @@ void PlayState::update(float dt)
 	m_bPhysics->update(dt);
 	m_player->update(dt);
 	m_spellHandler->spellUpdate(dt);
+	m_player->update(dt);
+	
+	if (Client::getInstance()->getMyData().health != m_player->getHealth())
+	{
+		m_player->setHealth(Client::getInstance()->getMyData().health);
+		m_damageOverlay->setAlpha(1.0f);
+	}
+
+	if (m_damageOverlay->getAlpha() != 0)
+	{
+		m_damageOverlay->setAlpha(m_damageOverlay->getAlpha() - dt);
+	}
 
 	for (GameObject* object : m_objects)
 	{
@@ -126,11 +139,6 @@ void PlayState::render()
 {
 	Renderer::getInstance()->render(m_skybox, m_spellHandler);
 	Renderer::getInstance()->renderDebug();
-
-	//Move the render skybox to be a private renderer function
-	//Renderer::getInstance()->renderSkybox(*m_skybox);
-	//Renderer::getInstance()->render();
-	//m_spellHandler->renderSpell();
 }
 
 void PlayState::GUIHandler()
@@ -168,9 +176,9 @@ void PlayState::GUILoadScoreboard() {
 	if (!m_scoreboardExists) {
 		//Create the scoreboard
 		m_scoreBoard = static_cast<CEGUI::MultiColumnList*>(Gui::getInstance()->createWidget(PLAYSECTION, "TaharezLook/MultiColumnList", glm::vec4(0.20f, 0.25f, 0.60f, 0.40f), glm::vec4(0.0f), "Scoreboard"));
-		m_scoreBoard->addColumn("Player: ", 0, CEGUI::UDim(0.33f, 0));
-		m_scoreBoard->addColumn("Score: ", 1, CEGUI::UDim(0.33f, 0));
-		m_scoreBoard->addColumn("Deaths: ", 2, CEGUI::UDim(0.34f, 0));
+		m_scoreBoard->addColumn("PLAYER: ", 0, CEGUI::UDim(0.33f, 0));
+		m_scoreBoard->addColumn("KILLS: ", 1, CEGUI::UDim(0.33f, 0));
+		m_scoreBoard->addColumn("DEATHS: ", 2, CEGUI::UDim(0.34f, 0));
 
 		//Add the client
 		m_scoreBoard->addRow();

@@ -28,9 +28,11 @@ void NetworkSpells::update(const float& dt)
 					
 					if (e.spellData.SpellType == SPELL_TYPE::NORMALATTACK || e.spellData.SpellType == SPELL_TYPE::UNKNOWN) {
 						e.gameobject->loadMesh("TestSphere.mesh");
+						//e.gameobject = new AttackSpell(e.spellData.Position);	// Example solution
 					}
 					else if (e.spellData.SpellType == SPELL_TYPE::ENHANCEATTACK) {
 						e.gameobject->loadMesh("TestCube.mesh");
+						//e.gameobject = new AttackSpell(e.spellData.Position);	// Example solution
 					}
 				
 					e.gameobject->setWorldPosition(e.spellData.Position);

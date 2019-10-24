@@ -26,6 +26,7 @@ void Client::startup()
 		m_clientPeer = RakNet::RakPeerInterface::GetInstance();
 		m_clientPeer->Startup(1, &RakNet::SocketDescriptor(), 1);
 		m_initialized = true;	
+		m_sendUpdatePackages = false;
 	}
 }
 
@@ -101,6 +102,7 @@ void Client::ThreadedUpdate()
 	{	
 		
 		processAndHandlePackets();
+		
 		/* Sends my data (such as my position, my spells) to the server and to 
 		   all the other clients */
 		updateDataOnServer();
@@ -549,10 +551,12 @@ void Client::updatePlayerData(Player* player)
 
 	m_myPlayerDataPacket.position = player->getPlayerPos();
 	m_myPlayerDataPacket.rotation = glm::vec3(
-		player->getCamera()->getViewMat()[1][0] - glm::radians(90.0f),
-		player->getCamera()->getViewMat()[1][1] - glm::radians(90.0f),
-		player->getCamera()->getViewMat()[1][2] - glm::radians(90.0f)
-	);
+		-glm::radians(player->getCamera()->getPitch()),
+		-glm::radians(player->getCamera()->getYaw() - 90.0f),
+		0.0f);
+
+	if (m_sendUpdatePackages == false)
+		m_sendUpdatePackages = true;
 }
 
 /* You created a spell locally and wants to tell the server and all the other clients that.
@@ -650,20 +654,14 @@ void Client::sendStartRequestToServer()
 
 void Client::updateDataOnServer()
 {
+	if (!m_sendUpdatePackages)
+		return;
+
 	// Player data sent to server
 	RakNet::BitStream bsOut;
 	bsOut.Write((RakNet::MessageID)PLAYER_UPDATE_PACKET);
 	m_myPlayerDataPacket.Serialize(true, bsOut);
 	m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
-
-	//// Empty out the spell queue
-	//for (size_t i = 0; i < m_spellQueue.size(); i++) {
-	//
-	//	RakNet::BitStream bsOut;
-	//	bsOut.Write(m_spellQueue[i].packetType);
-	//	m_spellQueue[i].Serialize(true, bsOut);
-	//	m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
-	//}
 
 	// Update all spells first
 	for (size_t i = 0; i < m_updateSpellQueue.size(); i++) {
@@ -697,8 +695,6 @@ void Client::updateDataOnServer()
 	m_spellsHitQueue.clear();
 	m_removeOrAddSpellQueue.clear();
 
-
-	//m_spellQueue.clear();
 }
 
 
@@ -743,6 +739,11 @@ void Client::refreshServerList()
 	m_isRefreshingServerList = true;
 	m_serverList.clear();
 	findAllServerAddresses();
+}
+
+void Client::startSendingUpdatePackages()
+{
+	m_sendUpdatePackages = true;
 }
 
 void Client::setUsername(const std::string& userName)
