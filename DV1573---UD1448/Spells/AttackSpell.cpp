@@ -18,6 +18,17 @@ AttackSpell::AttackSpell(glm::vec3 pos, glm::vec3 direction, const AttackSpellBa
 	setDirection(direction);
 }
 
+AttackSpell::AttackSpell(glm::vec3 pos) : Spell(pos, glm::vec3(0))
+{
+	m_type = SPELL_TYPE::NORMALATTACK;
+
+	Transform tempTransform;
+	tempTransform.scale = glm::vec3(0.2f, 0.2f, 0.2f);
+	setTransform(tempTransform);
+
+	setWorldPosition(pos);
+}
+
 AttackSpell::~AttackSpell()
 {
 }
@@ -35,8 +46,6 @@ void AttackSpell::hasCollided()
 void AttackSpell::update(float deltaTime)
 {
 	setTravelTime(getTravelTime() - deltaTime);
-
-	//DEBUG
 }
 
 void AttackSpell::updateRigidbody(float deltaTime, btRigidBody* body)
@@ -69,7 +78,13 @@ void AttackSpell::updateRigidbody(float deltaTime, btRigidBody* body)
 	setWorldPosition(glm::vec3(rigidBodyPos.getX(), rigidBodyPos.getY(), rigidBodyPos.getZ()));	
 }
 
-const AttackSpellBase* AttackSpell::getSpellBase()
+const float AttackSpell::getDamage()
 {
-	return m_spellBase;
+	return m_spellBase->m_damage;
 }
+
+
+//const AttackSpellBase* AttackSpell::getSpellBase()
+//{
+//	return m_spellBase;
+//}

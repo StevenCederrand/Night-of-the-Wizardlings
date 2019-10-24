@@ -8,16 +8,18 @@
 class AOEAttack : public Spell
 {
 public:
-	AOEAttack(glm::vec3 pos);
-	AOEAttack(std::string name, glm::vec3 pos, glm::vec3 direction, float speed, float travelTime, std::string meshName, float cooldown);
+	AOEAttack(glm::vec3 pos, glm::vec3 direction, const FlamestrikeSpellBase* spellBase);
 	~AOEAttack();
 
-	void updateActiveSpell(float deltaTime);
-	void createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector);
-	void spellCooldownUpdate(float deltaTime);
-	void update(float dt);
+	// Virtual functions
+	virtual const bool& getHasCollided() const;	//TODO: Construct this function
+	virtual void hasCollided();					//TODO: Construct this function
+	virtual void updateRigidbody(float deltaTime, btRigidBody* body);
+	virtual void update(float dt);
+	virtual const float getDamage();
 
-	bool isAOE();
+	void updateActiveSpell(float deltaTime);
+
 
 
 private:
@@ -32,4 +34,8 @@ private:
 	bool loadFire = true;
 	bool test123 = false;
 	bool m_updateSpellPos = true;
+
+	//new---
+
+	const FlamestrikeSpellBase* m_spellBase;
 };

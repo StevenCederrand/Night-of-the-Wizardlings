@@ -21,7 +21,8 @@ enum {
 	GAME_ROUND_TIMER,
 	RESPAWN_TIME,
 	RESPAWN_PLAYER,
-	SCORE_UPDATE
+	SCORE_UPDATE,
+	SPELL_REMOVAL_REQUEST
 };
 
 /* To make sure the compiler aligns the bits */

@@ -25,6 +25,7 @@ public:
 	void createSpellOnNetwork(const Spell& spell);
 	void updateSpellOnNetwork(const Spell& spell);
 	void destroySpellOnNetwork(const Spell& spell);
+	void requestToDestroyClientSpell(const SpellPacket& packet);
 	void sendHitRequest(Spell& spell, NetworkPlayers::PlayerEntity& playerThatWasHit);
 	void updateNetworkEntities(const float& dt);
 	void sendStartRequestToServer();
@@ -97,6 +98,7 @@ private:
 	std::vector<HitPacket> m_spellsHitQueue;
 	std::vector<SpellPacket> m_updateSpellQueue;
 	std::vector<SpellPacket> m_removeOrAddSpellQueue;
+	std::vector<SpellPacket> m_removalOfClientSpellsQueue;
 
 };
 

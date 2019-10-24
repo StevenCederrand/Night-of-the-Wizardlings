@@ -63,7 +63,7 @@ BulletPhysics::~BulletPhysics()
 	m_collisionShapes.clear();
 }
 
-btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, glm::vec3 position, glm::vec3 extend, float friction)
+btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, glm::vec3 position, glm::vec3 extend, glm::quat rotation, float friction)
 {
 	btCollisionShape* objectShape;
 	switch (object)
@@ -74,14 +74,15 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 			btScalar(extend.y),
 			btScalar(extend.z)));
 		break;
+
 	case sphere:
 		objectShape = new btSphereShape(btScalar(extend.x));
-
 		break;
+
 	case capsule:
 		objectShape = new btCapsuleShape(extend.x, extend.y);
-
 		break;
+
 	default:
 		break;
 	}
@@ -92,13 +93,13 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	startTransform.setIdentity();
 
 	// if you want to rotate something 
-	/*if (inMass == 0)
-	{
-		btQuaternion rot;
-		rot.setEuler(0, 0, 0);
-		startTransform.setRotation(rot);
-	}*/
-
+	btQuaternion rot;
+	rot.setX(rotation.x);
+	rot.setY(rotation.y);
+	rot.setZ(rotation.z);
+	rot.setW(rotation.w);
+	startTransform.setRotation(rot);
+	
 	startTransform.setOrigin(btVector3(position.x, position.y, position.z));
 
 	btScalar mass(inMass);
@@ -138,7 +139,7 @@ btDiscreteDynamicsWorld* BulletPhysics::getDynamicsWorld() const
 btKinematicCharacterController* BulletPhysics::createCharacter(float& spawnHeight)
 {
 	//create the character and add him to the dynamicsWorld
-	m_playerShape = new btCapsuleShape(1.0, 1);
+	m_playerShape = new btCapsuleShape(1.0, 0.5);
 	m_ghostObject = new btPairCachingGhostObject();
 	
 	m_ghostObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, spawnHeight, 0)));
@@ -178,6 +179,8 @@ void BulletPhysics::update(float dt)
 	}
 	if (!setGravity)
 		counter++;
-	btScalar time = btScalar(1.0 / 60.0);
-	m_dynamicsWorld->stepSimulation(time, 10);
+	//btScalar time = btScalar(1.0 / 60.0);
+	// Testing deltatime based updates // JR
+	m_dynamicsWorld->stepSimulation(dt, 0);
+
 }

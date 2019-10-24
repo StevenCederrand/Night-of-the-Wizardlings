@@ -18,8 +18,7 @@
 #include <GameObject/GameObject.h>
 #include <GameObject/AnimatedObject.h>
 #include <Mesh/MeshFormat.h>
-#include <Spells/Spell.h>
-#include <Spells/Spells.h>
+#include <Spells/SpellHandler.h>
 #include <Renderer/SkyBox.h>
 #include <System/Timer.h>
 #include <Renderer/BloomBlur.h>
@@ -93,7 +92,6 @@ private:
 public:
 
 
-	void update(float dt);
 	static Renderer* getInstance();
 	
 	void init(GLFWwindow* window);
@@ -109,7 +107,7 @@ public:
 	//void renderSpell();
 	void renderDebug();
 
-	void renderSpell(const AttackSpellBase* spellBase);
+	void renderSpell(SpellHandler* spellHandler);
 	Camera* getMainCamera() const;
 
 };

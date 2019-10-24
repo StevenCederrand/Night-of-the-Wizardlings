@@ -75,7 +75,7 @@ bool Application::init() {
 	}
 	
 	// Vsync
-	glfwSwapInterval(1);
+	glfwSwapInterval(0); //Off, should be using delta time properly anyway
 	
 	m_input = new Input();
 
@@ -199,11 +199,11 @@ void Application::calcFPS(const float& dt)
 	frameTimer -= dt;
 	if (frameTimer <= 0.0f)
 	{
-		frameTimer = 1.0f;
+		//frameTimer = 1.0f;
 		//std::string title = "fps: " + std::to_string(fps);
 		//printf("%s\n",title.c_str());
 		//glfwSetWindowTitle(m_window, title.c_str());
-		fps = 0;
+		//fps = 0;
 	}
 
 
