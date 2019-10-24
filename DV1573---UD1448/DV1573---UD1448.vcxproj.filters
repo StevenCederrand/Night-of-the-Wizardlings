@@ -66,6 +66,8 @@
     <ClCompile Include="Renderer\BloomBlur.cpp" />
     <ClCompile Include="Renderer\HudObject.cpp" />
     <ClCompile Include="Renderer\HudTextureMap.cpp" />
+    <ClCompile Include="Text\FreeType.cpp" />
+    <ClCompile Include="Text\HUDShader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
@@ -142,6 +144,8 @@
     <ClInclude Include="Renderer\BloomBlur.h" />
     <ClInclude Include="Renderer\HudObject.h" />
     <ClInclude Include="Renderer\HudTextureMap.h" />
+    <ClInclude Include="Text\FreeType.h" />
+    <ClInclude Include="Text\HUDShader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />
