@@ -5,7 +5,7 @@ out vec4 color;
 uniform sampler2D bloomImage;
 uniform sampler2D sceneImage;
 
-int Grayscale = 1;
+uniform int grayscale = 0;
 
 in vec2 texCoords;
 
@@ -25,8 +25,8 @@ void main() {
 
     vec3 result = toneMapping(hdrColor);
     result = gammaCorrection(hdrColor);
-    if(Grayscale == 1) {
-        result = grayscaleColour(result); 
+    if(grayscale == 1) {
+        result = grayscaleColour(result);
     }
     color = vec4(result, 1.0);
 
