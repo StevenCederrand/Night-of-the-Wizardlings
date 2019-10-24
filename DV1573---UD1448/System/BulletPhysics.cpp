@@ -171,7 +171,7 @@ void BulletPhysics::removeObject(btRigidBody* body)
 void BulletPhysics::update(float dt)
 {
 	//counter to make sure that the gravity starts after 60 frames
-	if (counter >60 && !setGravity)
+	if (counter > 15 && !setGravity)
 	{
 		m_character->setGravity(btVector3(0.0f, -5.0f, 0.0f));
 		setGravity = true;
