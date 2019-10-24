@@ -50,6 +50,7 @@
 
 
 //Custom
+#include <Renderer/HudTextureMap.h>
 #include <Mesh/MeshFormat.h>
 #include <Mesh/Mesh.h>
 #include <Mesh/MeshMap.h>
