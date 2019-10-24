@@ -22,7 +22,7 @@ FreeType::FreeType()
 
 FreeType::~FreeType()
 {
-
+	delete m_hudShader;
 }
 
 void FreeType::RenderText(std::string text, GLfloat x, GLfloat y,

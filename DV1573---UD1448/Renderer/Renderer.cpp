@@ -34,6 +34,7 @@ Renderer::Renderer()
 Renderer::~Renderer()
 {
 	delete m_bloom;
+	delete m_text;
 }
 
 void Renderer::renderHUD()
