@@ -6,6 +6,7 @@
 #include <Networking/LocalServer.h>
 #include <Gui/Gui.h>
 
+
 Application::Application() {
 }
 
@@ -18,6 +19,7 @@ Application::~Application() {
 	MeshMap::getInstance()->destroy();
 	AnimationMap::getInstance()->destroy();
 	SkeletonMap::getInstance()->destroy();
+	HudTextureMap::getInstance()->destroy();
 
 	if(Client::getInstance()->isInitialized())
 		Client::getInstance()->destroy();
@@ -49,7 +51,7 @@ bool Application::init() {
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
-	m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", glfwGetPrimaryMonitor(), NULL);
+	m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", NULL, NULL);
 	//m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", glfwGetPrimaryMonitor(), NULL);
 
 	//glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -73,7 +75,7 @@ bool Application::init() {
 	}
 	
 	// Vsync
-	glfwSwapInterval(0);
+	glfwSwapInterval(1);
 	
 	m_input = new Input();
 
