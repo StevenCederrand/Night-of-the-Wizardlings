@@ -51,7 +51,7 @@ bool Application::init() {
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
-	m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", NULL, NULL);
+	m_window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Wizards 'n stuff", NULL, NULL);
 	//m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", glfwGetPrimaryMonitor(), NULL);
 
 	//glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -200,8 +200,8 @@ void Application::calcFPS(const float& dt)
 	if (frameTimer <= 0.0f)
 	{
 		frameTimer = 1.0f;
-		std::string title = "fps: " + std::to_string(fps);
-		printf("%s\n",title.c_str());
+		//std::string title = "fps: " + std::to_string(fps);
+		//printf("%s\n",title.c_str());
 		//glfwSetWindowTitle(m_window, title.c_str());
 		fps = 0;
 	}

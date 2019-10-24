@@ -74,21 +74,18 @@ PlayState::PlayState()
 		m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);	
 		m_objects.at(i)->createDebugDrawer();
 	}
-
-	
-
-	logTrace("Playstate created");
 }
 
 PlayState::~PlayState()
 {
 
-	logTrace("Deleting playstate..");
 	for (GameObject* object : m_objects)
 		delete object;
+	
 	if (!m_scoreboardExists) {
 		GUIclear();
 	}
+
 	m_objects.clear();
 	delete m_skybox;
 	delete m_player;
@@ -97,6 +94,7 @@ PlayState::~PlayState()
 	delete m_camera;
 	delete m_crosshairHUD;
 	delete m_damageOverlay;
+	
 	if (LocalServer::getInstance()->isInitialized()) {
 		LocalServer::getInstance()->destroy();
 	}

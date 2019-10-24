@@ -58,7 +58,6 @@ private:
 	int m_nrOfSpells;
 	int m_health;
 	std::string name;
-	SPELL_TYPE spellType;
 
 	//removed in bulletPhysics.cpp
 	BulletPhysics* m_bp;
