@@ -246,6 +246,7 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 	//	m_BulletNormalSpell.at(size - 1)->setUserPointer(m_BulletNormalSpell.at(size - 1));
 	//}
 
+
 	return cooldown;
 }
 

@@ -253,18 +253,18 @@ bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int
 	Spell* sp1 = reinterpret_cast<Spell*>(obj1->getCollisionObject()->getUserPointer());
 	Spell* sp2 = reinterpret_cast<Spell*>(obj2->getCollisionObject()->getUserPointer());
 
-	// Currently off, unknown error on reflect and AOE spell // JR
-	//if (sp1 != nullptr && sp2 == nullptr) {
-	//	logTrace("sp1: Spell collided");
-	//
-	//	if (!sp1->getHasCollided())
-	//		sp1->hasCollided();	
-	//}
-	//
-	//else if (sp2 != nullptr) {
-	//	
-	//	if (!sp2->getHasCollided())
-	//		sp2->hasCollided();
-	//}
+	 //Currently off, unknown error on reflect and AOE spell // JR
+	if (sp1 != nullptr && sp2 == nullptr) {
+		logTrace("sp1: Spell collided");
+	
+		if (!sp1->getHasCollided())
+			sp1->hasCollided();	
+	}
+	
+	else if (sp2 != nullptr) {
+		
+		if (!sp2->getHasCollided())
+			sp2->hasCollided();
+	}
 	return false;
 }
