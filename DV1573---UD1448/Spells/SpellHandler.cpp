@@ -222,7 +222,7 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 
 		int size = m_BulletNormalSpell.size();
 		m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
-		m_BulletNormalSpell.at(size - 1)->setUserPointer(m_BulletNormalSpell.at(size - 1));
+		m_BulletNormalSpell.at(size - 1)->setUserPointer(spell);
 	}
 
 	if (type == FLAMESTRIKE)
@@ -243,7 +243,8 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 
 		int size = m_BulletNormalSpell.size();
 		m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
-		m_BulletNormalSpell.at(size - 1)->setUserPointer(m_BulletNormalSpell.at(size - 1));
+		m_BulletNormalSpell.at(size - 1)->setUserPointer(spell);
+		m_BulletNormalSpell.at(size - 1)->setLinearVelocity(direction * flamestrikeBase->m_speed);
 	}
 
 	return cooldown;
