@@ -3,6 +3,7 @@
 layout(location = 0) in vec2 position;
 layout(location = 1) in vec2 uv;
 
+
 out vec2 texCoords;
 
 uniform mat4 modelMatrix;

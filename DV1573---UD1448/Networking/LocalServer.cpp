@@ -266,23 +266,40 @@ void LocalServer::processAndHandlePackets()
 
 		case PLAYER_UPDATE_PACKET:
 		{
-			for (size_t i = 0; i < m_connectedPlayers.size(); i++)
+			PlayerPacket playerPacket;
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			playerPacket.Serialize(false, bsIn);
+			PlayerPacket* updatedPlayer = nullptr;
+			// Update player on server
+			bool foundPlayer = false;
+			for (size_t i = 0; i < m_connectedPlayers.size() && foundPlayer == false; i++)
 			{
-				// Don't send it back to the sender
-				if (packet->guid != m_connectedPlayers[i].guid.rakNetGuid) {
-					m_serverPeer->Send(&bsIn, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_connectedPlayers[i].guid, false);
-				}
-				// If it's the sender then update the information about that client on the server
-				else if(packet->guid == m_connectedPlayers[i].guid.rakNetGuid){
-					PlayerPacket playerPacket;
-					bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
-					playerPacket.Serialize(false, bsIn);
-					m_connectedPlayers[i] = playerPacket;
-				/*	m_connectedPlayers[i].guid = playerPacket.guid;
+				if (packet->guid == m_connectedPlayers[i].guid.rakNetGuid) {
 					m_connectedPlayers[i].position = playerPacket.position;
-					m_connectedPlayers[i].rotation = playerPacket.rotation;*/
-					
-					bsIn.SetReadOffset(0);
+					m_connectedPlayers[i].rotation = playerPacket.rotation;
+						
+					if (m_connectedPlayers[i].hasBeenUpdatedOnce == false) {
+						m_connectedPlayers[i].hasBeenUpdatedOnce = true;
+						logTrace("[SERVER] Flagged player with guid {0} as updated atleast once", m_connectedPlayers[i].guid.ToString());
+					}
+					updatedPlayer = &m_connectedPlayers[i];
+					foundPlayer = true;
+				}
+
+
+				if (updatedPlayer != nullptr) {
+					// Serialize it
+					RakNet::BitStream stream;
+					stream.Write((RakNet::MessageID)PLAYER_UPDATE_PACKET);
+					updatedPlayer->Serialize(true, stream);
+
+					// Send it to all clients except the sender
+					for (size_t i = 0; i < m_connectedPlayers.size(); i++)
+					{
+						if (updatedPlayer->guid.rakNetGuid != m_connectedPlayers[i].guid.rakNetGuid) {
+							m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_connectedPlayers[i].guid, false);
+						}
+					}
 				}
 
 			}
@@ -382,7 +399,7 @@ void LocalServer::processAndHandlePackets()
 				for (size_t i = 0; i < spellVec.size() && !deleted; i++) {
 					
 					if (spellVec[i].SpellID == spellPacket.SpellID) {
-						logTrace("[SERVER] Deleted a spell with spell ID: {0} from client {1}", spellVec[i].SpellID, spellVec[i].CreatorGUID.ToString());
+						//logTrace("[SERVER] Deleted a spell with spell ID: {0} from client {1}", spellVec[i].SpellID, spellVec[i].CreatorGUID.ToString());
 						spellVec.erase(spellVec.begin() + i);
 						deleted = true;
 					}
@@ -390,7 +407,7 @@ void LocalServer::processAndHandlePackets()
 
 				if (spellVec.size() == 0)
 				{
-					logTrace("[SERVER] Deleted the local spell container for client with ID {0}", spellPacket.CreatorGUID.ToString());
+					//logTrace("[SERVER] Deleted the local spell container for client with ID {0}", spellPacket.CreatorGUID.ToString());
 					m_activeSpells.erase(item);
 				}
 
@@ -413,8 +430,6 @@ void LocalServer::processAndHandlePackets()
 		{
 			if (m_serverInfo.currentState != NetGlobals::SERVER_STATE::GAME_IN_SESSION)
 				continue;
-
-			logTrace("PLAYER HIT PACKAGE");
 
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			HitPacket hitPacket;
@@ -478,7 +493,7 @@ void LocalServer::processAndHandlePackets()
 				RakNet::BitStream bsOut;
 				bsOut.Write((RakNet::MessageID)SPELL_PLAYER_HIT);
 				playerThatWasHit->Serialize(true, bsOut);
-				m_serverPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, hitPacket.playerHitGUID, false);
+				m_serverPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, hitPacket.playerHitGUID, false);
 
 			}
 		}
@@ -605,6 +620,7 @@ void LocalServer::respawnPlayers()
 		m_connectedPlayers[i].Serialize(true, stream);
 		m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_connectedPlayers[i].guid, false);
 	}
+	m_respawnList.clear();
 }
 
 void LocalServer::resetScores()
@@ -739,7 +755,18 @@ void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 {
 	if (newState == m_serverInfo.currentState) return;
 
+	m_serverInfo.currentState = newState;
+	m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
+	
+	RakNet::BitStream stream;
+	stream.Write((RakNet::MessageID)SERVER_CURRENT_STATE);
+	ServerStateChange statePacket;
+	statePacket.currentState = newState;
+	statePacket.Serialize(true, stream);
+	sendStreamToAllClients(stream, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
+
 	if (newState == NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS) {
+		respawnPlayers();
 		resetScores();
 		logTrace("[SERVER] Warmup!");
 	}
@@ -762,16 +789,6 @@ void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 		m_timedGameInEndStateTimer.restart();
 		m_timedGameInEndStateTimer.start();
 	}
-
-	m_serverInfo.currentState = newState;
-	m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
-	
-	RakNet::BitStream stream;
-	stream.Write((RakNet::MessageID)SERVER_CURRENT_STATE);
-	ServerStateChange statePacket;
-	statePacket.currentState = newState;
-	statePacket.Serialize(true, stream);
-	sendStreamToAllClients(stream, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
 
 }
 
