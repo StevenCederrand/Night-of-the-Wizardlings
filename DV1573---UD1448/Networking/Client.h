@@ -29,7 +29,8 @@ public:
 	void updateNetworkEntities(const float& dt);
 	void sendStartRequestToServer();
 	void refreshServerList();
-	
+	void startSendingUpdatePackages();
+
 	void setUsername(const std::string& userName);
 
 	const std::vector<std::pair<unsigned int, ServerInfo>>& getServerList() const;
@@ -78,6 +79,8 @@ private:
 
 	bool m_shutdownThread;
 	bool m_initialized = false;
+
+	bool m_sendUpdatePackages;
 
 	std::thread m_processThread;
 	

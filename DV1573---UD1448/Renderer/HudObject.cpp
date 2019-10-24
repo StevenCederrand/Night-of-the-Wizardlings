@@ -17,6 +17,8 @@ HudObject::HudObject(const std::string& texturePath, const glm::vec2& position, 
 	m_size.x /= SCREEN_WIDTH;
 	m_size.y /= SCREEN_HEIGHT;
 
+	m_alpha = 1.0f;
+
 	updateModelMatrix();
 }
 
@@ -38,6 +40,11 @@ void HudObject::setScale(const glm::vec3& scale)
 	updateModelMatrix();
 }
 
+void HudObject::setAlpha(const float& alpha)
+{
+	m_alpha = alpha;
+}
+
 const glm::mat4& HudObject::getModelMatrix() const
 {
 	return m_modelMatrix;
@@ -56,6 +63,11 @@ const GLuint& HudObject::getVBO() const
 const GLuint& HudObject::getTextureID() const
 {
 	return m_textureID;
+}
+
+const float& HudObject::getAlpha() const
+{
+	return m_alpha;
 }
 
 void HudObject::setupBuffers()
