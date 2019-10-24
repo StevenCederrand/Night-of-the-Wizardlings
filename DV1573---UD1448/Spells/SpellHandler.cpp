@@ -42,9 +42,9 @@ void SpellHandler::initAttackSpell()
 	attackBase->m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
 
 	attackBase->m_damage = 34;
-	attackBase->m_speed = 45;
-	attackBase->m_radius = 0.2;
-	attackBase->m_coolDown = 1;
+	attackBase->m_speed = 110;
+	attackBase->m_radius = 0.5;
+	attackBase->m_coolDown = 3;
 	attackBase->m_lifeTime = 5;
 	attackBase->m_maxBounces = 3;
 }
@@ -56,7 +56,7 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase->m_material = new Material();
 
 	BGLoader tempLoader;	// The file loader
-	tempLoader.LoadMesh(MESHPATH + "TestCube.mesh");
+	tempLoader.LoadMesh(MESHPATH + "TestSphere.mesh");
 	enhanceAtkBase->m_mesh->saveFilePath(tempLoader.GetFileName(), 0);
 	enhanceAtkBase->m_mesh->nameMesh(tempLoader.GetMeshName());
 	enhanceAtkBase->m_mesh->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
@@ -69,12 +69,12 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase->m_material->specular = newMaterial.specular;
 	tempLoader.Unload();
 
-	attackBase->m_material->diffuse = glm::vec3(0.65f, 0.7f, 1.0f);
-	attackBase->m_material->ambient = glm::vec3(0.65f, 0.7f, 1.0f);
+	enhanceAtkBase->m_material->diffuse = glm::vec3(0.85f, 0.3f, 0.2f);
+	enhanceAtkBase->m_material->ambient = glm::vec3(0.85f, 0.3f, 0.2f);
 
 	enhanceAtkBase->m_damage = 34.0f;
-	enhanceAtkBase->m_speed = 75.0f;
-	enhanceAtkBase->m_radius = 0.2f;
+	enhanceAtkBase->m_speed = 120.0f;
+	enhanceAtkBase->m_radius = 0.5f;
 	enhanceAtkBase->m_coolDown = 1.0f;
 	enhanceAtkBase->m_lifeTime = 5.0f;
 	enhanceAtkBase->m_maxBounces = 3.0f;
@@ -186,6 +186,7 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 	if (type == ENHANCEATTACK)
 	{
 		auto spell = new AttackSpell(spellPos, directionVector, enhanceAtkBase);
+		spell->setType(ENHANCEATTACK);
 		cooldown = enhanceAtkBase->m_coolDown;
 
 		spell->setUniqueID(getUniqueID());

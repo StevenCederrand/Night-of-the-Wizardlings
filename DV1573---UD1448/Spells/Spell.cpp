@@ -33,6 +33,11 @@ void Spell::setDirection(glm::vec3 direction)
 	m_direction = direction;
 }
 
+void Spell::setType(int type)
+{
+	m_type = type;
+}
+
 const glm::vec3& Spell::getDirection() const {
 	return m_direction;
 }

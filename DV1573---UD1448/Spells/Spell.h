@@ -12,13 +12,14 @@ public:
 	float getTravelTime() { return m_travelTime; };
 	const glm::vec3& getDirection() const;
 	const uint64_t& getUniqueID() const;
+	const int& getType() const { return m_type; }
 	
 	//----Set-----//
 
 	void setUniqueID(const uint64_t& uniqueID);
 	void setTravelTime(float m_travelTime);
 	void setDirection(glm::vec3 m_direction);
-	const int& getType() const { return m_type; }
+	void setType(int type);
 
 	// Virtual functions
 	virtual const bool& getHasCollided() const = 0;

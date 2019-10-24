@@ -11,7 +11,8 @@ AttackSpell::AttackSpell(glm::vec3 pos, glm::vec3 direction, const AttackSpellBa
 	setTravelTime(spellBase->m_lifeTime);
 
 	Transform tempTransform;
-	tempTransform.scale = glm::vec3(0.2f, 0.2f, 0.2f);
+
+	tempTransform.scale = glm::vec3(spellBase->m_radius / 2, spellBase->m_radius / 2, spellBase->m_radius / 2);
 	setTransform(tempTransform);
 
 	setWorldPosition(pos);
