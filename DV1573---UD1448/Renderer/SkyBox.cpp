@@ -4,6 +4,7 @@
 
 SkyBox::SkyBox()
 {
+	m_skyboxPath = "Assets/Textures/SKBX_" + std::to_string(2);
 	m_buffer.CubemapTextureID = createCubeMap(faces);
 }
 
@@ -18,7 +19,7 @@ unsigned int SkyBox::createCubeMap(std::vector<std::string> faces)
 {
 	unsigned int textureID;
 	glGenTextures(1, &textureID);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);	
 
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -28,7 +29,8 @@ unsigned int SkyBox::createCubeMap(std::vector<std::string> faces)
 
 	int width, height, nrOfChannels;
 	for (unsigned int i = 0; i < faces.size(); i++)
-	{
+	{	
+		faces[i] = m_skyboxPath + faces[i];
 		unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrOfChannels, STBI_rgb_alpha);
 		if (data)
 		{
@@ -62,4 +64,11 @@ void SkyBox::prepareBuffers()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+}
+
+glm::mat4 SkyBox::getModelMatrix() const
+{
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::rotate(model, (float)glfwGetTime() * 0.006f, glm::vec3(0.0f, 1.0f, 0.0f));
+	return model;
 }
