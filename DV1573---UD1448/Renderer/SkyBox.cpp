@@ -4,6 +4,7 @@
 
 SkyBox::SkyBox()
 {
+	m_skyboxPath = "Assets/Textures/SKBX_" + std::to_string((rand() % NUMBER_OF_SKYBOXES) + 1);
 	m_buffer.CubemapTextureID = createCubeMap(faces);
 }
 
@@ -28,7 +29,8 @@ unsigned int SkyBox::createCubeMap(std::vector<std::string> faces)
 
 	int width, height, nrOfChannels;
 	for (unsigned int i = 0; i < faces.size(); i++)
-	{
+	{	
+		faces[i] = m_skyboxPath + faces[i];
 		unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrOfChannels, STBI_rgb_alpha);
 		if (data)
 		{
