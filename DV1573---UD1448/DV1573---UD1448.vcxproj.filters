@@ -66,6 +66,7 @@
     <ClCompile Include="Renderer\BloomBlur.cpp" />
     <ClCompile Include="Renderer\HudObject.cpp" />
     <ClCompile Include="Renderer\HudTextureMap.cpp" />
+    <ClCompile Include="Spells\ReflectSpell.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
@@ -135,6 +136,7 @@
     <ClInclude Include="System\Timer.h" />
     <ClInclude Include="Spells\Spells.h" />
     <ClInclude Include="Spells\SpellTypes.h" />
+    <ClInclude Include="Spells\ReflectSpell.h" />
     <ClInclude Include="Gui\GameGUI.h" />
     <ClInclude Include="Spells\AOEAttack.h" />
     <ClInclude Include="Spells\fire.h" />

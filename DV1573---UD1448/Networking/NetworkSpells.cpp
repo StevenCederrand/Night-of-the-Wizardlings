@@ -1,6 +1,6 @@
 #include <Pch/Pch.h>
 #include "NetworkSpells.h"
-#include "Client.h"
+#include "Client.h" 
 
 NetworkSpells::NetworkSpells()
 {
@@ -24,14 +24,23 @@ void NetworkSpells::update(const float& dt)
 			if (e.flag == NetGlobals::THREAD_FLAG::ADD) {
 				if (e.gameobject == nullptr) {
 					
-					e.gameobject = new WorldObject();
+					//e.gameobject = new WorldObject();
 					
 					if (e.spellData.SpellType == SPELL_TYPE::NORMALATTACK || e.spellData.SpellType == SPELL_TYPE::UNKNOWN) {
-						e.gameobject->loadMesh("TestSphere.mesh");
+						e.gameobject = new AttackSpell(e.spellData.Position);
 					}
 					else if (e.spellData.SpellType == SPELL_TYPE::ENHANCEATTACK) {
-						e.gameobject->loadMesh("TestCube.mesh");
+						e.gameobject = new AttackSpell(e.spellData.Position);
 					}
+					else if (e.spellData.SpellType == SPELL_TYPE::REFLECT) {
+						e.gameobject = new ReflectSpell(e.spellData.Position);
+					}
+					else {
+						return;
+					}
+					
+
+
 				
 					e.gameobject->setWorldPosition(e.spellData.Position);
 					Renderer::getInstance()->submit(e.gameobject, SPELL);

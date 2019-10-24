@@ -24,17 +24,17 @@ PlayState::PlayState()
 	Renderer::getInstance()->submit2DHUD(m_crosshairHUD);
 
 	m_damageOverlay = new HudObject("Assets/Textures/DamageOverlay.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(static_cast<float>(SCREEN_WIDTH), (static_cast<float>(SCREEN_HEIGHT))));
+	m_damageOverlay->setAlpha(0.0f);
 	Renderer::getInstance()->submit2DHUD(m_damageOverlay);
 	m_player->setHealth(NetGlobals::maxPlayerHealth);
 
 	//Test enviroment with 4 meshes inside 1 GameObject, inherited transforms
-	m_objects.push_back(new WorldObject("TestScene"));
-	m_objects[m_objects.size() - 1]->loadMesh("TestScene.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
-	
-	//
-	//////Cube and sphere centered in scene
+	//m_objects.push_back(new WorldObject("TestScene"));
+	//m_objects[m_objects.size() - 1]->loadMesh("TestScene.mesh");
+	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+
+	//Cube and sphere centered in scene
 	//m_objects.push_back(new WorldObject("TestCube"));
 	//m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
 	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 0.0f, 0.0f));
@@ -46,18 +46,18 @@ PlayState::PlayState()
 	////m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 1.0f, -2.0f));
 	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
-	////m_objects.push_back(new WorldObject("TestCube"));
-	////m_objects[m_objects.size() - 1]->loadMesh("Playground.mesh");
-	////m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -1.0f));
-	////Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
-	//
-	////////Animated rectangle
+	m_objects.push_back(new WorldObject("internalTestmap"));
+	m_objects[m_objects.size() - 1]->loadMesh("internalTestmap.mesh");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -1.0f));
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+	
+	//Animated rectangle
 	//m_objects.push_back(new AnimatedObject("TestRectangle"));
 	//m_objects[m_objects.size() - 1]->loadMesh("TestRectangle.mesh");
 	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -4.0f));
 	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
-	//
-	////Animated goblino
+	
+	//Animated goblino
 	//m_objects.push_back(new AnimatedObject("TestGoblino"));
 	//m_objects[m_objects.size() - 1]->loadMesh("ElGoblino.mesh");
 	//Transform tempTransform;
@@ -66,11 +66,12 @@ PlayState::PlayState()
 	//m_objects[m_objects.size() - 1]->setTransform(tempTransform);
 	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
 
+	
+	
 	gContactAddedCallback = callbackFunc;
 	// Geneterate bullet objects / hitboxes
 	for (size_t i = 0; i < m_objects.size(); i++)
 	{
-		
 		m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);	
 		m_objects.at(i)->createDebugDrawer();
 	}
@@ -106,7 +107,7 @@ void PlayState::update(float dt)
 {	
 	Client::getInstance()->updateNetworkEntities(dt);
 	m_bPhysics->update(dt);
-	Renderer::getInstance()->update(dt);
+	m_player->update(dt);
 	m_spellHandler->spellUpdate(dt);
 	m_player->update(dt);
 	
@@ -138,6 +139,7 @@ void PlayState::update(float dt)
 void PlayState::render()
 {
 	Renderer::getInstance()->render(m_skybox, m_spellHandler);
+	Renderer::getInstance()->renderDebug();
 }
 
 void PlayState::GUIHandler()
@@ -239,6 +241,10 @@ bool PlayState::onMainMenuClick(const CEGUI::EventArgs& e)
 bool PlayState::onQuitClick(const CEGUI::EventArgs& e) {
 	glfwSetWindowShouldClose(glfwGetCurrentContext(), true);
 	return true;
+
+
+
+	
 }
 
 //This function is called everytime two collision objects collide
@@ -248,13 +254,14 @@ bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int
 	Spell* sp1 = reinterpret_cast<Spell*>(obj1->getCollisionObject()->getUserPointer());
 	Spell* sp2 = reinterpret_cast<Spell*>(obj2->getCollisionObject()->getUserPointer());
 
+	 //Currently off, unknown error on reflect and AOE spell // JR
 	if (sp1 != nullptr && sp2 == nullptr) {
 		logTrace("sp1: Spell collided");
-
+	
 		if (!sp1->getHasCollided())
 			sp1->hasCollided();	
 	}
-
+	
 	else if (sp2 != nullptr) {
 		
 		if (!sp2->getHasCollided())

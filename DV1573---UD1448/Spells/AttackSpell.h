@@ -7,14 +7,17 @@ class AttackSpell : public Spell
 {
 public:
 	AttackSpell(glm::vec3 pos, glm::vec3 direction, const AttackSpellBase* spellBase);
+	AttackSpell(glm::vec3 pos);
 	~AttackSpell();
 
+	// Virtual functions
 	virtual const bool& getHasCollided() const;
 	virtual void hasCollided();
-
 	virtual void update(float deltaTime);
-	void updateRigidbody(float deltaTime, btRigidBody* body);
-	const AttackSpellBase* getSpellBase();
+	virtual void updateRigidbody(float deltaTime, btRigidBody* body);
+	virtual const float getDamage();
+
+	const AttackSpellBase* getBase() { return m_spellBase; }
 
 private:
 	const AttackSpellBase* m_spellBase;

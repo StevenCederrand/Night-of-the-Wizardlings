@@ -152,7 +152,7 @@ void GameObject::loadMesh(std::string fileName)
 	}
 
 	tempLoader.Unload();
-
+	updateModelMatrix();
 }
 
 const bool& GameObject::getShouldRender() const
@@ -267,7 +267,6 @@ void GameObject::bindMaterialToShader(std::string shaderName)
 
 void GameObject::bindMaterialToShader(std::string shaderName, int meshIndex)
 {
-	
 	ShaderMap::getInstance()->getShader(shaderName)->setMaterial(MeshMap::getInstance()->getMesh(m_meshes[meshIndex].name)->getMaterial());
 }
 
@@ -279,6 +278,8 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 	for (size_t i = 0; i < m_meshes.size(); i++)
 	{
 		const std::vector<Vertex>& vertices = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getVertices();
+
+		// Animated mesh case
 		if (vertices.size() == 0)
 		{
 			const std::vector<Vertex2>& vertices2 = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getVerticesSkele();
@@ -321,7 +322,8 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 			glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(i).position;
 			glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale;
 			// TODO: ROTATE
-			m_bodies.emplace_back(m_bPhysics->createObject(shape, 0.0f, center, halfSize));
+
+			m_bodies.emplace_back(m_bPhysics->createObject(shape, 0.0f, center, halfSize, getTransform(i).rotation));
 		}
 
 	}
@@ -331,7 +333,7 @@ void GameObject::createDebugDrawer()
 {
 	for (size_t i = 0; i < m_bodies.size(); i++)
 	{
-		// Temporarily off, rotations do not work on them yet
+		// Temporarily off, rotation of drawers do not work
 		//m_debugDrawers.emplace_back(new DebugDrawer());
 		//m_debugDrawers[i]->setUpMesh(*m_bodies[i]);
 	}
