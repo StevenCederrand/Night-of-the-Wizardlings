@@ -125,11 +125,6 @@ void PlayState::render()
 {
 	Renderer::getInstance()->render(m_skybox, m_spellHandler);
 	Renderer::getInstance()->renderDebug();
-
-	//Move the render skybox to be a private renderer function
-	//Renderer::getInstance()->renderSkybox(*m_skybox);
-	//Renderer::getInstance()->render();
-	//m_spellHandler->renderSpell();
 }
 
 void PlayState::GUIHandler()
