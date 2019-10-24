@@ -13,7 +13,7 @@ PlayState::PlayState()
 	m_spellHandler = new SpellHandler(m_bPhysics);
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
 	m_camera = new Camera();
-	m_player = new Player(m_bPhysics, "Player", glm::vec3(0.0f, 5.0f, 0.0f), m_camera, m_spellHandler);
+	m_player = new Player(m_bPhysics, "Player", glm::vec3(0.0f, 2.0f, 0.0f), m_camera, m_spellHandler);
 	Renderer::getInstance()->setupCamera(m_player->getCamera());
 	//TODO: organized loading system?
 	m_skybox = new SkyBox();
@@ -82,9 +82,8 @@ PlayState::~PlayState()
 	logTrace("Deleting playstate..");
 	for (GameObject* object : m_objects)
 		delete object;
-	if (!m_scoreboardExists) {
-		GUIclear();
-	}
+	
+	GUIclear();
 	m_objects.clear();
 	delete m_skybox;
 	delete m_player;
@@ -168,9 +167,9 @@ void PlayState::GUILoadScoreboard() {
 	if (!m_scoreboardExists) {
 		//Create the scoreboard
 		m_scoreBoard = static_cast<CEGUI::MultiColumnList*>(Gui::getInstance()->createWidget(PLAYSECTION, "TaharezLook/MultiColumnList", glm::vec4(0.20f, 0.25f, 0.60f, 0.40f), glm::vec4(0.0f), "Scoreboard"));
-		m_scoreBoard->addColumn("Player: ", 0, CEGUI::UDim(0.33f, 0));
-		m_scoreBoard->addColumn("Score: ", 1, CEGUI::UDim(0.33f, 0));
-		m_scoreBoard->addColumn("Deaths: ", 2, CEGUI::UDim(0.34f, 0));
+		m_scoreBoard->addColumn("PLAYER: ", 0, CEGUI::UDim(0.33f, 0));
+		m_scoreBoard->addColumn("KILLS: ", 1, CEGUI::UDim(0.33f, 0));
+		m_scoreBoard->addColumn("DEATHS: ", 2, CEGUI::UDim(0.34f, 0));
 
 		//Add the client
 		m_scoreBoard->addRow();
