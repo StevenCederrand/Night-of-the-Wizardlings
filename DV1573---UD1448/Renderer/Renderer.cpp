@@ -64,7 +64,11 @@ void Renderer::renderHUD()
 
 			auto* hudObject = vec[i];
 
+			if (hudObject->getAlpha() == 0.0f)
+				continue;
+
 			shader->setMat4("modelMatrix", hudObject->getModelMatrix());
+			shader->setFloat("alphaValue", hudObject->getAlpha());
 
 			glBindVertexArray(hudObject->getVAO());
 
