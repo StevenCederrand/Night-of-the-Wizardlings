@@ -161,14 +161,20 @@ void PlayState::GUIHandler()
 		}
 	}
 
-	if (Client::getInstance()->getServerState().currentState == NetGlobals::GAME_END_STATE) {
+	if (Client::getInstance()->getServerState().currentState != NetGlobals::GAME_END_STATE && m_endGameBoardVisible) {
+		GUIclear();
+		m_endGameBoardVisible = false;
+	}
+	
+	if (Input::isKeyPressed(GLFW_KEY_TAB) && !m_endGameBoardVisible) {
 		GUILoadScoreboard();
 	}
-
-	if (Input::isKeyPressed(GLFW_KEY_TAB)) {
+	else if (Client::getInstance()->getServerState().currentState == NetGlobals::GAME_END_STATE && !m_endGameBoardVisible) {
 		GUILoadScoreboard();
+		m_endGameBoardVisible = true;
 	}
-	if (Input::isKeyReleased(GLFW_KEY_TAB)) {
+	
+	if (Input::isKeyReleased(GLFW_KEY_TAB) && !m_endGameBoardVisible) {
 		GUIclear();
 	}
 }
