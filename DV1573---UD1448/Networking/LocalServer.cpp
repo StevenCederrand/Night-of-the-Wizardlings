@@ -280,6 +280,7 @@ void LocalServer::processAndHandlePackets()
 						
 					if (m_connectedPlayers[i].hasBeenUpdatedOnce == false) {
 						m_connectedPlayers[i].hasBeenUpdatedOnce = true;
+						memcpy(m_connectedPlayers[i].userName, playerPacket.userName, sizeof(playerPacket.userName));
 						logTrace("[SERVER] Flagged player with guid {0} as updated atleast once", m_connectedPlayers[i].guid.ToString());
 					}
 					updatedPlayer = &m_connectedPlayers[i];
@@ -425,7 +426,55 @@ void LocalServer::processAndHandlePackets()
 		}
 
 		break;
-			  
+		
+		case SPELL_REMOVAL_REQUEST:
+		{
+			logTrace("[SERVER] Spell removal request");
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			SpellPacket spellPacket;
+			spellPacket.Serialize(false, bsIn);
+			bsIn.SetReadOffset(0);
+
+			auto item = m_activeSpells.find(spellPacket.CreatorGUID.g);
+
+			if (item != m_activeSpells.end()) {
+				//logTrace("Going to delete spell: {0}", spellPacket.toString());
+				auto& spellVec = item._Ptr->_Myval.second;
+				bool deleted = false;
+				for (size_t i = 0; i < spellVec.size() && !deleted; i++) {
+
+					if (spellVec[i].SpellID == spellPacket.SpellID) {
+						//logTrace("[SERVER] Deleted a spell with spell ID: {0} from client {1}", spellVec[i].SpellID, spellVec[i].CreatorGUID.ToString());
+						spellVec.erase(spellVec.begin() + i);
+						deleted = true;
+					}
+				}
+
+				if (spellVec.size() == 0)
+				{
+					//logTrace("[SERVER] Deleted the local spell container for client with ID {0}", spellPacket.CreatorGUID.ToString());
+					m_activeSpells.erase(item);
+				}
+
+			}
+
+			for (size_t i = 0; i < m_connectedPlayers.size(); i++)
+			{
+				// Don't send it back to the sender
+				if (packet->guid != m_connectedPlayers[i].guid.rakNetGuid) {
+					m_serverPeer->Send(&bsIn, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_connectedPlayers[i].guid, false);
+				}
+
+			}
+
+
+			RakNet::BitStream stream;
+			stream.Write((RakNet::MessageID)SPELL_PLAYER_HIT);
+			spellPacket.Serialize(true, stream);
+			m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, spellPacket.CreatorGUID, false);
+		}
+		break;
+
 		case SPELL_PLAYER_HIT:
 		{
 			if (m_serverInfo.currentState != NetGlobals::SERVER_STATE::GAME_IN_SESSION)

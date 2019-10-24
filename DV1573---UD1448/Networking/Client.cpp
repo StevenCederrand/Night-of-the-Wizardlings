@@ -534,6 +534,14 @@ void Client::processAndHandlePackets()
 		}
 
 		break;
+
+		case SPELL_REMOVAL_REQUEST:
+		{
+			logTrace("[CLIENT] Got request to remove a spell");
+
+		}
+		break;
+
 		default:
 		{
 			logWarning("[CLIENT] Unknown packet received!");
@@ -614,6 +622,11 @@ void Client::destroySpellOnNetwork(const Spell& spell)
 	m_removeOrAddSpellQueue.emplace_back(spellPacket);
 }
 
+void Client::requestToDestroyClientSpell(const SpellPacket& packet)
+{
+	m_removalOfClientSpellsQueue.emplace_back(packet);
+}
+
 void Client::sendHitRequest(Spell& spell, NetworkPlayers::PlayerEntity& playerThatWasHit)
 {
 	if (!m_initialized || !m_isConnectedToAnServer || m_serverState.currentState != NetGlobals::SERVER_STATE::GAME_IN_SESSION) return;
@@ -654,14 +667,27 @@ void Client::sendStartRequestToServer()
 
 void Client::updateDataOnServer()
 {
-	if (!m_sendUpdatePackages)
+	if (!m_sendUpdatePackages) {
 		return;
+	}
+	// Scope
+	{
+		// Player data sent to server
+		RakNet::BitStream bsOut;
+		bsOut.Write((RakNet::MessageID)PLAYER_UPDATE_PACKET);
+		m_myPlayerDataPacket.Serialize(true, bsOut);
+		m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
+	}
 
-	// Player data sent to server
-	RakNet::BitStream bsOut;
-	bsOut.Write((RakNet::MessageID)PLAYER_UPDATE_PACKET);
-	m_myPlayerDataPacket.Serialize(true, bsOut);
-	m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
+	// Update all spells first
+	for (size_t i = 0; i < m_removalOfClientSpellsQueue.size(); i++) {
+
+		RakNet::BitStream bsOut;
+		bsOut.Write((RakNet::MessageID)SPELL_REMOVAL_REQUEST);
+		m_removalOfClientSpellsQueue[i].Serialize(true, bsOut);
+		m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_serverAddress, false);
+	}
+
 
 	// Update all spells first
 	for (size_t i = 0; i < m_updateSpellQueue.size(); i++) {
@@ -687,13 +713,14 @@ void Client::updateDataOnServer()
 		RakNet::BitStream bsOut;
 		bsOut.Write(m_removeOrAddSpellQueue[i].packetType);
 		m_removeOrAddSpellQueue[i].Serialize(true, bsOut);
-		m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
+		m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_serverAddress, false);
 	}
 
 	// Empty all the queues
 	m_updateSpellQueue.clear();
 	m_spellsHitQueue.clear();
 	m_removeOrAddSpellQueue.clear();
+	m_removalOfClientSpellsQueue.clear();
 
 }
 
