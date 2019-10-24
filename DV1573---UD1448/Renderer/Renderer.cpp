@@ -566,7 +566,12 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_CULL_FACE);
-	m_text->RenderText("Health", 10.0f, 680.0f, 0.8f, glm::vec3(1.0f, 0.0f, 0.0f));
+	if (Client::getInstance()->isConnectedToSever()) {
+		m_text->RenderText("Health: " + std::to_string(Client::getInstance()->getMyData().health), 10.0f, 680.0f, 0.8f, glm::vec3(1.0f, 0.0f, 0.0f));
+		m_text->RenderText("Kills: " + std::to_string(Client::getInstance()->getMyData().numberOfKills), 1000.0f, 680.0f, 0.8f, glm::vec3(1.0f, 0.0f, 0.0f));
+
+
+	}
 	renderHUD();
 
 
