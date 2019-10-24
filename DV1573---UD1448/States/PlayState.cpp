@@ -24,6 +24,7 @@ PlayState::PlayState()
 	Renderer::getInstance()->submit2DHUD(m_crosshairHUD);
 
 	m_damageOverlay = new HudObject("Assets/Textures/DamageOverlay.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(static_cast<float>(SCREEN_WIDTH), (static_cast<float>(SCREEN_HEIGHT))));
+	m_damageOverlay->setAlpha(0.0f);
 	Renderer::getInstance()->submit2DHUD(m_damageOverlay);
 	m_player->setHealth(NetGlobals::maxPlayerHealth);
 
