@@ -8,6 +8,7 @@ class ReflectSpell : public Spell
 {
 public:
 	ReflectSpell(glm::vec3 pos, glm::vec3 direction, const ReflectSpellBase* spellBase);
+	ReflectSpell(glm::vec3 pos);
 	~ReflectSpell();
 
 	// Virtual functions
