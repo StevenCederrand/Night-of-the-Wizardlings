@@ -8,6 +8,11 @@
 #define SKYBOX "Skybox_Shader"
 #define ANIMATION "Basic_Animation"
 #define DEBUG "Debug_Forward"
+#define BLOOM "Bloom_Shader"
+#define BLUR "Blur_Shader"
+#define BLOOM_BLUR "BloomBlur_Shader"
+#define HUD "Hud_Shader"
+
 
 #include <Pch/Pch.h>
 #include <GameObject/GameObject.h>
@@ -16,6 +21,9 @@
 #include <Spells/SpellHandler.h>
 #include <Renderer/SkyBox.h>
 #include <System/Timer.h>
+#include <Renderer/BloomBlur.h>
+#include <Spells/SpellHandler.h>
+#include <Renderer/HudObject.h>
 
 #define P_LIGHT_COUNT 64
 #define P_LIGHT_RADIUS 2
@@ -53,6 +61,8 @@ private:
 	std::vector<GameObject*> m_anidynamicObjects;
 	std::vector<GameObject*> m_spells; 
 
+	std::unordered_map<GLuint, std::vector<HudObject*>> m_2DHudMap;
+
 	//Buffers
 	unsigned int m_depthFBO;
 	unsigned int m_depthMap;
@@ -65,13 +75,17 @@ private:
 	
 	glm::uvec2 workGroups;
 
-	
+	void renderHUD();
 	void createDepthMap();
 	void initShaders();
 	void bindMatrixes(const std::string& shaderName);
 	
 	
+	BloomBlur* m_bloom;
+	//SpellHandler* m_spellHandler;
+
 	Renderer();
+	~Renderer();
 public:
 
 
@@ -82,16 +96,18 @@ public:
 	void setupCamera(Camera* camera);
 
 	void destroy();
+	void clear();
 	void submit(GameObject* gameObject, ObjectType objType);
-	
+	void submit2DHUD(HudObject* hud);
 	void removeDynamic(GameObject* gameObject, ObjectType objType); //Remove an object from the dynamic array
 	void renderSkybox(const SkyBox& skybox);
-	void render();
+	void render(SkyBox* m_skybox, SpellHandler* m_spellHandler);
 	//void renderSpell();
 	void renderDebug();
 
 	void renderSpell(SpellHandler* spellHandler);
 	Camera* getMainCamera() const;
+
 };
 
 #endif

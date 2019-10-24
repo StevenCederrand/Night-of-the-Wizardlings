@@ -8,11 +8,7 @@ NetworkSpells::NetworkSpells()
 
 NetworkSpells::~NetworkSpells()
 {
-	for (size_t i = 0; i < m_entities.size(); i++) {
-		if (m_entities[i].gameobject != nullptr)
-			delete m_entities[i].gameobject;
-	}
-
+	cleanUp();
 }
 
 void NetworkSpells::update(const float& dt)
@@ -62,6 +58,15 @@ void NetworkSpells::update(const float& dt)
 			}
 		}
 	}
+}
+
+void NetworkSpells::cleanUp()
+{
+	for (size_t i = 0; i < m_entities.size(); i++) {
+		if (m_entities[i].gameobject != nullptr)
+			delete m_entities[i].gameobject;
+	}
+	m_entities.clear();
 }
 
 std::vector<NetworkSpells::SpellEntity>& NetworkSpells::getSpellEntitiesREF()

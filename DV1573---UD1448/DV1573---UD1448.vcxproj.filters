@@ -20,10 +20,8 @@
     <ClCompile Include="Renderer\Renderer.cpp" />
     <ClCompile Include="Renderer\Shader.cpp" />
     <ClCompile Include="Renderer\ShaderMap.cpp" />
-    <ClCompile Include="Spells\AOEAttack.cpp" />
     <ClCompile Include="Spells\AttackSpell.cpp" />
     <ClCompile Include="Spells\EnhanceAttackSpell.cpp" />
-    <ClCompile Include="Spells\fire.cpp" />
     <ClCompile Include="Spells\Spell.cpp" />
     <ClCompile Include="Renderer\SkyBox.cpp" />
     <ClCompile Include="Spells\SpellHandler.cpp" />
@@ -62,6 +60,13 @@
     <ClCompile Include="System\Timer.cpp" />
     <ClCompile Include="Texture\stb_image.cpp" />
     <ClCompile Include="Spells\ReflectSpell.cpp" />
+    <ClCompile Include="Gui\GameGUI.cpp" />
+    <ClCompile Include="Spells\AOEAttack.cpp" />
+    <ClCompile Include="Spells\fire.cpp" />
+    <ClCompile Include="System\TimedCallback.cpp" />
+    <ClCompile Include="Renderer\BloomBlur.cpp" />
+    <ClCompile Include="Renderer\HudObject.cpp" />
+    <ClCompile Include="Renderer\HudTextureMap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
@@ -86,10 +91,8 @@
     <ClInclude Include="Renderer\Renderer.h" />
     <ClInclude Include="Renderer\Shader.h" />
     <ClInclude Include="Renderer\ShaderMap.h" />
-    <ClInclude Include="Spells\AOEAttack.h" />
     <ClInclude Include="Spells\AttackSpell.h" />
     <ClInclude Include="Spells\EnhanceAttackSpell.h" />
-    <ClInclude Include="Spells\fire.h" />
     <ClInclude Include="Spells\Spell.h" />
     <ClInclude Include="Renderer\SkyBox.h" />
     <ClInclude Include="Mesh\SkeletonMap.h" />
@@ -134,6 +137,13 @@
     <ClInclude Include="Spells\Spells.h" />
     <ClInclude Include="Spells\SpellTypes.h" />
     <ClInclude Include="Spells\ReflectSpell.h" />
+    <ClInclude Include="Gui\GameGUI.h" />
+    <ClInclude Include="Spells\AOEAttack.h" />
+    <ClInclude Include="Spells\fire.h" />
+    <ClInclude Include="System\TimedCallback.h" />
+    <ClInclude Include="Renderer\BloomBlur.h" />
+    <ClInclude Include="Renderer\HudObject.h" />
+    <ClInclude Include="Renderer\HudTextureMap.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

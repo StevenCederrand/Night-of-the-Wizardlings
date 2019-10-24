@@ -1,12 +1,11 @@
 #version 430
 #define LIGHTS_MAX 64
 
-//#define PLANE_COUNT
+
 layout(std430, binding = 0) readonly buffer LightIndexBuffer {
     //Point light indexes
     int index[LIGHTS_MAX];
 } lightIndexBuffer;
-
 
 struct P_LIGHT {
     vec3 position;
@@ -18,6 +17,7 @@ in vec2 f_UV;
 in vec3 f_normal;
 in vec4 f_position;
 out vec4 color;
+out vec4 brightColor;
 
 vec3 lightDirection = vec3(0.5f, -1.0f, 0.0f);
 vec3 lightCol = vec3(1);
@@ -36,7 +36,7 @@ vec3 calcLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance, vec3
     vec3 lightDir = normalize(lightPosition - position);
     float diff = max(dot(normal, lightDir), 0);
     vec3 ambient = vec3(0.1f) * lightCol * ambientStr;
-    vec3 diffuse = Diffuse_Color * diff;
+    vec3 diffuse = Diffuse_Color * diff * 4;
     if(HasTex)
         diffuse = (Diffuse_Color * texture(albedoTexture, f_UV).rgb) * diff;
 
@@ -49,16 +49,27 @@ vec3 calcLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance, vec3
     return (ambient + diffuse) * attenuation;
 }
 
+
+//Calculate the directional light... Returns the diffuse color, post calculations
+vec3 calcDirLight(vec3 lightDirection, vec3 normal, vec3 diffuseColor);
+
 void main() {
     float ambientStr = 0.1f;
     vec3 ambientCol = (Ambient_Color + ambientStr);
+
     if (HasTex)
         ambientCol = (Ambient_Color + ambientStr) * texture(albedoTexture, f_UV).rgb;
 
     vec3 position = vec3(0);
-
     vec3 result = ambientCol;
-    
+
+    //Create the diffuse color once
+    vec3 diffuse = Diffuse_Color;
+    if(HasTex)
+        diffuse = (Diffuse_Color * texture(albedoTexture, f_UV).rgb);
+
+    result += calcDirLight(vec3(0.2, -0.2, 0.0), f_normal, diffuse);
+
     //This is a light accumilation over the point lights
     for(int i = 0; i < LightCount && lightIndexBuffer.index[i] != -1; i++) {
         uint lightIndex = lightIndexBuffer.index[i];
@@ -76,5 +87,21 @@ void main() {
     }
 
 
+
     color = vec4(result, 1);
+    float brightness = dot(result, vec3(0.2126, 0.7152, 0.0722));
+    
+    if(brightness > 1.0)
+        brightColor = vec4(ambientCol + result, 1.0);
+    else
+        brightColor = vec4(0.0, 0.0, 0.0, 1.0);
+}
+
+vec3 calcDirLight(vec3 lightDirection, vec3 normal, vec3 diffuseColor) {
+    float lightStr = 0.1f;
+    vec3 lightDir = normalize(-lightDirection);
+    float diff = max(dot(normal, lightDir), 0.0);
+
+    diffuseColor = (Diffuse_Color * texture(albedoTexture, f_UV).rgb) * diff * lightStr;
+    return diffuseColor;
 }

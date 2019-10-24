@@ -14,6 +14,7 @@ MenuState::MenuState()
 
 MenuState::~MenuState()
 {
+	logTrace("Deleting Menu State..");
 	Gui::getInstance()->clearWidgetsInSection(GUI_SECTION);
 }
 
@@ -22,7 +23,6 @@ void MenuState::update(float dt)
 	if (Input::isKeyHeldDown(GLFW_KEY_F3)) {
 		m_stateManager->clearAllAndSetState(new FindServerState());
 	}
-	
 }
 
 void MenuState::render()

@@ -23,6 +23,7 @@ public:
 	void hideMouseCursor();
 	void update(float dt);
 	void draw();
+	void drawSpecific(std::string name);
 	void clearWidgetsInSection(const std::string& section);
 
 	// Getters

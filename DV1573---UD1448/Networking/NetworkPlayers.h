@@ -15,7 +15,7 @@ public:
 
 	NetworkPlayers();
 	~NetworkPlayers();
-
+	void cleanUp();
 	void update(const float& dt);
 	std::vector<PlayerEntity>& getPlayersREF();
 	

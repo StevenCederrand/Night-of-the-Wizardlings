@@ -7,6 +7,7 @@ GameObject::GameObject()
 	m_objectName = "Empty";
 	type = 0;
 	m_bPhysics = nullptr;
+	m_shouldRender = true;
 }
 
 GameObject::GameObject(std::string objectName)
@@ -114,7 +115,7 @@ void GameObject::loadMesh(std::string fileName)
 				// set the texture wrapping/filtering options (on the currently bound texture object)
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 				// load and generate the texture
 				int width, height, nrChannels;
@@ -152,6 +153,11 @@ void GameObject::loadMesh(std::string fileName)
 
 	tempLoader.Unload();
 	updateModelMatrix();
+}
+
+const bool& GameObject::getShouldRender() const
+{
+	return m_shouldRender;
 }
 
 //Update each individual modelmatrix for the meshes
@@ -193,6 +199,11 @@ void GameObject::translate(const glm::vec3& translationVector)
 {
 	m_transform.position += translationVector;
 	updateModelMatrix();
+}
+
+void GameObject::setShouldRender(bool condition)
+{
+	m_shouldRender = condition;
 }
 
 const Transform GameObject::getTransform() const
@@ -239,6 +250,9 @@ const std::string& GameObject::getMeshName(int meshIndex) const
 
 const glm::mat4& GameObject::getMatrix(const int& i) const
 {
+	if (m_modelMatrixes.size() == 0) {
+		return glm::mat4(1.0f);
+	}
 	//if we are trying to access a matrix beyond our count
 	if (i > static_cast<int>(m_modelMatrixes.size())) {
 		return glm::mat4(1.0f);
@@ -262,7 +276,7 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 	if (!m_bPhysics)
 		m_bPhysics = bp;
 
-	for (int i = 0; i < m_meshes.size(); i++)
+	for (size_t i = 0; i < m_meshes.size(); i++)
 	{
 		const std::vector<Vertex>& vertices = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getVertices();
 
@@ -274,7 +288,7 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 			glm::vec3 min = vertices2[0].position;
 			glm::vec3 max = vertices2[0].position;
 
-			for (int i = 1; i < vertices2.size(); i++)
+			for (size_t i = 1; i < vertices2.size(); i++)
 			{
 				min.x = fminf(vertices2[i].position.x, min.x);
 				min.y = fminf(vertices2[i].position.y, min.y);
@@ -295,7 +309,7 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 			glm::vec3 min = vertices[0].position;
 			glm::vec3 max = vertices[0].position;
 
-			for (int i = 1; i < vertices.size(); i++)
+			for (size_t i = 1; i < vertices.size(); i++)
 			{
 				min.x = fminf(vertices[i].position.x, min.x);
 				min.y = fminf(vertices[i].position.y, min.y);
@@ -318,7 +332,7 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 
 void GameObject::createDebugDrawer()
 {
-	for (int i = 0; i < m_bodies.size(); i++)
+	for (size_t i = 0; i < m_bodies.size(); i++)
 	{
 		// Temporarily off, rotation of drawers do not work
 		//m_debugDrawers.emplace_back(new DebugDrawer());

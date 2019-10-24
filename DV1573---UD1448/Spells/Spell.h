@@ -9,9 +9,10 @@ public:
 	Spell(glm::vec3 pos, glm::vec3 m_direction);
 	~Spell();
 
-	float getTravelTime() { return m_travelTime; }
-	glm::vec3 getDirection() { return m_direction; }
+	float getTravelTime() { return m_travelTime; };
+	const glm::vec3& getDirection() const;
 	const uint64_t& getUniqueID() const;
+	virtual const bool& getHasCollided() const = 0;
 	
 	//----Set-----//
 
@@ -19,6 +20,7 @@ public:
 	void setTravelTime(float m_travelTime);
 	void setDirection(glm::vec3 m_direction);
 	const int& getType() const { return m_type; }
+	virtual void hasCollided() = 0;
 
 	virtual void update(float dt) = 0;
 	virtual void updateRigidbody(float deltaTime, btRigidBody* body) = 0;
@@ -29,5 +31,7 @@ private:
 	glm::vec3 m_direction;
 
 protected:
+
 	int m_type;
+	
 };

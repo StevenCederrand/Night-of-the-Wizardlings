@@ -40,7 +40,6 @@ void Camera::mouse_callback(GLFWwindow* window)
 
 	mouseControls(xoffset, yoffset, true);
 
-	//std::cout << " " << getXpos() << " " << getYpos() << std::endl;
 
 }
 
@@ -64,6 +63,7 @@ Camera::Camera()
 
 	setWindowSize(width, height);
 	calcVectors();
+	m_fpEnabled = true;
 }
 
 Camera::~Camera()
@@ -74,16 +74,6 @@ Camera::~Camera()
 void Camera::fpsControls(float deltaTime)
 {
 	float m_CamSpeed = camSpeed * deltaTime;
-
-	//WASD controls
-	/*if (Input::isKeyHeldDown(GLFW_KEY_A))
-		camPos -= m_CamSpeed * camRight;
-	if (Input::isKeyHeldDown(GLFW_KEY_D))
-		camPos += m_CamSpeed * camRight;
-	if (Input::isKeyHeldDown(GLFW_KEY_W))
-		camPos += m_CamSpeed * camFace;
-	if (Input::isKeyHeldDown(GLFW_KEY_S))
-		camPos -= m_CamSpeed * camFace;*/
 
 	calcVectors();
 }
@@ -162,5 +152,20 @@ void Camera::setCameraPos(glm::vec3 pos)
 
 void Camera::update(GLFWwindow* window)
 {
-	mouse_callback(window);
+	if (m_fpEnabled) {
+		mouse_callback(window);
+	}
+}
+
+void Camera::enableFP(const bool& fpEnable) {
+	m_fpEnabled = fpEnable;
+	//when enabling the fps camera
+	if (m_fpEnabled) {
+		int wSizeX, wSizeY;
+		glfwGetWindowSize(glfwGetCurrentContext(), &wSizeX, &wSizeY);
+		lastX = static_cast<float>(wSizeX / 2);
+		lastY = static_cast<float>(wSizeY / 2);
+
+		glfwSetCursorPos(glfwGetCurrentContext(), lastX, lastY);
+	}
 }
