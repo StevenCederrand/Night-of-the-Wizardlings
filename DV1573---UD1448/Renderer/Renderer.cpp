@@ -142,7 +142,7 @@ void Renderer::initShaders() {
 	ShaderMap::getInstance()->useByName(BLOOM_BLUR);
 	ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("sceneImage", 0);
 	ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("bloomImage", 1);
-
+	m_text = new FreeType();
 	m_bloom = new BloomBlur;
 	m_bloom->createHdrFBO();
 	m_bloom->createPingPingFBO();
@@ -558,7 +558,7 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	renderHUD();
-	
+	m_text->RenderText("Health", 10.0f, 680.0f, 0.8f, glm::vec3(1.0f, 0.0f, 0.0f));
 
 }
 

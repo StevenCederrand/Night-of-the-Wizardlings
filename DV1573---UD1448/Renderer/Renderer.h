@@ -25,6 +25,7 @@
 #include <Renderer/BloomBlur.h>
 #include <Spells/SpellHandler.h>
 #include <Renderer/HudObject.h>
+#include <Text/FreeType.h>
 
 #define P_LIGHT_COUNT 64
 #define P_LIGHT_RADIUS 2
@@ -52,7 +53,7 @@ private:
 	static Renderer* m_rendererInstance;
 	GLFWwindow* m_gWindow;
 	Camera* m_camera;
-
+	FreeType* m_text;
 	Timer m_timer;
 
 	//Store gameobjects directly to the renderer

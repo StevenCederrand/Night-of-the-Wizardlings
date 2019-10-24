@@ -1,7 +1,7 @@
 #include "Pch/Pch.h"
 #include "Freetype.h"
 
-FreeType::FreeType(glm::mat4 camMat)
+FreeType::FreeType()
 {
 	m_hudShader = new HUDShader("HUDVertexShader.vs", "HUDFragShader.fs");
 	glm::mat4 projection = glm::ortho(0.0f, 1280.0f, 0.0f, 720.0f);

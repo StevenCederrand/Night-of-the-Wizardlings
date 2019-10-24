@@ -22,7 +22,7 @@ public:
 	std::map<GLchar, TextCharacter> TextCharacters;
 	HUDShader* m_hudShader;
 
-	FreeType(glm::mat4 camMat);
+	FreeType();
 	~FreeType();
 	void BindTexture();
 	void RenderText(std::string text, GLfloat x, GLfloat y, GLfloat scale,
