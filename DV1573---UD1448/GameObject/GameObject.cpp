@@ -267,7 +267,6 @@ void GameObject::bindMaterialToShader(std::string shaderName)
 
 void GameObject::bindMaterialToShader(std::string shaderName, int meshIndex)
 {
-	
 	ShaderMap::getInstance()->getShader(shaderName)->setMaterial(MeshMap::getInstance()->getMesh(m_meshes[meshIndex].name)->getMaterial());
 }
 

@@ -11,11 +11,15 @@ public:
 	AOEAttack(glm::vec3 pos, glm::vec3 direction, const FlamestrikeSpellBase* spellBase);
 	~AOEAttack();
 
-	void updateActiveSpell(float deltaTime);
-	void updateRigidbody(float deltaTime, btRigidBody* body);
+	// Virtual functions
+	virtual const bool& getHasCollided() const;	//TODO: Construct this function
+	virtual void hasCollided();					//TODO: Construct this function
+	virtual void updateRigidbody(float deltaTime, btRigidBody* body);
+	virtual void update(float dt);
+	virtual const float getDamage();
 
-	void update(float dt);
-	const float getDamage();
+	void updateActiveSpell(float deltaTime);
+
 
 
 private:

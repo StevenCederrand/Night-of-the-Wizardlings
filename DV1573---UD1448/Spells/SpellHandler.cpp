@@ -159,9 +159,8 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 {
 	float cooldown = 0.0f;
 	if (Client::getInstance()->getMyData().health <= 0)
-		return;
+		return cooldown;
 
-	CollisionObject obj = sphere;
 	if (type == NORMALATTACK)
 	{
 		auto spell = new AttackSpell(spellPos, directionVector, attackBase);
@@ -176,12 +175,12 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 		//bullet create
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
 		m_BulletNormalSpell.emplace_back(
-			m_bp->createObject(obj, 1.0f, spellPos+directionVector*2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
+			m_bp->createObject(sphere, 1.0f, spellPos+directionVector*2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
 			
 		int size = m_BulletNormalSpell.size();
 		m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 		m_BulletNormalSpell.at(size - 1)->setUserPointer(spell);
-		m_BulletNormalSpell.at(size - 1)->setLinearVelocity(direction*spell->getSpellBase()->m_speed);
+		m_BulletNormalSpell.at(size - 1)->setLinearVelocity(direction * attackBase->m_speed);
 	}
 
 	if (type == ENHANCEATTACK)
@@ -198,12 +197,12 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 		//bullet create
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
 		m_BulletNormalSpell.emplace_back(
-			m_bp->createObject(obj, 1.0f, spellPos + directionVector * 2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
+			m_bp->createObject(sphere, 1.0f, spellPos + directionVector * 2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
 
 		int size = m_BulletNormalSpell.size();
 		m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 		m_BulletNormalSpell.at(size - 1)->setUserPointer(spell);
-		m_BulletNormalSpell.at(size - 1)->setLinearVelocity(direction * spell->getSpellBase()->m_speed);
+		m_BulletNormalSpell.at(size - 1)->setLinearVelocity(direction * enhanceAtkBase->m_speed);
 	}
 
 	if (type == REFLECT)
@@ -219,7 +218,7 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 		//bullet create
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.x);
 		m_BulletNormalSpell.emplace_back(
-			m_bp->createObject(obj, 1.0f, spellPos + directionVector * 2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
+			m_bp->createObject(sphere, 1.0f, spellPos + directionVector * 2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
 
 		int size = m_BulletNormalSpell.size();
 		m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
@@ -240,7 +239,7 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 		//bullet create
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.x);
 		m_BulletNormalSpell.emplace_back(
-			m_bp->createObject(obj, 1.0f, spellPos + directionVector * 2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
+			m_bp->createObject(sphere, 1.0f, spellPos + directionVector * 2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
 
 		int size = m_BulletNormalSpell.size();
 		m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));

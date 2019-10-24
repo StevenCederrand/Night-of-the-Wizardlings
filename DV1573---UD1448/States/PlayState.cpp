@@ -24,17 +24,16 @@ PlayState::PlayState()
 	Renderer::getInstance()->submit2DHUD(m_crosshairHUD);
 
 	//Test enviroment with 4 meshes inside 1 GameObject, inherited transforms
-	/*m_objects.push_back(new WorldObject("TestScene"));
-	m_objects[m_objects.size() - 1]->loadMesh("TestScene.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);*/
-	//
-	////Cube and sphere centered in scene
-	/*m_objects.push_back(new WorldObject("TestCube"));
-	m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 0.0f, 0.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);*/
+	//m_objects.push_back(new WorldObject("TestScene"));
+	//m_objects[m_objects.size() - 1]->loadMesh("TestScene.mesh");
+	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
+	//Cube and sphere centered in scene
+	//m_objects.push_back(new WorldObject("TestCube"));
+	//m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
+	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 0.0f, 0.0f));
+	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
 	//m_objects.push_back(new WorldObject("TestSphere"));
 	//m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
@@ -47,20 +46,20 @@ PlayState::PlayState()
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -1.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 	
-	//////Animated rectangle
-	/*m_objects.push_back(new AnimatedObject("TestRectangle"));
-	m_objects[m_objects.size() - 1]->loadMesh("TestRectangle.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -4.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);*/
+	//Animated rectangle
+	//m_objects.push_back(new AnimatedObject("TestRectangle"));
+	//m_objects[m_objects.size() - 1]->loadMesh("TestRectangle.mesh");
+	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -4.0f));
+	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
 	
 	//Animated goblino
-	/*m_objects.push_back(new AnimatedObject("TestGoblino"));
-	m_objects[m_objects.size() - 1]->loadMesh("ElGoblino.mesh");
-	Transform tempTransform;
-	tempTransform.scale = glm::vec3(0.03f, 0.03f, 0.03f);
-	tempTransform.position = glm::vec3(-3.0f, 0.0f, 3.0f);
-	m_objects[m_objects.size() - 1]->setTransform(tempTransform);
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);*/
+	//m_objects.push_back(new AnimatedObject("TestGoblino"));
+	//m_objects[m_objects.size() - 1]->loadMesh("ElGoblino.mesh");
+	//Transform tempTransform;
+	//tempTransform.scale = glm::vec3(0.03f, 0.03f, 0.03f);
+	//tempTransform.position = glm::vec3(-3.0f, 0.0f, 3.0f);
+	//m_objects[m_objects.size() - 1]->setTransform(tempTransform);
+	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
 
 	
 	
@@ -68,7 +67,6 @@ PlayState::PlayState()
 	// Geneterate bullet objects / hitboxes
 	for (size_t i = 0; i < m_objects.size(); i++)
 	{
-		
 		m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);	
 		m_objects.at(i)->createDebugDrawer();
 	}
@@ -107,7 +105,6 @@ void PlayState::update(float dt)
 {	
 	Client::getInstance()->updateNetworkEntities(dt);
 	m_bPhysics->update(dt);
-	Renderer::getInstance()->update(dt);
 	m_player->update(dt);
 	m_spellHandler->spellUpdate(dt);
 
@@ -128,6 +125,12 @@ void PlayState::update(float dt)
 void PlayState::render()
 {
 	Renderer::getInstance()->render(m_skybox, m_spellHandler);
+	Renderer::getInstance()->renderDebug();
+
+	//Move the render skybox to be a private renderer function
+	//Renderer::getInstance()->renderSkybox(*m_skybox);
+	//Renderer::getInstance()->render();
+	//m_spellHandler->renderSpell();
 }
 
 void PlayState::GUIHandler()
@@ -232,11 +235,7 @@ bool PlayState::onQuitClick(const CEGUI::EventArgs& e) {
 
 
 
-	//Move the render skybox to be a private renderer function
-	//Renderer::getInstance()->renderSkybox(*m_skybox);
-	//Renderer::getInstance()->render();
-	//m_spellHandler->renderSpell();
-	//Renderer::getInstance()->renderDebug();
+	
 }
 
 //This function is called everytime two collision objects collide
@@ -246,17 +245,18 @@ bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int
 	Spell* sp1 = reinterpret_cast<Spell*>(obj1->getCollisionObject()->getUserPointer());
 	Spell* sp2 = reinterpret_cast<Spell*>(obj2->getCollisionObject()->getUserPointer());
 
-	if (sp1 != nullptr && sp2 == nullptr) {
-		logTrace("sp1: Spell collided");
-
-		if (!sp1->getHasCollided())
-			sp1->hasCollided();	
-	}
-
-	else if (sp2 != nullptr) {
-		
-		if (!sp2->getHasCollided())
-			sp2->hasCollided();
-	}
+	// Currently off, unknown error on reflect and AOE spell // JR
+	//if (sp1 != nullptr && sp2 == nullptr) {
+	//	logTrace("sp1: Spell collided");
+	//
+	//	if (!sp1->getHasCollided())
+	//		sp1->hasCollided();	
+	//}
+	//
+	//else if (sp2 != nullptr) {
+	//	
+	//	if (!sp2->getHasCollided())
+	//		sp2->hasCollided();
+	//}
 	return false;
 }

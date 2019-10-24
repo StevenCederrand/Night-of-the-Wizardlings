@@ -22,6 +22,15 @@ ReflectSpell::~ReflectSpell()
 {
 }
 
+const bool& ReflectSpell::getHasCollided() const
+{
+	return true;
+}
+
+void ReflectSpell::hasCollided()
+{
+}
+
 void ReflectSpell::update(float deltaTime)
 {
 	setTransform(m_transform);

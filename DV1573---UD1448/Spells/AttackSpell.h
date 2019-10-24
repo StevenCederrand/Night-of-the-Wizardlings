@@ -9,12 +9,12 @@ public:
 	AttackSpell(glm::vec3 pos, glm::vec3 direction, const AttackSpellBase* spellBase);
 	~AttackSpell();
 
+	// Virtual functions
 	virtual const bool& getHasCollided() const;
 	virtual void hasCollided();
-
 	virtual void update(float deltaTime);
-	void updateRigidbody(float deltaTime, btRigidBody* body);
-	const float getDamage();
+	virtual void updateRigidbody(float deltaTime, btRigidBody* body);
+	virtual const float getDamage();
 
 	const AttackSpellBase* getBase() { return m_spellBase; }
 

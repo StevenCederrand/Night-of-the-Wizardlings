@@ -285,12 +285,6 @@ void Renderer::renderSkybox(const SkyBox& skybox)
 	glEnable(GL_CULL_FACE);
 }
 
-void Renderer::update(float dt) {
-	m_camera->fpsControls(dt);
-	m_camera->update(m_gWindow);
-}
-
-
 void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 	Mesh* mesh;
 	Transform transform;
@@ -520,37 +514,25 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 #pragma endregion
 
 	ShaderMap::getInstance()->useByName("Blur_Shader");
-
 	ShaderMap::getInstance()->getShader("Blur_Shader")->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
 	m_bloom->blurIteration(0);
-
 	for (unsigned int i = 0; i < m_bloom->getAmount() - 1; i++)
 	{
-
 		ShaderMap::getInstance()->getShader("Blur_Shader")->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
-
 		m_bloom->blurIteration(1);
-
 	}
 	m_bloom->unbindTextures();
-	
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	ShaderMap::getInstance()->useByName(BLOOM_BLUR);
 	m_bloom->sendTextureLastPass();
-	
 	m_bloom->renderQuad();
-	
 	m_bloom->unbindTextures();
 	
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 	renderHUD();
-	
-
 }
-
-
 
 
 void Renderer::renderSpell(SpellHandler* spellHandler)

@@ -10,9 +10,12 @@ public:
 	ReflectSpell(glm::vec3 pos, glm::vec3 direction, const ReflectSpellBase* spellBase);
 	~ReflectSpell();
 
+	// Virtual functions
+	virtual const bool& getHasCollided() const;	//TODO: Construct this function
+	virtual void hasCollided();					//TODO: Construct this function
 	virtual void update(float deltaTime);
-	void updateRigidbody(float deltaTime, btRigidBody* body);
-	const float getDamage();
+	virtual void updateRigidbody(float deltaTime, btRigidBody* body);
+	virtual const float getDamage();
 
 	void updateReflection(float deltaTime, btRigidBody* body, glm::vec3 position, glm::vec3 direction);
 	bool checkReflectCollision(glm::vec3 position, glm::vec3 direction, float radius);

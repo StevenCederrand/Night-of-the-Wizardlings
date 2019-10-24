@@ -12,7 +12,6 @@ public:
 	float getTravelTime() { return m_travelTime; };
 	const glm::vec3& getDirection() const;
 	const uint64_t& getUniqueID() const;
-	virtual const bool& getHasCollided() const = 0;
 	
 	//----Set-----//
 
@@ -20,11 +19,14 @@ public:
 	void setTravelTime(float m_travelTime);
 	void setDirection(glm::vec3 m_direction);
 	const int& getType() const { return m_type; }
-	virtual void hasCollided() = 0;
 
+	// Virtual functions
+	virtual const bool& getHasCollided() const = 0;
+	virtual void hasCollided() = 0;
 	virtual void update(float dt) = 0;
 	virtual void updateRigidbody(float deltaTime, btRigidBody* body) = 0;
 	virtual const float getDamage() = 0;
+
 private:
 	uint64_t m_uniqueID = 0;
 	float m_travelTime;

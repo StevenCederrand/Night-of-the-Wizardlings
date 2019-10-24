@@ -89,7 +89,6 @@ private:
 public:
 
 
-	void update(float dt);
 	static Renderer* getInstance();
 	
 	void init(GLFWwindow* window);

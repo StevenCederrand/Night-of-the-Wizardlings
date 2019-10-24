@@ -139,7 +139,7 @@ btDiscreteDynamicsWorld* BulletPhysics::getDynamicsWorld() const
 btKinematicCharacterController* BulletPhysics::createCharacter(float& spawnHeight)
 {
 	//create the character and add him to the dynamicsWorld
-	m_playerShape = new btCapsuleShape(1.0, 1);
+	m_playerShape = new btCapsuleShape(1.0, 0.5);
 	m_ghostObject = new btPairCachingGhostObject();
 	
 	m_ghostObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, spawnHeight, 0)));
@@ -179,6 +179,8 @@ void BulletPhysics::update(float dt)
 	}
 	if (!setGravity)
 		counter++;
-	btScalar time = btScalar(1.0 / 60.0);
-	m_dynamicsWorld->stepSimulation(time, 1);
+	//btScalar time = btScalar(1.0 / 60.0);
+	// Testing deltatime based updates // JR
+	m_dynamicsWorld->stepSimulation(dt, 0);
+
 }

@@ -59,7 +59,6 @@
     <ClCompile Include="GameObject\AnimatedObject.cpp" />
     <ClCompile Include="System\Timer.cpp" />
     <ClCompile Include="Texture\stb_image.cpp" />
-    <ClCompile Include="Spells\ReflectSpell.cpp" />
     <ClCompile Include="Gui\GameGUI.cpp" />
     <ClCompile Include="Spells\AOEAttack.cpp" />
     <ClCompile Include="Spells\fire.cpp" />
@@ -67,6 +66,7 @@
     <ClCompile Include="Renderer\BloomBlur.cpp" />
     <ClCompile Include="Renderer\HudObject.cpp" />
     <ClCompile Include="Renderer\HudTextureMap.cpp" />
+    <ClCompile Include="Spells\ReflectSpell.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />

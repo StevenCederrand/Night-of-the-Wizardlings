@@ -21,6 +21,15 @@ AOEAttack::~AOEAttack()
 
 }
 
+const bool& AOEAttack::getHasCollided() const
+{
+	return true;
+}
+
+void AOEAttack::hasCollided()
+{
+}
+
 void AOEAttack::updateActiveSpell(float deltaTime)
 {
 	
