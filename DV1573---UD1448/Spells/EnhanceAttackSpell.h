@@ -27,9 +27,9 @@ public:
 
 private:
 
-	const float m_coolDown = 0.0f;
-	const float m_attackCooldown = 0.01f;
-	const float m_nrOfAttacks = 100;
+	const float m_coolDown = 5.0f;
+	const float m_attackCooldown = 0.2f;
+	const float m_nrOfAttacks = 3;
 	float m_currentAttackCooldown;
 	float m_currentAttack;
 

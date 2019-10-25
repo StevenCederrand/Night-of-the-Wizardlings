@@ -139,7 +139,7 @@ void PlayState::update(float dt)
 void PlayState::render()
 {
 	Renderer::getInstance()->render(m_skybox, m_spellHandler);
-	Renderer::getInstance()->renderDebug();
+	//Renderer::getInstance()->renderDebug();
 }
 
 void PlayState::GUIHandler()
