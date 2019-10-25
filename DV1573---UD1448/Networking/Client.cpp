@@ -476,8 +476,6 @@ void Client::processAndHandlePackets()
 			playerPacket.Serialize(false, bsIn);
 
 			m_myPlayerDataPacket.health = playerPacket.health;
-
-			logTrace("[CLIENT] My health is {0}", m_myPlayerDataPacket.health);
 		}
 		break;
 
@@ -485,7 +483,6 @@ void Client::processAndHandlePackets()
 		{
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			m_countDownPacket.Serialize(false, bsIn);
-			//logTrace("[GAME SERVER] Starts game in {0}...", countdownPacket.timeLeft / 1000);
 			m_inGame = true;
 		}
 		break;
@@ -501,11 +498,6 @@ void Client::processAndHandlePackets()
 		{
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			m_roundTimePacket.Serialize(false, bsIn);
-
-			/*if(roundTimePacket.seconds >= 10)
-				logTrace("[GAME SERVER] Time left {0}:{1}", roundTimePacket.minutes, roundTimePacket.seconds);
-			else
-				logTrace("[GAME SERVER] Time left {0}:0{1}", roundTimePacket.minutes, roundTimePacket.seconds);*/
 		}
 		break;
 
