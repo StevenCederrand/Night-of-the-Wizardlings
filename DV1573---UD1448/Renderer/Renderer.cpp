@@ -559,11 +559,13 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 	glDisable(GL_CULL_FACE);
 	if (Client::getInstance()->isConnectedToSever()) {
 		
-		if (Client::getInstance()->getServerState().currentState == NetGlobals::SERVER_STATE::GAME_IS_STARTING) {
+		NetGlobals::SERVER_STATE state = Client::getInstance()->getServerState().currentState;
+
+		if (state == NetGlobals::SERVER_STATE::GAME_IS_STARTING) {
 			std::string timeText = std::to_string(Client::getInstance()->getCountdownPacket().timeLeft / 1000);
 			m_text->RenderText("Time until match starts: " + timeText + " seconds", (SCREEN_WIDTH / 2) - 250.0f , 680.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
 		}
-		else if (Client::getInstance()->getServerState().currentState == NetGlobals::SERVER_STATE::GAME_IN_SESSION) {
+		else if (state == NetGlobals::SERVER_STATE::GAME_IN_SESSION) {
 			
 			uint32_t minutes = Client::getInstance()->getRoundTimePacket().minutes;
 			uint32_t seconds = Client::getInstance()->getRoundTimePacket().seconds;
@@ -581,11 +583,11 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 			//std::string timeText = std::to_string(Client::getInstance()->getRoundTimePacket().timeLeft / 1000);
 			m_text->RenderText("Game time " + timeText, (SCREEN_WIDTH / 2) - 100.0f, 680.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
 		}
-		else if (Client::getInstance()->getServerState().currentState == NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS) {
+		else if (state == NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS) {
 			std::string timeText = std::to_string(Client::getInstance()->getCountdownPacket().timeLeft / 1000);
 			m_text->RenderText("Warmup", SCREEN_WIDTH / 2 - 100.0f, 680.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
 		}
-		else if (Client::getInstance()->getServerState().currentState == NetGlobals::SERVER_STATE::GAME_END_STATE) {
+		else if (state == NetGlobals::SERVER_STATE::GAME_END_STATE) {
 			std::string timeText = std::to_string(Client::getInstance()->getCountdownPacket().timeLeft / 1000);
 			m_text->RenderText("End of round: ", SCREEN_WIDTH / 2 - 150.0f, 680.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
 		}
@@ -597,7 +599,9 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 		}
 
 		m_text->RenderText("Health: " + std::to_string(Client::getInstance()->getMyData().health), 10.0f, 680.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
-		//m_text->RenderText("Kills: " + std::to_string(Client::getInstance()->getMyData().numberOfKills), 1000.0f, 680.0f, 0.8f, glm::vec3(1.0f, 0.0f, 0.0f));
+		
+		if(state == NetGlobals::SERVER_STATE::GAME_IN_SESSION)
+			m_text->RenderText("Kills: " + std::to_string(Client::getInstance()->getMyData().numberOfKills), 1000.0f, 680.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
 
 
 	}
