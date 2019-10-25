@@ -33,7 +33,7 @@ Renderer::Renderer()
 
 Renderer::~Renderer()
 {
-	delete m_bloom;
+	//delete m_bloom;
 	delete m_text;
 }
 
@@ -135,7 +135,7 @@ void Renderer::initShaders() {
 	ShaderMap::getInstance()->createShader(DEBUG, "VertexShader.vert", "DebugFragShader.frag");
 
 	/*=====================================================*/
-	ShaderMap::getInstance()->createShader(BLOOM, "Bloom.vs", "Bloom.fs");
+	/*ShaderMap::getInstance()->createShader(BLOOM, "Bloom.vs", "Bloom.fs");
 	ShaderMap::getInstance()->useByName(BLOOM);
 	ShaderMap::getInstance()->getShader(BLOOM)->setInt("albedoTexture", 0);
 
@@ -146,12 +146,12 @@ void Renderer::initShaders() {
 	ShaderMap::getInstance()->createShader(BLOOM_BLUR, "BloomBlur.vs", "BloomBlur.fs");
 	ShaderMap::getInstance()->useByName(BLOOM_BLUR);
 	ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("sceneImage", 0);
-	ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("bloomImage", 1);
+	ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("bloomImage", 1);*/
 	m_text = new FreeType();
 	m_text->BindTexture();
-	m_bloom = new BloomBlur;
-	m_bloom->createHdrFBO();
-	m_bloom->createPingPingFBO();
+	//m_bloom = new BloomBlur;
+	//m_bloom->createHdrFBO();
+	//m_bloom->createPingPingFBO();
 	/*=====================================================*/
 
 	/* Hud */
@@ -392,7 +392,7 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 
 	
 	//BLOOMBLUR MISSION STEP 1: SAMPLE
-	m_bloom->bindHdrFBO();
+	//m_bloom->bindHdrFBO();
 	renderSkybox(m_skybox);
 	m_spellHandler->renderSpell();
 	
@@ -521,13 +521,13 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 
 #pragma endregion
 
-	ShaderMap::getInstance()->useByName(BLUR);
+	//ShaderMap::getInstance()->useByName(BLUR);
 
-	ShaderMap::getInstance()->getShader(BLUR)->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
-	m_bloom->blurIteration(0);
+	//ShaderMap::getInstance()->getShader(BLUR)->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
+	//m_bloom->blurIteration(0);
 
 
-	for (unsigned int i = 0; i < m_bloom->getAmount() - 1; i++)
+	/*for (unsigned int i = 0; i < m_bloom->getAmount() - 1; i++)
 	{
 
 		ShaderMap::getInstance()->getShader(BLUR)->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
@@ -536,19 +536,20 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 	}
 	m_bloom->unbindTextures();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	ShaderMap::getInstance()->useByName(BLOOM_BLUR);
+	ShaderMap::getInstance()->useByName(BLOOM_BLUR);*/
 	//If the client is dead
-	if (Client::getInstance()->getMyData().health <= 0) {
+	
+	/*if (Client::getInstance()->getMyData().health <= 0) {
 		ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("grayscale", 1);
 	}
 	else {
 		ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("grayscale", 0);
-	}
+	}*/
 
 
-	m_bloom->sendTextureLastPass();
-	m_bloom->renderQuad();
-	m_bloom->unbindTextures();
+	//m_bloom->sendTextureLastPass();
+	//m_bloom->renderQuad();
+	//m_bloom->unbindTextures();
 	
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 

@@ -54,7 +54,7 @@ vec3 calcLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance, vec3
 vec3 calcDirLight(vec3 lightDirection, vec3 normal, vec3 diffuseColor);
 
 void main() {
-    float ambientStr = 0.1f;
+    float ambientStr = 0.35f;
     vec3 ambientCol = (Ambient_Color + ambientStr);
 
     if (HasTex)
@@ -98,7 +98,7 @@ void main() {
 }
 
 vec3 calcDirLight(vec3 lightDirection, vec3 normal, vec3 diffuseColor) {
-    float lightStr = 0.1f;
+    float lightStr = 0.5f;
     vec3 lightDir = normalize(-lightDirection);
     float diff = max(dot(normal, lightDir), 0.0);
 

@@ -322,7 +322,7 @@ const uint64_t SpellHandler::getUniqueID()
 void SpellHandler::spellCollisionCheck()
 {
 	//get the list of att the players on the network
-	auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
+	std::vector<NetworkPlayers::PlayerEntity> list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
 
 	for (size_t i = 0; i < list.size(); i++)
 	{
