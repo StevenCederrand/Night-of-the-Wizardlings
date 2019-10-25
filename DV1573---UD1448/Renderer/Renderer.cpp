@@ -589,7 +589,7 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 		}
 		else if (state == NetGlobals::SERVER_STATE::GAME_END_STATE) {
 			std::string timeText = std::to_string(Client::getInstance()->getCountdownPacket().timeLeft / 1000);
-			m_text->RenderText("End of round: ", SCREEN_WIDTH / 2 - 150.0f, 680.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
+			m_text->RenderText("End of round: " + timeText, SCREEN_WIDTH / 2 - 150.0f, 680.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
 		}
 
 		
