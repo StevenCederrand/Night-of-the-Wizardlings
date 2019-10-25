@@ -404,7 +404,7 @@ void SpellHandler::REFLECTupdate(float deltaTime, int i)
 	ReflectSpell* reflectSpell = static_cast<ReflectSpell*>(spells[i]);
 	reflectSpell->updateReflection(deltaTime, m_BulletNormalSpell.at(i), m_spawnerPos, m_spawnerDir);
 
-	auto& spellList = Client::getInstance()->getNetworkSpells();
+	auto spellList = Client::getInstance()->getNetworkSpells();
 	for (size_t i = 0; i < spellList.size(); i++)
 	{
 		float hitboxRadius = 0.0f;

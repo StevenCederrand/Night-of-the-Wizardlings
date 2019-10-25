@@ -179,8 +179,10 @@ void BulletPhysics::update(float dt)
 	}
 	if (!setGravity)
 		counter++;
-	//btScalar time = btScalar(1.0 / 60.0);
-	// Testing deltatime based updates // JR
-	m_dynamicsWorld->stepSimulation(dt, 0);
 
+	btScalar time = btScalar(1.0 / 240.0);
+	// Testing deltatime based updates // JR
+	// Bulletnote: "You should really abide this formula timeStep < maxSubSteps * fixedTimeStep if you don't want to lose time."
+
+	m_dynamicsWorld->stepSimulation(dt, 10, time);
 }
