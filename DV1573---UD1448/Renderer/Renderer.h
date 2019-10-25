@@ -7,27 +7,31 @@
 #define DEPTH_MAP "Depth_Map"
 #define SKYBOX "Skybox_Shader"
 #define ANIMATION "Basic_Animation"
+#define DEBUG "Debug_Forward"
+#define BLOOM "Bloom_Shader"
+#define BLUR "Blur_Shader"
+#define BLOOM_BLUR "BloomBlur_Shader"
+#define HUD "Hud_Shader"
+
 
 #include <Pch/Pch.h>
 #include <GameObject/GameObject.h>
 #include <GameObject/AnimatedObject.h>
 #include <Mesh/MeshFormat.h>
-#include <Spells/Spell.h>
-#include <Spells/Spells.h>
+#include <Spells/SpellHandler.h>
 #include <Renderer/SkyBox.h>
 #include <System/Timer.h>
+#include <Renderer/BloomBlur.h>
+#include <Spells/SpellHandler.h>
+#include <Renderer/HudObject.h>
+#include <Text/FreeType.h>
 
 #define P_LIGHT_COUNT 64
+#define P_LIGHT_RADIUS 2
 
 struct ObjectRenderData {
 	Buffers buffer;
 	glm::vec3 worldPos;
-};
-
-struct Pointlight {
-	glm::vec3 position; //EXPAND ONE OF THESE VEC3's TO ALSO INCLUDE THE RADIUS!!!
-	glm::vec3 attenuation; //EXPAND ONE OF THESE VEC3's TO ALSO INCLUDE THE RADIUS!!!
-	float radius;
 };
 
 struct LightIndex {
@@ -48,6 +52,8 @@ private:
 	static Renderer* m_rendererInstance;
 	GLFWwindow* m_gWindow;
 	Camera* m_camera;
+	FreeType* m_text;
+	SkyBox* m_skyBox;
 
 	Timer m_timer;
 
@@ -57,7 +63,9 @@ private:
 	std::vector<GameObject*> m_anistaticObjects;
 	std::vector<GameObject*> m_anidynamicObjects;
 	std::vector<GameObject*> m_spells; 
-	
+
+	std::unordered_map<GLuint, std::vector<HudObject*>> m_2DHudMap;
+
 	//Buffers
 	unsigned int m_depthFBO;
 	unsigned int m_depthMap;
@@ -69,33 +77,39 @@ private:
 	unsigned int m_lightIndexSSBO;
 	
 	glm::uvec2 workGroups;
-	std::vector<Pointlight> m_pLights;//The size of the vector is the number of lights
-	
+
+	void renderHUD();
 	void createDepthMap();
 	void initShaders();
 	void bindMatrixes(const std::string& shaderName);
 	
 	
-	
+	BloomBlur* m_bloom;
+	//SpellHandler* m_spellHandler;
+
 	Renderer();
+	~Renderer();
 public:
 
 
-	void update(float dt);
 	static Renderer* getInstance();
 	
 	void init(GLFWwindow* window);
 	void setupCamera(Camera* camera);
 
 	void destroy();
+	void clear();
 	void submit(GameObject* gameObject, ObjectType objType);
-	
-	void removeDynamic(GameObject* gameObject); //Remove an object from the dynamic array
-	void renderSkybox(const SkyBox& skybox);
-	void render();
+	void submit2DHUD(HudObject* hud);
+	void removeDynamic(GameObject* gameObject, ObjectType objType); //Remove an object from the dynamic array
+	void renderSkybox(SkyBox* skybox);
+	void render(SkyBox* m_skybox, SpellHandler* m_spellHandler);
+	//void renderSpell();
+	void renderDebug();
 
-	void renderSpell(const AttackSpellBase* spellBase);
+	void renderSpell(SpellHandler* spellHandler);
 	Camera* getMainCamera() const;
+
 };
 
 #endif

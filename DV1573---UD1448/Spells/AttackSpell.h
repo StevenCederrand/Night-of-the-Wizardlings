@@ -2,24 +2,31 @@
 #include <Pch/Pch.h>
 #include <GameObject/GameObject.h>
 #include <Spells/Spell.h>
-#include <Spells/Spells.h>
 
 class AttackSpell : public Spell
 {
 public:
 	AttackSpell(glm::vec3 pos, glm::vec3 direction, const AttackSpellBase* spellBase);
+	AttackSpell(glm::vec3 pos);
 	~AttackSpell();
-//<<<<<<< HEAD
-//	void updateActiveSpell(float deltaTime, btRigidBody* body);
-//	void createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector);
-//	void spellCooldownUpdate(float deltaTime);
-//	void renderAttackSpell(std::vector<AttackSpell> test);
-//
-//	void update(float dt, );
-//=======
+
+	// Virtual functions
+	virtual const bool& getHasCollided() const;
+	virtual void hasCollided();
 	virtual void update(float deltaTime);
-	void updateRigidbody(float deltaTime, btRigidBody* body);
+	virtual void updateRigidbody(float deltaTime, btRigidBody* body);
+	virtual const float getDamage();
+
+	const AttackSpellBase* getBase() { return m_spellBase; }
 
 private:
 	const AttackSpellBase* m_spellBase;
+	//int m_localBounce = 0;
+	//int m_nrOfBounce = 0;
+	bool m_hasCollided = false;
+	int m_bounceCounter = 0;
+	float m_bounceTime = 0;
+	bool m_shouldAddBounce = true;	
+
+
 };

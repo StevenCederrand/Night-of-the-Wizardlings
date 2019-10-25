@@ -8,6 +8,11 @@ NetworkPlayers::NetworkPlayers()
 
 NetworkPlayers::~NetworkPlayers()
 {
+	cleanUp();
+}
+
+void NetworkPlayers::cleanUp()
+{
 	for (size_t i = 0; i < m_players.size(); i++)
 	{
 		PlayerEntity& p = m_players[i];
@@ -38,7 +43,7 @@ void NetworkPlayers::update(const float& dt)
 		else if (p.flag == NetGlobals::THREAD_FLAG::REMOVE)
 		{
 
-			Renderer::getInstance()->removeDynamic(p.gameobject);
+			Renderer::getInstance()->removeDynamic(p.gameobject, DYNAMIC);
 			delete p.gameobject;
 			m_players.erase(m_players.begin() + i);
 			i--;
@@ -48,9 +53,18 @@ void NetworkPlayers::update(const float& dt)
 		GameObject* g = p.gameobject;
 		
 		if (g != nullptr) {
+			
+			/* Don't render the player if he's dead */
+			if (p.data.health <= 0.0f || p.data.hasBeenUpdatedOnce == false)
+				g->setShouldRender(false);
+			else
+				g->setShouldRender(true);
+
+			
+
 			glm::vec3 pos = CustomLerp(g->getTransform().position, p.data.position, m_lerpSpeed * dt);
 			g->setWorldPosition(pos);
-			//g->setTransform(pos, glm::quat(p->data.rotation));
+			g->setTransform(pos, glm::quat(p.data.rotation), glm::vec3(1.0f));
 		}
 	}
 }

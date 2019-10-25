@@ -1,9 +1,11 @@
-#pragma once
+#ifndef _SKYBOX_h
+#define _SKYBOX_h
 #include <Pch/Pch.h>
 
 struct SkyBuffer {
 	GLuint VAO;
 	GLuint VBO;
+	GLuint CubemapTextureID;
 };
 
 class SkyBox
@@ -12,17 +14,16 @@ private:
 	//Order of the texture are: Right, Left, Top, Bottom, Front and Back.
 	std::vector<std::string> faces
 	{
-	"Assets/Textures/Skybox/Daylight Box_Right.bmp",
-	"Assets/Textures/Skybox/Daylight Box_Left.bmp",
-	"Assets/Textures/Skybox/Daylight Box_Top.bmp",
-	"Assets/Textures/Skybox/Daylight Box_Bottom.bmp",
-	"Assets/Textures/Skybox/Daylight Box_Front.bmp",
-	"Assets/Textures/Skybox/Daylight Box_Back.bmp"
+		"/right.png",
+		"/left.png",
+		"/top.png",
+		"/bottom.png",
+		"/front.png",
+		"/back.png"
 	};
 
-	unsigned int cubemapTexture;
-	SkyBuffer sky_Buffer;
-
+	SkyBuffer m_buffer;
+	std::string m_skyboxPath;
 
 
 	glm::vec3 skyboxVertices[36] = {
@@ -78,4 +79,7 @@ public:
 	const GLuint& getVAO() const;
 	unsigned int getCubeMapTexture() const;
 	void prepareBuffers();
+	glm::mat4 getModelMatrix() const;
 };
+
+#endif

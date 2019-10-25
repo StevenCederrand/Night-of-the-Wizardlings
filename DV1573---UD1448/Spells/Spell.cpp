@@ -5,11 +5,8 @@
 Spell::Spell(glm::vec3 pos, glm::vec3 m_direction)
 {
 	m_type = -1;
+	m_travelTime = 0.0f;
 	setWorldPosition(pos + m_direction);
-
-	Transform tempTransform;
-	tempTransform.scale = glm::vec3(0.3f, 0.3f, 0.3f);
-	setTransform(tempTransform);
 }
 
 Spell::~Spell()
@@ -34,5 +31,14 @@ void Spell::setUniqueID(const uint64_t& uniqueID)
 void Spell::setDirection(glm::vec3 direction)
 {
 	m_direction = direction;
+}
+
+void Spell::setType(int type)
+{
+	m_type = type;
+}
+
+const glm::vec3& Spell::getDirection() const {
+	return m_direction;
 }
 

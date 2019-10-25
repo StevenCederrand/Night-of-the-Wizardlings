@@ -6,6 +6,7 @@
 #include <Networking/LocalServer.h>
 #include <Gui/Gui.h>
 
+
 Application::Application() {
 }
 
@@ -14,6 +15,11 @@ Application::~Application() {
 	delete m_stateManager;
 	ShaderMap::getInstance()->destroy();
 	Renderer::getInstance()->destroy();
+	MaterialMap::getInstance()->destroy();
+	MeshMap::getInstance()->destroy();
+	AnimationMap::getInstance()->destroy();
+	SkeletonMap::getInstance()->destroy();
+	HudTextureMap::getInstance()->destroy();
 
 	if(Client::getInstance()->isInitialized())
 		Client::getInstance()->destroy();
@@ -24,6 +30,7 @@ Application::~Application() {
 	Gui::getInstance()->destroy();
 
 	glfwTerminate();
+
 }
 
 bool Application::init() {
@@ -44,7 +51,9 @@ bool Application::init() {
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
-	m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", NULL, NULL);
+	m_window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Wizards 'n stuff", NULL, NULL);
+	//m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", glfwGetPrimaryMonitor(), NULL);
+
 	//glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	
 	if (m_window == nullptr) {
@@ -66,7 +75,7 @@ bool Application::init() {
 	}
 	
 	// Vsync
-	glfwSwapInterval(1);
+	glfwSwapInterval(0); //Off, should be using delta time properly anyway
 	
 	m_input = new Input();
 
@@ -100,14 +109,15 @@ void Application::run()
 		glfwPollEvents();
 
 		// Quick way to close the app
-		if (Input::isKeyReleased(GLFW_KEY_ESCAPE))
+		if (Input::isKeyReleased(GLFW_KEY_DELETE))
 		{
 			glfwSetWindowShouldClose(m_window, true);
 		}
-	
+
 		if (Input::isKeyPressed(GLFW_KEY_F1)) {
 			ShaderMap::getInstance()->reload();
 		}
+
 		//Skip the first frame, this is because we 
 		if (initialFrame == false) {
 			timeNow = static_cast<float>(glfwGetTime());
@@ -132,6 +142,7 @@ void Application::run()
 		Gui::getInstance()->update(deltaTime);
 		
 		m_stateManager->render();
+		glActiveTexture(GL_TEXTURE0);
 		Gui::getInstance()->draw();
 
 
@@ -189,7 +200,8 @@ void Application::calcFPS(const float& dt)
 	if (frameTimer <= 0.0f)
 	{
 		frameTimer = 1.0f;
-		std::string title = "Wizards 'n stuff | FPS: " + std::to_string(fps);
+		std::string title = "fps: " + std::to_string(fps);
+		printf("%s\n",title.c_str());
 		glfwSetWindowTitle(m_window, title.c_str());
 		fps = 0;
 	}

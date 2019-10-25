@@ -22,13 +22,18 @@ public:
 	void ThreadedUpdate();
 	void processAndHandlePackets();
 	void updatePlayerData(Player* player);
-	void createSpellOnNetwork(Spell& spell);
-	void updateSpellOnNetwork(Spell& spell);
-	void destroySpellOnNetwork(Spell& spell);
+	void createSpellOnNetwork(const Spell& spell);
+	void updateSpellOnNetwork(const Spell& spell);
+	void destroySpellOnNetwork(const Spell& spell);
+	void requestToDestroyClientSpell(const SpellPacket& packet);
+	void sendHitRequest(Spell& spell, NetworkPlayers::PlayerEntity& playerThatWasHit);
 	void updateNetworkEntities(const float& dt);
 	void sendStartRequestToServer();
 	void refreshServerList();
-	
+	void startSendingUpdatePackages();
+
+	void setUsername(const std::string& userName);
+
 	const std::vector<std::pair<unsigned int, ServerInfo>>& getServerList() const;
 	const std::vector<PlayerPacket>& getConnectedPlayers() const;
 	const std::vector<SpellPacket>& getNetworkSpells();
@@ -36,6 +41,9 @@ public:
 	
 	NetworkPlayers& getNetworkPlayersREF();
 	NetworkSpells& getNetworkSpellsREF();
+	
+	const PlayerPacket& getMyData() const;
+	const ServerStateChange& getServerState() const;
 
 	const bool doneRefreshingServerList() const;
 	const bool doesServerExist(const unsigned int& ID) const;
@@ -62,6 +70,8 @@ private:
 	RakNet::RakPeerInterface* m_clientPeer;
 	RakNet::SystemAddress m_serverAddress;
 	std::vector<std::pair<unsigned int, ServerInfo>> m_serverList;
+	char m_userName[16] = { ' ' };
+	bool m_inGame;
 
 	bool m_isRefreshingServerList;
 	bool m_isConnectedToAnServer;
@@ -71,10 +81,13 @@ private:
 	bool m_shutdownThread;
 	bool m_initialized = false;
 
+	bool m_sendUpdatePackages;
+
 	std::thread m_processThread;
 	
 	PlayerPacket m_myPlayerDataPacket;
-	
+	ServerStateChange m_serverState;
+
 	std::vector<PlayerPacket> m_connectedPlayers;
 	NetworkPlayers m_networkPlayers;
 	NetworkSpells m_networkSpells;
@@ -82,7 +95,10 @@ private:
 	std::mutex m_cleanupMutex;
 	
 	std::vector<SpellPacket> m_activeSpells;
-	std::vector<SpellPacket> m_spellQueue;
+	std::vector<HitPacket> m_spellsHitQueue;
+	std::vector<SpellPacket> m_updateSpellQueue;
+	std::vector<SpellPacket> m_removeOrAddSpellQueue;
+	std::vector<SpellPacket> m_removalOfClientSpellsQueue;
 
 };
 

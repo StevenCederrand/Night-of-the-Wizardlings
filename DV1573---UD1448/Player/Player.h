@@ -15,12 +15,12 @@ public:
 	~Player();
 
 	void update(float deltaTime);
-	void playerJump();
-	void move(float deltaTime);
 	void attack();
 	void createRay(); //create ray for spells
 	void spawnPlayer(glm::vec3 pos);
-	void selectSpell();
+
+	void createRigidBody(BulletPhysics* bp);
+	void forceUp();
 	bool isDead();
 
 	//-----Get-----//
@@ -33,24 +33,39 @@ public:
 	void setPlayerPos(glm::vec3 pos);
 	void setHealth(int health);
 	void setSpeed(float speed);
+	void logicStop(const bool& stop);
 
 private:
-	SpellHandler* spellhandler;
+	void move(float deltaTime); 
 
-	glm::vec3 directionVector;
+	std::string m_name;
+	glm::vec3 m_directionVector;
 	glm::vec3 m_playerPosition;
-	glm::vec3 inputVector;
-	glm::vec3 moveDir;
+	glm::vec3 m_inputVector;
+	glm::vec3 m_moveDir;
+	Camera* m_playerCamera;
+	bool m_logicStop;
+	SpellHandler* m_spellhandler;
+	EnhanceAttackSpell m_enhanceAttack;
 
-	Camera* playerCamera;
-	float attackCooldown;
+	SPELL_TYPE m_spellType;
+	SPELL_TYPE m_specialSpelltype;
+	SPELL_TYPE m_specialSpellType2;
+	SPELL_TYPE m_specialSpellType3;
+	
+	float m_attackCooldown;
+	float m_specialCooldown;
+	float m_special2Cooldown;
+	float m_special3Cooldown;
+
 	float m_spellSpeed = 1;
-	float speed;
-	int nrOfSpells;
-	int health;
+	float m_speed;
+
+	int m_nrOfSpells;
+	int m_health;
 	int m_frameCount;
+
 	std::string name;
-	SPELL_TYPE spellType;
 
 	//removed in bulletPhysics.cpp
 	BulletPhysics* m_bp;

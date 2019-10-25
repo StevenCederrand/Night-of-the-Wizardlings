@@ -6,12 +6,15 @@ GameObject::GameObject()
 {
 	m_objectName = "Empty";
 	type = 0;
+	m_bPhysics = nullptr;
+	m_shouldRender = true;
 }
 
 GameObject::GameObject(std::string objectName)
 {
 	m_objectName = objectName;
 	type = 0;
+	m_bPhysics = nullptr;
 }
 
 GameObject::~GameObject()
@@ -25,6 +28,12 @@ GameObject::~GameObject()
 		//	for (int j = 0; j < (int)material->textureID.size(); j++)
 		//		glDeleteTextures(1, &material->textureID[j]);
 	}
+
+	for (DebugDrawer* dd : m_debugDrawers)
+		if(dd != nullptr)
+			delete dd;
+
+	//Deletion of m_body is done in the destructor of BulletPhysics
 }
 
 void GameObject::loadMesh(std::string fileName)
@@ -106,7 +115,7 @@ void GameObject::loadMesh(std::string fileName)
 				// set the texture wrapping/filtering options (on the currently bound texture object)
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 				// load and generate the texture
 				int width, height, nrChannels;
@@ -143,7 +152,14 @@ void GameObject::loadMesh(std::string fileName)
 	}
 
 	tempLoader.Unload();
+	updateModelMatrix();
 }
+
+const bool& GameObject::getShouldRender() const
+{
+	return m_shouldRender;
+}
+
 //Update each individual modelmatrix for the meshes
 void GameObject::updateModelMatrix() {
 	
@@ -152,9 +168,10 @@ void GameObject::updateModelMatrix() {
 	{
 		m_modelMatrixes[i] = glm::mat4(1.0f);
 		transform = getTransform(i);
+
 		m_modelMatrixes[i] = glm::translate(m_modelMatrixes.at(i), transform.position);
-		m_modelMatrixes[i] = glm::scale(m_modelMatrixes[i], transform.scale);
 		m_modelMatrixes[i] *= glm::mat4_cast(transform.rotation);
+		m_modelMatrixes[i] = glm::scale(m_modelMatrixes[i], transform.scale);
 	}
 }
 
@@ -167,8 +184,8 @@ void GameObject::setTransform(Transform transform)
 void GameObject::setTransform(glm::vec3 worldPosition = glm::vec3(.0f), glm::quat worldRot = glm::quat(), glm::vec3 worldScale = glm::vec3(1.0f))
 {
 	m_transform.position = worldPosition;
-	m_transform.rotation = worldRot;
 	m_transform.scale = worldScale;
+	m_transform.rotation = worldRot;
 	updateModelMatrix();
 }
 
@@ -184,6 +201,11 @@ void GameObject::translate(const glm::vec3& translationVector)
 	updateModelMatrix();
 }
 
+void GameObject::setShouldRender(bool condition)
+{
+	m_shouldRender = condition;
+}
+
 const Transform GameObject::getTransform() const
 {
 	Mesh* mesh = nullptr;
@@ -195,7 +217,7 @@ const Transform GameObject::getTransform() const
 	if (mesh)
 	{
 		world_transform.position = m_transform.position + m_meshes[0].transform.position + mesh->getTransform().position;
-		world_transform.rotation = m_transform.rotation + m_meshes[0].transform.rotation +  mesh->getTransform().rotation;
+		world_transform.rotation = m_transform.rotation * m_meshes[0].transform.rotation *  mesh->getTransform().rotation;
 		world_transform.scale = m_transform.scale * m_meshes[0].transform.scale * mesh->getTransform().scale;
 	}
 	else
@@ -215,7 +237,7 @@ const Transform GameObject::getTransform(int meshIndex) const
 	// Adds the inherited transforms together to get the world position of a mesh
 	Transform world_transform;
 	world_transform.position = m_transform.position + m_meshes[meshIndex].transform.position + mesh->getTransform().position;
-	world_transform.rotation = m_transform.rotation + m_meshes[meshIndex].transform.rotation + mesh->getTransform().rotation;
+	world_transform.rotation = m_transform.rotation * m_meshes[meshIndex].transform.rotation * mesh->getTransform().rotation;
 	world_transform.scale = m_transform.scale * m_meshes[meshIndex].transform.scale * mesh->getTransform().scale;
 
 	return world_transform;
@@ -228,6 +250,9 @@ const std::string& GameObject::getMeshName(int meshIndex) const
 
 const glm::mat4& GameObject::getMatrix(const int& i) const
 {
+	if (m_modelMatrixes.size() == 0) {
+		return glm::mat4(1.0f);
+	}
 	//if we are trying to access a matrix beyond our count
 	if (i > static_cast<int>(m_modelMatrixes.size())) {
 		return glm::mat4(1.0f);
@@ -242,6 +267,74 @@ void GameObject::bindMaterialToShader(std::string shaderName)
 
 void GameObject::bindMaterialToShader(std::string shaderName, int meshIndex)
 {
-	
 	ShaderMap::getInstance()->getShader(shaderName)->setMaterial(MeshMap::getInstance()->getMesh(m_meshes[meshIndex].name)->getMaterial());
+}
+
+void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
+{
+	if (!m_bPhysics)
+		m_bPhysics = bp;
+
+	for (size_t i = 0; i < m_meshes.size(); i++)
+	{
+		const std::vector<Vertex>& vertices = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getVertices();
+
+		// Animated mesh case
+		if (vertices.size() == 0)
+		{
+			const std::vector<Vertex2>& vertices2 = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getVerticesSkele();
+
+			glm::vec3 min = vertices2[0].position;
+			glm::vec3 max = vertices2[0].position;
+
+			for (size_t i = 1; i < vertices2.size(); i++)
+			{
+				min.x = fminf(vertices2[i].position.x, min.x);
+				min.y = fminf(vertices2[i].position.y, min.y);
+				min.z = fminf(vertices2[i].position.z, min.z);
+
+				max.x = fmaxf(vertices2[i].position.x, max.x);
+				max.y = fmaxf(vertices2[i].position.y, max.y);
+				max.z = fmaxf(vertices2[i].position.z, max.z);
+			}
+
+			glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(i).position;
+			glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale;
+			// TODO: ROTATE
+			m_bodies.emplace_back(m_bPhysics->createObject(shape, 0.0f, center, halfSize));
+		}
+		else
+		{
+			glm::vec3 min = vertices[0].position;
+			glm::vec3 max = vertices[0].position;
+
+			for (size_t i = 1; i < vertices.size(); i++)
+			{
+				min.x = fminf(vertices[i].position.x, min.x);
+				min.y = fminf(vertices[i].position.y, min.y);
+				min.z = fminf(vertices[i].position.z, min.z);
+
+				max.x = fmaxf(vertices[i].position.x, max.x);
+				max.y = fmaxf(vertices[i].position.y, max.y);
+				max.z = fmaxf(vertices[i].position.z, max.z);
+			}
+
+			glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(i).position;
+			glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale;
+			// TODO: ROTATE
+
+			m_bodies.emplace_back(m_bPhysics->createObject(shape, 0.0f, center, halfSize, getTransform(i).rotation));
+		}
+
+	}
+}
+
+void GameObject::createDebugDrawer()
+{
+	for (size_t i = 0; i < m_bodies.size(); i++)
+	{
+		// Temporarily off, rotation of drawers do not work
+		//m_debugDrawers.emplace_back(new DebugDrawer());
+		//m_debugDrawers[i]->setUpMesh(*m_bodies[i]);
+	}
 }

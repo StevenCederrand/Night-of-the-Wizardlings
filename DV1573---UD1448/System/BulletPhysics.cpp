@@ -39,7 +39,13 @@ BulletPhysics::~BulletPhysics()
 	//Delete collsion shapes
 	for (int i = 0; i < m_collisionShapes.size(); i++)
 	{
+		if (m_collisionShapes[i] == 0)
+			continue;
+
 		btCollisionShape* shape = m_collisionShapes[i];
+		if (shape == nullptr)
+			continue;
+
 		m_collisionShapes[i] = 0;
 		delete shape;
 	}
@@ -57,7 +63,7 @@ BulletPhysics::~BulletPhysics()
 	m_collisionShapes.clear();
 }
 
-btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, glm::vec3 position, glm::vec3 extend, float friction)
+btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, glm::vec3 position, glm::vec3 extend, glm::quat rotation, float friction)
 {
 	btCollisionShape* objectShape;
 	switch (object)
@@ -68,14 +74,15 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 			btScalar(extend.y),
 			btScalar(extend.z)));
 		break;
+
 	case sphere:
 		objectShape = new btSphereShape(btScalar(extend.x));
-
 		break;
+
 	case capsule:
 		objectShape = new btCapsuleShape(extend.x, extend.y);
-
 		break;
+
 	default:
 		break;
 	}
@@ -86,13 +93,13 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	startTransform.setIdentity();
 
 	// if you want to rotate something 
-	/*if (inMass == 0)
-	{
-		btQuaternion rot;
-		rot.setEuler(0, 0, 0);
-		startTransform.setRotation(rot);
-	}*/
-
+	btQuaternion rot;
+	rot.setX(rotation.x);
+	rot.setY(rotation.y);
+	rot.setZ(rotation.z);
+	rot.setW(rotation.w);
+	startTransform.setRotation(rot);
+	
 	startTransform.setOrigin(btVector3(position.x, position.y, position.z));
 
 	btScalar mass(inMass);
@@ -114,7 +121,8 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
 
 	//how much bounce and friction a object should have
-	body->setRestitution(0.0f);
+	
+	body->setRestitution(1.0f);	
 	body->setFriction(friction);
 	body->setSpinningFriction(1.0f);
 
@@ -128,13 +136,13 @@ btDiscreteDynamicsWorld* BulletPhysics::getDynamicsWorld() const
 	return m_dynamicsWorld;
 }
 
-btKinematicCharacterController* BulletPhysics::createCharacter()
+btKinematicCharacterController* BulletPhysics::createCharacter(float& spawnHeight)
 {
 	//create the character and add him to the dynamicsWorld
-	m_playerShape = new btCapsuleShape(0.25, 1);
+	m_playerShape = new btCapsuleShape(1.0, 0.5);
 	m_ghostObject = new btPairCachingGhostObject();
 	
-	m_ghostObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 20, 0)));
+	m_ghostObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, spawnHeight, 0)));
 
 	m_dynamicsWorld->getPairCache()->setInternalGhostPairCallback(m_ghostCallback);
 	m_ghostObject->setCollisionShape(m_playerShape);
@@ -144,14 +152,35 @@ btKinematicCharacterController* BulletPhysics::createCharacter()
 
 	m_collisionShapes.push_back(m_playerShape);
 	m_dynamicsWorld->addAction(m_character);
-	m_character->setGravity(btVector3(0.0f, -5.0f, 0.0f));
+	m_character->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 	m_character->setMaxPenetrationDepth(0.1f);
 	m_character->setUp(btVector3(0.0f, 1.0f, 0.0f));
 
 	return m_character;
 }
 
+void BulletPhysics::removeObject(btRigidBody* body)
+{
+	delete body->getMotionState();
+	m_collisionShapes.remove(body->getCollisionShape());
+	delete body->getCollisionShape();
+	m_dynamicsWorld->removeRigidBody(body);
+
+	delete body;
+}
+
 void BulletPhysics::update(float dt)
 {
-	m_dynamicsWorld->stepSimulation(dt, 10);
+	//counter to make sure that the gravity starts after 60 frames
+	if (counter > 15 && !setGravity)
+	{
+		m_character->setGravity(btVector3(0.0f, -5.0f, 0.0f));
+		setGravity = true;
+	}
+	if (!setGravity)
+		counter++;
+	//btScalar time = btScalar(1.0 / 60.0);
+	// Testing deltatime based updates // JR
+	m_dynamicsWorld->stepSimulation(dt, 0);
+
 }

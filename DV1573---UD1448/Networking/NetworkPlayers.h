@@ -10,12 +10,12 @@ public:
 		PlayerPacket data;
 		GameObject* gameobject = nullptr;
 		NetGlobals::THREAD_FLAG flag = NetGlobals::THREAD_FLAG::NONE;
-
+		bool correctPositionOnFirstUpdate = false;
 	};
 
 	NetworkPlayers();
 	~NetworkPlayers();
-
+	void cleanUp();
 	void update(const float& dt);
 	std::vector<PlayerEntity>& getPlayersREF();
 	

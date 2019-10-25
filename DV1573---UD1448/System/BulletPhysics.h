@@ -10,7 +10,6 @@ enum CollisionObject
 	box,
 	sphere,
 	capsule
-
 };
 
 class BulletPhysics
@@ -18,13 +17,13 @@ class BulletPhysics
 public:
 	BulletPhysics(float gravity);
 	~BulletPhysics();
-
 	//objects box, sphere, capsule. (Extend.x is radius, Extend.y is height) 
 	btRigidBody* createObject(CollisionObject object, float inMass,
-		glm::vec3 position, glm::vec3 extend, float friction = 0.2f);
+		glm::vec3 position, glm::vec3 extend, glm::quat rotation = glm::quat(), float friction = 0.2f);
 
 	btDiscreteDynamicsWorld* getDynamicsWorld() const;
-	btKinematicCharacterController* createCharacter();
+	btKinematicCharacterController* createCharacter(float& spawnHeight);
+	void removeObject(btRigidBody* body);
 
 	void update(float dt);
 
@@ -43,6 +42,9 @@ private:
 	btPairCachingGhostObject* m_ghostObject;
 	btKinematicCharacterController* m_character;
 	btGhostPairCallback* m_ghostCallback;
+
+	int counter = 0;
+	bool setGravity = false;
 };
 
 #endif

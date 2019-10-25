@@ -23,25 +23,18 @@ FindServerState::~FindServerState()
 
 void FindServerState::update(float dt)
 {
-	if (Input::isKeyPressed(GLFW_KEY_G)) {
-		static int i = 0;
-		m_serverList->addRow();
-		CEGUI::ListboxTextItem* itemMultiColumnList;
-		itemMultiColumnList = new CEGUI::ListboxTextItem("Dummy", i );
-		itemMultiColumnList->setSelectionBrushImage("TaharezLook/MultiListSelectionBrush");
-		m_serverList->setItem(itemMultiColumnList, 0, static_cast<CEGUI::uint>(i)); // ColumnID, RowID
-		itemMultiColumnList = new CEGUI::ListboxTextItem(std::string("1337") + "/" + std::string("1337"), i + 1);
-		m_serverList->setItem(itemMultiColumnList, 1, static_cast<CEGUI::uint>(i)); // ColumnID, RowID
-		i++;
-	}
-	else if (Input::isKeyPressed(GLFW_KEY_H)) {
-		removeAllRows();
-	}
-
 	if (m_serverListRefreshing && Client::getInstance()->doneRefreshingServerList())
 	{
 		loadServersIntoList();
 		m_serverListRefreshing = false;
+	}
+	//We want to clear the usernamebox upon selection
+	if (m_inputTextOpen && m_usernameBox->isActive() && !m_inputTextSelected) {
+		//Upon the selection frame
+		m_inputTextSelected = true;
+		if (m_inputTextSelected) {
+			m_usernameBox->setText(""); //Clear the text box upon selection
+		}
 	}
 }
 
@@ -52,23 +45,39 @@ void FindServerState::render()
 
 void FindServerState::loadGui()
 {
+	//Serverlist window
 	m_serverList = static_cast<CEGUI::MultiColumnList*>(Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/MultiColumnList", glm::vec4(0.20f, 0.25f, 0.60f, 0.40f), glm::vec4(0.0f), "serverlist"));
 	m_serverList->addColumn("Server name", 0, CEGUI::UDim(0.65f, 0));
-	m_serverList->addColumn("Players", 1, CEGUI::UDim(0.35f, 0));
+	m_serverList->addColumn("Players", 1, CEGUI::UDim(0.30f, 0));
 	m_serverList->setSelectionMode(CEGUI::MultiColumnList::RowSingle);
-
+	m_serverList->setShowHorzScrollbar(false);
+	
+	//Main menu
 	m_backToMenu = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/Button", glm::vec4(0.05f, 0.90f, 0.1f, 0.05f), glm::vec4(0.0f), "BackToMenu"));
 	m_backToMenu->setText("Go back");
 	m_backToMenu->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&FindServerState::onBackToMenuClicked, this));
 
+	//Join server button
 	m_joinServer = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/Button", glm::vec4(0.35f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f), "JoinServer"));
 	m_joinServer->setText("Join");
 	m_joinServer->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&FindServerState::onJoinServerClicked, this));
 
+	//Refresh server list button
 	m_refreshServerList = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/Button", glm::vec4(0.55f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f), "RefreshServer"));
 	m_refreshServerList->setText("Refresh");
 	m_refreshServerList->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&FindServerState::onRefreshServerListClicked, this));
 
+	//The button to close the username input window
+	m_backToList = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/Button", glm::vec4(0.55f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f), "Close-username-input"));
+	m_backToList->setText("Return");
+	m_backToList->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&FindServerState::onBackToListClicked, this));
+	m_backToList->hide();
+
+	//Username Input
+	m_usernameBox = static_cast<CEGUI::Editbox*>(Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/Editbox", glm::vec4(0.425f, 0.55f, 0.15f, 0.05f), glm::vec4(0.0f), "username(join)"));
+	m_usernameBox->setMaxTextLength(16);
+	m_usernameBox->setText("Enter Username...");
+	m_usernameBox->hide();
 }
 
 void FindServerState::loadServersIntoList()
@@ -95,6 +104,20 @@ void FindServerState::removeAllRows()
 	}
 }
 
+void FindServerState::usernameInput()
+{
+	//is write text open?
+	if (!m_inputTextOpen) {
+		m_serverList->hide();
+		m_refreshServerList->hide();
+
+		m_usernameBox->show();
+		m_backToList->show();
+
+		m_inputTextOpen = true;
+	}
+}
+
 bool FindServerState::onBackToMenuClicked(const CEGUI::EventArgs& e)
 {
 	m_stateManager->clearAllAndSetState(new MenuState());
@@ -105,8 +128,13 @@ bool FindServerState::onJoinServerClicked(const CEGUI::EventArgs& e)
 {
 	CEGUI::ListboxItem* item = m_serverList->getFirstSelectedItem();
 	
+	
 	if (item != NULL)
 	{
+		usernameInput();
+		if (m_usernameBox->getText() == "Enter Username...") {
+			return false;
+		}
 		std::string serverName = item->getText().c_str();
 		unsigned int serverID = item->getID();
 		item = m_serverList->getNextSelected(item);
@@ -115,6 +143,7 @@ bool FindServerState::onJoinServerClicked(const CEGUI::EventArgs& e)
 		{
 			const ServerInfo& serverInfo = Client::getInstance()->getServerByID(serverID);
 			Client::getInstance()->connectToAnotherServer(serverInfo);
+			Client::getInstance()->setUsername(m_usernameBox->getText().c_str());
 		}
 
 
@@ -138,5 +167,20 @@ bool FindServerState::onRefreshServerListClicked(const CEGUI::EventArgs& e)
 {
 	m_serverListRefreshing = true;
 	Client::getInstance()->refreshServerList();
+	return true;
+}
+
+bool FindServerState::onBackToListClicked(const CEGUI::EventArgs& e)
+{
+	//Hide the button and the username input
+	m_usernameBox->hide();
+	m_backToList->hide();
+	//Open up the server list
+	m_serverList->show();
+	m_refreshServerList->show();
+	m_inputTextOpen = false;
+
+	m_usernameBox->setText("Enter Username...");
+	m_inputTextSelected = false;
 	return true;
 }

@@ -1,48 +1,74 @@
 #include "Pch/Pch.h"
 #include "EnhanceAttackSpell.h"
+#include <Spells/SpellHandler.h>
 
 
-
-EnhanceAttackSpell::EnhanceAttackSpell(glm::vec3 pos)
-	: Spell(pos)
+EnhanceAttackSpell::EnhanceAttackSpell()
 {
-}
+	m_currentAttackCooldown = m_attackCooldown;
+	m_currentAttack = m_nrOfAttacks;
 
-EnhanceAttackSpell::EnhanceAttackSpell(std::string name, glm::vec3 pos, glm::vec3 m_direction, float speed, float m_travelTime, std::string meshName, float cooldown, float nrOfEnhancedAttacks)
-	: Spell(name, pos, m_direction, speed, m_travelTime, meshName, cooldown)
-{
-	this->nrOfEnhancedAttacks = nrOfEnhancedAttacks;
+
+	m_done = true;
+	m_ready = false;
 }
 
 EnhanceAttackSpell::~EnhanceAttackSpell()
 {
 }
 
-float EnhanceAttackSpell::getThreeAttacks()
+float EnhanceAttackSpell::getNrOfAttacks() const
 {
-	return this->nrOfEnhancedAttacks;
+	return m_nrOfAttacks;
 }
 
-void EnhanceAttackSpell::setThreeAttacks(float nrOfEnhancedAttacks)
+float EnhanceAttackSpell::getAttackCooldown() const
 {
-	 this->nrOfEnhancedAttacks = nrOfEnhancedAttacks;
+	return m_attackCooldown;
 }
 
-void EnhanceAttackSpell::updateActiveSpell(float deltaTime)
+void EnhanceAttackSpell::setNrOfAttacks(float nrOfEnhancedAttacks)
 {
-	translate(getDirection() * deltaTime * getSpellSpeed());
-	setTravelTime(getTravelTime() - 1 * deltaTime);
+	m_currentAttack = nrOfEnhancedAttacks;
 }
 
-void EnhanceAttackSpell::spellCooldownUpdate(float deltaTime)
+void EnhanceAttackSpell::reduceNrOfAttacks(float nrOfEnhancedAttacks)
 {
-	if (getCooldown() > 0)
-		setCooldown(getCooldown() - 1 * deltaTime);
+	m_currentAttack -= nrOfEnhancedAttacks;
 }
 
-void EnhanceAttackSpell::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector)
+void EnhanceAttackSpell::setAttackCooldown(float attackCooldown)
 {
-	setSpellPos(glm::vec3(spellPos.x, spellPos.y - 1.8f, spellPos.z) + directionVector); //-1.8 = spwn point for spell, spell need to be 0 and playerPos is set to (0,1.8,0)
-	translate(getSpellPos());
-	setDirection(directionVector);
+	m_currentAttackCooldown = attackCooldown;
+}
+
+void EnhanceAttackSpell::update(float deltaTime)
+{
+	if (!m_done)
+	{
+		m_currentAttackCooldown -= deltaTime;
+
+		if (m_currentAttackCooldown <= 0)
+		{
+			m_ready = true;
+
+			m_currentAttackCooldown = m_attackCooldown;
+			m_currentAttack -= 1;
+		}
+		if (m_currentAttack <= 0)
+		{
+			m_currentAttack = m_nrOfAttacks;
+			m_done = true;
+		}
+	}
+}
+
+void EnhanceAttackSpell::start()
+{
+	m_done = false;
+}
+
+void EnhanceAttackSpell::attacked()
+{
+	m_ready = false;
 }
