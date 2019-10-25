@@ -686,15 +686,6 @@ void Client::updateDataOnServer()
 		m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
 	}
 
-	// remove or add new spells on the network
-	for (size_t i = 0; i < m_removeOrAddSpellQueue.size(); i++) {
-
-		RakNet::BitStream bsOut;
-		bsOut.Write(m_removeOrAddSpellQueue[i].packetType);
-		m_removeOrAddSpellQueue[i].Serialize(true, bsOut);
-		m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_serverAddress, false);
-	}
-
 	// Check collision with them
 	for (size_t i = 0; i < m_spellsHitQueue.size(); i++) {
 
@@ -704,6 +695,14 @@ void Client::updateDataOnServer()
 		m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
 	}
 
+	// remove or add new spells on the network
+	for (size_t i = 0; i < m_removeOrAddSpellQueue.size(); i++) {
+
+		RakNet::BitStream bsOut;
+		bsOut.Write(m_removeOrAddSpellQueue[i].packetType);
+		m_removeOrAddSpellQueue[i].Serialize(true, bsOut);
+		m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_serverAddress, false);
+	}
 
 	// Empty all the queues
 	m_updateSpellQueue.clear();
