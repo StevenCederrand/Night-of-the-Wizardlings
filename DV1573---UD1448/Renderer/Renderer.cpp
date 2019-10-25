@@ -561,7 +561,7 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 		
 		if (Client::getInstance()->getServerState().currentState == NetGlobals::SERVER_STATE::GAME_IS_STARTING) {
 			std::string timeText = std::to_string(Client::getInstance()->getCountdownPacket().timeLeft / 1000);
-			m_text->RenderText("Time until match starts: " + timeText + "seconds", (SCREEN_WIDTH / 2) - 250.0f , 680.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
+			m_text->RenderText("Time until match starts: " + timeText + " seconds", (SCREEN_WIDTH / 2) - 250.0f , 680.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
 		}
 		else if (Client::getInstance()->getServerState().currentState == NetGlobals::SERVER_STATE::GAME_IN_SESSION) {
 			
