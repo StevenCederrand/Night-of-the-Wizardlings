@@ -33,7 +33,7 @@ Renderer::Renderer()
 
 Renderer::~Renderer()
 {
-	delete m_bloom;
+	//delete m_bloom;
 	delete m_text;
 }
 
@@ -135,7 +135,7 @@ void Renderer::initShaders() {
 	ShaderMap::getInstance()->createShader(DEBUG, "VertexShader.vert", "DebugFragShader.frag");
 
 	/*=====================================================*/
-	ShaderMap::getInstance()->createShader(BLOOM, "Bloom.vs", "Bloom.fs");
+	/*ShaderMap::getInstance()->createShader(BLOOM, "Bloom.vs", "Bloom.fs");
 	ShaderMap::getInstance()->useByName(BLOOM);
 	ShaderMap::getInstance()->getShader(BLOOM)->setInt("albedoTexture", 0);
 
@@ -146,12 +146,12 @@ void Renderer::initShaders() {
 	ShaderMap::getInstance()->createShader(BLOOM_BLUR, "BloomBlur.vs", "BloomBlur.fs");
 	ShaderMap::getInstance()->useByName(BLOOM_BLUR);
 	ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("sceneImage", 0);
-	ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("bloomImage", 1);
+	ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("bloomImage", 1);*/
 	m_text = new FreeType();
 	m_text->BindTexture();
-	m_bloom = new BloomBlur;
-	m_bloom->createHdrFBO();
-	m_bloom->createPingPingFBO();
+	//m_bloom = new BloomBlur;
+	//m_bloom->createHdrFBO();
+	//m_bloom->createPingPingFBO();
 	/*=====================================================*/
 
 	/* Hud */
@@ -522,30 +522,31 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 #pragma endregion
 
 	//ShaderMap::getInstance()->useByName(BLUR);
-	//
+
 	//ShaderMap::getInstance()->getShader(BLUR)->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
 	//m_bloom->blurIteration(0);
-	//
-	//
-	//for (unsigned int i = 0; i < m_bloom->getAmount() - 1; i++)
-	//{
-	//
-	//	ShaderMap::getInstance()->getShader(BLUR)->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
-	//
-	//	m_bloom->blurIteration(1);
-	//}
-	//m_bloom->unbindTextures();
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	//ShaderMap::getInstance()->useByName(BLOOM_BLUR);
-	////If the client is dead
-	//if (Client::getInstance()->getMyData().health <= 0) {
-	//	ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("grayscale", 1);
-	//}
-	//else {
-	//	ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("grayscale", 0);
-	//}
-	//
-	//
+
+
+	/*for (unsigned int i = 0; i < m_bloom->getAmount() - 1; i++)
+	{
+
+		ShaderMap::getInstance()->getShader(BLUR)->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
+
+		m_bloom->blurIteration(1);
+	}
+	m_bloom->unbindTextures();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	ShaderMap::getInstance()->useByName(BLOOM_BLUR);*/
+	//If the client is dead
+	
+	/*if (Client::getInstance()->getMyData().health <= 0) {
+		ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("grayscale", 1);
+	}
+	else {
+		ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("grayscale", 0);
+	}*/
+
+
 	//m_bloom->sendTextureLastPass();
 	//m_bloom->renderQuad();
 	//m_bloom->unbindTextures();
@@ -558,8 +559,50 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_CULL_FACE);
 	if (Client::getInstance()->isConnectedToSever()) {
-		m_text->RenderText("Health: " + std::to_string(Client::getInstance()->getMyData().health), 10.0f, 680.0f, 0.8f, glm::vec3(1.0f, 0.0f, 0.0f));
-		m_text->RenderText("Kills: " + std::to_string(Client::getInstance()->getMyData().numberOfKills), 1000.0f, 680.0f, 0.8f, glm::vec3(1.0f, 0.0f, 0.0f));
+		
+		NetGlobals::SERVER_STATE state = Client::getInstance()->getServerState().currentState;
+
+		if (state == NetGlobals::SERVER_STATE::GAME_IS_STARTING) {
+			std::string timeText = std::to_string(Client::getInstance()->getCountdownPacket().timeLeft / 1000);
+			m_text->RenderText("Time until match starts: " + timeText + " seconds", (SCREEN_WIDTH / 2) - 250.0f , 680.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
+		}
+		else if (state == NetGlobals::SERVER_STATE::GAME_IN_SESSION) {
+			
+			uint32_t minutes = Client::getInstance()->getRoundTimePacket().minutes;
+			uint32_t seconds = Client::getInstance()->getRoundTimePacket().seconds;
+			std::string timeText = std::to_string(minutes) +":";
+
+			if (seconds >= 10) {
+				timeText += std::to_string(seconds);
+			}
+				
+			else{
+				timeText += "0" + std::to_string(seconds);
+			}
+				
+			
+			//std::string timeText = std::to_string(Client::getInstance()->getRoundTimePacket().timeLeft / 1000);
+			m_text->RenderText("Game time " + timeText, (SCREEN_WIDTH / 2) - 100.0f, 680.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
+		}
+		else if (state == NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS) {
+			std::string timeText = std::to_string(Client::getInstance()->getCountdownPacket().timeLeft / 1000);
+			m_text->RenderText("Warmup", SCREEN_WIDTH / 2 - 100.0f, 680.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
+		}
+		else if (state == NetGlobals::SERVER_STATE::GAME_END_STATE) {
+			std::string timeText = std::to_string(Client::getInstance()->getCountdownPacket().timeLeft / 1000);
+			m_text->RenderText("End of round: " + timeText, SCREEN_WIDTH / 2 - 150.0f, 680.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
+		}
+
+		
+		if (Client::getInstance()->getMyData().health == 0) {
+			std::string timeText = std::to_string(Client::getInstance()->getRespawnTime().timeLeft / 1000);
+			m_text->RenderText("Respawn in " + timeText + " seconds", (SCREEN_WIDTH / 2) - 200.0f, 480.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
+		}
+
+		m_text->RenderText("Health: " + std::to_string(Client::getInstance()->getMyData().health), 10.0f, 680.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
+		
+		if(state == NetGlobals::SERVER_STATE::GAME_IN_SESSION)
+			m_text->RenderText("Kills: " + std::to_string(Client::getInstance()->getMyData().numberOfKills), 1000.0f, 680.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
 
 
 	}

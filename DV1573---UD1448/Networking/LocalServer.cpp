@@ -221,6 +221,14 @@ void LocalServer::processAndHandlePackets()
 			m_serverInfo.connectedPlayers++;
 			m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
 
+			// Send server state to the new player
+			RakNet::BitStream stateStream;
+			stateStream.Write((RakNet::MessageID)SERVER_CURRENT_STATE);
+			ServerStateChange statePacket;
+			statePacket.currentState = m_serverInfo.currentState;
+			statePacket.Serialize(true, stateStream);
+			m_serverPeer->Send(&stateStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, packet->systemAddress, false);
+
 		}
 		break;
 
@@ -665,7 +673,7 @@ void LocalServer::respawnPlayers()
 		m_connectedPlayers[i].health = NetGlobals::maxPlayerHealth;
 	
 		RakNet::BitStream stream;
-		stream.Write((RakNet::MessageID)SCORE_UPDATE);
+		stream.Write((RakNet::MessageID)RESPAWN_PLAYER);
 		m_connectedPlayers[i].Serialize(true, stream);
 		m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_connectedPlayers[i].guid, false);
 	}

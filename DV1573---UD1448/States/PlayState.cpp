@@ -114,7 +114,10 @@ void PlayState::update(float dt)
 	if (Client::getInstance()->getMyData().health != m_player->getHealth())
 	{
 		m_player->setHealth(Client::getInstance()->getMyData().health);
-		m_damageOverlay->setAlpha(1.0f);
+		if (Client::getInstance()->getMyData().health == NetGlobals::maxPlayerHealth && m_player->getHealth() == 0)	
+			m_damageOverlay->setAlpha(0.0f);
+		else
+			m_damageOverlay->setAlpha(1.0f);
 	}
 
 	if (m_damageOverlay->getAlpha() != 0)
@@ -130,10 +133,6 @@ void PlayState::update(float dt)
 	//Enable GUI
 	GUIHandler();
 
-	if (Input::isKeyPressed(GLFW_KEY_P)) {
-		auto& list = Client::getInstance()->getNetworkSpells();
-		logTrace("Active spells on client: {0}", list.size());
-	}
 }
 
 void PlayState::render()

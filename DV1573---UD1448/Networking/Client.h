@@ -44,6 +44,10 @@ public:
 	
 	const PlayerPacket& getMyData() const;
 	const ServerStateChange& getServerState() const;
+	const CountdownPacket& getCountdownPacket() const;
+	const CountdownPacket& getRespawnTime() const;
+	const RoundTimePacket& getRoundTimePacket() const;
+
 
 	const bool doneRefreshingServerList() const;
 	const bool doesServerExist(const unsigned int& ID) const;
@@ -87,6 +91,10 @@ private:
 	
 	PlayerPacket m_myPlayerDataPacket;
 	ServerStateChange m_serverState;
+	CountdownPacket m_countDownPacket;
+	CountdownPacket m_respawnTime;
+	RoundTimePacket m_roundTimePacket;
+
 
 	std::vector<PlayerPacket> m_connectedPlayers;
 	NetworkPlayers m_networkPlayers;
