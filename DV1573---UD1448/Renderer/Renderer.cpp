@@ -392,7 +392,7 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 
 	
 	//BLOOMBLUR MISSION STEP 1: SAMPLE
-	m_bloom->bindHdrFBO();
+	//m_bloom->bindHdrFBO();
 	renderSkybox(m_skybox);
 	m_spellHandler->renderSpell();
 	
@@ -521,34 +521,34 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 
 #pragma endregion
 
-	ShaderMap::getInstance()->useByName(BLUR);
-
-	ShaderMap::getInstance()->getShader(BLUR)->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
-	m_bloom->blurIteration(0);
-
-
-	for (unsigned int i = 0; i < m_bloom->getAmount() - 1; i++)
-	{
-
-		ShaderMap::getInstance()->getShader(BLUR)->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
-
-		m_bloom->blurIteration(1);
-	}
-	m_bloom->unbindTextures();
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	ShaderMap::getInstance()->useByName(BLOOM_BLUR);
-	//If the client is dead
-	if (Client::getInstance()->getMyData().health <= 0) {
-		ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("grayscale", 1);
-	}
-	else {
-		ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("grayscale", 0);
-	}
-
-
-	m_bloom->sendTextureLastPass();
-	m_bloom->renderQuad();
-	m_bloom->unbindTextures();
+	//ShaderMap::getInstance()->useByName(BLUR);
+	//
+	//ShaderMap::getInstance()->getShader(BLUR)->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
+	//m_bloom->blurIteration(0);
+	//
+	//
+	//for (unsigned int i = 0; i < m_bloom->getAmount() - 1; i++)
+	//{
+	//
+	//	ShaderMap::getInstance()->getShader(BLUR)->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
+	//
+	//	m_bloom->blurIteration(1);
+	//}
+	//m_bloom->unbindTextures();
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//ShaderMap::getInstance()->useByName(BLOOM_BLUR);
+	////If the client is dead
+	//if (Client::getInstance()->getMyData().health <= 0) {
+	//	ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("grayscale", 1);
+	//}
+	//else {
+	//	ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("grayscale", 0);
+	//}
+	//
+	//
+	//m_bloom->sendTextureLastPass();
+	//m_bloom->renderQuad();
+	//m_bloom->unbindTextures();
 	
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
