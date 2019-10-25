@@ -258,16 +258,16 @@ void SpellHandler::spellUpdate(float deltaTime)
 		if (spells[i]->getTravelTime() > 0)
 		{
 
-			//if (static_cast<Spell*>(spells[i])->getType() == REFLECT)
-			//{
-				//REFLECTupdate(deltaTime, i);
-			//}
+			if (static_cast<Spell*>(spells[i])->getType() == REFLECT)
+			{
+				REFLECTupdate(deltaTime, i);
+			}
 
-			/*if (static_cast<Spell*>(spells[i])->getType() == FLAMESTRIKE)
+			if (static_cast<Spell*>(spells[i])->getType() == FLAMESTRIKE)
 			{
 				flamestrikeUpdate(deltaTime, i);
 			}
-*/
+
 			spells[i]->update(deltaTime);
 			spells[i]->updateRigidbody(deltaTime, m_BulletNormalSpell.at(i));
 			Client::getInstance()->updateSpellOnNetwork(*spells[i]);
