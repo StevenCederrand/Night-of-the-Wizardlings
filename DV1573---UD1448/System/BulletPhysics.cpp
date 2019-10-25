@@ -181,5 +181,5 @@ void BulletPhysics::update(float dt)
 		counter++;
 	//btScalar time = btScalar(1.0 / 60.0);
 	// Testing deltatime based updates // JR
-	m_dynamicsWorld->stepSimulation(dt, 10.0f, 240.0f);
+	m_dynamicsWorld->stepSimulation(dt, 10.0f, 1.0f/ 240.0f);
 }
