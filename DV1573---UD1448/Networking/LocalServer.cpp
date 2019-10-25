@@ -477,7 +477,7 @@ void LocalServer::processAndHandlePackets()
 
 
 			RakNet::BitStream stream;
-			stream.Write((RakNet::MessageID)SPELL_PLAYER_HIT);
+			stream.Write((RakNet::MessageID)SPELL_DESTROY);
 			spellPacket.Serialize(true, stream);
 			m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, spellPacket.CreatorGUID, false);
 		}
