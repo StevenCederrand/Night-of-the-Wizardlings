@@ -140,24 +140,24 @@ const float& Camera::getYaw() const
 	return m_camYaw;
 }
 
-const glm::vec3& Camera::getCamFace()
+glm::vec3 Camera::getCamFace()
 {
 	return m_camFace;
 }
 
-const glm::vec3& Camera::getCamRight()
+glm::vec3 Camera::getCamRight()
 {
 	return m_camRight;
 }
 
 const glm::vec3& Camera::getPosition() const
 {
-	return camPos;
+	return m_camPos;
 }
 
 const glm::vec3& Camera::getDirection() const
 {
-	return camFace;
+	return m_camFace;
 }
 
 GLFWwindow* Camera::getWindow()
