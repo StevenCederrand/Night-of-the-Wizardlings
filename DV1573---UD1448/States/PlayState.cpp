@@ -113,11 +113,12 @@ void PlayState::update(float dt)
 	
 	if (Client::getInstance()->getMyData().health != m_player->getHealth())
 	{
-		m_player->setHealth(Client::getInstance()->getMyData().health);
-		if (Client::getInstance()->getMyData().health == NetGlobals::maxPlayerHealth && m_player->getHealth() == 0)	
+		if (Client::getInstance()->getMyData().health == NetGlobals::maxPlayerHealth && m_player->getHealth() == 0)
 			m_damageOverlay->setAlpha(0.0f);
 		else
 			m_damageOverlay->setAlpha(1.0f);
+
+		m_player->setHealth(Client::getInstance()->getMyData().health);
 	}
 
 	if (m_damageOverlay->getAlpha() != 0)
