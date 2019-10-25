@@ -484,9 +484,8 @@ void Client::processAndHandlePackets()
 		case GAME_START_COUNTDOWN:
 		{
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
-			CountdownPacket countdownPacket;
-			countdownPacket.Serialize(false, bsIn);
-			logTrace("[GAME SERVER] Starts game in {0}...", countdownPacket.timeLeft / 1000);
+			m_countDownPacket.Serialize(false, bsIn);
+			//logTrace("[GAME SERVER] Starts game in {0}...", countdownPacket.timeLeft / 1000);
 			m_inGame = true;
 		}
 		break;
@@ -494,22 +493,19 @@ void Client::processAndHandlePackets()
 		case RESPAWN_TIME:
 		{
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
-			CountdownPacket countdownPacket;
-			countdownPacket.Serialize(false, bsIn);
-			logTrace("[GAME SERVER] Respawn in {0}...", countdownPacket.timeLeft / 1000);
+			m_respawnTime.Serialize(false, bsIn);
 		}
 		break;
 
 		case GAME_ROUND_TIMER:
 		{
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
-			RoundTimePacket roundTimePacket;
-			roundTimePacket.Serialize(false, bsIn);
+			m_roundTimePacket.Serialize(false, bsIn);
 
-			if(roundTimePacket.seconds >= 10)
+			/*if(roundTimePacket.seconds >= 10)
 				logTrace("[GAME SERVER] Time left {0}:{1}", roundTimePacket.minutes, roundTimePacket.seconds);
 			else
-				logTrace("[GAME SERVER] Time left {0}:0{1}", roundTimePacket.minutes, roundTimePacket.seconds);
+				logTrace("[GAME SERVER] Time left {0}:0{1}", roundTimePacket.minutes, roundTimePacket.seconds);*/
 		}
 		break;
 
@@ -753,6 +749,21 @@ const PlayerPacket& Client::getMyData() const
 const ServerStateChange& Client::getServerState() const
 {
 	return m_serverState;
+}
+
+const CountdownPacket& Client::getCountdownPacket() const
+{
+	return m_countDownPacket;
+}
+
+const CountdownPacket& Client::getRespawnTime() const
+{
+	return m_respawnTime;
+}
+
+const RoundTimePacket& Client::getRoundTimePacket() const
+{
+	return m_roundTimePacket;
 }
 
 const std::vector<SpellPacket>& Client::getNetworkSpells()

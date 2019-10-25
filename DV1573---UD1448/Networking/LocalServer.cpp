@@ -665,7 +665,7 @@ void LocalServer::respawnPlayers()
 		m_connectedPlayers[i].health = NetGlobals::maxPlayerHealth;
 	
 		RakNet::BitStream stream;
-		stream.Write((RakNet::MessageID)SCORE_UPDATE);
+		stream.Write((RakNet::MessageID)RESPAWN_PLAYER);
 		m_connectedPlayers[i].Serialize(true, stream);
 		m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_connectedPlayers[i].guid, false);
 	}
