@@ -60,7 +60,7 @@ const float ReflectSpell::getDamage()
 
 void ReflectSpell::updateReflection(float deltaTime, btRigidBody* body, glm::vec3 position, glm::vec3 direction)
 {
-	m_transform.position = position + (direction * 0.5f);
+	m_transform.position = position + (direction * 0.8f);
 	m_direction = glm::normalize(direction);
 }
 
