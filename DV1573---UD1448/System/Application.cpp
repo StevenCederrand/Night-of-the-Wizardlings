@@ -75,7 +75,7 @@ bool Application::init() {
 	}
 	
 	// Vsync
-	glfwSwapInterval(0); //Off, should be using delta time properly anyway
+	glfwSwapInterval(1); //Off, should be using delta time properly anyway
 	
 	m_input = new Input();
 
