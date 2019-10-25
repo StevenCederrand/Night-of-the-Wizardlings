@@ -258,12 +258,12 @@ void SpellHandler::spellUpdate(float deltaTime)
 		if (spells[i]->getTravelTime() > 0)
 		{
 
-			if (static_cast<Spell*>(spells[i])->getType() == REFLECT)
+			if (spells[i]->getType() == REFLECT)
 			{
 				REFLECTupdate(deltaTime, i);
 			}
 
-			if (static_cast<Spell*>(spells[i])->getType() == FLAMESTRIKE)
+			if (spells[i]->getType() == FLAMESTRIKE)
 			{
 				flamestrikeUpdate(deltaTime, i);
 			}
