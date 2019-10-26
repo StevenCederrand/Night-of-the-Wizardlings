@@ -135,7 +135,7 @@ void SpellHandler::initReflectSpell()
 
 	reflectBase->m_radius = 1.0f;
 	reflectBase->m_coolDown = 2.0f;
-	reflectBase->m_lifeTime = 10.0f;
+	reflectBase->m_lifeTime = 3.0f;
 }
 
 SpellHandler::~SpellHandler()
@@ -160,7 +160,7 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 	float cooldown = 0.0f;
 	if (Client::getInstance()->getMyData().health <= 0)
 		return cooldown;
-
+	
 	if (type == NORMALATTACK)
 	{
 		auto spell = new AttackSpell(spellPos, directionVector, attackBase);
@@ -170,7 +170,6 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 		Client::getInstance()->createSpellOnNetwork(*spell);
 		spells.emplace_back(spell);
 		Renderer::getInstance()->submit(spells.back(), SPELL);
-		logTrace("Created attack spell");
 
 		//bullet create
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
@@ -193,8 +192,7 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 		Client::getInstance()->createSpellOnNetwork(*spell);
 		spells.emplace_back(spell);
 		Renderer::getInstance()->submit(spells.back(), SPELL);
-		logTrace("Created enhanceattack spell");
-
+		
 		//bullet create
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
 		m_BulletNormalSpell.emplace_back(
@@ -253,43 +251,52 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 
 void SpellHandler::spellUpdate(float deltaTime)
 {
-	for (size_t i = 0; i < spells.size(); i++)
-	{
-		if (spells[i]->getTravelTime() > 0)
+		
+		for (size_t i = 0; i < spells.size(); i++)
 		{
-
-			//if (static_cast<Spell*>(spells[i])->getType() == REFLECT)
-			//{
-				//REFLECTupdate(deltaTime, i);
-			//}
-
-			/*if (static_cast<Spell*>(spells[i])->getType() == FLAMESTRIKE)
+			if (spells[i]->getTravelTime() > 0)
 			{
-				flamestrikeUpdate(deltaTime, i);
+
+				/*if (static_cast<Spell*>(spells[i])->getType() == FLAMESTRIKE)
+				{
+					flamestrikeUpdate(deltaTime, i);
+				}
+				*/
+				spells[i]->update(deltaTime);
+				spells[i]->updateRigidbody(deltaTime, m_BulletNormalSpell.at(i));
+				Client::getInstance()->updateSpellOnNetwork(*spells[i]);
+
 			}
-*/
-			spells[i]->update(deltaTime);
-			spells[i]->updateRigidbody(deltaTime, m_BulletNormalSpell.at(i));
-			Client::getInstance()->updateSpellOnNetwork(*spells[i]);
+
+			if (spells[i]->getTravelTime() <= 0)
+			{
+				Renderer::getInstance()->removeDynamic(spells[i], SPELL);
+
+				Client::getInstance()->destroySpellOnNetwork(*spells[i]);
+				delete spells[i];
+				spells.erase(spells.begin() + i);
+
+				m_bp->removeObject(m_BulletNormalSpell.at(i));
+				m_BulletNormalSpell.erase(m_BulletNormalSpell.begin() + i);
+			}
 
 		}
-		
-		if (spells[i]->getTravelTime() <= 0)
-		{
-			Renderer::getInstance()->removeDynamic(spells[i], SPELL);
-
-			Client::getInstance()->destroySpellOnNetwork(*spells[i]);
-			delete spells[i];
-			spells.erase(spells.begin() + i);
-
-			m_bp->removeObject(m_BulletNormalSpell.at(i));
-			m_BulletNormalSpell.erase(m_BulletNormalSpell.begin() + i);
-			logTrace("Deleted spell");
-		}
-		
-	}
 	
 	spellCollisionCheck();
+	
+
+	
+	// Scope
+	{
+		std::lock_guard<std::mutex> guard(m_clientSyncMutex);
+		for (size_t i = 0; i < m_deflectedSpells.size(); i++)
+		{
+			deflectSpellData& data = m_deflectedSpells[i];
+			createSpell(data.position, data.direction, data.type);
+		}
+	}
+	m_deflectedSpells.clear();
+
 }
 
 void SpellHandler::setSpawnerPosition(glm::vec3 position)
@@ -419,7 +426,7 @@ void SpellHandler::REFLECTupdate(float deltaTime, int i)
 			break;
 		case REFLECT:
 			hitboxRadius = reflectBase->m_radius;
-			break;
+			break; 
 		default:
 			break;
 		}
@@ -427,8 +434,7 @@ void SpellHandler::REFLECTupdate(float deltaTime, int i)
 		if (reflectSpell->checkReflectCollision(spellList[i].Position, spellList[i].Direction, hitboxRadius))
 		{
 			createSpell(m_spawnerPos, m_spawnerDir, spellList[i].SpellType);
-			Client::getInstance()->requestToDestroyClientSpell(spellList[i]);
-			logTrace("Collision with reflection");
+			
 		}
 	}
 }

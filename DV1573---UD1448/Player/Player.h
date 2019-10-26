@@ -28,6 +28,7 @@ public:
 	glm::vec3 getPlayerPos() const;
 	int getHealth() const;
 	std::string getName() const;
+	const bool& isDeflecting() const;
 
 	//-----Set-----//
 	void setPlayerPos(glm::vec3 pos);
@@ -66,6 +67,9 @@ private:
 	int m_frameCount;
 
 	std::string name;
+
+	float m_timeLeftInDeflectState;
+	bool m_deflecting;
 
 	//removed in bulletPhysics.cpp
 	BulletPhysics* m_bp;

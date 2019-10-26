@@ -9,7 +9,7 @@ public:
 
 	void update(const float& dt);
 	void registerCallback(std::function<void()> callbackFunc);
-	
+	void forceExecute();
 	void restart();
 	void start();
 	void stop();

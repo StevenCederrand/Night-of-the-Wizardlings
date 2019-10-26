@@ -41,6 +41,7 @@ private:
 	BulletPhysics* m_bPhysics;
 	HudObject* m_crosshairHUD;
 	HudObject* m_damageOverlay;
+	HudObject* m_deflectCrosshairHUD;
 	CEGUI::PushButton* m_mainMenu;
 	CEGUI::PushButton* m_quit;
 	CEGUI::MultiColumnList* m_scoreBoard;

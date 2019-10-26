@@ -22,7 +22,7 @@ enum {
 	RESPAWN_TIME,
 	RESPAWN_PLAYER,
 	SCORE_UPDATE,
-	SPELL_REMOVAL_REQUEST
+	SPELL_GOT_DEFLECTED
 };
 
 /* To make sure the compiler aligns the bits */
@@ -42,23 +42,30 @@ struct newPlayerInfo {
 
 struct PlayerPacket {
 	RakNet::AddressOrGUID guid;
+	uint32_t timestamp = 0;
 	int health = NetGlobals::maxPlayerHealth;
 	glm::vec3 position = glm::vec3(0.0f);
 	glm::vec3 rotation = glm::vec3(0.0f);
+	glm::vec3 lookDirection = glm::vec3(0.0f);
 	char userName[16] = { ' ' };
 	int numberOfKills = 0;
 	int numberOfDeaths = 0;
+	bool inDeflectState = false;
 	bool hasBeenUpdatedOnce = false;
+
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream)
 	{
 		stream.Serialize(writeToStream, guid);
+		stream.Serialize(writeToStream, timestamp);
 		stream.Serialize(writeToStream, health);
 		stream.Serialize(writeToStream, position);
 		stream.Serialize(writeToStream, rotation);
+		stream.Serialize(writeToStream, lookDirection);
 		stream.Serialize(writeToStream, userName);
 		stream.Serialize(writeToStream, numberOfKills);
 		stream.Serialize(writeToStream, numberOfDeaths);
+		stream.Serialize(writeToStream, inDeflectState);
 		stream.Serialize(writeToStream, hasBeenUpdatedOnce);
 	}
 };
@@ -89,6 +96,7 @@ struct SpellPacket{
 	SpellPacket() {}
 	RakNet::MessageID packetType;
 	uint64_t SpellID = 0;
+	uint32_t timestamp = 0;
 	RakNet::RakNetGUID CreatorGUID = RakNet::UNASSIGNED_RAKNET_GUID;
 	glm::vec3 Position = glm::vec3(0.0f);
 	glm::vec3 Rotation = glm::vec3(0.0f);
@@ -100,6 +108,7 @@ struct SpellPacket{
 	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
 		stream.Serialize(writeToStream, packetType);
 		stream.Serialize(writeToStream, SpellID);
+		stream.Serialize(writeToStream, timestamp);
 		stream.Serialize(writeToStream, CreatorGUID);
 		stream.Serialize(writeToStream, Position);
 		stream.Serialize(writeToStream, Rotation);
@@ -108,23 +117,7 @@ struct SpellPacket{
 		stream.Serialize(writeToStream, SpellType);
 	}
 
-	std::string toString() const {
-		std::string str = "---Spell Packet---\n";
-		str +=	"Spell ID: " + std::to_string(SpellID) + "\n";
-		str +=	"Creator ID: " + std::string(CreatorGUID.ToString()) + "\n" ;
-		str += "Position: (" + std::to_string(Position.x) + ", " + std::to_string(Position.y) + ", " + std::to_string(Position.z) + ")\n";
-		str += "Rotation: (" + std::to_string(Rotation.x) + ", " + std::to_string(Rotation.y) + ", " + std::to_string(Rotation.z) + ")\n";
-		
-		if(SpellType == SPELL_TYPE::ENHANCEATTACK)
-			str += "SpellType: Enhanced attack";
-		else if (SpellType == SPELL_TYPE::NORMALATTACK)
-			str += "SpellType: Normal attack";
-		else if (SpellType == SPELL_TYPE::ENHANCEATTACK)
-			str += "SpellType: Unknown type";
-		
 
-		return str;
-	}
 };
 
 struct HitPacket {

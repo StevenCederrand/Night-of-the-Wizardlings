@@ -73,6 +73,16 @@ void Player::update(float deltaTime)
 	m_specialCooldown -= deltaTime; // Cooldown reduces with time
 	m_special2Cooldown -= deltaTime; // Cooldown reduces with time
 	m_special3Cooldown -= deltaTime; // Cooldown reduces with time
+
+	m_timeLeftInDeflectState -= deltaTime;
+
+	if (m_timeLeftInDeflectState < 0.0f) {
+		m_deflecting = false;
+		m_timeLeftInDeflectState = 0.0f;
+	}
+
+
+
 }
 
 void Player::move(float deltaTime)
@@ -131,7 +141,9 @@ void Player::attack()
 	{
 		if (m_specialCooldown <= 0)
 		{
-			m_specialCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_specialSpelltype); // Put attack on cooldown
+			m_specialCooldown = m_spellhandler->getReflectBase()->m_coolDown;
+			m_timeLeftInDeflectState = m_spellhandler->getReflectBase()->m_lifeTime;
+			m_deflecting = true;
 		}
 	}
 
@@ -216,6 +228,11 @@ Camera* Player::getCamera()
 std::string Player::getName() const
 {
 	return m_name;
+}
+
+const bool& Player::isDeflecting() const
+{
+	return m_deflecting;
 }
 
 bool Player::isDead()
