@@ -59,7 +59,6 @@ BulletPhysics::~BulletPhysics()
 	delete m_dispatcher;
 	delete m_collisionConfiguration;
 
-
 	m_collisionShapes.clear();
 }
 
@@ -182,5 +181,4 @@ void BulletPhysics::update(float dt)
 	btScalar time = btScalar(1.0 / 120.0);
 	// Testing deltatime based updates // JR
 	m_dynamicsWorld->stepSimulation(dt, 1, time);
-
 }

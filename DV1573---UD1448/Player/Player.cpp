@@ -3,7 +3,6 @@
 #include <Networking/Client.h>
 
 Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Camera *camera, SpellHandler* spellHandler)
-
 {
 	m_playerCamera = camera;
 	m_playerPosition = playerPosition;
@@ -80,9 +79,6 @@ void Player::update(float deltaTime)
 		m_deflecting = false;
 		m_timeLeftInDeflectState = 0.0f;
 	}
-
-
-
 }
 
 void Player::move(float deltaTime)
@@ -166,7 +162,6 @@ void Player::attack()
 			m_special3Cooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_specialSpellType3); // Put attack on cooldown
 		}
 	}
-	
 }
 
 void Player::createRay()

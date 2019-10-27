@@ -245,46 +245,42 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 	//	m_BulletNormalSpell.at(size - 1)->setUserPointer(m_BulletNormalSpell.at(size - 1));
 	//}
 
-
 	return cooldown;
 }
 
 void SpellHandler::spellUpdate(float deltaTime)
 {
 		
-		for (size_t i = 0; i < spells.size(); i++)
+	for (size_t i = 0; i < spells.size(); i++)
+	{
+		if (spells[i]->getTravelTime() > 0)
 		{
-			if (spells[i]->getTravelTime() > 0)
+
+			/*if (static_cast<Spell*>(spells[i])->getType() == FLAMESTRIKE)
 			{
-
-				/*if (static_cast<Spell*>(spells[i])->getType() == FLAMESTRIKE)
-				{
-					flamestrikeUpdate(deltaTime, i);
-				}
-				*/
-				spells[i]->update(deltaTime);
-				spells[i]->updateRigidbody(deltaTime, m_BulletNormalSpell.at(i));
-				Client::getInstance()->updateSpellOnNetwork(*spells[i]);
-
+				flamestrikeUpdate(deltaTime, i);
 			}
-
-			if (spells[i]->getTravelTime() <= 0)
-			{
-				Renderer::getInstance()->removeDynamic(spells[i], SPELL);
-
-				Client::getInstance()->destroySpellOnNetwork(*spells[i]);
-				delete spells[i];
-				spells.erase(spells.begin() + i);
-
-				m_bp->removeObject(m_BulletNormalSpell.at(i));
-				m_BulletNormalSpell.erase(m_BulletNormalSpell.begin() + i);
-			}
+			*/
+			spells[i]->update(deltaTime);
+			spells[i]->updateRigidbody(deltaTime, m_BulletNormalSpell.at(i));
+			Client::getInstance()->updateSpellOnNetwork(*spells[i]);
 
 		}
-	
-	spellCollisionCheck();
-	
 
+		if (spells[i]->getTravelTime() <= 0)
+		{
+			Renderer::getInstance()->removeDynamic(spells[i], SPELL);
+
+			Client::getInstance()->destroySpellOnNetwork(*spells[i]);
+			delete spells[i];
+			spells.erase(spells.begin() + i);
+
+			m_bp->removeObject(m_BulletNormalSpell.at(i));
+			m_BulletNormalSpell.erase(m_BulletNormalSpell.begin() + i);
+		}
+
+	}
+	spellCollisionCheck();
 	
 	// Scope
 	{
@@ -296,7 +292,6 @@ void SpellHandler::spellUpdate(float deltaTime)
 		}
 	}
 	m_deflectedSpells.clear();
-
 }
 
 void SpellHandler::setSpawnerPosition(glm::vec3 position)
@@ -364,15 +359,13 @@ void SpellHandler::spellCollisionCheck()
 			}
 		}
 	}
-
-	
 }
 
 bool SpellHandler::specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis, float scale)
 { 
 	// sphereradius is wrong
 	bool collision = false;
-	float sphereRadius = 1.0f * scale * 2;
+	float sphereRadius = 1.0f * scale * 4;
 
 	glm::vec3 closestPoint = OBBclosestPoint(spellPos, axis, playerPos);
 	glm::vec3 v = closestPoint - spellPos;
@@ -446,9 +439,3 @@ void SpellHandler::flamestrikeUpdate(float deltaTime, int i)
 
 
 }
-
-
-
-
-
-
