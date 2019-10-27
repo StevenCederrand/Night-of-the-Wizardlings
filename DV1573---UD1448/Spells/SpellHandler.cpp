@@ -436,6 +436,4 @@ void SpellHandler::flamestrikeUpdate(float deltaTime, int i)
 {
 	AOEAttack* flamestrike = static_cast<AOEAttack*>(spells[i]);
 	flamestrike->updateActiveSpell(deltaTime);
-
-
 }
