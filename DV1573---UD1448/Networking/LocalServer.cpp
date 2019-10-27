@@ -64,6 +64,7 @@ void LocalServer::startup(const std::string& serverName)
 		logTrace("[SERVER] Thread sleep time {0}", NetGlobals::threadSleepTime);
 		m_serverPeer->SetTimeoutTime(NetGlobals::timeoutTimeMS, RakNet::UNASSIGNED_SYSTEM_ADDRESS);
 
+		m_adminID = RakNet::UNASSIGNED_RAKNET_GUID;
 		m_timedUnusedObjectRemoval.start();
 	}
 }
@@ -89,6 +90,7 @@ void LocalServer::destroy()
 			m_activeSpells.clear();
 		}
 		m_initialized = false;
+		m_adminID = RakNet::UNASSIGNED_RAKNET_GUID;
 		RakNet::RakPeerInterface::DestroyInstance(m_serverPeer);
 	}
 }
@@ -128,7 +130,7 @@ void LocalServer::ThreadedUpdate()
 				serverRunning = false;
 		}
 
-		m_timedUnusedObjectRemoval.update(static_cast<float>(timeDiff));
+		//m_timedUnusedObjectRemoval.update(static_cast<float>(timeDiff));
 
 		RakSleep(NetGlobals::threadSleepTime);
 	}
@@ -522,8 +524,6 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 			
 
 		}
-
-		return;
 
 		target->health -= static_cast<int>(hitpacket->damage);
 

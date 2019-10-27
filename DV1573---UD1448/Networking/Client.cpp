@@ -280,7 +280,6 @@ void Client::processAndHandlePackets()
 			player.Serialize(false, bsIn);
 			m_connectedPlayers.emplace_back(player);
 
-
 			std::lock_guard<std::mutex> lockGuard(m_networkPlayers.m_mutex);
 			NetworkPlayers::PlayerEntity pE;
 
