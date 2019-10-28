@@ -134,8 +134,8 @@ void SpellHandler::initReflectSpell()
 	reflectBase->m_material->ambient = glm::vec3(1.0f, 0.0f, 0.5f);
 
 	reflectBase->m_radius = 1.0f;
-	reflectBase->m_coolDown = 2.0f;
-	reflectBase->m_lifeTime = 3.0f;
+	reflectBase->m_coolDown = 10.0f;
+	reflectBase->m_lifeTime = 2.5f;
 }
 
 SpellHandler::~SpellHandler()
