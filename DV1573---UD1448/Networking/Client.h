@@ -66,6 +66,8 @@ private:
 	void removeActiveSpell(const SpellPacket& packet);
 	void removeConnectedPlayer(const RakNet::AddressOrGUID& guid);
 	
+	void resetPlayerData();
+
 	SpellPacket* findActiveSpell(const SpellPacket& packet);
 	
 	NetworkSpells::SpellEntity* findSpellEntityInNetworkSpells(const SpellPacket& packet);

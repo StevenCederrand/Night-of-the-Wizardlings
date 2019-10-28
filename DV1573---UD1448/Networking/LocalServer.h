@@ -53,7 +53,7 @@ private:
 	void endGameTimeExecutionLogic();
 
 	void removeUnusedObjects_routine();
-
+	void resetServerData();
 private:
 	RakNet::RakPeerInterface* m_serverPeer = nullptr;
 	std::thread m_processThread;
