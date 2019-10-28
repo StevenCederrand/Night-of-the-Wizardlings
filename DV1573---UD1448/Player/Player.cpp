@@ -5,6 +5,11 @@
 Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Camera *camera, SpellHandler* spellHandler)
 
 {
+	m_firstPersonMesh = new AnimatedObject("fpsMesh");
+	m_firstPersonMesh->loadMesh("FPSAnimations.mesh");
+	
+	Renderer::getInstance()->submit(m_firstPersonMesh, ANIMATEDSTATIC);
+
 	m_playerCamera = camera;
 	m_playerPosition = playerPosition;
 	m_name = name;
@@ -30,6 +35,7 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 
 Player::~Player()
 {
+	delete m_firstPersonMesh;
 }
 
 void Player::update(float deltaTime)
@@ -73,6 +79,10 @@ void Player::update(float deltaTime)
 	m_specialCooldown -= deltaTime; // Cooldown reduces with time
 	m_special2Cooldown -= deltaTime; // Cooldown reduces with time
 	m_special3Cooldown -= deltaTime; // Cooldown reduces with time
+	
+	m_firstPersonMesh->update(deltaTime);
+	updateMesh();
+
 }
 
 void Player::move(float deltaTime)
@@ -181,6 +191,25 @@ void Player::setPlayerPos(glm::vec3 pos)
 void Player::spawnPlayer(glm::vec3 pos)
 {
 	this->m_playerPosition = pos;
+}
+
+void Player::updateMesh()
+{
+
+	Transform m_fpsTrans;
+	//m_fpsTrans.scale = glm::vec3(0.53f, 0.53f, 0.53f);
+//	m_firstPersonMesh->setTransform(tempTransform);
+
+
+	m_fpsTrans.position = m_playerPosition;
+
+	m_fpsTrans.rotation = glm::quat(glm::vec3(
+		glm::radians(getCamera()->getPitch()),
+		-glm::radians(getCamera()->getYaw() + 90.0f),
+		0.0f));
+
+	m_firstPersonMesh->setTransform(m_fpsTrans);
+
 }
 
 void Player::setHealth(int health)

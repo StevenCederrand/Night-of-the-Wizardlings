@@ -1,7 +1,7 @@
 #pragma once
 #include <Pch/Pch.h>
 #include <Spells/AttackSpell.h>
-
+#include <GameObject/AnimatedObject.h>
 #include <Spells/EnhanceAttackSpell.h>
 #include <Spells/SpellHandler.h>
 
@@ -18,6 +18,7 @@ public:
 	void attack();
 	void createRay(); //create ray for spells
 	void spawnPlayer(glm::vec3 pos);
+	void updateMesh();
 
 	void createRigidBody(BulletPhysics* bp);
 	void forceUp();
@@ -47,6 +48,7 @@ private:
 	bool m_logicStop;
 	SpellHandler* m_spellhandler;
 	EnhanceAttackSpell m_enhanceAttack;
+	AnimatedObject* m_firstPersonMesh;
 
 	SPELL_TYPE m_spellType;
 	SPELL_TYPE m_specialSpelltype;

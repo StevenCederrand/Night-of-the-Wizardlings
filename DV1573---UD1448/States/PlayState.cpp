@@ -58,16 +58,15 @@ PlayState::PlayState()
 	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
 	//
 	////Animated goblino
-	m_firstPerson = new AnimatedObject("TestFps");
-	m_firstPerson->loadMesh("FirstPersonMesh.mesh");
+	//m_firstPerson = new AnimatedObject("TestFps");
+	//m_firstPerson->loadMesh("FirstPersonMesh.mesh");
 
-	m_objects.push_back(m_firstPerson);
+	//m_objects.push_back(m_firstPerson);
 	//m_objects[m_objects.size() - 1]->loadMesh("FirstPersonMesh.mesh");
-	Transform tempTransform;
-	tempTransform.scale = glm::vec3(0.53f, 0.53f, 0.53f);
+
 	//tempTransform.position = glm::vec3(-3.0f, 0.0f, 3.0f);
 	//m_objects[m_objects.size() - 1]->setTransform(tempTransform);
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
+	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
 
 	
 	
@@ -125,7 +124,11 @@ void PlayState::update(float dt)
 		m_damageOverlay->setAlpha(m_damageOverlay->getAlpha() - dt);
 	}
 
-	m_firstPerson->setWorldPosition(m_camera->getPosition());
+	//glm::vec3 offset;
+	//offset =  glm::vec3(-10.0f, -17.0f, -10.0f);
+
+	//m_firstPerson->setWorldPosition(m_camera->getPosition() + offset);
+
 
 	//m_firstPerson.set
 	for (GameObject* object : m_objects)
