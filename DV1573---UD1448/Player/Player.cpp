@@ -7,7 +7,7 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_playerCamera = camera;
 	m_playerPosition = playerPosition;
 	m_name = name;
-	m_speed = 5;
+	m_speed = 0.25f;
 	m_health = 100;
 	m_attackCooldown = 0;
 	m_special2Cooldown = 0;
@@ -113,7 +113,7 @@ void Player::move(float deltaTime)
 	
 	//update player position
 	btScalar yValue = std::ceil(m_character->getLinearVelocity().getY() * 100.0) / 100.0;	//Round to two decimals
-	btVector3 translate = btVector3(m_moveDir.x * m_speed * deltaTime, yValue, m_moveDir.z * m_speed * deltaTime);
+	btVector3 translate = btVector3(m_moveDir.x * m_speed, yValue, m_moveDir.z * m_speed);
 	m_character->setLinearVelocity(translate);
 	
 	//update playercamera position

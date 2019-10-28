@@ -22,6 +22,7 @@ AttackSpell::AttackSpell(glm::vec3 pos, glm::vec3 direction, const AttackSpellBa
 AttackSpell::AttackSpell(glm::vec3 pos) : Spell(pos, glm::vec3(0))
 {
 	m_type = SPELL_TYPE::NORMALATTACK;
+	m_spellBase = nullptr;
 
 	Transform tempTransform;
 	tempTransform.scale = glm::vec3(0.2f, 0.2f, 0.2f);
