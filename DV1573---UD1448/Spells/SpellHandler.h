@@ -11,6 +11,7 @@
 
 
 //enum TYPE { NORMALATTACK, ENHANCEATTACK };
+class Client;
 
 class SpellHandler
 {
@@ -64,4 +65,17 @@ private:
 	std::vector<btRigidBody*> m_BulletNormalSpell;
 	std::vector<btRigidBody*> m_BulletEnhanceAttackSpell;
 	std::vector<btRigidBody*> m_BulletFlamestrikeSpell;
+	
+	// Don't touch if you don't know what you are doing
+	friend class Client;
+	std::mutex m_clientSyncMutex;
+
+	struct deflectSpellData {
+		glm::vec3 direction;
+		glm::vec3 position;
+		SPELL_TYPE type;
+	};
+
+	std::vector<deflectSpellData> m_deflectedSpells;
+
 };
