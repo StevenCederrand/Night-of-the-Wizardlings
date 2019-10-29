@@ -113,9 +113,9 @@ void Player::move(float deltaTime)
 	
 	//update player position
 	btScalar yValue = std::ceil(m_character->getLinearVelocity().getY() * 100.0) / 100.0;	//Round to two decimals
-	btVector3 translate = btVector3(m_moveDir.x * m_speed, 0, m_moveDir.z * m_speed);
+	btVector3 translate = btVector3(m_moveDir.x * m_speed, -0.01f, m_moveDir.z * m_speed);
 	//m_character->setLinearVelocity(translate);
-	m_character->setWalkDirection(translate);
+	//m_character->setWalkDirection(translate);
 	m_character->setVelocityForTimeInterval(translate, deltaTime);
 	
 

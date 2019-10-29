@@ -52,7 +52,7 @@ void Client::destroy()
 		m_removeOrAddSpellQueue.clear();
 		m_networkPlayers.cleanUp();
 		m_networkSpells.cleanUp();
-
+		resetPlayerData();
 		m_initialized = false;
 		RakNet::RakPeerInterface::DestroyInstance(m_clientPeer);
 	}
@@ -968,4 +968,16 @@ void Client::removeConnectedPlayer(const RakNet::AddressOrGUID& guid)
 		}
 
 	}
+}
+
+void Client::resetPlayerData()
+{
+	m_myPlayerDataPacket.guid = m_clientPeer->GetMyGUID();
+	m_myPlayerDataPacket.health = NetGlobals::maxPlayerHealth;
+	m_myPlayerDataPacket.inDeflectState = false;
+	m_myPlayerDataPacket.numberOfDeaths = 0;
+	m_myPlayerDataPacket.numberOfKills = 0;
+	m_myPlayerDataPacket.hasBeenUpdatedOnce = false;
+	char t[16] = { ' ' };
+	memcpy(m_myPlayerDataPacket.userName, t, sizeof(m_myPlayerDataPacket.userName));
 }

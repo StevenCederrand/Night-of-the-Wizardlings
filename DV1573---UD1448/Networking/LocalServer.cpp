@@ -91,6 +91,7 @@ void LocalServer::destroy()
 		}
 		m_initialized = false;
 		m_adminID = RakNet::UNASSIGNED_RAKNET_GUID;
+		resetServerData();
 		RakNet::RakPeerInterface::DestroyInstance(m_serverPeer);
 	}
 }
@@ -226,7 +227,7 @@ void LocalServer::processAndHandlePackets()
 
 			// Lastly, add the new player to the local list of connected players
 			m_connectedPlayers.emplace_back(player);
-
+			
 			// Update the general server information.
 			m_serverInfo.connectedPlayers++;
 			m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
@@ -293,16 +294,16 @@ void LocalServer::processAndHandlePackets()
 			for (size_t i = 0; i < m_connectedPlayers.size() && foundPlayer == false; i++)
 			{
 				if (packet->guid == m_connectedPlayers[i].guid.rakNetGuid) {
-					m_connectedPlayers[i].position = playerPacket.position;
-					m_connectedPlayers[i].rotation = playerPacket.rotation;
-					m_connectedPlayers[i].lookDirection = playerPacket.lookDirection;
-					m_connectedPlayers[i].inDeflectState = playerPacket.inDeflectState;
-					m_connectedPlayers[i].timestamp = playerPacket.timestamp;
+					
+					// HasBeenUpdatedOnce will go false always because the client won't update that variable
+					bool hasBeenUpdatedOnce = m_connectedPlayers[i].hasBeenUpdatedOnce;
+					m_connectedPlayers[i] = playerPacket;
+					m_connectedPlayers[i].hasBeenUpdatedOnce = hasBeenUpdatedOnce;
 
 					if (m_connectedPlayers[i].hasBeenUpdatedOnce == false) {
 						m_connectedPlayers[i].hasBeenUpdatedOnce = true;
 						memcpy(m_connectedPlayers[i].userName, playerPacket.userName, sizeof(playerPacket.userName));
-						//logTrace("[SERVER] Flagged player with guid {0} as updated atleast once", m_connectedPlayers[i].guid.ToString());
+						logTrace("[SERVER] Flagged player with guid {0} as updated atleast once", m_connectedPlayers[i].guid.ToString());
 					}
 					updatedPlayer = &m_connectedPlayers[i];
 					foundPlayer = true;
@@ -333,7 +334,9 @@ void LocalServer::processAndHandlePackets()
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			ServerStateChange statePacket;
 			statePacket.Serialize(false, bsIn);
-			stateChange(statePacket.currentState);
+			
+			if (m_serverInfo.currentState == NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS)
+				stateChange(statePacket.currentState);
 		}
 		break;
 
@@ -805,6 +808,15 @@ void LocalServer::removeUnusedObjects_routine()
 		
 	}
 
+}
+
+void LocalServer::resetServerData()
+{
+	m_serverInfo.connectedPlayers = 0;
+	m_serverInfo.currentState = NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS;
+	m_serverInfo.maxPlayers = NetGlobals::MaximumConnections;
+	char t[16] = { ' ' };
+	memcpy(m_serverInfo.serverName, t, sizeof(m_serverInfo.serverName));
 }
 
 const bool& LocalServer::isInitialized() const
