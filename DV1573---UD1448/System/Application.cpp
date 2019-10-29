@@ -7,7 +7,7 @@
 #include <Gui/Gui.h>
 
 
-Application::Application() {
+Application::Application() {	
 }
 
 Application::~Application() {
