@@ -69,6 +69,7 @@
     <ClCompile Include="Spells\ReflectSpell.cpp" />
     <ClCompile Include="Text\FreeType.cpp" />
     <ClCompile Include="Text\HUDShader.cpp" />
+    <ClCompile Include="System\SoundHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
@@ -148,6 +149,7 @@
     <ClInclude Include="Renderer\HudTextureMap.h" />
     <ClInclude Include="Text\FreeType.h" />
     <ClInclude Include="Text\HUDShader.h" />
+    <ClInclude Include="System\SoundHandler.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

@@ -6,7 +6,6 @@
 #include <Networking/LocalServer.h>
 #include <Gui/Gui.h>
 
-
 Application::Application() {	
 }
 
