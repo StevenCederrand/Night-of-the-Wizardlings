@@ -398,6 +398,14 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 	
 #pragma region Color_Render
 	ShaderMap::getInstance()->useByName(BASIC_FORWARD);
+	
+	if (Client::getInstance()->getMyData().health <= 0) {
+		ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("grayscale", 1);
+	}
+	else {
+		ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("grayscale", 0);
+	}
+
 	//Bind view- and projection matrix
 	bindMatrixes(BASIC_FORWARD);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);

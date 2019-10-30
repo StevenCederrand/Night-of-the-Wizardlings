@@ -250,7 +250,7 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 
 void SpellHandler::spellUpdate(float deltaTime)
 {
-		
+	
 	for (size_t i = 0; i < spells.size(); i++)
 	{
 		if (spells[i]->getTravelTime() > 0)
@@ -302,6 +302,11 @@ void SpellHandler::setSpawnerPosition(glm::vec3 position)
 void SpellHandler::setSpawnerDirection(glm::vec3 direction)
 {
 	m_spawnerDir = direction;
+}
+
+void SpellHandler::setOnHitCallback(std::function<void()> func)
+{
+	m_onHitCallback = func;
 }
 
 void SpellHandler::renderSpell()
@@ -356,6 +361,10 @@ void SpellHandler::spellCollisionCheck()
 			{
 				spells[j]->setTravelTime(0.0f);
 				Client::getInstance()->sendHitRequest(*spells[j], list[i]);
+
+				if (m_onHitCallback != nullptr) {
+					m_onHitCallback();
+				}
 			}
 		}
 	}
