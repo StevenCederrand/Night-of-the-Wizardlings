@@ -61,6 +61,7 @@
 #include <Renderer/Camera.h>
 #include <Renderer/Renderer.h>
 #include <System/Input.h>
+#include <Destruction/TriangleNode.h>
 
 
 const std::string SHADERPATH = "Assets/Shaders/";
