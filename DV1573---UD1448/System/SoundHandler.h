@@ -4,15 +4,25 @@
 #include <OpenAL/alc.h>
 #include <OpenAL/AL/alut.h>
 
+struct BufferData
+{
+	ALsizei size;
+	ALsizei freq;
+	ALenum format;
+	ALvoid* data;
+	ALboolean loop;
+};
+
 class SoundHandler
 {
 private:
 	ALCdevice* m_device;
-	ALuint* m_buffers;
+	std::vector<ALuint> m_buffers;
+	std::vector<BufferData> m_bData;
 public:
 	SoundHandler();
 
-	const ALvoid* loadSound(const char* filename);
+	void loadSound(const char* filename);
 
 	~SoundHandler();
 
