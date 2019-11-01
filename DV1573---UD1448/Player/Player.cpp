@@ -7,7 +7,7 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 {
 	m_firstPersonMesh = new AnimatedObject("fpsMesh");
 	m_firstPersonMesh->loadMesh("FPSAnimations.mesh");
-	
+	m_firstPersonMesh->setStartAndStopTime(0.0f, 40.0f);
 	Renderer::getInstance()->submit(m_firstPersonMesh, ANIMATEDSTATIC);
 
 	m_playerCamera = camera;
