@@ -135,13 +135,17 @@ btDiscreteDynamicsWorld* BulletPhysics::getDynamicsWorld() const
 	return m_dynamicsWorld;
 }
 
-btKinematicCharacterController* BulletPhysics::createCharacter(float& spawnHeight)
+btKinematicCharacterController* BulletPhysics::createCharacter(float& spawnHeight, float& height)
 {
 	//create the character and add him to the dynamicsWorld
-	m_playerShape = new btCapsuleShape(1.0, 0.5);
+	m_playerShape = new btCapsuleShape(1.0, height*2);
 	m_ghostObject = new btPairCachingGhostObject();
+	btTransform startTransform;
+	startTransform.setIdentity();
+	startTransform.setOrigin(btVector3(0, spawnHeight, 0));
 	
-	m_ghostObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, spawnHeight, 0)));
+	//m_ghostObject->setWorldTransform(btTransform(btQuaternion(1, 0, 0, 0), btVector3(0, spawnHeight, 0)));
+	m_ghostObject->setWorldTransform(startTransform);
 
 	m_dynamicsWorld->getPairCache()->setInternalGhostPairCallback(m_ghostCallback);
 	m_ghostObject->setCollisionShape(m_playerShape);
@@ -153,7 +157,7 @@ btKinematicCharacterController* BulletPhysics::createCharacter(float& spawnHeigh
 	m_dynamicsWorld->addAction(m_character);
 	m_character->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 	m_character->setMaxPenetrationDepth(0.1f);
-	m_character->setUp(btVector3(0.0f, 1.0f, 0.0f));
+	//m_character->setUp(btVector3(0.0f, 1.0f, 0.0f));
 
 	return m_character;
 }

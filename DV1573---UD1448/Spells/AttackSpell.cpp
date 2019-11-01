@@ -63,6 +63,7 @@ void AttackSpell::updateRigidbody(float deltaTime, btRigidBody* body)
 		{
 			//logTrace("BOUNCE");
 			setTravelTime(0);
+			return;
 		}
 	}
 	m_bounceTime += deltaTime;

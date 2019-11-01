@@ -22,7 +22,8 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_specialSpellType3 = FLAMESTRIKE;
 
 	m_bp = bp;
-	m_character = m_bp->createCharacter(playerPosition.y);
+	float temp = 10.0f;
+	m_character = m_bp->createCharacter(playerPosition.y, temp);
 
 	m_client = Client::getInstance();
 }
@@ -105,7 +106,7 @@ void Player::move(float deltaTime)
 	// Jump
 	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
 		if (m_character->canJump())
-			m_character->jump(btVector3(0.0f, 3.0f, 0.0f));
+			m_character->jump(btVector3(0.0f, 4.0f, 0.0f));
 
 	// Make sure moving is a constant speed
 	if (glm::length(m_moveDir) >= 0.0001f)
@@ -121,7 +122,7 @@ void Player::move(float deltaTime)
 
 	//update playercamera position
 	btVector3 playerPos = m_character->getGhostObject()->getWorldTransform().getOrigin();
-	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY() * 1.5, playerPos.getZ());
+	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY(), playerPos.getZ());
 	
 	m_playerCamera->setCameraPos(m_playerPosition);
 }
