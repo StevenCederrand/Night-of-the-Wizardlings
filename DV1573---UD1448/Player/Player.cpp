@@ -3,7 +3,6 @@
 #include <Networking/Client.h>
 
 Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Camera *camera, SpellHandler* spellHandler)
-
 {
 	m_firstPersonMesh = new AnimatedObject("fpsMesh");
 	m_firstPersonMesh->loadMesh("FPSAnimations.mesh");
@@ -13,7 +12,7 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_playerCamera = camera;
 	m_playerPosition = playerPosition;
 	m_name = name;
-	m_speed = 5;
+	m_speed = 5.0f;
 	m_health = 100;
 	m_attackCooldown = 0;
 	m_special2Cooldown = 0;
@@ -83,6 +82,13 @@ void Player::update(float deltaTime)
 	m_firstPersonMesh->update(deltaTime);
 	updateMesh();
 
+
+	m_timeLeftInDeflectState -= deltaTime;
+
+	if (m_timeLeftInDeflectState < 0.0f) {
+		m_deflecting = false;
+		m_timeLeftInDeflectState = 0.0f;
+	}
 }
 
 void Player::move(float deltaTime)
@@ -117,9 +123,12 @@ void Player::move(float deltaTime)
 	
 	//update player position
 	btScalar yValue = std::ceil(m_character->getLinearVelocity().getY() * 100.0) / 100.0;	//Round to two decimals
-	btVector3 translate = btVector3(m_moveDir.x * m_speed * deltaTime, yValue, m_moveDir.z * m_speed * deltaTime);
-	m_character->setLinearVelocity(translate);
+	btVector3 translate = btVector3(m_moveDir.x * m_speed, -0.01f, m_moveDir.z * m_speed);
+	//m_character->setLinearVelocity(translate);
+	//m_character->setWalkDirection(translate);
+	m_character->setVelocityForTimeInterval(translate, deltaTime);
 	
+
 	//update playercamera position
 	btVector3 playerPos = m_character->getGhostObject()->getWorldTransform().getOrigin();
 	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY(), playerPos.getZ());
@@ -141,7 +150,9 @@ void Player::attack()
 	{
 		if (m_specialCooldown <= 0)
 		{
-			m_specialCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_specialSpelltype); // Put attack on cooldown
+			m_specialCooldown = m_spellhandler->getReflectBase()->m_coolDown;
+			m_timeLeftInDeflectState = m_spellhandler->getReflectBase()->m_lifeTime;
+			m_deflecting = true;
 		}
 	}
 
@@ -164,7 +175,6 @@ void Player::attack()
 			m_special3Cooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_specialSpellType3); // Put attack on cooldown
 		}
 	}
-	
 }
 
 void Player::createRay()
@@ -245,6 +255,11 @@ Camera* Player::getCamera()
 std::string Player::getName() const
 {
 	return m_name;
+}
+
+const bool& Player::isDeflecting() const
+{
+	return m_deflecting;
 }
 
 bool Player::isDead()

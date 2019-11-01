@@ -25,6 +25,9 @@ public:
 	virtual void update(float dt) override;
 	virtual void render() override;
 
+private:
+	/* Callbacks */
+	void onSpellHit_callback();
 
 private:
 	int key = 1;
@@ -41,6 +44,8 @@ private:
 	BulletPhysics* m_bPhysics;
 	HudObject* m_crosshairHUD;
 	HudObject* m_damageOverlay;
+	HudObject* m_deflectCrosshairHUD;
+	HudObject* m_hitCrosshair;
 	CEGUI::PushButton* m_mainMenu;
 	CEGUI::PushButton* m_quit;
 	CEGUI::MultiColumnList* m_scoreBoard;

@@ -4,6 +4,17 @@
 #include "System/State.h"
 #include <Gui/Gui.h>
 
+enum GUIInputID {
+	USERNAME, 
+	SERVERNAME
+};
+
+struct InputBox {
+	bool cleared = false; //Indicates if the starting text has been cleared
+	std::string defaultText = ""; //Default text of the inputbox  
+	std::pair<CEGUI::Editbox*, GUIInputID> inputBox;
+};
+
 class LobbyState : public State {
 
 public:
@@ -14,6 +25,10 @@ public:
 
 private:
 	void loadGui();
+	void inputHandling();
+	void startServer();
+	CEGUI::Editbox* getInputBoxByID(const GUIInputID& id) const;
+
 private:
 	bool onStartSeverClicked(const CEGUI::EventArgs& e);
 	bool onBackToMenuClicked(const CEGUI::EventArgs& e);
@@ -22,12 +37,9 @@ private:
 	CEGUI::PushButton* m_startServerBtn;
 	CEGUI::PushButton* m_backToMenuBtn;
 	CEGUI::Combobox* m_serverNameBox;
-	CEGUI::Editbox* m_sNameInput;
-	CEGUI::Editbox* m_uNameInput;
 
-	bool m_selectedsNameInput;
-	bool m_selecteduNameInput;
-
+	std::vector<InputBox> m_inputBoxes;
+	int activeText;
 };
 
 

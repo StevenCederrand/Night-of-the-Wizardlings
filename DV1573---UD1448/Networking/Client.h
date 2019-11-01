@@ -31,7 +31,7 @@ public:
 	void sendStartRequestToServer();
 	void refreshServerList();
 	void startSendingUpdatePackages();
-
+	void assignSpellHandler(SpellHandler* spellHandler);
 	void setUsername(const std::string& userName);
 
 	const std::vector<std::pair<unsigned int, ServerInfo>>& getServerList() const;
@@ -44,12 +44,17 @@ public:
 	
 	const PlayerPacket& getMyData() const;
 	const ServerStateChange& getServerState() const;
+	const CountdownPacket& getCountdownPacket() const;
+	const CountdownPacket& getRespawnTime() const;
+	const RoundTimePacket& getRoundTimePacket() const;
+
 
 	const bool doneRefreshingServerList() const;
 	const bool doesServerExist(const unsigned int& ID) const;
 	const bool& isInitialized() const;
 	const bool& isConnectedToSever() const;
 	const bool& connectionFailed() const;
+	const bool& isServerOwner() const;
 
 private:
 	
@@ -61,6 +66,8 @@ private:
 	void removeActiveSpell(const SpellPacket& packet);
 	void removeConnectedPlayer(const RakNet::AddressOrGUID& guid);
 	
+	void resetPlayerData();
+
 	SpellPacket* findActiveSpell(const SpellPacket& packet);
 	
 	NetworkSpells::SpellEntity* findSpellEntityInNetworkSpells(const SpellPacket& packet);
@@ -87,6 +94,10 @@ private:
 	
 	PlayerPacket m_myPlayerDataPacket;
 	ServerStateChange m_serverState;
+	CountdownPacket m_countDownPacket;
+	CountdownPacket m_respawnTime;
+	RoundTimePacket m_roundTimePacket;
+
 
 	std::vector<PlayerPacket> m_connectedPlayers;
 	NetworkPlayers m_networkPlayers;
@@ -94,6 +105,8 @@ private:
 	
 	std::mutex m_cleanupMutex;
 	
+	SpellHandler* m_spellHandler;
+
 	std::vector<SpellPacket> m_activeSpells;
 	std::vector<HitPacket> m_spellsHitQueue;
 	std::vector<SpellPacket> m_updateSpellQueue;

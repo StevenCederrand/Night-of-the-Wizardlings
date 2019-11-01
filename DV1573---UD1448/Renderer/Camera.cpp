@@ -107,7 +107,7 @@ void Camera::mouseControls(float xOffset, float yOffset, bool pitchLimit)
 
 void Camera::setProjMat(float widht, float height, float nearPlane, float farPlane)
 {
-	m_projectionMatrix = glm::perspective(glm::radians(45.0f), widht / height, nearPlane, farPlane);
+	m_projectionMatrix = glm::perspective(glm::radians(60.0f), widht / height, nearPlane, farPlane);
 }
 
 const glm::mat4 Camera::getViewMat() const

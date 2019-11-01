@@ -50,6 +50,11 @@ void TimedCallback::registerCallback(std::function<void()> callbackFunc)
 	m_hasCallbackRegistered = true;
 }
 
+void TimedCallback::forceExecute()
+{
+	m_callbackFunc();
+}
+
 // Only really needed if you are not running an infinity loop
 void TimedCallback::restart()
 {
