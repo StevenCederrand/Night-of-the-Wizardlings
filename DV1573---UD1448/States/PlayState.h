@@ -13,7 +13,6 @@
 #include <System/BulletPhysics.h>
 #include <Renderer/HudObject.h>
 
-
 bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
 	const btCollisionObjectWrapper* obj2, int id2, int index2);
 
@@ -33,7 +32,7 @@ private:
 	
 	//Any inherited GameObject class added to this vector will support basic rendering
 	std::vector<GameObject*> m_objects;
-
+	
 	SpellHandler* m_spellHandler;
 	Player* m_player;
 	Camera* m_camera;

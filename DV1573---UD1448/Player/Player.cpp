@@ -26,6 +26,8 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_character = m_bp->createCharacter(playerPosition.y);
 
 	m_client = Client::getInstance();
+
+	m_soundHandler = new SoundHandler();
 }
 
 Player::~Player()
@@ -133,6 +135,7 @@ void Player::attack()
 		{
 			m_specialCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_specialSpelltype); // Put attack on cooldown
 		}
+		m_soundHandler->playSound(0);
 	}
 
 	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_Q) == GLFW_PRESS)

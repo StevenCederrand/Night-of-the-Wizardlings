@@ -3,7 +3,6 @@
 #include <Pch/Pch.h>
 #include "Input.h"
 #include "StateManager.h"
-#include "System/SoundHandler.h"
 
 class Application {
 
@@ -21,8 +20,7 @@ private:
 	void centerWindowOnMonitor();
 	GLFWwindow* m_window;
 	Input* m_input;
-	StateManager* m_stateManager;
-	SoundHandler* m_soundHandler;
+	StateManager* m_stateManager;	
 	bool initialFrame;
 };
 

@@ -6,6 +6,8 @@
 #include <Spells/SpellHandler.h>
 
 #include "System/BulletPhysics.h"
+#include <System/SoundHandler.h>
+
 class Client;
 
 class Player
@@ -72,5 +74,6 @@ private:
 	btKinematicCharacterController* m_character;
 	Client* m_client;
 
+	SoundHandler* m_soundHandler;
 
 };

@@ -43,7 +43,7 @@ SoundHandler::SoundHandler()
 		logTrace(alutGetErrorString(error));
 	}
 		
-	loadSound("YouShallNotPass.wav");
+	loadSound("Assets/SoundEffects/YouShallNotPass.wav");
 
 	error = alGetError();
 

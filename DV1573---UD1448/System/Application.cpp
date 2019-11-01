@@ -85,10 +85,7 @@ bool Application::init() {
 	Gui::getInstance()->setFont("DejaVuSans-10");
 
 	m_stateManager = new StateManager();
-	m_stateManager->pushState(new MenuState());
-
-	m_soundHandler = new SoundHandler();
-	m_soundHandler->playSound(0);
+	m_stateManager->pushState(new MenuState());	
 
 	logTrace("Application successfully initialized");
 	return statusOK;

@@ -74,7 +74,7 @@ PlayState::PlayState()
 	{
 		m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);	
 		m_objects.at(i)->createDebugDrawer();
-	}
+	}	
 }
 
 PlayState::~PlayState()
