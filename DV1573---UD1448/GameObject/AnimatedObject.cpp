@@ -22,8 +22,14 @@ AnimatedObject::~AnimatedObject()
 
 void AnimatedObject::update(float dt)
 {
+	/// Update animation time
+	///currentTime += dt;
+
 	// Update animation time
-	currentTime += dt;
+	if (currentTime >= m_stopTime)
+		currentTime = m_startTime;
+	else
+		currentTime += dt;
 
 	// Basic animation update for testing
 	// TODO: Only update 1 animation, Choose animation to update
@@ -53,7 +59,7 @@ void AnimatedObject::ComputeMatrix(int meshId, std::string meshn, std::string an
 
 	// time must be less than duration. Also resets animation.
 	if (currentTime > anim.duration)
-		currentTime = 0;
+		return;
 
 	// keyframes involved.
 	int k1 = (int)(currentTime * anim.rate);
@@ -121,4 +127,10 @@ void AnimatedObject::BindAnimation(int meshId)
 	glUniformBlockBinding(aniShader, boneDataIndex, 1);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 1, boneBuffer);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(BonePalleteBuffer), &bonePallete, GL_STATIC_DRAW);
+}
+
+void AnimatedObject::setStartAndStopTime(float startTime, float stopTime)
+{
+	m_startTime = startTime / 24;
+	m_stopTime = stopTime / 24;
 }

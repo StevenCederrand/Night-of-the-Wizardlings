@@ -15,6 +15,8 @@ public:
 	//Binds the transforms to the shader
 	void BindAnimation(int meshId);
 
+	void setStartAndStopTime(float startTime, float stopTime);
+
 private:
 
 	//The bone pallete holds the calculated transforms for a specific joint (bone)
@@ -22,6 +24,8 @@ private:
 	GLuint boneBuffer;
 
 	float currentTime;
+	float m_startTime;
+	float m_stopTime;
 
 };
 
