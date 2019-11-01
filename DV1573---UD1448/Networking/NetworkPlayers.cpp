@@ -37,7 +37,7 @@ void NetworkPlayers::update(const float& dt)
 				static_cast<AnimatedObject*>(p.gameobject)->setStartAndStopTime(1.0f, 19.0f);
 
 				//Submit the player object as a dynamic object
-				Renderer::getInstance()->submit(p.gameobject, ANIMATEDDYNAMIC); 
+				Renderer::getInstance()->submit(p.gameobject, ANIMATEDSTATIC); 
 			}
 			p.gameobject->setWorldPosition(p.data.position);
 			p.flag = NetGlobals::THREAD_FLAG::NONE;
@@ -67,6 +67,7 @@ void NetworkPlayers::update(const float& dt)
 			glm::vec3 pos = CustomLerp(g->getTransform().position, p.data.position, m_lerpSpeed * dt);
 			g->setWorldPosition(pos);
 			g->setTransform(pos, glm::quat(p.data.rotation), glm::vec3(1.0f));
+			g->update(dt);
 		}
 	}
 }
