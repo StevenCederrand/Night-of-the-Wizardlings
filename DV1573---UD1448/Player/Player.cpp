@@ -122,9 +122,9 @@ void Player::move(float deltaTime)
 	
 	//update playercamera position
 	btVector3 playerPos = m_character->getGhostObject()->getWorldTransform().getOrigin();
-	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY() * 1.5, playerPos.getZ());
+	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY(), playerPos.getZ());
 	
-	m_playerCamera->setCameraPos(m_playerPosition);
+	m_playerCamera->setCameraPos(glm::vec3(playerPos.getX(), playerPos.getY() * 1.5, playerPos.getZ()));
 }
 
 void Player::attack()

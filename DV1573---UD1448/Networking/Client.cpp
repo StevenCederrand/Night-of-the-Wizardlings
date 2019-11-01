@@ -559,7 +559,7 @@ void Client::updatePlayerData(Player* player)
 
 	m_myPlayerDataPacket.position = player->getPlayerPos();
 	m_myPlayerDataPacket.rotation = glm::vec3(
-		-glm::radians(player->getCamera()->getPitch()),
+		0.0f,
 		-glm::radians(player->getCamera()->getYaw() - 90.0f),
 		0.0f);
 
