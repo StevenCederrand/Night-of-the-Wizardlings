@@ -8,9 +8,9 @@
 #define SKYBOX "Skybox_Shader"
 #define ANIMATION "Basic_Animation"
 #define DEBUG "Debug_Forward"
-#define BLOOM "Bloom_Shader"
-#define BLUR "Blur_Shader"
-#define BLOOM_BLUR "BloomBlur_Shader"
+//#define BLOOM "Bloom_Shader"
+//#define BLUR "Blur_Shader"
+//#define BLOOM_BLUR "BloomBlur_Shader"
 #define HUD "Hud_Shader"
 
 
@@ -69,7 +69,7 @@ private:
 	//Buffers
 	unsigned int m_depthFBO;
 	unsigned int m_depthMap;
-	unsigned int m_hdrFbo;
+	//unsigned int m_hdrFbo;
 	unsigned int m_colourBuffer;
 	unsigned int m_rbo;
 
@@ -84,7 +84,7 @@ private:
 	void bindMatrixes(const std::string& shaderName);
 	
 	
-	BloomBlur* m_bloom;
+	//BloomBlur* m_bloom;
 	//SpellHandler* m_spellHandler;
 
 	Renderer();

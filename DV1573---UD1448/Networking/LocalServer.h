@@ -31,6 +31,8 @@ private:
 	void sendStreamToAllClients(RakNet::BitStream& stream, PacketReliability flag = RELIABLE_ORDERED);
 
 	// Collision with players
+	void handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* spell, PlayerPacket* shooter, PlayerPacket* target);
+	bool validDeflect(SpellPacket* spell, PlayerPacket* target);
 	bool specificSpellCollision(const SpellPacket& spellPacket, const glm::vec3& playerPos, const std::vector<glm::vec3>& axis);
 	glm::vec3 OBBclosestPoint(const SpellPacket& spellPacket, const std::vector<glm::vec3>& axis, const glm::vec3& playerPos);
 	PlayerPacket* getSpecificPlayer(const RakNet::RakNetGUID& guid);
@@ -50,6 +52,8 @@ private:
 	void handleEndGameStateTime(const uint32_t& diff);
 	void endGameTimeExecutionLogic();
 
+	void removeUnusedObjects_routine();
+	void resetServerData();
 private:
 	RakNet::RakPeerInterface* m_serverPeer = nullptr;
 	std::thread m_processThread;
@@ -68,6 +72,7 @@ private:
 	TimedCallback m_timedRunTimer;
 	TimedCallback m_timedCountdownTimer;
 	TimedCallback m_timedGameInEndStateTimer;
+	TimedCallback m_timedUnusedObjectRemoval;
 
 };
 

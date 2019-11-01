@@ -13,6 +13,7 @@ namespace NetGlobals {
 	constexpr uint32_t timeUntilRespawnMS = 5 * 1000;
 	constexpr uint32_t roundTimeMS = 2 * 60 * 1000;
 	constexpr uint32_t InGameEndStateTimeMS = 10 * 1000;
+	constexpr uint32_t maxDelayBeforeDeletion = 10 * 1000;
 	constexpr int maxPlayerHealth = 100;
 
 	static std::mutex gameSyncMutex;

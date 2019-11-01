@@ -52,7 +52,7 @@ void Client::destroy()
 		m_removeOrAddSpellQueue.clear();
 		m_networkPlayers.cleanUp();
 		m_networkSpells.cleanUp();
-
+		resetPlayerData();
 		m_initialized = false;
 		RakNet::RakPeerInterface::DestroyInstance(m_clientPeer);
 	}
@@ -280,7 +280,6 @@ void Client::processAndHandlePackets()
 			player.Serialize(false, bsIn);
 			m_connectedPlayers.emplace_back(player);
 
-
 			std::lock_guard<std::mutex> lockGuard(m_networkPlayers.m_mutex);
 			NetworkPlayers::PlayerEntity pE;
 
@@ -364,16 +363,16 @@ void Client::processAndHandlePackets()
 
 			m_serverState.Serialize(false, bsIn);
 			if (m_serverState.currentState == NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS) {
-				logTrace("[GAME SERVER]******** WARMUP ********");
+				logTrace("[CLIENT]******** WARMUP ********");
 			}
 			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GAME_IS_STARTING) {
-				logTrace("[GAME SERVER]******** GAME IS STARTING ********");
+				logTrace("[CLIENT]******** GAME IS STARTING ********");
 			}
 			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GAME_IN_SESSION) {
-				logTrace("[GAME SERVER]******** GAME HAS STARTED ********");
+				logTrace("[CLIENT]******** GAME HAS STARTED ********");
 			}
 			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GAME_END_STATE) {
-				logTrace("[GAME SERVER]******** GAME HAS ENDED ********");
+				logTrace("[CLIENT]******** GAME HAS ENDED ********");
 
 			}
 		}
@@ -383,7 +382,6 @@ void Client::processAndHandlePackets()
 		{
 			/* Whenever a client (that is not you) cast a spell you receive this with all the necessary information
 			   and the same logic about the threads that is applied whenever we create/delete/update a player is also present here. */
-			logTrace("Someone fired a spell");
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			SpellPacket spellPacket;
 			spellPacket.Serialize(false, bsIn);
@@ -476,8 +474,6 @@ void Client::processAndHandlePackets()
 			playerPacket.Serialize(false, bsIn);
 
 			m_myPlayerDataPacket.health = playerPacket.health;
-
-			logTrace("[CLIENT] My health is {0}", m_myPlayerDataPacket.health);
 		}
 		break;
 
@@ -485,7 +481,6 @@ void Client::processAndHandlePackets()
 		{
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			m_countDownPacket.Serialize(false, bsIn);
-			//logTrace("[GAME SERVER] Starts game in {0}...", countdownPacket.timeLeft / 1000);
 			m_inGame = true;
 		}
 		break;
@@ -501,11 +496,6 @@ void Client::processAndHandlePackets()
 		{
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			m_roundTimePacket.Serialize(false, bsIn);
-
-			/*if(roundTimePacket.seconds >= 10)
-				logTrace("[GAME SERVER] Time left {0}:{1}", roundTimePacket.minutes, roundTimePacket.seconds);
-			else
-				logTrace("[GAME SERVER] Time left {0}:0{1}", roundTimePacket.minutes, roundTimePacket.seconds);*/
 		}
 		break;
 
@@ -531,16 +521,32 @@ void Client::processAndHandlePackets()
 
 		break;
 
-		case SPELL_REMOVAL_REQUEST:
+		case SPELL_GOT_DEFLECTED:
 		{
-			logTrace("[CLIENT] Got request to remove a spell");
+			
+			if (m_spellHandler == nullptr) continue;
 
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			SpellPacket spellPacket;
+			spellPacket.Serialize(false, bsIn);
+			bsIn.SetReadOffset(0);
+			
+			SpellHandler::deflectSpellData data;
+			data.position = m_myPlayerDataPacket.position;
+			data.direction = m_myPlayerDataPacket.lookDirection;
+			data.type = spellPacket.SpellType;
+			
+			// scope
+			{
+				std::lock_guard<std::mutex> lockGuard(m_spellHandler->m_clientSyncMutex);
+				m_spellHandler->m_deflectedSpells.emplace_back(data);
+			}
 		}
 		break;
 
 		default:
 		{
-			logWarning("[CLIENT] Unknown packet received!");
+			
 		}
 		break;
 		}
@@ -554,6 +560,9 @@ void Client::updatePlayerData(Player* player)
 	if (!m_initialized || !m_isConnectedToAnServer) return;
 
 	m_myPlayerDataPacket.position = player->getPlayerPos();
+	m_myPlayerDataPacket.inDeflectState = player->isDeflecting();
+	m_myPlayerDataPacket.lookDirection = player->getCamera()->getCamFace();
+	m_myPlayerDataPacket.timestamp = RakNet::GetTimeMS();
 	m_myPlayerDataPacket.rotation = glm::vec3(
 		-glm::radians(player->getCamera()->getPitch()),
 		-glm::radians(player->getCamera()->getYaw() - 90.0f),
@@ -573,6 +582,7 @@ void Client::createSpellOnNetwork(const Spell& spell)
 	SpellPacket spellPacket;
 	spellPacket.packetType = SPELL_CREATED;
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
+	spellPacket.timestamp = RakNet::GetTimeMS();
 	spellPacket.Position = spell.getTransform().position;
 	spellPacket.Direction = spell.getDirection();
 	spellPacket.SpellID = spell.getUniqueID();
@@ -591,6 +601,7 @@ void Client::updateSpellOnNetwork(const Spell& spell)
 	SpellPacket spellPacket;
 	spellPacket.packetType = SPELL_UPDATE;
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
+	spellPacket.timestamp = RakNet::GetTimeMS();
 	spellPacket.Position = spell.getTransform().position;
 	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Direction = spell.getDirection();
@@ -608,6 +619,7 @@ void Client::destroySpellOnNetwork(const Spell& spell)
 	SpellPacket spellPacket;
 	spellPacket.packetType = SPELL_DESTROY;
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
+	spellPacket.timestamp = RakNet::GetTimeMS();
 	spellPacket.Position = spell.getTransform().position;
 	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Direction = spell.getDirection();
@@ -675,14 +687,14 @@ void Client::updateDataOnServer()
 		m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
 	}
 
-	// Update all spells first
-	for (size_t i = 0; i < m_removalOfClientSpellsQueue.size(); i++) {
+	//// Update all spells first
+	//for (size_t i = 0; i < m_removalOfClientSpellsQueue.size(); i++) {
 
-		RakNet::BitStream bsOut;
-		bsOut.Write((RakNet::MessageID)SPELL_REMOVAL_REQUEST);
-		m_removalOfClientSpellsQueue[i].Serialize(true, bsOut);
-		m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_serverAddress, false);
-	}
+	//	RakNet::BitStream bsOut;
+	//	bsOut.Write((RakNet::MessageID)SPELL_REMOVAL_REQUEST);
+	//	m_removalOfClientSpellsQueue[i].Serialize(true, bsOut);
+	//	m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_serverAddress, false);
+	//}
 
 
 	// Update all spells first
@@ -784,6 +796,11 @@ void Client::startSendingUpdatePackages()
 	m_sendUpdatePackages = true;
 }
 
+void Client::assignSpellHandler(SpellHandler* spellHandler)
+{
+	m_spellHandler = spellHandler;
+}
+
 void Client::setUsername(const std::string& userName)
 {
 	if (userName.size() > 16) {
@@ -833,6 +850,11 @@ const bool& Client::isConnectedToSever() const
 const bool& Client::connectionFailed() const
 {
 	return m_failedToConnect;
+}
+
+const bool& Client::isServerOwner() const
+{
+	return m_serverOwner;
 }
 
 void Client::findAllServerAddresses()
@@ -946,4 +968,16 @@ void Client::removeConnectedPlayer(const RakNet::AddressOrGUID& guid)
 		}
 
 	}
+}
+
+void Client::resetPlayerData()
+{
+	m_myPlayerDataPacket.guid = m_clientPeer->GetMyGUID();
+	m_myPlayerDataPacket.health = NetGlobals::maxPlayerHealth;
+	m_myPlayerDataPacket.inDeflectState = false;
+	m_myPlayerDataPacket.numberOfDeaths = 0;
+	m_myPlayerDataPacket.numberOfKills = 0;
+	m_myPlayerDataPacket.hasBeenUpdatedOnce = false;
+	char t[16] = { ' ' };
+	memcpy(m_myPlayerDataPacket.userName, t, sizeof(m_myPlayerDataPacket.userName));
 }

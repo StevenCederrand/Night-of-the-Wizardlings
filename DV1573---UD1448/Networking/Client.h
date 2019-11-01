@@ -31,7 +31,7 @@ public:
 	void sendStartRequestToServer();
 	void refreshServerList();
 	void startSendingUpdatePackages();
-
+	void assignSpellHandler(SpellHandler* spellHandler);
 	void setUsername(const std::string& userName);
 
 	const std::vector<std::pair<unsigned int, ServerInfo>>& getServerList() const;
@@ -54,6 +54,7 @@ public:
 	const bool& isInitialized() const;
 	const bool& isConnectedToSever() const;
 	const bool& connectionFailed() const;
+	const bool& isServerOwner() const;
 
 private:
 	
@@ -65,6 +66,8 @@ private:
 	void removeActiveSpell(const SpellPacket& packet);
 	void removeConnectedPlayer(const RakNet::AddressOrGUID& guid);
 	
+	void resetPlayerData();
+
 	SpellPacket* findActiveSpell(const SpellPacket& packet);
 	
 	NetworkSpells::SpellEntity* findSpellEntityInNetworkSpells(const SpellPacket& packet);
@@ -102,6 +105,8 @@ private:
 	
 	std::mutex m_cleanupMutex;
 	
+	SpellHandler* m_spellHandler;
+
 	std::vector<SpellPacket> m_activeSpells;
 	std::vector<HitPacket> m_spellsHitQueue;
 	std::vector<SpellPacket> m_updateSpellQueue;

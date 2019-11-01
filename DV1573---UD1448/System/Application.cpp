@@ -51,8 +51,8 @@ bool Application::init() {
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
-	m_window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Wizards 'n stuff", NULL, NULL);
-	//m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", glfwGetPrimaryMonitor(), NULL);
+	m_window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Wizards 'n stuff", glfwGetPrimaryMonitor(), NULL);
+	//m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", glfwGetPrimaryMonitor(), NULL); !!! FULLSCREEN!!!
 
 	//glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	
@@ -75,7 +75,7 @@ bool Application::init() {
 	}
 	
 	// Vsync
-	glfwSwapInterval(0); //Off, should be using delta time properly anyway
+	glfwSwapInterval(1); // Turning this off will cause occasionally freezes, so don't!
 	
 	m_input = new Input();
 
@@ -200,9 +200,9 @@ void Application::calcFPS(const float& dt)
 	if (frameTimer <= 0.0f)
 	{
 		frameTimer = 1.0f;
-		std::string title = "fps: " + std::to_string(fps);
-		printf("%s\n",title.c_str());
-		glfwSetWindowTitle(m_window, title.c_str());
+		//std::string title = "fps: " + std::to_string(fps);
+		//printf("%s\n",title.c_str());
+		//glfwSetWindowTitle(m_window, title.c_str());
 		fps = 0;
 	}
 

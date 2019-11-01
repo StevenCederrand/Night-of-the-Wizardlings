@@ -59,7 +59,6 @@ BulletPhysics::~BulletPhysics()
 	delete m_dispatcher;
 	delete m_collisionConfiguration;
 
-
 	m_collisionShapes.clear();
 }
 
@@ -123,7 +122,7 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	//how much bounce and friction a object should have
 	
 	body->setRestitution(1.0f);	
-	body->setFriction(friction);
+	body->setFriction(0);
 	body->setSpinningFriction(1.0f);
 
 	m_dynamicsWorld->addRigidBody(body);
@@ -179,7 +178,8 @@ void BulletPhysics::update(float dt)
 	}
 	if (!setGravity)
 		counter++;
-	//btScalar time = btScalar(1.0 / 60.0);
+
 	// Testing deltatime based updates // JR
-	m_dynamicsWorld->stepSimulation(dt, 10.0f, 1.0f/ 240.0f);
+	m_dynamicsWorld->stepSimulation(dt, 10, 1.0f/ 240.0f);
+
 }
