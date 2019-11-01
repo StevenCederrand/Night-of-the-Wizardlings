@@ -34,7 +34,6 @@ void NetworkPlayers::update(const float& dt)
 				p.gameobject = new AnimatedObject("asd");
 				p.gameobject->loadMesh("CharacterWalking.mesh");
 				p.gameobject->setWorldPosition(glm::vec3(0, 0, 0));
-				static_cast<AnimatedObject*>(p.gameobject)->setStartAndStopTime(1.0f, 19.0f);
 
 				//Submit the player object as a dynamic object
 				Renderer::getInstance()->submit(p.gameobject, ANIMATEDSTATIC); 

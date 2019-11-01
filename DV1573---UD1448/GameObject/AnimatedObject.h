@@ -3,6 +3,21 @@
 #include <GameObject/GameObject.h>
 class AnimatedObject : public GameObject
 {
+private:
+	struct frameAnimation
+	{
+		std::string m_name;
+		float m_startTime;
+		float m_stopTime;
+		float m_animSpeed;
+		frameAnimation()
+		{
+			m_startTime = 0;
+			m_stopTime = 0;
+			m_animSpeed = 24;
+		}
+	};
+
 public:
 	AnimatedObject(std::string name);
 	virtual ~AnimatedObject();
@@ -15,18 +30,28 @@ public:
 	//Binds the transforms to the shader
 	void BindAnimation(int meshId);
 
-	void setStartAndStopTime(float startTime, float stopTime);
+	void initAnimations(std::string name, float startTime, float stopTime);
+
+	void playAnimation(std::string name);
+
+	void playLoopAnimation(std::string name);
+
 
 private:
+
+
+	std::vector<frameAnimation> animations;
 
 	//The bone pallete holds the calculated transforms for a specific joint (bone)
 	BonePalleteBuffer bonePallete;
 	GLuint boneBuffer;
-
-	float currentTime;
-	float m_startTime;
 	float m_stopTime;
+	float m_startTime;
+	float currentTime;
 
+	bool isLooping = false;
+	bool isDone = false;
+	
 };
 
 #endif

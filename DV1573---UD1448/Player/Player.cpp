@@ -6,7 +6,7 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 {
 	m_firstPersonMesh = new AnimatedObject("fpsMesh");
 	m_firstPersonMesh->loadMesh("FPSAnimations.mesh");
-	m_firstPersonMesh->setStartAndStopTime(0.0f, 40.0f);
+	m_firstPersonMesh->initAnimations("CastAnimation", 0.0f, 40.0f);
 	Renderer::getInstance()->submit(m_firstPersonMesh, ANIMATEDSTATIC);
 
 	m_playerCamera = camera;
@@ -143,6 +143,7 @@ void Player::attack()
 		if (m_attackCooldown <= 0)
 		{
 			m_attackCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_spellType); // Put attack on cooldown
+			m_firstPersonMesh->playAnimation("CastAnimation");
 		}
 	}
 
@@ -164,6 +165,7 @@ void Player::attack()
 			{
 				// Start loop
 				m_enhanceAttack.start();
+				m_firstPersonMesh->playLoopAnimation("CastAnimation");
 			}
 		}
 	}
@@ -211,7 +213,7 @@ void Player::updateMesh()
 //	m_firstPersonMesh->setTransform(tempTransform);
 
 
-	m_fpsTrans.position = m_playerPosition;
+	m_fpsTrans.position = getCamera()->getPosition();
 
 	m_fpsTrans.rotation = glm::quat(glm::vec3(
 		glm::radians(getCamera()->getPitch()),

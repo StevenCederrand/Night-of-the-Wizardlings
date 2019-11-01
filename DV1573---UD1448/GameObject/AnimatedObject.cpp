@@ -22,14 +22,28 @@ AnimatedObject::~AnimatedObject()
 
 void AnimatedObject::update(float dt)
 {
-	/// Update animation time
-	///currentTime += dt;
+
 
 	// Update animation time
-	if (currentTime >= m_stopTime)
-		currentTime = m_startTime;
+	if (isLooping)
+	{
+		if (currentTime <= m_stopTime)
+		{
+			currentTime += dt;
+		}
+		else
+		{
+			currentTime = m_startTime;
+		}
+	}
 	else
-		currentTime += dt;
+	{
+		if (currentTime <= m_stopTime)
+		{
+			currentTime += dt;
+		}
+	}
+
 
 	// Basic animation update for testing
 	// TODO: Only update 1 animation, Choose animation to update
@@ -129,8 +143,40 @@ void AnimatedObject::BindAnimation(int meshId)
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(BonePalleteBuffer), &bonePallete, GL_STATIC_DRAW);
 }
 
-void AnimatedObject::setStartAndStopTime(float startTime, float stopTime)
+
+void AnimatedObject::initAnimations(std::string name, float startTime, float stopTime)
 {
-	m_startTime = startTime / 24;
-	m_stopTime = stopTime / 24;
+	frameAnimation tempAnimation;
+	tempAnimation.m_name = name;
+	tempAnimation.m_startTime = startTime;
+	tempAnimation.m_stopTime = stopTime;
+	animations.push_back(tempAnimation);
+}
+
+void AnimatedObject::playAnimation(std::string name)
+{
+	isLooping = false;
+	for (int i = 0; i < animations.size(); i++)
+	{
+		if (animations[i].m_name == name)
+		{
+			m_startTime = animations[i].m_startTime/ animations[i].m_animSpeed;
+			m_stopTime = animations[i].m_stopTime/ animations[i].m_animSpeed;
+		}
+	}
+	currentTime = m_startTime;
+}
+
+void AnimatedObject::playLoopAnimation(std::string name)
+{
+	isLooping = true;
+	for (int i = 0; i < animations.size(); i++)
+	{
+		if (animations[i].m_name == name)
+		{
+			m_startTime = animations[i].m_startTime / animations[i].m_animSpeed;
+			m_stopTime = animations[i].m_stopTime / animations[i].m_animSpeed;
+		}
+	}
+	currentTime = m_startTime;
 }

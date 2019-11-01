@@ -60,14 +60,14 @@ PlayState::PlayState()
 	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
 	//Animated Character
-	m_objects.push_back(new AnimatedObject("TestWalkingCharacter"));
+	/*m_objects.push_back(new AnimatedObject("TestWalkingCharacter"));
 	m_objects[m_objects.size() - 1]->loadMesh("CharacterWalking.mesh");
 	Transform tempTransform;
 	tempTransform.scale = glm::vec3(5.3f, 5.3f, 5.3f);
 	tempTransform.position = glm::vec3(-3.0f, 0.0f, 3.0f);
 	m_objects[m_objects.size() - 1]->setTransform(tempTransform);
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
-	static_cast<AnimatedObject*>(m_objects[m_objects.size() - 1])->setStartAndStopTime(1.f, 19.f);
+	static_cast<AnimatedObject*>(m_objects[m_objects.size() - 1])->setStartAndStopTime(1.f, 19.f);*/
 
 	m_objects.push_back(new WorldObject("internalTestmap"));
 	m_objects[m_objects.size() - 1]->loadMesh("internalTestmap.mesh");
