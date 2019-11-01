@@ -31,11 +31,13 @@ void NetworkPlayers::update(const float& dt)
 		if (p.flag == NetGlobals::THREAD_FLAG::ADD)
 		{
 			if (p.gameobject == nullptr) {
-				p.gameobject = new WorldObject();
+				p.gameobject = new AnimatedObject("asd");
 				p.gameobject->loadMesh("CharacterWalking.mesh");
 				p.gameobject->setWorldPosition(glm::vec3(1, 0, 0));
+				static_cast<AnimatedObject*>(p.gameobject)->setStartAndStopTime(1.0f, 19.0f);
+
 				//Submit the player object as a dynamic object
-				Renderer::getInstance()->submit(p.gameobject, DYNAMIC); 
+				Renderer::getInstance()->submit(p.gameobject, ANIMATEDDYNAMIC); 
 			}
 			p.gameobject->setWorldPosition(p.data.position);
 			p.flag = NetGlobals::THREAD_FLAG::NONE;
