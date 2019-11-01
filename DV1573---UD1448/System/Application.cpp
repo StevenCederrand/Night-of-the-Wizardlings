@@ -87,6 +87,9 @@ bool Application::init() {
 	m_stateManager = new StateManager();
 	m_stateManager->pushState(new MenuState());
 
+	m_soundHandler = new SoundHandler();
+	m_soundHandler->playSound(0);
+
 	logTrace("Application successfully initialized");
 	return statusOK;
 }

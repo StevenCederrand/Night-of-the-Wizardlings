@@ -4,57 +4,102 @@
 SoundHandler::SoundHandler()
 {
 	ALCenum error;
+	alutInitWithoutContext(NULL, NULL);
+
+	m_device = alcOpenDevice(NULL);
+
+	if (!m_device)
+	{
+		logTrace("Could not open sound device");
+	}
+
+	m_context = alcCreateContext(m_device, NULL);
+
+	if (!alcMakeContextCurrent(m_context))
+	{
+		logTrace("Failed to make context current");
+	}
 
 	error = alGetError();
 
-	alGenBuffers(1, &m_buffers[0]);
+	if (error != AL_NO_ERROR)
+	{		
+		logTrace(alutGetErrorString(error));
+	}
+
+
+
+	error = alGetError();
+
+	m_buffers.resize(m_buffers.size() + 1);
+
+	alGenBuffers((ALsizei)1, &m_buffers[0]);
 
 	error = alGetError();
 
 	if (error != AL_NO_ERROR)
 	{
 		logTrace("Error generating buffers");
+		logTrace(alutGetErrorString(error));
 	}
-	
-	loadSound("Test.wav");
+		
+	loadSound("YouShallNotPass.wav");
 
-	alBufferData(m_buffers[0],
-		AL_FORMAT_MONO16,
-		m_bData[0].data,
-		m_bData[0].size,
-		m_bData[0].freq);
+	error = alGetError();
 
+	m_sources.resize(m_sources.size() + 1);
 
+	alGenSources((ALsizei)1, &m_sources[0]);
+
+	error = alGetError();
+
+	if (error != AL_NO_ERROR)
+	{
+		logTrace("Error generating sources");
+		logTrace(alutGetErrorString(error));
+	}
+
+	error = alGetError();
+
+	alSourcei(m_sources[0], AL_BUFFER, m_buffers[0]);
+
+	error = alGetError();
+
+	if (error != AL_NO_ERROR)
+	{
+		logTrace("Error binding buffer to source");
+		logTrace(alutGetErrorString(error));
+	}
 }
 
 void SoundHandler::loadSound(const char* filename)
-{
-	//TODO: save in vector of a struct maybe, containing all the necesarry values
-	//for the bufferdata. 	
-
-	/*m_bData[0].loop = AL_FALSE;
-
-	ALsizei size;
-	ALsizei freq;
+{	
+	/*ALsizei size, freq;
 	ALenum format;
-	ALvoid* data;
-	ALboolean loop = AL_FALSE;*/
+	ALboolean loop = AL_FALSE;
+	void* data;*/
 
-	/*alutLoadWAVFile((ALbyte*)filename,
-		&m_bData[0].format,
-		&m_bData[0].data, &m_bData[0].size,
-		&m_bData[0].freq, &m_bData[0].loop);*/
-	
-	m_buffers[m_buffers.size()] = alutCreateBufferFromFile(filename);
-	
+	//alutLoadWAVFile((ALbyte*)&filename, &format, &data, &size, &freq, &loop);
+	m_buffers[0] = alutCreateBufferFromFile(filename);	
+
+	//alBufferData(m_buffers[0], format, data, size, freq);
+}
+
+void SoundHandler::playSound(int bufferName)
+{
+	ALCenum error;
+
+	error = alGetError();
+
+	alSourcePlay(m_sources[bufferName]);
+
+	if (error != AL_NO_ERROR)
+	{
+		logTrace(alutGetErrorString(error));
+	}
 }
 
 SoundHandler::~SoundHandler()
 {
-	for (int i = 0; i < m_bData.size(); i++)
-	{
-		delete m_bData[i].data;
-	}
-
 	delete m_device;
 }
