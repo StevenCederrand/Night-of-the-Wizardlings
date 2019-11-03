@@ -13,7 +13,6 @@
 //#define BLOOM_BLUR "BloomBlur_Shader"
 #define HUD "Hud_Shader"
 
-
 #include <Pch/Pch.h>
 #include <GameObject/GameObject.h>
 #include <GameObject/AnimatedObject.h>
@@ -75,14 +74,14 @@ private:
 
 	//Storage Buffer for light indecies
 	unsigned int m_lightIndexSSBO;
-	
 	glm::uvec2 workGroups;
+	
 
 	void renderHUD();
 	void createDepthMap();
 	void initShaders();
 	void bindMatrixes(const std::string& shaderName);
-	
+	void bindMatrixes(Shader* shader);
 	
 	//BloomBlur* m_bloom;
 	//SpellHandler* m_spellHandler;

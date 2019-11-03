@@ -34,22 +34,14 @@ bool MeshMap::existsWithName(std::string name)
 	return false;
 }
 
-
-void MeshMap::useByName(std::string name)
-{
-	//if (existsWithName(name)) {
-	//	m_Meshs[name]->use();
-	//}
-}
-
 Mesh* MeshMap::getMesh(std::string name)
 {
-	if (existsWithName(name))
-	{
+	//if (existsWithName(name))
+	//{
 		return m_meshMap[name];
-	}
+	//}
 
-	return nullptr;
+	//return nullptr;
 }
 
 Mesh* MeshMap::createMesh(std::string name, Mesh mesh)
