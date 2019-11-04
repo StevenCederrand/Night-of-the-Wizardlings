@@ -59,56 +59,50 @@ vec3 grayscaleColour(vec3 col);
 void main() {
     float ambientStr = 0.35f;
     vec3 ambientCol = (Ambient_Color + ambientStr);
-
-    if (HasTex)
+    if (HasTex) {
         ambientCol = (Ambient_Color + ambientStr) * texture(albedoTexture, f_UV).rgb;
-
+    }
     vec3 position = vec3(0);
     vec3 result = ambientCol;
-
     //Create the diffuse color once
     vec3 diffuse = Diffuse_Color;
-    if(HasTex)
+    if(HasTex) {
         diffuse = (Diffuse_Color * texture(albedoTexture, f_UV).rgb);
-
+    }
     result += calcDirLight(vec3(0.2, -0.2, 0.0), f_normal, diffuse);
-
     //This is a light accumilation over the point lights
     for(int i = 0; i < LightCount && lightIndexBuffer.index[i] != -1; i++) {
         uint lightIndex = lightIndexBuffer.index[i];
         position += pLights[lightIndex].position;
-
         float distance = length(f_position.xyz - pLights[lightIndex].position);
         //if we are within the light position
         if(distance < pLights[lightIndex].radius) {
             result += calcLights(pLights[lightIndex], f_normal, f_position.xyz, distance, position);
         }
-        else {
-            //result += ambientCol;
-        }
         position = vec3(0);
     }
-
     if(grayscale == 1){
     	result = grayscaleColour(result);
     }
-
     color = vec4(result, 1);
-
+/* BLOOM STUFF 
     float brightness = dot(result, vec3(0.2126, 0.7152, 0.0722));
-    
+
     if(brightness > 1.0)
         brightColor = vec4(ambientCol + result, 1.0);
     else
-        brightColor = vec4(0.0, 0.0, 0.0, 1.0);
+        brightColor = vec4(0.0, 0.0, 0.0, 1.0);*/
 }
 
 vec3 calcDirLight(vec3 lightDirection, vec3 normal, vec3 diffuseColor) {
+    /* --- DIFFUSE SHADING --- */
     float lightStr = 0.5f;
     vec3 lightDir = normalize(-lightDirection);
-    float diff = max(dot(normal, lightDir), 0.0);
+    float diff = smoothstep(0.0, 0.01, (max(dot(normal, lightDir), 0.0)));
 
     diffuseColor = (Diffuse_Color * texture(albedoTexture, f_UV).rgb) * diff * lightStr;
+    /* --- SPECULAR SHADING --- */
+
     return diffuseColor;
 }
 
