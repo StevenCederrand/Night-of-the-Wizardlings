@@ -442,7 +442,7 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 				//Fetch the current mesh and its transform
 				mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
 				//Bind the material
-				object->bindMaterialToShader(BASIC_FORWARD, j);
+				object->bindMaterialToShader(shader, mesh->getMaterial());
 
 				modelMatrix = glm::mat4(1.0f);
 				//Apply the transform to the matrix. This should actually be done automatically in the mesh!
