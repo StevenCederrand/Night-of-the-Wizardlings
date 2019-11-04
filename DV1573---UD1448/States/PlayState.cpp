@@ -11,8 +11,10 @@ PlayState::PlayState()
 {
 	m_bPhysics = new BulletPhysics(-10);
 	m_spellHandler = new SpellHandler(m_bPhysics);
+	m_spellHandler->setOnHitCallback(std::bind(&PlayState::onSpellHit_callback, this));
 	
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
+	
 	m_camera = new Camera();
 	m_player = new Player(m_bPhysics, "Player", glm::vec3(0.0f, 2.0f, 0.0f), m_camera, m_spellHandler);
 	Renderer::getInstance()->setupCamera(m_player->getCamera());
@@ -22,6 +24,9 @@ PlayState::PlayState()
 	m_skybox->prepareBuffers();
 
 	// HUD
+	m_hitCrosshair = new HudObject("Assets/Textures/Crosshair_hit.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(32.0f, 32.0f));
+	m_hitCrosshair->setAlpha(0.0f);
+	Renderer::getInstance()->submit2DHUD(m_hitCrosshair);
 	m_crosshairHUD = new HudObject("Assets/Textures/Crosshair.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(32.0f, 32.0f));
 	m_crosshairHUD->setAlpha(1.0f);
 	Renderer::getInstance()->submit2DHUD(m_crosshairHUD);
@@ -29,6 +34,7 @@ PlayState::PlayState()
 	m_deflectCrosshairHUD = new HudObject("Assets/Textures/Crosshair_deflect.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(32.0f, 32.0f));
 	m_deflectCrosshairHUD->setAlpha(0.0f);
 	Renderer::getInstance()->submit2DHUD(m_deflectCrosshairHUD);
+
 
 	m_damageOverlay = new HudObject("Assets/Textures/DamageOverlay.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(static_cast<float>(SCREEN_WIDTH), (static_cast<float>(SCREEN_HEIGHT))));
 	m_damageOverlay->setAlpha(0.0f);
@@ -103,6 +109,7 @@ PlayState::~PlayState()
 	delete m_camera;
 	delete m_crosshairHUD;
 	delete m_deflectCrosshairHUD;
+	delete m_hitCrosshair;
 	delete m_damageOverlay;
 	if (LocalServer::getInstance()->isInitialized()) {
 		LocalServer::getInstance()->destroy();
@@ -147,6 +154,14 @@ void PlayState::update(float dt)
 		m_damageOverlay->setAlpha(m_damageOverlay->getAlpha() - dt);
 	}
 
+	if (m_hitCrosshair->getAlpha() > 0.0f) {
+		m_hitCrosshair->setAlpha(m_hitCrosshair->getAlpha() - dt);
+		
+		if (m_hitCrosshair->getAlpha() < 0.0f) {
+			m_hitCrosshair->setAlpha(0.0f);
+		}
+	}
+
 	for (GameObject* object : m_objects)
 	{
 		object->update(dt);
@@ -161,6 +176,11 @@ void PlayState::render()
 {
 	Renderer::getInstance()->render(m_skybox, m_spellHandler);
 	//Renderer::getInstance()->renderDebug();
+}
+
+void PlayState::onSpellHit_callback()
+{
+	m_hitCrosshair->setAlpha(1.0f);
 }
 
 void PlayState::GUIHandler()

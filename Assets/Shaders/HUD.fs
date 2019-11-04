@@ -10,6 +10,10 @@ uniform float alphaValue;
 void main()
 {
 	vec4 textureColor = texture(textureSampler, texCoords);
+
+	if(textureColor.a <= 0.01)
+        discard;
+
 	pixelColor = textureColor;
 	pixelColor.a *= alphaValue;
 

@@ -28,6 +28,7 @@ public:
 	void spellUpdate(float deltaTime);
 	void setSpawnerPosition(glm::vec3 position);
 	void setSpawnerDirection(glm::vec3 direction);
+	void setOnHitCallback(std::function<void()> func);
 
 	const Spell& getSpell(int index) const { return *spells[index]; }
 	const std::vector<Spell*>& getSpells() const { return spells; }
@@ -77,5 +78,5 @@ private:
 	};
 
 	std::vector<deflectSpellData> m_deflectedSpells;
-
+	std::function<void()> m_onHitCallback;
 };

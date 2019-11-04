@@ -29,6 +29,7 @@ uniform vec3 Specular_Color;
 uniform bool HasTex;
 uniform int LightCount;
 uniform sampler2D albedoTexture;
+uniform int grayscale = 0;
 
 uniform P_LIGHT pLights[LIGHTS_MAX];
 
@@ -52,6 +53,8 @@ vec3 calcLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance, vec3
 
 //Calculate the directional light... Returns the diffuse color, post calculations
 vec3 calcDirLight(vec3 lightDirection, vec3 normal, vec3 diffuseColor);
+// To simulate death
+vec3 grayscaleColour(vec3 col);
 
 void main() {
     float ambientStr = 0.35f;
@@ -86,9 +89,12 @@ void main() {
         position = vec3(0);
     }
 
-
+    if(grayscale == 1){
+    	result = grayscaleColour(result);
+    }
 
     color = vec4(result, 1);
+
     float brightness = dot(result, vec3(0.2126, 0.7152, 0.0722));
     
     if(brightness > 1.0)
@@ -104,4 +110,9 @@ vec3 calcDirLight(vec3 lightDirection, vec3 normal, vec3 diffuseColor) {
 
     diffuseColor = (Diffuse_Color * texture(albedoTexture, f_UV).rgb) * diff * lightStr;
     return diffuseColor;
+}
+
+vec3 grayscaleColour(vec3 col) {
+    float colourValue = (col.r + col.g + col.b) / 3; //Calculate the average pixel colour
+    return vec3(colourValue);
 }
