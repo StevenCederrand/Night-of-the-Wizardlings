@@ -400,13 +400,14 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 	//Bind view- and projection matrix
 	bindMatrixes(shader);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
-
+	shader->setVec3("CameraPosition", m_camera->getCamPos());
 	//Add a step where we insert lights into the scene
 	shader->setInt("LightCount", m_spells.size());
+
 	if (m_spells.size() > 0) {
 		for (size_t i = 0; i < m_spells.size(); i++) {
 			shader->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[i]->getTransform().position);
-			shader->setVec3("pLights[" + std::to_string(i) + "].attenuation", glm::vec3(1.0f, 0.09f, 0.032f));
+			shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getEnhAttackBase()->m_material->diffuse);
 			shader->setFloat("pLights[" + std::to_string(i) + "].radius", P_LIGHT_RADIUS);
 		}
 	}
@@ -420,7 +421,7 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 			mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
 			
 			//Bind the material
-			object->bindMaterialToShader(shader, mesh->getMaterial()); //REQUIRES OPTIMIZATION
+			object->bindMaterialToShader(shader, mesh->getMaterial());
 
 			modelMatrix = glm::mat4(1.0f);
 

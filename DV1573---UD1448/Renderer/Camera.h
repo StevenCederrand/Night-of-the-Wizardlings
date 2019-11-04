@@ -49,7 +49,8 @@ public:
 
 	const float& getPitch() const;
 	const float& getYaw() const;
-
+	
+	const glm::vec3& getCamPos() const;
 	const glm::vec3& getCamFace();
 	const glm::vec3& getCamRight();
 	GLFWwindow* getWindow();
