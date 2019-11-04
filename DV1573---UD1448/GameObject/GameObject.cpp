@@ -160,6 +160,11 @@ const bool& GameObject::getShouldRender() const
 	return m_shouldRender;
 }
 
+const glm::vec3 GameObject::getlastPosition()
+{
+	return lastPosition;
+}
+
 //Update each individual modelmatrix for the meshes
 void GameObject::updateModelMatrix() {
 	

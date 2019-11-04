@@ -46,6 +46,7 @@ public:
 	const std::vector<btRigidBody*>& getRigidBodies()  { return m_bodies; }
 	const std::vector<DebugDrawer*>& getDebugDrawers()  { return m_debugDrawers; }
 	const bool& getShouldRender() const;
+	const glm::vec3 getlastPosition();
 private:
 	void updateModelMatrix();
 	struct MeshBox //Handles seperate transforms for same mesh
@@ -56,6 +57,7 @@ private:
 
 	std::string m_objectName;
 	Transform m_transform;
+	glm::vec3 m_lastPosition;
 	BulletPhysics* m_bPhysics;
 
 	std::vector<btRigidBody*> m_bodies;

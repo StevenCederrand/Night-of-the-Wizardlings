@@ -135,10 +135,18 @@ btDiscreteDynamicsWorld* BulletPhysics::getDynamicsWorld() const
 	return m_dynamicsWorld;
 }
 
+btVector3 BulletPhysics::getCharacterSize() const
+{
+	return m_boxSize;
+}
+
 btKinematicCharacterController* BulletPhysics::createCharacter(float& spawnHeight, float& height)
 {
 	//create the character and add him to the dynamicsWorld
-	m_playerShape = new btCapsuleShape(1.0, height*2);
+	//m_playerShape = new btCapsuleShape(1.0, height +2 * 1.0);
+	m_boxSize = btVector3(0.5, 0.5, height / 2);
+	m_playerShape = new btBoxShape(m_boxSize);
+
 	m_ghostObject = new btPairCachingGhostObject();
 	btTransform startTransform;
 	startTransform.setIdentity();
@@ -157,7 +165,6 @@ btKinematicCharacterController* BulletPhysics::createCharacter(float& spawnHeigh
 	m_dynamicsWorld->addAction(m_character);
 	m_character->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 	m_character->setMaxPenetrationDepth(0.1f);
-	//m_character->setUp(btVector3(0.0f, 1.0f, 0.0f));
 
 	return m_character;
 }
@@ -175,15 +182,14 @@ void BulletPhysics::removeObject(btRigidBody* body)
 void BulletPhysics::update(float dt)
 {
 	//counter to make sure that the gravity starts after 60 frames
-	if (counter > 15 && !setGravity)
+	if (m_counter > 15 && !m_setGravity)
 	{
-		m_character->setGravity(btVector3(0.0f, -5.0f, 0.0f));
-		setGravity = true;
+		m_character->setGravity(btVector3(0.0f, -1.0f, 0.0f));
+		m_setGravity = true;
 	}
-	if (!setGravity)
-		counter++;
+	if (!m_setGravity)
+		m_counter++;
 
 	// Testing deltatime based updates // JR
 	m_dynamicsWorld->stepSimulation(dt, 10, 1.0f/ 240.0f);
-
 }

@@ -16,7 +16,7 @@ PlayState::PlayState()
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
 	
 	m_camera = new Camera();
-	m_player = new Player(m_bPhysics, "Player", glm::vec3(0.0f, 10.0f, 0.0f), m_camera, m_spellHandler);
+	m_player = new Player(m_bPhysics, "Player", glm::vec3(0.0f, 12.0f, 0.0f), m_camera, m_spellHandler);
 	Renderer::getInstance()->setupCamera(m_player->getCamera());
 	
 	//TODO: organized loading system?
@@ -85,7 +85,7 @@ PlayState::PlayState()
 	for (size_t i = 0; i < m_objects.size(); i++)
 	{
 		m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);	
-		m_objects.at(i)->createDebugDrawer();
+		//m_objects.at(i)->createDebugDrawer();
 	}
 
 	if(Client::getInstance()->isInitialized())
@@ -277,7 +277,6 @@ void PlayState::GUIclear()
 	m_scoreboardExists = false;
 }
 
-
 bool PlayState::onMainMenuClick(const CEGUI::EventArgs& e)
 {
 	Renderer::getInstance()->clear();
@@ -287,11 +286,7 @@ bool PlayState::onMainMenuClick(const CEGUI::EventArgs& e)
 
 bool PlayState::onQuitClick(const CEGUI::EventArgs& e) {
 	glfwSetWindowShouldClose(glfwGetCurrentContext(), true);
-	return true;
-
-
-
-	
+	return true;	
 }
 
 //This function is called everytime two collision objects collide

@@ -22,6 +22,7 @@ public:
 		glm::vec3 position, glm::vec3 extend, glm::quat rotation = glm::quat(), float friction = 0.2f);
 
 	btDiscreteDynamicsWorld* getDynamicsWorld() const;
+	btVector3 getCharacterSize() const;
 	btKinematicCharacterController* createCharacter(float& spawnHeight, float& height);
 	void removeObject(btRigidBody* body);
 
@@ -43,8 +44,9 @@ private:
 	btKinematicCharacterController* m_character;
 	btGhostPairCallback* m_ghostCallback;
 
-	int counter = 0;
-	bool setGravity = false;
+	int m_counter = 0;
+	bool m_setGravity = false;
+	btVector3 m_boxSize;
 };
 
 #endif

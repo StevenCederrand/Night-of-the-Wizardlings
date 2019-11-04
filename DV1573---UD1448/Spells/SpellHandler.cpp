@@ -356,7 +356,7 @@ void SpellHandler::spellCollisionCheck()
 		//create a box, obb or AABB? from the player position
 		for (size_t j = 0; j < spells.size(); j++) {
 			glm::vec3 spellPos = spells.at(j)->getTransform().position;
-			float scale = spells.at(j)->getTransform().scale.x;
+			float scale = spells.at(j)->getTransform().scale.x * 4.0f; //tested
 			if (specificSpellCollision(spellPos, playerPos, axis, scale))
 			{
 				spells[j]->setTravelTime(0.0f);
@@ -374,7 +374,7 @@ bool SpellHandler::specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPo
 { 
 	// sphereradius is wrong
 	bool collision = false;
-	float sphereRadius = 2.0f * scale * 2;
+	float sphereRadius = 1.0f * scale;
 
 	glm::vec3 closestPoint = OBBclosestPoint(spellPos, axis, playerPos);
 	glm::vec3 v = closestPoint - spellPos;
@@ -388,7 +388,9 @@ bool SpellHandler::specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPo
 
 glm::vec3 SpellHandler::OBBclosestPoint(glm::vec3& spherePos, std::vector<glm::vec3>& axis, glm::vec3& playerPos)
 {
-	float boxSize = 0.5f;
+	btVector3 box = m_bp->getCharacterSize();
+	float boxSize = box.getX();
+	
 	//closest point on obb
 	glm::vec3 boxPoint = playerPos;
 	glm::vec3 ray = glm::vec3(spherePos - playerPos);

@@ -19,8 +19,6 @@ public:
 	void createRay(); //create ray for spells
 	void spawnPlayer(glm::vec3 pos);
 
-	void createRigidBody(BulletPhysics* bp);
-	void forceUp();
 	bool isDead();
 
 	//-----Get-----//
