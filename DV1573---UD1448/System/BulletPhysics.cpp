@@ -183,6 +183,7 @@ void BulletPhysics::update(float dt)
 	if (!setGravity)
 		counter++;
 
-	m_dynamicsWorld->stepSimulation(dt, 10, btScalar(1.0 / 240.0));
-	//m_dynamicsWorld->stepSimulation(dt);
+	// Testing deltatime based updates // JR
+	m_dynamicsWorld->stepSimulation(dt, 10, 1.0f/ 240.0f);
+
 }
