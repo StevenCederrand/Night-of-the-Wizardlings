@@ -127,6 +127,7 @@ void Player::attack()
 		{
 			m_attackCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_spellType); // Put attack on cooldown
 		}
+		m_soundHandler->playSound(0);
 	}
 
 	if (glfwGetMouseButton(m_playerCamera->getWindow(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
