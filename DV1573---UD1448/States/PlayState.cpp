@@ -42,17 +42,17 @@ PlayState::PlayState()
 	m_player->setHealth(NetGlobals::maxPlayerHealth);
 
 	//Arcane Icon
-	HudObject* icon = new HudObject("Assets/Textures/hud/Arcane.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 4) * 3, static_cast<float>(64)), glm::vec2(80.0f, 80.0f));
+	HudObject* icon = new HudObject("Assets/Textures/hud/Arcane_BG.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 4) * 3, static_cast<float>(64)), glm::vec2(80.0f, 80.0f));
 	icon->setAlpha(1.0f);
 	Renderer::getInstance()->submit2DHUD(icon);
 	m_icons.emplace_back(icon);
 
-	icon = new HudObject("Assets/Textures/hud/Shield.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 4) * 3 + 128, static_cast<float>(64)), glm::vec2(80.0f, 80.0f));
+	icon = new HudObject("Assets/Textures/hud/Shield_BG.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 4) * 3 + 128, static_cast<float>(64)), glm::vec2(80.0f, 80.0f));
 	icon->setAlpha(1.0f);
 	Renderer::getInstance()->submit2DHUD(icon);
 	m_icons.emplace_back(icon);
 
-	icon = new HudObject("Assets/Textures/hud/Fire.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 4) * 3 + 64, static_cast<float>(64 + 80)), glm::vec2(80.0f, 80.0f));
+	icon = new HudObject("Assets/Textures/hud/Fire_BG.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 4) * 3 + 64, static_cast<float>(64 + 90)), glm::vec2(80.0f, 80.0f));
 	icon->setAlpha(1.0f);
 	Renderer::getInstance()->submit2DHUD(icon);
 	m_icons.emplace_back(icon);
