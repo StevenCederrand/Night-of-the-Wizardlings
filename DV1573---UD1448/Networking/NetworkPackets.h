@@ -22,7 +22,10 @@ enum {
 	RESPAWN_TIME,
 	RESPAWN_PLAYER,
 	SCORE_UPDATE,
-	SPELL_GOT_DEFLECTED
+	SPELL_GOT_DEFLECTED,
+	PICKUP_CREATED,
+	PICKUP_REMOVED,
+	PICKUP_NOTIFICATION
 };
 
 /* To make sure the compiler aligns the bits */
@@ -93,7 +96,6 @@ struct RoundTimePacket {
 };
 
 struct SpellPacket{
-	SpellPacket() {}
 	RakNet::MessageID packetType;
 	uint64_t SpellID = 0;
 	uint32_t timestamp = 0;
@@ -145,6 +147,20 @@ struct HitPacket {
 	}
 
 
+};
+
+struct PickupPacket {
+	char locationName[16] = { ' ' };
+	uint64_t uniqueID;
+	glm::vec3 position;
+	PickupType type;
+
+	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
+		stream.Serialize(writeToStream, locationName);
+		stream.Serialize(writeToStream, uniqueID);
+		stream.Serialize(writeToStream, position);
+		stream.Serialize(writeToStream, type);
+	}
 };
 
 struct ServerStateChange {

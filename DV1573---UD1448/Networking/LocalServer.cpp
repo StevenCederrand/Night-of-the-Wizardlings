@@ -24,7 +24,14 @@ LocalServer::LocalServer()
 	m_timedUnusedObjectRemoval.setExecutionInterval(5000);
 	m_timedUnusedObjectRemoval.registerCallback(std::bind(&LocalServer::removeUnusedObjects_routine, this));
 
+	m_timedPickupSpawner.setTotalExecutionTime(NetGlobals::roundTimeMS);
+	m_timedPickupSpawner.setExecutionInterval(NetGlobals::pickupSpawnInterval);
+	m_timedPickupSpawner.registerCallback(std::bind(&LocalServer::spawnPickup, this));
 
+	unsigned int _time = unsigned int(time(NULL));
+	srand(_time);
+
+	m_pickupID = 0;
 }
 
 LocalServer::~LocalServer()
@@ -66,6 +73,7 @@ void LocalServer::startup(const std::string& serverName)
 
 		m_adminID = RakNet::UNASSIGNED_RAKNET_GUID;
 		m_timedUnusedObjectRemoval.start();
+		createPickupSpawnLocations();
 	}
 }
 
@@ -88,6 +96,10 @@ void LocalServer::destroy()
 			m_connectedPlayers.clear();
 			m_respawnList.clear();
 			m_activeSpells.clear();
+			m_pickupSpawnLocations.clear();
+			m_activePickups.clear();
+			m_queuedPickups.clear();
+			m_pickupID = 0;
 		}
 		m_initialized = false;
 		m_adminID = RakNet::UNASSIGNED_RAKNET_GUID;
@@ -116,6 +128,8 @@ void LocalServer::ThreadedUpdate()
 		if (m_serverInfo.currentState == NetGlobals::SERVER_STATE::GAME_IN_SESSION) {
 			handleRespawns(timeDiff);
 			handleRoundTime(timeDiff);
+			handlePickupTimer(timeDiff);
+			checkCollisionBetweenPlayersAndPickups();
 		}
 
 		if (m_serverInfo.currentState == NetGlobals::SERVER_STATE::GAME_END_STATE) {
@@ -639,6 +653,48 @@ SpellPacket* LocalServer::getSpecificSpell(const uint64_t& creatorGUID, const ui
 	return nullptr;
 }
 
+void LocalServer::checkCollisionBetweenPlayersAndPickups()
+{
+	for (size_t i = 0; i < m_activePickups.size(); i++) {
+		auto& pickup = m_activePickups[i];
+
+		for (size_t j = 0; j < m_connectedPlayers.size(); j++) {
+			auto& player = m_connectedPlayers[j];
+
+			if (isCollidingWithPickup(player, pickup)) {
+				// Give player buffs here
+				if (pickup.type == PickupType::HealthPotion) {
+					player.health = 100;
+				}
+				else if (pickup.type == PickupType::DamageBuff) {
+
+				}
+				//----------------------
+
+				destroyPickupOverNetwork(pickup);
+
+				m_activePickups.erase(m_activePickups.begin() + i);
+				i--;
+
+			}
+
+
+		}
+
+
+	}
+}
+
+bool LocalServer::isCollidingWithPickup(const PlayerPacket& player, const PickupPacket& pickup)
+{
+	float pickupRadius = 1.0f; // hard cored
+	
+	if (glm::distance(player.position, pickup.position) <= pickupRadius)
+		return true;
+
+	return false;
+}
+
 void LocalServer::handleRespawns(const uint32_t& diff)
 {
 	for (size_t i = 0; i < m_respawnList.size(); i++) {
@@ -757,6 +813,65 @@ void LocalServer::endGameTimeExecutionLogic()
 	sendStreamToAllClients(stream);
 }
 
+void LocalServer::handlePickupTimer(const uint32_t& diff)
+{
+	m_timedPickupSpawner.update(static_cast<float>(diff));
+
+	if (m_timedPickupSpawner.getTimeLeftOnInterval() <= 5.0f * 1000.0f && !m_pickupNotified) {
+		m_pickupNotified = true;
+		notifyPickup();
+	}
+
+	if (m_timedPickupSpawner.isDone()) {
+		m_queuedPickups.clear();
+
+	}
+}
+
+void LocalServer::spawnPickup()
+{
+	if (gameAlmostFinished()) return;
+
+
+	for (size_t i = 0; i < m_queuedPickups.size(); i++) {
+		RakNet::BitStream stream;
+		stream.Write((RakNet::MessageID)PICKUP_CREATED);
+		m_queuedPickups[i].Serialize(true, stream);
+		sendStreamToAllClients(stream, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
+		m_activePickups.emplace_back(m_queuedPickups[i]);
+	}
+
+	m_queuedPickups.clear();
+	m_pickupNotified = false;
+}
+
+void LocalServer::notifyPickup()
+{
+	if (gameAlmostFinished()) return;
+	
+	PickupSpawnLocation* spawnLocation = getRandomPickupSpawnLocation();
+
+	if (spawnLocation == nullptr) return;
+
+	PickupPacket pickupPacket;
+	copyCharArrayOver(pickupPacket.locationName, spawnLocation->name);
+	pickupPacket.uniqueID = m_pickupID++;
+	pickupPacket.type = PickupType::HealthPotion; // this should be randomized too
+	pickupPacket.position = spawnLocation->position;
+	
+	m_queuedPickups.emplace_back(pickupPacket);
+
+	RakNet::BitStream stream;
+	stream.Write((RakNet::MessageID)PICKUP_NOTIFICATION);
+	pickupPacket.Serialize(true, stream);
+	sendStreamToAllClients(stream, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
+}
+
+bool LocalServer::gameAlmostFinished()
+{
+	return m_timedRunTimer.getTimeLeft() <= 15.0f * 1000.0f;
+}
+
 void LocalServer::removeUnusedObjects_routine()
 {
 	for (size_t i = 0; i < m_connectedPlayers.size(); i++)
@@ -817,6 +932,81 @@ void LocalServer::resetServerData()
 	m_serverInfo.maxPlayers = NetGlobals::MaximumConnections;
 	char t[16] = { ' ' };
 	memcpy(m_serverInfo.serverName, t, sizeof(m_serverInfo.serverName));
+}
+
+void LocalServer::createPickupSpawnLocations()
+{
+	
+	PickupSpawnLocation spawn_one;
+	copyStringToCharArray(spawn_one.name, "Left Bridge");
+	spawn_one.position = glm::vec3(0.0f, 2.0f, 0.0f);
+	m_pickupSpawnLocations.emplace_back(spawn_one);
+
+	PickupSpawnLocation spawn_two;
+	copyStringToCharArray(spawn_two.name, "Right Bridge");
+	spawn_two.position = glm::vec3(0.0f, 0.0f, 2.0f);
+	m_pickupSpawnLocations.emplace_back(spawn_two);
+
+	PickupSpawnLocation spawn_three;
+	copyStringToCharArray(spawn_three.name, "Middle Area");
+	spawn_three.position = glm::vec3(2.0f, 0.0f, 0.0f);
+	m_pickupSpawnLocations.emplace_back(spawn_three);
+
+}
+
+void LocalServer::destroyPickupOverNetwork(PickupPacket& pickupPacket)
+{
+
+	RakNet::BitStream stream;
+	stream.Write((RakNet::MessageID)PICKUP_REMOVED);
+	pickupPacket.Serialize(true, stream);
+	sendStreamToAllClients(stream, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
+
+}
+
+void LocalServer::copyStringToCharArray(char Dest[16], std::string Src)
+{
+	memset(Dest, ' ', 16);
+	memcpy(Dest, Src.c_str(), Src.size() * sizeof(char));
+
+}
+
+void LocalServer::copyCharArrayOver(char Dest[16], char Src[16])
+{
+	memset(Dest, ' ', 16);
+	memcpy(Dest, Src, sizeof(Src));
+}
+
+LocalServer::PickupSpawnLocation* LocalServer::getRandomPickupSpawnLocation()
+{
+	std::vector<PickupSpawnLocation*> availableLocations;
+	availableLocations.reserve(m_pickupSpawnLocations.size()); // arbitrary number
+
+	for (size_t i = 0; i < m_pickupSpawnLocations.size(); i++) {
+
+		bool isFree = true;
+		for (size_t j = 0; j < m_activePickups.size() && isFree == true; j++) {
+			if (m_activePickups[j].position == m_pickupSpawnLocations[i].position) {
+				logTrace("[SERVER] There is a pickup there!");
+				isFree = false;
+			}
+		}
+
+		if (isFree == true) {
+			logTrace("[SERVER] Adding pickup location to the raffle");
+			availableLocations.emplace_back(&m_pickupSpawnLocations[i]);
+		}
+	}
+
+	if (availableLocations.size() > 0) {
+		logTrace("[SERVER] Running random between {0} and {1}", 0, availableLocations.size() - 1);
+		size_t luckyNumber = Randomizer::single(size_t(0), availableLocations.size() - 1);
+		logTrace("[SERVER] Lucky number was {0}", luckyNumber);
+		return availableLocations[luckyNumber];
+	}
+
+
+	return nullptr;
 }
 
 const bool& LocalServer::isInitialized() const
@@ -890,6 +1080,8 @@ void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 	if (newState == NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS) {
 		respawnPlayers();
 		resetScores();
+		m_activePickups.clear();
+		m_queuedPickups.clear();
 		logTrace("[SERVER] Warmup!");
 	}
 
@@ -905,11 +1097,15 @@ void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 		m_timedRunTimer.restart();
 		m_timedRunTimer.start();
 		m_timedRunTimer.forceExecute();
+
+		m_timedPickupSpawner.start();
 	}
 
 	if (newState == NetGlobals::SERVER_STATE::GAME_END_STATE) {
 		logTrace("[SERVER] Game is over!");
 		respawnPlayers();
+		m_activePickups.clear();
+		m_queuedPickups.clear();
 		m_timedGameInEndStateTimer.restart();
 		m_timedGameInEndStateTimer.start();
 		m_timedGameInEndStateTimer.forceExecute();

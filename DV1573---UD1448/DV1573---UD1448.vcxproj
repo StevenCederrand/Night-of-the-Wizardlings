@@ -212,6 +212,9 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pch.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="Pickups\HealthPickup.cpp" />
+    <ClCompile Include="Pickups\Pickup.cpp" />
+    <ClCompile Include="Networking\NetworkPickups.cpp" />
     <ClCompile Include="Player\Player.cpp" />
     <ClCompile Include="Renderer\BloomBlur.cpp" />
     <ClCompile Include="Renderer\Camera.cpp">
@@ -301,6 +304,10 @@
     <ClInclude Include="Networking\NetworkPlayers.h" />
     <ClInclude Include="Networking\NetworkSpells.h" />
     <ClInclude Include="Pch\Pch.h" />
+    <ClInclude Include="Pickups\HealthPickup.h" />
+    <ClInclude Include="Pickups\Pickup.h" />
+    <ClInclude Include="Networking\NetworkPickups.h" />
+    <ClInclude Include="Pickups\PickupTypes.h" />
     <ClInclude Include="Player\Player.h" />
     <ClInclude Include="Spells\ReflectSpell.h" />
     <ClInclude Include="Renderer\BloomBlur.h" />
@@ -345,6 +352,7 @@
     <ClInclude Include="System\Input.h" />
     <ClInclude Include="System\Lerp.h" />
     <ClInclude Include="System\Log.h" />
+    <ClInclude Include="System\Randomizer.h" />
     <ClInclude Include="System\State.h" />
     <ClInclude Include="System\StateManager.h" />
     <ClInclude Include="System\TimedCallback.h" />

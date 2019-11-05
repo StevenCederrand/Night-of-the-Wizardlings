@@ -69,6 +69,9 @@
     <ClCompile Include="Spells\ReflectSpell.cpp" />
     <ClCompile Include="Text\FreeType.cpp" />
     <ClCompile Include="Text\HUDShader.cpp" />
+    <ClCompile Include="Pickups\Pickup.cpp" />
+    <ClCompile Include="Pickups\HealthPickup.cpp" />
+    <ClCompile Include="Networking\NetworkPickups.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
@@ -148,6 +151,11 @@
     <ClInclude Include="Renderer\HudTextureMap.h" />
     <ClInclude Include="Text\FreeType.h" />
     <ClInclude Include="Text\HUDShader.h" />
+    <ClInclude Include="Pickups\Pickup.h" />
+    <ClInclude Include="Pickups\HealthPickup.h" />
+    <ClInclude Include="Networking\NetworkPickups.h" />
+    <ClInclude Include="Pickups\PickupTypes.h" />
+    <ClInclude Include="System\Randomizer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

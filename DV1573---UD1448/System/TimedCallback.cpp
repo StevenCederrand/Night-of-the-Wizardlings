@@ -94,6 +94,11 @@ void TimedCallback::setInfinityExecutionTime(bool condition)
 	m_runInfinity = condition;
 }
 
+const float TimedCallback::getTimeLeftOnInterval() const
+{
+	return m_interval - m_intervalCounter;
+}
+
 const float& TimedCallback::getTimeLeft() const
 {
 	return m_totalTimeLeft;

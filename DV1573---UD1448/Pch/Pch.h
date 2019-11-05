@@ -32,6 +32,8 @@
 #include <System/Lerp.h>
 
 #include "System/Log.h"
+#include "System/Randomizer.h"
+
 //Raknet
 #include <raknet/MessageIdentifiers.h>
 #include <raknet/RakPeerInterface.h>
@@ -42,6 +44,7 @@
 #include <RakNet/NetworkIDObject.h>
 #include <RakNet/NetworkIDManager.h>
 
+#include <Pickups/PickupTypes.h>
 #include <Networking/NetworkGlobals.h>
 #include <Networking/NetworkPackets.h>
 

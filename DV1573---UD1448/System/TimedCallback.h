@@ -17,7 +17,8 @@ public:
 	void setTotalExecutionTime(float totalExecutionTime);
 	void setExecutionInterval(float executionInterval);
 	void setInfinityExecutionTime(bool condition);
-
+	
+	const float getTimeLeftOnInterval() const;
 	const float& getTimeLeft() const;
 
 private:

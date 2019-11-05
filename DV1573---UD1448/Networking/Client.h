@@ -4,6 +4,7 @@
 #include <Spells/Spell.h>
 #include "NetworkPlayers.h"
 #include "NetworkSpells.h"
+#include "NetworkPickups.h"
 
 class Player;
 
@@ -102,7 +103,8 @@ private:
 	std::vector<PlayerPacket> m_connectedPlayers;
 	NetworkPlayers m_networkPlayers;
 	NetworkSpells m_networkSpells;
-	
+	NetworkPickups m_networkPickup;
+
 	std::mutex m_cleanupMutex;
 	
 	SpellHandler* m_spellHandler;

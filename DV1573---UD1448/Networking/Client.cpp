@@ -544,6 +544,56 @@ void Client::processAndHandlePackets()
 		}
 		break;
 
+		case PICKUP_CREATED:
+		{
+			logTrace("Pickup Created");
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			PickupPacket pickupPacket;
+			pickupPacket.Serialize(false, bsIn);
+			NetworkPickups::PickupProp pp;
+
+		/*	pp.flag = NetGlobals::THREAD_FLAG::ADD;
+			pp.packet = pickupPacket;
+			pp.pickup = nullptr;
+			
+			{
+				std::lock_guard<std::mutex> lockGuard(m_networkPickup.m_mutex);
+				m_networkPickup.m_pickupProps.emplace_back(pp);
+			}*/
+
+		}
+		break;
+
+		case PICKUP_REMOVED: 
+		{
+			logTrace("Pickup Removed");
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			PickupPacket pickupPacket;
+			pickupPacket.Serialize(false, bsIn);
+
+			bool found = false;
+			for (size_t i = 0; i < m_networkPickup.m_pickupProps.size() && !found; i++) {
+				auto& prop = m_networkPickup.m_pickupProps[i];
+				
+				if (prop.packet.uniqueID == pickupPacket.uniqueID) {
+					std::lock_guard<std::mutex> lockGuard(m_networkPickup.m_mutex);
+					prop.flag = NetGlobals::THREAD_FLAG::REMOVE;
+					found = true;
+				}
+			}
+		}
+		break;
+
+		case PICKUP_NOTIFICATION: 
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			PickupPacket pickupPacket;
+			pickupPacket.Serialize(false, bsIn);
+
+			logTrace("Pickup will be spawned soon!");
+		}
+		break;
+
 		default:
 		{
 			
