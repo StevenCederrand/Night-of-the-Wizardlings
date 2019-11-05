@@ -45,7 +45,7 @@ public:
 	const std::string& getMeshName(int meshIndex) const;
 	const int getMeshesCount() const { return (int)m_meshes.size(); }
 	const glm::mat4& getMatrix(const int& i) const;
-	const int getType() const { return type; }
+	const int getType() const { return m_type; }
 	const std::vector<btRigidBody*>& getRigidBodies()  { return m_bodies; }
 	const std::vector<DebugDrawer*>& getDebugDrawers()  { return m_debugDrawers; }
 	const bool& getShouldRender() const;
@@ -69,7 +69,7 @@ protected:
 	std::vector<glm::mat4> m_modelMatrixes;
 	std::vector<MeshBox> m_meshes;
 	bool m_shouldRender;
-	int type;
+	int m_type;
 };
 
 

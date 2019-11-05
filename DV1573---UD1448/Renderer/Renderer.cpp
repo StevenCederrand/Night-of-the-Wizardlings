@@ -29,6 +29,7 @@ Renderer::Renderer()
 	//Blending
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
 }
 
 Renderer::~Renderer()
@@ -145,6 +146,7 @@ void Renderer::initShaders() {
 	auto* shader = ShaderMap::getInstance()->createShader(HUD, "HUD.vs", "HUD.fs");
 	shader->use();
 	shader->setInt("textureSampler", 0);
+	
 }
 
 void Renderer::bindMatrixes(const std::string& shaderName) {
@@ -291,9 +293,13 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 	Transform transform;
 	glm::mat4 modelMatrix;
 	Shader* shader;
+	/* It is better to get the singletons directly rather than having to for every new thing, get them. BRANCHING IS A PROBLEM*/
+	MeshMap* meshMap = MeshMap::getInstance();
+	ShaderMap* shaderMap = ShaderMap::getInstance();
+
 #pragma region Depth_Render & Light_Cull
 	if (m_spells.size() > 0) {
-		shader = ShaderMap::getInstance()->useByName(DEPTH_MAP);
+		shader = shaderMap->useByName(DEPTH_MAP);
 
 		//Bind and draw the objects to the depth-buffer
 		bindMatrixes(shader);
@@ -307,7 +313,7 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 			{
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
-				mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
+				mesh = meshMap->getMesh(object->getMeshName(j));
 				transform = object->getTransform(mesh, j);
 
 				modelMatrix = object->getMatrix(j);
@@ -332,7 +338,7 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 			{
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
-				mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
+				mesh = meshMap->getMesh(object->getMeshName(j));
 				transform = object->getTransform(mesh, j);
 
 				modelMatrix = object->getMatrix(j);
@@ -347,25 +353,23 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 				glBindVertexArray(0);
 			}
 		}
-		
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-
-
+			   
 #pragma region Light_Culling
-		shader = ShaderMap::getInstance()->useByName(LIGHT_CULL);
+		shader = shaderMap->useByName(LIGHT_CULL);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
 		bindMatrixes(shader);
 
 		glm::vec2 screenSize = glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT);
 		shader->setVec2("screenSize", screenSize);
 		shader->setInt("lightCount", m_spells.size());//Set the number of active pointlights in the scene 
-		
+
 		//Bind the depthmap	
 		glActiveTexture(GL_TEXTURE0);
 		shader->setInt("depthMap", 0); //Not sure if this has to happen every frame
 		glBindTexture(GL_TEXTURE_2D, m_depthMap);
-		
+
 		//Send all of the light data into the compute shader	
 		for (size_t i = 0; i < m_spells.size(); i++) {
 			shader->setVec3("lights[" + std::to_string(i) + "].position", m_spells[i]->getTransform().position);
@@ -381,15 +385,15 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 
 #pragma endregion
 
-	
+
 	//BLOOMBLUR MISSION STEP 1: SAMPLE
 	//m_bloom->bindHdrFBO();
 	renderSkybox(m_skybox);
 	m_spellHandler->renderSpell();
-	
+
 #pragma region Color_Render
-	shader = ShaderMap::getInstance()->useByName(BASIC_FORWARD); 
-	
+	shader = shaderMap->useByName(BASIC_FORWARD);
+
 	if (Client::getInstance()->getMyData().health <= 0) {
 		shader->setInt("grayscale", 1);
 	}
@@ -407,7 +411,12 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 	if (m_spells.size() > 0) {
 		for (size_t i = 0; i < m_spells.size(); i++) {
 			shader->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[i]->getTransform().position);
-			shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getEnhAttackBase()->m_material->diffuse);
+			if (m_spells[i]->getType() == NORMALATTACK) {
+				shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getAttackBase()->m_material->diffuse);
+			}
+			else if (m_spells[i]->getType() == ENHANCEATTACK) {
+				shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getEnhAttackBase()->m_material->diffuse);
+			}
 			shader->setFloat("pLights[" + std::to_string(i) + "].radius", P_LIGHT_RADIUS);
 		}
 	}
@@ -418,8 +427,8 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 		for (int j = 0; j < object->getMeshesCount(); j++)
 		{
 			//Fetch the current mesh and its transform
-			mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
-			
+			mesh = meshMap->getMesh(object->getMeshName(j));
+
 			//Bind the material
 			object->bindMaterialToShader(shader, mesh->getMaterial());
 
@@ -440,7 +449,7 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 	//Dynamic objects
 	if (m_dynamicObjects.size() > 0) {
 		for (GameObject* object : m_dynamicObjects)
-		{			
+		{
 			if (object == nullptr || !object->getShouldRender()) {
 				continue;
 			}
@@ -449,7 +458,7 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
 				//Fetch the current mesh and its transform
-				mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
+				mesh = meshMap->getMesh(object->getMeshName(j));
 				//Bind the material
 				object->bindMaterialToShader(shader, mesh->getMaterial());
 
@@ -470,18 +479,18 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 	}
 #pragma endregion
 
-	
+
 #pragma region Animation_Render
 	//TODO: Evaluate this implementation, should be an easier way to bind values to shaders as they're changed
 	// Possibly extract functions. Only difference in rendering is the shader and the binding of bone matrices
 	if (m_anistaticObjects.size() > 0) {
-		ShaderMap::getInstance()->useByName(ANIMATION);
+		shaderMap->useByName(ANIMATION);
 		//Bind view- and projection matrix
 		bindMatrixes(ANIMATION);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
 
 		//Add a step where we insert lights into the scene
-		ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("LightCount", m_spells.size());
+		shaderMap->getShader(BASIC_FORWARD)->setInt("LightCount", m_spells.size());
 		if (m_spells.size() > 0) {
 			for (size_t i = 0; i < m_spells.size(); i++) {
 				ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[i]->getTransform().position);
