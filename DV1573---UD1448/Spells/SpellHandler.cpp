@@ -393,74 +393,25 @@ void SpellHandler::spellCollisionCheck()
 				//line is the walking we will do.
 				glm::vec3 line = (spellPos - lastSpellPos) / m_nrSubSteps;
 				glm::vec3 line2 = (spellPos - playerPos);
-			
 				glm::vec3 interpolationPos = lastSpellPos;
-				/*if (glm::length(line2) < 3.5f)
-				{
-					logTrace("Playerpos is x:" +
-						std::to_string(playerPos.x) + " y: " +
-						std::to_string(playerPos.y) + " z: " +
-						std::to_string(playerPos.z));
-
-					logTrace("spell pos is x:" +
-						std::to_string(spellPos.x) + " y: " +
-						std::to_string(spellPos.y) + " z: " +
-						std::to_string(spellPos.z));
-
-					logTrace("LIne2 is x:" +
-						std::to_string(line2.x) + " y: " +
-						std::to_string(line2.y) + " z: " +
-						std::to_string(line2.z));
-
-					logTrace("spell hit: " + std::to_string(glm::length(line2)));
-				}*/
 
 				//walk from last pos to new pos with substeps
 				for (size_t k = 0; k < m_nrSubSteps; k++)
 				{
-
 					interpolationPos += line;
 					if (specificSpellCollision(interpolationPos, playerPos, axis, radius))
 					{
 						spells[j]->setTravelTime(0.0f);
 						Client::getInstance()->sendHitRequest(*spells[j], list[i]);
 						interpolationPos = lastSpellPos;
-						/*logTrace("length: " + std::to_string(glm::length(line2)));
 
-						logTrace("Hit on: " + std::to_string(k));
-
-						logTrace("LIne is x:" +
-							std::to_string(line.x) + " y: " +
-							std::to_string(line.y) + " z: " +
-							std::to_string(line.z));
-
-						logTrace("Pos is x:" + 
-							std::to_string(interpolationPos.x) +" y: "+
-							std::to_string(interpolationPos.y) + " z: "+
-							std::to_string(interpolationPos.z));
-
-						logTrace("Real pos is x:" +
-							std::to_string(spellPos.x) + " y: " +
-							std::to_string(spellPos.y) + " z: " +
-							std::to_string(spellPos.z));*/
-
-						//interpolationPos = lastSpellPos;
-						for (size_t l = 0; l < m_nrSubSteps && l< 2; l++)
-						{
-							interpolationPos = interpolationPos + line;
-							/*logTrace("Now we walk Pos is x:" +
-								std::to_string(interpolationPos.x) + " y: " +
-								std::to_string(interpolationPos.y) + " z: " +
-								std::to_string(interpolationPos.z));*/
-						}
-
+					
 						if (m_onHitCallback != nullptr) {
 							m_onHitCallback();
 						}
 						k = m_nrSubSteps;
 					}
 				}
-				logTrace(" ");
 			}
 		}
 	}
