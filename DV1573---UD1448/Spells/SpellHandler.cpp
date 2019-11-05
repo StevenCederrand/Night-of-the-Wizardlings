@@ -41,7 +41,7 @@ void SpellHandler::initAttackSpell()
 	attackBase->m_material->diffuse = glm::vec3(0.65f, 1.0f, 1.0f);
 	attackBase->m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
 
-	attackBase->m_damage = 34;
+	attackBase->m_damage = 3;
 	attackBase->m_speed = 110;
 	attackBase->m_radius = 0.5;
 	attackBase->m_coolDown = 3;
@@ -164,6 +164,7 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 	if (type == NORMALATTACK)
 	{
 		auto spell = new AttackSpell(spellPos, directionVector, attackBase);
+		spell->setType(NORMALATTACK);
 		cooldown = attackBase->m_coolDown;
 
 		spell->setUniqueID(getUniqueID());
@@ -250,12 +251,14 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 
 void SpellHandler::spellUpdate(float deltaTime)
 {
-	
+	if (Input::isKeyReleased(GLFW_KEY_L))
+	{
+		m_newHit = !m_newHit;
+	}
 	for (size_t i = 0; i < spells.size(); i++)
 	{
 		if (spells[i]->getTravelTime() > 0)
 		{
-
 			/*if (static_cast<Spell*>(spells[i])->getType() == FLAMESTRIKE)
 			{
 				flamestrikeUpdate(deltaTime, i);
@@ -264,7 +267,6 @@ void SpellHandler::spellUpdate(float deltaTime)
 			spells[i]->update(deltaTime);
 			spells[i]->updateRigidbody(deltaTime, m_BulletNormalSpell.at(i));
 			Client::getInstance()->updateSpellOnNetwork(*spells[i]);
-
 		}
 
 		if (spells[i]->getTravelTime() <= 0)
@@ -278,7 +280,6 @@ void SpellHandler::spellUpdate(float deltaTime)
 			m_bp->removeObject(m_BulletNormalSpell.at(i));
 			m_BulletNormalSpell.erase(m_BulletNormalSpell.begin() + i);
 		}
-
 	}
 	spellCollisionCheck();
 	
@@ -354,16 +355,64 @@ void SpellHandler::spellCollisionCheck()
 		axis.emplace_back(zAxis);
 		
 		//create a box, obb or AABB? from the player position
-		for (size_t j = 0; j < spells.size(); j++) {
-			glm::vec3 spellPos = spells.at(j)->getTransform().position;
-			float scale = spells.at(j)->getTransform().scale.x * 4.0f; //tested
-			if (specificSpellCollision(spellPos, playerPos, axis, scale))
-			{
-				spells[j]->setTravelTime(0.0f);
-				Client::getInstance()->sendHitRequest(*spells[j], list[i]);
+		if (!m_newHit)
+		{
+			for (size_t j = 0; j < spells.size(); j++) {
+				logTrace("Old hit test");
+				glm::vec3 spellPos = spells.at(j)->getTransform().position;
+				float scale = spells.at(j)->getTransform().scale.x * 4.0f; //tested
+				if (specificSpellCollision(spellPos, playerPos, axis, scale))
+				{
+					spells[j]->setTravelTime(0.0f);
+					Client::getInstance()->sendHitRequest(*spells[j], list[i]);
 
-				if (m_onHitCallback != nullptr) {
-					m_onHitCallback();
+					if (m_onHitCallback != nullptr) {
+						m_onHitCallback();
+					}
+				}
+			}
+		}
+		else
+		{
+			for (size_t j = 0; j < spells.size(); j++)
+			{
+				logTrace("New hit test");
+				glm::vec3 lastSpellPos = spells.at(j)->getlastPosition();
+				glm::vec3 spellPos = spells.at(j)->getTransform().position;
+				float scale = spells.at(j)->getTransform().scale.x * 2.0f; //tested
+
+				float radius = 0.0;
+				if (static_cast<Spell*>(spells[i])->getType() == NORMALATTACK) {
+					radius = attackBase->m_radius;
+				}
+				//line is the walking we will do.
+				glm::vec3 line = (spellPos - lastSpellPos) / m_nrSubSteps;
+				glm::vec3 interpolationPos = lastSpellPos;
+				for (size_t k = 0; k < m_nrSubSteps; k++)
+				{
+					interpolationPos += line;
+					if (specificSpellCollision(interpolationPos, playerPos, axis, radius))
+					{
+						spells[j]->setTravelTime(0.0f);
+						Client::getInstance()->sendHitRequest(*spells[j], list[i]);
+
+						logTrace("Hit on: " + std::to_string(k));
+						logTrace("Pos is x:" + 
+							std::to_string(interpolationPos.x) +" y: "+
+							std::to_string(interpolationPos.y) + " z: "+
+							std::to_string(interpolationPos.z));
+
+						logTrace("Real pos is x:" +
+							std::to_string(spellPos.x) + " y: " +
+							std::to_string(spellPos.y) + " z: " +
+							std::to_string(spellPos.z));
+
+						if (m_onHitCallback != nullptr) {
+							m_onHitCallback();
+						}
+						k = m_nrSubSteps;
+					}
+
 				}
 			}
 		}

@@ -162,7 +162,7 @@ const bool& GameObject::getShouldRender() const
 
 const glm::vec3 GameObject::getlastPosition()
 {
-	return lastPosition;
+	return m_lastPosition;
 }
 
 //Update each individual modelmatrix for the meshes
@@ -196,6 +196,7 @@ void GameObject::setTransform(glm::vec3 worldPosition = glm::vec3(.0f), glm::qua
 
 void GameObject::setWorldPosition(glm::vec3 worldPosition)
 {
+	m_lastPosition = worldPosition;
 	m_transform.position = worldPosition;
 	updateModelMatrix();
 }
