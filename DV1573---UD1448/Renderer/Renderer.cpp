@@ -640,7 +640,7 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 
 	for (int i = 0; i < m_spells.size(); i++)
 	{
-		if (static_cast <Spell*>(m_spells[i])->getType() == NORMALATTACK)
+		if (m_spells[i]->getType() == NORMALATTACK)
 		{
 			Mesh* meshRef = spellHandler->getAttackBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
@@ -658,7 +658,7 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 		}
 
-		if (static_cast<Spell*>(m_spells[i])->getType() == ENHANCEATTACK)
+		else if (m_spells[i]->getType() == ENHANCEATTACK)
 		{
 			Mesh* meshRef = spellHandler->getEnhAttackBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
@@ -676,7 +676,7 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 		}
 
-		if (static_cast<Spell*>(m_spells[i])->getType() == REFLECT)
+		else if (m_spells[i]->getType() == REFLECT)
 		{
 			Mesh* meshRef = spellHandler->getReflectBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
@@ -694,7 +694,7 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 		}
 
-		if (static_cast <Spell*>(m_spells[i])->getType() == FLAMESTRIKE)
+		else if (m_spells[i]->getType() == FLAMESTRIKE)
 		{
 			Mesh* meshRef = spellHandler->getAttackBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);

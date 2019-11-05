@@ -42,6 +42,7 @@ private:
 	Camera* m_camera;
 	SkyBox* m_skybox;
 	BulletPhysics* m_bPhysics;
+	std::vector<HudObject*> m_icons;
 	HudObject* m_crosshairHUD;
 	HudObject* m_damageOverlay;
 	HudObject* m_deflectCrosshairHUD;

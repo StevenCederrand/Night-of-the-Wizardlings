@@ -27,6 +27,7 @@ PlayState::PlayState()
 	m_hitCrosshair = new HudObject("Assets/Textures/Crosshair_hit.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(32.0f, 32.0f));
 	m_hitCrosshair->setAlpha(0.0f);
 	Renderer::getInstance()->submit2DHUD(m_hitCrosshair);
+
 	m_crosshairHUD = new HudObject("Assets/Textures/Crosshair.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(32.0f, 32.0f));
 	m_crosshairHUD->setAlpha(1.0f);
 	Renderer::getInstance()->submit2DHUD(m_crosshairHUD);
@@ -34,12 +35,27 @@ PlayState::PlayState()
 	m_deflectCrosshairHUD = new HudObject("Assets/Textures/Crosshair_deflect.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(32.0f, 32.0f));
 	m_deflectCrosshairHUD->setAlpha(0.0f);
 	Renderer::getInstance()->submit2DHUD(m_deflectCrosshairHUD);
-
-
+	
 	m_damageOverlay = new HudObject("Assets/Textures/DamageOverlay.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(static_cast<float>(SCREEN_WIDTH), (static_cast<float>(SCREEN_HEIGHT))));
 	m_damageOverlay->setAlpha(0.0f);
 	Renderer::getInstance()->submit2DHUD(m_damageOverlay);
 	m_player->setHealth(NetGlobals::maxPlayerHealth);
+
+	//Arcane Icon
+	HudObject* icon = new HudObject("Assets/Textures/hud/Arcane.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 4) * 3, static_cast<float>(64)), glm::vec2(80.0f, 80.0f));
+	icon->setAlpha(1.0f);
+	Renderer::getInstance()->submit2DHUD(icon);
+	m_icons.emplace_back(icon);
+
+	icon = new HudObject("Assets/Textures/hud/Shield.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 4) * 3 + 128, static_cast<float>(64)), glm::vec2(80.0f, 80.0f));
+	icon->setAlpha(1.0f);
+	Renderer::getInstance()->submit2DHUD(icon);
+	m_icons.emplace_back(icon);
+
+	icon = new HudObject("Assets/Textures/hud/Fire.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 4) * 3 + 64, static_cast<float>(64 + 80)), glm::vec2(80.0f, 80.0f));
+	icon->setAlpha(1.0f);
+	Renderer::getInstance()->submit2DHUD(icon);
+	m_icons.emplace_back(icon);
 
 	//Test enviroment with 4 meshes inside 1 GameObject, inherited transforms
 	//m_objects.push_back(new WorldObject("TestScene"));
@@ -98,7 +114,9 @@ PlayState::~PlayState()
 
 	for (GameObject* object : m_objects)
 		delete object;
-	
+	for (HudObject* icon : m_icons)
+		delete icon;
+
 	GUIclear();
 
 	m_objects.clear();
@@ -118,6 +136,7 @@ PlayState::~PlayState()
 	if (Client::getInstance()->isInitialized()) {
 		Client::getInstance()->destroy();
 	}
+	
 }
 
 void PlayState::update(float dt)
