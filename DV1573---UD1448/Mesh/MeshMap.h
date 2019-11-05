@@ -10,7 +10,6 @@ public:
 	static MeshMap* getInstance();
 	void cleanUp();
 	bool existsWithName(std::string name);
-	void useByName(std::string name);
 	Mesh* getMesh(std::string name);
 	Mesh* createMesh(std::string name, Mesh mesh);
 	void destroy();

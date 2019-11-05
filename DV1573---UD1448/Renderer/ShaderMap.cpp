@@ -87,11 +87,13 @@ void ShaderMap::reload() {
 	}
 }
 
-void ShaderMap::useByName(std::string name) {
+Shader* ShaderMap::useByName(std::string name) {
 
 	if (existsWithName(name)) {
 		m_shaderMap[name]->use();
+		return m_shaderMap[name];
 	}
+	return nullptr;
 }
 
 void ShaderMap::destroy()

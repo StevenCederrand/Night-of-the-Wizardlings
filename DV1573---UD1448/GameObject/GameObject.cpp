@@ -238,8 +238,19 @@ const Transform GameObject::getTransform() const
 
 const Transform GameObject::getTransform(int meshIndex) const
 {
-	Mesh* mesh = MeshMap::getInstance()->getMesh(m_meshes[meshIndex].name);
+	Mesh* mesh = MeshMap::getInstance()->getMesh(m_meshes[meshIndex].name); //This costs a lot
 
+	// Adds the inherited transforms together to get the world position of a mesh
+	Transform world_transform;
+	world_transform.position = m_transform.position + m_meshes[meshIndex].transform.position + mesh->getTransform().position;
+	world_transform.rotation = m_transform.rotation * m_meshes[meshIndex].transform.rotation * mesh->getTransform().rotation;
+	world_transform.scale = m_transform.scale * m_meshes[meshIndex].transform.scale * mesh->getTransform().scale;
+
+	return world_transform;
+}
+
+const Transform& GameObject::getTransform(Mesh* mesh, const int& meshIndex) const
+{
 	// Adds the inherited transforms together to get the world position of a mesh
 	Transform world_transform;
 	world_transform.position = m_transform.position + m_meshes[meshIndex].transform.position + mesh->getTransform().position;
@@ -274,6 +285,16 @@ void GameObject::bindMaterialToShader(std::string shaderName)
 void GameObject::bindMaterialToShader(std::string shaderName, int meshIndex)
 {
 	ShaderMap::getInstance()->getShader(shaderName)->setMaterial(MeshMap::getInstance()->getMesh(m_meshes[meshIndex].name)->getMaterial());
+}
+
+void GameObject::bindMaterialToShader(Shader* shader, const int& meshIndex)
+{
+	shader->setMaterial(MeshMap::getInstance()->getMesh(m_meshes[meshIndex].name)->getMaterial());
+}
+
+void GameObject::bindMaterialToShader(Shader* shader, const std::string& materialName)
+{
+	shader->setMaterial(materialName);
 }
 
 void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
