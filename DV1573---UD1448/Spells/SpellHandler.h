@@ -45,7 +45,7 @@ public:
 private:
 	const uint64_t getUniqueID();
 	bool m_newHit = true;
-	int m_nrSubSteps = 10;
+	float m_nrSubSteps = 1000;
 
 	std::vector<Spell*> spells;
 	glm::vec3 m_spawnerPos;

@@ -196,7 +196,7 @@ void GameObject::setTransform(glm::vec3 worldPosition = glm::vec3(.0f), glm::qua
 
 void GameObject::setWorldPosition(glm::vec3 worldPosition)
 {
-	m_lastPosition = worldPosition;
+	m_lastPosition = m_transform.position;
 	m_transform.position = worldPosition;
 	updateModelMatrix();
 }
