@@ -45,9 +45,6 @@ void Renderer::renderHUD()
 	shader->use();
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
-	//shader->setMat4("projectionMatrix", m_camera->getProjMat());
-	//shader->setMat4("viewMatrix", m_camera->getViewMat());
-	
 
 	for (auto& item : m_2DHudMap) {
 
@@ -103,17 +100,7 @@ void Renderer::createDepthMap() {
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	//HDR and a sperate colour buffer
-	/*glGenFramebuffers(1, &m_hdrFbo);
-
-	glGenTextures(1, &m_colourBuffer);
-	glBindTexture(GL_TEXTURE_2D, m_colourBuffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	*/
-
+	
 	glGenRenderbuffers(1, &m_rbo);
 	glBindRenderbuffer(GL_RENDERBUFFER, m_rbo);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -163,6 +150,12 @@ void Renderer::initShaders() {
 void Renderer::bindMatrixes(const std::string& shaderName) {
 	ShaderMap::getInstance()->getShader(shaderName)->setMat4("viewMatrix", m_camera->getViewMat());
 	ShaderMap::getInstance()->getShader(shaderName)->setMat4("projMatrix", m_camera->getProjMat());
+}
+
+void Renderer::bindMatrixes(Shader* shader)
+{
+	shader->setMat4("viewMatrix", m_camera->getViewMat());
+	shader->setMat4("projMatrix", m_camera->getProjMat());
 }
 
 Renderer* Renderer::getInstance()
@@ -278,15 +271,15 @@ void Renderer::renderSkybox(SkyBox* m_skybox)
 {
 	glDisable(GL_CULL_FACE);
 	glDepthMask(GL_FALSE);
-	ShaderMap::getInstance()->useByName("Skybox_Shader");
-	ShaderMap::getInstance()->getShader("Skybox_Shader")->setMat4("modelMatrix", m_skybox->getModelMatrix());
-	ShaderMap::getInstance()->getShader("Skybox_Shader")->setMat4("viewMatrix", glm::mat4(glm::mat3(m_camera->getViewMat())));
-	ShaderMap::getInstance()->getShader("Skybox_Shader")->setMat4("projectionMatrix", m_camera->getProjMat());
+	auto* shader = ShaderMap::getInstance()->useByName("Skybox_Shader");
+	shader->setMat4("modelMatrix", m_skybox->getModelMatrix());
+	shader->setMat4("viewMatrix", glm::mat4(glm::mat3(m_camera->getViewMat())));
+	shader->setMat4("projectionMatrix", m_camera->getProjMat());
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, m_skybox->getCubeMapTexture());
 	glBindVertexArray(m_skybox->getVAO());
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glDrawArrays(GL_TRIANGLES, 0, 36); //Maybe index the skybox?
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, NULL);
 	glDepthMask(GL_TRUE);
@@ -297,13 +290,13 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 	Mesh* mesh;
 	Transform transform;
 	glm::mat4 modelMatrix;
-
+	Shader* shader;
 #pragma region Depth_Render & Light_Cull
 	if (m_spells.size() > 0) {
-		ShaderMap::getInstance()->useByName(DEPTH_MAP);
+		shader = ShaderMap::getInstance()->useByName(DEPTH_MAP);
 
 		//Bind and draw the objects to the depth-buffer
-		bindMatrixes(DEPTH_MAP);
+		bindMatrixes(shader);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_depthFBO);
 
 		//Loop through all of the gameobjects
@@ -315,14 +308,14 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
 				mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
-				transform = object->getTransform(j);
+				transform = object->getTransform(mesh, j);
 
 				modelMatrix = object->getMatrix(j);
 
 				glBindVertexArray(mesh->getBuffers().vao);
 
 				//Bind the modelmatrix
-				ShaderMap::getInstance()->getShader(DEPTH_MAP)->setMat4("modelMatrix", modelMatrix);
+				shader->setMat4("modelMatrix", modelMatrix);
 
 				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
@@ -340,14 +333,14 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
 				mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
-				transform = object->getTransform(j);
+				transform = object->getTransform(mesh, j);
 
 				modelMatrix = object->getMatrix(j);
 
 				glBindVertexArray(mesh->getBuffers().vao);
 
 				//Bind the modelmatrix
-				ShaderMap::getInstance()->getShader(DEPTH_MAP)->setMat4("modelMatrix", modelMatrix);
+				shader->setMat4("modelMatrix", modelMatrix);
 
 				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
@@ -360,25 +353,23 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 
 
 #pragma region Light_Culling
-		ShaderMap::getInstance()->useByName(LIGHT_CULL);
+		shader = ShaderMap::getInstance()->useByName(LIGHT_CULL);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
-		bindMatrixes(LIGHT_CULL);
+		bindMatrixes(shader);
 
 		glm::vec2 screenSize = glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT);
-		ShaderMap::getInstance()->getShader(LIGHT_CULL)->setVec2("screenSize", screenSize);
-		ShaderMap::getInstance()->getShader(LIGHT_CULL)->setInt("lightCount", m_spells.size());//Set the number of active pointlights in the scene 
-
-
+		shader->setVec2("screenSize", screenSize);
+		shader->setInt("lightCount", m_spells.size());//Set the number of active pointlights in the scene 
+		
 		//Bind the depthmap	
 		glActiveTexture(GL_TEXTURE0);
-		ShaderMap::getInstance()->getShader(LIGHT_CULL)->setInt("depthMap", 0); //Not sure if this has to happen every frame
+		shader->setInt("depthMap", 0); //Not sure if this has to happen every frame
 		glBindTexture(GL_TEXTURE_2D, m_depthMap);
-
-
+		
 		//Send all of the light data into the compute shader	
 		for (size_t i = 0; i < m_spells.size(); i++) {
-			ShaderMap::getInstance()->getShader(LIGHT_CULL)->setVec3("lights[" + std::to_string(i) + "].position", m_spells[i]->getTransform().position);
-			ShaderMap::getInstance()->getShader(LIGHT_CULL)->setFloat("lights[" + std::to_string(i) + "].radius", P_LIGHT_RADIUS);
+			shader->setVec3("lights[" + std::to_string(i) + "].position", m_spells[i]->getTransform().position);
+			shader->setFloat("lights[" + std::to_string(i) + "].radius", P_LIGHT_RADIUS);
 		}
 
 		glDispatchCompute(workGroups.x, workGroups.y, 1);
@@ -397,26 +388,26 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 	m_spellHandler->renderSpell();
 	
 #pragma region Color_Render
-	ShaderMap::getInstance()->useByName(BASIC_FORWARD);
+	shader = ShaderMap::getInstance()->useByName(BASIC_FORWARD); 
 	
 	if (Client::getInstance()->getMyData().health <= 0) {
-		ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("grayscale", 1);
+		shader->setInt("grayscale", 1);
 	}
 	else {
-		ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("grayscale", 0);
+		shader->setInt("grayscale", 0);
 	}
 
 	//Bind view- and projection matrix
-	bindMatrixes(BASIC_FORWARD);
+	bindMatrixes(shader);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
 
 	//Add a step where we insert lights into the scene
-	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("LightCount", m_spells.size());
+	shader->setInt("LightCount", m_spells.size());
 	if (m_spells.size() > 0) {
 		for (size_t i = 0; i < m_spells.size(); i++) {
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[i]->getTransform().position);
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setVec3("pLights[" + std::to_string(i) + "].attenuation", glm::vec3(1.0f, 0.09f, 0.032f));
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setFloat("pLights[" + std::to_string(i) + "].radius", P_LIGHT_RADIUS);
+			shader->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[i]->getTransform().position);
+			shader->setVec3("pLights[" + std::to_string(i) + "].attenuation", glm::vec3(1.0f, 0.09f, 0.032f));
+			shader->setFloat("pLights[" + std::to_string(i) + "].radius", P_LIGHT_RADIUS);
 		}
 	}
 	//Render Static objects
@@ -427,14 +418,15 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 		{
 			//Fetch the current mesh and its transform
 			mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
-
+			
 			//Bind the material
-			object->bindMaterialToShader(BASIC_FORWARD, j);
+			object->bindMaterialToShader(shader, mesh->getMaterial()); //REQUIRES OPTIMIZATION
+
 			modelMatrix = glm::mat4(1.0f);
 
 			modelMatrix = object->getMatrix(j);
 			//Bind the modelmatrix
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
+			shader->setMat4("modelMatrix", modelMatrix);
 
 			glBindVertexArray(mesh->getBuffers().vao);
 
@@ -458,14 +450,14 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 				//Fetch the current mesh and its transform
 				mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
 				//Bind the material
-				object->bindMaterialToShader(BASIC_FORWARD, j);
+				object->bindMaterialToShader(shader, mesh->getMaterial());
 
 				modelMatrix = glm::mat4(1.0f);
 				//Apply the transform to the matrix. This should actually be done automatically in the mesh!
 				modelMatrix = object->getMatrix(j);
 
 				//Bind the modelmatrix
-				ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
+				shader->setMat4("modelMatrix", modelMatrix);
 
 				glBindVertexArray(mesh->getBuffers().vao);
 
@@ -505,7 +497,7 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 				mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
 				//Bind calculated bone matrices
 				static_cast<AnimatedObject*>(object)->BindAnimation(j);
-				transform = object->getTransform(j);
+				transform = object->getTransform(mesh, j);
 
 				//Bind the material
 				object->bindMaterialToShader(ANIMATION, j);
