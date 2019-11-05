@@ -40,7 +40,7 @@ public:
 
 	void renderSpell();
 
-	//bool isSpellReadyToCast(SPELLTYPE type);
+	const SPELL_TYPE& activatedSpell() const;
 
 private:
 	const uint64_t getUniqueID();

@@ -41,7 +41,7 @@ PlayState::PlayState()
 	Renderer::getInstance()->submit2DHUD(m_damageOverlay);
 	m_player->setHealth(NetGlobals::maxPlayerHealth);
 
-	//Arcane Icon
+	// ___ ICONS ___
 	HudObject* icon = new HudObject("Assets/Textures/hud/Arcane_BG.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 4) * 3, static_cast<float>(64)), glm::vec2(80.0f, 80.0f));
 	icon->setAlpha(1.0f);
 	Renderer::getInstance()->submit2DHUD(icon);
@@ -56,45 +56,18 @@ PlayState::PlayState()
 	icon->setAlpha(1.0f);
 	Renderer::getInstance()->submit2DHUD(icon);
 	m_icons.emplace_back(icon);
+	//HP BAR
+	m_hpBar = new HudObject("Assets/Textures/hud/tmpHP.png", glm::vec2(static_cast<float>(80), static_cast<float>(124)), glm::vec2(80.0f, 200.0f));
+	m_hpBar->setAlpha(1.0f);
+	m_hpBar->setFillColor(glm::vec3(1, 0, 0));
+	Renderer::getInstance()->submit2DHUD(m_hpBar);
+	// ___ ____ ___
 
-	//Test enviroment with 4 meshes inside 1 GameObject, inherited transforms
-	//m_objects.push_back(new WorldObject("TestScene"));
-	//m_objects[m_objects.size() - 1]->loadMesh("TestScene.mesh");
-	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
-
-	//Cube and sphere centered in scene
-	//m_objects.push_back(new WorldObject("TestCube"));
-	//m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
-	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 0.0f, 0.0f));
-	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
-
-	//m_objects.push_back(new WorldObject("TestSphere"));
-	//m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
-	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -4.0f));
-	////m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 1.0f, -2.0f));
-	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
 	m_objects.push_back(new WorldObject("internalTestmap"));
 	m_objects[m_objects.size() - 1]->loadMesh("internalTestmap.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -1.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
-	
-	//Animated rectangle
-	//m_objects.push_back(new AnimatedObject("TestRectangle"));
-	//m_objects[m_objects.size() - 1]->loadMesh("TestRectangle.mesh");
-	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -4.0f));
-	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
-	
-	//Animated goblino
-	//m_objects.push_back(new AnimatedObject("TestGoblino"));
-	//m_objects[m_objects.size() - 1]->loadMesh("ElGoblino.mesh");
-	//Transform tempTransform;
-	//tempTransform.scale = glm::vec3(0.03f, 0.03f, 0.03f);
-	//tempTransform.position = glm::vec3(-3.0f, 0.0f, 3.0f);
-	//m_objects[m_objects.size() - 1]->setTransform(tempTransform);
-	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
-
 	
 	gContactAddedCallback = callbackFunc;
 	// Geneterate bullet objects / hitboxes
@@ -147,6 +120,14 @@ void PlayState::update(float dt)
 	m_spellHandler->spellUpdate(dt);
 	m_player->update(dt);
 	
+	//While holding down e
+	if (Input::isKeyHeldDown(GLFW_KEY_F)) {
+		hp -= dt / 10;
+		m_hpBar->setYClip(hp);
+		if (hp < 0) {
+			hp = 1;
+		}
+	}
 
 	if (m_player->isDeflecting()) {
 		m_crosshairHUD->setAlpha(0.0f);
