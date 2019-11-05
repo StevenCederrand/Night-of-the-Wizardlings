@@ -338,7 +338,6 @@ void SpellHandler::spellCollisionCheck()
 			continue;
 
 		glm::vec3 playerPos = list[i].data.position;
-		//list[i].data.rotation;
 
 		//create the axis and rotate them
 		glm::vec3 xAxis = glm::vec3(1.0f, 0.0f, 0.0f);
@@ -354,7 +353,7 @@ void SpellHandler::spellCollisionCheck()
 		axis.emplace_back(yAxis);
 		axis.emplace_back(zAxis);
 		
-		//create a box, obb or AABB? from the player position
+		//create a box, obb or AABB? from the player position. Old hitdetection press L
 		if (!m_newHit)
 		{
 			for (size_t j = 0; j < spells.size(); j++) {
@@ -376,11 +375,10 @@ void SpellHandler::spellCollisionCheck()
 		{
 			for (size_t j = 0; j < spells.size(); j++)
 			{
-				//logTrace("New hit test");
 				glm::vec3 lastSpellPos = spells.at(j)->getlastPosition();
 				glm::vec3 spellPos = spells.at(j)->getTransform().position;
-				float scale = spells.at(j)->getTransform().scale.x * 2.0f; //tested
 
+				//get the radius from the spelltype
 				float radius = 0.0;
 				if (static_cast<Spell*>(spells[i])->getType() == NORMALATTACK) {
 					radius = attackBase->m_radius;
@@ -392,7 +390,6 @@ void SpellHandler::spellCollisionCheck()
 
 				//line is the walking we will do.
 				glm::vec3 line = (spellPos - lastSpellPos) / m_nrSubSteps;
-				glm::vec3 line2 = (spellPos - playerPos);
 				glm::vec3 interpolationPos = lastSpellPos;
 
 				//walk from last pos to new pos with substeps
@@ -404,8 +401,7 @@ void SpellHandler::spellCollisionCheck()
 						spells[j]->setTravelTime(0.0f);
 						Client::getInstance()->sendHitRequest(*spells[j], list[i]);
 						interpolationPos = lastSpellPos;
-
-					
+						
 						if (m_onHitCallback != nullptr) {
 							m_onHitCallback();
 						}
@@ -417,11 +413,11 @@ void SpellHandler::spellCollisionCheck()
 	}
 }
 
-bool SpellHandler::specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis, float scale)
+bool SpellHandler::specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis, float radius)
 { 
 	// sphereradius is wrong
 	bool collision = false;
-	float sphereRadius = 1.0f * scale;
+	float sphereRadius = 1.0f * radius;
 
 	glm::vec3 closestPoint = OBBclosestPoint(spellPos, axis, playerPos);
 	glm::vec3 v = closestPoint - spellPos;
