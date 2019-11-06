@@ -23,6 +23,9 @@ PlayState::PlayState()
 	m_skybox = new SkyBox();
 	m_skybox->prepareBuffers();
 
+	m_deflectBox = new DeflectRender();
+	m_deflectBox->prepareBuffers();
+
 	// HUD
 	HudObject* hudObject = new HudObject("Assets/Textures/Crosshair_hit.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(32.0f, 32.0f));
 	hudObject->setAlpha(0.0f);
@@ -68,6 +71,7 @@ PlayState::PlayState()
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -1.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 	
+
 	gContactAddedCallback = callbackFunc;
 	// Geneterate bullet objects / hitboxes
 	for (size_t i = 0; i < m_objects.size(); i++)
@@ -94,7 +98,6 @@ PlayState::~PlayState()
 	delete m_bPhysics;
 	delete m_spellHandler;
 	delete m_camera;
-
 	if (LocalServer::getInstance()->isInitialized()) {
 		LocalServer::getInstance()->destroy();
 	}
@@ -143,7 +146,7 @@ void PlayState::update(float dt)
 
 void PlayState::render()
 {
-	Renderer::getInstance()->render(m_skybox, m_spellHandler);
+	Renderer::getInstance()->render(m_skybox, m_deflectBox, m_spellHandler);
 	//Renderer::getInstance()->renderDebug();
 }
 

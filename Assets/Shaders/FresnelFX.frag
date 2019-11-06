@@ -1,15 +1,10 @@
 #version 430
-out fragColor;
 
-in f_position;
-in f_normal;
-in f_UV;
-in f_R;
+in vec2 textureCoords;
 
-vec3 color = vec3(1.0);
-vec3 fresColor = vec3(0.0, 0.0, 1.0);
+out vec4 out_Color;
 
 void main()
 {
-    fragColor = lerp(color, fresColor, f_R);
+    out_Color = vec4(0.0f, 0.0f, 1.0f, 1.0f);
 }
