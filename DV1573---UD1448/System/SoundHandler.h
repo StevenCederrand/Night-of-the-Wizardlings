@@ -16,24 +16,24 @@ public:
 	~SoundHandler();
 
 	int loadSound(const char* filename);
-	void playSound(int sourceName);
-	void pauseSound(int sourceName);
-	void stopSound(int sourceName);
+	void playSound(int sourceName = 0);
+	void pauseSound(int sourceName = 0);
+	void stopSound(int sourceName = 0);
 
 	void setListenerPos(glm::vec3 pos);
 	void setListenerVelocity(glm::vec3 vel);
 	void setListenerOrientation(glm::vec3 lookAt, glm::vec3 up);
 
-	void setSourcePitch(int sourceName, float pitch);
-	void setSourceGain(int sourceName, float gain);
-	void setSourceMaxDistance(int sourceName, float dist);
-	void setSourcePosition(int sourceName, glm::vec3 pos);
-	void setSourceVelocity(int sourceName, glm::vec3 vel);
-	void setSourceDirection(int sourceName, glm::vec3 dir);
-	void setSourceType(int sourceName, ALenum type); //AL_UNDETERMINED, AL_STATIC or AL_STREAMING
-	void setSourceLooping(int sourceName, bool looping);	
+	void setSourcePitch(float pitch, int sourceName = 0);
+	void setSourceGain(float gain, int sourceName = 0);
+	void setSourceMaxDistance(float dist, int sourceName = 0);
+	void setSourcePosition(glm::vec3 pos, int sourceName = 0);
+	void setSourceVelocity(glm::vec3 vel, int sourceName = 0);
+	void setSourceDirection(glm::vec3 dir, int sourceName = 0);
+	void setSourceType(ALenum type, int sourceName = 0); //AL_UNDETERMINED, AL_STATIC or AL_STREAMING
+	void setSourceLooping(bool looping, int sourceName = 0);
 
-	const ALint& getSourceState(int sourceName) const;
+	const ALint& getSourceState(int sourceName = 0) const;
 	//source relative?	
 };
 

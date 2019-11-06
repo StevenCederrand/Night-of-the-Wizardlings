@@ -4,9 +4,6 @@
 
 SoundHandler::SoundHandler()
 {
-	ALCenum error;
-	//alutInitWithoutContext(NULL, NULL);
-
 	m_device = alcOpenDevice(NULL);
 
 	if (!m_device)
@@ -21,14 +18,14 @@ SoundHandler::SoundHandler()
 		logTrace("Failed to make context current");
 	}
 
-	error = alGetError();	
+	m_error = alGetError();
 
-	if (error != AL_NO_ERROR)
+	if (m_error != AL_NO_ERROR)
 	{		
 		logTrace("Failed to make context current");
 	}
 		
-	loadSound("Assets/SoundEffects/YouShallNotPassogg.ogg");	
+	//loadSound("Assets/SoundEffects/YouShallNotPassogg.ogg");	
 }
 
 SoundHandler::~SoundHandler()
@@ -200,7 +197,10 @@ void SoundHandler::playSound(int sourceName)
 {
 	m_error = alGetError();
 
-	alSourcePlay(m_sources[sourceName]);
+	if (getSourceState(sourceName) != AL_PLAYING)
+	{
+		alSourcePlay(m_sources[sourceName]);
+	}
 
 	if (m_error != AL_NO_ERROR)
 	{
@@ -220,7 +220,7 @@ void SoundHandler::pauseSound(int sourceName)
 	if (m_error != AL_NO_ERROR)
 	{
 		logTrace("Error pausing sound");
-	}
+	}	
 }
 
 void SoundHandler::stopSound(int sourceName)
@@ -232,7 +232,7 @@ void SoundHandler::stopSound(int sourceName)
 		alSourceStop(m_sources[sourceName]);
 	}
 
-	if (m_error != AL_NO_ERROR)
+	if ((m_error = alGetError()) != AL_NO_ERROR)
 	{
 		logTrace("Error stopping sound");
 	}
@@ -279,7 +279,7 @@ void SoundHandler::setListenerOrientation(glm::vec3 lookAt, glm::vec3 up)
 	}
 }
 
-void SoundHandler::setSourcePitch(int sourceName, float pitch)
+void SoundHandler::setSourcePitch(float pitch, int sourceName)
 {
 	m_error = alGetError();
 
@@ -291,7 +291,7 @@ void SoundHandler::setSourcePitch(int sourceName, float pitch)
 	}
 }
 
-void SoundHandler::setSourceGain(int sourceName, float gain)
+void SoundHandler::setSourceGain(float gain, int sourceName)
 {
 	m_error = alGetError();
 
@@ -303,7 +303,7 @@ void SoundHandler::setSourceGain(int sourceName, float gain)
 	}
 }
 
-void SoundHandler::setSourceMaxDistance(int sourceName, float dist)
+void SoundHandler::setSourceMaxDistance(float dist, int sourceName)
 {	
 	m_error = alGetError();
 
@@ -315,7 +315,7 @@ void SoundHandler::setSourceMaxDistance(int sourceName, float dist)
 	}
 }
 
-void SoundHandler::setSourcePosition(int sourceName, glm::vec3 pos)
+void SoundHandler::setSourcePosition(glm::vec3 pos, int sourceName)
 {	
 	ALfloat sourcePosition[] = { pos.x, pos.y, pos.z };
 
@@ -329,7 +329,7 @@ void SoundHandler::setSourcePosition(int sourceName, glm::vec3 pos)
 	}
 }
 
-void SoundHandler::setSourceVelocity(int sourceName, glm::vec3 vel)
+void SoundHandler::setSourceVelocity(glm::vec3 vel, int sourceName)
 {	
 	ALfloat sourceVelocity[] = { vel.x, vel.y, vel.z };
 
@@ -343,7 +343,7 @@ void SoundHandler::setSourceVelocity(int sourceName, glm::vec3 vel)
 	}
 }
 
-void SoundHandler::setSourceDirection(int sourceName, glm::vec3 dir)
+void SoundHandler::setSourceDirection(glm::vec3 dir, int sourceName)
 {	
 	ALfloat sourceDirection[] = { dir.x, dir.y, dir.z };
 
@@ -358,7 +358,7 @@ void SoundHandler::setSourceDirection(int sourceName, glm::vec3 dir)
 }
 
 //Types are: AL_UNDETERMINED, AL_STATIC or AL_STREAMING
-void SoundHandler::setSourceType(int sourceName, ALenum type)
+void SoundHandler::setSourceType(ALenum type, int sourceName)
 {	
 	m_error = alGetError();
 
@@ -370,7 +370,7 @@ void SoundHandler::setSourceType(int sourceName, ALenum type)
 	}
 }
 
-void SoundHandler::setSourceLooping(int sourceName, bool looping)
+void SoundHandler::setSourceLooping(bool looping, int sourceName)
 {	
 	m_error = alGetError();
 

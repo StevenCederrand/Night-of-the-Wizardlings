@@ -13,6 +13,8 @@ FindServerState::FindServerState()
 	
 	m_serverListRefreshing = true;
 	Client::getInstance()->refreshServerList();
+
+	m_musicShouldPlay = true;
 }
 
 FindServerState::~FindServerState()

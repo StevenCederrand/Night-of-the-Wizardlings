@@ -28,6 +28,14 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_client = Client::getInstance();
 
 	m_soundHandler = new SoundHandler();
+	m_deflectSoundIndex = m_soundHandler->loadSound("Assets/SoundEffects/YouShallNotPassogg.ogg");
+	m_soundHandler->setSourceType(AL_STATIC, m_deflectSoundIndex);
+	
+	m_basicAttackSoundIndex = m_soundHandler->loadSound("Assets/SoundEffects/Sound Effect Magic Sound HQ YouTube.ogg");
+	m_soundHandler->setSourceType(AL_STATIC, m_basicAttackSoundIndex);
+
+	m_enhanceSoundIndex = m_soundHandler->loadSound("Assets/SoundEffects/Magic sound effect.ogg");
+	m_soundHandler->setSourceType(AL_STATIC, m_enhanceSoundIndex);
 }
 
 Player::~Player()
@@ -127,8 +135,9 @@ void Player::attack()
 		if (m_attackCooldown <= 0)
 		{
 			m_attackCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_spellType); // Put attack on cooldown
+			m_soundHandler->playSound(m_basicAttackSoundIndex);
 		}
-		m_soundHandler->playSound(0);
+		
 	}
 
 	if (glfwGetMouseButton(m_playerCamera->getWindow(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
@@ -136,8 +145,8 @@ void Player::attack()
 		if (m_specialCooldown <= 0)
 		{
 			m_specialCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_specialSpelltype); // Put attack on cooldown
-		}
-		m_soundHandler->playSound(0);
+			m_soundHandler->playSound(m_deflectSoundIndex);
+		}		
 	}
 
 	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_Q) == GLFW_PRESS)
@@ -148,6 +157,7 @@ void Player::attack()
 			{
 				// Start loop
 				m_enhanceAttack.start();
+				m_soundHandler->playSound(m_enhanceSoundIndex);
 			}
 		}
 	}

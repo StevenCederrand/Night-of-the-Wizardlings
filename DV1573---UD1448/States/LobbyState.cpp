@@ -13,6 +13,7 @@ LobbyState::LobbyState()
 	loadGui();
 	m_selectedsNameInput = false;
 	m_selecteduNameInput = false;
+	m_musicShouldPlay = true;
 }
 
 LobbyState::~LobbyState()

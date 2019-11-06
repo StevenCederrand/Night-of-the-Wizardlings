@@ -66,6 +66,9 @@ private:
 	int m_nrOfSpells;
 	int m_health;
 	int m_frameCount;
+	int m_deflectSoundIndex;
+	int m_basicAttackSoundIndex;
+	int m_enhanceSoundIndex;
 
 	std::string name;
 

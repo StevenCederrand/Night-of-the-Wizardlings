@@ -27,8 +27,13 @@ public:
 		Read what persistenData is in the PersistentData.h
 	*/
 
+	const bool& getShouldMusicPlay() const {
+		return m_musicShouldPlay;
+	} 
+
 protected:
 	StateManager* m_stateManager;
+	bool m_musicShouldPlay = false;
 };
 
 

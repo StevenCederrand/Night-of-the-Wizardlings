@@ -10,12 +10,13 @@
 MenuState::MenuState()
 {
 	loadGui();
+	m_musicShouldPlay = true;
 }
 
 MenuState::~MenuState()
 {
 	logTrace("Deleting Menu State..");
-	Gui::getInstance()->clearWidgetsInSection(GUI_SECTION);
+	Gui::getInstance()->clearWidgetsInSection(GUI_SECTION);	
 }
 
 void MenuState::update(float dt)
@@ -53,7 +54,7 @@ void MenuState::loadGui()
 bool MenuState::onStartOfflineClicked(const CEGUI::EventArgs& e)
 {
 	glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	m_stateManager->clearAllAndSetState(new PlayState());
+	m_stateManager->clearAllAndSetState(new PlayState());	
 	return true;
 }
 
@@ -71,6 +72,6 @@ bool MenuState::onStartClientClicked(const CEGUI::EventArgs& e)
 
 bool MenuState::onExitClicked(const CEGUI::EventArgs& e)
 {
-	glfwSetWindowShouldClose(glfwGetCurrentContext(), true);
+	glfwSetWindowShouldClose(glfwGetCurrentContext(), true);	
 	return true;
 }

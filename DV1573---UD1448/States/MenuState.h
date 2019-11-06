@@ -3,6 +3,7 @@
 #include <Pch/Pch.h>
 #include <System/State.h>
 #include <Gui/Gui.h>
+#include <System/SoundHandler.h>
 
 class MenuState : public State {
 
@@ -25,7 +26,6 @@ private:
 	bool onStartServerClicked(const CEGUI::EventArgs& e);
 	bool onStartClientClicked(const CEGUI::EventArgs& e);
 	bool onExitClicked(const CEGUI::EventArgs& e);
-
 };
 
 
