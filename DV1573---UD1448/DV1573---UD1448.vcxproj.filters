@@ -156,6 +156,8 @@
     <ClInclude Include="Networking\NetworkPickups.h" />
     <ClInclude Include="Pickups\PickupTypes.h" />
     <ClInclude Include="System\Randomizer.h" />
+    <ClInclude Include="Renderer\PickupNotificationStructure.h" />
+    <ClInclude Include="System\DeltaTime.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

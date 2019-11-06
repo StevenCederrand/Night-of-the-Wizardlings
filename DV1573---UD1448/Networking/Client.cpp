@@ -52,6 +52,7 @@ void Client::destroy()
 		m_removeOrAddSpellQueue.clear();
 		m_networkPlayers.cleanUp();
 		m_networkSpells.cleanUp();
+		m_networkPickup.cleanUp();
 		resetPlayerData();
 		m_initialized = false;
 		RakNet::RakPeerInterface::DestroyInstance(m_clientPeer);
@@ -233,7 +234,7 @@ void Client::processAndHandlePackets()
 				   (whenever the lock guard goes out of scope.). This will make it synced &
 				   avoid deadlocks. */
 				{
-					std::lock_guard<std::mutex> lockGuard(NetGlobals::gameSyncMutex);
+					std::lock_guard<std::mutex> lockGuard(m_networkPlayers.m_mutex);
 					m_networkPlayers.m_players.emplace_back(pE);
 				}
 			}
@@ -552,14 +553,14 @@ void Client::processAndHandlePackets()
 			pickupPacket.Serialize(false, bsIn);
 			NetworkPickups::PickupProp pp;
 
-		/*	pp.flag = NetGlobals::THREAD_FLAG::ADD;
+			pp.flag = NetGlobals::THREAD_FLAG::ADD;
 			pp.packet = pickupPacket;
 			pp.pickup = nullptr;
 			
 			{
 				std::lock_guard<std::mutex> lockGuard(m_networkPickup.m_mutex);
 				m_networkPickup.m_pickupProps.emplace_back(pp);
-			}*/
+			}
 
 		}
 		break;
@@ -590,10 +591,55 @@ void Client::processAndHandlePackets()
 			PickupPacket pickupPacket;
 			pickupPacket.Serialize(false, bsIn);
 
-			logTrace("Pickup will be spawned soon!");
+			PickupNotificationText t;
+			t.alphaColor = 1.0f;
+			t.width = 0;
+			t.scale = glm::vec3(0.60f);
+
+			if (pickupPacket.type == PickupType::HealthPotion) {
+				std::string type = "Health potion ";
+				glm::vec3 color = glm::vec3(1.0f, 0.2f, 0.2f);
+				t.width += Renderer::getInstance()->getTextWidth(type, t.scale);
+				t.textParts.emplace_back(type, color);
+			}
+			else if (pickupPacket.type == PickupType::DamageBuff)
+			{
+				std::string type = "Damage potion ";
+				glm::vec3 color = glm::vec3(1.0f, 0.5f, 0.0f);
+				t.width += Renderer::getInstance()->getTextWidth(type, t.scale);
+				t.textParts.emplace_back(type, color);
+			}
+		
+			std::string text = "will spawn soon at " + std::string(pickupPacket.locationName) + "!";
+			t.width += Renderer::getInstance()->getTextWidth(text, t.scale);
+			glm::vec3 locColor = glm::vec3(1.0f, 1.0f, 1.0f);
+			t.textParts.emplace_back(text, locColor);
+
+			{
+				renderPickupNotificationsMutexGuard();
+				Renderer::getInstance()->addPickupNotificationText(t);
+			}
+
 		}
 		break;
 
+		case HEAL_BUFF:
+		{
+			logWarning("[CLIENT] I picked up a heal pot");
+		}
+		break;
+
+		case DAMAGE_BUFF_ACTIVE:
+		{
+			m_myPlayerDataPacket.hasDamageBuff = true;
+		}
+		break;
+
+		case DAMAGE_BUFF_INACTIVE: 
+		{
+			m_myPlayerDataPacket.hasDamageBuff = false;
+		}
+		
 		default:
 		{
 			
@@ -707,6 +753,7 @@ void Client::updateNetworkEntities(const float& dt)
 	if (m_initialized && m_isConnectedToAnServer) {
 		m_networkPlayers.update(dt);
 		m_networkSpells.update(dt);
+		m_networkPickup.update(dt);
 	}
 
 }
@@ -857,6 +904,11 @@ void Client::setUsername(const std::string& userName)
 		std::memcpy(m_userName, userName.c_str(), 16);
 	}
 	std::memcpy(m_myPlayerDataPacket.userName, userName.c_str(), userName.size());
+}
+
+void Client::renderPickupNotificationsMutexGuard()
+{
+	std::lock_guard<std::mutex> lockGuard(m_renderPickupNotificationMutex);
 }
 
 const bool Client::doneRefreshingServerList() const

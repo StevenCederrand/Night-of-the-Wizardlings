@@ -63,6 +63,11 @@ void TimedCallback::restart()
 	m_doneExecuting = false;
 }
 
+void TimedCallback::restartIntervalTimer()
+{
+	m_intervalCounter = 0.0f;
+}
+
 void TimedCallback::start()
 {
 	m_hasStarted = true;

@@ -23,7 +23,7 @@ public:
 	void bindMaterialToShader(std::string shaderName, int meshIndex);
 	void bindMaterialToShader(Shader* shader, const int& meshIndex);
 	void bindMaterialToShader(Shader* shader, const std::string& materialName);
-
+	void bindMaterialToShader(Shader* shader, Material* materialName);
 	//Create a rigid body of the shape of your choice and add it to the collision world
 	void createRigidBody(CollisionObject shape, BulletPhysics* bp);
 	void createDebugDrawer();

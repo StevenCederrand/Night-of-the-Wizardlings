@@ -26,7 +26,7 @@ public:
 	void setName(std::string name);
 	//Sets a standard material
 	void setMaterial(const std::string& materialName);
-	void setMaterial(const Material* material);
+	void setMaterial(Material* material);
 
 	bool getValid() const;
 	int getShaderID() const;

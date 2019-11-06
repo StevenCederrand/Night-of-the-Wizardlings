@@ -34,6 +34,7 @@ public:
 	void startSendingUpdatePackages();
 	void assignSpellHandler(SpellHandler* spellHandler);
 	void setUsername(const std::string& userName);
+	void renderPickupNotificationsMutexGuard();
 
 	const std::vector<std::pair<unsigned int, ServerInfo>>& getServerList() const;
 	const std::vector<PlayerPacket>& getConnectedPlayers() const;
@@ -48,7 +49,7 @@ public:
 	const CountdownPacket& getCountdownPacket() const;
 	const CountdownPacket& getRespawnTime() const;
 	const RoundTimePacket& getRoundTimePacket() const;
-
+	
 
 	const bool doneRefreshingServerList() const;
 	const bool doesServerExist(const unsigned int& ID) const;
@@ -58,7 +59,7 @@ public:
 	const bool& isServerOwner() const;
 
 private:
-	
+
 	unsigned char getPacketID(RakNet::Packet* p);
 
 	void updateDataOnServer();
@@ -114,7 +115,8 @@ private:
 	std::vector<SpellPacket> m_updateSpellQueue;
 	std::vector<SpellPacket> m_removeOrAddSpellQueue;
 	std::vector<SpellPacket> m_removalOfClientSpellsQueue;
-
+	std::mutex m_renderPickupNotificationMutex;
+	
 };
 
 #endif

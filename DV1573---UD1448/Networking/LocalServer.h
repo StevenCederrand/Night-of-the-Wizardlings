@@ -29,6 +29,10 @@ private:
 		glm::vec3 position;
 	};
 
+	struct BuffedPlayer {
+		PlayerPacket* player;
+		uint32_t currentTime = NetGlobals::damageBuffActiveTimeMS;
+	};
 
 private:
 	unsigned char getPacketID(RakNet::Packet* p);
@@ -49,9 +53,13 @@ private:
 	bool isCollidingWithPickup(const PlayerPacket& player, const PickupPacket& pickup);
 
 	// Helper funcs
+	void updatePlayersWithDamageBuffs(const uint32_t& diff);
+
 	void handleRespawns(const uint32_t& diff);
 	void resetScores();
 	void respawnPlayers();
+	void resetPlayerBuffs();
+	void removePlayerBuff(const PlayerPacket* player);
 
 	void handleCountdown(const uint32_t& diff);
 	void countdownExecutionLogic();
@@ -74,6 +82,8 @@ private:
 	void destroyPickupOverNetwork(PickupPacket& pickupPacket);
 	void copyStringToCharArray(char Dest[16], std::string Src);
 	void copyCharArrayOver(char Dest[16], char Src[16]);
+	void destroyAllPickups();
+	PickupType getRandomPickupType();
 	PickupSpawnLocation* getRandomPickupSpawnLocation();
 
 private:
@@ -102,7 +112,8 @@ private:
 	std::vector<PickupSpawnLocation> m_pickupSpawnLocations;
 	std::vector<PickupPacket> m_activePickups;
 	std::vector<PickupPacket> m_queuedPickups;
-	
+	std::vector<BuffedPlayer> m_buffedPlayers;
+
 };
 
 #endif

@@ -290,7 +290,10 @@ void GameObject::bindMaterialToShader(Shader* shader, const std::string& materia
 {
 	shader->setMaterial(materialName);
 }
-
+void GameObject::bindMaterialToShader(Shader* shader, Material* material)
+{
+	shader->setMaterial(material);
+}
 void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 {
 	if (!m_bPhysics)

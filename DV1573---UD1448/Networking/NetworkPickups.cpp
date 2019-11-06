@@ -9,13 +9,25 @@ NetworkPickups::NetworkPickups()
 	
 	BGLoader* loader = new BGLoader();
 	setupHealthPickupRenderInformation(loader);
+	setupDamagePickupRenderInformation(loader);
 	delete loader;
 
 }
 
 NetworkPickups::~NetworkPickups()
 {
+	
+}
+
+void NetworkPickups::cleanUp()
+{
 	cleanupRenderInformation(&m_healthRenderInformation);
+	cleanupRenderInformation(&m_damagaRenderInformation);
+
+	for (size_t i = 0; i < m_pickupProps.size(); i++) {
+		if(m_pickupProps[i].pickup != nullptr)
+			delete m_pickupProps[i].pickup;
+	}
 }
 
 void NetworkPickups::update(const float& dt)
@@ -33,34 +45,29 @@ void NetworkPickups::update(const float& dt)
 			if (e.flag == NetGlobals::THREAD_FLAG::ADD) {
 				if (e.pickup == nullptr) {
 
-					//e.gameobject = new WorldObject();
 					if (e.packet.type == PickupType::HealthPotion) {
 						e.pickup = new HealthPickup(m_healthRenderInformation, e.packet.type, e.packet.position, e.packet.uniqueID);
 					}
-
-					/*e.gameobject->setWorldPosition(e.spellData.Position);
-					Renderer::getInstance()->submit(e.gameobject, SPELL); */
+					else if (e.packet.type == PickupType::DamageBuff) {
+						e.pickup = new HealthPickup(m_damagaRenderInformation, e.packet.type, e.packet.position, e.packet.uniqueID);
+					}
+					
+					
+					Renderer::getInstance()->submit(e.pickup, PICKUP); 
 					e.flag = NetGlobals::THREAD_FLAG::NONE;
 
 				}
 			}
 			else if (e.flag == NetGlobals::THREAD_FLAG::REMOVE)
 			{
-				/*Renderer::getInstance()->removeDynamic(e.gameobject, SPELL);
-				delete e.gameobject;
-				m_entities.erase(m_entities.begin() + i);
+				Renderer::getInstance()->removeDynamic(e.pickup, PICKUP);
+				delete e.pickup;
+				m_pickupProps.erase(m_pickupProps.begin() + i);
 				i--;
-				continue;*/
+				continue;
+				
 			}
 
-			//GameObject* g = e.gameobject;
-
-			//if (g != nullptr) {
-			//	glm::vec3 pos = CustomLerp(g->getTransform().position, e.spellData.Position, m_lerpSpeed * dt);
-			//	g->setWorldPosition(pos);
-			//	//g->setTransform(pos, glm::quat(p->data.rotation));
-
-			//}
 		}
 	}
 }
@@ -74,6 +81,7 @@ void NetworkPickups::setupHealthPickupRenderInformation(BGLoader* loader)
 	auto* mat = m_healthRenderInformation.material;
 
 	loader->LoadMesh(MESHPATH + "TestSphere.mesh");
+	
 	mesh->saveFilePath(loader->GetFileName(), 0);
 	mesh->nameMesh(loader->GetMeshName());
 	mesh->setUpMesh(loader->GetVertices(), loader->GetFaces());
@@ -87,11 +95,47 @@ void NetworkPickups::setupHealthPickupRenderInformation(BGLoader* loader)
 	loader->Unload();
 
 	mat->diffuse = glm::vec3(1.0f, 0.0f, 0.0f);
-	mat->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
+	mat->ambient = glm::vec3(1.0f, 0.0f, 0.0f);
+
+	mesh->setMaterial(mat->name);
+}
+
+void NetworkPickups::setupDamagePickupRenderInformation(BGLoader* loader)
+{
+	m_damagaRenderInformation.mesh = new Mesh();
+	m_damagaRenderInformation.material = new Material();
+
+	auto* mesh = m_damagaRenderInformation.mesh;
+	auto* mat = m_damagaRenderInformation.material;
+
+	loader->LoadMesh(MESHPATH + "TestSphere.mesh");
+
+	mesh->saveFilePath(loader->GetFileName(), 0);
+	mesh->nameMesh(loader->GetMeshName());
+	mesh->setUpMesh(loader->GetVertices(), loader->GetFaces());
+	mesh->setUpBuffers();
+
+	const Material& newMaterial = loader->GetMaterial();
+	mat->ambient = newMaterial.ambient;
+	mat->diffuse = newMaterial.diffuse;
+	mat->name = newMaterial.name;
+	mat->specular = newMaterial.specular;
+	loader->Unload();
+
+	mat->diffuse = glm::vec3(1.0f, 0.0f, 0.0f);
+	mat->ambient = glm::vec3(1.f, 1.0f, 0.0f);
+
+	mesh->setMaterial(mat->name);
 }
 
 void NetworkPickups::cleanupRenderInformation(PickupRenderInformation* renderInformation)
 {
-	delete renderInformation->mesh;
-	delete renderInformation->material;
+	if (renderInformation->mesh != nullptr) {
+		renderInformation->mesh->Destroy();
+		delete renderInformation->mesh;
+	}
+
+	if (renderInformation->material != nullptr) {
+		delete renderInformation->material;
+	}
 }

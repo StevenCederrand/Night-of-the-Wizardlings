@@ -11,6 +11,7 @@ public:
 	void registerCallback(std::function<void()> callbackFunc);
 	void forceExecute();
 	void restart();
+	void restartIntervalTimer();
 	void start();
 	void stop();
 	const bool& isDone() const;
