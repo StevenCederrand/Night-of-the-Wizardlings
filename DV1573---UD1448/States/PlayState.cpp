@@ -120,14 +120,9 @@ void PlayState::update(float dt)
 	m_spellHandler->spellUpdate(dt);
 	m_player->update(dt);
 	
-	//While holding down e
-	if (Input::isKeyHeldDown(GLFW_KEY_F)) {
-		hp -= dt / 10;
-		m_hpBar->setYClip(hp);
-		if (hp < 0) {
-			hp = 1;
-		}
-	}
+	
+	//m_hpBar->setYClip(m_player->getHealth() / 100);
+	
 
 	if (m_player->isDeflecting()) {
 		m_crosshairHUD->setAlpha(0.0f);
