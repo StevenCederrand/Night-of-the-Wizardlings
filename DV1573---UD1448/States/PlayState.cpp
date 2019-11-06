@@ -102,6 +102,8 @@ PlayState::~PlayState()
 	delete m_deflectCrosshairHUD;
 	delete m_hitCrosshair;
 	delete m_damageOverlay;
+	delete m_hpBar;
+
 	if (LocalServer::getInstance()->isInitialized()) {
 		LocalServer::getInstance()->destroy();
 	}
