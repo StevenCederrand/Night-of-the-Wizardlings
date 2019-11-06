@@ -626,17 +626,25 @@ void Client::processAndHandlePackets()
 		case HEAL_BUFF:
 		{
 			logWarning("[CLIENT] I picked up a heal pot");
+
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			PlayerPacket pData;
+			pData.Serialize(false, bsIn);
+
+			m_myPlayerDataPacket.health = pData.health;
 		}
 		break;
 
 		case DAMAGE_BUFF_ACTIVE:
 		{
+			logWarning("[CLIENT] I picked up a damage buff");
 			m_myPlayerDataPacket.hasDamageBuff = true;
 		}
 		break;
 
 		case DAMAGE_BUFF_INACTIVE: 
 		{
+			logWarning("[CLIENT] My damage buff expired");
 			m_myPlayerDataPacket.hasDamageBuff = false;
 		}
 		

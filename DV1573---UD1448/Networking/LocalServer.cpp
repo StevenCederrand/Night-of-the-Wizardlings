@@ -544,7 +544,15 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 
 		}
 
-		target->health -= static_cast<int>(hitpacket->damage);
+		float damageMultiplier = 1.0f;
+
+		if (shooter->hasDamageBuff)
+			damageMultiplier = 2.5f;
+
+		float totalDamage = hitpacket->damage * damageMultiplier;
+		
+
+		target->health -= static_cast<int>(totalDamage);
 
 		if (target->health <= 0) {
 			removePlayerBuff(target);
@@ -674,6 +682,7 @@ void LocalServer::checkCollisionBetweenPlayersAndPickups()
 					
 					RakNet::BitStream stream;
 					stream.Write((RakNet::MessageID)HEAL_BUFF);
+					player.Serialize(true, stream);
 					m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, player.guid, false);
 
 

@@ -32,8 +32,4 @@ private:
 	float m_travelTime;
 	glm::vec3 m_direction;
 
-protected:
-
-	int m_type;
-	
 };

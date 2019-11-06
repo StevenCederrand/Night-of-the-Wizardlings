@@ -140,6 +140,11 @@ const float& Camera::getYaw() const
 	return m_camYaw;
 }
 
+const glm::vec3& Camera::getCamPos() const
+{
+	return m_camPos;
+}
+
 const glm::vec3& Camera::getCamFace()
 {
 	return m_camFace;

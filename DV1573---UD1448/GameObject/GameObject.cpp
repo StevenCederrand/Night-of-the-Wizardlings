@@ -5,7 +5,7 @@
 GameObject::GameObject()
 {
 	m_objectName = "Empty";
-	type = 0;
+	m_type = 0;
 	m_bPhysics = nullptr;
 	m_shouldRender = true;
 }
@@ -13,7 +13,7 @@ GameObject::GameObject()
 GameObject::GameObject(std::string objectName)
 {
 	m_objectName = objectName;
-	type = 0;
+	m_type = 0;
 	m_bPhysics = nullptr;
 }
 

@@ -8,6 +8,7 @@
 #define SKYBOX "Skybox_Shader"
 #define ANIMATION "Basic_Animation"
 #define DEBUG "Debug_Forward"
+#define FRESNEL "Fresnel_Shader"
 //#define BLOOM "Bloom_Shader"
 //#define BLUR "Blur_Shader"
 //#define BLOOM_BLUR "BloomBlur_Shader"
@@ -25,6 +26,7 @@
 #include <Renderer/HudObject.h>
 #include "PickupNotificationStructure.h"
 #include <Text/FreeType.h>
+
 
 #define P_LIGHT_COUNT 64
 #define P_LIGHT_RADIUS 2
@@ -45,7 +47,8 @@ enum ObjectType {
 	ANIMATEDSTATIC,
 	ANIMATEDDYNAMIC,
 	SPELL,
-	PICKUP
+	PICKUP,
+	FX
 };
 
 class Renderer
@@ -59,7 +62,6 @@ private:
 	Camera* m_camera;
 	FreeType* m_text;
 	SkyBox* m_skyBox;
-
 	Timer m_timer;
 
 	//Store gameobjects directly to the renderer
@@ -68,7 +70,9 @@ private:
 	std::vector<GameObject*> m_anistaticObjects;
 	std::vector<GameObject*> m_anidynamicObjects;
 	std::vector<GameObject*> m_spells; 
+
 	std::vector<GameObject*> m_pickups;
+	std::vector<GameObject*> m_deflectObject;
 
 	std::unordered_map<GLuint, std::vector<HudObject*>> m_2DHudMap;
 

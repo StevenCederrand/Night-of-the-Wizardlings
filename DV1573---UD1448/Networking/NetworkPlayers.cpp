@@ -61,22 +61,10 @@ void NetworkPlayers::update(const float& dt)
 				g->setShouldRender(true);
 
 			if (p.data.hasDamageBuff) {
-				for (size_t i = 0; i < g->getMeshesCount(); i++) {
-					auto* mesh = MeshMap::getInstance()->getMesh(g->getMeshName(i));
-					auto* mat = MaterialMap::getInstance()->getMaterial(mesh->getMaterial());
-					mat->diffuse.x = 1.0f;
-					mat->diffuse.y = 0.5f;
-					mat->diffuse.z = 0.0f;
-				}
+				
 			}
 			else {
-				for (size_t i = 0; i < g->getMeshesCount(); i++) {
-					auto* mesh = MeshMap::getInstance()->getMesh(g->getMeshName(i));
-					auto* mat = MaterialMap::getInstance()->getMaterial(mesh->getMaterial());
-					mat->diffuse.x = 1.0f;
-					mat->diffuse.y = 1.0f;
-					mat->diffuse.z = 1.0f;
-				}
+				
 			}
 
 
