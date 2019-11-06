@@ -6,6 +6,7 @@
 #include <Networking/LocalServer.h>
 #include <Gui/Gui.h>
 
+float DeltaTime = 0.0f;
 
 Application::Application() {
 }
@@ -88,6 +89,9 @@ bool Application::init() {
 	m_stateManager = new StateManager();
 	m_stateManager->pushState(new MenuState());
 
+	unsigned int _time = unsigned int(time(NULL));
+	srand(_time);
+
 	logTrace("Application successfully initialized");
 	return statusOK;
 }
@@ -131,15 +135,15 @@ void Application::run()
 		timeNow = static_cast<float>(glfwGetTime());
 
 		//Deltatime
-		float deltaTime = timeNow - timeThen;
+		DeltaTime = timeNow - timeThen;
 		timeThen = timeNow;
 
-		currentTime += deltaTime;
+		currentTime += DeltaTime;
 		
-		calcFPS(deltaTime);
+		calcFPS(DeltaTime);
 		
-		m_stateManager->update(deltaTime);
-		Gui::getInstance()->update(deltaTime);
+		m_stateManager->update(DeltaTime);
+		Gui::getInstance()->update(DeltaTime);
 		
 		m_stateManager->render();
 		glActiveTexture(GL_TEXTURE0);

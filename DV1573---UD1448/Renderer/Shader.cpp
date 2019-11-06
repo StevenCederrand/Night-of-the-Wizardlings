@@ -276,7 +276,7 @@ void Shader::setMaterial(const std::string& materialName) {
 	
 }
 
-void Shader::setMaterial(const Material* material)
+void Shader::setMaterial(Material* material)
 {
 	setVec3("Ambient_Color", material->ambient);
 	setVec3("Diffuse_Color", material->diffuse);

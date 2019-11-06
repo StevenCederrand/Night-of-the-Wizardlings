@@ -36,10 +36,6 @@ PlayState::PlayState()
 	hudObject->setAlpha(0.0f);
 	m_hudHandler.insertHUDObject(hudObject, CROSSHAIR_DEFLECT);
 	
-	hudObject = new HudObject("Assets/Textures/DamageOverlay.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(static_cast<float>(SCREEN_WIDTH), (static_cast<float>(SCREEN_HEIGHT))));
-	hudObject->setAlpha(0.0f);
-	m_hudHandler.insertHUDObject(hudObject, DAMAGE_OVERLAY);
-
 	m_player->setHealth(NetGlobals::maxPlayerHealth);
 
 	// ___ ICONS ___
@@ -61,6 +57,10 @@ PlayState::PlayState()
 	hudObject->setFillColor(glm::vec3(1, 0, 0));
 	m_hudHandler.insertHUDObject(hudObject, BAR_HP);
 	// ___ ____ ___
+
+	hudObject = new HudObject("Assets/Textures/DamageOverlay.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(static_cast<float>(SCREEN_WIDTH), (static_cast<float>(SCREEN_HEIGHT))));
+	hudObject->setAlpha(0.0f);
+	m_hudHandler.insertHUDObject(hudObject, DAMAGE_OVERLAY);
 
 
 	m_objects.push_back(new WorldObject("internalTestmap"));
@@ -114,7 +114,6 @@ void PlayState::update(float dt)
 	m_player->update(dt);
 	if (Input::isKeyPressed(GLFW_KEY_E)) {
 		m_hudHandler.fadeOut();
-		logTrace(m_player->getHealth());
 	}
 	if (Input::isKeyPressed(GLFW_KEY_R)) {
 		m_hudHandler.fadeIn();

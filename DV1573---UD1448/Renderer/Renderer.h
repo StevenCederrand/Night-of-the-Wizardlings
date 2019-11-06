@@ -8,6 +8,7 @@
 #define SKYBOX "Skybox_Shader"
 #define ANIMATION "Basic_Animation"
 #define DEBUG "Debug_Forward"
+#define FRESNEL "Fresnel_Shader"
 //#define BLOOM "Bloom_Shader"
 //#define BLUR "Blur_Shader"
 //#define BLOOM_BLUR "BloomBlur_Shader"
@@ -23,7 +24,9 @@
 #include <Renderer/BloomBlur.h>
 #include <Spells/SpellHandler.h>
 #include <HUD/HudObject.h>
+#include "PickupNotificationStructure.h"
 #include <Text/FreeType.h>
+
 
 #define P_LIGHT_COUNT 64
 #define P_LIGHT_RADIUS 2
@@ -37,16 +40,22 @@ struct LightIndex {
 	int index[P_LIGHT_COUNT];
 };
 
+
 enum ObjectType {
 	STATIC,
 	DYNAMIC,
 	ANIMATEDSTATIC,
 	ANIMATEDDYNAMIC,
-	SPELL
+	SPELL,
+	PICKUP,
+	FX
 };
 
 class Renderer
 {
+private:
+	std::vector<PickupNotificationText> m_pickupNotifications;
+
 private:
 	static Renderer* m_rendererInstance;
 	GLFWwindow* m_gWindow;
@@ -61,6 +70,9 @@ private:
 	std::vector<GameObject*> m_anistaticObjects;
 	std::vector<GameObject*> m_anidynamicObjects;
 	std::vector<GameObject*> m_spells; 
+
+	std::vector<GameObject*> m_pickups;
+	std::vector<GameObject*> m_deflectObject;
 
 	std::unordered_map<GLuint, std::vector<HudObject*>> m_2DHudMap;
 
@@ -77,6 +89,7 @@ private:
 	
 
 	void renderHUD();
+	void renderPickupNotifications();
 	void createDepthMap();
 	void initShaders();
 	void bindMatrixes(const std::string& shaderName);
@@ -104,6 +117,8 @@ public:
 	void render(SkyBox* m_skybox, SpellHandler* m_spellHandler);
 	//void renderSpell();
 	void renderDebug();
+	void addPickupNotificationText(PickupNotificationText notification);
+	unsigned int getTextWidth(const std::string& text, const glm::vec3& scale);
 
 	void renderSpell(SpellHandler* spellHandler);
 	Camera* getMainCamera() const;

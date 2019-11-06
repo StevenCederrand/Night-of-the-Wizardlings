@@ -41,6 +41,7 @@ Renderer::~Renderer()
 void Renderer::renderHUD()
 {
 	glEnable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
 	// Get it ONCE instead of every iteration....
 	auto* shader = ShaderMap::getInstance()->getShader(HUD);
 	shader->use();
@@ -53,7 +54,11 @@ void Renderer::renderHUD()
 		
 		if (vec.size() == 0)
 			continue;
-		
+
+
+
+
+
 		auto* hudObjectDummy = vec[0];
 		
 		glActiveTexture(GL_TEXTURE0);
@@ -69,6 +74,7 @@ void Renderer::renderHUD()
 
 			shader->setMat4("modelMatrix", hudObject->getModelMatrix());
 			shader->setFloat("alphaValue", hudObject->getAlpha());
+			shader->setInt("grayscale", hudObject->getGrayscale());
 			shader->setVec2("clip", glm::vec2(hudObject->getXClip(), hudObject->getYClip()));
 			glBindVertexArray(hudObject->getVAO());
 
@@ -78,6 +84,26 @@ void Renderer::renderHUD()
 		}
 
 		glBindTexture(GL_TEXTURE_2D, NULL);
+	}
+	glEnable(GL_DEPTH_TEST);
+}
+
+void Renderer::renderPickupNotifications()
+{
+	Client::getInstance()->renderPickupNotificationsMutexGuard();
+	for (size_t i = 0; i < m_pickupNotifications.size(); i++) {
+		m_text->RenderText(m_pickupNotifications[i],								// Notification
+			glm::vec3(
+			(float)((SCREEN_WIDTH / 2.0f) - m_pickupNotifications[i].width / 2.0f), // X
+			(float)(SCREEN_HEIGHT / 1.25f),											// Y
+				0.0f),																// Z
+			glm::vec2(m_pickupNotifications[i].scale));								// SCALE
+		m_pickupNotifications[i].alphaColor -= DeltaTime * 0.20f;
+
+		if (m_pickupNotifications[i].alphaColor <= 0.0f) {
+			m_pickupNotifications.erase(m_pickupNotifications.begin() + i);
+			i--;
+		}
 	}
 }
 
@@ -198,6 +224,9 @@ void Renderer::submit(GameObject* gameObject, ObjectType objType)
 	else if (objType == ANIMATEDDYNAMIC) {
 		m_anidynamicObjects.emplace_back(gameObject);
 	}
+	else if (objType == PICKUP) {
+		m_pickups.emplace_back(gameObject);
+	}
 	
 }
 
@@ -260,6 +289,19 @@ void Renderer::removeDynamic(GameObject* gameObject, ObjectType objType)
 		}
 		if (index > -1) {
 			m_spells.erase(m_spells.begin() + index);
+		}
+	}
+	else if (objType == PICKUP) { //remove spells from the spell vector!!
+	   //Find the index of the object
+		for (size_t i = 0; i < m_pickups.size(); i++)
+		{
+			if (m_pickups[i] == gameObject) {
+				index = i;
+				break;
+			}
+		}
+		if (index > -1) {
+			m_pickups.erase(m_pickups.begin() + index);
 		}
 	}
 }
@@ -339,6 +381,32 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
 				mesh = meshMap->getMesh(object->getMeshName(j));
+				transform = object->getTransform(mesh, j);
+
+				modelMatrix = object->getMatrix(j);
+
+				glBindVertexArray(mesh->getBuffers().vao);
+
+				//Bind the modelmatrix
+				shader->setMat4("modelMatrix", modelMatrix);
+
+				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+				glBindVertexArray(0);
+			}
+		}
+
+		for (GameObject* object : m_pickups)
+		{
+			Pickup* p = dynamic_cast<Pickup*>(object);
+
+			//Then through all of the meshes
+			for (int j = 0; j < object->getMeshesCount(); j++)
+			{
+				modelMatrix = glm::mat4(1.0f);
+				//Fetch the current mesh and its transform
+				
+				mesh = p->getRenderInformation().mesh;
 				transform = object->getTransform(mesh, j);
 
 				modelMatrix = object->getMatrix(j);
@@ -477,6 +545,46 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 			}
 		}
 	}
+
+
+	//Pickup objects
+	if (m_pickups.size() > 0) {
+		for (GameObject* object : m_pickups)
+		{
+			if (object == nullptr || !object->getShouldRender()) {
+				continue;
+			}
+
+			Pickup* p = dynamic_cast<Pickup*>(object);
+
+			//Fetch the current mesh and its transform
+			mesh = p->getRenderInformation().mesh;
+			//Bind the material
+			object->bindMaterialToShader(shader, p->getRenderInformation().material);
+
+			//Apply the transform to the matrix. This should actually be done automatically in the mesh!
+
+
+			//Bind the modelmatrix
+			
+			glm::mat4 mMatrix = glm::mat4(1.0f);
+			mMatrix = glm::translate(mMatrix, p->getTransform().position);
+			mMatrix *= glm::mat4_cast(p->getTransform().rotation);
+			mMatrix = glm::scale(mMatrix, p->getTransform().scale);
+
+			shader->setMat4("modelMatrix", mMatrix);
+
+			glBindVertexArray(mesh->getBuffers().vao);
+
+			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+			glBindVertexArray(0);
+
+		}
+	}
+
+
+
 #pragma endregion
 
 
@@ -631,6 +739,9 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 
 
 	}
+
+	renderPickupNotifications();
+
 	renderHUD();
 }
 
@@ -745,6 +856,16 @@ void Renderer::renderDebug()
 			glBindVertexArray(0);
 		}
 	}
+}
+
+void Renderer::addPickupNotificationText(PickupNotificationText notification)
+{
+	m_pickupNotifications.push_back(notification);
+}
+
+unsigned int Renderer::getTextWidth(const std::string& text, const glm::vec3& scale)
+{
+	return m_text->getTotalWidth(text, scale);
 }
 
 Camera* Renderer::getMainCamera() const

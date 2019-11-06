@@ -22,7 +22,13 @@ enum {
 	RESPAWN_TIME,
 	RESPAWN_PLAYER,
 	SCORE_UPDATE,
-	SPELL_GOT_DEFLECTED
+	SPELL_GOT_DEFLECTED,
+	PICKUP_CREATED,
+	PICKUP_REMOVED,
+	PICKUP_NOTIFICATION,
+	HEAL_BUFF,
+	DAMAGE_BUFF_ACTIVE,
+	DAMAGE_BUFF_INACTIVE
 };
 
 /* To make sure the compiler aligns the bits */
@@ -52,7 +58,7 @@ struct PlayerPacket {
 	int numberOfDeaths = 0;
 	bool inDeflectState = false;
 	bool hasBeenUpdatedOnce = false;
-
+	bool hasDamageBuff = false;
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream)
 	{
@@ -67,6 +73,7 @@ struct PlayerPacket {
 		stream.Serialize(writeToStream, numberOfDeaths);
 		stream.Serialize(writeToStream, inDeflectState);
 		stream.Serialize(writeToStream, hasBeenUpdatedOnce);
+		stream.Serialize(writeToStream, hasDamageBuff);
 	}
 };
 
@@ -93,7 +100,6 @@ struct RoundTimePacket {
 };
 
 struct SpellPacket{
-	SpellPacket() {}
 	RakNet::MessageID packetType;
 	uint64_t SpellID = 0;
 	uint32_t timestamp = 0;
@@ -145,6 +151,20 @@ struct HitPacket {
 	}
 
 
+};
+
+struct PickupPacket {
+	char locationName[16] = { ' ' };
+	uint64_t uniqueID;
+	glm::vec3 position;
+	PickupType type;
+
+	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
+		stream.Serialize(writeToStream, locationName);
+		stream.Serialize(writeToStream, uniqueID);
+		stream.Serialize(writeToStream, position);
+		stream.Serialize(writeToStream, type);
+	}
 };
 
 struct ServerStateChange {

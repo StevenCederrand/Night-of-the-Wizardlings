@@ -43,12 +43,6 @@ private:
 	BulletPhysics* m_bPhysics;
 
 	HudHandler m_hudHandler;
-	/*std::vector<HudObject*> m_icons;
-	HudObject* m_crosshairHUD;
-	HudObject* m_damageOverlay;
-	HudObject* m_deflectCrosshairHUD;
-	HudObject* m_hitCrosshair;
-	HudObject* m_hpBar;*/
 	
 	CEGUI::PushButton* m_mainMenu;
 	CEGUI::PushButton* m_quit;

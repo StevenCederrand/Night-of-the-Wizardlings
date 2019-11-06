@@ -60,7 +60,13 @@ void NetworkPlayers::update(const float& dt)
 			else
 				g->setShouldRender(true);
 
-			
+			if (p.data.hasDamageBuff) {
+				
+			}
+			else {
+				
+			}
+
 
 			glm::vec3 pos = CustomLerp(g->getTransform().position, p.data.position, m_lerpSpeed * dt);
 			g->setWorldPosition(pos);

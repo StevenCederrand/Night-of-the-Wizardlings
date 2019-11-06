@@ -30,11 +30,10 @@ void FreeType::RenderText(std::string text, GLfloat x, GLfloat y,
 {
 	m_hudShader->use();
 	m_hudShader->setVec3("textColor", color);
+	m_hudShader->setFloat("alpha", 1.0f);
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(VAO);
 	glm::mat4 projection = glm::ortho(0.0f, 1280.0f, 0.0f, 720.0f);
-
-
 
 	// Iterate through all characters
 	std::string::const_iterator c;
@@ -73,6 +72,80 @@ void FreeType::RenderText(std::string text, GLfloat x, GLfloat y,
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+void FreeType::RenderText(PickupNotificationText notification,const glm::vec3& position, const glm::vec2& scale)
+{
+	auto& arr = notification.textParts;
+	m_hudShader->use();
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindVertexArray(VAO);
+	glm::mat4 projection = glm::ortho(0.0f, 1280.0f, 0.0f, 720.0f);
+	GLfloat startX = position.x;
+	TextCharacter ch;
+	GLfloat xpos;
+	GLfloat ypos;
+
+	for (size_t i = 0; i < arr.size(); i++) {
+		
+		auto& pair = arr[i];
+		m_hudShader->setVec3("textColor", pair.second);
+		m_hudShader->setFloat("alpha", notification.alphaColor);
+		// Iterate through all characters
+		std::string::const_iterator c;
+		for (c = pair.first.begin(); c != pair.first.end(); c++)
+		{
+			ch = TextCharacters[*c];
+			xpos = startX + ch.Bearing.x * scale.x;
+			ypos = position.y - (ch.Size.y - ch.Bearing.y) * scale.y;
+
+			GLfloat w = ch.Size.x * scale.x;
+			GLfloat h = ch.Size.y * scale.y;
+			// Update VBO for each character
+			GLfloat vertices[6][4] = {
+				{ xpos + w, ypos,       1.0, 1.0 },
+				{ xpos,     ypos + h,   0.0, 0.0 },
+				{ xpos,     ypos,       0.0, 1.0 },
+
+				{ xpos,     ypos + h,   0.0, 0.0 },
+				{ xpos + w, ypos,       1.0, 1.0 },
+				{ xpos + w, ypos + h,   1.0, 0.0 }
+			};
+			// Render glyph texture over quad
+			glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+			// Update content of VBO memory
+			glBindBuffer(GL_ARRAY_BUFFER, VBO);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			// Render quad
+			m_hudShader->setMat4("projection", projection);
+
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+			// Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+			startX += (ch.Advance >> 6) * scale.x; // Bitshift by 6 to get value in pixels (2^6 = 64)
+		}
+		//startX += (ch.Advance >> 6) * scale.x;
+
+	}
+
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+}
+
+unsigned int FreeType::getTotalWidth(const std::string& text, const glm::vec3& scale)
+{
+	unsigned int width = 0;
+
+	std::string::const_iterator c;
+	for (c = text.begin(); c != text.end(); c++)
+	{
+		TextCharacter ch = TextCharacters[*c];
+		width += (ch.Advance >> 6) * scale.x;
+	}
+
+	return width;
+}
+
 void FreeType::BindTexture()
 {
 	TextCharacters.clear();
@@ -82,7 +155,7 @@ void FreeType::BindTexture()
 		std::cout << "Error freetype init" << std::endl;
 	}
 	FT_Face face;
-	if (FT_New_Face(ft, "Assets/Fonts/arial.ttf", 0, &face))
+	if (FT_New_Face(ft, "Assets/Fonts/McLaren-Regular.ttf", 0, &face))
 	{
 		std::cout << "Error freetype Font" << std::endl;
 	}

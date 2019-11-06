@@ -29,6 +29,9 @@ void HudHandler::fadeIn() {
 	std::map<HUDID, HudObject*>::iterator it;
 
 	for (it = m_hudObjects.begin(); it != m_hudObjects.end(); it++) {
+		if (it->first == DAMAGE_OVERLAY || it->first == CROSSHAIR_HIT) {
+			continue;
+		}
 		it->second->setAlpha(1.0f);
 	}
 

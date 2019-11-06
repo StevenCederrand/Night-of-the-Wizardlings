@@ -70,6 +70,9 @@
     <ClCompile Include="HUD\HudObject.cpp" />
     <ClCompile Include="HUD\HudTextureMap.cpp" />
     <ClCompile Include="HUD\HudHandler.cpp" />
+    <ClCompile Include="Pickups\Pickup.cpp" />
+    <ClCompile Include="Pickups\HealthPickup.cpp" />
+    <ClCompile Include="Networking\NetworkPickups.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
@@ -147,9 +150,19 @@
     <ClInclude Include="Renderer\BloomBlur.h" />
     <ClInclude Include="Text\FreeType.h" />
     <ClInclude Include="Text\HUDShader.h" />
+<<<<<<< HEAD
     <ClInclude Include="HUD\HudObject.h" />
     <ClInclude Include="HUD\HudTextureMap.h" />
     <ClInclude Include="HUD\HudHandler.h" />
+=======
+    <ClInclude Include="Pickups\Pickup.h" />
+    <ClInclude Include="Pickups\HealthPickup.h" />
+    <ClInclude Include="Networking\NetworkPickups.h" />
+    <ClInclude Include="Pickups\PickupTypes.h" />
+    <ClInclude Include="System\Randomizer.h" />
+    <ClInclude Include="Renderer\PickupNotificationStructure.h" />
+    <ClInclude Include="System\DeltaTime.h" />
+>>>>>>> ab29dfc3d34a2827dad715e2aecd65f6661269f2
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

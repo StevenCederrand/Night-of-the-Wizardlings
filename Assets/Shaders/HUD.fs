@@ -13,9 +13,14 @@ out vec4 pixelColor;
 
 void main()
 {
+
 	vec2 sampler = vec2(texCoords.x, 1 - texCoords.y);
 
 	vec4 textureColor = texture(textureSampler, texCoords);
+	
+	if(textureColor.a <= 0.01)
+		discard;
+	
 	if(grayscale == 1) {
 		float val = (textureColor.r + textureColor.g + textureColor.b) / 3;
 		textureColor = vec4(val, val, val, textureColor.a);
