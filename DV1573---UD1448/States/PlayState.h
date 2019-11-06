@@ -42,16 +42,21 @@ private:
 	Camera* m_camera;
 	SkyBox* m_skybox;
 	BulletPhysics* m_bPhysics;
+	std::vector<HudObject*> m_icons;
 	HudObject* m_crosshairHUD;
 	HudObject* m_damageOverlay;
 	HudObject* m_deflectCrosshairHUD;
 	HudObject* m_hitCrosshair;
+	HudObject* m_hpBar;
+
 	CEGUI::PushButton* m_mainMenu;
 	CEGUI::PushButton* m_quit;
 	CEGUI::MultiColumnList* m_scoreBoard;
 	bool m_scoreboardExists;
 	bool m_endGameBoardVisible;
 
+	float hp = 1.0f; //Temp HP
+	 
 private: 
 
 	bool onMainMenuClick(const CEGUI::EventArgs& e);

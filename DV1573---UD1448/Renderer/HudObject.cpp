@@ -18,7 +18,9 @@ HudObject::HudObject(const std::string& texturePath, const glm::vec2& position, 
 	m_size.y /= SCREEN_HEIGHT;
 
 	m_alpha = 1.0f;
-
+	m_xClip = 1.0f;
+	m_yClip = 1.0f;
+	m_grayscale = 0;
 	updateModelMatrix();
 }
 
@@ -26,6 +28,25 @@ HudObject::~HudObject()
 {
 	glDeleteVertexArrays(1, &m_vao);
 	glDeleteBuffers(1, &m_vbo);
+}
+
+//Clip 
+void HudObject::setXClip(const float& xClip) {
+	m_xClip = xClip;
+}
+
+void HudObject::setYClip(const float& yClip) {
+	m_yClip = yClip;
+}
+
+void HudObject::setFillColor(const glm::vec3& color)
+{
+	m_fillColor = color;
+}
+
+void HudObject::setGrayscale(const int& grayscale)
+{
+	m_grayscale = grayscale;
 }
 
 void HudObject::setPosition(const glm::vec3& position)
@@ -68,6 +89,25 @@ const GLuint& HudObject::getTextureID() const
 const float& HudObject::getAlpha() const
 {
 	return m_alpha;
+}
+
+const float& HudObject::getXClip() const
+{
+	return m_xClip;
+}
+
+const float& HudObject::getYClip() const
+{
+	return m_yClip;
+}
+
+const glm::vec3& HudObject::getFillColor() const {
+	return m_fillColor;
+}
+
+const int& HudObject::getGrayscale() const
+{
+	return m_grayscale;
 }
 
 void HudObject::setupBuffers()

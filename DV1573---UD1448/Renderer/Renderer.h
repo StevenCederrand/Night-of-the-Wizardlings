@@ -56,7 +56,6 @@ private:
 	Camera* m_camera;
 	FreeType* m_text;
 	SkyBox* m_skyBox;
-
 	Timer m_timer;
 
 	//Store gameobjects directly to the renderer
