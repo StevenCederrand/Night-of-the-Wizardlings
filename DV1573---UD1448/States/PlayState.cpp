@@ -114,7 +114,7 @@ void PlayState::update(float dt)
 	m_bPhysics->update(dt);
 	m_player->update(dt);
 	m_spellHandler->spellUpdate(dt);
-	m_player->update(dt);
+
 	if (Input::isKeyPressed(GLFW_KEY_E)) {
 		m_hudHandler.fadeOut();
 	}
