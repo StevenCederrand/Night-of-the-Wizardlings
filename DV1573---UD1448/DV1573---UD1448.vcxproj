@@ -217,6 +217,7 @@
     <ClCompile Include="Renderer\Camera.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Renderer\DeflectRender.cpp" />
     <ClCompile Include="Renderer\HudObject.cpp" />
     <ClCompile Include="Renderer\HudTextureMap.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp">
@@ -302,6 +303,7 @@
     <ClInclude Include="Networking\NetworkSpells.h" />
     <ClInclude Include="Pch\Pch.h" />
     <ClInclude Include="Player\Player.h" />
+    <ClInclude Include="Renderer\DeflectRender.h" />
     <ClInclude Include="Spells\ReflectSpell.h" />
     <ClInclude Include="Renderer\BloomBlur.h" />
     <ClInclude Include="Renderer\Camera.h">

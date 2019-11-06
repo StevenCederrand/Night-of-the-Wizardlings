@@ -41,6 +41,7 @@ private:
 	Player* m_player;
 	Camera* m_camera;
 	SkyBox* m_skybox;
+	DeflectRender* m_deflectBox;
 	BulletPhysics* m_bPhysics;
 	std::vector<HudObject*> m_icons;
 	HudObject* m_crosshairHUD;
