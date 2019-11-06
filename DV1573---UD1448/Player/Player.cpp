@@ -32,6 +32,7 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 
 Player::~Player()
 {
+	delete m_soundHandler;
 }
 
 void Player::update(float deltaTime)

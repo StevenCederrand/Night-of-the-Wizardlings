@@ -5,7 +5,7 @@
 SoundHandler::SoundHandler()
 {
 	ALCenum error;
-	alutInitWithoutContext(NULL, NULL);
+	//alutInitWithoutContext(NULL, NULL);
 
 	m_device = alcOpenDevice(NULL);
 
@@ -25,91 +25,60 @@ SoundHandler::SoundHandler()
 
 	if (error != AL_NO_ERROR)
 	{		
-		logTrace(alutGetErrorString(error));
+		logTrace("Failed to make context current");
 	}
-
-	/*error = alGetError();
-
-	m_buffers.resize(m_buffers.size() + 1);
-
-	alGenBuffers((ALsizei)1, &m_buffers[0]);
-
-	error = alGetError();
-
-	if (error != AL_NO_ERROR)
-	{
-		logTrace("Error generating buffers");
-		logTrace(alutGetErrorString(error));
-	}*/
 		
-	loadSound("Assets/SoundEffects/YouShallNotPassogg.ogg");
-
-	error = alGetError();
-
-	m_sources.resize(m_sources.size() + 1);
-
-	alGenSources((ALsizei)1, &m_sources[0]);
-
-	error = alGetError();
-
-	if (error != AL_NO_ERROR)
-	{
-		logTrace("Error generating sources");
-		logTrace(alutGetErrorString(error));
-	}
-
-	error = alGetError();
-
-	alSourcei(m_sources[0], AL_BUFFER, m_buffers[0]);
-
-	error = alGetError();
-
-	if (error != AL_NO_ERROR)
-	{
-		logTrace("Error binding buffer to source");
-		logTrace(alutGetErrorString(error));
-	}
+	loadSound("Assets/SoundEffects/YouShallNotPassogg.ogg");	
 }
 
-void SoundHandler::loadSound(const char* filename)
-{	
-	/*ALsizei size;
-	ALfloat freq;
-	ALenum format;
-	ALboolean loop = AL_FALSE;
-	void* data;
-	ALCenum error;*/
-
-
-	//alutLoadWAVFile((ALbyte*)&filename, &format, &data, &size, &freq, &loop);
-	//m_buffers[0] = alutCreateBufferFromFile(filename);	
-
-	/*error = alGetError();
-	data = alutLoadMemoryFromFile(filename, &format, &size, &freq);
-	error = alGetError();
-
-	
-
-	if (error != AL_NO_ERROR)
+SoundHandler::~SoundHandler()
+{
+	for (int i = 0; i < m_sources.size(); i++)
 	{
-		logTrace(alutGetErrorString(error));
+		alSourcei(m_sources[i], AL_BUFFER, NULL);
+	}
+	
+	for (int i = 0; i < m_sources.size(); i++)
+	{
+		alDeleteSources(1, &m_sources[i]);
 	}
 
-	alBufferData(m_buffers[0], format, data, size, freq);*/
+	for (int i = 0; i < m_buffers.size(); i++)
+	{
+		
+		alDeleteBuffers(1, &m_buffers[i]);
+	}	
 
-	ALenum error = 0;
-	ALuint* sound = 0;
+	//m_context = alcGetCurrentContext();
+	m_device = alcGetContextsDevice(m_context);
+	alcMakeContextCurrent(NULL);
+	alcDestroyContext(m_context);
+	alcCloseDevice(m_device);
+
+	/*delete m_context;
+	delete m_device;*/
+}
+
+//Returns the source name (position in the buffer array) which you use 
+//when you call playSound(int sourceName).
+//Returns -1 if failed
+int SoundHandler::loadSound(const char* filename)
+{
+	ALenum error = 0;	
 	FILE* fp = 0;
 	OggVorbis_File vf;
 	vorbis_info* vInfo;
 	ALenum format = 0;
 	short* pcmout = 0;
 
+	//Open sound file for reading
 	fopen_s(&fp, filename, "rb");
 
 	if (fp == 0)
 	{
 		logTrace("Could not open sound file");
+
+		return -1;
 	}
 
 	//Generate buffer
@@ -117,21 +86,29 @@ void SoundHandler::loadSound(const char* filename)
 
 	m_buffers.resize(m_buffers.size() + 1);
 
-	alGenBuffers((ALsizei)1, &m_buffers[0]);
+	alGenBuffers((ALsizei)1, &m_buffers[m_buffers.size() - 1]);
 
 	error = alGetError();
 
 	if (error != AL_NO_ERROR)
 	{
-		logTrace("Error generating buffers");
-		logTrace(alutGetErrorString(error));
+		logTrace("Error generating buffers");		
+
+		free(pcmout);
+		fclose(fp);		
+		return -1;
 	}
 
 	//Open ogg file
 	if (ov_open_callbacks(fp, &vf, NULL, 0, OV_CALLBACKS_NOCLOSE) < 0)
 	{
 		logTrace("Stream is not a valid OggVorbis stream!");
-	}
+
+		free(pcmout);		
+		fclose(fp);		
+		ov_clear(&vf);
+		return -1;
+	}	
 
 	//Fill vInfo with a new ogg vorbis info struct, determine audio format
 	vInfo = ov_info(&vf, -1);
@@ -142,6 +119,11 @@ void SoundHandler::loadSound(const char* filename)
 	if (pcmout == 0)
 	{
 		logTrace("Out of memory");
+
+		free(pcmout);
+		fclose(fp);
+		ov_clear(&vf);
+		return -1;
 	}
 
 	//Fill pcmout buffer with ov_read data samples
@@ -152,37 +134,259 @@ void SoundHandler::loadSound(const char* filename)
 		if (size < 0)
 		{
 			logTrace("Something wrong with the ogg file");
+
+			free(pcmout);
+			fclose(fp);
+			ov_clear(&vf);
+			return -1;
 		}
 	}
 
 	error = alGetError();
 	//send data to openal, vInfo->rate is your freq in Hz
-	alBufferData(m_buffers[0], format, pcmout, data_len, vInfo->rate);
+	alBufferData(m_buffers[m_buffers.size() - 1], format, pcmout, data_len, vInfo->rate);
 	if ((error = alGetError() != AL_NO_ERROR))
 	{
 		logTrace("Failed to send audio information buffer to OpenAL");
+
+		free(pcmout);
+		fclose(fp);
+		ov_clear(&vf);
+		return -1;
+	}
+
+	error = alGetError();
+
+	m_sources.resize(m_sources.size() + 1);
+
+	alGenSources((ALsizei)1, &m_sources[m_buffers.size() - 1]);
+
+	error = alGetError();
+
+	if (error != AL_NO_ERROR)
+	{
+		logTrace("Error generating sources");		
+
+		free(pcmout);
+		fclose(fp);
+		ov_clear(&vf);
+		return -1;
+	}
+
+	error = alGetError();
+
+	alSourcei(m_sources[m_buffers.size() - 1], AL_BUFFER, m_buffers[m_buffers.size() - 1]);
+
+	error = alGetError();
+
+	if (error != AL_NO_ERROR)
+	{
+		logTrace("Error binding buffer to source");		
+
+		free(pcmout);
+		fclose(fp);
+		ov_clear(&vf);
+		return -1;
 	}
 
 	free(pcmout);
 	fclose(fp);
 	ov_clear(&vf);
+
+	return m_buffers.size() - 1;
 }
 
-void SoundHandler::playSound(int bufferName)
+void SoundHandler::playSound(int sourceName)
 {
-	ALCenum error;
+	m_error = alGetError();
 
-	error = alGetError();
+	alSourcePlay(m_sources[sourceName]);
 
-	alSourcePlay(m_sources[bufferName]);
-
-	if (error != AL_NO_ERROR)
+	if (m_error != AL_NO_ERROR)
 	{
-		logTrace(alutGetErrorString(error));
+		logTrace("Error playing sound");
 	}
 }
 
-SoundHandler::~SoundHandler()
+void SoundHandler::pauseSound(int sourceName)
 {
-	delete m_device;
+	m_error = alGetError();
+
+	if (getSourceState(sourceName) == AL_PLAYING)
+	{
+		alSourcePause(m_sources[sourceName]);
+	}
+
+	if (m_error != AL_NO_ERROR)
+	{
+		logTrace("Error pausing sound");
+	}
+}
+
+void SoundHandler::stopSound(int sourceName)
+{
+	m_error = alGetError();
+
+	if (getSourceState(sourceName) == AL_PLAYING)
+	{
+		alSourceStop(m_sources[sourceName]);
+	}
+
+	if (m_error != AL_NO_ERROR)
+	{
+		logTrace("Error stopping sound");
+	}
+}
+
+void SoundHandler::setListenerPos(glm::vec3 pos)
+{
+	ALfloat listenerPos[] = { pos.x, pos.y, pos.z };
+
+	m_error = alGetError();
+
+	alListenerfv(AL_POSITION, listenerPos);
+	
+	if ((m_error = alGetError()) != AL_NO_ERROR)
+	{
+		logTrace("Couldn't set listener position");
+	}
+}
+
+void SoundHandler::setListenerVelocity(glm::vec3 vel)
+{	
+	ALfloat listenerVel[] = { vel.x, vel.y, vel.z };
+	
+	m_error = alGetError();
+
+	alListenerfv(AL_VELOCITY, listenerVel);
+	
+	if ((m_error = alGetError()) != AL_NO_ERROR)
+	{
+		logTrace("Couldn't set listener velocity");
+	}
+}
+
+void SoundHandler::setListenerOrientation(glm::vec3 lookAt, glm::vec3 up)
+{	
+	ALfloat listenerOri[] = { lookAt.x, lookAt.y, lookAt.z, up.x, up.y, up.z };
+	
+	m_error = alGetError();
+
+	alListenerfv(AL_ORIENTATION, listenerOri);
+	if ((m_error = alGetError()) != AL_NO_ERROR)
+	{
+		logTrace("Couldn't set listener orientation");
+	}
+}
+
+void SoundHandler::setSourcePitch(int sourceName, float pitch)
+{
+	m_error = alGetError();
+
+	alSourcef(m_sources[sourceName], AL_PITCH, pitch);
+
+	if ((m_error = alGetError()) != AL_NO_ERROR)
+	{
+		logTrace("Error setting pitch to source");
+	}
+}
+
+void SoundHandler::setSourceGain(int sourceName, float gain)
+{
+	m_error = alGetError();
+
+	alSourcef(m_sources[sourceName], AL_GAIN, gain);
+
+	if ((m_error = alGetError()) != AL_NO_ERROR)
+	{
+		logTrace("Error setting gain to source");
+	}
+}
+
+void SoundHandler::setSourceMaxDistance(int sourceName, float dist)
+{	
+	m_error = alGetError();
+
+	alSourcef(m_sources[sourceName], AL_MAX_DISTANCE, dist);
+
+	if ((m_error = alGetError()) != AL_NO_ERROR)
+	{
+		logTrace("Error setting max distance to source");
+	}
+}
+
+void SoundHandler::setSourcePosition(int sourceName, glm::vec3 pos)
+{	
+	ALfloat sourcePosition[] = { pos.x, pos.y, pos.z };
+
+	m_error = alGetError();
+
+	alSourcefv(m_sources[sourceName], AL_POSITION, sourcePosition);
+
+	if ((m_error = alGetError()) != AL_NO_ERROR)
+	{
+		logTrace("Error setting position to source");
+	}
+}
+
+void SoundHandler::setSourceVelocity(int sourceName, glm::vec3 vel)
+{	
+	ALfloat sourceVelocity[] = { vel.x, vel.y, vel.z };
+
+	m_error = alGetError();
+
+	alSourcefv(m_sources[sourceName], AL_VELOCITY, sourceVelocity);
+
+	if ((m_error = alGetError()) != AL_NO_ERROR)
+	{
+		logTrace("Error setting velocity to source");
+	}
+}
+
+void SoundHandler::setSourceDirection(int sourceName, glm::vec3 dir)
+{	
+	ALfloat sourceDirection[] = { dir.x, dir.y, dir.z };
+
+	m_error = alGetError();
+
+	alSourcefv(m_sources[sourceName], AL_DIRECTION, sourceDirection);
+
+	if ((m_error = alGetError()) != AL_NO_ERROR)
+	{
+		logTrace("Error setting direction to source");
+	}
+}
+
+//Types are: AL_UNDETERMINED, AL_STATIC or AL_STREAMING
+void SoundHandler::setSourceType(int sourceName, ALenum type)
+{	
+	m_error = alGetError();
+
+	alSourcei(m_sources[sourceName], AL_SOURCE_TYPE, type);
+
+	if ((m_error = alGetError()) != AL_NO_ERROR)
+	{
+		logTrace("Error setting type to source");
+	}
+}
+
+void SoundHandler::setSourceLooping(int sourceName, bool looping)
+{	
+	m_error = alGetError();
+
+	alSourcei(m_sources[sourceName], AL_LOOPING, looping);
+
+	if ((m_error = alGetError()) != AL_NO_ERROR)
+	{
+		logTrace("Error setting looping value to source");
+	}
+}
+
+const ALint& SoundHandler::getSourceState(int sourceName) const
+{
+	ALint value;
+
+	alGetSourcei(m_sources[sourceName], AL_SOURCE_STATE, &value);
+
+	return value;
 }
