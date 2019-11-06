@@ -145,10 +145,6 @@ void PlayState::update(float dt)
 
 		m_player->setHealth(Client::getInstance()->getMyData().health);
 	}
-	if (Input::isKeyPressed(GLFW_KEY_K))
-	{
-		m_damageOverlay->setAlpha(1.0f);
-	}
 
 	if (m_damageOverlay->getAlpha() != 0)
 	{
