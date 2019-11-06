@@ -47,23 +47,26 @@ PlayState::PlayState()
 	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
-	//Cube and sphere centered in scene
-	//m_objects.push_back(new WorldObject("TestCube"));
-	//m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
-	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 0.0f, 0.0f));
-	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
-	//m_objects.push_back(new WorldObject("TestSphere"));
-	//m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
-	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -4.0f));
-	////m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 1.0f, -2.0f));
-	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+
+	//Cube and sphere centered in scene
+	/*m_objects.push_back(new WorldObject("TestCube"));
+	m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 5.0f, 0.0f));
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);*/
+
+	m_objects.push_back(new WorldObject("TestSphere"));
+	m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 6.0f, 0.0f));
+	m_objects[m_objects.size() - 1]->setTransform(glm::vec3(10.f, 6.0f, 0.0f), glm::quat(0, 1, 0, 0), glm::vec3(4.f));
+	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 1.0f, -2.0f));
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], FX);
 
 	m_objects.push_back(new WorldObject("internalTestmap"));
 	m_objects[m_objects.size() - 1]->loadMesh("internalTestmap.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -1.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
-	
+	//
 	//Animated rectangle
 	//m_objects.push_back(new AnimatedObject("TestRectangle"));
 	//m_objects[m_objects.size() - 1]->loadMesh("TestRectangle.mesh");

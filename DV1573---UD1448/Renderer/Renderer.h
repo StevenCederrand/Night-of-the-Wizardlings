@@ -8,6 +8,7 @@
 #define SKYBOX "Skybox_Shader"
 #define ANIMATION "Basic_Animation"
 #define DEBUG "Debug_Forward"
+#define FRESNEL "Fresnel_Shader"
 //#define BLOOM "Bloom_Shader"
 //#define BLUR "Blur_Shader"
 //#define BLOOM_BLUR "BloomBlur_Shader"
@@ -24,6 +25,7 @@
 #include <Spells/SpellHandler.h>
 #include <Renderer/HudObject.h>
 #include <Text/FreeType.h>
+
 
 #define P_LIGHT_COUNT 64
 #define P_LIGHT_RADIUS 2
@@ -42,7 +44,8 @@ enum ObjectType {
 	DYNAMIC,
 	ANIMATEDSTATIC,
 	ANIMATEDDYNAMIC,
-	SPELL
+	SPELL,
+	FX
 };
 
 class Renderer
@@ -62,6 +65,7 @@ private:
 	std::vector<GameObject*> m_anistaticObjects;
 	std::vector<GameObject*> m_anidynamicObjects;
 	std::vector<GameObject*> m_spells; 
+	std::vector<GameObject*> m_deflectObject;
 
 	std::unordered_map<GLuint, std::vector<HudObject*>> m_2DHudMap;
 

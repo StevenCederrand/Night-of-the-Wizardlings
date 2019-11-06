@@ -121,6 +121,8 @@ void Renderer::initShaders() {
 	ShaderMap::getInstance()->getShader("Skybox_Shader")->setInt("skyBox", 4);
 	ShaderMap::getInstance()->createShader(DEBUG, "VertexShader.vert", "DebugFragShader.frag");
 
+	ShaderMap::getInstance()->createShader(FRESNEL, "FresnelFX.vert", "FresnelFX.frag");
+
 	/*=====================================================*/
 	/*ShaderMap::getInstance()->createShader(BLOOM, "Bloom.vs", "Bloom.fs");
 	ShaderMap::getInstance()->useByName(BLOOM);
@@ -387,6 +389,38 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 	renderSkybox(m_skybox);
 	m_spellHandler->renderSpell();
 	
+#pragma region Fresnel_Test
+	shader = ShaderMap::getInstance()->useByName(FRESNEL);
+
+	bindMatrixes(shader);
+
+	for (GameObject* object : m_deflectObject)
+	{
+		for (int i = 0; i < object->getMeshesCount(); i++)
+		{
+			//Fetch the current mesh and its transform
+			mesh = MeshMap::getInstance()->getMesh(object->getMeshName(i));
+
+			//Bind the material
+			object->bindMaterialToShader(shader, mesh->getMaterial()); //REQUIRES OPTIMIZATION
+
+			modelMatrix = glm::mat4(1.0f);
+			modelMatrix = object->getMatrix(i);
+
+			//Bind the modelmatrix
+			shader->setMat4("modelMatrix", modelMatrix);
+
+			glBindVertexArray(mesh->getBuffers().vao);
+
+			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+			glBindVertexArray(0);
+		}
+	}
+
+
+#pragma endregion
+
 #pragma region Color_Render
 	shader = ShaderMap::getInstance()->useByName(BASIC_FORWARD); 
 	
