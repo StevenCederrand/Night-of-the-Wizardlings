@@ -54,11 +54,7 @@ void Renderer::renderHUD()
 		
 		if (vec.size() == 0)
 			continue;
-
-
-
-
-
+			   
 		auto* hudObjectDummy = vec[0];
 		
 		glActiveTexture(GL_TEXTURE0);
