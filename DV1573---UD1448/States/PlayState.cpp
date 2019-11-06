@@ -120,20 +120,41 @@ void PlayState::update(float dt)
 	m_bPhysics->update(dt);
 	m_player->update(dt);
 	m_spellHandler->spellUpdate(dt);
-	m_player->update(dt);
-	
 	
 	//m_hpBar->setYClip(m_player->getHealth() / 100);
 	
+	if (Client::getInstance()->getMyData().health <= 0) {
+		
+		if (m_camera->isCameraActive()) {
+			m_camera->disableCameraMovement(true);
+		}
 
-	if (m_player->isDeflecting()) {
+		const PlayerPacket* myKiller = Client::getInstance()->getLatestPlayerThatHitMe();
+		if (myKiller != nullptr) {
+			m_camera->lookAt(myKiller->position);
+		}
+
 		m_crosshairHUD->setAlpha(0.0f);
-		m_deflectCrosshairHUD->setAlpha(1.0f);
-	}
-	else
-	{
-		m_crosshairHUD->setAlpha(1.0f);
 		m_deflectCrosshairHUD->setAlpha(0.0f);
+	}
+	else {
+		
+		if (m_camera->isCameraActive() == false) {
+			m_camera->resetCamera();
+			m_camera->disableCameraMovement(false);
+		}
+
+		if (m_player->isDeflecting()) {
+			m_crosshairHUD->setAlpha(0.0f);
+			m_deflectCrosshairHUD->setAlpha(1.0f);
+		}
+		else
+		{
+			m_crosshairHUD->setAlpha(1.0f);
+			m_deflectCrosshairHUD->setAlpha(0.0f);
+		}
+
+
 	}
 
 	if (Client::getInstance()->getMyData().health != m_player->getHealth())

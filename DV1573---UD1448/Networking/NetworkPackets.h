@@ -48,6 +48,7 @@ struct newPlayerInfo {
 
 struct PlayerPacket {
 	RakNet::AddressOrGUID guid;
+	RakNet::AddressOrGUID lastHitByGuid;
 	uint32_t timestamp = 0;
 	int health = NetGlobals::maxPlayerHealth;
 	glm::vec3 position = glm::vec3(0.0f);
@@ -63,6 +64,7 @@ struct PlayerPacket {
 	void Serialize(bool writeToStream, RakNet::BitStream& stream)
 	{
 		stream.Serialize(writeToStream, guid);
+		stream.Serialize(writeToStream, lastHitByGuid);
 		stream.Serialize(writeToStream, timestamp);
 		stream.Serialize(writeToStream, health);
 		stream.Serialize(writeToStream, position);
