@@ -53,7 +53,7 @@ void Player::update(float deltaTime)
 	// ENHANCE ATTACK
 	if (!m_enhanceAttack.isComplete())
 	{
-		m_enhanceAttack.update(deltaTime);
+		m_enhanceAttack.update(deltaTime);	
 		if (m_enhanceAttack.canAttack()) //CAN ATTACK
 		{
 			m_spellhandler->createSpell(m_playerPosition, m_directionVector, ENHANCEATTACK);
