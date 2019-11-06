@@ -60,6 +60,8 @@ private:
 	void spellCollisionCheck();	
 	bool specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis, float radius);
 	glm::vec3 OBBclosestPoint(glm::vec3 &spherePos, std::vector<glm::vec3> &axis, glm::vec3 &playerPos);
+	float OBBsqDist(glm::vec3& spherePos, std::vector<glm::vec3>& axis, glm::vec3& playerPos);
+
 	void REFLECTupdate(float deltaTime, int i);
 	void flamestrikeUpdate(float deltaTime, int i);
 	

@@ -144,8 +144,8 @@ btKinematicCharacterController* BulletPhysics::createCharacter(float& spawnHeigh
 {
 	//create the character and add him to the dynamicsWorld
 	//m_playerShape = new btCapsuleShape(1.0, height +2 * 1.0);
-	m_boxSize = btVector3(0.5, 0.5, height / 2);
-	m_playerShape = new btBoxShape(m_boxSize);
+	m_boxSize = btVector3(0.5, height / 2, 0.5);
+	m_playerShape = new btCapsuleShapeZ(0.5, height);
 
 	m_ghostObject = new btPairCachingGhostObject();
 	btTransform startTransform;
