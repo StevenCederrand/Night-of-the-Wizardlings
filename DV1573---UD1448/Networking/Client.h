@@ -104,7 +104,7 @@ private:
 	std::vector<PlayerPacket> m_connectedPlayers;
 	NetworkPlayers m_networkPlayers;
 	NetworkSpells m_networkSpells;
-	NetworkPickups m_networkPickup;
+	NetworkPickups* m_networkPickup;
 
 	std::mutex m_cleanupMutex;
 	
