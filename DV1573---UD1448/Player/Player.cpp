@@ -5,8 +5,10 @@
 Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Camera *camera, SpellHandler* spellHandler)
 {
 	m_firstPersonMesh = new AnimatedObject("fpsMesh");
-	m_firstPersonMesh->loadMesh("FPSAnimations.mesh");
-	m_firstPersonMesh->initAnimations("CastAnimation", 0.0f, 40.0f);
+	m_firstPersonMesh->loadMesh("Fps2Arm.mesh");
+	m_firstPersonMesh->initAnimations("CastAnimation", 1.0f, 20.0f);
+	m_firstPersonMesh->initAnimations("RunAnimation", 1.0f, 20.0f);
+
 	Renderer::getInstance()->submit(m_firstPersonMesh, ANIMATEDSTATIC);
 
 	m_playerCamera = camera;
@@ -165,7 +167,7 @@ void Player::attack()
 			{
 				// Start loop
 				m_enhanceAttack.start();
-				m_firstPersonMesh->playLoopAnimation("CastAnimation");
+				m_firstPersonMesh->playLoopAnimation("RunAnimation");
 			}
 		}
 	}
@@ -209,9 +211,6 @@ void Player::updateMesh()
 {
 
 	Transform m_fpsTrans;
-	//m_fpsTrans.scale = glm::vec3(0.53f, 0.53f, 0.53f);
-//	m_firstPersonMesh->setTransform(tempTransform);
-
 
 	m_fpsTrans.position = getCamera()->getPosition();
 
