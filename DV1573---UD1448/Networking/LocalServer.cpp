@@ -528,6 +528,8 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 
 		}
 
+		target->lastHitByGuid = hitpacket->CreatorGUID;
+
 		target->health -= static_cast<int>(hitpacket->damage);
 
 		if (target->health <= 0) {

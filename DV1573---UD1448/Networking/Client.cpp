@@ -472,8 +472,14 @@ void Client::processAndHandlePackets()
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			PlayerPacket playerPacket;
 			playerPacket.Serialize(false, bsIn);
-
+			m_myPlayerDataPacket.lastHitByGuid = playerPacket.lastHitByGuid;
 			m_myPlayerDataPacket.health = playerPacket.health;
+
+
+			logTrace("Player hit me {0}", m_myPlayerDataPacket.lastHitByGuid.rakNetGuid.ToString());
+
+			m_latestPlayerThatHitMe = findPlayerByGuid(playerPacket.lastHitByGuid);
+
 		}
 		break;
 
@@ -758,6 +764,11 @@ const PlayerPacket& Client::getMyData() const
 	return m_myPlayerDataPacket;
 }
 
+const PlayerPacket* Client::getLatestPlayerThatHitMe() const
+{
+	return m_latestPlayerThatHitMe;
+}
+
 const ServerStateChange& Client::getServerState() const
 {
 	return m_serverState;
@@ -910,6 +921,17 @@ SpellPacket* Client::findActiveSpell(const SpellPacket& packet)
 
 		if (sp.CreatorGUID == packet.CreatorGUID && sp.SpellID == packet.SpellID) {
 			return &sp;
+		}
+	}
+
+	return nullptr;
+}
+
+PlayerPacket* Client::findPlayerByGuid(const RakNet::AddressOrGUID& guid)
+{
+	for (size_t i = 0; i < m_connectedPlayers.size(); i++) {
+		if (m_connectedPlayers[i].guid == guid) {
+			return &m_connectedPlayers[i];
 		}
 	}
 

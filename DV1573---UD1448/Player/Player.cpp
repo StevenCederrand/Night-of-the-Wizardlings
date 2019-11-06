@@ -34,7 +34,7 @@ Player::~Player()
 void Player::update(float deltaTime)
 {																		
 																		// IMPORTANT; DOING THESE WRONG WILL CAUSE INPUT LAG
-	m_playerCamera->update(m_playerCamera->getWindow());				// Update this first so that subsequent uses are synced
+	m_playerCamera->update();											// Update this first so that subsequent uses are synced
 	m_directionVector = glm::normalize(m_playerCamera->getCamFace());	// Update this first so that subsequent uses are synced
 	move(deltaTime);													// Update this first so that subsequent uses are synced
 	m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
@@ -93,17 +93,17 @@ void Player::move(float deltaTime)
 
 	// Move
 	m_moveDir = glm::vec3(0.0f);
-	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_A) == GLFW_PRESS)
+	if (Input::isKeyHeldDown(GLFW_KEY_A))
 		m_moveDir -= lookRightVector;
-	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_D) == GLFW_PRESS)
+	if (Input::isKeyHeldDown(GLFW_KEY_D))
 		m_moveDir += lookRightVector;
-	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_W) == GLFW_PRESS)
+	if (Input::isKeyHeldDown(GLFW_KEY_W))
 		m_moveDir += lookDirection;
-	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_S) == GLFW_PRESS)
+	if (Input::isKeyHeldDown(GLFW_KEY_S))
 		m_moveDir -= lookDirection;
 
 	// Jump
-	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
+	if (Input::isKeyHeldDown(GLFW_KEY_SPACE))
 		if (m_character->canJump())
 			m_character->jump(btVector3(0.0f, 3.0f, 0.0f));
 
@@ -128,7 +128,7 @@ void Player::move(float deltaTime)
 
 void Player::attack()
 {
-	if (glfwGetMouseButton(m_playerCamera->getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_LEFT))
 	{
 		if (m_attackCooldown <= 0)
 		{
@@ -136,7 +136,7 @@ void Player::attack()
 		}
 	}
 
-	if (glfwGetMouseButton(m_playerCamera->getWindow(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_RIGHT))
 	{
 		if (m_specialCooldown <= 0)
 		{
@@ -146,7 +146,7 @@ void Player::attack()
 		}
 	}
 
-	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_Q) == GLFW_PRESS)
+	if (Input::isKeyHeldDown(GLFW_KEY_Q))
 	{
 		if (m_special2Cooldown <= 0)
 		{
@@ -158,7 +158,7 @@ void Player::attack()
 		}
 	}
 
-	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_E) == GLFW_PRESS)
+	if (Input::isKeyHeldDown(GLFW_KEY_E))
 	{
 		if (m_special3Cooldown <= 0)
 		{
