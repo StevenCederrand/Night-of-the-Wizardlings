@@ -22,7 +22,7 @@
 #include <System/Timer.h>
 #include <Renderer/BloomBlur.h>
 #include <Spells/SpellHandler.h>
-#include <Renderer/HudObject.h>
+#include <HUD/HudObject.h>
 #include <Text/FreeType.h>
 
 #define P_LIGHT_COUNT 64

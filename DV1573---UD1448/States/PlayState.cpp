@@ -24,43 +24,42 @@ PlayState::PlayState()
 	m_skybox->prepareBuffers();
 
 	// HUD
-	m_hitCrosshair = new HudObject("Assets/Textures/Crosshair_hit.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(32.0f, 32.0f));
-	m_hitCrosshair->setAlpha(0.0f);
-	Renderer::getInstance()->submit2DHUD(m_hitCrosshair);
+	HudObject* hudObject = new HudObject("Assets/Textures/Crosshair_hit.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(32.0f, 32.0f));
+	hudObject->setAlpha(0.0f);
+	m_hudHandler.insertHUDObject(hudObject, CROSSHAIR_HIT);
 
-	m_crosshairHUD = new HudObject("Assets/Textures/Crosshair.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(32.0f, 32.0f));
-	m_crosshairHUD->setAlpha(1.0f);
-	Renderer::getInstance()->submit2DHUD(m_crosshairHUD);
+	hudObject = new HudObject("Assets/Textures/Crosshair.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(32.0f, 32.0f));
+	hudObject->setAlpha(1.0f);
+	m_hudHandler.insertHUDObject(hudObject, CROSSHAIR);
 
-	m_deflectCrosshairHUD = new HudObject("Assets/Textures/Crosshair_deflect.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(32.0f, 32.0f));
-	m_deflectCrosshairHUD->setAlpha(0.0f);
-	Renderer::getInstance()->submit2DHUD(m_deflectCrosshairHUD);
+	hudObject = new HudObject("Assets/Textures/Crosshair_deflect.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(32.0f, 32.0f));
+	hudObject->setAlpha(0.0f);
+	m_hudHandler.insertHUDObject(hudObject, CROSSHAIR_DEFLECT);
 	
-	m_damageOverlay = new HudObject("Assets/Textures/DamageOverlay.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(static_cast<float>(SCREEN_WIDTH), (static_cast<float>(SCREEN_HEIGHT))));
-	m_damageOverlay->setAlpha(0.0f);
-	Renderer::getInstance()->submit2DHUD(m_damageOverlay);
+	hudObject = new HudObject("Assets/Textures/DamageOverlay.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(static_cast<float>(SCREEN_WIDTH), (static_cast<float>(SCREEN_HEIGHT))));
+	hudObject->setAlpha(0.0f);
+	m_hudHandler.insertHUDObject(hudObject, DAMAGE_OVERLAY);
+
 	m_player->setHealth(NetGlobals::maxPlayerHealth);
 
 	// ___ ICONS ___
-	HudObject* icon = new HudObject("Assets/Textures/hud/Arcane_BG.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 4) * 3, static_cast<float>(64)), glm::vec2(80.0f, 80.0f));
-	icon->setAlpha(1.0f);
-	Renderer::getInstance()->submit2DHUD(icon);
-	m_icons.emplace_back(icon);
+	hudObject = new HudObject("Assets/Textures/hud/Arcane_BG.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 4) * 3, static_cast<float>(64)), glm::vec2(80.0f, 80.0f));
+	hudObject->setAlpha(1.0f);
+	m_hudHandler.insertHUDObject(hudObject, SPELL_ARCANE);
 
-	icon = new HudObject("Assets/Textures/hud/Shield_BG.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 4) * 3 + 128, static_cast<float>(64)), glm::vec2(80.0f, 80.0f));
-	icon->setAlpha(1.0f);
-	Renderer::getInstance()->submit2DHUD(icon);
-	m_icons.emplace_back(icon);
+	hudObject = new HudObject("Assets/Textures/hud/Shield_BG.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 4) * 3 + 128, static_cast<float>(64)), glm::vec2(80.0f, 80.0f));
+	hudObject->setAlpha(1.0f);
+	m_hudHandler.insertHUDObject(hudObject, SPELL_DEFLECT);
 
-	icon = new HudObject("Assets/Textures/hud/Fire_BG.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 4) * 3 + 64, static_cast<float>(64 + 90)), glm::vec2(80.0f, 80.0f));
-	icon->setAlpha(1.0f);
-	Renderer::getInstance()->submit2DHUD(icon);
-	m_icons.emplace_back(icon);
+	hudObject = new HudObject("Assets/Textures/hud/Fire_BG.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 4) * 3 + 64, static_cast<float>(64 + 90)), glm::vec2(80.0f, 80.0f));
+	hudObject->setAlpha(1.0f);
+	m_hudHandler.insertHUDObject(hudObject, SPELL_FIRE);
+
 	//HP BAR
-	m_hpBar = new HudObject("Assets/Textures/hud/tmpHP.png", glm::vec2(static_cast<float>(80), static_cast<float>(124)), glm::vec2(80.0f, 200.0f));
-	m_hpBar->setAlpha(1.0f);
-	m_hpBar->setFillColor(glm::vec3(1, 0, 0));
-	Renderer::getInstance()->submit2DHUD(m_hpBar);
+	hudObject = new HudObject("Assets/Textures/hud/tmpHP.png", glm::vec2(static_cast<float>(80), static_cast<float>(124)), glm::vec2(80.0f, 200.0f));
+	hudObject->setAlpha(1.0f);
+	hudObject->setFillColor(glm::vec3(1, 0, 0));
+	m_hudHandler.insertHUDObject(hudObject, BAR_HP);
 	// ___ ____ ___
 
 
@@ -84,12 +83,9 @@ PlayState::PlayState()
 
 PlayState::~PlayState()
 {
-
 	for (GameObject* object : m_objects)
 		delete object;
-	for (HudObject* icon : m_icons)
-		delete icon;
-
+	
 	GUIclear();
 
 	m_objects.clear();
@@ -98,10 +94,7 @@ PlayState::~PlayState()
 	delete m_bPhysics;
 	delete m_spellHandler;
 	delete m_camera;
-	delete m_crosshairHUD;
-	delete m_deflectCrosshairHUD;
-	delete m_hitCrosshair;
-	delete m_damageOverlay;
+
 	if (LocalServer::getInstance()->isInitialized()) {
 		LocalServer::getInstance()->destroy();
 	}
@@ -119,52 +112,34 @@ void PlayState::update(float dt)
 	m_player->update(dt);
 	m_spellHandler->spellUpdate(dt);
 	m_player->update(dt);
-	
-	
-	//m_hpBar->setYClip(m_player->getHealth() / 100);
-	
-
-	if (m_player->isDeflecting()) {
-		m_crosshairHUD->setAlpha(0.0f);
-		m_deflectCrosshairHUD->setAlpha(1.0f);
+	if (Input::isKeyPressed(GLFW_KEY_E)) {
+		m_hudHandler.fadeOut();
+		logTrace(m_player->getHealth());
 	}
-	else
-	{
-		m_crosshairHUD->setAlpha(1.0f);
-		m_deflectCrosshairHUD->setAlpha(0.0f);
+	if (Input::isKeyPressed(GLFW_KEY_R)) {
+		m_hudHandler.fadeIn();
 	}
 
 	if (Client::getInstance()->getMyData().health != m_player->getHealth())
 	{
-		if (Client::getInstance()->getMyData().health == NetGlobals::maxPlayerHealth && m_player->getHealth() == 0)
+		/*if (Client::getInstance()->getMyData().health == NetGlobals::maxPlayerHealth && m_player->getHealth() == 0)
 			m_damageOverlay->setAlpha(0.0f);
 		else
-			m_damageOverlay->setAlpha(1.0f);
+			m_damageOverlay->setAlpha(1.0f);*/
 
 		m_player->setHealth(Client::getInstance()->getMyData().health);
 	}
 
-	if (m_damageOverlay->getAlpha() != 0)
-	{
-		m_damageOverlay->setAlpha(m_damageOverlay->getAlpha() - dt);
-	}
-
-	if (m_hitCrosshair->getAlpha() > 0.0f) {
-		m_hitCrosshair->setAlpha(m_hitCrosshair->getAlpha() - dt);
-		
-		if (m_hitCrosshair->getAlpha() < 0.0f) {
-			m_hitCrosshair->setAlpha(0.0f);
-		}
-	}
 
 	for (GameObject* object : m_objects)
 	{
 		object->update(dt);
 	}
-
-	//Enable GUI
+	
 	GUIHandler();
+	HUDHandler(dt);
 
+	
 }
 
 void PlayState::render()
@@ -175,8 +150,65 @@ void PlayState::render()
 
 void PlayState::onSpellHit_callback()
 {
-	m_hitCrosshair->setAlpha(1.0f);
+	m_hudHandler.getHudObject(CROSSHAIR_HIT)->setAlpha(1.0f);
 }
+
+void PlayState::HUDHandler(float dt) {
+	/*
+	if (m_player->isDead()) {
+		m_hideHUD = true;
+	}
+	else {
+		m_hideHUD = false;
+	}
+	HudObject* hudObject = m_hudHandler.getHudObject(BAR_HP);
+	//When the player is dead
+	if (m_hideHUD && hudObject->getAlpha() > 0) {
+		for (size_t i = 0; i < m_icons.size(); i++)
+		{
+			m_icons[i]->setAlpha(0);
+		}
+		hudObject->setAlpha(0);
+	}
+	//If the HP bar is hidden and the player isn't dead
+	else if (!m_hideHUD && hudObject->getAlpha() <= 1) {
+		for (size_t i = 0; i < m_icons.size(); i++)
+		{
+			m_icons[i]->setAlpha(m_icons[i]->getAlpha() + dt);
+		}
+		m_hpBar->setAlpha(hudObject->getAlpha() + dt);
+	}
+	*/
+	//HP bar
+	m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(m_player->getHealth()) / 100);
+	
+	//Deflect
+	if (m_player->isDeflecting()) {
+		m_hudHandler.getHudObject(CROSSHAIR)->setAlpha(0.0f);
+		m_hudHandler.getHudObject(CROSSHAIR_DEFLECT)->setAlpha(1.0f);
+	}
+	else
+	{
+		m_hudHandler.getHudObject(CROSSHAIR)->setAlpha(1.0f);
+		m_hudHandler.getHudObject(CROSSHAIR_DEFLECT)->setAlpha(0.0f);
+	}
+	//Damage Overlay
+	
+	if (m_hudHandler.getHudObject(DAMAGE_OVERLAY)->getAlpha() != 0)
+	{
+		m_hudHandler.getHudObject(DAMAGE_OVERLAY)->setAlpha(m_hudHandler.getHudObject(DAMAGE_OVERLAY)->getAlpha() - dt);
+	}
+	//Hitmarker
+	if (m_hudHandler.getHudObject(CROSSHAIR_HIT)->getAlpha() > 0.0f) {
+		m_hudHandler.getHudObject(CROSSHAIR_HIT)->setAlpha(m_hudHandler.getHudObject(CROSSHAIR_HIT)->getAlpha() - dt);
+
+		if (m_hudHandler.getHudObject(CROSSHAIR_HIT)->getAlpha() < 0.0f) {
+			m_hudHandler.getHudObject(CROSSHAIR_HIT)->setAlpha(0.0f);
+		}
+	}
+
+}
+
 
 void PlayState::GUIHandler()
 {
@@ -254,7 +286,6 @@ void PlayState::GUILoadScoreboard() {
 	}
 }
 
-
 void PlayState::GUILoadButtons()
 {
 	m_mainMenu = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(PLAYSECTION, "TaharezLook/Button", glm::vec4(0.45f, 0.45f, 0.1f, 0.05f), glm::vec4(0.0f), "Exit To Main Menu"));
@@ -272,7 +303,6 @@ void PlayState::GUIclear()
 	m_scoreboardExists = false;
 }
 
-
 bool PlayState::onMainMenuClick(const CEGUI::EventArgs& e)
 {
 	Renderer::getInstance()->clear();
@@ -282,11 +312,7 @@ bool PlayState::onMainMenuClick(const CEGUI::EventArgs& e)
 
 bool PlayState::onQuitClick(const CEGUI::EventArgs& e) {
 	glfwSetWindowShouldClose(glfwGetCurrentContext(), true);
-	return true;
-
-
-
-	
+	return true;	
 }
 
 //This function is called everytime two collision objects collide

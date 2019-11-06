@@ -40,7 +40,6 @@ public:
 
 	void renderSpell();
 
-	const SPELL_TYPE& activatedSpell() const;
 
 private:
 	const uint64_t getUniqueID();

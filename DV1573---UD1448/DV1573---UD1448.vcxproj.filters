@@ -64,11 +64,12 @@
     <ClCompile Include="Spells\fire.cpp" />
     <ClCompile Include="System\TimedCallback.cpp" />
     <ClCompile Include="Renderer\BloomBlur.cpp" />
-    <ClCompile Include="Renderer\HudObject.cpp" />
-    <ClCompile Include="Renderer\HudTextureMap.cpp" />
     <ClCompile Include="Spells\ReflectSpell.cpp" />
     <ClCompile Include="Text\FreeType.cpp" />
     <ClCompile Include="Text\HUDShader.cpp" />
+    <ClCompile Include="HUD\HudObject.cpp" />
+    <ClCompile Include="HUD\HudTextureMap.cpp" />
+    <ClCompile Include="HUD\HudHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
@@ -144,10 +145,11 @@
     <ClInclude Include="Spells\fire.h" />
     <ClInclude Include="System\TimedCallback.h" />
     <ClInclude Include="Renderer\BloomBlur.h" />
-    <ClInclude Include="Renderer\HudObject.h" />
-    <ClInclude Include="Renderer\HudTextureMap.h" />
     <ClInclude Include="Text\FreeType.h" />
     <ClInclude Include="Text\HUDShader.h" />
+    <ClInclude Include="HUD\HudObject.h" />
+    <ClInclude Include="HUD\HudTextureMap.h" />
+    <ClInclude Include="HUD\HudHandler.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

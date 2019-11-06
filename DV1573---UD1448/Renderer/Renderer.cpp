@@ -70,7 +70,6 @@ void Renderer::renderHUD()
 			shader->setMat4("modelMatrix", hudObject->getModelMatrix());
 			shader->setFloat("alphaValue", hudObject->getAlpha());
 			shader->setVec2("clip", glm::vec2(hudObject->getXClip(), hudObject->getYClip()));
-			//shader->setVec3("fillColor", hudObject->getFillColor());
 			glBindVertexArray(hudObject->getVAO());
 
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
