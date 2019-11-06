@@ -27,6 +27,8 @@ void Client::startup()
 		m_clientPeer->Startup(1, &RakNet::SocketDescriptor(), 1);
 		m_initialized = true;	
 		m_sendUpdatePackages = false;
+
+		m_networkPickup = new NetworkPickups();
 	}
 }
 
@@ -43,6 +45,7 @@ void Client::destroy()
 		if (m_processThread.joinable()) {
 			m_processThread.join();
 		}
+		delete m_networkPickup;
 
 		m_serverList.clear();
 		m_connectedPlayers.clear();
@@ -52,7 +55,7 @@ void Client::destroy()
 		m_removeOrAddSpellQueue.clear();
 		m_networkPlayers.cleanUp();
 		m_networkSpells.cleanUp();
-		m_networkPickup.cleanUp();
+		m_networkPickup->cleanUp();
 		resetPlayerData();
 		m_initialized = false;
 		RakNet::RakPeerInterface::DestroyInstance(m_clientPeer);
@@ -473,8 +476,14 @@ void Client::processAndHandlePackets()
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			PlayerPacket playerPacket;
 			playerPacket.Serialize(false, bsIn);
-
+			m_myPlayerDataPacket.lastHitByGuid = playerPacket.lastHitByGuid;
 			m_myPlayerDataPacket.health = playerPacket.health;
+
+
+			logTrace("Player hit me {0}", m_myPlayerDataPacket.lastHitByGuid.rakNetGuid.ToString());
+
+			m_latestPlayerThatHitMe = findPlayerByGuid(playerPacket.lastHitByGuid);
+
 		}
 		break;
 
@@ -558,8 +567,8 @@ void Client::processAndHandlePackets()
 			pp.pickup = nullptr;
 			
 			{
-				std::lock_guard<std::mutex> lockGuard(m_networkPickup.m_mutex);
-				m_networkPickup.m_pickupProps.emplace_back(pp);
+				std::lock_guard<std::mutex> lockGuard(m_networkPickup->m_mutex);
+				m_networkPickup->m_pickupProps.emplace_back(pp);
 			}
 
 		}
@@ -573,11 +582,11 @@ void Client::processAndHandlePackets()
 			pickupPacket.Serialize(false, bsIn);
 
 			bool found = false;
-			for (size_t i = 0; i < m_networkPickup.m_pickupProps.size() && !found; i++) {
-				auto& prop = m_networkPickup.m_pickupProps[i];
+			for (size_t i = 0; i < m_networkPickup->m_pickupProps.size() && !found; i++) {
+				auto& prop = m_networkPickup->m_pickupProps[i];
 				
 				if (prop.packet.uniqueID == pickupPacket.uniqueID) {
-					std::lock_guard<std::mutex> lockGuard(m_networkPickup.m_mutex);
+					std::lock_guard<std::mutex> lockGuard(m_networkPickup->m_mutex);
 					prop.flag = NetGlobals::THREAD_FLAG::REMOVE;
 					found = true;
 				}
@@ -761,7 +770,7 @@ void Client::updateNetworkEntities(const float& dt)
 	if (m_initialized && m_isConnectedToAnServer) {
 		m_networkPlayers.update(dt);
 		m_networkSpells.update(dt);
-		m_networkPickup.update(dt);
+		m_networkPickup->update(dt);
 	}
 
 }
@@ -861,6 +870,11 @@ NetworkSpells& Client::getNetworkSpellsREF()
 const PlayerPacket& Client::getMyData() const
 {
 	return m_myPlayerDataPacket;
+}
+
+const PlayerPacket* Client::getLatestPlayerThatHitMe() const
+{
+	return m_latestPlayerThatHitMe;
 }
 
 const ServerStateChange& Client::getServerState() const
@@ -1020,6 +1034,17 @@ SpellPacket* Client::findActiveSpell(const SpellPacket& packet)
 
 		if (sp.CreatorGUID == packet.CreatorGUID && sp.SpellID == packet.SpellID) {
 			return &sp;
+		}
+	}
+
+	return nullptr;
+}
+
+PlayerPacket* Client::findPlayerByGuid(const RakNet::AddressOrGUID& guid)
+{
+	for (size_t i = 0; i < m_connectedPlayers.size(); i++) {
+		if (m_connectedPlayers[i].guid == guid) {
+			return &m_connectedPlayers[i];
 		}
 	}
 

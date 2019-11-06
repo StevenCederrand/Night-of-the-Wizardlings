@@ -551,8 +551,9 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 
 		float totalDamage = hitpacket->damage * damageMultiplier;
 		
-
 		target->health -= static_cast<int>(totalDamage);
+
+		target->lastHitByGuid = hitpacket->CreatorGUID;
 
 		if (target->health <= 0) {
 			removePlayerBuff(target);

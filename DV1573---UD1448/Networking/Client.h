@@ -45,6 +45,7 @@ public:
 	NetworkSpells& getNetworkSpellsREF();
 	
 	const PlayerPacket& getMyData() const;
+	const PlayerPacket* getLatestPlayerThatHitMe() const;
 	const ServerStateChange& getServerState() const;
 	const CountdownPacket& getCountdownPacket() const;
 	const CountdownPacket& getRespawnTime() const;
@@ -71,7 +72,7 @@ private:
 	void resetPlayerData();
 
 	SpellPacket* findActiveSpell(const SpellPacket& packet);
-	
+	PlayerPacket* findPlayerByGuid(const RakNet::AddressOrGUID& guid);
 	NetworkSpells::SpellEntity* findSpellEntityInNetworkSpells(const SpellPacket& packet);
 	NetworkPlayers::PlayerEntity* findPlayerEntityInNetworkPlayers(const RakNet::AddressOrGUID& guid);
 
@@ -95,6 +96,7 @@ private:
 	std::thread m_processThread;
 	
 	PlayerPacket m_myPlayerDataPacket;
+	PlayerPacket* m_latestPlayerThatHitMe;
 	ServerStateChange m_serverState;
 	CountdownPacket m_countDownPacket;
 	CountdownPacket m_respawnTime;
@@ -104,7 +106,7 @@ private:
 	std::vector<PlayerPacket> m_connectedPlayers;
 	NetworkPlayers m_networkPlayers;
 	NetworkSpells m_networkSpells;
-	NetworkPickups m_networkPickup;
+	NetworkPickups* m_networkPickup;
 
 	std::mutex m_cleanupMutex;
 	

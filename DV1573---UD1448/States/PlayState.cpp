@@ -121,13 +121,48 @@ void PlayState::update(float dt)
 	if (Input::isKeyPressed(GLFW_KEY_R)) {
 		m_hudHandler.fadeIn();
 	}
+	//m_hpBar->setYClip(m_player->getHealth() / 100);
+	
+	if (Client::getInstance()->getMyData().health <= 0) {
+		
+		if (m_camera->isCameraActive()) {
+			m_camera->disableCameraMovement(true);
+		}
+
+		const PlayerPacket* myKiller = Client::getInstance()->getLatestPlayerThatHitMe();
+		if (myKiller != nullptr) {
+			m_camera->lookAt(myKiller->position);
+		}
+
+		m_hudHandler.getHudObject(CROSSHAIR)->setAlpha(0.0f);
+		m_hudHandler.getHudObject(CROSSHAIR_DEFLECT)->setAlpha(0.0f);
+	}
+	else {
+		
+		if (m_camera->isCameraActive() == false) {
+			m_camera->resetCamera();
+			m_camera->disableCameraMovement(false);
+		}
+
+		if (m_player->isDeflecting()) {
+			m_hudHandler.getHudObject(CROSSHAIR)->setAlpha(0.0f);
+			m_hudHandler.getHudObject(CROSSHAIR_DEFLECT)->setAlpha(1.0f);
+		}
+		else
+		{
+			m_hudHandler.getHudObject(CROSSHAIR)->setAlpha(1.0f);
+			m_hudHandler.getHudObject(CROSSHAIR_DEFLECT)->setAlpha(0.0f);
+		}
+
+
+	}
 
 	if (Client::getInstance()->getMyData().health != m_player->getHealth())
 	{
-		/*if (Client::getInstance()->getMyData().health == NetGlobals::maxPlayerHealth && m_player->getHealth() == 0)
-			m_damageOverlay->setAlpha(0.0f);
+		if (Client::getInstance()->getMyData().health == NetGlobals::maxPlayerHealth && m_player->getHealth() == 0)
+			m_hudHandler.getHudObject(DAMAGE_OVERLAY)->setAlpha(0.0f);
 		else
-			m_damageOverlay->setAlpha(1.0f);*/
+			m_hudHandler.getHudObject(DAMAGE_OVERLAY)->setAlpha(1.0f);
 
 		m_player->setHealth(Client::getInstance()->getMyData().health);
 	}
