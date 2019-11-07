@@ -7,7 +7,7 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_playerCamera = camera;
 	m_playerPosition = playerPosition;
 	m_name = name;
-	m_speed = 5.0f;
+	m_speed = 7.0f;
 	m_health = 100;
 	m_attackCooldown = 0;
 	m_special2Cooldown = 0;
@@ -33,16 +33,17 @@ Player::~Player()
 
 void Player::update(float deltaTime)
 {																		
-																		// IMPORTANT; DOING THESE WRONG WILL CAUSE INPUT LAG
-	m_playerCamera->update();											// Update this first so that subsequent uses are synced
-	m_directionVector = glm::normalize(m_playerCamera->getCamFace());	// Update this first so that subsequent uses are synced
-	move(deltaTime);													// Update this first so that subsequent uses are synced
-	m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
-	if (!m_logicStop) {
-		move(deltaTime);
-		attack();
+	if (m_playerCamera->isCameraActive()) {									// IMPORTANT; DOING THESE WRONG WILL CAUSE INPUT LAG
+		m_playerCamera->update();											// Update this first so that subsequent uses are synced
+		m_directionVector = glm::normalize(m_playerCamera->getCamFace());	// Update this first so that subsequent uses are synced
+		move(deltaTime);													// Update this first so that subsequent uses are synced
+		m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
+
+		if (!m_logicStop) {
+			move(deltaTime);
+			attack();
+		}
 	}
-	
 	if (m_client->isConnectedToSever()) {
 		m_client->updatePlayerData(this);
 	}
