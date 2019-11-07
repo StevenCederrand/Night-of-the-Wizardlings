@@ -468,7 +468,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	//BLOOMBLUR MISSION STEP 1: SAMPLE
 	//m_bloom->bindHdrFBO();
 	renderSkybox(m_skybox);
-	renderDeflectBox(m_deflectBox);
+	//renderDeflectBox(m_deflectBox);
 	m_spellHandler->renderSpell();
 
 #pragma region Color_Render
