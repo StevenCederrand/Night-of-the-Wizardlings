@@ -436,7 +436,6 @@ void SpellHandler::REFLECTupdate(float deltaTime, int i)
 		if (reflectSpell->checkReflectCollision(spellList[i].Position, spellList[i].Direction, hitboxRadius))
 		{
 			createSpell(m_spawnerPos, m_spawnerDir, spellList[i].SpellType);
-			
 		}
 	}
 }

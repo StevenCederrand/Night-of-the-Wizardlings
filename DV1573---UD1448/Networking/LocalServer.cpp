@@ -74,6 +74,7 @@ void LocalServer::startup(const std::string& serverName)
 		m_adminID = RakNet::UNASSIGNED_RAKNET_GUID;
 		m_timedUnusedObjectRemoval.start();
 		createPickupSpawnLocations();
+		createPlayerSpawnLocations();
 	}
 }
 
@@ -99,6 +100,7 @@ void LocalServer::destroy()
 			m_pickupSpawnLocations.clear();
 			m_activePickups.clear();
 			m_queuedPickups.clear();
+			m_playerSpawnLocations.clear();
 			m_pickupID = 0;
 		}
 		m_initialized = false;
@@ -310,11 +312,13 @@ void LocalServer::processAndHandlePackets()
 			{
 				if (packet->guid == m_connectedPlayers[i].guid.rakNetGuid) {
 					
-					// HasBeenUpdatedOnce will go false always because the client won't update that variable
+					// HasBeenUpdatedOnce will go false always because the client won't update that variable & same goes for latest spawn pos
 					bool hasBeenUpdatedOnce = m_connectedPlayers[i].hasBeenUpdatedOnce;
-					
+					glm::vec3 latestSpawnPos = m_connectedPlayers[i].latestSpawnPosition;
+
 					m_connectedPlayers[i] = playerPacket;
 					m_connectedPlayers[i].hasBeenUpdatedOnce = hasBeenUpdatedOnce;
+					m_connectedPlayers[i].latestSpawnPosition = latestSpawnPos;
 
 					if (m_connectedPlayers[i].hasBeenUpdatedOnce == false) {
 						m_connectedPlayers[i].hasBeenUpdatedOnce = true;
@@ -570,6 +574,10 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 			target->Serialize(true, hitPlayerStream);
 			m_serverPeer->Send(&hitPlayerStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, target->guid, false);
 			
+			// Assign the dead player a spawn position
+			target->latestSpawnPosition = getRandomSpawnLocation();
+			logTrace("[SERVER] Assigned spawn position: {0}, {1}, {2}", target->latestSpawnPosition.x, target->latestSpawnPosition.y, target->latestSpawnPosition.z);
+
 			// Update the shooters score
 			shooter->numberOfKills++;
 			RakNet::BitStream shooterPacketStream;
@@ -770,6 +778,8 @@ void LocalServer::handleRespawns(const uint32_t& diff)
 		}
 		else {
 			
+			
+			logTrace("[SERVER] PlayerSpawn: {0}, {1}, {2}", rs.player->latestSpawnPosition.x, rs.player->latestSpawnPosition.y, rs.player->latestSpawnPosition.z);
 			rs.currentTime = 0;
 			rs.player->health = NetGlobals::maxPlayerHealth;
 
@@ -1043,6 +1053,17 @@ void LocalServer::createPickupSpawnLocations()
 
 }
 
+void LocalServer::createPlayerSpawnLocations()
+{
+	m_playerSpawnLocations.emplace_back(10.0f, 1.0f, 0.0f);
+	m_playerSpawnLocations.emplace_back(0.0f, 1.0f, 10.0f);
+	m_playerSpawnLocations.emplace_back(10.0f, 1.0f, 10.0f);
+
+	m_playerSpawnLocations.emplace_back(-10.0f, 1.0f, 0.0f);
+	m_playerSpawnLocations.emplace_back(0.0f, 1.0f, -10.0f);
+	m_playerSpawnLocations.emplace_back(-10.0f, 1.0f, -10.0f);
+}
+
 void LocalServer::destroyPickupOverNetwork(PickupPacket& pickupPacket)
 {
 
@@ -1121,6 +1142,37 @@ LocalServer::PickupSpawnLocation* LocalServer::getRandomPickupSpawnLocation()
 
 
 	return nullptr;
+}
+
+const glm::vec3& LocalServer::getRandomSpawnLocation()
+{
+	std::vector<glm::vec3*> availableSpawnLocations;
+
+	for (size_t j = 0; j < m_playerSpawnLocations.size(); j++) {
+
+		bool occupied = false;
+
+		for (size_t i = 0; i < m_respawnList.size() && occupied; i++) {
+			const Respawner& rs = m_respawnList[i];
+			if (rs.player->latestSpawnPosition == m_playerSpawnLocations[j]) {
+				occupied = true;
+			}
+		}
+
+		if (occupied == false) {
+			availableSpawnLocations.emplace_back(&m_playerSpawnLocations[j]);
+		}
+
+	}
+
+	
+	if(availableSpawnLocations.size() == 0)
+		return m_playerSpawnLocations[0];
+
+
+	size_t luckyNumber = Randomizer::single(size_t(0), availableSpawnLocations.size() - 1);
+	return *availableSpawnLocations[luckyNumber];
+
 }
 
 const bool& LocalServer::isInitialized() const

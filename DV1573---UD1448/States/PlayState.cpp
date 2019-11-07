@@ -140,6 +140,8 @@ void PlayState::update(float dt)
 	else {
 		
 		if (m_camera->isCameraActive() == false) {
+			// Not the most elegant solution but here i just assume that we respawned
+			m_player->setPlayerPos(Client::getInstance()->getMyData().latestSpawnPosition);
 			m_camera->resetCamera();
 			m_camera->disableCameraMovement(false);
 		}
