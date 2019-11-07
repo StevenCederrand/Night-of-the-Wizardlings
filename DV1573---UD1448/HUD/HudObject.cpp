@@ -46,6 +46,9 @@ void HudObject::setFillColor(const glm::vec3& color)
 
 void HudObject::setGrayscale(const int& grayscale)
 {
+	if (grayscale == m_grayscale) { //if we are trying to set something to the same value
+		return;
+	}
 	m_grayscale = grayscale;
 }
 
