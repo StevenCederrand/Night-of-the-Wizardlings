@@ -1055,13 +1055,13 @@ void LocalServer::createPickupSpawnLocations()
 
 void LocalServer::createPlayerSpawnLocations()
 {
-	m_playerSpawnLocations.emplace_back(10.0f, 1.0f, 0.0f);
-	m_playerSpawnLocations.emplace_back(0.0f, 1.0f, 10.0f);
-	m_playerSpawnLocations.emplace_back(10.0f, 1.0f, 10.0f);
+	m_playerSpawnLocations.emplace_back(10.0f, 3.0f, 0.0f);
+	m_playerSpawnLocations.emplace_back(0.0f, 3.0f, 10.0f);
+	m_playerSpawnLocations.emplace_back(10.0f, 3.0f, 10.0f);
 
-	m_playerSpawnLocations.emplace_back(-10.0f, 1.0f, 0.0f);
-	m_playerSpawnLocations.emplace_back(0.0f, 1.0f, -10.0f);
-	m_playerSpawnLocations.emplace_back(-10.0f, 1.0f, -10.0f);
+	m_playerSpawnLocations.emplace_back(-10.0f, 3.0f, 0.0f);
+	m_playerSpawnLocations.emplace_back(0.0f, 3.0f, -10.0f);
+	m_playerSpawnLocations.emplace_back(-10.0f, 3.0f, -10.0f);
 }
 
 void LocalServer::destroyPickupOverNetwork(PickupPacket& pickupPacket)
