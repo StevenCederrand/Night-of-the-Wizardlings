@@ -6,7 +6,6 @@
 #define _HUDHANDLER_h
 
 enum HUDID {
-	SPECIAL_SPELL,
 	DEFLECT, 
 	NORMAL, 
 	BAR_HP, 
@@ -16,8 +15,8 @@ enum HUDID {
 	CROSSHAIR_DEFLECT, 
 	DAMAGE_OVERLAY,
 	SPELL_ARCANE, 
+	SPELL_SPECIAL,
 	SPELL_DEFLECT, 
-	SPELL_FIRE 
 };
 
 class HudHandler {
@@ -28,11 +27,13 @@ public:
 	void insertHUDObject(HudObject* object, const HUDID& hudID);
 	void fadeOut();
 	void fadeIn();
+
 	HudObject* getHudObject(const HUDID& hudID);
 
 private: 
 	std::map<HUDID, HudObject*> m_hudObjects;
-	   
+	HUDID m_cacheID;
+	HudObject* m_cache;
 };
 
 #endif

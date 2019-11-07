@@ -37,7 +37,7 @@ public:
 	void logicStop(const bool& stop);
 	const float& getAttackCooldown() const;
 	const float& getSpecialCooldown() const;
-	
+	const float& getDeflectCooldown() const;
 
 private:
 	void move(float deltaTime); 

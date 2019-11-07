@@ -78,13 +78,6 @@ void PlayState::update(float dt)
 	m_player->update(dt);
 	m_spellHandler->spellUpdate(dt);
 
-	if (Input::isKeyPressed(GLFW_KEY_E)) {
-		m_hudHandler.fadeOut();
-	}
-	if (Input::isKeyPressed(GLFW_KEY_R)) {
-		m_hudHandler.fadeIn();
-	}
-	
 	//If the player dies
 	if (Client::getInstance()->getMyData().health <= 0) {
 		
@@ -145,7 +138,9 @@ void PlayState::update(float dt)
 	}
 	
 	GUIHandler();
-	HUDHandler(dt);	
+	if (!m_hideHUD) {
+		HUDHandler(dt);
+	}
 }
 
 void PlayState::render()
@@ -163,6 +158,27 @@ void PlayState::HUDHandler(float dt) {
 	//HP bar
 	m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(m_player->getHealth()) / 100);
 	
+	if (m_player->getAttackCooldown() > 0) {
+		m_hudHandler.getHudObject(SPELL_ARCANE)->setGrayscale(1);
+	}
+	else {
+		m_hudHandler.getHudObject(SPELL_ARCANE)->setGrayscale(0);
+	}
+	
+	if (m_player->getSpecialCooldown() > 0) {
+		m_hudHandler.getHudObject(SPELL_SPECIAL)->setGrayscale(1);
+	}
+	else {
+		m_hudHandler.getHudObject(SPELL_SPECIAL)->setGrayscale(0);
+	}
+
+	if (m_player->getDeflectCooldown() > 0) {
+		m_hudHandler.getHudObject(SPELL_DEFLECT)->setGrayscale(1);
+	}
+	else {
+		m_hudHandler.getHudObject(SPELL_DEFLECT)->setGrayscale(0);
+	}
+
 	//Deflect
 	if (m_player->isDeflecting()) {
 		m_hudHandler.getHudObject(CROSSHAIR)->setAlpha(0.0f);

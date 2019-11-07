@@ -28,7 +28,7 @@ HudHandler::HudHandler()
 
 	hudObject = new HudObject("Assets/Textures/hud/Fire_BG.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 4) * 3 + 64, static_cast<float>(64 + 90)), glm::vec2(80.0f, 80.0f));
 	hudObject->setAlpha(1.0f);
-	insertHUDObject(hudObject, SPELL_FIRE);
+	insertHUDObject(hudObject, SPELL_SPECIAL);
 
 	//HP BAR
 	hudObject = new HudObject("Assets/Textures/hud/tmpHP.png", glm::vec2(static_cast<float>(80), static_cast<float>(124)), glm::vec2(80.0f, 200.0f));
@@ -87,10 +87,19 @@ void HudHandler::insertHUDObject(HudObject* object, const HUDID& hudID)
 
 HudObject* HudHandler::getHudObject(const HUDID& hudID)
 {
-	auto item = m_hudObjects.find(hudID);
+	if (hudID != m_cacheID) {
+		auto item = m_hudObjects.find(hudID);
+		
+		if (item == m_hudObjects.end()) {
+			return nullptr;
+		}
+		m_cacheID = hudID;
+		m_cache = item._Ptr->_Myval.second;
 
-	if (item == m_hudObjects.end()) {
-		return nullptr;
+		return m_cache;
 	}
-	return item._Ptr->_Myval.second;
+	else {
+		return m_cache;
+	}
+
 }
