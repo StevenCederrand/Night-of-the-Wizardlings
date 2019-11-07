@@ -59,6 +59,16 @@ void GameObject::loadMesh(std::string fileName)
 				// Mesh with skeleton requires extra vertex data
 				tempMesh.setUpMesh(tempLoader.GetSkeleVertices(i), tempLoader.GetFaces(i));
 				tempMesh.setUpSkeleBuffers();
+
+				// Get skeleton
+				Skeleton tempSkeleton = tempLoader.GetSkeleton(i);
+				std::string skeletonName = tempSkeleton.name + "_" + m_objectName;
+				if (skeletonName != "" && !SkeletonMap::getInstance()->existsWithName(skeletonName))
+				{
+					SkeletonMap::getInstance()->createSkeleton(skeletonName, tempSkeleton);
+					logTrace("Skeleton created: {0}", skeletonName);
+				}
+				tempMesh.setSkeleton(skeletonName);
 			}
 			else
 			{
@@ -72,14 +82,6 @@ void GameObject::loadMesh(std::string fileName)
 			// Needs more testing, this value is per global mesh, the MeshBox value is per GameObject mesh
 			// tempMesh.setTransform(tempLoader.GetTransform(id));
 
-			// Get skeleton
-			Skeleton tempSkeleton = tempLoader.GetSkeleton(i);
-			std::string skeletonName = tempSkeleton.name + "_" + m_objectName;
-			if (skeletonName != "" && !SkeletonMap::getInstance()->existsWithName(skeletonName))
-			{
-				SkeletonMap::getInstance()->createSkeleton(skeletonName, tempSkeleton);
-				logTrace("Skeleton created: {0}", skeletonName);
-			}
 
 			// Get animation
 			for (size_t a = 0; a < tempLoader.GetAnimation(i).size(); a++)
@@ -95,7 +97,7 @@ void GameObject::loadMesh(std::string fileName)
 				tempMesh.addAnimation(animationName);
 			}
 
-			tempMesh.setSkeleton(skeletonName);
+			
 			tempMesh.setMaterial(tempLoader.GetMaterial(i).name);
 			MeshMap::getInstance()->createMesh(meshName, tempMesh);
 			logTrace("Mesh loaded: {0}, Expecting material: {1}", tempMesh.getName().c_str(), tempMesh.getMaterial());
@@ -153,6 +155,44 @@ void GameObject::loadMesh(std::string fileName)
 
 	tempLoader.Unload();
 	updateModelMatrix();
+}
+
+void GameObject::initMesh(Mesh mesh)
+{
+	MeshBox tempMeshBox;									// Meshbox holds the mesh identity and local transform to GameObject
+	tempMeshBox.name = mesh.getName();
+	m_meshes.push_back(tempMeshBox);						// This effectively adds the mesh to the gameobject
+	if (!MeshMap::getInstance()->existsWithName(mesh.getName()))	// This creates the mesh if it does not exist (by name)
+	{
+		//Add mesh
+		MeshMap::getInstance()->createMesh(mesh.getName(), mesh);
+	}
+
+	//Allocate all of the model matrixes
+	m_modelMatrixes.resize(m_meshes.size());
+}
+
+void GameObject::initMesh(std::string name, std::vector<Vertex> vertices, std::vector<Face> faces)
+{
+	MeshBox tempMeshBox;									// Meshbox holds the mesh identity and local transform to GameObject
+	tempMeshBox.name = name;
+	m_meshes.push_back(tempMeshBox);						// This effectively adds the mesh to the gameobject
+	if (!MeshMap::getInstance()->existsWithName(name))	// This creates the mesh if it does not exist (by name)
+	{
+		Mesh tempMesh;
+		tempMesh.nameMesh(name);
+		
+		// Default mesh
+		tempMesh.setUpMesh(vertices, faces);
+		tempMesh.setUpBuffers();
+
+		//Add mesh
+		MeshMap::getInstance()->createMesh(name, tempMesh);
+
+	}
+
+	//Allocate all of the model matrixes
+	m_modelMatrixes.resize(m_meshes.size());
 }
 
 const bool& GameObject::getShouldRender() const

@@ -258,16 +258,24 @@ void Shader::setInt(std::string name, int num)
 //Assumption is that you are using the shader
 void Shader::setMaterial(std::string materialName) {
 	Material* mat = MaterialMap::getInstance()->getMaterial(materialName);
-	setVec3("Ambient_Color", mat->ambient);
-	setVec3("Diffuse_Color", mat->diffuse);
-	setInt("HasTex", mat->texture);
-	//setVec3("Specular_Color", mat->specular);
-	
-	for (size_t i = 0; i < mat->textureID.size(); i++) {
-		glActiveTexture(GL_TEXTURE0 + i);
-		glBindTexture(GL_TEXTURE_2D, mat->textureID.at(i));
+	if (mat)
+	{
+		setVec3("Ambient_Color", mat->ambient);
+		setVec3("Diffuse_Color", mat->diffuse);
+		setInt("HasTex", mat->texture);
+		//setVec3("Specular_Color", mat->specular);
+
+		for (size_t i = 0; i < mat->textureID.size(); i++) {
+			glActiveTexture(GL_TEXTURE0 + i);
+			glBindTexture(GL_TEXTURE_2D, mat->textureID.at(i));
+		}
 	}
-	
+	else
+	{
+		setVec3("Ambient_Color", glm::vec3(0.5f));
+		setVec3("Diffuse_Color", glm::vec3(0.5f));
+		setInt("HasTex", 0);
+	}
 }
 
 void Shader::setMaterial(const Material* material)

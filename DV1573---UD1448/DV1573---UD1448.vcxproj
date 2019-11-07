@@ -183,7 +183,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DebugDrawer\DebugDrawer.cpp" />
-    <ClCompile Include="Destruction\DelaunayTriangulation.cpp" />
+    <ClCompile Include="Destruction\DelaunayGenerator.cpp" />
+    <ClCompile Include="Destruction\PointCompare.cpp" />
+    <ClCompile Include="Destruction\VoroniClipper.cpp" />
     <ClCompile Include="GameObject\AnimatedObject.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
@@ -276,11 +278,15 @@
     </ClCompile>
     <ClCompile Include="Text\FreeType.cpp" />
     <ClCompile Include="Text\HUDShader.cpp" />
+    <ClCompile Include="Destruction\VoroniCalculator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
-    <ClInclude Include="Destruction\DelaunayTriangulation.h" />
+    <ClInclude Include="Destruction\DelaunayGenerator.h" />
+    <ClInclude Include="Destruction\Geometry.h" />
+    <ClInclude Include="Destruction\PointCompare.h" />
     <ClInclude Include="Destruction\TriangleNode.h" />
+    <ClInclude Include="Destruction\VoroniClipper.h" />
     <ClInclude Include="GameObject\AnimatedObject.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
@@ -355,6 +361,7 @@
     <ClInclude Include="Texture\stb_image.h" />
     <ClInclude Include="Text\FreeType.h" />
     <ClInclude Include="Text\HUDShader.h" />
+    <ClInclude Include="Destruction\VoroniCalculator.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

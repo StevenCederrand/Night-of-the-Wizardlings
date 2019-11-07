@@ -18,6 +18,8 @@ public:
 	
 	//Loads all the meshes from the file into the GameObject
 	void loadMesh(std::string fileName);
+	void initMesh(Mesh mesh);
+	void initMesh(std::string name, std::vector<Vertex> vertices, std::vector<Face> faces);
 	//Bind all of the material values to the shader, i.e colors
 	void bindMaterialToShader(std::string shaderName);
 	void bindMaterialToShader(std::string shaderName, int matIndex);

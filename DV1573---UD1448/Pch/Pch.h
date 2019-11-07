@@ -61,7 +61,13 @@
 #include <Renderer/Camera.h>
 #include <Renderer/Renderer.h>
 #include <System/Input.h>
+
+// DSTR
 #include <Destruction/TriangleNode.h>
+#include <Destruction/Geometry.h>
+#include <Destruction/DelaunayGenerator.h>
+#include <Destruction/VoroniCalculator.h>
+#include <Destruction/VoroniClipper.h>
 
 
 const std::string SHADERPATH = "Assets/Shaders/";

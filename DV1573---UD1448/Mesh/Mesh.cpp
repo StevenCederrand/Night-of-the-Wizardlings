@@ -3,10 +3,10 @@
 
 Mesh::Mesh()
 {
-	m_name = "";
-	m_filePath = "";
-	m_materialName = "";
-	m_skeleton = "";
+	m_name = {};
+	m_filePath = {};
+	m_materialName = {};
+	m_skeleton = {};
 	m_indexInFile = 0;
 
 	m_vertexCount = 0;
@@ -161,7 +161,7 @@ void Mesh::setTransform(Transform transform)
 	m_transform = transform;
 }
 
-std::string Mesh::getMaterial()
+const std::string& Mesh::getMaterial() const
 {
 	return m_materialName;
 }

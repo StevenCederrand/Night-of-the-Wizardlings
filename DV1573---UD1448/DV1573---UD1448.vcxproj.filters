@@ -69,7 +69,10 @@
     <ClCompile Include="Spells\ReflectSpell.cpp" />
     <ClCompile Include="Text\FreeType.cpp" />
     <ClCompile Include="Text\HUDShader.cpp" />
-    <ClCompile Include="Destruction\DelaunayTriangulation.cpp" />
+    <ClCompile Include="Destruction\VoroniCalculator.cpp" />
+    <ClCompile Include="Destruction\DelaunayGenerator.cpp" />
+    <ClCompile Include="Destruction\PointCompare.cpp" />
+    <ClCompile Include="Destruction\VoroniClipper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
@@ -149,8 +152,12 @@
     <ClInclude Include="Renderer\HudTextureMap.h" />
     <ClInclude Include="Text\FreeType.h" />
     <ClInclude Include="Text\HUDShader.h" />
-    <ClInclude Include="Destruction\DelaunayTriangulation.h" />
     <ClInclude Include="Destruction\TriangleNode.h" />
+    <ClInclude Include="Destruction\Geometry.h" />
+    <ClInclude Include="Destruction\VoroniCalculator.h" />
+    <ClInclude Include="Destruction\DelaunayGenerator.h" />
+    <ClInclude Include="Destruction\PointCompare.h" />
+    <ClInclude Include="Destruction\VoroniClipper.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

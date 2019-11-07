@@ -37,7 +37,8 @@ struct TriangleNode
 	}
 
 	bool Is_Leaf() { return m_cvertex_0 < 0 && m_cvertex_1 < 0 && m_cvertex_2 < 0; }
-	bool Is_Inner() { return m_avertex_0 >= 0 && m_avertex_1 >= 0 && m_avertex_2 >= 0; }
+	bool Is_Inner() { return m_vertex_0 >= 0 && m_vertex_1 >= 0 && m_vertex_2 >= 0; }
+
 	bool Has_Edge(int edge_0, int edge_1)
 	{ 
 		if (edge_0 == m_vertex_0)
