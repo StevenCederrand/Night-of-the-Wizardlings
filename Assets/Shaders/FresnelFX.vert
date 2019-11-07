@@ -1,8 +1,8 @@
 #version 430
 
-layout (location = 0) in vec3 position;
+in vec2 position;
 
-out vec3 textureCoords;
+out vec2 textureCoords;
 
 uniform mat4 projMatrix;
 uniform mat4 viewMatrix;
@@ -10,7 +10,6 @@ uniform mat4 modelMatrix;
 
 void main()
 {
-    textureCoords = position;
-    vec4 pos = projMatrix * viewMatrix * modelMatrix * vec4(position, 1.0);
-    gl_Position = position;
+    gl_Position = projMatrix * viewMatrix * modelMatrix * vec4(position.x, 0.0, position.y, 1.0);
+    textureCoords = vec2(position.x/2.0 + 0.5, position.y/2.0 + 0.5);
 }

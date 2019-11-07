@@ -14,7 +14,7 @@ class DeflectRender
 private:
 	DeflectBuffer m_buffer;
 	
-	glm::vec3 deflectBox[36] =
+	glm::vec3 deflectBox[6] =
 	{
 		// Temporary vertex positions          
 		glm::vec3(-1.0f,  1.0f, -1.0f),
@@ -22,42 +22,7 @@ private:
 		glm::vec3(1.0f, -1.0f, -1.0f),
 		 glm::vec3(1.0f, -1.0f, -1.0f),
 		 glm::vec3(1.0f,  1.0f, -1.0f),
-		glm::vec3(-1.0f,  1.0f, -1.0f),
-
-		glm::vec3(-1.0f, -1.0f,  1.0f),
-		glm::vec3(-1.0f, -1.0f, -1.0f),
-		glm::vec3(-1.0f,  1.0f, -1.0f),
-		glm::vec3(-1.0f,  1.0f, -1.0f),
-		glm::vec3(-1.0f,  1.0f,  1.0f),
-		glm::vec3(-1.0f, -1.0f,  1.0f),
-
-		 glm::vec3(1.0f, -1.0f, -1.0f),
-		 glm::vec3(1.0f, -1.0f,  1.0f),
-		glm::vec3(1.0f,  1.0f,  1.0f),
-		 glm::vec3(1.0f,  1.0f,  1.0f),
-		 glm::vec3(1.0f,  1.0f, -1.0f),
-		 glm::vec3(1.0f, -1.0f, -1.0f),
-
-		glm::vec3(-1.0f, -1.0f,  1.0f),
-		glm::vec3(-1.0f,  1.0f,  1.0f),
-		 glm::vec3(1.0f,  1.0f,  1.0f),
-		 glm::vec3(1.0f,  1.0f,  1.0f),
-		 glm::vec3(1.0f, -1.0f,  1.0f),
-		glm::vec3(-1.0f, -1.0f,  1.0f),
-
-		glm::vec3(-1.0f,  1.0f, -1.0f),
-		 glm::vec3(1.0f,  1.0f, -1.0f),
-		 glm::vec3(1.0f,  1.0f,  1.0f),
-		 glm::vec3(1.0f,  1.0f,  1.0f),
-		glm::vec3(-1.0f,  1.0f,  1.0f),
-		glm::vec3(-1.0f,  1.0f, -1.0f),
-
-		glm::vec3(-1.0f, -1.0f, -1.0f),
-		glm::vec3(-1.0f, -1.0f,  1.0f),
-		 glm::vec3(1.0f, -1.0f, -1.0f),
-		 glm::vec3(1.0f, -1.0f, -1.0f),
-		glm::vec3(-1.0f, -1.0f,  1.0f),
-		 glm::vec3(1.0f, -1.0f,  1.0f)
+		glm::vec3(-1.0f,  1.0f, -1.0f)
 	};
 
 public:
