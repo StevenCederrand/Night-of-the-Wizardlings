@@ -327,7 +327,6 @@ void Renderer::renderSkybox(SkyBox* m_skybox)
 	glDepthMask(GL_FALSE);
 	auto* shader = ShaderMap::getInstance()->useByName("Skybox_Shader");
 	shader->setMat4("modelMatrix", m_skybox->getModelMatrix());
-	//bindMatrixes(shader);
 	shader->setMat4("viewMatrix", glm::mat4(glm::mat3(m_camera->getViewMat())));
 	shader->setMat4("projMatrix", m_camera->getProjMat());
 

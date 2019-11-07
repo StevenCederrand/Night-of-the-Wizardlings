@@ -178,7 +178,7 @@ void PlayState::HUDHandler(float dt) {
 	else {
 		m_hudHandler.getHudObject(SPELL_DEFLECT)->setGrayscale(0);
 	}
-
+		
 	//Deflect
 	if (m_player->isDeflecting()) {
 		m_hudHandler.getHudObject(CROSSHAIR)->setAlpha(0.0f);

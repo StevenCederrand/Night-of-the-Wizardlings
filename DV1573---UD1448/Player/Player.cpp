@@ -66,17 +66,19 @@ void Player::update(float deltaTime)
 	}
 
 
-	/* THIS IS unnecessary*/
+	/* This is unnecessary*/
 	m_attackCooldown -= deltaTime; // Cooldown reduces with time
 	m_deflectCooldown -= deltaTime; // Cooldown reduces with time
 	m_special2Cooldown -= deltaTime; // Cooldown reduces with time
 	m_special3Cooldown -= deltaTime; // Cooldown reduces with time
 
-	m_timeLeftInDeflectState -= deltaTime;
+	if (m_deflecting) {
+		m_timeLeftInDeflectState -= deltaTime;
 
-	if (m_timeLeftInDeflectState < 0.0f) {
-		m_deflecting = false;
-		m_timeLeftInDeflectState = 0.0f;
+		if (m_timeLeftInDeflectState < 0.0f) {
+			m_deflecting = false;
+			m_timeLeftInDeflectState = 0.0f;
+		}
 	}
 }
 
