@@ -65,11 +65,10 @@ void Player::update(float deltaTime)
 		}
 	}
 
-	m_spellhandler->setSpawnerDirection(m_directionVector);
-	m_spellhandler->setSpawnerPosition(m_playerPosition);
 
+	
 	m_attackCooldown -= deltaTime; // Cooldown reduces with time
-	m_specialCooldown -= deltaTime; // Cooldown reduces with time
+	m_deflectCooldown -= deltaTime; // Cooldown reduces with time
 	m_special2Cooldown -= deltaTime; // Cooldown reduces with time
 	m_special3Cooldown -= deltaTime; // Cooldown reduces with time
 
@@ -132,15 +131,17 @@ void Player::attack()
 	{
 		if (m_attackCooldown <= 0)
 		{
+			m_spellhandler->setSpawnerDirection(m_directionVector);
+			m_spellhandler->setSpawnerPosition(m_playerPosition);
 			m_attackCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_spellType); // Put attack on cooldown
 		}
 	}
 
 	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_RIGHT))
 	{
-		if (m_specialCooldown <= 0)
+		if (m_deflectCooldown <= 0)
 		{
-			m_specialCooldown = m_spellhandler->getReflectBase()->m_coolDown;
+			m_deflectCooldown = m_spellhandler->getReflectBase()->m_coolDown;
 			m_timeLeftInDeflectState = m_spellhandler->getReflectBase()->m_lifeTime;
 			m_deflecting = true;
 		}
@@ -152,6 +153,8 @@ void Player::attack()
 		{
 			if (m_specialSpellType2 == ENHANCEATTACK)
 			{
+				m_spellhandler->setSpawnerDirection(m_directionVector);
+				m_spellhandler->setSpawnerPosition(m_playerPosition);
 				// Start loop
 				m_enhanceAttack.start();
 			}
@@ -162,6 +165,8 @@ void Player::attack()
 	{
 		if (m_special3Cooldown <= 0)
 		{
+			m_spellhandler->setSpawnerDirection(m_directionVector);
+			m_spellhandler->setSpawnerPosition(m_playerPosition);
 			m_special3Cooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_specialSpellType3); // Put attack on cooldown
 		}
 	}
@@ -206,6 +211,16 @@ void Player::setSpeed(float speed)
 void Player::logicStop(const bool& stop)
 {
 	m_logicStop = stop;
+}
+
+const float& Player::getAttackCooldown() const
+{
+	return m_attackCooldown;
+}
+
+const float& Player::getSpecialCooldown() const
+{
+	return m_special2Cooldown;
 }
 
 glm::vec3 Player::getPlayerPos() const

@@ -26,45 +26,7 @@ PlayState::PlayState()
 	m_deflectBox = new DeflectRender();
 	m_deflectBox->prepareBuffers();
 
-	// HUD
-	HudObject* hudObject = new HudObject("Assets/Textures/Crosshair_hit.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(32.0f, 32.0f));
-	hudObject->setAlpha(0.0f);
-	m_hudHandler.insertHUDObject(hudObject, CROSSHAIR_HIT);
-
-	hudObject = new HudObject("Assets/Textures/Crosshair.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(32.0f, 32.0f));
-	hudObject->setAlpha(1.0f);
-	m_hudHandler.insertHUDObject(hudObject, CROSSHAIR);
-
-	hudObject = new HudObject("Assets/Textures/Crosshair_deflect.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(32.0f, 32.0f));
-	hudObject->setAlpha(0.0f);
-	m_hudHandler.insertHUDObject(hudObject, CROSSHAIR_DEFLECT);
-	
 	m_player->setHealth(NetGlobals::maxPlayerHealth);
-
-	// ___ ICONS ___
-	hudObject = new HudObject("Assets/Textures/hud/Arcane_BG.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 4) * 3, static_cast<float>(64)), glm::vec2(80.0f, 80.0f));
-	hudObject->setAlpha(1.0f);
-	m_hudHandler.insertHUDObject(hudObject, SPELL_ARCANE);
-
-	hudObject = new HudObject("Assets/Textures/hud/Shield_BG.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 4) * 3 + 128, static_cast<float>(64)), glm::vec2(80.0f, 80.0f));
-	hudObject->setAlpha(1.0f);
-	m_hudHandler.insertHUDObject(hudObject, SPELL_DEFLECT);
-
-	hudObject = new HudObject("Assets/Textures/hud/Fire_BG.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 4) * 3 + 64, static_cast<float>(64 + 90)), glm::vec2(80.0f, 80.0f));
-	hudObject->setAlpha(1.0f);
-	m_hudHandler.insertHUDObject(hudObject, SPELL_FIRE);
-
-	//HP BAR
-	hudObject = new HudObject("Assets/Textures/hud/tmpHP.png", glm::vec2(static_cast<float>(80), static_cast<float>(124)), glm::vec2(80.0f, 200.0f));
-	hudObject->setAlpha(1.0f);
-	hudObject->setFillColor(glm::vec3(1, 0, 0));
-	m_hudHandler.insertHUDObject(hudObject, BAR_HP);
-	// ___ ____ ___
-
-	hudObject = new HudObject("Assets/Textures/DamageOverlay.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(static_cast<float>(SCREEN_WIDTH), (static_cast<float>(SCREEN_HEIGHT))));
-	hudObject->setAlpha(0.0f);
-	m_hudHandler.insertHUDObject(hudObject, DAMAGE_OVERLAY);
-
 
 	m_objects.push_back(new WorldObject("internalTestmap"));
 	m_objects[m_objects.size() - 1]->loadMesh("internalTestmap.mesh");
@@ -83,6 +45,7 @@ PlayState::PlayState()
 	if(Client::getInstance()->isInitialized())
 		Client::getInstance()->assignSpellHandler(m_spellHandler);
 
+	m_hideHUD = false;
 }
 
 PlayState::~PlayState()
@@ -121,15 +84,21 @@ void PlayState::update(float dt)
 	if (Input::isKeyPressed(GLFW_KEY_R)) {
 		m_hudHandler.fadeIn();
 	}
-	//m_hpBar->setYClip(m_player->getHealth() / 100);
 	
+	//If the player dies
 	if (Client::getInstance()->getMyData().health <= 0) {
 		
+		if (!m_hideHUD) {
+			m_hudHandler.fadeOut();
+			m_hideHUD = true;
+		}
+
 		if (m_camera->isCameraActive()) {
 			m_camera->disableCameraMovement(true);
 		}
 
 		const PlayerPacket* myKiller = Client::getInstance()->getLatestPlayerThatHitMe();
+
 		if (myKiller != nullptr) {
 			m_camera->lookAt(myKiller->position);
 		}
@@ -138,7 +107,11 @@ void PlayState::update(float dt)
 		m_hudHandler.getHudObject(CROSSHAIR_DEFLECT)->setAlpha(0.0f);
 	}
 	else {
-		
+		//Unhide the HUD
+		if (m_hideHUD) {
+			m_hudHandler.fadeIn();
+			m_hideHUD = false;
+		}
 		if (m_camera->isCameraActive() == false) {
 			m_camera->resetCamera();
 			m_camera->disableCameraMovement(false);
@@ -153,8 +126,6 @@ void PlayState::update(float dt)
 			m_hudHandler.getHudObject(CROSSHAIR)->setAlpha(1.0f);
 			m_hudHandler.getHudObject(CROSSHAIR_DEFLECT)->setAlpha(0.0f);
 		}
-
-
 	}
 
 	if (Client::getInstance()->getMyData().health != m_player->getHealth())
@@ -174,9 +145,7 @@ void PlayState::update(float dt)
 	}
 	
 	GUIHandler();
-	HUDHandler(dt);
-
-	
+	HUDHandler(dt);	
 }
 
 void PlayState::render()
@@ -191,31 +160,6 @@ void PlayState::onSpellHit_callback()
 }
 
 void PlayState::HUDHandler(float dt) {
-	/*
-	if (m_player->isDead()) {
-		m_hideHUD = true;
-	}
-	else {
-		m_hideHUD = false;
-	}
-	HudObject* hudObject = m_hudHandler.getHudObject(BAR_HP);
-	//When the player is dead
-	if (m_hideHUD && hudObject->getAlpha() > 0) {
-		for (size_t i = 0; i < m_icons.size(); i++)
-		{
-			m_icons[i]->setAlpha(0);
-		}
-		hudObject->setAlpha(0);
-	}
-	//If the HP bar is hidden and the player isn't dead
-	else if (!m_hideHUD && hudObject->getAlpha() <= 1) {
-		for (size_t i = 0; i < m_icons.size(); i++)
-		{
-			m_icons[i]->setAlpha(m_icons[i]->getAlpha() + dt);
-		}
-		m_hpBar->setAlpha(hudObject->getAlpha() + dt);
-	}
-	*/
 	//HP bar
 	m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(m_player->getHealth()) / 100);
 	
@@ -243,7 +187,6 @@ void PlayState::HUDHandler(float dt) {
 			m_hudHandler.getHudObject(CROSSHAIR_HIT)->setAlpha(0.0f);
 		}
 	}
-
 }
 
 
