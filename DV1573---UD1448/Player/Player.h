@@ -76,7 +76,4 @@ private:
 	BulletPhysics* m_bp;
 	btKinematicCharacterController* m_character;
 	Client* m_client;
-
-	SoundHandler* m_soundHandler;
-
 };

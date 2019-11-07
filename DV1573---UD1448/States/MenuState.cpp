@@ -9,8 +9,7 @@
 
 MenuState::MenuState()
 {
-	loadGui();
-	m_musicShouldPlay = true;
+	loadGui();	
 }
 
 MenuState::~MenuState()
@@ -53,6 +52,7 @@ void MenuState::loadGui()
 
 bool MenuState::onStartOfflineClicked(const CEGUI::EventArgs& e)
 {
+	SoundHandler::getInstance()->stopSound(ThemeSong0);
 	glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	m_stateManager->clearAllAndSetState(new PlayState());	
 	return true;
@@ -72,6 +72,7 @@ bool MenuState::onStartClientClicked(const CEGUI::EventArgs& e)
 
 bool MenuState::onExitClicked(const CEGUI::EventArgs& e)
 {
+	SoundHandler::getInstance()->stopSound(ThemeSong0);
 	glfwSetWindowShouldClose(glfwGetCurrentContext(), true);	
 	return true;
 }

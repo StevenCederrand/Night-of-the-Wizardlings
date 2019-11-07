@@ -16,6 +16,7 @@ public:
 
 private:
 	void initGraphics();
+	void initSound();
 	void calcFPS(const float& dt);
 	void centerWindowOnMonitor();
 	GLFWwindow* m_window;

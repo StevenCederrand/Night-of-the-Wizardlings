@@ -3,11 +3,10 @@
 
 
 StateManager::StateManager()
-{
-	m_soundHandler = new SoundHandler();
-	m_soundHandler->loadSound("Assets/SoundEffects/HarryPotterThemeSong.ogg");
+{	
+	/*m_soundHandler->loadSound("Assets/SoundEffects/HarryPotterThemeSong.ogg");
 	m_soundHandler->setSourceType(AL_STREAMING);
-	m_soundHandler->playSound();
+	m_soundHandler->playSound();*/
 }
 
 
@@ -15,8 +14,6 @@ StateManager::~StateManager()
 {
 	clearStates();
 	clearKillList();
-
-	delete m_soundHandler;
 }
 
 void StateManager::popState()
@@ -35,8 +32,7 @@ void StateManager::popState()
 void StateManager::pushState(State* newState)
 {
 	newState->assignManager(this);
-	m_states.emplace_back(newState);
-	
+	m_states.emplace_back(newState);	
 }
 
 void StateManager::clearAllAndSetState(State* newState)
@@ -57,14 +53,8 @@ void StateManager::update(float dt)
 	clearKillList();
 
 	if (!m_states.empty()) {
-		m_states.back()->update(dt);
-
-		if (m_states.back()->getShouldMusicPlay() == false)
-		{
-			m_soundHandler->stopSound();
-		}
+		m_states.back()->update(dt);		
 	}
-
 }
 
 void StateManager::render()

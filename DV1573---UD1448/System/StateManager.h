@@ -24,9 +24,7 @@ private:
 
 private:
 	std::vector<State*> m_states;
-	std::vector<State*> m_killList;
-
-	SoundHandler* m_soundHandler;
+	std::vector<State*> m_killList;	
 };
 
 #endif

@@ -12,8 +12,7 @@ LobbyState::LobbyState()
 {
 	loadGui();
 	m_selectedsNameInput = false;
-	m_selecteduNameInput = false;
-	m_musicShouldPlay = true;
+	m_selecteduNameInput = false;	
 }
 
 LobbyState::~LobbyState()
@@ -76,6 +75,7 @@ void LobbyState::loadGui()
 
 bool LobbyState::onStartSeverClicked(const CEGUI::EventArgs& e)
 {
+	SoundHandler::getInstance()->stopSound(ThemeSong0);
 	LocalServer::getInstance()->startup(m_sNameInput->getText().c_str());
 	Client::getInstance()->startup();
 	Client::getInstance()->setUsername(m_uNameInput->getText().c_str());

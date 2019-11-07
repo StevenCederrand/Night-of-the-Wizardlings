@@ -2,8 +2,13 @@
 #include "SoundHandler.h"
 #include "vorbis/vorbisfile.h"
 
+SoundHandler* SoundHandler::m_soundHandlerInstance = 0;
+
 SoundHandler::SoundHandler()
 {
+	m_buffers.resize(NR_OF_SOUNDS);
+	m_sources.resize(NR_OF_SOUNDS);
+
 	m_device = alcOpenDevice(NULL);
 
 	if (!m_device)
@@ -24,8 +29,8 @@ SoundHandler::SoundHandler()
 	{		
 		logTrace("Failed to make context current");
 	}
-		
-	//loadSound("Assets/SoundEffects/YouShallNotPassogg.ogg");	
+
+	loadAllSound();
 }
 
 SoundHandler::~SoundHandler()
@@ -50,18 +55,83 @@ SoundHandler::~SoundHandler()
 	m_device = alcGetContextsDevice(m_context);
 	alcMakeContextCurrent(NULL);
 	alcDestroyContext(m_context);
-	alcCloseDevice(m_device);
+	alcCloseDevice(m_device);	
+}
 
-	/*delete m_context;
-	delete m_device;*/
+SoundHandler* SoundHandler::getInstance()
+{
+	if (m_soundHandlerInstance == 0)
+	{
+		m_soundHandlerInstance = new SoundHandler();
+	}
+
+	return m_soundHandlerInstance;
+}
+
+void SoundHandler::destroy()
+{
+	delete m_soundHandlerInstance;
+}
+
+void SoundHandler::loadAllSound()
+{
+	int success;
+
+	success = loadSound(ThemeSong0);
+	if (success == -1)
+	{
+		logTrace(THEME_SONG0 + " failed to be loaded");
+	}
+
+	success = loadSound(BasicAttackSoundIndex);
+	if (success == -1)
+	{
+		logTrace(BASIC_ATTACK_SOUND + " failed to be loaded");
+	}
+
+	success = loadSound(DeflectSoundIndex);
+	if (success == -1)
+	{
+		logTrace(DEFLECT_SOUND + " failed to be loaded");
+	}
+
+	success = loadSound(EnhanceAttackSoundIndex);
+	if (success == -1)
+	{
+		logTrace(ENHANCE_ATTACK_SOUND + " failed to be loaded");
+	}	
 }
 
 //Returns the source name (position in the buffer array) which you use 
 //when you call playSound(int sourceName).
 //Returns -1 if failed
-int SoundHandler::loadSound(const char* filename)
+int SoundHandler::loadSound(SoundIndex whatSound)
 {
-	ALenum error = 0;	
+	std::string fileName = SOUNDEFFECTPATH;
+
+	switch (whatSound)
+	{
+	case ThemeSong0:
+		fileName += THEME_SONG0;
+		break;
+	case BasicAttackSoundIndex:
+		fileName += BASIC_ATTACK_SOUND;
+		break;
+	case DeflectSoundIndex:
+		fileName += DEFLECT_SOUND;
+		break;
+	case EnhanceAttackSoundIndex:
+		fileName += ENHANCE_ATTACK_SOUND;
+		break;
+	case TakingDamageSoundIndex:
+		break;
+	case PickupSpawnSoundIndex:
+		break;
+	case StepsSoundIndex:
+		break;
+	}
+
+	ALenum error = 0;
 	FILE* fp = 0;
 	OggVorbis_File vf;
 	vorbis_info* vInfo;
@@ -69,7 +139,7 @@ int SoundHandler::loadSound(const char* filename)
 	short* pcmout = 0;
 
 	//Open sound file for reading
-	fopen_s(&fp, filename, "rb");
+	fopen_s(&fp, fileName.c_str(), "rb");
 
 	if (fp == 0)
 	{
@@ -81,9 +151,7 @@ int SoundHandler::loadSound(const char* filename)
 	//Generate buffer
 	error = alGetError();
 
-	m_buffers.resize(m_buffers.size() + 1);
-
-	alGenBuffers((ALsizei)1, &m_buffers[m_buffers.size() - 1]);
+	alGenBuffers((ALsizei)1, &m_buffers[whatSound]);
 
 	error = alGetError();
 
@@ -141,7 +209,7 @@ int SoundHandler::loadSound(const char* filename)
 
 	error = alGetError();
 	//send data to openal, vInfo->rate is your freq in Hz
-	alBufferData(m_buffers[m_buffers.size() - 1], format, pcmout, data_len, vInfo->rate);
+	alBufferData(m_buffers[whatSound], format, pcmout, data_len, vInfo->rate);
 	if ((error = alGetError() != AL_NO_ERROR))
 	{
 		logTrace("Failed to send audio information buffer to OpenAL");
@@ -154,9 +222,7 @@ int SoundHandler::loadSound(const char* filename)
 
 	error = alGetError();
 
-	m_sources.resize(m_sources.size() + 1);
-
-	alGenSources((ALsizei)1, &m_sources[m_buffers.size() - 1]);
+	alGenSources((ALsizei)1, &m_sources[whatSound]);
 
 	error = alGetError();
 
@@ -172,7 +238,7 @@ int SoundHandler::loadSound(const char* filename)
 
 	error = alGetError();
 
-	alSourcei(m_sources[m_buffers.size() - 1], AL_BUFFER, m_buffers[m_buffers.size() - 1]);
+	alSourcei(m_sources[whatSound], AL_BUFFER, m_buffers[whatSound]);
 
 	error = alGetError();
 
@@ -190,17 +256,19 @@ int SoundHandler::loadSound(const char* filename)
 	fclose(fp);
 	ov_clear(&vf);
 
-	return m_buffers.size() - 1;
+	return whatSound;
 }
 
-void SoundHandler::playSound(int sourceName)
+void SoundHandler::playSound(SoundIndex sourceName)
 {
 	m_error = alGetError();
 
-	if (getSourceState(sourceName) != AL_PLAYING)
+	/*if (getSourceState(sourceName) != AL_PLAYING)
 	{
 		alSourcePlay(m_sources[sourceName]);
-	}
+	}*/
+
+	alSourcePlay(m_sources[sourceName]);
 
 	if (m_error != AL_NO_ERROR)
 	{
@@ -208,7 +276,7 @@ void SoundHandler::playSound(int sourceName)
 	}
 }
 
-void SoundHandler::pauseSound(int sourceName)
+void SoundHandler::pauseSound(SoundIndex sourceName)
 {
 	m_error = alGetError();
 
@@ -223,7 +291,7 @@ void SoundHandler::pauseSound(int sourceName)
 	}	
 }
 
-void SoundHandler::stopSound(int sourceName)
+void SoundHandler::stopSound(SoundIndex sourceName)
 {
 	m_error = alGetError();
 
@@ -279,7 +347,7 @@ void SoundHandler::setListenerOrientation(glm::vec3 lookAt, glm::vec3 up)
 	}
 }
 
-void SoundHandler::setSourcePitch(float pitch, int sourceName)
+void SoundHandler::setSourcePitch(float pitch, SoundIndex sourceName)
 {
 	m_error = alGetError();
 
@@ -291,7 +359,7 @@ void SoundHandler::setSourcePitch(float pitch, int sourceName)
 	}
 }
 
-void SoundHandler::setSourceGain(float gain, int sourceName)
+void SoundHandler::setSourceGain(float gain, SoundIndex sourceName)
 {
 	m_error = alGetError();
 
@@ -303,7 +371,7 @@ void SoundHandler::setSourceGain(float gain, int sourceName)
 	}
 }
 
-void SoundHandler::setSourceMaxDistance(float dist, int sourceName)
+void SoundHandler::setSourceMaxDistance(float dist, SoundIndex sourceName)
 {	
 	m_error = alGetError();
 
@@ -315,7 +383,7 @@ void SoundHandler::setSourceMaxDistance(float dist, int sourceName)
 	}
 }
 
-void SoundHandler::setSourcePosition(glm::vec3 pos, int sourceName)
+void SoundHandler::setSourcePosition(glm::vec3 pos, SoundIndex sourceName)
 {	
 	ALfloat sourcePosition[] = { pos.x, pos.y, pos.z };
 
@@ -329,7 +397,7 @@ void SoundHandler::setSourcePosition(glm::vec3 pos, int sourceName)
 	}
 }
 
-void SoundHandler::setSourceVelocity(glm::vec3 vel, int sourceName)
+void SoundHandler::setSourceVelocity(glm::vec3 vel, SoundIndex sourceName)
 {	
 	ALfloat sourceVelocity[] = { vel.x, vel.y, vel.z };
 
@@ -343,7 +411,7 @@ void SoundHandler::setSourceVelocity(glm::vec3 vel, int sourceName)
 	}
 }
 
-void SoundHandler::setSourceDirection(glm::vec3 dir, int sourceName)
+void SoundHandler::setSourceDirection(glm::vec3 dir, SoundIndex sourceName)
 {	
 	ALfloat sourceDirection[] = { dir.x, dir.y, dir.z };
 
@@ -358,7 +426,7 @@ void SoundHandler::setSourceDirection(glm::vec3 dir, int sourceName)
 }
 
 //Types are: AL_UNDETERMINED, AL_STATIC or AL_STREAMING
-void SoundHandler::setSourceType(ALenum type, int sourceName)
+void SoundHandler::setSourceType(ALenum type, SoundIndex sourceName)
 {	
 	m_error = alGetError();
 
@@ -370,7 +438,7 @@ void SoundHandler::setSourceType(ALenum type, int sourceName)
 	}
 }
 
-void SoundHandler::setSourceLooping(bool looping, int sourceName)
+void SoundHandler::setSourceLooping(bool looping, SoundIndex sourceName)
 {	
 	m_error = alGetError();
 
@@ -382,7 +450,7 @@ void SoundHandler::setSourceLooping(bool looping, int sourceName)
 	}
 }
 
-const ALint& SoundHandler::getSourceState(int sourceName) const
+const ALint& SoundHandler::getSourceState(SoundIndex sourceName) const
 {
 	ALint value;
 

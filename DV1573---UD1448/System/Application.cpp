@@ -27,6 +27,7 @@ Application::~Application() {
 		LocalServer::getInstance()->destroy();
 
 	Gui::getInstance()->destroy();
+	SoundHandler::getInstance()->destroy();
 
 	glfwTerminate();
 
@@ -79,6 +80,7 @@ bool Application::init() {
 	m_input = new Input();
 
 	initGraphics();
+	initSound();
 
 	Gui::getInstance()->init();
 	Gui::getInstance()->loadScheme("TaharezLook.scheme");
@@ -86,6 +88,10 @@ bool Application::init() {
 
 	m_stateManager = new StateManager();
 	m_stateManager->pushState(new MenuState());	
+
+	SoundHandler::getInstance()->setSourceType(AL_STREAMING, ThemeSong0);
+	SoundHandler::getInstance()->playSound(ThemeSong0);
+	SoundHandler::getInstance()->setSourceLooping(true, ThemeSong0);
 
 	logTrace("Application successfully initialized");
 	return statusOK;
@@ -163,7 +169,15 @@ void Application::initGraphics()
 	m_renderer->init(m_window);
 
 	ShaderMap::getInstance();
+}
 
+void Application::initSound()
+{
+	SoundHandler* m_soundHandler = SoundHandler::getInstance();
+	if (!m_soundHandler)
+	{
+		logError("SoundHandler failed to initialize");
+	}
 }
 
 void Application::centerWindowOnMonitor()

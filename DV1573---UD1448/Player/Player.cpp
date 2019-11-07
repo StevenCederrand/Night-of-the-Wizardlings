@@ -25,22 +25,11 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_bp = bp;
 	m_character = m_bp->createCharacter(playerPosition.y);
 
-	m_client = Client::getInstance();
-
-	m_soundHandler = new SoundHandler();
-	m_deflectSoundIndex = m_soundHandler->loadSound("Assets/SoundEffects/YouShallNotPassogg.ogg");
-	m_soundHandler->setSourceType(AL_STATIC, m_deflectSoundIndex);
-	
-	m_basicAttackSoundIndex = m_soundHandler->loadSound("Assets/SoundEffects/Sound Effect Magic Sound HQ YouTube.ogg");
-	m_soundHandler->setSourceType(AL_STATIC, m_basicAttackSoundIndex);
-
-	m_enhanceSoundIndex = m_soundHandler->loadSound("Assets/SoundEffects/Magic sound effect.ogg");
-	m_soundHandler->setSourceType(AL_STATIC, m_enhanceSoundIndex);
+	m_client = Client::getInstance();	
 }
 
 Player::~Player()
-{
-	delete m_soundHandler;
+{	
 }
 
 void Player::update(float deltaTime)
@@ -135,7 +124,7 @@ void Player::attack()
 		if (m_attackCooldown <= 0)
 		{
 			m_attackCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_spellType); // Put attack on cooldown
-			m_soundHandler->playSound(m_basicAttackSoundIndex);
+			SoundHandler::getInstance()->playSound(BasicAttackSoundIndex);
 		}
 		
 	}
@@ -145,7 +134,7 @@ void Player::attack()
 		if (m_specialCooldown <= 0)
 		{
 			m_specialCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_specialSpelltype); // Put attack on cooldown
-			m_soundHandler->playSound(m_deflectSoundIndex);
+			SoundHandler::getInstance()->playSound(DeflectSoundIndex);
 		}		
 	}
 
@@ -157,7 +146,7 @@ void Player::attack()
 			{
 				// Start loop
 				m_enhanceAttack.start();
-				m_soundHandler->playSound(m_enhanceSoundIndex);
+				SoundHandler::getInstance()->playSound(EnhanceAttackSoundIndex);
 			}
 		}
 	}
