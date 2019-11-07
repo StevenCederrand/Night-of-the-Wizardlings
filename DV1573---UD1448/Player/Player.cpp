@@ -33,7 +33,7 @@ Player::~Player()
 }
 
 void Player::update(float deltaTime)
-{																		
+{						
 																		// IMPORTANT; DOING THESE WRONG WILL CAUSE INPUT LAG
 	m_playerCamera->update(m_playerCamera->getWindow());				// Update this first so that subsequent uses are synced
 	m_directionVector = glm::normalize(m_playerCamera->getCamFace());	// Update this first so that subsequent uses are synced
@@ -69,10 +69,20 @@ void Player::update(float deltaTime)
 	m_spellhandler->setSpawnerDirection(m_directionVector);
 	m_spellhandler->setSpawnerPosition(m_playerPosition);
 
+	updateListenerProperties();
+
 	m_attackCooldown -= deltaTime; // Cooldown reduces with time
 	m_specialCooldown -= deltaTime; // Cooldown reduces with time
 	m_special2Cooldown -= deltaTime; // Cooldown reduces with time
 	m_special3Cooldown -= deltaTime; // Cooldown reduces with time
+}
+
+void Player::updateListenerProperties()
+{
+	SoundHandler::getInstance()->setListenerOrientation(m_playerCamera->getCamFace(),
+		m_playerCamera->getCamUp());
+	SoundHandler::getInstance()->setListenerPos(m_playerPosition);
+	SoundHandler::getInstance()->setListenerVelocity(glm::vec3(m_character->getAngularVelocity().getX(), m_character->getAngularVelocity().getY(), m_character->getAngularVelocity().getZ()));
 }
 
 void Player::move(float deltaTime)

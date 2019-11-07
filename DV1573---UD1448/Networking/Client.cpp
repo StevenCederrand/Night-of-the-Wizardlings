@@ -391,7 +391,9 @@ void Client::processAndHandlePackets()
 
 			se.spellData = spellPacket;
 			se.flag = NetGlobals::THREAD_FLAG::ADD;
-			se.gameobject = nullptr;
+			se.gameobject = nullptr;	
+
+			SoundHandler::setSourcePosition();
 
 			{
 				std::lock_guard<std::mutex> lockGuard(m_networkSpells.m_mutex);

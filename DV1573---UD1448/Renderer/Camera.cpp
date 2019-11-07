@@ -150,6 +150,11 @@ const glm::vec3& Camera::getCamRight()
 	return m_camRight;
 }
 
+const glm::vec3& Camera::getCamUp()
+{
+	return m_camUp;
+}
+
 GLFWwindow* Camera::getWindow()
 {
 	return glfwGetCurrentContext();

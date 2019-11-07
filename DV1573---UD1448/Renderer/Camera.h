@@ -52,6 +52,7 @@ public:
 
 	const glm::vec3& getCamFace();
 	const glm::vec3& getCamRight();
+	const glm::vec3& getCamUp();
 	GLFWwindow* getWindow();
 
 	void enableFP(const bool& fpEnable);

@@ -73,7 +73,7 @@ PlayState::PlayState()
 	for (size_t i = 0; i < m_objects.size(); i++)
 	{
 		m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);	
-		m_objects.at(i)->createDebugDrawer();
+		//m_objects.at(i)->createDebugDrawer();
 	}	
 }
 
@@ -139,7 +139,7 @@ void PlayState::update(float dt)
 void PlayState::render()
 {
 	Renderer::getInstance()->render(m_skybox, m_spellHandler);
-	Renderer::getInstance()->renderDebug();
+	//Renderer::getInstance()->renderDebug();
 }
 
 void PlayState::GUIHandler()
