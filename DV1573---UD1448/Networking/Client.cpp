@@ -45,7 +45,7 @@ void Client::destroy()
 		if (m_processThread.joinable()) {
 			m_processThread.join();
 		}
-		delete m_networkPickup;
+	
 
 		m_serverList.clear();
 		m_connectedPlayers.clear();
@@ -56,6 +56,7 @@ void Client::destroy()
 		m_networkPlayers.cleanUp();
 		m_networkSpells.cleanUp();
 		m_networkPickup->cleanUp();
+		delete m_networkPickup;
 		resetPlayerData();
 		m_initialized = false;
 		RakNet::RakPeerInterface::DestroyInstance(m_clientPeer);
