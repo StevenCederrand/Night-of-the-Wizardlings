@@ -7,7 +7,10 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_firstPersonMesh = new AnimatedObject("fpsMesh");
 	m_firstPersonMesh->loadMesh("Fps2Arm.mesh");
 	m_firstPersonMesh->initAnimations("CastAnimation", 1.0f, 20.0f);
-	m_firstPersonMesh->initAnimations("RunAnimation", 1.0f, 20.0f);
+	m_firstPersonMesh->initAnimations("JumpAnimation", 21.0f, 35.0f);
+	m_firstPersonMesh->initAnimations("RunAnimation", 36.0f, 55.0f);
+	m_firstPersonMesh->initAnimations("IdleAnimation", 55.0f, 125.0f);
+
 
 	Renderer::getInstance()->submit(m_firstPersonMesh, ANIMATEDSTATIC);
 
@@ -117,7 +120,11 @@ void Player::move(float deltaTime)
 	// Jump
 	if (glfwGetKey(m_playerCamera->getWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
 		if (m_character->canJump())
+		{
 			m_character->jump(btVector3(0.0f, 3.0f, 0.0f));
+			m_firstPersonMesh->playAnimation("JumpAnimation");
+		}
+
 
 	// Make sure moving is a constant speed
 	if (glm::length(m_moveDir) >= 0.0001f)
@@ -138,6 +145,7 @@ void Player::move(float deltaTime)
 	m_playerCamera->setCameraPos(glm::vec3(playerPos.getX(), playerPos.getY() * 1.5, playerPos.getZ()));
 }
 
+
 void Player::attack()
 {
 	if (glfwGetMouseButton(m_playerCamera->getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
@@ -151,6 +159,9 @@ void Player::attack()
 
 	if (glfwGetMouseButton(m_playerCamera->getWindow(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 	{
+		m_firstPersonMesh->playLoopAnimation("IdleAnimation");
+
+
 		if (m_specialCooldown <= 0)
 		{
 			m_specialCooldown = m_spellhandler->getReflectBase()->m_coolDown;
@@ -167,7 +178,7 @@ void Player::attack()
 			{
 				// Start loop
 				m_enhanceAttack.start();
-				m_firstPersonMesh->playLoopAnimation("RunAnimation");
+				//m_firstPersonMesh->playLoopAnimation("RunAnimation");
 			}
 		}
 	}
