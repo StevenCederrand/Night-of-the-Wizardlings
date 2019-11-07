@@ -45,6 +45,7 @@ public:
 private:
 	const uint64_t getUniqueID();
 	bool m_newHit = true;
+	bool m_setcharacter = false;
 	float m_nrSubSteps = 6;
 
 	std::vector<Spell*> spells;

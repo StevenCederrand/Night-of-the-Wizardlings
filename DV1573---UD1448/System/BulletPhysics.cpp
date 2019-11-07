@@ -130,6 +130,11 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	return body;
 }
 
+void BulletPhysics::setCharacterSize(glm::vec3 halfSize)
+{
+	m_boxSize = btVector3(halfSize.x, halfSize.y, halfSize.z);
+}
+
 btDiscreteDynamicsWorld* BulletPhysics::getDynamicsWorld() const
 {
 	return m_dynamicsWorld;
@@ -144,6 +149,7 @@ btKinematicCharacterController* BulletPhysics::createCharacter(float& spawnHeigh
 {
 	//create the character and add him to the dynamicsWorld
 	//m_playerShape = new btCapsuleShape(1.0, height +2 * 1.0);
+
 	m_boxSize = btVector3(0.5, height / 2, 0.5);
 	m_playerShape = new btCapsuleShapeZ(0.5, height);
 

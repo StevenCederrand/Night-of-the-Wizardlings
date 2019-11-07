@@ -126,8 +126,6 @@ void PlayState::update(float dt)
 	m_bPhysics->update(dt);
 	m_player->update(dt);
 	m_spellHandler->spellUpdate(dt);
-	m_player->update(dt);
-	
 
 	if (m_player->isDeflecting()) {
 		m_crosshairHUD->setAlpha(0.0f);

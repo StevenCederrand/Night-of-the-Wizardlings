@@ -42,9 +42,9 @@ void SpellHandler::initAttackSpell()
 	attackBase->m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
 
 	attackBase->m_damage = 34;
-	attackBase->m_speed = 1;
+	attackBase->m_speed = 100;
 	attackBase->m_radius = 0.5;
-	attackBase->m_coolDown = 3;
+	attackBase->m_coolDown = 1;
 	attackBase->m_lifeTime = 5;
 	attackBase->m_maxBounces = 3;
 }
@@ -498,15 +498,38 @@ glm::vec3 SpellHandler::OBBclosestPoint(glm::vec3& spherePos, std::vector<glm::v
 }
 
 float SpellHandler::OBBsqDist(glm::vec3& spherePos, std::vector<glm::vec3>& axis, glm::vec3& playerPos)
-{
-	auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
-	std::string meshName = list[0].gameobject->getMeshName(0);
-	Mesh* mesh = MeshMap::getInstance()->getMesh(meshName);
-	mesh; //here in the gameoBj do the same. vert
+{	
+	glm::vec3 halfSize;
+	if (!m_setcharacter)
+	{
+		auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
+		std::string meshName = list[0].gameobject->getMeshName(0);
+		const std::vector<Vertex>& vertices = MeshMap::getInstance()->getMesh(meshName)->getVertices();
+		glm::vec3 min = vertices[0].position;
+		glm::vec3 max = vertices[0].position;
 
+		for (size_t i = 1; i < vertices.size(); i++)
+		{
+			min.x = fminf(vertices[i].position.x, min.x);
+			min.y = fminf(vertices[i].position.y, min.y);
+			min.z = fminf(vertices[i].position.z, min.z);
 
-	btVector3 box = m_bp->getCharacterSize();
-	glm::vec3 boxSize = glm::vec3(box.getX(), box.getY(), box.getZ());
+			max.x = fmaxf(vertices[i].position.x, max.x);
+			max.y = fmaxf(vertices[i].position.y, max.y);
+			max.z = fmaxf(vertices[i].position.z, max.z);
+		}
+		halfSize = glm::vec3((max - min) * 0.5f); // * scale
+		m_setcharacter = true;
+	}
+
+	else
+	{
+		btVector3 box = m_bp->getCharacterSize();
+		halfSize = glm::vec3(box.getX(), box.getY(), box.getZ());
+	}
+
+	//btVector3 box = m_bp->getCharacterSize();
+	//glm::vec3 boxSize = glm::vec3(box.getX(), box.getY(), box.getZ());
 	float dist = 0.0f;
 	//closest point on obb
 	glm::vec3 boxPoint = playerPos;
@@ -516,11 +539,11 @@ float SpellHandler::OBBsqDist(glm::vec3& spherePos, std::vector<glm::vec3>& axis
 		float distance = glm::dot(ray, axis.at(j));
 		float distance2 = 0;
 
-		if (distance > boxSize[j])
-			distance2 =distance - boxSize[j];
+		if (distance > halfSize[j])
+			distance2 = distance - halfSize[j];
 
-		if (distance < -boxSize[j])
-			distance2 = distance + boxSize[j];
+		if (distance < -halfSize[j])
+			distance2 = distance + halfSize[j];
 
 		dist += distance2 * distance2;
 	}
