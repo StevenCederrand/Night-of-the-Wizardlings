@@ -21,6 +21,7 @@ NetworkPickups::~NetworkPickups()
 
 void NetworkPickups::cleanUp()
 {
+
 	cleanupRenderInformation(&m_healthRenderInformation);
 	cleanupRenderInformation(&m_damagaRenderInformation);
 
