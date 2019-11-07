@@ -48,7 +48,7 @@ void AnimatedObject::update(float dt)
 	// Basic animation update for testing
 	// TODO: Only update 1 animation, Choose animation to update
 	// Should come naturally with specific animation implementation
-
+	
 	// (DEBUG) This loop temporarily updates all the animations for all the meshes based on time,
 	// looping with the shortest animation and always replacing the pallete.
 	for (size_t i = 0; i < m_meshes.size(); i++)
@@ -164,12 +164,13 @@ void AnimatedObject::playAnimation(std::string name)
 			m_stopTime = animations[i].m_stopTime/ animations[i].m_animSpeed;
 		}
 	}
-	currentTime = m_startTime;
+	//currentTime = m_startTime;
 }
 
 void AnimatedObject::playLoopAnimation(std::string name)
 {
 	isLooping = true;
+
 	for (int i = 0; i < animations.size(); i++)
 	{
 		if (animations[i].m_name == name)
@@ -178,5 +179,5 @@ void AnimatedObject::playLoopAnimation(std::string name)
 			m_stopTime = animations[i].m_stopTime / animations[i].m_animSpeed;
 		}
 	}
-	currentTime = m_startTime;
+	//currentTime = m_startTime;
 }

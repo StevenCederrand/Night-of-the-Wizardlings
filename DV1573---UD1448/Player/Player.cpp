@@ -9,7 +9,7 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_firstPersonMesh->initAnimations("CastAnimation", 1.0f, 20.0f);
 	m_firstPersonMesh->initAnimations("JumpAnimation", 21.0f, 35.0f);
 	m_firstPersonMesh->initAnimations("RunAnimation", 36.0f, 55.0f);
-	m_firstPersonMesh->initAnimations("IdleAnimation", 55.0f, 125.0f);
+	m_firstPersonMesh->initAnimations("IdleAnimation", 56.0f, 125.0f);
 
 
 	Renderer::getInstance()->submit(m_firstPersonMesh, ANIMATEDSTATIC);
@@ -84,8 +84,8 @@ void Player::update(float deltaTime)
 	m_special2Cooldown -= deltaTime; // Cooldown reduces with time
 	m_special3Cooldown -= deltaTime; // Cooldown reduces with time
 	
-	m_firstPersonMesh->update(deltaTime);
-	updateMesh();
+	PlayAnimation(deltaTime);
+
 
 
 	m_timeLeftInDeflectState -= deltaTime;
@@ -122,7 +122,7 @@ void Player::move(float deltaTime)
 		if (m_character->canJump())
 		{
 			m_character->jump(btVector3(0.0f, 3.0f, 0.0f));
-			m_firstPersonMesh->playAnimation("JumpAnimation");
+			animState.jumping = true;
 		}
 
 
@@ -145,6 +145,31 @@ void Player::move(float deltaTime)
 	m_playerCamera->setCameraPos(glm::vec3(playerPos.getX(), playerPos.getY() * 1.5, playerPos.getZ()));
 }
 
+void Player::PlayAnimation(float deltaTime)
+{
+	updateMesh();
+
+	if (animState.running){
+		m_firstPersonMesh->playLoopAnimation("RunAnimation");
+		animState.running = false;
+	}
+	if (animState.casting) {
+		m_firstPersonMesh->playAnimation("CastAnimation");
+		animState.casting = false;
+	}
+	if (animState.jumping) {
+		m_firstPersonMesh->playAnimation("JumpAnimation");
+		animState.jumping = false;
+	}
+	if (animState.idle){
+		m_firstPersonMesh->playLoopAnimation("IdleAnimation");
+		animState.idle = false;
+	}
+
+	m_firstPersonMesh->update(deltaTime);
+}
+
+
 
 void Player::attack()
 {
@@ -153,15 +178,12 @@ void Player::attack()
 		if (m_attackCooldown <= 0)
 		{
 			m_attackCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_spellType); // Put attack on cooldown
-			m_firstPersonMesh->playAnimation("CastAnimation");
+			animState.casting = true;
 		}
 	}
 
 	if (glfwGetMouseButton(m_playerCamera->getWindow(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 	{
-		m_firstPersonMesh->playLoopAnimation("IdleAnimation");
-
-
 		if (m_specialCooldown <= 0)
 		{
 			m_specialCooldown = m_spellhandler->getReflectBase()->m_coolDown;
@@ -178,7 +200,6 @@ void Player::attack()
 			{
 				// Start loop
 				m_enhanceAttack.start();
-				//m_firstPersonMesh->playLoopAnimation("RunAnimation");
 			}
 		}
 	}
@@ -220,6 +241,12 @@ void Player::spawnPlayer(glm::vec3 pos)
 
 void Player::updateMesh()
 {
+	btVector3 velocity = m_character->getLinearVelocity();
+	float speed = glm::length(glm::vec3(velocity.getX(), 0.0f, velocity.getZ()));
+	if (speed > 0)
+		animState.running = true;
+	else
+		animState.idle = true;
 
 	Transform m_fpsTrans;
 

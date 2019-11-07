@@ -10,6 +10,16 @@ class Client;
 
 class Player
 {
+private:
+	struct AnimationState
+	{
+		bool running = false;
+		bool casting = false;
+		bool jumping = false;
+		bool deflecting = false;
+		bool idle = false;
+	};
+
 public:
 	Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Camera* camera, SpellHandler* spellHandler);
 	~Player();
@@ -73,6 +83,8 @@ private:
 	float m_timeLeftInDeflectState;
 	bool m_deflecting;
 
+	AnimationState animState;
+	void PlayAnimation(float deltaTime);
 	//removed in bulletPhysics.cpp
 	BulletPhysics* m_bp;
 	btKinematicCharacterController* m_character;
