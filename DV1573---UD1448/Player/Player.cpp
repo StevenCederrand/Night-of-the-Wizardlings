@@ -7,7 +7,7 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_playerCamera = camera;
 	m_playerPosition = playerPosition;
 	m_name = name;
-	m_speed = 5.0f;
+	m_speed = 21.0f;
 	m_health = 100;
 	m_attackCooldown = 0;
 	m_special2Cooldown = 0;
@@ -33,16 +33,16 @@ Player::~Player()
 
 void Player::update(float deltaTime)
 {																		
-																		// IMPORTANT; DOING THESE WRONG WILL CAUSE INPUT LAG
-	m_playerCamera->update();											// Update this first so that subsequent uses are synced
-	m_directionVector = glm::normalize(m_playerCamera->getCamFace());	// Update this first so that subsequent uses are synced
-	move(deltaTime);													// Update this first so that subsequent uses are synced
-	m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
-	if (!m_logicStop) {
-		move(deltaTime);
-		attack();
+	if (m_playerCamera->isCameraActive()) {									// IMPORTANT; DOING THESE WRONG WILL CAUSE INPUT LAG
+		m_playerCamera->update();											// Update this first so that subsequent uses are synced
+		m_directionVector = glm::normalize(m_playerCamera->getCamFace());	// Update this first so that subsequent uses are synced
+		m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
+
+		if (!m_logicStop) {
+			move(deltaTime);
+			attack();
+		}
 	}
-	
 	if (m_client->isConnectedToSever()) {
 		m_client->updatePlayerData(this);
 	}
@@ -65,19 +65,20 @@ void Player::update(float deltaTime)
 		}
 	}
 
-	m_spellhandler->setSpawnerDirection(m_directionVector);
-	m_spellhandler->setSpawnerPosition(m_playerPosition);
 
+	/* This is unnecessary*/
 	m_attackCooldown -= deltaTime; // Cooldown reduces with time
-	m_specialCooldown -= deltaTime; // Cooldown reduces with time
+	m_deflectCooldown -= deltaTime; // Cooldown reduces with time
 	m_special2Cooldown -= deltaTime; // Cooldown reduces with time
 	m_special3Cooldown -= deltaTime; // Cooldown reduces with time
 
-	m_timeLeftInDeflectState -= deltaTime;
+	if (m_deflecting) {
+		m_timeLeftInDeflectState -= deltaTime;
 
-	if (m_timeLeftInDeflectState < 0.0f) {
-		m_deflecting = false;
-		m_timeLeftInDeflectState = 0.0f;
+		if (m_timeLeftInDeflectState < 0.0f) {
+			m_deflecting = false;
+			m_timeLeftInDeflectState = 0.0f;
+		}
 	}
 }
 
@@ -112,17 +113,17 @@ void Player::move(float deltaTime)
 		m_moveDir = glm::normalize(m_moveDir);
 	
 	//update player position
-	btScalar yValue = std::ceil(m_character->getLinearVelocity().getY() * 100.0) / 100.0;	//Round to two decimals
-	btVector3 translate = btVector3(m_moveDir.x * m_speed, -0.01f, m_moveDir.z * m_speed);
+	btScalar yValue = std::ceil(m_character->getLinearVelocity().getY() * 100) / 100;	//Round to two decimals
+	btVector3 bulletVec = btVector3(m_moveDir.x * m_speed, -0.01f, m_moveDir.z * m_speed);
 	//m_character->setLinearVelocity(translate);
 	//m_character->setWalkDirection(translate);
-	m_character->setVelocityForTimeInterval(translate, deltaTime);
+	m_character->setVelocityForTimeInterval(bulletVec, deltaTime);
 	
 
 	//update playercamera position
-	btVector3 playerPos = m_character->getGhostObject()->getWorldTransform().getOrigin();
-	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY() * 1.5, playerPos.getZ());
-	
+
+	bulletVec = m_character->getGhostObject()->getWorldTransform().getOrigin();
+	m_playerPosition = glm::vec3(bulletVec.getX(), bulletVec.getY() * 1.5, bulletVec.getZ());
 	m_playerCamera->setCameraPos(m_playerPosition);
 }
 
@@ -132,15 +133,17 @@ void Player::attack()
 	{
 		if (m_attackCooldown <= 0)
 		{
+			m_spellhandler->setSpawnerDirection(m_directionVector);
+			m_spellhandler->setSpawnerPosition(m_playerPosition);
 			m_attackCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_spellType); // Put attack on cooldown
 		}
 	}
 
 	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_RIGHT))
 	{
-		if (m_specialCooldown <= 0)
+		if (m_deflectCooldown <= 0)
 		{
-			m_specialCooldown = m_spellhandler->getReflectBase()->m_coolDown;
+			m_deflectCooldown = m_spellhandler->getReflectBase()->m_coolDown;
 			m_timeLeftInDeflectState = m_spellhandler->getReflectBase()->m_lifeTime;
 			m_deflecting = true;
 		}
@@ -152,6 +155,8 @@ void Player::attack()
 		{
 			if (m_specialSpellType2 == ENHANCEATTACK)
 			{
+				m_spellhandler->setSpawnerDirection(m_directionVector);
+				m_spellhandler->setSpawnerPosition(m_playerPosition);
 				// Start loop
 				m_enhanceAttack.start();
 			}
@@ -162,6 +167,8 @@ void Player::attack()
 	{
 		if (m_special3Cooldown <= 0)
 		{
+			m_spellhandler->setSpawnerDirection(m_directionVector);
+			m_spellhandler->setSpawnerPosition(m_playerPosition);
 			m_special3Cooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_specialSpellType3); // Put attack on cooldown
 		}
 	}
@@ -185,6 +192,10 @@ void Player::createRay()
 
 void Player::setPlayerPos(glm::vec3 pos)
 {
+
+	auto transform = m_character->getGhostObject()->getWorldTransform();
+	transform.setOrigin(btVector3(pos.x, pos.y + 1.0f, pos.z));
+	m_character->getGhostObject()->setWorldTransform(transform);
 	this->m_playerPosition = pos;
 }
 
@@ -206,6 +217,21 @@ void Player::setSpeed(float speed)
 void Player::logicStop(const bool& stop)
 {
 	m_logicStop = stop;
+}
+
+const float& Player::getAttackCooldown() const
+{
+	return m_attackCooldown;
+}
+
+const float& Player::getSpecialCooldown() const
+{
+	return m_special2Cooldown;
+}
+
+const float& Player::getDeflectCooldown() const
+{
+	return m_deflectCooldown;
 }
 
 glm::vec3 Player::getPlayerPos() const

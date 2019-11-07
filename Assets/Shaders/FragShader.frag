@@ -19,9 +19,9 @@ in vec4 f_position;
 out vec4 color;
 out vec4 brightColor;
 
-vec3 GLOBAL_lightDirection = vec3(0.5f, -0.5f, 0.0f);
+vec3 GLOBAL_lightDirection = vec3(0.2f, -0.7f, 0.0f);
 vec3 GLOBAL_lightColor = normalize(vec3(109, 196, 199));
-float ambientStr = 0.1f;
+float ambientStr = 0.3f;
 
 uniform vec3 CameraPosition;
 
