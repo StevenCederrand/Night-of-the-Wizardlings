@@ -7,7 +7,7 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_playerCamera = camera;
 	m_playerPosition = playerPosition;
 	m_name = name;
-	m_speed = 7.0f;
+	m_speed = 18.0f;
 	m_health = 100;
 	m_attackCooldown = 0;
 	m_special2Cooldown = 0;
@@ -36,9 +36,7 @@ void Player::update(float deltaTime)
 	if (m_playerCamera->isCameraActive()) {									// IMPORTANT; DOING THESE WRONG WILL CAUSE INPUT LAG
 		m_playerCamera->update();											// Update this first so that subsequent uses are synced
 		m_directionVector = glm::normalize(m_playerCamera->getCamFace());	// Update this first so that subsequent uses are synced
-		move(deltaTime);													// Update this first so that subsequent uses are synced
-		m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
-
+																	
 		if (!m_logicStop) {
 			move(deltaTime);
 			attack();
@@ -106,7 +104,7 @@ void Player::move(float deltaTime)
 	// Jump
 	if (Input::isKeyHeldDown(GLFW_KEY_SPACE))
 		if (m_character->canJump())
-			m_character->jump(btVector3(0.0f, 3.0f, 0.0f));
+			m_character->jump(btVector3(0.0f, 12.0f, 0.0f));
 
 	// Make sure moving is a constant speed
 	if (glm::length(m_moveDir) >= 0.0001f)
@@ -122,8 +120,9 @@ void Player::move(float deltaTime)
 
 	//update playercamera position
 	btVector3 playerPos = m_character->getGhostObject()->getWorldTransform().getOrigin();
-	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY() * 1.5, playerPos.getZ());
+	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY() + 2.0f, playerPos.getZ());
 	m_playerCamera->setCameraPos(m_playerPosition);
+	m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
 }
 
 void Player::attack()

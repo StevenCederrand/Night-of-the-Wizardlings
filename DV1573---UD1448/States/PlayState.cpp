@@ -9,7 +9,7 @@
 
 PlayState::PlayState()
 {
-	m_bPhysics = new BulletPhysics(-10);
+	m_bPhysics = new BulletPhysics(-20);
 	m_spellHandler = new SpellHandler(m_bPhysics);
 	m_spellHandler->setOnHitCallback(std::bind(&PlayState::onSpellHit_callback, this));
 	
