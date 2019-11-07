@@ -79,12 +79,14 @@ private:
 	void resetServerData();
 
 	void createPickupSpawnLocations();
+	void createPlayerSpawnLocations();
 	void destroyPickupOverNetwork(PickupPacket& pickupPacket);
 	void copyStringToCharArray(char Dest[16], std::string Src);
 	void copyCharArrayOver(char Dest[16], char Src[16]);
 	void destroyAllPickups();
 	PickupType getRandomPickupType();
 	PickupSpawnLocation* getRandomPickupSpawnLocation();
+	const glm::vec3& getRandomSpawnLocation();
 
 private:
 	RakNet::RakPeerInterface* m_serverPeer = nullptr;
@@ -113,6 +115,7 @@ private:
 	std::vector<PickupPacket> m_activePickups;
 	std::vector<PickupPacket> m_queuedPickups;
 	std::vector<BuffedPlayer> m_buffedPlayers;
+	std::vector<glm::vec3> m_playerSpawnLocations;
 
 };
 

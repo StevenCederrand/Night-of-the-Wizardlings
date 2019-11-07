@@ -121,9 +121,9 @@ void Player::move(float deltaTime)
 	
 
 	//update playercamera position
+
 	bulletVec = m_character->getGhostObject()->getWorldTransform().getOrigin();
 	m_playerPosition = glm::vec3(bulletVec.getX(), bulletVec.getY() * 1.5, bulletVec.getZ());
-	
 	m_playerCamera->setCameraPos(m_playerPosition);
 }
 
@@ -192,6 +192,10 @@ void Player::createRay()
 
 void Player::setPlayerPos(glm::vec3 pos)
 {
+
+	auto transform = m_character->getGhostObject()->getWorldTransform();
+	transform.setOrigin(btVector3(pos.x, pos.y + 1.0f, pos.z));
+	m_character->getGhostObject()->setWorldTransform(transform);
 	this->m_playerPosition = pos;
 }
 
