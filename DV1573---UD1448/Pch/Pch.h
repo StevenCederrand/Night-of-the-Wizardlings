@@ -1,7 +1,6 @@
 #ifndef _PCH_H
 #define _PCH_H
 
-
 #include <System/DeltaTime.h>
 #include "Bullet/btBulletDynamicsCommon.h"
 
@@ -55,7 +54,7 @@
 
 
 //Custom
-#include <Renderer/HudTextureMap.h>
+#include <HUD/HudTextureMap.h>
 #include <Mesh/MeshFormat.h>
 #include <Mesh/Mesh.h>
 #include <Mesh/MeshMap.h>

@@ -2,7 +2,7 @@
 
 uniform sampler2D textureSampler;
 uniform vec2 clip;
-//uniform vec3 fillColor;
+uniform vec3 fillColor;
 uniform float alphaValue;
 uniform int grayscale;
 
@@ -25,13 +25,13 @@ void main()
 		float val = (textureColor.r + textureColor.g + textureColor.b) / 3;
 		textureColor = vec4(val, val, val, textureColor.a);
 	}
-	/*
-	if(textureColor.a <= 0.99) {
-		pixelColor = vec4(fillColor, textureColor.a);
+
+	if(textureColor.a <= 0.01) {
+		discard;
 	}
 	else {
-	}*/
-	pixelColor = textureColor;
+		pixelColor = textureColor;
+	}
 
 	if(sampler.x > clip.x)
 		discard;

@@ -23,9 +23,10 @@
 #include <System/Timer.h>
 #include <Renderer/BloomBlur.h>
 #include <Spells/SpellHandler.h>
-#include <Renderer/HudObject.h>
+#include <HUD/HudObject.h>
 #include "PickupNotificationStructure.h"
 #include <Text/FreeType.h>
+#include <Renderer/DeflectRender.h>
 
 
 #define P_LIGHT_COUNT 64
@@ -48,7 +49,6 @@ enum ObjectType {
 	ANIMATEDDYNAMIC,
 	SPELL,
 	PICKUP,
-	FX
 };
 
 class Renderer
@@ -62,6 +62,7 @@ private:
 	Camera* m_camera;
 	FreeType* m_text;
 	SkyBox* m_skyBox;
+	DeflectRender* m_deflectBox;
 	Timer m_timer;
 
 	//Store gameobjects directly to the renderer
@@ -113,8 +114,9 @@ public:
 	void submit(GameObject* gameObject, ObjectType objType);
 	void submit2DHUD(HudObject* hud);
 	void removeDynamic(GameObject* gameObject, ObjectType objType); //Remove an object from the dynamic array
+	void renderDeflectBox(DeflectRender* deflectBox);
 	void renderSkybox(SkyBox* skybox);
-	void render(SkyBox* m_skybox, SpellHandler* m_spellHandler);
+	void render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandler* m_spellHandler);
 	//void renderSpell();
 	void renderDebug();
 	void addPickupNotificationText(PickupNotificationText notification);

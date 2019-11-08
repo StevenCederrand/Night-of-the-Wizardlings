@@ -666,13 +666,19 @@ void Client::processAndHandlePackets()
 
 		case DAMAGE_BUFF_ACTIVE:
 		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			PlayerPacket pData;
+			pData.Serialize(false, bsIn);
+
 			// Add this to the event list
 			{
 				std::lock_guard<std::mutex> lockGuard(m_playerEventMutex); // Thread safe
 				m_playerEvents.push_back(PlayerEvents::TookPowerup);
 			}
 
-			m_myPlayerDataPacket.hasDamageBuff = true;
+			m_myPlayerDataPacket.hasDamageBuff = pData.hasDamageBuff;
+			m_myPlayerDataPacket.health = pData.health;
+			
 		}
 		break;
 

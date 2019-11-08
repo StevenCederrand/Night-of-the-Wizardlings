@@ -2,7 +2,6 @@
 #define _PLAYSTATE_H
 #include <Pch/Pch.h>
 #include <System/State.h>
-
 #include <GUI/Gui.h>
 #include <GFX/MaterialMap.h>
 #include <GameObject/GameObject.h>
@@ -11,8 +10,8 @@
 #include <GameObject/AnimatedObject.h>
 #include <Spells/Spell.h>
 #include <System/BulletPhysics.h>
-#include <Renderer/HudObject.h>
-
+#include <HUD/HudObject.h>
+#include <HUD/HudHandler.h>
 
 bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
 	const btCollisionObjectWrapper* obj2, int id2, int index2);
@@ -41,27 +40,23 @@ private:
 	Player* m_player;
 	Camera* m_camera;
 	SkyBox* m_skybox;
+	DeflectRender* m_deflectBox;
 	BulletPhysics* m_bPhysics;
-	std::vector<HudObject*> m_icons;
-	HudObject* m_crosshairHUD;
-	HudObject* m_damageOverlay;
-	HudObject* m_deflectCrosshairHUD;
-	HudObject* m_hitCrosshair;
-	HudObject* m_hpBar;
 
+	HudHandler m_hudHandler;
+	
 	CEGUI::PushButton* m_mainMenu;
 	CEGUI::PushButton* m_quit;
 	CEGUI::MultiColumnList* m_scoreBoard;
 	bool m_scoreboardExists;
 	bool m_endGameBoardVisible;
-
-	float hp = 1.0f; //Temp HP
-	 
+	bool m_hideHUD;
 private: 
 
 	bool onMainMenuClick(const CEGUI::EventArgs& e);
 	bool onQuitClick(const CEGUI::EventArgs& e);
 	
+	void HUDHandler();
 	void GUIHandler();
 	void GUILoadScoreboard();
 	void GUILoadButtons();

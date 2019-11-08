@@ -205,7 +205,7 @@ void Application::calcFPS(const float& dt)
 	{
 		frameTimer = 1.0f;
 		//std::string title = "fps: " + std::to_string(fps);
-		//printf("%s\n",title.c_str());
+		//printf("%s\n", title.c_str());
 		//glfwSetWindowTitle(m_window, title.c_str());
 		fps = 0;
 	}

@@ -54,7 +54,7 @@ void Renderer::renderHUD()
 		
 		if (vec.size() == 0)
 			continue;
-		
+			   
 		auto* hudObjectDummy = vec[0];
 		
 		glActiveTexture(GL_TEXTURE0);
@@ -70,8 +70,8 @@ void Renderer::renderHUD()
 
 			shader->setMat4("modelMatrix", hudObject->getModelMatrix());
 			shader->setFloat("alphaValue", hudObject->getAlpha());
+			shader->setInt("grayscale", hudObject->getGrayscale());
 			shader->setVec2("clip", glm::vec2(hudObject->getXClip(), hudObject->getYClip()));
-			//shader->setVec3("fillColor", hudObject->getFillColor());
 			glBindVertexArray(hudObject->getVAO());
 
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -143,6 +143,8 @@ void Renderer::initShaders() {
 	ShaderMap::getInstance()->createShader("Skybox_Shader", "Skybox.vs", "Skybox.fs");
 	ShaderMap::getInstance()->getShader("Skybox_Shader")->setInt("skyBox", 4);
 	ShaderMap::getInstance()->createShader(DEBUG, "VertexShader.vert", "DebugFragShader.frag");
+	ShaderMap::getInstance()->createShader(FRESNEL, "FresnelFX.vert", "FresnelFX.frag");
+
 
 	/*=====================================================*/
 	/*ShaderMap::getInstance()->createShader(BLOOM, "Bloom.vs", "Bloom.fs");
@@ -302,9 +304,22 @@ void Renderer::removeDynamic(GameObject* gameObject, ObjectType objType)
 	}
 }
 
+
 void Renderer::destroy()
 {
 	delete m_rendererInstance;
+}
+
+void Renderer::renderDeflectBox(DeflectRender* m_deflectBox)
+{
+	glEnable(GL_BLEND);
+	auto* shader = ShaderMap::getInstance()->useByName(FRESNEL);
+	shader->setMat4("modelMatrix", m_deflectBox->getModelMatrix());
+	bindMatrixes(shader);
+	glBindVertexArray(m_deflectBox->getVAO());
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glBindVertexArray(0);
+
 }
 
 void Renderer::renderSkybox(SkyBox* m_skybox)
@@ -314,7 +329,7 @@ void Renderer::renderSkybox(SkyBox* m_skybox)
 	auto* shader = ShaderMap::getInstance()->useByName("Skybox_Shader");
 	shader->setMat4("modelMatrix", m_skybox->getModelMatrix());
 	shader->setMat4("viewMatrix", glm::mat4(glm::mat3(m_camera->getViewMat())));
-	shader->setMat4("projectionMatrix", m_camera->getProjMat());
+	shader->setMat4("projMatrix", m_camera->getProjMat());
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, m_skybox->getCubeMapTexture());
@@ -326,7 +341,7 @@ void Renderer::renderSkybox(SkyBox* m_skybox)
 	glEnable(GL_CULL_FACE);
 }
 
-void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
+void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandler* m_spellHandler) {
 	Mesh* mesh;
 	Transform transform;
 	glm::mat4 modelMatrix;
@@ -453,6 +468,7 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 	//BLOOMBLUR MISSION STEP 1: SAMPLE
 	//m_bloom->bindHdrFBO();
 	renderSkybox(m_skybox);
+	//renderDeflectBox(m_deflectBox);
 	m_spellHandler->renderSpell();
 
 #pragma region Color_Render
