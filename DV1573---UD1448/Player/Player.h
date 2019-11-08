@@ -10,15 +10,6 @@ class Client;
 
 class Player
 {
-private:
-	struct AnimationState
-	{
-		bool running = false;
-		bool casting = false;
-		bool jumping = false;
-		bool deflecting = false;
-		bool idle = false;
-	};
 
 public:
 	Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Camera* camera, SpellHandler* spellHandler);
@@ -40,6 +31,7 @@ public:
 	int getHealth() const;
 	std::string getName() const;
 	const bool& isDeflecting() const;
+	const AnimationState* getAnimState() const;
 
 	//-----Set-----//
 	void setPlayerPos(glm::vec3 pos);

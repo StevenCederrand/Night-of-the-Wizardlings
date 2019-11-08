@@ -1,7 +1,7 @@
 #ifndef _NET_PACKETS_H
 #define _NET_PACKETS_H
 #include <Spells/SpellTypes.h>
-
+#include <Mesh/MeshFormat.h>
 enum {
 	INFO_ABOUT_OTHER_PLAYERS = ID_USER_PACKET_ENUM + 1,
 	PLAYER_ACCEPTED_TO_SERVER,
@@ -53,7 +53,7 @@ struct PlayerPacket {
 	bool inDeflectState = false;
 	bool hasBeenUpdatedOnce = false;
 
-
+	AnimationState animStates;
 	void Serialize(bool writeToStream, RakNet::BitStream& stream)
 	{
 		stream.Serialize(writeToStream, guid);
@@ -67,6 +67,7 @@ struct PlayerPacket {
 		stream.Serialize(writeToStream, numberOfDeaths);
 		stream.Serialize(writeToStream, inDeflectState);
 		stream.Serialize(writeToStream, hasBeenUpdatedOnce);
+		stream.Serialize(writeToStream, animStates);
 	}
 };
 

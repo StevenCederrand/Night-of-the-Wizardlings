@@ -27,13 +27,21 @@ void NetworkPlayers::update(const float& dt)
 	for (size_t i = 0; i < m_players.size(); i++)
 	{
 		PlayerEntity& p = m_players[i];
+		AnimatedObject* animObj = dynamic_cast<AnimatedObject*>(p.gameobject);
 
 		if (p.flag == NetGlobals::THREAD_FLAG::ADD)
 		{
 			if (p.gameobject == nullptr) {
 				p.gameobject = new AnimatedObject("asd");
-				p.gameobject->loadMesh("CharacterWalking.mesh");
+				p.gameobject->loadMesh("ANIM.mesh");
 				p.gameobject->setWorldPosition(glm::vec3(0, 0, 0));
+				
+				if (animObj != nullptr)
+				{
+					animObj->initAnimations("RunAnimation", 3.0f, 20.0f);
+					animObj->initAnimations("IdleAnimation", 1.0f, 2.0f);
+
+				}
 
 				//Submit the player object as a dynamic object
 				Renderer::getInstance()->submit(p.gameobject, ANIMATEDSTATIC); 
@@ -53,6 +61,7 @@ void NetworkPlayers::update(const float& dt)
 
 		GameObject* g = p.gameobject;
 		
+		
 		if (g != nullptr) {
 			
 			/* Don't render the player if he's dead */
@@ -66,7 +75,22 @@ void NetworkPlayers::update(const float& dt)
 			glm::vec3 pos = CustomLerp(g->getTransform().position, p.data.position, m_lerpSpeed * dt);
 			g->setWorldPosition(pos);
 			g->setTransform(pos, glm::quat(p.data.rotation), glm::vec3(1.0f));
+
+			if (animObj != nullptr) {
+				if (p.data.animStates.running == true)
+				{
+					logTrace("e du häer");
+					animObj->playLoopAnimation("RunAnimation");
+
+				}
+				else
+				{
+					animObj->playLoopAnimation("IdleAnimation");
+				}
+
+			}
 			g->update(dt);
+
 		}
 	}
 }

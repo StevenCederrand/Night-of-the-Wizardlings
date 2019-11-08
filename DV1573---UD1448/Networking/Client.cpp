@@ -568,8 +568,12 @@ void Client::updatePlayerData(Player* player)
 		-glm::radians(player->getCamera()->getYaw() - 90.0f),
 		0.0f);
 
+	m_myPlayerDataPacket.animStates = *player->getAnimState();
+
+	
 	if (m_sendUpdatePackages == false)
 		m_sendUpdatePackages = true;
+
 }
 
 /* You created a spell locally and wants to tell the server and all the other clients that.

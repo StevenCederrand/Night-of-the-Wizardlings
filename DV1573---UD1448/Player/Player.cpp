@@ -53,7 +53,7 @@ void Player::update(float deltaTime)
 		move(deltaTime);
 		attack();
 	}
-	
+	updateMesh();
 	if (m_client->isConnectedToSever()) {
 		m_client->updatePlayerData(this);
 	}
@@ -147,7 +147,7 @@ void Player::move(float deltaTime)
 
 void Player::PlayAnimation(float deltaTime)
 {
-	updateMesh();
+	
 
 	if (animState.running){
 		m_firstPersonMesh->playLoopAnimation("RunAnimation");
@@ -299,6 +299,11 @@ std::string Player::getName() const
 const bool& Player::isDeflecting() const
 {
 	return m_deflecting;
+}
+
+const AnimationState* Player::getAnimState() const
+{
+	return &animState;
 }
 
 bool Player::isDead()
