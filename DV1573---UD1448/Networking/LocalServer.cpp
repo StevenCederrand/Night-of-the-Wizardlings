@@ -326,6 +326,11 @@ void LocalServer::processAndHandlePackets()
 						logTrace("[Server] Flagged player with guid {0} as updated atleast once", m_connectedPlayers[i].guid.ToString());
 					}
 					updatedPlayer = &m_connectedPlayers[i];
+
+					if (updatedPlayer->position.y < -20) {
+						hardRespawnPlayer(*updatedPlayer);
+					}
+
 					foundPlayer = true;
 				}
 
@@ -781,9 +786,6 @@ void LocalServer::handleRespawns(const uint32_t& diff)
 			m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, rs.player->guid, false);
 		}
 		else {
-			
-			
-			logTrace("[Server] PlayerSpawn: {0}, {1}, {2}", rs.player->latestSpawnPosition.x, rs.player->latestSpawnPosition.y, rs.player->latestSpawnPosition.z);
 			rs.currentTime = 0;
 			rs.player->health = NetGlobals::maxPlayerHealth;
 
@@ -796,6 +798,16 @@ void LocalServer::handleRespawns(const uint32_t& diff)
 			i--;
 		}
 	}
+}
+
+void LocalServer::hardRespawnPlayer(PlayerPacket& player)
+{
+
+	RakNet::BitStream stream;
+	stream.Write((RakNet::MessageID)RESPAWN_PLAYER);
+	player.latestSpawnPosition = getRandomSpawnLocation();
+	player.Serialize(true, stream);
+	m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, player.guid, false);
 }
 
 void LocalServer::respawnPlayers()
