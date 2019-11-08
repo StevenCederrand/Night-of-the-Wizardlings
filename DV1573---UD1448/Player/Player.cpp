@@ -40,7 +40,7 @@ void Player::update(float deltaTime)
 	move(deltaTime);													// Update this first so that subsequent uses are synced
 	m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
 	if (!m_logicStop) {
-		move(deltaTime);
+		move(deltaTime);		
 		attack();
 	}
 	
@@ -134,9 +134,9 @@ void Player::attack()
 		if (m_attackCooldown <= 0)
 		{
 			m_attackCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_spellType); // Put attack on cooldown
+			SoundHandler::getInstance()->setSourcePosition(m_playerPosition, BasicAttackSoundIndex);
 			SoundHandler::getInstance()->playSound(BasicAttackSoundIndex);
-		}
-		
+		}		
 	}
 
 	if (glfwGetMouseButton(m_playerCamera->getWindow(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
@@ -144,6 +144,7 @@ void Player::attack()
 		if (m_specialCooldown <= 0)
 		{
 			m_specialCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_specialSpelltype); // Put attack on cooldown
+			SoundHandler::getInstance()->setSourcePosition(m_playerPosition, DeflectSoundIndex);
 			SoundHandler::getInstance()->playSound(DeflectSoundIndex);
 		}		
 	}
@@ -156,6 +157,7 @@ void Player::attack()
 			{
 				// Start loop
 				m_enhanceAttack.start();
+				SoundHandler::getInstance()->setSourcePosition(m_playerPosition, EnhanceAttackSoundIndex);
 				SoundHandler::getInstance()->playSound(EnhanceAttackSoundIndex);
 			}
 		}

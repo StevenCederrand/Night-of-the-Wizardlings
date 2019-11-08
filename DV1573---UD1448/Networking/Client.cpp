@@ -393,7 +393,15 @@ void Client::processAndHandlePackets()
 			se.flag = NetGlobals::THREAD_FLAG::ADD;
 			se.gameobject = nullptr;	
 
-			SoundHandler::setSourcePosition();
+			se.spellData.CreatorGUID
+						
+			switch (se.spellData.SpellType)
+			{
+			case SPELL_TYPE::NORMALATTACK:
+				SoundHandler::getInstance()->setSourcePosition(se.spellData.Position, BasicAttackSoundIndex, 1);
+				SoundHandler::getInstance()->playSound(BasicAttackSoundIndex);
+				break;
+			}			
 
 			{
 				std::lock_guard<std::mutex> lockGuard(m_networkSpells.m_mutex);
