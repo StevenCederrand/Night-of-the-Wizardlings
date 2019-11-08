@@ -5,6 +5,7 @@
 #include "NetworkPlayers.h"
 #include "NetworkSpells.h"
 #include "NetworkPickups.h"
+#include "PlayerEvents.h"
 
 class Player;
 
@@ -50,7 +51,7 @@ public:
 	const CountdownPacket& getCountdownPacket() const;
 	const CountdownPacket& getRespawnTime() const;
 	const RoundTimePacket& getRoundTimePacket() const;
-	
+	const PlayerEvents readNextEvent();
 
 	const bool doneRefreshingServerList() const;
 	const bool doesServerExist(const unsigned int& ID) const;
@@ -58,7 +59,6 @@ public:
 	const bool& isConnectedToSever() const;
 	const bool& connectionFailed() const;
 	const bool& isServerOwner() const;
-
 private:
 
 	unsigned char getPacketID(RakNet::Packet* p);
@@ -118,6 +118,9 @@ private:
 	std::vector<SpellPacket> m_removeOrAddSpellQueue;
 	std::vector<SpellPacket> m_removalOfClientSpellsQueue;
 	std::mutex m_renderPickupNotificationMutex;
+
+	std::vector<PlayerEvents> m_playerEvents;
+	std::mutex m_playerEventMutex;
 	
 };
 

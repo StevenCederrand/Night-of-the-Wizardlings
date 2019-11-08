@@ -158,6 +158,7 @@
     <ClInclude Include="System\Randomizer.h" />
     <ClInclude Include="Renderer\PickupNotificationStructure.h" />
     <ClInclude Include="System\DeltaTime.h" />
+    <ClInclude Include="Networking\PlayerEvents.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

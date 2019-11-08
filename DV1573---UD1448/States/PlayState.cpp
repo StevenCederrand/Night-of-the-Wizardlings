@@ -122,58 +122,94 @@ void PlayState::update(float dt)
 	m_spellHandler->spellUpdate(dt);
 	
 	//m_hpBar->setYClip(m_player->getHealth() / 100);
-	
-	if (Client::getInstance()->getMyData().health <= 0) {
-		
-		if (m_camera->isCameraActive()) {
-			m_camera->disableCameraMovement(true);
+	auto* clientPtr = Client::getInstance();
+	for (PlayerEvents evnt = clientPtr->readNextEvent(); evnt != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
+
+		switch (evnt) {
+
+			case PlayerEvents::Died: 
+			{
+				logWarning("[Event system] Died");
+				m_camera->disableCameraMovement(true);
+				m_crosshairHUD->setAlpha(0.0f);
+				m_deflectCrosshairHUD->setAlpha(0.0f);
+				break;
+			}
+
+			case PlayerEvents::Respawned:
+			{
+				logWarning("[Event system] Respawned");
+				m_player->setPlayerPos(Client::getInstance()->getMyData().latestSpawnPosition);
+				m_camera->resetCamera();
+				m_camera->disableCameraMovement(false);
+				m_crosshairHUD->setAlpha(1.0f);
+				m_deflectCrosshairHUD->setAlpha(0.0f);
+				break;
+			}
+
+
+			case PlayerEvents::TookDamage:
+			{
+				logWarning("[Event system] Took damage");
+				m_damageOverlay->setAlpha(1.0f);
+				m_player->setHealth(Client::getInstance()->getMyData().health);
+				break;
+			}
+
+
+			case PlayerEvents::TookHeal:
+			{
+				logWarning("[Event system] Took a heal");
+				break;
+			}
+
+
+			case PlayerEvents::TookPowerup:
+			{
+				logWarning("[Event system] Took a powerup");
+				break;
+			}
+
+			case PlayerEvents::PowerupRemoved:
+			{
+				logWarning("[Event system] Powerup was removed");
+				break;
+			}
+
 		}
 
+
+	}
+	// Look at the killer when dead ( If he exist )
+	if (!m_camera->isCameraActive() && clientPtr->getMyData().health <= 0)
+	{
 		const PlayerPacket* myKiller = Client::getInstance()->getLatestPlayerThatHitMe();
 		if (myKiller != nullptr) {
 			m_camera->lookAt(myKiller->position);
 		}
-
+	}
+	
+	// Crosshair switching (Deflect or not)
+	if (m_player->isDeflecting()) {
 		m_crosshairHUD->setAlpha(0.0f);
+		m_deflectCrosshairHUD->setAlpha(1.0f);
+	}
+	else
+	{
+		m_crosshairHUD->setAlpha(1.0f);
 		m_deflectCrosshairHUD->setAlpha(0.0f);
 	}
-	else {
-		
-		if (m_camera->isCameraActive() == false) {
-			// Not the most elegant solution but here i just assume that we respawned
-			m_player->setPlayerPos(Client::getInstance()->getMyData().latestSpawnPosition);
-			m_camera->resetCamera();
-			m_camera->disableCameraMovement(false);
-		}
 
-		if (m_player->isDeflecting()) {
-			m_crosshairHUD->setAlpha(0.0f);
-			m_deflectCrosshairHUD->setAlpha(1.0f);
-		}
-		else
-		{
-			m_crosshairHUD->setAlpha(1.0f);
-			m_deflectCrosshairHUD->setAlpha(0.0f);
-		}
-
-
-	}
-
-	if (Client::getInstance()->getMyData().health != m_player->getHealth())
-	{
-		if (Client::getInstance()->getMyData().health == NetGlobals::maxPlayerHealth && m_player->getHealth() == 0)
-			m_damageOverlay->setAlpha(0.0f);
-		else
-			m_damageOverlay->setAlpha(1.0f);
-
-		m_player->setHealth(Client::getInstance()->getMyData().health);
-	}
-
-	if (m_damageOverlay->getAlpha() != 0)
+	// Overlay alpha decrease
+	if (m_damageOverlay->getAlpha() > 0.0F)
 	{
 		m_damageOverlay->setAlpha(m_damageOverlay->getAlpha() - dt);
+		if(m_damageOverlay->getAlpha() < 0.0f) {
+			m_damageOverlay->setAlpha(0.0f);
+		}
 	}
 
+	// Hit marker alpha decrease
 	if (m_hitCrosshair->getAlpha() > 0.0f) {
 		m_hitCrosshair->setAlpha(m_hitCrosshair->getAlpha() - dt);
 		
@@ -182,6 +218,7 @@ void PlayState::update(float dt)
 		}
 	}
 
+	// Update game objects
 	for (GameObject* object : m_objects)
 	{
 		object->update(dt);
@@ -189,6 +226,12 @@ void PlayState::update(float dt)
 
 	//Enable GUI
 	GUIHandler();
+
+	// Remove this
+	if (Input::isKeyReleased(GLFW_KEY_K))
+	{
+		logTrace("Player position: ({0},{1},{2})", m_player->getPlayerPos().x, m_player->getPlayerPos().y, m_player->getPlayerPos().z);
+	}
 
 }
 
