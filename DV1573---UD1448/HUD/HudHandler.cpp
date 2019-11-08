@@ -37,7 +37,11 @@ HudHandler::HudHandler()
 	insertHUDObject(hudObject, BAR_HP);
 	// ___ ____ ___
 
-	hudObject = new HudObject("Assets/Textures/DamageOverlay.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(static_cast<float>(SCREEN_WIDTH), (static_cast<float>(SCREEN_HEIGHT))));
+	hudObject = new HudObject("Assets/Textures/hud/PickupOverlay.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(static_cast<float>(SCREEN_WIDTH), (static_cast<float>(SCREEN_HEIGHT))));
+	hudObject->setAlpha(0.0f);
+	insertHUDObject(hudObject, POWERUP);
+
+	hudObject = new HudObject("Assets/Textures/hud/DamageOverlay.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(static_cast<float>(SCREEN_WIDTH), (static_cast<float>(SCREEN_HEIGHT))));
 	hudObject->setAlpha(0.0f);
 	insertHUDObject(hudObject, DAMAGE_OVERLAY);
 }

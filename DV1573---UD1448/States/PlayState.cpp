@@ -124,12 +124,14 @@ void PlayState::update(float dt)
 			case PlayerEvents::TookPowerup:
 			{
 				logWarning("[Event system] Took a powerup");
+				m_hudHandler.getHudObject(POWERUP)->setAlpha(1.0f);
 				break;
 			}
 
 			case PlayerEvents::PowerupRemoved:
 			{
 				logWarning("[Event system] Powerup was removed");
+				m_hudHandler.getHudObject(POWERUP)->setAlpha(0.0f);
 				break;
 			}
 

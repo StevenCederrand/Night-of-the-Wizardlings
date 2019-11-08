@@ -687,7 +687,8 @@ void LocalServer::checkCollisionBetweenPlayersAndPickups()
 			if (isCollidingWithPickup(player, pickup)) {
 				// Give player buffs here
 				if (pickup.type == PickupType::HealthPotion) {
-					player.health = 100;
+					if(player.health < 100)
+						player.health = 100;
 					
 					RakNet::BitStream stream;
 					stream.Write((RakNet::MessageID)HEAL_BUFF);
@@ -700,10 +701,13 @@ void LocalServer::checkCollisionBetweenPlayersAndPickups()
 					player.hasDamageBuff = true;
 					RakNet::BitStream stream;
 					stream.Write((RakNet::MessageID)DAMAGE_BUFF_ACTIVE);
+					player.health = 200;
+					player.Serialize(true, stream);
 					m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, player.guid, false);
 
 					BuffedPlayer buffedPlayer;
 					buffedPlayer.currentTime = NetGlobals::damageBuffActiveTimeMS;
+
 					buffedPlayer.player = &player;
 					m_buffedPlayers.emplace_back(buffedPlayer);
 

@@ -6,7 +6,6 @@
 #define _HUDHANDLER_h
 
 enum HUDID {
-	DEFLECT, 
 	NORMAL, 
 	BAR_HP, 
 	BAR_MANA, 
@@ -17,6 +16,7 @@ enum HUDID {
 	SPELL_ARCANE, 
 	SPELL_SPECIAL,
 	SPELL_DEFLECT, 
+	POWERUP,
 };
 
 class HudHandler {
