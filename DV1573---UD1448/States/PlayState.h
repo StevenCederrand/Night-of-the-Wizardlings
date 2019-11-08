@@ -51,6 +51,9 @@ private:
 	bool m_scoreboardExists;
 	bool m_endGameBoardVisible;
 	bool m_hideHUD;
+
+	glm::vec3 m_lastPositionOfMyKiller;
+
 private: 
 
 	bool onMainMenuClick(const CEGUI::EventArgs& e);

@@ -61,6 +61,7 @@ PlayState::~PlayState()
 	delete m_bPhysics;
 	delete m_spellHandler;
 	delete m_camera;
+	delete m_deflectBox;
 	if (LocalServer::getInstance()->isInitialized()) {
 		LocalServer::getInstance()->destroy();
 	}
@@ -87,6 +88,7 @@ void PlayState::update(float dt)
 			case PlayerEvents::Died: 
 			{
 				logWarning("[Event system] Died");
+				m_lastPositionOfMyKiller = clientPtr->getLatestPlayerThatHitMe()->position;
 				m_camera->disableCameraMovement(true);
 				//m_crosshairHUD->setAlpha(0.0f);
 				//m_deflectCrosshairHUD->setAlpha(0.0f);
@@ -141,11 +143,14 @@ void PlayState::update(float dt)
 	}
 	// Look at the killer when dead ( If he exist )
 	if (!m_camera->isCameraActive() && clientPtr->getMyData().health <= 0)
-	{
-		const PlayerPacket* myKiller = Client::getInstance()->getLatestPlayerThatHitMe();
+	{	
+		const PlayerPacket* myKiller = clientPtr->getLatestPlayerThatHitMe();
 
 		if (myKiller != nullptr) {
-			m_camera->lookAt(myKiller->position);
+			glm::vec3 lookPos =  CustomLerp(m_lastPositionOfMyKiller, myKiller->position, DeltaTime);
+			m_camera->lookAt(lookPos);
+
+			m_lastPositionOfMyKiller = lookPos;
 		}
 	}
 	

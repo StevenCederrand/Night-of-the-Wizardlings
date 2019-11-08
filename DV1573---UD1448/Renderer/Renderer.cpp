@@ -254,6 +254,7 @@ void Renderer::clear() {
 	m_dynamicObjects.clear();
 	m_anistaticObjects.clear();
 	m_anidynamicObjects.clear();
+	m_pickups.clear();
 	m_spells.clear();
 	m_2DHudMap.clear();
 
