@@ -31,10 +31,15 @@ HudHandler::HudHandler()
 	insertHUDObject(hudObject, SPELL_SPECIAL);
 
 	//HP BAR
-	hudObject = new HudObject("Assets/Textures/hud/tmpHP.png", glm::vec2(static_cast<float>(80), static_cast<float>(124)), glm::vec2(80.0f, 200.0f));
+	hudObject = new HudObject("Assets/Textures/hud/tmpHP.png", glm::vec2(static_cast<float>(0), static_cast<float>(174)), glm::vec2(28.0f, 348.5f));
 	hudObject->setAlpha(1.0f);
 	hudObject->setFillColor(glm::vec3(1, 0, 0));
 	insertHUDObject(hudObject, BAR_HP);
+	//Mana bar
+	hudObject = new HudObject("Assets/Textures/hud/tmpMana.png", glm::vec2(static_cast<float>(22), static_cast<float>(150)), glm::vec2(17.0f, 300.0f));
+	hudObject->setAlpha(1.0f);
+	hudObject->setFillColor(glm::vec3(1, 0, 0));
+	insertHUDObject(hudObject, BAR_MANA);
 	// ___ ____ ___
 
 	hudObject = new HudObject("Assets/Textures/hud/PickupOverlay.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(static_cast<float>(SCREEN_WIDTH), (static_cast<float>(SCREEN_HEIGHT))));

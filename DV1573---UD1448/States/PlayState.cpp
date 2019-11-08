@@ -110,6 +110,7 @@ void PlayState::update(float dt)
 				logWarning("[Event system] Took damage");
 				//m_damageOverlay->setAlpha(1.0f);
 				m_player->setHealth(Client::getInstance()->getMyData().health);
+				m_hudHandler.getHudObject(DAMAGE_OVERLAY)->setAlpha(1.0f);
 				break;
 			}
 
