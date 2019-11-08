@@ -78,62 +78,77 @@ void PlayState::update(float dt)
 	m_player->update(dt);
 	m_spellHandler->spellUpdate(dt);
 
-	//If the player dies
-	if (Client::getInstance()->getMyData().health <= 0) {
-		
-		if (!m_hideHUD) {
-			m_hudHandler.fadeOut();
-			m_hideHUD = true;
+	//m_hpBar->setYClip(m_player->getHealth() / 100);
+	auto* clientPtr = Client::getInstance();
+	for (PlayerEvents evnt = clientPtr->readNextEvent(); evnt != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
+
+		switch (evnt) {
+
+			case PlayerEvents::Died: 
+			{
+				logWarning("[Event system] Died");
+				m_camera->disableCameraMovement(true);
+				//m_crosshairHUD->setAlpha(0.0f);
+				//m_deflectCrosshairHUD->setAlpha(0.0f);
+				break;
+			}
+
+			case PlayerEvents::Respawned:
+			{
+				logWarning("[Event system] Respawned");
+				m_player->setPlayerPos(Client::getInstance()->getMyData().latestSpawnPosition);
+				m_camera->resetCamera();
+				m_camera->disableCameraMovement(false);
+				//m_crosshairHUD->setAlpha(1.0f);
+				//m_deflectCrosshairHUD->setAlpha(0.0f);
+				break;
+			}
+
+
+			case PlayerEvents::TookDamage:
+			{
+				logWarning("[Event system] Took damage");
+				//m_damageOverlay->setAlpha(1.0f);
+				m_player->setHealth(Client::getInstance()->getMyData().health);
+				break;
+			}
+
+
+			case PlayerEvents::TookHeal:
+			{
+				logWarning("[Event system] Took a heal");
+				break;
+			}
+
+
+			case PlayerEvents::TookPowerup:
+			{
+				logWarning("[Event system] Took a powerup");
+				break;
+			}
+
+			case PlayerEvents::PowerupRemoved:
+			{
+				logWarning("[Event system] Powerup was removed");
+				break;
+			}
+
 		}
 
-		if (m_camera->isCameraActive()) {
-			m_camera->disableCameraMovement(true);
-		}
 
+	}
+	// Look at the killer when dead ( If he exist )
+	if (!m_camera->isCameraActive() && clientPtr->getMyData().health <= 0)
+	{
 		const PlayerPacket* myKiller = Client::getInstance()->getLatestPlayerThatHitMe();
 
 		if (myKiller != nullptr) {
 			m_camera->lookAt(myKiller->position);
 		}
-
-		m_hudHandler.getHudObject(CROSSHAIR)->setAlpha(0.0f);
-		m_hudHandler.getHudObject(CROSSHAIR_DEFLECT)->setAlpha(0.0f);
 	}
-	else {
-		//Unhide the HUD
-		if (m_hideHUD) {
-			m_hudHandler.fadeIn();
-			m_hideHUD = false;
-		}
-		if (m_camera->isCameraActive() == false) {
-			// Not the most elegant solution but here i just assume that we respawned
-			m_player->setPlayerPos(Client::getInstance()->getMyData().latestSpawnPosition);
-			m_camera->resetCamera();
-			m_camera->disableCameraMovement(false);
-		}
+	
 
-		if (m_player->isDeflecting()) {
-			m_hudHandler.getHudObject(CROSSHAIR)->setAlpha(0.0f);
-			m_hudHandler.getHudObject(CROSSHAIR_DEFLECT)->setAlpha(1.0f);
-		}
-		else
-		{
-			m_hudHandler.getHudObject(CROSSHAIR)->setAlpha(1.0f);
-			m_hudHandler.getHudObject(CROSSHAIR_DEFLECT)->setAlpha(0.0f);
-		}
-	}
-
-	if (Client::getInstance()->getMyData().health != m_player->getHealth())
-	{
-		if (Client::getInstance()->getMyData().health == NetGlobals::maxPlayerHealth && m_player->getHealth() == 0)
-			m_hudHandler.getHudObject(DAMAGE_OVERLAY)->setAlpha(0.0f);
-		else
-			m_hudHandler.getHudObject(DAMAGE_OVERLAY)->setAlpha(1.0f);
-
-		m_player->setHealth(Client::getInstance()->getMyData().health);
-	}
-
-
+	// Update game objects
 	for (GameObject* object : m_objects)
 	{
 		object->update(dt);
@@ -141,7 +156,7 @@ void PlayState::update(float dt)
 	
 	GUIHandler();
 	if (!m_hideHUD) {
-		HUDHandler(dt);
+		HUDHandler();
 	}
 }
 
@@ -156,7 +171,7 @@ void PlayState::onSpellHit_callback()
 	m_hudHandler.getHudObject(CROSSHAIR_HIT)->setAlpha(1.0f);
 }
 
-void PlayState::HUDHandler(float dt) {
+void PlayState::HUDHandler() {
 	//HP bar
 	m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(m_player->getHealth()) / 100);
 	
@@ -195,11 +210,11 @@ void PlayState::HUDHandler(float dt) {
 	
 	if (m_hudHandler.getHudObject(DAMAGE_OVERLAY)->getAlpha() != 0)
 	{
-		m_hudHandler.getHudObject(DAMAGE_OVERLAY)->setAlpha(m_hudHandler.getHudObject(DAMAGE_OVERLAY)->getAlpha() - dt);
+		m_hudHandler.getHudObject(DAMAGE_OVERLAY)->setAlpha(m_hudHandler.getHudObject(DAMAGE_OVERLAY)->getAlpha() - DeltaTime);
 	}
 	//Hitmarker
 	if (m_hudHandler.getHudObject(CROSSHAIR_HIT)->getAlpha() > 0.0f) {
-		m_hudHandler.getHudObject(CROSSHAIR_HIT)->setAlpha(m_hudHandler.getHudObject(CROSSHAIR_HIT)->getAlpha() - dt);
+		m_hudHandler.getHudObject(CROSSHAIR_HIT)->setAlpha(m_hudHandler.getHudObject(CROSSHAIR_HIT)->getAlpha() - DeltaTime);
 
 		if (m_hudHandler.getHudObject(CROSSHAIR_HIT)->getAlpha() < 0.0f) {
 			m_hudHandler.getHudObject(CROSSHAIR_HIT)->setAlpha(0.0f);

@@ -118,8 +118,6 @@ void Player::move(float deltaTime)
 	//m_character->setWalkDirection(translate);
 	m_character->setVelocityForTimeInterval(bulletVec, deltaTime);
 	
-
-
 	btVector3 playerPos = m_character->getGhostObject()->getWorldTransform().getOrigin();
 	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY() + 2.0f, playerPos.getZ());
 

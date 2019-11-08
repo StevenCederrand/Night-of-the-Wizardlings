@@ -12,7 +12,6 @@ struct TextCharacter {
 	glm::ivec2 Bearing;
 	GLuint Advance;
 };
-//std::map<GLchar, TextCharacter> TextCharacters;
 
 class FreeType
 {

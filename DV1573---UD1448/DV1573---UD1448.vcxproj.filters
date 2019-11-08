@@ -151,12 +151,9 @@
     <ClInclude Include="Renderer\BloomBlur.h" />
     <ClInclude Include="Text\FreeType.h" />
     <ClInclude Include="Text\HUDShader.h" />
-<<<<<<< HEAD
-<<<<<<< HEAD
     <ClInclude Include="HUD\HudObject.h" />
     <ClInclude Include="HUD\HudTextureMap.h" />
     <ClInclude Include="HUD\HudHandler.h" />
-=======
     <ClInclude Include="Pickups\Pickup.h" />
     <ClInclude Include="Pickups\HealthPickup.h" />
     <ClInclude Include="Networking\NetworkPickups.h" />
@@ -164,10 +161,8 @@
     <ClInclude Include="System\Randomizer.h" />
     <ClInclude Include="Renderer\PickupNotificationStructure.h" />
     <ClInclude Include="System\DeltaTime.h" />
->>>>>>> ab29dfc3d34a2827dad715e2aecd65f6661269f2
-=======
     <ClInclude Include="Renderer\DeflectRender.h" />
->>>>>>> 067de571268e93e40f435743da7d3e2a3c79fd62
+    <ClInclude Include="Networking\PlayerEvents.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />
