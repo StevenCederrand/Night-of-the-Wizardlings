@@ -87,6 +87,7 @@ void PlayState::update(float dt)
 
 			case PlayerEvents::Died: 
 			{
+
 				logWarning("[Event system] Died");
 				m_lastPositionOfMyKiller = clientPtr->getLatestPlayerThatHitMe()->position;
 				m_camera->disableCameraMovement(true);
@@ -165,6 +166,55 @@ void PlayState::update(float dt)
 	if (!m_hideHUD) {
 		HUDHandler();
 	}
+
+	//if (Input::isKeyPressed(GLFW_KEY_K)) {
+	//	NotificationText t;
+	//	t.alphaColor = 1.0f;
+	//	t.width = 0;
+	//	t.scale = glm::vec3(0.35f);
+	//	t.useAlpha = false;
+	//	t.lifeTimeInSeconds = 5.0f;
+
+	//	glm::vec3 playerColor = glm::vec3(1.0f, 0.5f, 0.0f);
+
+	//	std::string killername = std::string("sdddddddddddddd");
+	//	t.width += Renderer::getInstance()->getTextWidth(killername, t.scale);
+	//	t.textParts.emplace_back(killername, playerColor);
+
+	//	std::string text = std::string(" killed ");
+	//	t.width += Renderer::getInstance()->getTextWidth(text, t.scale);
+	//	t.textParts.emplace_back(text, glm::vec3(1.0f, 1.0f, 1.0f));
+
+	//	std::string deadguyName = std::string("aqwsdergftyuiop");
+	//	t.width += Renderer::getInstance()->getTextWidth(deadguyName, t.scale);
+	//	t.textParts.emplace_back(deadguyName, playerColor);
+	//	
+	//	Renderer::getInstance()->addKillFeed(t);
+	//	
+	//}
+	//if (Input::isKeyPressed(GLFW_KEY_L)) {
+	//	NotificationText t;
+	//	t.alphaColor = 1.0f;
+	//	t.width = 0;
+	//	t.scale = glm::vec3(0.60f);
+	//	t.useAlpha = true;
+	//	t.lifeTimeInSeconds = 6.0f;
+
+	//	
+	//	std::string type = "Test notification ";
+	//	glm::vec3 color = glm::vec3(1.0f, 0.2f, 0.2f);
+	//	t.width += Renderer::getInstance()->getTextWidth(type, t.scale);
+	//	t.textParts.emplace_back(type, color);
+	//	
+	//	std::string text = "is being tested af!";
+	//	t.width += Renderer::getInstance()->getTextWidth(text, t.scale);
+	//	glm::vec3 locColor = glm::vec3(1.0f, 1.0f, 1.0f);
+	//	t.textParts.emplace_back(text, locColor);
+
+	//	Renderer::getInstance()->addBigNotification(t);
+	//	
+	//}
+
 }
 
 void PlayState::render()

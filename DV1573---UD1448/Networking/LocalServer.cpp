@@ -589,6 +589,16 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 			shooterPacketStream.Write((RakNet::MessageID)SCORE_UPDATE);
 			shooter->Serialize(true, shooterPacketStream);
 			m_serverPeer->Send(&shooterPacketStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, shooter->guid, false);
+
+			// Send the kill feed information
+			RakNet::BitStream killFeedStream;
+			killFeedStream.Write((RakNet::MessageID)KILL_FEED);
+			KillFeedPacket kFeed;
+			kFeed.killerGuid = shooter->guid;
+			kFeed.deadGuid = target->guid;
+			kFeed.Serialize(true, killFeedStream);
+			sendStreamToAllClients(killFeedStream, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
+
 		}
 
 		// Send a hit packet to the target
@@ -932,7 +942,7 @@ void LocalServer::handlePickupTimer(const uint32_t& diff)
 {
 	m_timedPickupSpawner.update(static_cast<float>(diff));
 
-	if (m_timedPickupSpawner.getTimeLeftOnInterval() <= 5.0f * 1000.0f && !m_pickupNotified) {
+	if (m_timedPickupSpawner.getTimeLeftOnInterval() <= NetGlobals::pickupNotificationBeforeSpawnMS && !m_pickupNotified) {
 		m_pickupNotified = true;
 		notifyPickup();
 	}

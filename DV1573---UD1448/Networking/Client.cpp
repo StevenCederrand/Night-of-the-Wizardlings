@@ -615,10 +615,12 @@ void Client::processAndHandlePackets()
 			PickupPacket pickupPacket;
 			pickupPacket.Serialize(false, bsIn);
 
-			PickupNotificationText t;
+			NotificationText t;
 			t.alphaColor = 1.0f;
 			t.width = 0;
 			t.scale = glm::vec3(0.60f);
+			t.useAlpha = true;
+			t.lifeTimeInSeconds = 6.0f;
 
 			if (pickupPacket.type == PickupType::HealthPotion) {
 				std::string type = "Health potion ";
@@ -641,7 +643,7 @@ void Client::processAndHandlePackets()
 
 			{
 				renderPickupNotificationsMutexGuard();
-				Renderer::getInstance()->addPickupNotificationText(t);
+				Renderer::getInstance()->addBigNotification(t);
 			}
 
 		}
@@ -692,7 +694,60 @@ void Client::processAndHandlePackets()
 
 			m_myPlayerDataPacket.hasDamageBuff = false;
 		}
-		
+		break;
+
+		case KILL_FEED:
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			KillFeedPacket killFeed;
+			killFeed.Serialize(false, bsIn);
+
+			PlayerPacket* killer;
+			PlayerPacket* dead;
+
+			if (killFeed.killerGuid == m_myPlayerDataPacket.guid)
+				killer = &m_myPlayerDataPacket;
+			else
+				killer = findPlayerByGuid(killFeed.killerGuid);
+			
+			
+			if (killFeed.deadGuid == m_myPlayerDataPacket.guid)
+				dead = &m_myPlayerDataPacket;
+			else
+				dead = findPlayerByGuid(killFeed.deadGuid);
+
+			if (killer == nullptr || dead == nullptr)
+				return;
+
+			NotificationText t;
+			t.alphaColor = 1.0f;
+			t.width = 0;
+			t.scale = glm::vec3(0.35f);
+			t.useAlpha = false;
+			t.lifeTimeInSeconds = 5.0f;
+
+			glm::vec3 playerColor = glm::vec3(1.0f, 0.5f, 0.0f);
+			
+			std::string killername = std::string(killer->userName);
+			t.width += Renderer::getInstance()->getTextWidth(killername, t.scale);
+			t.textParts.emplace_back(killername, playerColor);
+
+			std::string text = std::string(" killed ");
+			t.width += Renderer::getInstance()->getTextWidth(text, t.scale);
+			t.textParts.emplace_back(text, glm::vec3(1.0f, 1.0f, 1.0f));
+
+			std::string deadguyName = std::string(dead->userName);
+			t.width += Renderer::getInstance()->getTextWidth(deadguyName, t.scale);
+			t.textParts.emplace_back(deadguyName, playerColor);
+
+			{
+				renderKillFeedMutexGuard();
+				Renderer::getInstance()->addKillFeed(t);
+			}
+
+		}
+		break;
+
 		default:
 		{
 			
@@ -984,6 +1039,11 @@ void Client::setUsername(const std::string& userName)
 void Client::renderPickupNotificationsMutexGuard()
 {
 	std::lock_guard<std::mutex> lockGuard(m_renderPickupNotificationMutex);
+}
+
+void Client::renderKillFeedMutexGuard()
+{
+	std::lock_guard<std::mutex> lockGuard(m_renderKillFeedMutex);
 }
 
 const bool Client::doneRefreshingServerList() const

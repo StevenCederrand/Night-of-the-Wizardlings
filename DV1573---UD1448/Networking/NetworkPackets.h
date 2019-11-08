@@ -28,7 +28,8 @@ enum {
 	PICKUP_NOTIFICATION,
 	HEAL_BUFF,
 	DAMAGE_BUFF_ACTIVE,
-	DAMAGE_BUFF_INACTIVE
+	DAMAGE_BUFF_INACTIVE,
+	KILL_FEED
 };
 
 /* To make sure the compiler aligns the bits */
@@ -101,6 +102,17 @@ struct RoundTimePacket {
 		stream.Serialize(writeToStream, seconds);
 	}
 
+};
+
+struct KillFeedPacket {
+	RakNet::AddressOrGUID killerGuid;
+	RakNet::AddressOrGUID deadGuid;
+
+	void Serialize(bool writeToStream, RakNet::BitStream& stream)
+	{
+		stream.Serialize(writeToStream, killerGuid);
+		stream.Serialize(writeToStream, deadGuid);
+	}
 };
 
 struct SpellPacket{

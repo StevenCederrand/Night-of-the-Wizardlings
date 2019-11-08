@@ -16,6 +16,7 @@ namespace NetGlobals {
 	constexpr uint32_t maxDelayBeforeDeletionMS = 20 * 1000;
 	constexpr uint32_t pickupSpawnIntervalMS = 20 * 1000;
 	constexpr uint32_t damageBuffActiveTimeMS = 10 * 1000;
+	constexpr uint32_t pickupNotificationBeforeSpawnMS = 8.0f * 1000.0f;
 	constexpr int maxPlayerHealth = 100;
 
 	//static std::mutex gameSyncMutex;
