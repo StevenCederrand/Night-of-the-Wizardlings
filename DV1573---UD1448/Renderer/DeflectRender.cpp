@@ -34,6 +34,6 @@ glm::mat4 DeflectRender::getModelMatrix() const
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(10.0f, 5.0f, 1.0f));
 	model = glm::scale(model, glm::vec3(6.0f, 6.0f, 6.0f));
-	model = glm::rotate(model, glm::degrees(90.0f), glm::vec3(1, 0, 0));
+	model = glm::rotate(model, 1.5708f, glm::vec3(1, 0, 0)); //Rotation in radian == 90Degrees
 	return model;
 }
