@@ -312,11 +312,12 @@ void Renderer::destroy()
 
 void Renderer::renderDeflectBox(DeflectRender* m_deflectBox)
 {
+	glEnable(GL_BLEND);
 	auto* shader = ShaderMap::getInstance()->useByName(FRESNEL);
 	shader->setMat4("modelMatrix", m_deflectBox->getModelMatrix());
 	bindMatrixes(shader);
 	glBindVertexArray(m_deflectBox->getVAO());
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glBindVertexArray(0);
 
 }
