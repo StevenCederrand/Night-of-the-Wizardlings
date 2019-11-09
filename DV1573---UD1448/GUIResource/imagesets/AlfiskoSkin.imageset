@@ -183,4 +183,13 @@
     <Image name="TitlebarInactiveFill2" xPos="5" yPos="91" width="673" height="12" />
     <Image name="VertSliderThumbNormal" xPos="0" yPos="533" width="25" height="7" />
     <Image name="VertSliderThumbPushed" xPos="0" yPos="360" width="25" height="7" />
+    <Image  name="MultiListTopLeft"     xPos="0" yPos="631" width="5"  height="4" />
+    <Image  name="MultiListTop"         xPos="5" yPos="630" width="135" height="5" />
+    <Image  name="MultiListTopRight"    xPos="475" yPos="631" width="6" height="6" />
+    <Image  name="MultiListRight"       xPos="475" yPos="637" width="6" height="13" />
+    <Image  name="MultiListBackDrop"    xPos="5" yPos="635" width="135" height="16" />
+    <Image  name="MultiListLeft"        xPos="0" yPos="635" width="5" height="16" />
+    <Image  name="MultiListBottom"      xPos="5" yPos="651" width="135" height="5" />
+    <Image  name="MultiListBottomLeft"  xPos="0" yPos="651" width="5" height="3" />
+    <Image  name="MultiListBottomRight" xPos="475" yPos="650" width="6" height="4" />
 </Imageset>

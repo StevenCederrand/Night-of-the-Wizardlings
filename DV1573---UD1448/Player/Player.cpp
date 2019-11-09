@@ -16,6 +16,7 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_moveDir = glm::vec3(0.0f);
 
 	m_spellhandler = spellHandler;
+	m_mana = 100.0f; //A  players mana pool
 	m_spellType = NORMALATTACK;
 	m_specialSpelltype = REFLECT;
 	m_specialSpellType2 = ENHANCEATTACK;
@@ -71,14 +72,14 @@ void Player::update(float deltaTime)
 	m_special2Cooldown -= deltaTime; // Cooldown reduces with time
 	m_special3Cooldown -= deltaTime; // Cooldown reduces with time
 
-	if (m_deflecting) {
-		m_timeLeftInDeflectState -= deltaTime;
-
-		if (m_timeLeftInDeflectState < 0.0f) {
-			m_deflecting = false;
-			m_timeLeftInDeflectState = 0.0f;
-		}
+	//Regenerate mana when we are not deflecting
+	if (!m_deflecting && m_mana <= 100 && m_deflectCooldown <= 0) {
+		m_mana += 0.5f;
 	}
+	else if (m_deflectCooldown > 0 && !m_deflecting) {
+		m_deflectCooldown -= DeltaTime;
+	}
+
 }
 
 void Player::move(float deltaTime)
@@ -137,14 +138,20 @@ void Player::attack()
 		}
 	}
 
-	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_RIGHT))
+	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_RIGHT) && m_mana > 5)
 	{
-		if (m_deflectCooldown <= 0)
+		if (!m_deflecting)
 		{
-			m_deflectCooldown = m_spellhandler->getReflectBase()->m_coolDown;
-			m_timeLeftInDeflectState = m_spellhandler->getReflectBase()->m_lifeTime;
 			m_deflecting = true;
+			m_deflectCooldown = 0.5f; 
 		}
+		m_mana -= 1;
+	}	
+	else {
+		m_deflecting = false;
+	}
+	if (Input::isMouseReleased(GLFW_MOUSE_BUTTON_RIGHT)) {
+		m_deflecting = false;
 	}
 
 	if (Input::isKeyHeldDown(GLFW_KEY_Q))
@@ -232,12 +239,17 @@ const float& Player::getDeflectCooldown() const
 	return m_deflectCooldown;
 }
 
-glm::vec3 Player::getPlayerPos() const
+const float& Player::getMana() const
+{
+	return m_mana;
+}
+
+const glm::vec3& Player::getPlayerPos() const
 {
 	return m_playerPosition;
 }
 
-int Player::getHealth() const
+const int& Player::getHealth() const
 {
 	return m_health;
 }
@@ -247,7 +259,7 @@ Camera* Player::getCamera()
 	return m_playerCamera;
 }
 
-std::string Player::getName() const
+const std::string& Player::getName() const
 {
 	return m_name;
 }

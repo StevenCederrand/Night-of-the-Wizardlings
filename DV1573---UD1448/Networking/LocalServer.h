@@ -56,6 +56,7 @@ private:
 	void updatePlayersWithDamageBuffs(const uint32_t& diff);
 
 	void handleRespawns(const uint32_t& diff);
+	void hardRespawnPlayer(PlayerPacket& player);
 	void resetScores();
 	void respawnPlayers();
 	void resetPlayerBuffs();

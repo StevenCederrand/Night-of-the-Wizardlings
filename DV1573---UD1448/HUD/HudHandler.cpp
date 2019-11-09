@@ -15,8 +15,7 @@ HudHandler::HudHandler()
 	hudObject = new HudObject("Assets/Textures/Crosshair_deflect.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(32.0f, 32.0f));
 	hudObject->setAlpha(0.0f);
 	insertHUDObject(hudObject, CROSSHAIR_DEFLECT);
-
-
+	
 	// ___ ICONS ___
 	hudObject = new HudObject("Assets/Textures/hud/Arcane_BG.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 4) * 3, static_cast<float>(64)), glm::vec2(80.0f, 80.0f));
 	hudObject->setAlpha(1.0f);
@@ -31,11 +30,16 @@ HudHandler::HudHandler()
 	insertHUDObject(hudObject, SPELL_SPECIAL);
 
 	//HP BAR
-	hudObject = new HudObject("Assets/Textures/hud/tmpHP.png", glm::vec2(static_cast<float>(80), static_cast<float>(124)), glm::vec2(80.0f, 200.0f));
+	hudObject = new HudObject("Assets/Textures/hud/tmpHP.png", glm::vec2(static_cast<float>(0), static_cast<float>(174)), glm::vec2(28.0f, 348.5f));
 	hudObject->setAlpha(1.0f);
 	hudObject->setFillColor(glm::vec3(1, 0, 0));
 	insertHUDObject(hudObject, BAR_HP);
-	// ___ ____ ___
+
+	//Mana bar
+	hudObject = new HudObject("Assets/Textures/hud/tmpMana.png", glm::vec2(static_cast<float>(22), static_cast<float>(150)), glm::vec2(17.0f, 300.0f));
+	hudObject->setAlpha(1.0f);
+	hudObject->setFillColor(glm::vec3(1, 0, 0));
+	insertHUDObject(hudObject, BAR_MANA);
 
 	hudObject = new HudObject("Assets/Textures/hud/PickupOverlay.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(static_cast<float>(SCREEN_WIDTH), (static_cast<float>(SCREEN_HEIGHT))));
 	hudObject->setAlpha(0.0f);
