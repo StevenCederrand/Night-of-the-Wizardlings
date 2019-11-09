@@ -142,7 +142,7 @@ void Renderer::initShaders() {
 	ShaderMap::getInstance()->createShader(ANIMATION, "Animation.vert", "FragShader.frag");
 	ShaderMap::getInstance()->createShader("Skybox_Shader", "Skybox.vs", "Skybox.fs");
 	ShaderMap::getInstance()->getShader("Skybox_Shader")->setInt("skyBox", 4);
-	ShaderMap::getInstance()->createShader(DEBUG, "VertexShader.vert", "DebugFragShader.frag");
+	ShaderMap::getInstance()->createShader(DEBUG_SHADER, "VertexShader.vert", "DebugFragShader.frag");
 	ShaderMap::getInstance()->createShader(FRESNEL, "FresnelFX.vert", "FresnelFX.frag");
 
 
@@ -760,7 +760,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 void Renderer::renderSpell(SpellHandler* spellHandler)
 {
 
-	for (int i = 0; i < m_spells.size(); i++)
+	for (size_t i = 0; i < m_spells.size(); i++)
 	{
 		if (m_spells[i]->getType() == NORMALATTACK)
 		{
@@ -839,9 +839,9 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 void Renderer::renderDebug()
 {
 	glm::mat4 modelMatrix;
-	ShaderMap::getInstance()->useByName(DEBUG);
+	ShaderMap::getInstance()->useByName(DEBUG_SHADER);
 	//Bind view- and projection matrix
-	bindMatrixes(DEBUG);	
+	bindMatrixes(DEBUG_SHADER);	
 	
 	//Render Static objects
 	for (size_t i = 0; i < m_staticObjects.size(); i++)
@@ -851,7 +851,7 @@ void Renderer::renderDebug()
 			modelMatrix = glm::mat4(1.0f);
 			//Bind the modelmatrix
 			//modelMatrix = m_staticObjects.at(i)->getMatrix(j);
-			ShaderMap::getInstance()->getShader(DEBUG)->setMat4("modelMatrix", modelMatrix);
+			ShaderMap::getInstance()->getShader(DEBUG_SHADER)->setMat4("modelMatrix", modelMatrix);
 
 			glBindVertexArray(m_staticObjects.at(i)->getDebugDrawers()[j]->getBuffers().vao);
 
