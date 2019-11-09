@@ -23,9 +23,6 @@ PlayState::PlayState()
 	m_skybox = new SkyBox();
 	m_skybox->prepareBuffers();
 
-	m_deflectBox = new DeflectRender();
-	m_deflectBox->prepareBuffers();
-
 
 	m_player->setHealth(NetGlobals::maxPlayerHealth);
 

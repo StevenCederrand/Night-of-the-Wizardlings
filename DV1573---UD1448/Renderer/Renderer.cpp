@@ -312,13 +312,7 @@ void Renderer::destroy()
 
 void Renderer::renderDeflectBox(DeflectRender* m_deflectBox)
 {
-	glEnable(GL_BLEND);
-	auto* shader = ShaderMap::getInstance()->useByName(FRESNEL);
-	shader->setMat4("modelMatrix", m_deflectBox->getModelMatrix());
-	bindMatrixes(shader);
-	glBindVertexArray(m_deflectBox->getVAO());
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-	glBindVertexArray(0);
+	
 
 }
 
@@ -468,7 +462,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	//BLOOMBLUR MISSION STEP 1: SAMPLE
 	//m_bloom->bindHdrFBO();
 	renderSkybox(m_skybox);
-	//renderDeflectBox(m_deflectBox);
+	renderDeflectBox(m_deflectBox);
 	m_spellHandler->renderSpell();
 
 #pragma region Color_Render

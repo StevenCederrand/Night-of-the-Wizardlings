@@ -26,7 +26,7 @@
 #include <HUD/HudObject.h>
 #include "PickupNotificationStructure.h"
 #include <Text/FreeType.h>
-#include <Renderer/DeflectRender.h>
+#include <Deflect/DeflectRender.h>
 
 
 #define P_LIGHT_COUNT 64
