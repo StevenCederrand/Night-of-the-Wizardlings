@@ -25,7 +25,9 @@
 	<FalagardMapping windowType="AlfiskoSkin/VerticalSlider" targetType="CEGUI/Slider" renderer="Core/Slider" lookNFeel="AlfiskoSkin/VerticalSlider" />
 
 	<FalagardMapping windowType="AlfiskoSkin/MenuItem" targetType="CEGUI/MenuItem" renderer="Core/MenuItem" lookNFeel="AlfiskoSkin/MenuItem" />
-<!--
+    <FalagardMapping windowType="AlfiskoSkin/MultiColumnList" targetType="CEGUI/MultiColumnList" renderer="Core/MultiColumnList" lookNFeel="AlfiskoSkin/MultiColumnList" />
+    <FalagardMapping windowType="AlfiskoSkin/ListHeader" targetType="CEGUI/ListHeader" renderer="Core/ListHeader" lookNFeel="AlfiskoSkin/ListHeader" />
+    <!--
 	<FalagardMapping windowType="AlfiskoSkin/Menubar" targetType="CEGUI/Menubar" renderer="Core/Menubar" lookNFeel="AlfiskoSkin/Menubar" />
 	<FalagardMapping windowType="AlfiskoSkin/PopupMenu" targetType="CEGUI/PopupMenu" renderer="Core/PopupMenu" lookNFeel="AlfiskoSkin/PopupMenu" />
 
@@ -43,8 +45,6 @@
 	<FalagardMapping windowType="AlfiskoSkin/Listbox" targetType="CEGUI/Listbox" renderer="Core/Listbox" lookNFeel="AlfiskoSkin/Listbox" />
 
 	<FalagardMapping windowType="AlfiskoSkin/ListHeaderSegment" targetType="CEGUI/ListHeaderSegment" renderer="Core/ListHeaderSegment" lookNFeel="AlfiskoSkin/ListHeaderSegment" />
-	<FalagardMapping windowType="AlfiskoSkin/ListHeader" targetType="CEGUI/ListHeader" renderer="Core/ListHeader" lookNFeel="AlfiskoSkin/ListHeader" />
-	<FalagardMapping windowType="AlfiskoSkin/MultiColumnList" targetType="CEGUI/MultiColumnList" renderer="Core/MultiColumnList" lookNFeel="AlfiskoSkin/MultiColumnList" />
 
 	<FalagardMapping windowType="AlfiskoSkin/ScrollablePane" targetType="CEGUI/ScrollablePane" renderer="Core/ScrollablePane" lookNFeel="AlfiskoSkin/ScrollablePane" />
 
@@ -57,4 +57,3 @@
 -->
 
 </GUIScheme>
-

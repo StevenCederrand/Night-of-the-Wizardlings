@@ -596,8 +596,6 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 		}
 	}
 
-
-
 #pragma endregion
 
 
@@ -835,7 +833,6 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 		}
-
 	}
 }
 

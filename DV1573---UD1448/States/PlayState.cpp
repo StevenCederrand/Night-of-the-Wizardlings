@@ -88,41 +88,33 @@ void PlayState::update(float dt)
 			case PlayerEvents::Died: 
 			{
 				logWarning("[Event system] Died");
+				//Update the HP bar 
+				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(m_player->getHealth()) / 100);
 				m_lastPositionOfMyKiller = clientPtr->getLatestPlayerThatHitMe()->position;
 				m_camera->disableCameraMovement(true);
-				//m_crosshairHUD->setAlpha(0.0f);
-				//m_deflectCrosshairHUD->setAlpha(0.0f);
 				break;
 			}
 
 			case PlayerEvents::Respawned:
 			{
 				logWarning("[Event system] Respawned");
+				//Update the HP bar 
+				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(m_player->getHealth()) / 100);
 				m_player->setPlayerPos(Client::getInstance()->getMyData().latestSpawnPosition);
 				m_camera->resetCamera();
 				m_camera->disableCameraMovement(false);
-				//m_crosshairHUD->setAlpha(1.0f);
-				//m_deflectCrosshairHUD->setAlpha(0.0f);
 				break;
 			}
-
 
 			case PlayerEvents::TookDamage:
 			{
 				logWarning("[Event system] Took damage");
-				m_hudHandler.getHudObject(DAMAGE_OVERLAY)->setAlpha(1.0f);
+				//Update the HP bar 
+				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(m_player->getHealth()) / 100);
 				m_player->setHealth(Client::getInstance()->getMyData().health);
 				m_hudHandler.getHudObject(DAMAGE_OVERLAY)->setAlpha(1.0f);
 				break;
 			}
-
-
-			case PlayerEvents::TookHeal:
-			{
-				logWarning("[Event system] Took a heal");
-				break;
-			}
-
 
 			case PlayerEvents::TookPowerup:
 			{
@@ -137,11 +129,9 @@ void PlayState::update(float dt)
 				m_hudHandler.getHudObject(POWERUP)->setAlpha(0.0f);
 				break;
 			}
-
 		}
-
-
 	}
+
 	// Look at the killer when dead ( If he exist )
 	if (!m_camera->isCameraActive() && clientPtr->getMyData().health <= 0)
 	{	
@@ -180,9 +170,10 @@ void PlayState::onSpellHit_callback()
 }
 
 void PlayState::HUDHandler() {
-	//HP bar
-	m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(m_player->getHealth()) / 100);
 	
+	//Mana bar
+	m_hudHandler.getHudObject(BAR_MANA)->setYClip(static_cast<float>(m_player->getMana()) / 100);
+
 	if (m_player->getAttackCooldown() > 0) {
 		m_hudHandler.getHudObject(SPELL_ARCANE)->setGrayscale(1);
 	}
@@ -197,7 +188,7 @@ void PlayState::HUDHandler() {
 		m_hudHandler.getHudObject(SPELL_SPECIAL)->setGrayscale(0);
 	}
 
-	if (m_player->getDeflectCooldown() > 0) {
+	if (m_player->isDeflecting()) {
 		m_hudHandler.getHudObject(SPELL_DEFLECT)->setGrayscale(1);
 	}
 	else {
@@ -271,7 +262,7 @@ void PlayState::GUIHandler()
 void PlayState::GUILoadScoreboard() {
 	if (!m_scoreboardExists) {
 		//Create the scoreboard
-		m_scoreBoard = static_cast<CEGUI::MultiColumnList*>(Gui::getInstance()->createWidget(PLAYSECTION, "TaharezLook/MultiColumnList", glm::vec4(0.20f, 0.25f, 0.60f, 0.40f), glm::vec4(0.0f), "Scoreboard"));
+		m_scoreBoard = static_cast<CEGUI::MultiColumnList*>(Gui::getInstance()->createWidget(PLAYSECTION, CEGUI_TYPE + "/MultiColumnList", glm::vec4(0.20f, 0.25f, 0.60f, 0.40f), glm::vec4(0.0f), "Scoreboard"));
 		m_scoreBoard->addColumn("PLAYER: ", 0, CEGUI::UDim(0.33f, 0));
 		m_scoreBoard->addColumn("KILLS: ", 1, CEGUI::UDim(0.33f, 0));
 		m_scoreBoard->addColumn("DEATHS: ", 2, CEGUI::UDim(0.34f, 0));
@@ -281,7 +272,7 @@ void PlayState::GUILoadScoreboard() {
 		CEGUI::ListboxTextItem* itemMultiColumnList;
 
 		itemMultiColumnList = new CEGUI::ListboxTextItem(Client::getInstance()->getMyData().userName);
-		itemMultiColumnList->setSelectionBrushImage("TaharezLook/MultiListSelectionBrush");
+		itemMultiColumnList->setSelectionBrushImage(CEGUI_TYPE + "Images" + "/GenericBrush");
 		m_scoreBoard->setItem(itemMultiColumnList, 0, static_cast<CEGUI::uint>(0)); // ColumnID, RowID
 		itemMultiColumnList = new CEGUI::ListboxTextItem(std::to_string(Client::getInstance()->getMyData().numberOfKills));
 		m_scoreBoard->setItem(itemMultiColumnList, 1, static_cast<CEGUI::uint>(0)); // ColumnID, RowID
@@ -295,7 +286,7 @@ void PlayState::GUILoadScoreboard() {
 			m_scoreBoard->addRow();
 			CEGUI::ListboxTextItem* itemMultiColumnList;
 			itemMultiColumnList = new CEGUI::ListboxTextItem(list.at(i).data.userName);
-			itemMultiColumnList->setSelectionBrushImage("TaharezLook/MultiListSelectionBrush");
+			itemMultiColumnList->setSelectionBrushImage(CEGUI_TYPE + "Images" + "/GenericBrush");
 			m_scoreBoard->setItem(itemMultiColumnList, 0, static_cast<CEGUI::uint>(i + 1)); // ColumnID, RowID
 
 			itemMultiColumnList = new CEGUI::ListboxTextItem(std::to_string(list.at(i).data.numberOfKills));
@@ -309,11 +300,11 @@ void PlayState::GUILoadScoreboard() {
 
 void PlayState::GUILoadButtons()
 {
-	m_mainMenu = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(PLAYSECTION, "TaharezLook/Button", glm::vec4(0.45f, 0.45f, 0.1f, 0.05f), glm::vec4(0.0f), "Exit To Main Menu"));
+	m_mainMenu = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(PLAYSECTION, CEGUI_TYPE + "/Button", glm::vec4(0.45f, 0.45f, 0.1f, 0.05f), glm::vec4(0.0f), "Exit To Main Menu"));
 	m_mainMenu->setText("Main Menu");
 	m_mainMenu->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&PlayState::onMainMenuClick, this));
 
-	m_quit = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(PLAYSECTION, "TaharezLook/Button", glm::vec4(0.45f, 0.55f, 0.1f, 0.05f), glm::vec4(0.0f), "QUIT"));
+	m_quit = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(PLAYSECTION, CEGUI_TYPE + "/Button", glm::vec4(0.45f, 0.55f, 0.1f, 0.05f), glm::vec4(0.0f), "QUIT"));
 	m_quit->setText("Quit");
 	m_quit->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&PlayState::onQuitClick, this));
 }
