@@ -7,7 +7,7 @@
 #define DEPTH_MAP "Depth_Map"
 #define SKYBOX "Skybox_Shader"
 #define ANIMATION "Basic_Animation"
-#define DEBUG "Debug_Forward"
+#define DEBUG_SHADER "Debug_Forward"
 #define FRESNEL "Fresnel_Shader"
 //#define BLOOM "Bloom_Shader"
 //#define BLUR "Blur_Shader"

@@ -67,8 +67,8 @@ void LocalServer::startup(const std::string& serverName)
 
 		m_processThread = std::thread(&LocalServer::ThreadedUpdate, this);
 		m_initialized = true;
-		logTrace("[SERVER] Tickrate: {0}", NetGlobals::tickRate);
-		logTrace("[SERVER] Thread sleep time {0}", NetGlobals::threadSleepTime);
+		logTrace("[Server] Tickrate: {0}", NetGlobals::tickRate);
+		logTrace("[Server] Thread sleep time {0}", NetGlobals::threadSleepTime);
 		m_serverPeer->SetTimeoutTime(NetGlobals::timeoutTimeMS, RakNet::UNASSIGNED_SYSTEM_ADDRESS);
 
 		m_adminID = RakNet::UNASSIGNED_RAKNET_GUID;
@@ -167,13 +167,13 @@ void LocalServer::processAndHandlePackets()
 		{
 		case ID_UNCONNECTED_PING:
 		{
-			logTrace("[SERVER] Got a ping from {0}", packet->systemAddress.ToString());
+			logTrace("[Server] Got a ping from {0}", packet->systemAddress.ToString());
 		}
 		break;
 
 		case ID_NEW_INCOMING_CONNECTION:
 		{
-			logTrace("[SERVER] New connection from {0}\nAssigned GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
+			logTrace("[Server] New connection from {0}\nAssigned GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
 			
 			if (m_connectedPlayers.size() >= NetGlobals::MaximumConnections || m_serverInfo.currentState != NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS)
 			{
@@ -182,7 +182,7 @@ void LocalServer::processAndHandlePackets()
 				return;
 			}
 
-			logTrace("[SERVER] Actually creating a player");
+			logTrace("[Server] Actually creating a player");
 
 			RakNet::BitStream acceptStream;
 			acceptStream.Write((RakNet::MessageID)PLAYER_ACCEPTED_TO_SERVER);
@@ -282,7 +282,7 @@ void LocalServer::processAndHandlePackets()
 					m_activeSpells.erase(item);
 				}
 
-				logTrace("[SERVER] Player disconnected with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
+				logTrace("[Server] Player disconnected with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
 				m_serverInfo.connectedPlayers--;
 				m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
 			}
@@ -293,7 +293,7 @@ void LocalServer::processAndHandlePackets()
 		{
 			bool playerWasAccepted = handleLostPlayer(*packet, bsIn);
 			if (playerWasAccepted) {
-				logTrace("[SERVER] Lost connection with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
+				logTrace("[Server] Lost connection with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
 				m_serverInfo.connectedPlayers--;
 				m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
 			}
@@ -323,7 +323,7 @@ void LocalServer::processAndHandlePackets()
 					if (m_connectedPlayers[i].hasBeenUpdatedOnce == false) {
 						m_connectedPlayers[i].hasBeenUpdatedOnce = true;
 						memcpy(m_connectedPlayers[i].userName, playerPacket.userName, sizeof(playerPacket.userName));
-						logTrace("[SERVER] Flagged player with guid {0} as updated atleast once", m_connectedPlayers[i].guid.ToString());
+						logTrace("[Server] Flagged player with guid {0} as updated atleast once", m_connectedPlayers[i].guid.ToString());
 					}
 					updatedPlayer = &m_connectedPlayers[i];
 					foundPlayer = true;
@@ -374,10 +374,10 @@ void LocalServer::processAndHandlePackets()
 				spellVec.reserve(10);
 				spellVec.emplace_back(spellPacket);
 				m_activeSpells[spellPacket.CreatorGUID.g] = spellVec;
-				//logTrace("[SERVER] Created a new list with spells for player {0}, spell ID {1}", spellPacket.CreatorGUID.ToString(), spellPacket.SpellID);
+				//logTrace("[Server] Created a new list with spells for player {0}, spell ID {1}", spellPacket.CreatorGUID.ToString(), spellPacket.SpellID);
 			}
 			else {
-				//logTrace("[SERVER] Added spell to spell list for player {0}, spell ID {1}", spellPacket.CreatorGUID.ToString(), spellPacket.SpellID);
+				//logTrace("[Server] Added spell to spell list for player {0}, spell ID {1}", spellPacket.CreatorGUID.ToString(), spellPacket.SpellID);
 				item._Ptr->_Myval.second.emplace_back(spellPacket);
 			}
 		
@@ -399,7 +399,7 @@ void LocalServer::processAndHandlePackets()
 			spellPacket.Serialize(false, bsIn);
 			bsIn.SetReadOffset(0);
 			
-			//logTrace("[SERVER] Update spell {0}", spellPacket.toString());
+			//logTrace("[Server] Update spell {0}", spellPacket.toString());
 			auto item = m_activeSpells.find(spellPacket.CreatorGUID.g);
 
 			if (item != m_activeSpells.end()) {
@@ -444,7 +444,7 @@ void LocalServer::processAndHandlePackets()
 				for (size_t i = 0; i < spellVec.size() && !deleted; i++) {
 					
 					if (spellVec[i].SpellID == spellPacket.SpellID) {
-						//logTrace("[SERVER] Deleted a spell with spell ID: {0} from client {1}", spellVec[i].SpellID, spellVec[i].CreatorGUID.ToString());
+						//logTrace("[Server] Deleted a spell with spell ID: {0} from client {1}", spellVec[i].SpellID, spellVec[i].CreatorGUID.ToString());
 						spellVec.erase(spellVec.begin() + i);
 						deleted = true;
 					}
@@ -452,7 +452,7 @@ void LocalServer::processAndHandlePackets()
 
 				if (spellVec.size() == 0)
 				{
-					//logTrace("[SERVER] Deleted the local spell container for client with ID {0}", spellPacket.CreatorGUID.ToString());
+					//logTrace("[Server] Deleted the local spell container for client with ID {0}", spellPacket.CreatorGUID.ToString());
 					m_activeSpells.erase(item);
 				}
 
@@ -576,7 +576,7 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 			
 			// Assign the dead player a spawn position
 			target->latestSpawnPosition = getRandomSpawnLocation();
-			logTrace("[SERVER] Assigned spawn position: {0}, {1}, {2}", target->latestSpawnPosition.x, target->latestSpawnPosition.y, target->latestSpawnPosition.z);
+			logTrace("[Server] Assigned spawn position: {0}, {1}, {2}", target->latestSpawnPosition.x, target->latestSpawnPosition.y, target->latestSpawnPosition.z);
 
 			// Update the shooters score
 			shooter->numberOfKills++;
@@ -687,7 +687,8 @@ void LocalServer::checkCollisionBetweenPlayersAndPickups()
 			if (isCollidingWithPickup(player, pickup)) {
 				// Give player buffs here
 				if (pickup.type == PickupType::HealthPotion) {
-					player.health = 100;
+					if(player.health < 100)
+						player.health = 100;
 					
 					RakNet::BitStream stream;
 					stream.Write((RakNet::MessageID)HEAL_BUFF);
@@ -700,10 +701,13 @@ void LocalServer::checkCollisionBetweenPlayersAndPickups()
 					player.hasDamageBuff = true;
 					RakNet::BitStream stream;
 					stream.Write((RakNet::MessageID)DAMAGE_BUFF_ACTIVE);
+					player.health = 200;
+					player.Serialize(true, stream);
 					m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, player.guid, false);
 
 					BuffedPlayer buffedPlayer;
 					buffedPlayer.currentTime = NetGlobals::damageBuffActiveTimeMS;
+
 					buffedPlayer.player = &player;
 					m_buffedPlayers.emplace_back(buffedPlayer);
 
@@ -779,7 +783,7 @@ void LocalServer::handleRespawns(const uint32_t& diff)
 		else {
 			
 			
-			logTrace("[SERVER] PlayerSpawn: {0}, {1}, {2}", rs.player->latestSpawnPosition.x, rs.player->latestSpawnPosition.y, rs.player->latestSpawnPosition.z);
+			logTrace("[Server] PlayerSpawn: {0}, {1}, {2}", rs.player->latestSpawnPosition.x, rs.player->latestSpawnPosition.y, rs.player->latestSpawnPosition.z);
 			rs.currentTime = 0;
 			rs.player->health = NetGlobals::maxPlayerHealth;
 
@@ -981,7 +985,7 @@ void LocalServer::removeUnusedObjects_routine()
 		if (diff >= NetGlobals::maxDelayBeforeDeletionMS && player.hasBeenUpdatedOnce)
 		{
 			// Lost player, delete it from server and send it to the clients
-			logTrace("[SERVER] (Routine check) Removed player");
+			logTrace("[Server] (Routine check) Removed player");
 			RakNet::BitStream stream_disconnectedPlayer;
 			stream_disconnectedPlayer.Write((RakNet::MessageID)PLAYER_DISCONNECTED);
 			stream_disconnectedPlayer.Write(player.guid);
@@ -1003,7 +1007,7 @@ void LocalServer::removeUnusedObjects_routine()
 
 			if (diff >= NetGlobals::maxDelayBeforeDeletionMS)
 			{
-				logTrace("[SERVER] (Routine check) Removed spell");
+				logTrace("[Server] (Routine check) Removed spell");
 				RakNet::BitStream stream_spellRemoval;
 				stream_spellRemoval.Write((RakNet::MessageID)SPELL_DESTROY);
 				spell.Serialize(true, stream_spellRemoval);
@@ -1016,7 +1020,7 @@ void LocalServer::removeUnusedObjects_routine()
 
 		if (vec.size() == 0)
 		{
-			logTrace("[SERVER] (Routine check) Removed spell section");
+			logTrace("[Server] (Routine check) Removed spell section");
 			m_activeSpells.erase(item.first);
 		}
 		
@@ -1037,31 +1041,30 @@ void LocalServer::createPickupSpawnLocations()
 {
 	
 	PickupSpawnLocation spawn_one;
-	copyStringToCharArray(spawn_one.name, "Tunnels");
-	spawn_one.position = glm::vec3(0.0f, 5.0f, 0.0f);
+	copyStringToCharArray(spawn_one.name, "Red Crystal");
+	spawn_one.position = glm::vec3(44.0f, 6.0f, -1.0f);
 	m_pickupSpawnLocations.emplace_back(spawn_one);
 
 	PickupSpawnLocation spawn_two;
-	copyStringToCharArray(spawn_two.name, "Graveyard");
-	spawn_two.position = glm::vec3(0.0f, 5.0f, 2.0f);
+	copyStringToCharArray(spawn_two.name, "Purple Crystal");
+	spawn_two.position = glm::vec3(-24.8f, 6.0f, -1.0f);
 	m_pickupSpawnLocations.emplace_back(spawn_two);
 
 	PickupSpawnLocation spawn_three;
 	copyStringToCharArray(spawn_three.name, "Middle");
-	spawn_three.position = glm::vec3(2.0f, 5.0f, 0.0f);
+	spawn_three.position = glm::vec3(10.0f, 7.0f, -1.0f);
 	m_pickupSpawnLocations.emplace_back(spawn_three);
 
 }
 
 void LocalServer::createPlayerSpawnLocations()
 {
-	m_playerSpawnLocations.emplace_back(10.0f, 3.0f, 0.0f);
-	m_playerSpawnLocations.emplace_back(0.0f, 3.0f, 10.0f);
-	m_playerSpawnLocations.emplace_back(10.0f, 3.0f, 10.0f);
+	m_playerSpawnLocations.emplace_back(-19.0f, 6.0f, 35.0f);
+	m_playerSpawnLocations.emplace_back(31.0f, 6.0f, 48.0f);
+	m_playerSpawnLocations.emplace_back(-1.35f, 15.0f, 3.43f);
 
-	m_playerSpawnLocations.emplace_back(-10.0f, 3.0f, 0.0f);
-	m_playerSpawnLocations.emplace_back(0.0f, 3.0f, -10.0f);
-	m_playerSpawnLocations.emplace_back(-10.0f, 3.0f, -10.0f);
+	m_playerSpawnLocations.emplace_back(12.0f, 6.0f, -51.0f);
+	m_playerSpawnLocations.emplace_back(-37.0f, 6.0f, -15.0f);
 }
 
 void LocalServer::destroyPickupOverNetwork(PickupPacket& pickupPacket)
@@ -1218,7 +1221,7 @@ bool LocalServer::handleLostPlayer(const RakNet::Packet& packet, const RakNet::B
 		// Only send them if the player that left/disconnected was accepted otherwise
 		// the clients have no track record of them so they don't need to know anything
 		for (size_t i = 0; i < m_connectedPlayers.size(); i++) {
-			logTrace("[SERVER] Sending disconnection packets to guid: {0}", m_connectedPlayers[i].guid.ToString());
+			logTrace("[Server] Sending disconnection packets to guid: {0}", m_connectedPlayers[i].guid.ToString());
 			m_serverPeer->Send(&stream_disconnectedPlayer, IMMEDIATE_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_connectedPlayers[i].guid, false);
 		}
 		return true;
@@ -1250,18 +1253,18 @@ void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 		resetPlayerBuffs();
 		m_activePickups.clear();
 		m_queuedPickups.clear();
-		logTrace("[SERVER] Warmup!");
+		logTrace("[Server] Warmup!");
 	}
 
 	if (newState == NetGlobals::SERVER_STATE::GAME_IS_STARTING) {
-		logTrace("[SERVER] Admin requested to start the game!");
+		logTrace("[Server] Admin requested to start the game!");
 		m_timedCountdownTimer.restart();
 		m_timedCountdownTimer.start();
 		m_timedCountdownTimer.forceExecute();
 	}
 
 	if (newState == NetGlobals::SERVER_STATE::GAME_IN_SESSION) {
-		logTrace("[SERVER] Game has officially started!");
+		logTrace("[Server] Game has officially started!");
 		m_timedRunTimer.restart();
 		m_timedRunTimer.start();
 		m_timedRunTimer.forceExecute();
@@ -1270,7 +1273,7 @@ void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 	}
 
 	if (newState == NetGlobals::SERVER_STATE::GAME_END_STATE) {
-		logTrace("[SERVER] Game is over!");
+		logTrace("[Server] Game is over!");
 		respawnPlayers();
 		resetPlayerBuffs();
 		destroyAllPickups();

@@ -306,6 +306,7 @@
     <ClInclude Include="Mesh\MeshFormat.h" />
     <ClInclude Include="Networking\NetworkPlayers.h" />
     <ClInclude Include="Networking\NetworkSpells.h" />
+    <ClInclude Include="Networking\PlayerEvents.h" />
     <ClInclude Include="Pch\Pch.h" />
     <ClInclude Include="Pickups\HealthPickup.h" />
     <ClInclude Include="Pickups\Pickup.h" />

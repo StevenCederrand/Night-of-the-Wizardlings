@@ -71,7 +71,7 @@ void Client::connectToAnotherServer(const ServerInfo& server)
 	m_serverOwner = false;
 
 	bool status = m_clientPeer->Connect(server.serverAddress.ToString(false), server.serverAddress.GetPort(), 0, 0, 0) == RakNet::CONNECTION_ATTEMPT_STARTED;
-	assert((status == true, "[CLIENT] Client connecting to {0} failed!", server.serverName));
+	assert((status == true, "[Client] Client connecting to {0} failed!", server.serverName));
 
 	if (m_processThread.joinable()) {
 		m_processThread.join();
@@ -127,7 +127,7 @@ void Client::ThreadedUpdate()
 	// Client has been told to shutdown here so send a disconnection packet if you're still connected
 	if (m_isConnectedToAnServer)
 	{
-		logTrace("[CLIENT] Sent a disconnect package to server :)");
+		logTrace("[Client] Sent a disconnect package to server :)");
 		RakNet::BitStream stream;
 		stream.Write((RakNet::MessageID)ID_DISCONNECTION_NOTIFICATION);
 		m_clientPeer->Send(&stream, IMMEDIATE_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_serverAddress, false);
@@ -152,50 +152,50 @@ void Client::processAndHandlePackets()
 		{
 		case ID_CONNECTION_REQUEST_ACCEPTED:
 		{
-			logTrace("[CLIENT] Connected to server but not sure if actually accepted to the server.\n");
+			logTrace("[Client] Connected to server but not sure if actually accepted to the server.\n");
 		}
 		break;
 
 		case ID_CONNECTION_ATTEMPT_FAILED:
-			logTrace("[CLIENT] Connection failed, server might be full.\n");
+			logTrace("[Client] Connection failed, server might be full.\n");
 			m_isConnectedToAnServer = false;
 			m_failedToConnect = true;
 			m_shutdownThread = true;
 			break;
 
 		case ID_ALREADY_CONNECTED:
-			logTrace("[CLIENT] You are already connected to the server\n");
+			logTrace("[Client] You are already connected to the server\n");
 			break;
 
 		case ID_CONNECTION_BANNED:
-			logTrace("[CLIENT] You are banned for that server.\n");
+			logTrace("[Client] You are banned for that server.\n");
 			break;
 
 		case ID_INVALID_PASSWORD:
-			logTrace("[CLIENT] Invalid server password.\n");
+			logTrace("[Client] Invalid server password.\n");
 			break;
 
 		case ID_INCOMPATIBLE_PROTOCOL_VERSION:
 			m_shutdownThread = true;
-			logTrace("[CLIENT] Client Error: incompatible protocol version!\n");
+			logTrace("[Client] Client Error: incompatible protocol version!\n");
 			break;
 
 		case ID_NO_FREE_INCOMING_CONNECTIONS:
-			logTrace("[CLIENT] Client Error: No free incoming connection slots!\n");
+			logTrace("[Client] Client Error: No free incoming connection slots!\n");
 			m_failedToConnect = true;
 			m_isConnectedToAnServer = false;
 			m_shutdownThread = true;
 			break;
 
 		case ID_DISCONNECTION_NOTIFICATION:
-			logTrace("[CLIENT] Disconnected from server!\n");
+			logTrace("[Client] Disconnected from server!\n");
 			m_failedToConnect = true;
 			m_isConnectedToAnServer = false;
 			m_shutdownThread = true;
 			break;
 
 		case ID_CONNECTION_LOST:
-			logTrace("[CLIENT] Connection to the server is lost!\n");
+			logTrace("[Client] Connection to the server is lost!\n");
 			m_isConnectedToAnServer = false;
 			m_shutdownThread = true;
 			break;
@@ -203,7 +203,7 @@ void Client::processAndHandlePackets()
 		case PLAYER_ACCEPTED_TO_SERVER:
 		{
 			/* The server accepted you which means that the server had room for you & wasn't in session */
-			logTrace("[CLIENT] Connected and accepted by server! Welcome!.\n");
+			logTrace("[Client] Connected and accepted by server! Welcome!.\n");
 			m_serverAddress = packet->systemAddress;
 			m_isConnectedToAnServer = true;
 			m_myPlayerDataPacket.guid = m_clientPeer->GetMyGUID();
@@ -251,7 +251,7 @@ void Client::processAndHandlePackets()
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			size_t nrOfSpellsInGame;
 			bsIn.Read(nrOfSpellsInGame);
-			logTrace("[CLIENT] Got packet with all the existing spells");
+			logTrace("[Client] Got packet with all the existing spells");
 			for (size_t i = 0; i < nrOfSpellsInGame; i++) {
 				SpellPacket spellPacket;
 				spellPacket.Serialize(false, bsIn);
@@ -342,7 +342,7 @@ void Client::processAndHandlePackets()
 						m_networkPlayers.m_players[i].data = pData;
 					}
 					else {
-						logWarning("[CLIENT] Client skipped a update on a client due to sync problems. (Should resolve itself with time)");
+						logWarning("[Client] Client skipped a update on a client due to sync problems. (Should resolve itself with time)");
 					}
 
 					break;
@@ -356,7 +356,7 @@ void Client::processAndHandlePackets()
 			/* You get this if you are the one that started the server, essentially this means that the
 			   server confirmed that you are the admin/serve creator. */
 			m_serverOwner = true;
-			logTrace("[CLIENT-ADMIN] Press E to start game!");
+			logTrace("[Client-ADMIN] Press E to start game!");
 		}
 		break;
 		case SERVER_CURRENT_STATE:
@@ -368,16 +368,16 @@ void Client::processAndHandlePackets()
 
 			m_serverState.Serialize(false, bsIn);
 			if (m_serverState.currentState == NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS) {
-				logTrace("[CLIENT]******** WARMUP ********");
+				logTrace("[Client]******** WARMUP ********");
 			}
 			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GAME_IS_STARTING) {
-				logTrace("[CLIENT]******** GAME IS STARTING ********");
+				logTrace("[Client]******** GAME IS STARTING ********");
 			}
 			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GAME_IN_SESSION) {
-				logTrace("[CLIENT]******** GAME HAS STARTED ********");
+				logTrace("[Client]******** GAME HAS STARTED ********");
 			}
 			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GAME_END_STATE) {
-				logTrace("[CLIENT]******** GAME HAS ENDED ********");
+				logTrace("[Client]******** GAME HAS ENDED ********");
 
 			}
 		}
@@ -438,7 +438,7 @@ void Client::processAndHandlePackets()
 					}
 					else {
 						/* Just as the "PLAYER_UPDATE" this will resolve itself a couple of frames later */
-						//logWarning("[CLIENT] Client skipped a update on a spell due to sync problems. (Should resolve itself with time)");
+						//logWarning("[Client] Client skipped a update on a spell due to sync problems. (Should resolve itself with time)");
 					}
 
 					break;
@@ -479,11 +479,18 @@ void Client::processAndHandlePackets()
 			playerPacket.Serialize(false, bsIn);
 			m_myPlayerDataPacket.lastHitByGuid = playerPacket.lastHitByGuid;
 			m_myPlayerDataPacket.health = playerPacket.health;
-
-
-			logTrace("Player hit me {0}", m_myPlayerDataPacket.lastHitByGuid.rakNetGuid.ToString());
-
 			m_latestPlayerThatHitMe = findPlayerByGuid(playerPacket.lastHitByGuid);
+			
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(m_playerEventMutex); // Thread safe
+				m_playerEvents.push_back(PlayerEvents::TookDamage);
+
+				if (m_myPlayerDataPacket.health <= 0) {
+					m_playerEvents.push_back(PlayerEvents::Died);
+					
+				}
+			}
 
 		}
 		break;
@@ -515,9 +522,16 @@ void Client::processAndHandlePackets()
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			PlayerPacket playerPacket;
 			playerPacket.Serialize(false, bsIn);
-			logTrace("[CLIENT] Spawn at: {0}, {1}, {2}", playerPacket.latestSpawnPosition.x, playerPacket.latestSpawnPosition.y, playerPacket.latestSpawnPosition.z);
+			logTrace("[Client] Spawn at: {0}, {1}, {2}", playerPacket.latestSpawnPosition.x, playerPacket.latestSpawnPosition.y, playerPacket.latestSpawnPosition.z);
 			m_myPlayerDataPacket.latestSpawnPosition = playerPacket.latestSpawnPosition;
 			m_myPlayerDataPacket.health = playerPacket.health;
+
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(m_playerEventMutex); // Thread safe
+				m_playerEvents.push_back(PlayerEvents::Respawned);
+			}
+
 
 		}
 		break;
@@ -558,7 +572,6 @@ void Client::processAndHandlePackets()
 
 		case PICKUP_CREATED:
 		{
-			logTrace("Pickup Created");
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			PickupPacket pickupPacket;
 			pickupPacket.Serialize(false, bsIn);
@@ -636,11 +649,16 @@ void Client::processAndHandlePackets()
 
 		case HEAL_BUFF:
 		{
-			logWarning("[CLIENT] I picked up a heal pot");
-
+			
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			PlayerPacket pData;
 			pData.Serialize(false, bsIn);
+
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(m_playerEventMutex); // Thread safe
+				m_playerEvents.push_back(PlayerEvents::TookHeal);
+			}
 
 			m_myPlayerDataPacket.health = pData.health;
 		}
@@ -648,14 +666,30 @@ void Client::processAndHandlePackets()
 
 		case DAMAGE_BUFF_ACTIVE:
 		{
-			logWarning("[CLIENT] I picked up a damage buff");
-			m_myPlayerDataPacket.hasDamageBuff = true;
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			PlayerPacket pData;
+			pData.Serialize(false, bsIn);
+
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(m_playerEventMutex); // Thread safe
+				m_playerEvents.push_back(PlayerEvents::TookPowerup);
+			}
+
+			m_myPlayerDataPacket.hasDamageBuff = pData.hasDamageBuff;
+			m_myPlayerDataPacket.health = pData.health;
+			
 		}
 		break;
 
 		case DAMAGE_BUFF_INACTIVE: 
-		{
-			logWarning("[CLIENT] My damage buff expired");
+		{	
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(m_playerEventMutex); // Thread safe
+				m_playerEvents.push_back(PlayerEvents::PowerupRemoved);
+			}
+
 			m_myPlayerDataPacket.hasDamageBuff = false;
 		}
 		
@@ -899,6 +933,23 @@ const RoundTimePacket& Client::getRoundTimePacket() const
 	return m_roundTimePacket;
 }
 
+const PlayerEvents Client::readNextEvent()
+{
+	if (m_playerEvents.size() == 0)
+		return PlayerEvents::None;
+
+	// Save it
+	PlayerEvents evnt = m_playerEvents[0];
+
+	// Remove it so that the next time this function is called the next event will be shown
+	{
+		std::lock_guard<std::mutex> lockGuard(m_playerEventMutex); // Thread safe
+		m_playerEvents.erase(m_playerEvents.begin());
+	}
+	// Return the event
+	return evnt;
+}
+
 const std::vector<SpellPacket>& Client::getNetworkSpells()
 {
 	return m_activeSpells;
@@ -906,7 +957,7 @@ const std::vector<SpellPacket>& Client::getNetworkSpells()
 
 void Client::refreshServerList()
 {
-	logTrace("[CLIENT] Fetching server list...");
+	logTrace("[Client] Fetching server list...");
 	m_isRefreshingServerList = true;
 	m_serverList.clear();
 	findAllServerAddresses();

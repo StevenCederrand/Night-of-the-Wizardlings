@@ -56,7 +56,7 @@ private:
 	bool onMainMenuClick(const CEGUI::EventArgs& e);
 	bool onQuitClick(const CEGUI::EventArgs& e);
 	
-	void HUDHandler(float dt);
+	void HUDHandler();
 	void GUIHandler();
 	void GUILoadScoreboard();
 	void GUILoadButtons();
