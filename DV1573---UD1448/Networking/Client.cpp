@@ -808,6 +808,7 @@ void Client::updateSpellOnNetwork(const Spell& spell)
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
 	spellPacket.timestamp = RakNet::GetTimeMS();
 	spellPacket.Position = spell.getTransform().position;
+	spellPacket.LastPosition = spell.getLastPosition();
 	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Direction = spell.getDirection();
 	spellPacket.Rotation = glm::vec3(0.0f);
@@ -826,6 +827,7 @@ void Client::destroySpellOnNetwork(const Spell& spell)
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
 	spellPacket.timestamp = RakNet::GetTimeMS();
 	spellPacket.Position = spell.getTransform().position;
+	spellPacket.LastPosition = spell.getLastPosition();
 	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Direction = spell.getDirection();
 	spellPacket.Rotation = glm::vec3(0.0f);

@@ -626,16 +626,16 @@ bool LocalServer::specificSpellCollision(const SpellPacket& spellPacket, const g
 	
 
 	//line is the walking we will do.
-	float nrSubStep = 10;
-	glm::vec3 line = (spellPacket.Position - lastSpellPos) / nrSubStep;
-	glm::vec3 interpolationPos = lastSpellPos;
+	float nrSubStep = 6;
+	glm::vec3 line = (spellPacket.Position - spellPacket.LastPosition) / nrSubStep;
+	glm::vec3 interpolationPos = spellPacket.LastPosition;
 
 	//walk from last pos to new pos with substeps
 	for (size_t k = 0; k < nrSubStep; k++)
 	{
 		interpolationPos += line;
 
-		float distx2 = OBBsqDist(spellPacket, axis, playerPos);
+		float distx2 = OBBsqDist(interpolationPos, axis, playerPos);
 
 		if (distx2 <= sphereRadius * sphereRadius)
 		{
@@ -645,7 +645,7 @@ bool LocalServer::specificSpellCollision(const SpellPacket& spellPacket, const g
 	return collision;
 }
 
-float LocalServer::OBBsqDist(const SpellPacket& spellPacket, const std::vector<glm::vec3>& axis, const glm::vec3& playerPos) {
+float LocalServer::OBBsqDist(const glm::vec3& spellPosition, const std::vector<glm::vec3>& axis, const glm::vec3& playerPos) {
 
 	float boxSize = 0.5f;
 	float dist = 0.0f;
@@ -653,7 +653,7 @@ float LocalServer::OBBsqDist(const SpellPacket& spellPacket, const std::vector<g
 	
 	//closest point on obb
 	glm::vec3 boxPoint = playerPos;
-	glm::vec3 ray = glm::vec3(spellPacket.Position - playerPos);
+	glm::vec3 ray = glm::vec3(spellPosition - playerPos);
 
 	for (int j = 0; j < 3; j++) {
 		float distance = glm::dot(ray, axis.at(j));
