@@ -62,7 +62,7 @@ BulletPhysics::~BulletPhysics()
 	m_collisionShapes.clear();
 }
 
-btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, glm::vec3 position, glm::vec3 extend, glm::quat rotation, float friction)
+btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, glm::vec3 position, glm::vec3 extend, glm::quat rotation, float restitution, float friction)
 {
 	btCollisionShape* objectShape;
 	switch (object)
@@ -121,7 +121,7 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 
 	//how much bounce and friction a object should have
 	
-	body->setRestitution(1.0f);	
+	body->setRestitution(restitution);	
 	body->setFriction(0);
 	body->setSpinningFriction(1.0f);
 

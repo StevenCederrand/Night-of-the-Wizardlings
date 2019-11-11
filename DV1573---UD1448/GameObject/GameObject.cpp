@@ -212,6 +212,11 @@ void GameObject::setShouldRender(bool condition)
 	m_shouldRender = condition;
 }
 
+void GameObject::setRestitution(float restitution)
+{
+	m_restitution = restitution;
+}
+
 const Transform GameObject::getTransform() const
 {
 	Mesh* mesh = nullptr;
@@ -353,9 +358,8 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 			glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale;
 			// TODO: ROTATE
 
-			m_bodies.emplace_back(m_bPhysics->createObject(shape, 0.0f, center, halfSize, getTransform(i).rotation));
+			m_bodies.emplace_back(m_bPhysics->createObject(shape, 0.0f, center, halfSize, getTransform(i).rotation, m_restitution));
 		}
-
 	}
 }
 

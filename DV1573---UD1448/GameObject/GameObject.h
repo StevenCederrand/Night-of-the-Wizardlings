@@ -63,6 +63,7 @@ private:
 	Transform m_transform;
 	glm::vec3 m_lastPosition;
 	BulletPhysics* m_bPhysics;
+	float m_restitution = 1.0f;
 
 	std::vector<btRigidBody*> m_bodies;
 	std::vector<DebugDrawer*> m_debugDrawers;
