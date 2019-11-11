@@ -42,6 +42,8 @@ void Player::update(float deltaTime)
 			move(deltaTime);
 			attack();
 		}
+
+
 	}
 	if (m_client->isConnectedToSever()) {
 		m_client->updatePlayerData(this);
@@ -117,12 +119,13 @@ void Player::move(float deltaTime)
 	btVector3 bulletVec = btVector3(m_moveDir.x * m_speed, -0.01f, m_moveDir.z * m_speed);
 
 	m_character->setVelocityForTimeInterval(bulletVec, deltaTime);
-	
+
 	btVector3 playerPos = m_character->getGhostObject()->getWorldTransform().getOrigin();
 	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY() + 2.0f, playerPos.getZ());
 
 	m_playerCamera->setCameraPos(m_playerPosition);
 	m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
+
 }
 
 void Player::attack()
@@ -191,6 +194,7 @@ void Player::createRay()
 void Player::setPlayerPos(glm::vec3 pos)
 {
 
+	m_character->setLinearVelocity(btVector3(0.0f, 0.0f, 0.0f));
 	auto transform = m_character->getGhostObject()->getWorldTransform();
 	transform.setOrigin(btVector3(pos.x, pos.y + 1.0f, pos.z));
 	m_character->getGhostObject()->setWorldTransform(transform);

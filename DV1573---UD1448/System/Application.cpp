@@ -153,8 +153,6 @@ void Application::run()
 		glfwSwapBuffers(m_window);
 	}
 
-	logInfo("Exiting application loop");
-
 }
 
 void Application::initGraphics()

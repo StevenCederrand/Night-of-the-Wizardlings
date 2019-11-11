@@ -77,6 +77,7 @@ private:
 	bool gameAlmostFinished();
 
 	void removeUnusedObjects_routine();
+	void m_updateClientsWithServertime();
 	void resetServerData();
 
 	void createPickupSpawnLocations();
@@ -108,6 +109,7 @@ private:
 	TimedCallback m_timedGameInEndStateTimer;
 	TimedCallback m_timedUnusedObjectRemoval;
 	TimedCallback m_timedPickupSpawner;
+	TimedCallback m_updateClientsWithServertimeTimer;;
 
 	
 	uint64_t m_pickupID;

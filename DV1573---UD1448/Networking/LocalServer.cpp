@@ -28,6 +28,11 @@ LocalServer::LocalServer()
 	m_timedPickupSpawner.setExecutionInterval(NetGlobals::pickupSpawnIntervalMS);
 	m_timedPickupSpawner.registerCallback(std::bind(&LocalServer::spawnPickup, this));
 
+	m_updateClientsWithServertimeTimer.setInfinityExecutionTime(true);
+	m_updateClientsWithServertimeTimer.setExecutionInterval(NetGlobals::UpdateClientsWithServerTimeIntervalMS);
+	m_updateClientsWithServertimeTimer.registerCallback(std::bind(&LocalServer::m_updateClientsWithServertime, this));
+	m_updateClientsWithServertimeTimer.start();
+
 	unsigned int _time = unsigned int(time(NULL));
 	srand(_time);
 
@@ -123,6 +128,8 @@ void LocalServer::ThreadedUpdate()
 		currentTimeMS = RakNet::GetTimeMS();
 		timeDiff = (currentTimeMS - lastTimeMS);
 		
+		m_updateClientsWithServertimeTimer.update(timeDiff);
+
 		if (m_serverInfo.currentState == NetGlobals::SERVER_STATE::GAME_IS_STARTING) {
 			handleCountdown(timeDiff);
 		}
@@ -319,6 +326,8 @@ void LocalServer::processAndHandlePackets()
 					m_connectedPlayers[i] = playerPacket;
 					m_connectedPlayers[i].hasBeenUpdatedOnce = hasBeenUpdatedOnce;
 					m_connectedPlayers[i].latestSpawnPosition = latestSpawnPos;
+					m_connectedPlayers[i].timestamp = RakNet::GetTimeMS();
+
 
 					if (m_connectedPlayers[i].hasBeenUpdatedOnce == false) {
 						m_connectedPlayers[i].hasBeenUpdatedOnce = true;
@@ -413,6 +422,9 @@ void LocalServer::processAndHandlePackets()
 				for (size_t i = 0; i < spellVec.size(); i++) {
 					if (spellVec[i].SpellID == spellPacket.SpellID) {
 						spellVec[i] = spellPacket;
+
+						spellVec[i].timestamp = RakNet::GetTimeMS();
+						spellPacket.timestamp = spellVec[i].timestamp; // this will give the clients the server timestamp aswell
 					}
 				}
 
@@ -420,14 +432,15 @@ void LocalServer::processAndHandlePackets()
 				{
 					// Don't send it back to the sender
 					if (packet->guid != m_connectedPlayers[i].guid.rakNetGuid) {
-						m_serverPeer->Send(&bsIn, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_connectedPlayers[i].guid, false);
+						RakNet::BitStream spellStream;
+						spellStream.Write((RakNet::MessageID)SPELL_UPDATE);
+						spellPacket.Serialize(true, spellStream);
+						m_serverPeer->Send(&spellStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_connectedPlayers[i].guid, false);
 					}
 
 				}
 			
 			}
-
-		
 		}
 		break;
 
@@ -830,7 +843,7 @@ void LocalServer::hardRespawnPlayer(PlayerPacket& player)
 void LocalServer::respawnPlayers()
 {
 	for (size_t i = 0; i < m_connectedPlayers.size(); i++)
-	{
+	{	
 		m_connectedPlayers[i].health = NetGlobals::maxPlayerHealth;
 	
 		RakNet::BitStream stream;
@@ -1055,6 +1068,16 @@ void LocalServer::removeUnusedObjects_routine()
 		
 	}
 
+}
+
+void LocalServer::m_updateClientsWithServertime()
+{
+	RakNet::BitStream stream;
+	stream.Write((RakNet::MessageID)SERVER_TIME);
+	ServerTimePacket time;
+	time.serverTimestamp = RakNet::GetTimeMS();
+	time.Serialize(true, stream);
+	sendStreamToAllClients(stream);
 }
 
 void LocalServer::resetServerData()

@@ -1,6 +1,6 @@
 #include <Pch/Pch.h>
 #include "NetworkPlayers.h"
-
+#include "Client.h"
 
 NetworkPlayers::NetworkPlayers()
 {
@@ -23,7 +23,7 @@ void NetworkPlayers::cleanUp()
 
 void NetworkPlayers::update(const float& dt)
 {
-	std::lock_guard<std::mutex> lockGuard(m_mutex);
+	Client::getInstance()->updatePlayersMutexGuard();
 	for (size_t i = 0; i < m_players.size(); i++)
 	{
 		PlayerEntity& p = m_players[i];

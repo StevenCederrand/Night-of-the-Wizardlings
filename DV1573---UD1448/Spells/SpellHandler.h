@@ -73,7 +73,6 @@ private:
 	
 	// Don't touch if you don't know what you are doing
 	friend class Client;
-	std::mutex m_clientSyncMutex;
 
 	struct deflectSpellData {
 		glm::vec3 direction;

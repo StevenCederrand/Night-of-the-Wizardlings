@@ -23,7 +23,6 @@ public:
 
 private:
 	friend class Client;
-	std::mutex m_mutex;
 	std::vector<SpellEntity> m_entities;
 	float m_lerpSpeed = 15.0f;
 };
