@@ -83,6 +83,9 @@ void Player::updateListenerProperties()
 		m_playerCamera->getCamUp());
 	SoundHandler::getInstance()->setListenerPos(m_playerPosition);
 	SoundHandler::getInstance()->setListenerVelocity(glm::vec3(m_character->getAngularVelocity().getX(), m_character->getAngularVelocity().getY(), m_character->getAngularVelocity().getZ()));
+	SoundHandler::getInstance()->setSourcePosition(m_playerPosition, BasicAttackSound, Client::getInstance()->getMyData().guid);
+	SoundHandler::getInstance()->setSourcePosition(m_playerPosition, DeflectSound, Client::getInstance()->getMyData().guid);
+	SoundHandler::getInstance()->setSourcePosition(m_playerPosition, EnhanceAttackSound, Client::getInstance()->getMyData().guid);
 }
 
 void Player::move(float deltaTime)
@@ -134,8 +137,8 @@ void Player::attack()
 		if (m_attackCooldown <= 0)
 		{
 			m_attackCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_spellType); // Put attack on cooldown
-			SoundHandler::getInstance()->setSourcePosition(m_playerPosition, BasicAttackSoundIndex);
-			SoundHandler::getInstance()->playSound(BasicAttackSoundIndex);
+			SoundHandler::getInstance()->setSourcePosition(m_playerPosition, BasicAttackSound, Client::getInstance()->getMyData().guid);
+			SoundHandler::getInstance()->playSound(BasicAttackSound, Client::getInstance()->getMyData().guid);
 		}		
 	}
 
@@ -144,8 +147,8 @@ void Player::attack()
 		if (m_specialCooldown <= 0)
 		{
 			m_specialCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_specialSpelltype); // Put attack on cooldown
-			SoundHandler::getInstance()->setSourcePosition(m_playerPosition, DeflectSoundIndex);
-			SoundHandler::getInstance()->playSound(DeflectSoundIndex);
+			SoundHandler::getInstance()->setSourcePosition(m_playerPosition, DeflectSound, Client::getInstance()->getMyData().guid);
+			SoundHandler::getInstance()->playSound(DeflectSound, Client::getInstance()->getMyData().guid);
 		}		
 	}
 
@@ -157,8 +160,8 @@ void Player::attack()
 			{
 				// Start loop
 				m_enhanceAttack.start();
-				SoundHandler::getInstance()->setSourcePosition(m_playerPosition, EnhanceAttackSoundIndex);
-				SoundHandler::getInstance()->playSound(EnhanceAttackSoundIndex);
+				SoundHandler::getInstance()->setSourcePosition(m_playerPosition, EnhanceAttackSound, Client::getInstance()->getMyData().guid);
+				SoundHandler::getInstance()->playSound(EnhanceAttackSound, Client::getInstance()->getMyData().guid);
 			}
 		}
 	}

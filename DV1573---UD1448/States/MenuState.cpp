@@ -52,7 +52,7 @@ void MenuState::loadGui()
 
 bool MenuState::onStartOfflineClicked(const CEGUI::EventArgs& e)
 {
-	SoundHandler::getInstance()->stopSound(ThemeSong0);
+	SoundHandler::getInstance()->stopSound(ThemeSong0, Client::getInstance()->getMyData().guid);
 	glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	m_stateManager->clearAllAndSetState(new PlayState());	
 	return true;
@@ -72,7 +72,7 @@ bool MenuState::onStartClientClicked(const CEGUI::EventArgs& e)
 
 bool MenuState::onExitClicked(const CEGUI::EventArgs& e)
 {
-	SoundHandler::getInstance()->stopSound(ThemeSong0);
+	SoundHandler::getInstance()->stopSound(ThemeSong0, Client::getInstance()->getMyData().guid);
 	glfwSetWindowShouldClose(glfwGetCurrentContext(), true);	
 	return true;
 }

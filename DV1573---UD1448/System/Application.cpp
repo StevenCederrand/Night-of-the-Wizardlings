@@ -89,9 +89,9 @@ bool Application::init() {
 	m_stateManager = new StateManager();
 	m_stateManager->pushState(new MenuState());	
 
-	SoundHandler::getInstance()->setSourceType(AL_STREAMING, ThemeSong0);
-	SoundHandler::getInstance()->playSound(ThemeSong0);
-	SoundHandler::getInstance()->setSourceLooping(true, ThemeSong0);
+	SoundHandler::getInstance()->setSourceType(AL_STREAMING, ThemeSong0, Client::getInstance()->getMyData().guid);
+	SoundHandler::getInstance()->playSound(ThemeSong0, Client::getInstance()->getMyData().guid);
+	SoundHandler::getInstance()->setSourceLooping(true, ThemeSong0, Client::getInstance()->getMyData().guid);
 
 	logTrace("Application successfully initialized");
 	return statusOK;

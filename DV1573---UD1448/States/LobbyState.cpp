@@ -75,7 +75,7 @@ void LobbyState::loadGui()
 
 bool LobbyState::onStartSeverClicked(const CEGUI::EventArgs& e)
 {
-	SoundHandler::getInstance()->stopSound(ThemeSong0);
+	SoundHandler::getInstance()->stopSound(ThemeSong0, Client::getInstance()->getMyData().guid);
 	LocalServer::getInstance()->startup(m_sNameInput->getText().c_str());
 	Client::getInstance()->startup();
 	Client::getInstance()->setUsername(m_uNameInput->getText().c_str());

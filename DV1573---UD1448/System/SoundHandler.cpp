@@ -5,11 +5,12 @@
 SoundHandler* SoundHandler::m_soundHandlerInstance = 0;
 
 SoundHandler::SoundHandler()
-{
-	m_playerSourceIndices[0].guid = Client::getInstance()->getMyData().guid;
+{	
+	m_nrOfPlayers = 1;
+	
 	m_buffers.resize(NR_OF_SOUNDS);
 	//m_sources.resize(NR_OF_SOUNDS);
-	m_playerSourceIndices.resize(MAX_NR_OF_PLAYERS);
+	//m_playerSourceIndices.resize(MAX_NR_OF_PLAYERS);
 
 	m_device = alcOpenDevice(NULL);
 
@@ -33,23 +34,31 @@ SoundHandler::SoundHandler()
 	}
 
 	loadAllSound();
+	setPlayerGUIDs();
+	for (int i = 0; i < m_nrOfPlayers; i++)
+	{
+		attachBuffersToPlayerSources(m_playerSoundInfo.at(i).guid);
+	}
 }
 
 SoundHandler::~SoundHandler()
 {
-	for (int i = 0; i < m_sources.size(); i++)
+	alSourcei(themeSong0Source, AL_BUFFER, NULL);
+	alSourcei(pickupSpawnSource, AL_BUFFER, NULL);
+	alDeleteSources(1, &themeSong0Source);
+	alDeleteSources(1, &pickupSpawnSource);
+
+	for (int i = 0; i < m_nrOfPlayers; i++)
 	{
-		alSourcei(m_sources[i], AL_BUFFER, NULL);
-	}
-	
-	for (int i = 0; i < m_sources.size(); i++)
-	{
-		alDeleteSources(1, &m_sources[i]);
-	}
+		for (int j = 0; j < m_playerSoundInfo.at(i).sources.size(); j++)
+		{
+			alSourcei(m_playerSoundInfo.at(i).sources.at(j), AL_BUFFER, NULL);
+			alDeleteSources(1, &m_playerSoundInfo.at(i).sources.at(j));
+		}
+	}	
 
 	for (int i = 0; i < m_buffers.size(); i++)
-	{
-		
+	{		
 		alDeleteBuffers(1, &m_buffers[i]);
 	}	
 
@@ -85,19 +94,19 @@ void SoundHandler::loadAllSound()
 		logTrace(THEME_SONG0 + " failed to be loaded");
 	}
 
-	success = loadSound(BasicAttackSoundIndex);
+	success = loadSound(BasicAttackSound);
 	if (success == -1)
 	{
 		logTrace(BASIC_ATTACK_SOUND + " failed to be loaded");
 	}
 
-	success = loadSound(DeflectSoundIndex);
+	success = loadSound(DeflectSound);
 	if (success == -1)
 	{
 		logTrace(DEFLECT_SOUND + " failed to be loaded");
 	}
 
-	success = loadSound(EnhanceAttackSoundIndex);
+	success = loadSound(EnhanceAttackSound);
 	if (success == -1)
 	{
 		logTrace(ENHANCE_ATTACK_SOUND + " failed to be loaded");
@@ -116,20 +125,20 @@ int SoundHandler::loadSound(SoundIndex whatSound)
 	case ThemeSong0:
 		fileName += THEME_SONG0;		
 		break;
-	case BasicAttackSoundIndex:
+	case BasicAttackSound:
 		fileName += BASIC_ATTACK_SOUND;		
 		break;
-	case DeflectSoundIndex:
+	case DeflectSound:
 		fileName += DEFLECT_SOUND;
 		break;
-	case EnhanceAttackSoundIndex:
+	case EnhanceAttackSound:
 		fileName += ENHANCE_ATTACK_SOUND;
 		break;
-	case TakingDamageSoundIndex:
+	case TakingDamageSound:
 		break;
-	case PickupSpawnSoundIndex:		
+	case PickupSpawnSound:		
 		break;
-	case StepsSoundIndex:
+	case StepsSound:
 		break;
 	}
 
@@ -223,16 +232,13 @@ int SoundHandler::loadSound(SoundIndex whatSound)
 		return -1;
 	}
 	
-	//Create sources for every player's spells and steps.
 	//Theme song and pickup spawn sound only needs one source
 	//because we don't need the enemies sounds for them. 
 	if (whatSound == ThemeSong0)
 	{
 		error = alGetError();
-		m_sources.resize(m_sources.size() + 1);
-		alGenSources((ALsizei)1, &m_sources[m_sources.size() - 1]);
-		m_themeSong0SourceIndex = m_sources.size() - 1;
 		
+		alGenSources((ALsizei)1, &themeSong0Source);		
 		error = alGetError();
 
 		if (error != AL_NO_ERROR)
@@ -246,7 +252,7 @@ int SoundHandler::loadSound(SoundIndex whatSound)
 		}
 		
 		error = alGetError();
-		alSourcei(m_sources[m_themeSong0SourceIndex], AL_BUFFER, m_buffers[whatSound]);
+		alSourcei(themeSong0Source, AL_BUFFER, m_buffers[whatSound]);
 
 		error = alGetError();
 
@@ -261,105 +267,24 @@ int SoundHandler::loadSound(SoundIndex whatSound)
 		}
 
 	}
-	else if (whatSound == PickupSpawnSoundIndex)
+	else if (whatSound == PickupSpawnSound)
 	{
-		error = alGetError();
-		m_sources.resize(m_sources.size() + 1);
-		alGenSources((ALsizei)1, &m_sources[m_sources.size() - 1]);
-		m_pickupSpawnSourceIndex = m_sources.size() - 1;
-
-		error = alGetError();
-
-		if (error != AL_NO_ERROR)
-		{
-			logTrace("Error generating sources");
-
-			free(pcmout);
-			fclose(fp);
-			ov_clear(&vf);
-			return -1;
-		}
-		
-		error = alGetError();
-		alSourcei(m_sources[m_pickupSpawnSourceIndex], AL_BUFFER, m_buffers[whatSound]);
-
-		error = alGetError();
-
-		if (error != AL_NO_ERROR)
-		{
-			logTrace("Error binding buffer to source");
-
-			free(pcmout);
-			fclose(fp);
-			ov_clear(&vf);
-			return -1;
-		}
-	}
-	else
-	{
-		int sourceIndex = -1;
 		error = alGetError();		
+		alGenSources((ALsizei)1, &pickupSpawnSource);
+		error = alGetError();
 
-		for (int i = 0; i < MAX_NR_OF_PLAYERS; i++)
+		if (error != AL_NO_ERROR)
 		{
-			
-			m_sources.resize(m_sources.size() + 1);
-			alGenSources((ALsizei)1, &m_sources[m_sources.size() - 1]);
+			logTrace("Error generating sources");
 
-			error = alGetError();
-
-			if (error != AL_NO_ERROR)
-			{
-				logTrace("Error generating sources");
-
-				free(pcmout);
-				fclose(fp);
-				ov_clear(&vf);
-				return -1;
-			}
-
-			switch (whatSound)
-			{		
-			case BasicAttackSoundIndex:
-				m_playerSourceIndices[i].basicAttackSourceIndex = m_sources.size() - 1;
-				//sourceIndex = m_playerSourceIndices[i].basicAttackSourceIndex;
-				break;
-			case DeflectSoundIndex:
-				m_playerSourceIndices[i].deflectSourceIndex = m_sources.size() - 1;
-				break;
-			case EnhanceAttackSoundIndex:
-				m_playerSourceIndices[i].enhanceSourceIndex = m_sources.size() - 1;
-				break;
-			case TakingDamageSoundIndex:
-				break;
-			case PickupSpawnSoundIndex:
-				break;
-			case StepsSoundIndex:
-				break;
-			}
-
-			error = alGetError();
-
-			alSourcei(m_sources[m_sources.size() - 1], AL_BUFFER, m_buffers[whatSound]);
-
-			error = alGetError();
-
-			if (error != AL_NO_ERROR)
-			{
-				logTrace("Error binding buffer to source");
-
-				free(pcmout);
-				fclose(fp);
-				ov_clear(&vf);
-				return -1;
-			}
-		}	
-	}	
-	/*error = alGetError();
-
-	for (int i = 0; i < MAX_NR_OF_PLAYERS; i++)
-	{
-		alSourcei(m_sources[m_playerSourceIndices[i].basicAttackSourceIndex], AL_BUFFER, m_buffers[whatSound]);
+			free(pcmout);
+			fclose(fp);
+			ov_clear(&vf);
+			return -1;
+		}
+		
+		error = alGetError();
+		alSourcei(pickupSpawnSource, AL_BUFFER, m_buffers[whatSound]);
 
 		error = alGetError();
 
@@ -372,8 +297,7 @@ int SoundHandler::loadSound(SoundIndex whatSound)
 			ov_clear(&vf);
 			return -1;
 		}
-	}*/
-	
+	}	
 
 	free(pcmout);
 	fclose(fp);
@@ -382,141 +306,184 @@ int SoundHandler::loadSound(SoundIndex whatSound)
 	return whatSound;
 }
 
-void SoundHandler::playSound(SoundIndex bufferName, int player)
-{
+//Create sources for every player's spells and steps.
+//Returns 0 when successful, returns -1 when the player ID could not be found.
+int SoundHandler::attachBuffersToPlayerSources(RakNet::AddressOrGUID playerID)
+{		
+	int success = 0;
 	m_error = alGetError();
+	PlayerSoundInfo* playerTemp = nullptr;
+	bool found = false;
+	for (int i = 0; i < m_playerSoundInfo.size(); i++)
+	{
+		if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
+		{
+			playerTemp = &m_playerSoundInfo.at(i);
+			found = true;
+		}
+	}
+	if (found)
+	{
+		playerTemp->sources.resize(NR_OF_COMMON_SOUNDS);
+		for (int i = 0; i < NR_OF_COMMON_SOUNDS; i++)
+		{
+			alGenSources((ALsizei)1, &playerTemp->sources.at(i));
+			m_error = alGetError();
+
+			if (m_error != AL_NO_ERROR)
+			{
+				logTrace("Error generating sources");
+			}
+		}		
+
+		for (int i = 0; i < NR_OF_COMMON_SOUNDS; i++)
+		{
+			m_error = alGetError();
+
+			alSourcei(playerTemp->sources[i], AL_BUFFER, m_buffers[i]);
+
+			m_error = alGetError();
+
+			if (m_error != AL_NO_ERROR)
+			{
+				logTrace("Error binding buffer to source");
+			}
+		}		
+	}	
+	else
+	{
+		success = -1;
+	}
+
+	return success;
+}
+
+void SoundHandler::playSound(SoundIndex bufferName, RakNet::AddressOrGUID playerID)
+{
 
 	/*if (getSourceState(sourceName) != AL_PLAYING)
 	{
 		alSourcePlay(m_sources[sourceName]);
-	}*/
-
-	int sourceIndex = -1;
-
-	switch (bufferName)
+	}*/		
+	if (bufferName == ThemeSong0)
 	{
-	case ThemeSong0:
-		sourceIndex = m_themeSong0SourceIndex;
-		break;
-	case BasicAttackSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].basicAttackSourceIndex;
-		break;
-	case DeflectSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].deflectSourceIndex;
-		break;
-	case EnhanceAttackSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].enhanceSourceIndex;
-		break;
-	case TakingDamageSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].takingDamageSourceIndex;
-		break;
-	case PickupSpawnSoundIndex:
-		sourceIndex = m_pickupSpawnSourceIndex;
-		break;
-	case StepsSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].stepsSourceIndex;
-		break;
+		m_error = alGetError();
+		alSourcePlay(themeSong0Source);
+
+		if ((m_error = alGetError()) != AL_NO_ERROR)
+		{
+			logTrace("Error playing sound");
+		}
 	}
-
-	if (sourceIndex != -1)
+	else if (bufferName == PickupSpawnSound)
 	{
-		alSourcePlay(m_sources[sourceIndex]);
-		if (m_error != AL_NO_ERROR)
+		m_error = alGetError();
+		alSourcePlay(pickupSpawnSource);
+
+		if ((m_error = alGetError()) != AL_NO_ERROR)
 		{
 			logTrace("Error playing sound");
 		}
 	}
 	else
 	{
-		logTrace("Couldn't find sourceIndex");
+		bool found = false;
+		for (int i = 0; i < m_nrOfPlayers && !found; i++)
+		{
+			if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
+			{
+				m_error = alGetError();
+				alSourcePlay(m_playerSoundInfo.at(i).sources.at(bufferName));
+
+				if ((m_error = alGetError()) != AL_NO_ERROR)
+				{
+					logTrace("Error playing sound");
+				}
+
+				found = true;
+			}
+		}
 	}
 }
 
 void SoundHandler::pauseSound(SoundIndex bufferName, RakNet::AddressOrGUID playerID)
-{
-	int sourceIndex = -1;
-
-	switch (bufferName)
-	{
-	case ThemeSong0:
-		sourceIndex = m_themeSong0SourceIndex;
-		break;
-	case BasicAttackSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].basicAttackSourceIndex;
-		break;
-	case DeflectSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].deflectSourceIndex;
-		break;
-	case EnhanceAttackSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].enhanceSourceIndex;
-		break;
-	case TakingDamageSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].takingDamageSourceIndex;
-		break;
-	case PickupSpawnSoundIndex:
-		sourceIndex = m_pickupSpawnSourceIndex;
-		break;
-	case StepsSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].stepsSourceIndex;
-		break;
-	}
-
-	if (sourceIndex != -1)
+{	
+	if (bufferName == ThemeSong0)
 	{
 		m_error = alGetError();
 
-		if (getSourceState(bufferName) == AL_PLAYING)
+		if (getSourceState(bufferName, playerID) == AL_PLAYING)
 		{
-			alSourcePause(m_sources[sourceIndex]);
+			alSourcePause(themeSong0Source);
 		}
 
-		if (m_error != AL_NO_ERROR)
+		if ((m_error = alGetError()) != AL_NO_ERROR)
 		{
 			logTrace("Error pausing sound");
-		}	
+		}
+	}
+	else if (bufferName == PickupSpawnSound)
+	{
+		m_error = alGetError();
+
+		if (getSourceState(bufferName, playerID) == AL_PLAYING)
+		{
+			alSourcePause(pickupSpawnSource);
+		}
+
+		if ((m_error = alGetError()) != AL_NO_ERROR)
+		{
+			logTrace("Error pausing sound");
+		}
 	}
 	else
 	{
-		logTrace("Couldn't find sourceIndex");
+		bool found = false;
+		for (int i = 0; i < m_nrOfPlayers && !found; i++)
+		{
+			if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
+			{
+				m_error = alGetError();
+
+				if (getSourceState(bufferName, playerID) == AL_PLAYING)
+				{
+					alSourcePause(m_playerSoundInfo.at(i).sources[bufferName]);
+				}
+
+				if ((m_error = alGetError()) != AL_NO_ERROR)
+				{
+					logTrace("Error pausing sound");
+				}
+
+				found = true;
+			}
+		}
 	}
 }
 
 void SoundHandler::stopSound(SoundIndex bufferName, RakNet::AddressOrGUID playerID)
 {
-	int sourceIndex = -1;
-
-	switch (bufferName)
-	{
-	case ThemeSong0:
-		sourceIndex = m_themeSong0SourceIndex;
-		break;
-	case BasicAttackSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].basicAttackSourceIndex;
-		break;
-	case DeflectSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].deflectSourceIndex;
-		break;
-	case EnhanceAttackSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].enhanceSourceIndex;
-		break;
-	case TakingDamageSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].takingDamageSourceIndex;
-		break;
-	case PickupSpawnSoundIndex:
-		sourceIndex = m_pickupSpawnSourceIndex;
-		break;
-	case StepsSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].stepsSourceIndex;
-		break;
-	}
-
-	if (sourceIndex != -1)
+	if (bufferName == ThemeSong0)
 	{
 		m_error = alGetError();
 
-		if (getSourceState(bufferName) == AL_PLAYING)
+		if (getSourceState(bufferName, playerID) == AL_PLAYING)
 		{
-			alSourceStop(m_sources[sourceIndex]);
+			alSourceStop(themeSong0Source);
+		}
+
+		if ((m_error = alGetError()) != AL_NO_ERROR)
+		{
+			logTrace("Error stopping sound");
+		}
+	}
+	else if (bufferName == PickupSpawnSound)
+	{
+		m_error = alGetError();
+
+		if (getSourceState(bufferName, playerID) == AL_PLAYING)
+		{
+			alSourceStop(pickupSpawnSource);
 		}
 
 		if ((m_error = alGetError()) != AL_NO_ERROR)
@@ -526,7 +493,26 @@ void SoundHandler::stopSound(SoundIndex bufferName, RakNet::AddressOrGUID player
 	}
 	else
 	{
-		logTrace("Couldn't find sourceIndex");
+		bool found = false;
+		for (int i = 0; i < m_nrOfPlayers && !found; i++)
+		{
+			if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
+			{
+				m_error = alGetError();
+
+				if (getSourceState(bufferName, playerID) == AL_PLAYING)
+				{
+					alSourceStop(m_playerSoundInfo.at(i).sources.at(bufferName));
+				}
+
+				if ((m_error = alGetError()) != AL_NO_ERROR)
+				{
+					logTrace("Error stopping sound");
+				}
+
+				found = true;
+			}
+		}
 	}
 }
 
@@ -573,70 +559,160 @@ void SoundHandler::setListenerOrientation(glm::vec3 lookAt, glm::vec3 up)
 
 void SoundHandler::setSourcePitch(float pitch, SoundIndex bufferName, RakNet::AddressOrGUID playerID)
 {
-	m_error = alGetError();
-
-	alSourcef(m_sources[bufferName], AL_PITCH, pitch);
-
-	if ((m_error = alGetError()) != AL_NO_ERROR)
+	if (bufferName == ThemeSong0)
 	{
-		logTrace("Error setting pitch to source");
+		m_error = alGetError();
+
+		alSourcef(themeSong0Source, AL_PITCH, pitch);
+
+		if ((m_error = alGetError()) != AL_NO_ERROR)
+		{
+			logTrace("Error setting pitch to source");
+		}
+	}
+	else if (bufferName == PickupSpawnSound)
+	{
+		m_error = alGetError();
+
+		alSourcef(pickupSpawnSource, AL_PITCH, pitch);
+
+		if ((m_error = alGetError()) != AL_NO_ERROR)
+		{
+			logTrace("Error setting pitch to source");
+		}
+	}
+	else
+	{
+		bool found = false;
+		for (int i = 0; i < m_nrOfPlayers && !found; i++)
+		{
+			if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
+			{
+				m_error = alGetError();
+
+				alSourcef(m_playerSoundInfo.at(i).sources.at(bufferName), AL_PITCH, pitch);
+
+				if ((m_error = alGetError()) != AL_NO_ERROR)
+				{
+					logTrace("Error setting pitch to source");
+				}
+				found = true;
+			}
+		}
 	}
 }
 
 void SoundHandler::setSourceGain(float gain, SoundIndex bufferName, RakNet::AddressOrGUID playerID)
 {
-	m_error = alGetError();
-
-	alSourcef(m_sources[bufferName], AL_GAIN, gain);
-
-	if ((m_error = alGetError()) != AL_NO_ERROR)
+	if (bufferName == ThemeSong0)
 	{
-		logTrace("Error setting gain to source");
+		m_error = alGetError();
+
+		alSourcef(themeSong0Source, AL_GAIN, gain);
+
+		if ((m_error = alGetError()) != AL_NO_ERROR)
+		{
+			logTrace("Error setting gain to source");
+		}
+	}
+	else if (bufferName == PickupSpawnSound)
+	{
+		m_error = alGetError();
+
+		alSourcef(pickupSpawnSource, AL_GAIN, gain);
+
+		if ((m_error = alGetError()) != AL_NO_ERROR)
+		{
+			logTrace("Error setting gain to source");
+		}
+	}
+	else
+	{
+		bool found = false;
+		for (int i = 0; i < m_nrOfPlayers && !found; i++)
+		{
+			if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
+			{
+				m_error = alGetError();
+
+				alSourcef(m_playerSoundInfo.at(i).sources.at(bufferName), AL_GAIN, gain);
+
+				if ((m_error = alGetError()) != AL_NO_ERROR)
+				{
+					logTrace("Error setting gain to source");
+				}
+				found = true;
+			}
+		}
 	}
 }
 
 //Don't use this for now
 void SoundHandler::setSourceMaxDistance(float dist, SoundIndex bufferName, RakNet::AddressOrGUID playerID)
 {	
-	m_error = alGetError();
-
-	alSourcef(m_sources[bufferName], AL_MAX_DISTANCE, dist);
-
-	if ((m_error = alGetError()) != AL_NO_ERROR)
+	if (bufferName == ThemeSong0)
 	{
-		logTrace("Error setting max distance to source");
+		m_error = alGetError();
+
+		alSourcef(themeSong0Source, AL_MAX_DISTANCE, dist);
+
+		if ((m_error = alGetError()) != AL_NO_ERROR)
+		{
+			logTrace("Error setting max distance to source");
+		}
+	}
+	else if (bufferName == PickupSpawnSound)
+	{
+		m_error = alGetError();
+
+		alSourcef(pickupSpawnSource, AL_MAX_DISTANCE, dist);
+
+		if ((m_error = alGetError()) != AL_NO_ERROR)
+		{
+			logTrace("Error setting max distance to source");
+		}
+	}
+	else
+	{
+		bool found = false;
+		for (int i = 0; i < m_nrOfPlayers && !found; i++)
+		{
+			if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
+			{
+				m_error = alGetError();
+
+				alSourcef(m_playerSoundInfo.at(i).sources.at(bufferName), AL_MAX_DISTANCE, dist);
+
+				if ((m_error = alGetError()) != AL_NO_ERROR)
+				{
+					logTrace("Error setting max distance to source");
+				}
+
+				found = true;
+			}
+		}
 	}
 }
 
 void SoundHandler::setSourcePosition(glm::vec3 pos, SoundIndex bufferName, RakNet::AddressOrGUID playerID)
 {	
 	ALfloat sourcePosition[] = { pos.x, pos.y, pos.z };
-	int sourceIndex = -1;
 
-	m_error = alGetError();
-
-	switch (bufferName)
+	if (bufferName == ThemeSong0)
 	{
-	case BasicAttackSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].basicAttackSourceIndex;
-		break;
-	case DeflectSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].deflectSourceIndex;
-		break;
-	case EnhanceAttackSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].enhanceSourceIndex;
-		break;
-	case TakingDamageSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].takingDamageSourceIndex;
-		break;
-	case StepsSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].stepsSourceIndex;
-		break;
+		m_error = alGetError();
+
+		alSourcefv(themeSong0Source, AL_POSITION, sourcePosition);
+		if ((m_error = alGetError()) != AL_NO_ERROR)
+		{
+			logTrace("Error setting position to source");
+		}
 	}
-	
-	if (sourceIndex != -1)
+	else if (bufferName == PickupSpawnSound)
 	{
-		alSourcefv(m_sources[sourceIndex], AL_POSITION, sourcePosition);
+		m_error = alGetError();
+
+		alSourcefv(pickupSpawnSource, AL_POSITION, sourcePosition);
 		if ((m_error = alGetError()) != AL_NO_ERROR)
 		{
 			logTrace("Error setting position to source");
@@ -644,39 +720,44 @@ void SoundHandler::setSourcePosition(glm::vec3 pos, SoundIndex bufferName, RakNe
 	}
 	else
 	{
-		logTrace("Couldn't find source index");
-	}	
+		bool found = false;
+		for (int i = 0; i < m_nrOfPlayers && !found; i++)
+		{
+			if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
+			{
+				m_error = alGetError();
+
+				alSourcefv(m_playerSoundInfo.at(i).sources.at(bufferName), AL_POSITION, sourcePosition);
+				if ((m_error = alGetError()) != AL_NO_ERROR)
+				{
+					logTrace("Error setting position to source");
+				}
+				found = true;
+			}
+		}
+	}
 }
 
 void SoundHandler::setSourceVelocity(glm::vec3 vel, SoundIndex bufferName, RakNet::AddressOrGUID playerID)
 {	
-	ALfloat sourceVelocity[] = { vel.x, vel.y, vel.z };
-	int sourceIndex = -1;
+	ALfloat sourceVelocity[] = { vel.x, vel.y, vel.z };	
 
-	switch (bufferName)
+	if (bufferName == ThemeSong0)
 	{
-	case BasicAttackSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].basicAttackSourceIndex;
-		break;
-	case DeflectSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].deflectSourceIndex;
-		break;
-	case EnhanceAttackSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].enhanceSourceIndex;
-		break;
-	case TakingDamageSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].takingDamageSourceIndex;
-		break;
-	case StepsSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].stepsSourceIndex;
-		break;
+		m_error = alGetError();
+
+		alSourcefv(themeSong0Source, AL_VELOCITY, sourceVelocity);
+
+		if ((m_error = alGetError()) != AL_NO_ERROR)
+		{
+			logTrace("Error setting velocity to source");
+		}
 	}
-
-	m_error = alGetError();
-
-	if (sourceIndex != -1)
+	else if (bufferName == PickupSpawnSound)
 	{
-		alSourcefv(m_sources[sourceIndex], AL_VELOCITY, sourceVelocity);
+		m_error = alGetError();
+
+		alSourcefv(pickupSpawnSource, AL_VELOCITY, sourceVelocity);
 
 		if ((m_error = alGetError()) != AL_NO_ERROR)
 		{
@@ -685,39 +766,45 @@ void SoundHandler::setSourceVelocity(glm::vec3 vel, SoundIndex bufferName, RakNe
 	}
 	else
 	{
-		logTrace("Couldn't find source index");
+		bool found = false;
+		for (int i = 0; i < m_nrOfPlayers && !found; i++)
+		{
+			if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
+			{
+				m_error = alGetError();
+
+				alSourcefv(m_playerSoundInfo.at(i).sources.at(bufferName), AL_VELOCITY, sourceVelocity);
+
+				if ((m_error = alGetError()) != AL_NO_ERROR)
+				{
+					logTrace("Error setting velocity to source");
+				}
+				found = true;
+			}
+		}
 	}
 }
 
 void SoundHandler::setSourceDirection(glm::vec3 dir, SoundIndex bufferName, RakNet::AddressOrGUID playerID)
 {	
-	ALfloat sourceDirection[] = { dir.x, dir.y, dir.z };
-	int sourceIndex = -1;
+	ALfloat sourceDirection[] = { dir.x, dir.y, dir.z };	
 
-	switch (bufferName)
+	if (bufferName == ThemeSong0)
 	{
-	case BasicAttackSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].basicAttackSourceIndex;
-		break;
-	case DeflectSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].deflectSourceIndex;
-		break;
-	case EnhanceAttackSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].enhanceSourceIndex;
-		break;
-	case TakingDamageSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].takingDamageSourceIndex;
-		break;
-	case StepsSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].stepsSourceIndex;
-		break;
+		m_error = alGetError();
+
+		alSourcefv(themeSong0Source, AL_DIRECTION, sourceDirection);
+
+		if ((m_error = alGetError()) != AL_NO_ERROR)
+		{
+			logTrace("Error setting direction to source");
+		}
 	}
-
-	m_error = alGetError();
-
-	if (sourceIndex != -1)
+	else if (bufferName == PickupSpawnSound)
 	{
-		alSourcefv(m_sources[sourceIndex], AL_DIRECTION, sourceDirection);
+		m_error = alGetError();
+
+		alSourcefv(pickupSpawnSource, AL_DIRECTION, sourceDirection);
 
 		if ((m_error = alGetError()) != AL_NO_ERROR)
 		{
@@ -726,46 +813,42 @@ void SoundHandler::setSourceDirection(glm::vec3 dir, SoundIndex bufferName, RakN
 	}
 	else
 	{
-		logTrace("Couldn't find source index");
+		bool found = false;
+		for (int i = 0; i < m_nrOfPlayers && !found; i++)
+		{
+			if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
+			{
+				m_error = alGetError();
+
+				alSourcefv(m_playerSoundInfo.at(i).sources.at(bufferName), AL_DIRECTION, sourceDirection);
+
+				if ((m_error = alGetError()) != AL_NO_ERROR)
+				{
+					logTrace("Error setting direction to source");
+				}
+				found = true;
+			}
+		}
 	}
 }
 
 //Types are: AL_UNDETERMINED, AL_STATIC or AL_STREAMING
 void SoundHandler::setSourceType(ALenum type, SoundIndex bufferName, RakNet::AddressOrGUID playerID)
-{	
-	int sourceIndex = -1;
-
-	switch (bufferName)
+{
+	if (bufferName == ThemeSong0)
 	{
-	case ThemeSong0:
-		sourceIndex = m_themeSong0SourceIndex;
-		break;
-	case BasicAttackSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].basicAttackSourceIndex;
-		break;
-	case DeflectSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].deflectSourceIndex;
-		break;
-	case EnhanceAttackSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].enhanceSourceIndex;
-		break;
-	case TakingDamageSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].takingDamageSourceIndex;
-		break;
-	case PickupSpawnSoundIndex:
-		sourceIndex = m_pickupSpawnSourceIndex;
-		break;
-	case StepsSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].stepsSourceIndex;
-		break;
+		m_error = alGetError();
+		alSourcei(themeSong0Source, AL_SOURCE_TYPE, type);
+
+		if ((m_error = alGetError()) != AL_NO_ERROR)
+		{
+			logTrace("Error setting type to source");
+		}
 	}
-	
-
-	m_error = alGetError();
-
-	if (sourceIndex != -1)
+	else if (bufferName == PickupSpawnSound)
 	{
-		alSourcei(m_sources[sourceIndex], AL_SOURCE_TYPE, type);
+		m_error = alGetError();
+		alSourcei(pickupSpawnSource, AL_SOURCE_TYPE, type);
 
 		if ((m_error = alGetError()) != AL_NO_ERROR)
 		{
@@ -774,43 +857,42 @@ void SoundHandler::setSourceType(ALenum type, SoundIndex bufferName, RakNet::Add
 	}
 	else
 	{
-		logTrace("Couldn't find source index");
+		bool found = false;
+		for (int i = 0; i < m_nrOfPlayers && !found; i++)
+		{
+			if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
+			{
+				m_error = alGetError();
+				alSourcei(m_playerSoundInfo.at(i).sources.at(bufferName), AL_SOURCE_TYPE, type);
+
+				if ((m_error = alGetError()) != AL_NO_ERROR)
+				{
+					logTrace("Error setting type to source");
+				}
+				found = true;
+			}
+		}
 	}
 }
 
 void SoundHandler::setSourceLooping(bool looping, SoundIndex bufferName, RakNet::AddressOrGUID playerID)
 {	
-	int sourceIndex = -1;
-
-	switch (bufferName)
+	if (bufferName == ThemeSong0)
 	{
-	case ThemeSong0:
-		sourceIndex = m_themeSong0SourceIndex;
-		break;
-	case BasicAttackSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].basicAttackSourceIndex;
-		break;
-	case DeflectSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].deflectSourceIndex;
-		break;
-	case EnhanceAttackSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].enhanceSourceIndex;
-		break;
-	case TakingDamageSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].takingDamageSourceIndex;
-		break;
-	case PickupSpawnSoundIndex:
-		sourceIndex = m_pickupSpawnSourceIndex;
-		break;
-	case StepsSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].stepsSourceIndex;
-		break;
+		m_error = alGetError();
+
+		alSourcei(themeSong0Source, AL_LOOPING, looping);
+
+		if ((m_error = alGetError()) != AL_NO_ERROR)
+		{
+			logTrace("Error setting looping value to source");
+		}
 	}
-	m_error = alGetError();
-
-	if (sourceIndex != -1)
+	else if (bufferName == PickupSpawnSound)
 	{
-		alSourcei(m_sources[sourceIndex], AL_LOOPING, looping);
+		m_error = alGetError();
+
+		alSourcei(pickupSpawnSource, AL_LOOPING, looping);
 
 		if ((m_error = alGetError()) != AL_NO_ERROR)
 		{
@@ -819,7 +901,22 @@ void SoundHandler::setSourceLooping(bool looping, SoundIndex bufferName, RakNet:
 	}
 	else
 	{
-		logTrace("Couldn't find source index");
+		bool found = false;
+		for (int i = 0; i < m_nrOfPlayers && !found; i++)
+		{
+			if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
+			{
+				m_error = alGetError();
+
+				alSourcei(m_playerSoundInfo.at(i).sources.at(bufferName), AL_LOOPING, looping);
+
+				if ((m_error = alGetError()) != AL_NO_ERROR)
+				{
+					logTrace("Error setting looping value to source");
+				}
+				found = true;
+			}
+		}
 	}
 }
 
@@ -827,53 +924,82 @@ void SoundHandler::setPlayerGUIDs()
 {	
 	auto& list = Client::getInstance()->getConnectedPlayers();
 	PlayerPacket myDataPacket = Client::getInstance()->getMyData();
+	
+	m_playerSoundInfo.resize(1);
+	m_playerSoundInfo.at(0).guid = myDataPacket.guid;
 
-	m_playerSourceIndices[0].guid = myDataPacket.guid;
-
-	for (int i = 0; i < list.size(); i++)
+	for (int i = 1; i < list.size() + 1; i++)
 	{
-		m_playerSourceIndices[i + 1].guid = list[i].guid;
+		m_playerSoundInfo.resize(m_playerSoundInfo.size() + 1);
+		m_playerSoundInfo[i].guid = list[i].guid;
 	}	
+
+	m_nrOfPlayers = list.size() + 1;
+}
+
+void SoundHandler::addPlayer(RakNet::AddressOrGUID guid)
+{
+	m_playerSoundInfo.resize(m_playerSoundInfo.size() + 1);
+	m_playerSoundInfo.at(m_playerSoundInfo.size() - 1).guid = guid;
+	m_nrOfPlayers++;
+	attachBuffersToPlayerSources(guid);
+}
+
+void SoundHandler::removePlayer(RakNet::AddressOrGUID guid)
+{
+	int index = -1;
+	bool found = false;
+	for (int i = 0; i < m_playerSoundInfo.size() && !found; i++)
+	{
+		if (m_playerSoundInfo.at(i).guid.rakNetGuid == guid.rakNetGuid)
+		{
+			index = i;
+			for (int j = 0; j < m_playerSoundInfo.at(i).sources.size(); j++)
+			{
+				alSourcei(m_playerSoundInfo.at(i).sources.at(j), AL_BUFFER, NULL);
+				alDeleteSources(1, &m_playerSoundInfo.at(i).sources.at(j));
+			}
+			found = true;
+		}
+	}
+
+	if (found)
+	{
+		for (int i = index; i < m_playerSoundInfo.size() - 1; i++)
+		{
+			m_playerSoundInfo.at(i) = m_playerSoundInfo.at(i + 1);
+		}
+
+		m_playerSoundInfo.resize(m_playerSoundInfo.size() - 1);
+
+		m_nrOfPlayers--;
+	}
 }
 
 const ALint& SoundHandler::getSourceState(SoundIndex bufferName, RakNet::AddressOrGUID playerID) const
 {
 	ALint value;
-	int sourceIndex = -1;
-
-	switch (bufferName)
+	
+	if (bufferName == ThemeSong0)
 	{
-	case ThemeSong0:
-		sourceIndex = m_themeSong0SourceIndex;
-		break;
-	case BasicAttackSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].basicAttackSourceIndex;
-		break;
-	case DeflectSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].deflectSourceIndex;
-		break;
-	case EnhanceAttackSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].enhanceSourceIndex;
-		break;
-	case TakingDamageSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].takingDamageSourceIndex;
-		break;
-	case PickupSpawnSoundIndex:
-		sourceIndex = m_pickupSpawnSourceIndex;
-		break;
-	case StepsSoundIndex:
-		sourceIndex = m_playerSourceIndices[player].stepsSourceIndex;
-		break;
+		alGetSourcei(themeSong0Source, AL_SOURCE_STATE, &value);
 	}
-
-	if (sourceIndex != -1)
+	else if (bufferName == PickupSpawnSound)
 	{
-		alGetSourcei(m_sources[sourceIndex], AL_SOURCE_STATE, &value);
+		alGetSourcei(pickupSpawnSource, AL_SOURCE_STATE, &value);
 	}
 	else
-	{
-		logTrace("Couldn't find source index");
-	}
+	{	
+		bool found = false;
+		for (int i = 0; i < m_playerSoundInfo.size() && !found; i++)
+		{
+			if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
+			{
+				alGetSourcei(m_playerSoundInfo.at(i).sources.at(bufferName), AL_SOURCE_STATE, &value);
+				found = true;
+			}
+		}
+	}	
 
 	return value;
 }

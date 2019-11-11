@@ -39,6 +39,7 @@ void NetworkPlayers::update(const float& dt)
 			}
 			p.gameobject->setWorldPosition(p.data.position);
 			p.flag = NetGlobals::THREAD_FLAG::NONE;
+			SoundHandler::getInstance()->addPlayer(p.data.guid);
 		}
 		else if (p.flag == NetGlobals::THREAD_FLAG::REMOVE)
 		{
@@ -46,6 +47,7 @@ void NetworkPlayers::update(const float& dt)
 			Renderer::getInstance()->removeDynamic(p.gameobject, DYNAMIC);
 			delete p.gameobject;
 			m_players.erase(m_players.begin() + i);
+			SoundHandler::getInstance()->removePlayer(p.data.guid);
 			i--;
 			continue;
 		}

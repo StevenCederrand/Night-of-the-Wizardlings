@@ -241,7 +241,7 @@ bool PlayState::onMainMenuClick(const CEGUI::EventArgs& e)
 {
 	Renderer::getInstance()->clear();
 	m_stateManager->clearAllAndSetState(new MenuState());
-	SoundHandler::getInstance()->playSound(ThemeSong0);
+	SoundHandler::getInstance()->playSound(ThemeSong0, Client::getInstance()->getMyData().guid);
 	return true;
 }
 

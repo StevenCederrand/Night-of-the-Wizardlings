@@ -11,27 +11,33 @@ const std::string BASIC_ATTACK_SOUND = "Sound Effect Magic Sound HQ YouTube.ogg"
 const std::string DEFLECT_SOUND = "YouShallNotPassogg.ogg";
 const std::string ENHANCE_ATTACK_SOUND = "Magic sound effect.ogg";
 
+//Nr of sounds in total
 const int NR_OF_SOUNDS = 7;
-const int MAX_NR_OF_PLAYERS = 5;
+//Nr of sounds every player has in common.
+const int NR_OF_COMMON_SOUNDS = 5;
+//const int MAX_NR_OF_PLAYERS = 5;
 
-enum SoundIndex {
+//Always put sounds that will come only from this client at the bottom of the list.
+//Put sounds that you will hear from other players aswell at the top of the list.
+//Otherwise the will be problems when creating sources for the sounds 
+//everyone has in common.
+//Also, make sure to increase NR_OF_SOUNDS
+//Make sure to increase NR_OF_COMMON_SOUNDS if it is a sound that you can hear 
+//from other players aswell. For example, you can hear other players' spells.
+enum SoundIndex {	
+	BasicAttackSound,
+	DeflectSound,
+	EnhanceAttackSound,
+	TakingDamageSound,
+	StepsSound,
 	ThemeSong0,
-	BasicAttackSoundIndex,
-	DeflectSoundIndex,
-	EnhanceAttackSoundIndex,
-	TakingDamageSoundIndex,
-	PickupSpawnSoundIndex,
-	StepsSoundIndex
+	PickupSpawnSound,	
 };
 
-struct PlayerSoundSourceInfo
+struct PlayerSoundInfo
 {
-	RakNet::AddressOrGUID guid;
-	int basicAttackSourceIndex;
-	int deflectSourceIndex;
-	int enhanceSourceIndex;
-	int takingDamageSourceIndex;
-	int stepsSourceIndex;
+	RakNet::AddressOrGUID guid;	
+	std::vector<ALuint> sources;
 };
 
 class SoundHandler
@@ -40,12 +46,12 @@ private:
 	static SoundHandler* m_soundHandlerInstance;
 	ALCdevice* m_device;
 	ALCcontext* m_context;
-	std::vector<ALuint> m_buffers;	
-	std::vector<ALuint> m_sources;
-	std::vector<PlayerSoundSourceInfo> m_playerSourceIndices;
-	int m_themeSong0SourceIndex;
-	int m_pickupSpawnSourceIndex;
+	std::vector<ALuint> m_buffers;		
+	std::vector<PlayerSoundInfo> m_playerSoundInfo;	
+	ALuint themeSong0Source;
+	ALuint pickupSpawnSource;
 	ALenum m_error;
+	int m_nrOfPlayers; // Including me
 
 public:
 	SoundHandler();
@@ -57,6 +63,8 @@ public:
 
 	void loadAllSound();
 	int loadSound(SoundIndex whatSound);
+	int attachBuffersToPlayerSources(RakNet::AddressOrGUID playerID);
+
 	void playSound(SoundIndex bufferName, RakNet::AddressOrGUID playerID);
 	void pauseSound(SoundIndex bufferName, RakNet::AddressOrGUID playerID);
 	void stopSound(SoundIndex buffereName, RakNet::AddressOrGUID playerID);
@@ -75,6 +83,8 @@ public:
 	void setSourceLooping(bool looping, SoundIndex bufferName, RakNet::AddressOrGUID playerID);
 
 	void setPlayerGUIDs();
+	void addPlayer(RakNet::AddressOrGUID guid);
+	void removePlayer(RakNet::AddressOrGUID guid);
 
 	const ALint& getSourceState(SoundIndex bufferName, RakNet::AddressOrGUID playerID) const;
 	//source relative?	
