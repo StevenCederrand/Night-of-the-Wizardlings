@@ -412,9 +412,7 @@ void LocalServer::processAndHandlePackets()
 
 				for (size_t i = 0; i < spellVec.size(); i++) {
 					if (spellVec[i].SpellID == spellPacket.SpellID) {
-						spellVec[i].Position = spellPacket.Position;
-						spellVec[i].Rotation = spellPacket.Rotation;
-						spellVec[i].Direction = spellPacket.Direction;
+						spellVec[i] = spellPacket;
 					}
 				}
 
@@ -547,9 +545,6 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 
 				return;
 			}
-
-
-
 		}
 
 		float damageMultiplier = 1.0f;
@@ -624,7 +619,6 @@ bool LocalServer::specificSpellCollision(const SpellPacket& spellPacket, const g
 	//float sphereRadius = 2.0f * spellPacket.Scale.x * 2;
 	float sphereRadius = 1.0f * spellPacket.Scale.x;
 	
-
 	//line is the walking we will do.
 	float nrSubStep = 6.0f;
 	glm::vec3 line = (spellPacket.Position - spellPacket.LastPosition) / nrSubStep;
@@ -640,25 +634,9 @@ bool LocalServer::specificSpellCollision(const SpellPacket& spellPacket, const g
 		if (distx2 <= sphereRadius * sphereRadius)
 		{
 			collision = true;
+			k = nrSubStep;
 		}
 	}
-	logTrace("OldPos x: " + std::to_string(spellPacket.LastPosition.x)
-		+ " y: " + std::to_string(spellPacket.LastPosition.y)
-		+ " z: " + std::to_string(spellPacket.LastPosition.z));
-
-	interpolationPos = spellPacket.LastPosition;
-	for (size_t l = 0; l < nrSubStep; l++)
-	{
-		interpolationPos += line;
-		logTrace("Walking spell Pos x: " + std::to_string(interpolationPos.x)
-			+ " y: " + std::to_string(interpolationPos.y)
-			+ " z: " + std::to_string(interpolationPos.z));
-		float temp = glm::length(interpolationPos - playerPos);
-		logTrace("Length of the spell: " + std::to_string(temp));
-	}
-	logTrace(" ");
-
-
 	return collision;
 }
 
