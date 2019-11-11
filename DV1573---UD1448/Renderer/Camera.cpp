@@ -4,27 +4,39 @@
 
 void Camera::calcVectors()
 {
-	glm::vec3 face;
-	face.x = cos(glm::radians(m_camYaw)) * cos(glm::radians(m_camPitch));
-	face.y = sin(glm::radians(m_camPitch));
-	face.z = sin(glm::radians(m_camYaw)) * cos(glm::radians(m_camPitch));
-
-	m_camFace = glm::normalize(face);
+	
+	m_camFace.x = cos(glm::radians(m_camYaw)) * cos(glm::radians(m_camPitch));
+	m_camFace.y = sin(glm::radians(m_camPitch));
+	m_camFace.z = sin(glm::radians(m_camYaw)) * cos(glm::radians(m_camPitch));
+	m_camFace = glm::normalize(m_camFace);
 
 	m_camRight = glm::normalize(glm::cross(m_camFace, m_worldUp));
 	m_camUp = glm::normalize(glm::cross(m_camRight, m_camFace));
 }
 
-void Camera::mouse_callback(GLFWwindow* window)
+void Camera::resetCamera()
 {
-	// Instead of hard coding because the size of the window might change later on
+
+	int wSizeX, wSizeY;
+	glfwGetWindowSize(glfwGetCurrentContext(), &wSizeX, &wSizeY);
+	m_lastX = static_cast<float>(wSizeX / 2);
+	m_lastY = static_cast<float>(wSizeY / 2);
+	glfwSetCursorPos(glfwGetCurrentContext(), m_lastX, m_lastY);
+	m_camYaw = -90.0f;
+	m_camPitch = 0;
+	m_camFace = glm::vec3(0.0f, 0.0f, -1.0f);
+	calcVectors();
+}
+
+void Camera::updateMouseMovement()
+{
 	int wSizeX, wSizeY;
 	glfwGetWindowSize(glfwGetCurrentContext(), &wSizeX, &wSizeY);
 	m_lastX = static_cast<float>(wSizeX / 2);
 	m_lastY = static_cast<float>(wSizeY / 2);
 
-	glfwGetCursorPos(window, &m_xpos, &m_ypos);
-	glfwSetCursorPos(window, m_lastX, m_lastY);
+	glfwGetCursorPos(glfwGetCurrentContext(), &m_xpos, &m_ypos);
+	glfwSetCursorPos(glfwGetCurrentContext(), m_lastX, m_lastY);
 	if (this->m_firstMouse == true)
 	{
 		this->m_firstMouse = false;
@@ -40,7 +52,7 @@ void Camera::mouse_callback(GLFWwindow* window)
 
 	mouseControls(xoffset, yoffset, true);
 
-
+	m_viewMatrix = glm::lookAt(m_camPos, m_camPos + m_camFace, m_camUp);
 }
 
 Camera::Camera()
@@ -63,7 +75,9 @@ Camera::Camera()
 
 	setWindowSize(m_width, m_height);
 	calcVectors();
+	m_viewMatrix = glm::lookAt(m_camPos, m_camPos + m_camFace, m_camUp);
 	m_fpEnabled = true;
+	m_activeCamera = true;
 }
 
 Camera::~Camera()
@@ -112,7 +126,7 @@ void Camera::setProjMat(float widht, float height, float nearPlane, float farPla
 
 const glm::mat4 Camera::getViewMat() const
 {
-	return glm::lookAt(m_camPos, m_camPos + m_camFace, m_camUp);
+	return m_viewMatrix;
 }
 
 const glm::mat4& Camera::getProjMat() const
@@ -140,6 +154,21 @@ const float& Camera::getYaw() const
 	return m_camYaw;
 }
 
+const glm::vec3& Camera::getCamPos() const
+{
+	return m_camPos;
+}
+
+const bool& Camera::isFPEnabled() const
+{
+	return m_fpEnabled;
+}
+
+const bool& Camera::isCameraActive() const
+{
+	return m_activeCamera;
+}
+
 const glm::vec3& Camera::getCamFace()
 {
 	return m_camFace;
@@ -150,20 +179,21 @@ const glm::vec3& Camera::getCamRight()
 	return m_camRight;
 }
 
-GLFWwindow* Camera::getWindow()
-{
-	return glfwGetCurrentContext();
-}
-
 void Camera::setCameraPos(const glm::vec3& pos)
 {
 	m_camPos = pos;
 }
 
-void Camera::update(GLFWwindow* window)
+void Camera::lookAt(const glm::vec3& position)
 {
-	if (m_fpEnabled) {
-		mouse_callback(window);
+	glm::vec3 dir = glm::normalize(position - m_camPos);
+	m_viewMatrix = glm::lookAt(m_camPos, m_camPos + dir, glm::vec3(0.0f, 1.0f, 0.0f));
+}
+
+void Camera::update()
+{
+	if (m_fpEnabled && m_activeCamera) {
+		updateMouseMovement();
 	}
 }
 
@@ -175,7 +205,11 @@ void Camera::enableFP(const bool& fpEnable) {
 		glfwGetWindowSize(glfwGetCurrentContext(), &wSizeX, &wSizeY);
 		m_lastX = static_cast<float>(wSizeX / 2);
 		m_lastY = static_cast<float>(wSizeY / 2);
-
 		glfwSetCursorPos(glfwGetCurrentContext(), m_lastX, m_lastY);
 	}
+}
+
+void Camera::disableCameraMovement(const bool condition)
+{
+	m_activeCamera = !condition;
 }

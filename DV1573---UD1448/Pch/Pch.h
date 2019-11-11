@@ -1,6 +1,7 @@
 #ifndef _PCH_H
 #define _PCH_H
 
+#include <System/DeltaTime.h>
 #include "Bullet/btBulletDynamicsCommon.h"
 
 #include <iostream>
@@ -32,6 +33,8 @@
 #include <System/Lerp.h>
 
 #include "System/Log.h"
+#include "System/Randomizer.h"
+
 //Raknet
 #include <raknet/MessageIdentifiers.h>
 #include <raknet/RakPeerInterface.h>
@@ -42,6 +45,7 @@
 #include <RakNet/NetworkIDObject.h>
 #include <RakNet/NetworkIDManager.h>
 
+#include <Pickups/PickupTypes.h>
 #include <Networking/NetworkGlobals.h>
 #include <Networking/NetworkPackets.h>
 
@@ -50,7 +54,7 @@
 
 
 //Custom
-#include <Renderer/HudTextureMap.h>
+#include <HUD/HudTextureMap.h>
 #include <Mesh/MeshFormat.h>
 #include <Mesh/Mesh.h>
 #include <Mesh/MeshMap.h>

@@ -15,7 +15,6 @@ public:
 	const int& getType() const { return m_type; }
 	
 	//----Set-----//
-
 	void setUniqueID(const uint64_t& uniqueID);
 	void setTravelTime(float m_travelTime);
 	void setDirection(glm::vec3 m_direction);
@@ -33,8 +32,4 @@ private:
 	float m_travelTime;
 	glm::vec3 m_direction;
 
-protected:
-
-	int m_type;
-	
 };

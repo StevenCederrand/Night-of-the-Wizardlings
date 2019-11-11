@@ -9,7 +9,7 @@
 
 PlayState::PlayState()
 {
-	m_bPhysics = new BulletPhysics(-10);
+	m_bPhysics = new BulletPhysics(-20);
 	m_spellHandler = new SpellHandler(m_bPhysics);
 	m_spellHandler->setOnHitCallback(std::bind(&PlayState::onSpellHit_callback, this));
 	
@@ -23,63 +23,17 @@ PlayState::PlayState()
 	m_skybox = new SkyBox();
 	m_skybox->prepareBuffers();
 
-	// HUD
-	m_hitCrosshair = new HudObject("Assets/Textures/Crosshair_hit.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(32.0f, 32.0f));
-	m_hitCrosshair->setAlpha(0.0f);
-	Renderer::getInstance()->submit2DHUD(m_hitCrosshair);
-	m_crosshairHUD = new HudObject("Assets/Textures/Crosshair.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(32.0f, 32.0f));
-	m_crosshairHUD->setAlpha(1.0f);
-	Renderer::getInstance()->submit2DHUD(m_crosshairHUD);
+	m_deflectBox = new DeflectRender();
+	m_deflectBox->prepareBuffers();
 
-	m_deflectCrosshairHUD = new HudObject("Assets/Textures/Crosshair_deflect.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(32.0f, 32.0f));
-	m_deflectCrosshairHUD->setAlpha(0.0f);
-	Renderer::getInstance()->submit2DHUD(m_deflectCrosshairHUD);
-
-
-	m_damageOverlay = new HudObject("Assets/Textures/DamageOverlay.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(static_cast<float>(SCREEN_WIDTH), (static_cast<float>(SCREEN_HEIGHT))));
-	m_damageOverlay->setAlpha(0.0f);
-	Renderer::getInstance()->submit2DHUD(m_damageOverlay);
 	m_player->setHealth(NetGlobals::maxPlayerHealth);
-
-	//Test enviroment with 4 meshes inside 1 GameObject, inherited transforms
-	//m_objects.push_back(new WorldObject("TestScene"));
-	//m_objects[m_objects.size() - 1]->loadMesh("TestScene.mesh");
-	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
-
-	//Cube and sphere centered in scene
-	//m_objects.push_back(new WorldObject("TestCube"));
-	//m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
-	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 0.0f, 0.0f));
-	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
-
-	//m_objects.push_back(new WorldObject("TestSphere"));
-	//m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
-	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -4.0f));
-	////m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 1.0f, -2.0f));
-	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
 	m_objects.push_back(new WorldObject("internalTestmap"));
 	m_objects[m_objects.size() - 1]->loadMesh("internalTestmap.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -1.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 	
-	//Animated rectangle
-	//m_objects.push_back(new AnimatedObject("TestRectangle"));
-	//m_objects[m_objects.size() - 1]->loadMesh("TestRectangle.mesh");
-	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, -4.0f));
-	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
-	
-	//Animated goblino
-	//m_objects.push_back(new AnimatedObject("TestGoblino"));
-	//m_objects[m_objects.size() - 1]->loadMesh("ElGoblino.mesh");
-	//Transform tempTransform;
-	//tempTransform.scale = glm::vec3(0.03f, 0.03f, 0.03f);
-	//tempTransform.position = glm::vec3(-3.0f, 0.0f, 3.0f);
-	//m_objects[m_objects.size() - 1]->setTransform(tempTransform);
-	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
 
-	
 	gContactAddedCallback = callbackFunc;
 	// Geneterate bullet objects / hitboxes
 	for (size_t i = 0; i < m_objects.size(); i++)
@@ -91,11 +45,11 @@ PlayState::PlayState()
 	if(Client::getInstance()->isInitialized())
 		Client::getInstance()->assignSpellHandler(m_spellHandler);
 
+	m_hideHUD = false;
 }
 
 PlayState::~PlayState()
 {
-
 	for (GameObject* object : m_objects)
 		delete object;
 	
@@ -107,10 +61,7 @@ PlayState::~PlayState()
 	delete m_bPhysics;
 	delete m_spellHandler;
 	delete m_camera;
-	delete m_crosshairHUD;
-	delete m_deflectCrosshairHUD;
-	delete m_hitCrosshair;
-	delete m_damageOverlay;
+	delete m_deflectBox;
 	if (LocalServer::getInstance()->isInitialized()) {
 		LocalServer::getInstance()->destroy();
 	}
@@ -118,6 +69,7 @@ PlayState::~PlayState()
 	if (Client::getInstance()->isInitialized()) {
 		Client::getInstance()->destroy();
 	}
+	
 }
 
 void PlayState::update(float dt)
@@ -127,59 +79,206 @@ void PlayState::update(float dt)
 	m_player->update(dt);
 	m_spellHandler->spellUpdate(dt);
 
-	if (m_player->isDeflecting()) {
-		m_crosshairHUD->setAlpha(0.0f);
-		m_deflectCrosshairHUD->setAlpha(1.0f);
-	}
-	else
-	{
-		m_crosshairHUD->setAlpha(1.0f);
-		m_deflectCrosshairHUD->setAlpha(0.0f);
-	}
+	//m_hpBar->setYClip(m_player->getHealth() / 100);
+	auto* clientPtr = Client::getInstance();
+	for (PlayerEvents evnt = clientPtr->readNextEvent(); evnt != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
 
-	if (Client::getInstance()->getMyData().health != m_player->getHealth())
-	{
-		if (Client::getInstance()->getMyData().health == NetGlobals::maxPlayerHealth && m_player->getHealth() == 0)
-			m_damageOverlay->setAlpha(0.0f);
-		else
-			m_damageOverlay->setAlpha(1.0f);
+		switch (evnt) {
 
-		m_player->setHealth(Client::getInstance()->getMyData().health);
+			case PlayerEvents::Died: 
+			{
+
+				logWarning("[Event system] Died");
+				m_lastPositionOfMyKiller = clientPtr->getLatestPlayerThatHitMe()->position;
+				m_camera->disableCameraMovement(true);
+				//m_crosshairHUD->setAlpha(0.0f);
+				//m_deflectCrosshairHUD->setAlpha(0.0f);
+				break;
+			}
+
+			case PlayerEvents::Respawned:
+			{
+				logWarning("[Event system] Respawned");
+				m_player->setPlayerPos(Client::getInstance()->getMyData().latestSpawnPosition);
+				m_camera->resetCamera();
+				m_camera->disableCameraMovement(false);
+				//m_crosshairHUD->setAlpha(1.0f);
+				//m_deflectCrosshairHUD->setAlpha(0.0f);
+				break;
+			}
+
+
+			case PlayerEvents::TookDamage:
+			{
+				logWarning("[Event system] Took damage");
+				m_hudHandler.getHudObject(DAMAGE_OVERLAY)->setAlpha(1.0f);
+				m_player->setHealth(Client::getInstance()->getMyData().health);
+				break;
+			}
+
+
+			case PlayerEvents::TookHeal:
+			{
+				logWarning("[Event system] Took a heal");
+				break;
+			}
+
+
+			case PlayerEvents::TookPowerup:
+			{
+				logWarning("[Event system] Took a powerup");
+				m_hudHandler.getHudObject(POWERUP)->setAlpha(1.0f);
+				break;
+			}
+
+			case PlayerEvents::PowerupRemoved:
+			{
+				logWarning("[Event system] Powerup was removed");
+				m_hudHandler.getHudObject(POWERUP)->setAlpha(0.0f);
+				break;
+			}
+
+		}
+
+
 	}
+	// Look at the killer when dead ( If he exist )
+	if (!m_camera->isCameraActive() && clientPtr->getMyData().health <= 0)
+	{	
+		const PlayerPacket* myKiller = clientPtr->getLatestPlayerThatHitMe();
 
-	if (m_damageOverlay->getAlpha() != 0)
-	{
-		m_damageOverlay->setAlpha(m_damageOverlay->getAlpha() - dt);
-	}
+		if (myKiller != nullptr) {
+			glm::vec3 lookPos =  CustomLerp(m_lastPositionOfMyKiller, myKiller->position, DeltaTime);
+			m_camera->lookAt(lookPos);
 
-	if (m_hitCrosshair->getAlpha() > 0.0f) {
-		m_hitCrosshair->setAlpha(m_hitCrosshair->getAlpha() - dt);
-		
-		if (m_hitCrosshair->getAlpha() < 0.0f) {
-			m_hitCrosshair->setAlpha(0.0f);
+			m_lastPositionOfMyKiller = lookPos;
 		}
 	}
+	
 
+	// Update game objects
 	for (GameObject* object : m_objects)
 	{
 		object->update(dt);
 	}
-
-	//Enable GUI
+	
 	GUIHandler();
+	if (!m_hideHUD) {
+		HUDHandler();
+	}
+
+	//if (Input::isKeyPressed(GLFW_KEY_K)) {
+	//	NotificationText t;
+	//	t.alphaColor = 1.0f;
+	//	t.width = 0;
+	//	t.scale = glm::vec3(0.35f);
+	//	t.useAlpha = false;
+	//	t.lifeTimeInSeconds = 5.0f;
+
+	//	glm::vec3 playerColor = glm::vec3(1.0f, 0.5f, 0.0f);
+
+	//	std::string killername = std::string("sdddddddddddddd");
+	//	t.width += Renderer::getInstance()->getTextWidth(killername, t.scale);
+	//	t.textParts.emplace_back(killername, playerColor);
+
+	//	std::string text = std::string(" killed ");
+	//	t.width += Renderer::getInstance()->getTextWidth(text, t.scale);
+	//	t.textParts.emplace_back(text, glm::vec3(1.0f, 1.0f, 1.0f));
+
+	//	std::string deadguyName = std::string("aqwsdergftyuiop");
+	//	t.width += Renderer::getInstance()->getTextWidth(deadguyName, t.scale);
+	//	t.textParts.emplace_back(deadguyName, playerColor);
+	//	
+	//	Renderer::getInstance()->addKillFeed(t);
+	//	
+	//}
+	//if (Input::isKeyPressed(GLFW_KEY_L)) {
+	//	NotificationText t;
+	//	t.alphaColor = 1.0f;
+	//	t.width = 0;
+	//	t.scale = glm::vec3(0.60f);
+	//	t.useAlpha = true;
+	//	t.lifeTimeInSeconds = 6.0f;
+
+	//	
+	//	std::string type = "Test notification ";
+	//	glm::vec3 color = glm::vec3(1.0f, 0.2f, 0.2f);
+	//	t.width += Renderer::getInstance()->getTextWidth(type, t.scale);
+	//	t.textParts.emplace_back(type, color);
+	//	
+	//	std::string text = "is being tested af!";
+	//	t.width += Renderer::getInstance()->getTextWidth(text, t.scale);
+	//	glm::vec3 locColor = glm::vec3(1.0f, 1.0f, 1.0f);
+	//	t.textParts.emplace_back(text, locColor);
+
+	//	Renderer::getInstance()->addBigNotification(t);
+	//	
+	//}
 
 }
 
 void PlayState::render()
 {
-	Renderer::getInstance()->render(m_skybox, m_spellHandler);
+	Renderer::getInstance()->render(m_skybox, m_deflectBox, m_spellHandler);
 	//Renderer::getInstance()->renderDebug();
 }
 
 void PlayState::onSpellHit_callback()
 {
-	m_hitCrosshair->setAlpha(1.0f);
+	m_hudHandler.getHudObject(CROSSHAIR_HIT)->setAlpha(1.0f);
 }
+
+void PlayState::HUDHandler() {
+	//HP bar
+	m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(m_player->getHealth()) / 100);
+	
+	if (m_player->getAttackCooldown() > 0) {
+		m_hudHandler.getHudObject(SPELL_ARCANE)->setGrayscale(1);
+	}
+	else {
+		m_hudHandler.getHudObject(SPELL_ARCANE)->setGrayscale(0);
+	}
+	
+	if (m_player->getSpecialCooldown() > 0) {
+		m_hudHandler.getHudObject(SPELL_SPECIAL)->setGrayscale(1);
+	}
+	else {
+		m_hudHandler.getHudObject(SPELL_SPECIAL)->setGrayscale(0);
+	}
+
+	if (m_player->getDeflectCooldown() > 0) {
+		m_hudHandler.getHudObject(SPELL_DEFLECT)->setGrayscale(1);
+	}
+	else {
+		m_hudHandler.getHudObject(SPELL_DEFLECT)->setGrayscale(0);
+	}
+		
+	//Deflect
+	if (m_player->isDeflecting()) {
+		m_hudHandler.getHudObject(CROSSHAIR)->setAlpha(0.0f);
+		m_hudHandler.getHudObject(CROSSHAIR_DEFLECT)->setAlpha(1.0f);
+	}
+	else
+	{
+		m_hudHandler.getHudObject(CROSSHAIR)->setAlpha(1.0f);
+		m_hudHandler.getHudObject(CROSSHAIR_DEFLECT)->setAlpha(0.0f);
+	}
+	//Damage Overlay
+	
+	if (m_hudHandler.getHudObject(DAMAGE_OVERLAY)->getAlpha() != 0)
+	{
+		m_hudHandler.getHudObject(DAMAGE_OVERLAY)->setAlpha(m_hudHandler.getHudObject(DAMAGE_OVERLAY)->getAlpha() - DeltaTime);
+	}
+	//Hitmarker
+	if (m_hudHandler.getHudObject(CROSSHAIR_HIT)->getAlpha() > 0.0f) {
+		m_hudHandler.getHudObject(CROSSHAIR_HIT)->setAlpha(m_hudHandler.getHudObject(CROSSHAIR_HIT)->getAlpha() - DeltaTime);
+
+		if (m_hudHandler.getHudObject(CROSSHAIR_HIT)->getAlpha() < 0.0f) {
+			m_hudHandler.getHudObject(CROSSHAIR_HIT)->setAlpha(0.0f);
+		}
+	}
+}
+
 
 void PlayState::GUIHandler()
 {
@@ -256,7 +355,6 @@ void PlayState::GUILoadScoreboard() {
 		m_scoreboardExists = true;
 	}
 }
-
 
 void PlayState::GUILoadButtons()
 {

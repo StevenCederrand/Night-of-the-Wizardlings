@@ -190,6 +190,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="HUD\HudHandler.cpp" />
     <ClCompile Include="Mesh\AnimationMap.cpp" />
     <ClCompile Include="Mesh\MeshMap.cpp" />
     <ClCompile Include="Networking\Client.cpp" />
@@ -212,13 +213,17 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pch.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="Pickups\HealthPickup.cpp" />
+    <ClCompile Include="Pickups\Pickup.cpp" />
+    <ClCompile Include="Networking\NetworkPickups.cpp" />
     <ClCompile Include="Player\Player.cpp" />
     <ClCompile Include="Renderer\BloomBlur.cpp" />
     <ClCompile Include="Renderer\Camera.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Renderer\HudObject.cpp" />
-    <ClCompile Include="Renderer\HudTextureMap.cpp" />
+    <ClCompile Include="HUD\HudObject.cpp" />
+    <ClCompile Include="HUD\HudTextureMap.cpp" />
+    <ClCompile Include="Renderer\DeflectRender.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
@@ -285,6 +290,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="HUD\HudHandler.h" />
     <ClInclude Include="Mesh\AnimationMap.h" />
     <ClInclude Include="Mesh\MeshMap.h" />
     <ClInclude Include="Networking\Client.h" />
@@ -300,15 +306,22 @@
     <ClInclude Include="Mesh\MeshFormat.h" />
     <ClInclude Include="Networking\NetworkPlayers.h" />
     <ClInclude Include="Networking\NetworkSpells.h" />
+    <ClInclude Include="Networking\PlayerEvents.h" />
     <ClInclude Include="Pch\Pch.h" />
+    <ClInclude Include="Pickups\HealthPickup.h" />
+    <ClInclude Include="Pickups\Pickup.h" />
+    <ClInclude Include="Networking\NetworkPickups.h" />
+    <ClInclude Include="Pickups\PickupTypes.h" />
     <ClInclude Include="Player\Player.h" />
+    <ClInclude Include="Renderer\NotificationStructure.h" />
+    <ClInclude Include="Renderer\DeflectRender.h" />
     <ClInclude Include="Spells\ReflectSpell.h" />
     <ClInclude Include="Renderer\BloomBlur.h" />
     <ClInclude Include="Renderer\Camera.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Renderer\HudObject.h" />
-    <ClInclude Include="Renderer\HudTextureMap.h" />
+    <ClInclude Include="HUD\HudObject.h" />
+    <ClInclude Include="HUD\HudTextureMap.h" />
     <ClInclude Include="Renderer\Renderer.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
@@ -342,9 +355,11 @@
     <ClInclude Include="States\PlayState.h" />
     <ClInclude Include="System\Application.h" />
     <ClInclude Include="System\BulletPhysics.h" />
+    <ClInclude Include="System\DeltaTime.h" />
     <ClInclude Include="System\Input.h" />
     <ClInclude Include="System\Lerp.h" />
     <ClInclude Include="System\Log.h" />
+    <ClInclude Include="System\Randomizer.h" />
     <ClInclude Include="System\State.h" />
     <ClInclude Include="System\StateManager.h" />
     <ClInclude Include="System\TimedCallback.h" />
