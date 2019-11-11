@@ -74,6 +74,7 @@ private:
 	std::vector<GameObject*> m_spells; 
 
 	std::vector<GameObject*> m_pickups;
+	std::vector<GameObject*> m_shieldObject;
 	std::vector<GameObject*> m_deflectObject;
 
 	std::unordered_map<GLuint, std::vector<HudObject*>> m_2DHudMap;
