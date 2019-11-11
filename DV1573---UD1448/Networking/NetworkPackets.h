@@ -29,7 +29,8 @@ enum {
 	HEAL_BUFF,
 	DAMAGE_BUFF_ACTIVE,
 	DAMAGE_BUFF_INACTIVE,
-	KILL_FEED
+	KILL_FEED,
+	SERVER_TIME
 };
 
 /* To make sure the compiler aligns the bits */
@@ -188,6 +189,14 @@ struct ServerStateChange {
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
 		stream.Serialize(writeToStream, currentState);
+	}
+};
+
+struct ServerTimePacket {
+	uint32_t serverTimestamp;
+
+	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
+		stream.Serialize(writeToStream, serverTimestamp);
 	}
 };
 

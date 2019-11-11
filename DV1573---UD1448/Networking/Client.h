@@ -6,6 +6,7 @@
 #include "NetworkSpells.h"
 #include "NetworkPickups.h"
 #include "PlayerEvents.h"
+#include <System/TimedCallback.h>
 
 class Player;
 
@@ -35,8 +36,16 @@ public:
 	void startSendingUpdatePackages();
 	void assignSpellHandler(SpellHandler* spellHandler);
 	void setUsername(const std::string& userName);
+	
+	void updatePlayersMutexGuard();
+	void updateSpellsMutexGuard();
+	void updatePickupsMutexGuard();
+	void eventMutexGuard();
+	void cleanupMutexGuard();
+	void deflectSpellsMutexGuard();
 	void renderPickupNotificationsMutexGuard();
 	void renderKillFeedMutexGuard();
+
 
 	const std::vector<std::pair<unsigned int, ServerInfo>>& getServerList() const;
 	const std::vector<PlayerPacket>& getConnectedPlayers() const;
@@ -66,11 +75,10 @@ private:
 
 	void updateDataOnServer();
 	void findAllServerAddresses();
-	
 	void removeActiveSpell(const SpellPacket& packet);
 	void removeConnectedPlayer(const RakNet::AddressOrGUID& guid);
-	
 	void resetPlayerData();
+	void routineCleanup(); // this is a callback func for routineCallbackTimer
 
 	SpellPacket* findActiveSpell(const SpellPacket& packet);
 	PlayerPacket* findPlayerByGuid(const RakNet::AddressOrGUID& guid);
@@ -80,51 +88,55 @@ private:
 private:
 	RakNet::RakPeerInterface* m_clientPeer;
 	RakNet::SystemAddress m_serverAddress;
-	std::vector<std::pair<unsigned int, ServerInfo>> m_serverList;
+	
 	char m_userName[16] = { ' ' };
+	
 	bool m_inGame;
-
 	bool m_isRefreshingServerList;
 	bool m_isConnectedToAnServer;
 	bool m_failedToConnect;
 	bool m_serverOwner;
-
 	bool m_shutdownThread;
 	bool m_initialized = false;
-
 	bool m_sendUpdatePackages;
 
-	std::thread m_processThread;
-	
 	PlayerPacket m_myPlayerDataPacket;
 	PlayerPacket* m_latestPlayerThatHitMe;
 	ServerStateChange m_serverState;
 	CountdownPacket m_countDownPacket;
 	CountdownPacket m_respawnTime;
 	RoundTimePacket m_roundTimePacket;
+	
+	ServerTimePacket m_serverTimePacket;
 
-
-	std::vector<PlayerPacket> m_connectedPlayers;
 	NetworkPlayers m_networkPlayers;
 	NetworkSpells m_networkSpells;
 	NetworkPickups* m_networkPickup;
-
-	std::mutex m_cleanupMutex;
 	
 	SpellHandler* m_spellHandler;
 
+	std::thread m_processThread;
+
+	std::vector<std::pair<unsigned int, ServerInfo>> m_serverList;
+	std::vector<PlayerPacket> m_connectedPlayers;
 	std::vector<SpellPacket> m_activeSpells;
 	std::vector<HitPacket> m_spellsHitQueue;
 	std::vector<SpellPacket> m_updateSpellQueue;
 	std::vector<SpellPacket> m_removeOrAddSpellQueue;
 	std::vector<SpellPacket> m_removalOfClientSpellsQueue;
+	std::vector<PlayerEvents> m_playerEvents;
 	
+	std::mutex m_cleanupMutex;
+	std::mutex m_updatePickupsMutex;
+	std::mutex m_updatePlayersMutex;
+	std::mutex m_updateSpellsMutex;
+	std::mutex m_playerEventMutex;
+	std::mutex m_deflectSpellMutex;
 	std::mutex m_renderPickupNotificationMutex;
 	std::mutex m_renderKillFeedMutex;
 
-	std::vector<PlayerEvents> m_playerEvents;
-	std::mutex m_playerEventMutex;
-	
+	TimedCallback m_routineCleanupTimer;
+
 };
 
 #endif
