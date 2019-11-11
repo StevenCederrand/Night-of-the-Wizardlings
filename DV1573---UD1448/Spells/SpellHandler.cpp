@@ -402,6 +402,23 @@ void SpellHandler::spellCollisionCheck()
 						spells[j]->setTravelTime(0.0f);
 						Client::getInstance()->sendHitRequest(*spells[j], list[i]);
 
+
+						logTrace("OldPos x: " + std::to_string(lastSpellPos.x)
+							+ " y: " + std::to_string(lastSpellPos.y)
+							+ " z: " + std::to_string(lastSpellPos.z));
+
+						interpolationPos = lastSpellPos;
+						for (size_t l = 0; l < m_nrSubSteps; l++)
+						{
+							interpolationPos += line;
+							logTrace("Walking spell Pos x: " + std::to_string(interpolationPos.x)
+								+ " y: " + std::to_string(interpolationPos.y)
+								+ " z: " + std::to_string(interpolationPos.z));
+							float temp = glm::length(interpolationPos - playerPos);
+							logTrace("Length of the spell: " + std::to_string(temp));
+						}
+						logTrace(" ");
+
 						if (m_onHitCallback != nullptr) {
 							m_onHitCallback();
 						}

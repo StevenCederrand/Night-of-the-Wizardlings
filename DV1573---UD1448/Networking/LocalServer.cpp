@@ -626,7 +626,7 @@ bool LocalServer::specificSpellCollision(const SpellPacket& spellPacket, const g
 	
 
 	//line is the walking we will do.
-	float nrSubStep = 6;
+	float nrSubStep = 6.0f;
 	glm::vec3 line = (spellPacket.Position - spellPacket.LastPosition) / nrSubStep;
 	glm::vec3 interpolationPos = spellPacket.LastPosition;
 
@@ -642,6 +642,23 @@ bool LocalServer::specificSpellCollision(const SpellPacket& spellPacket, const g
 			collision = true;
 		}
 	}
+	logTrace("OldPos x: " + std::to_string(spellPacket.LastPosition.x)
+		+ " y: " + std::to_string(spellPacket.LastPosition.y)
+		+ " z: " + std::to_string(spellPacket.LastPosition.z));
+
+	interpolationPos = spellPacket.LastPosition;
+	for (size_t l = 0; l < nrSubStep; l++)
+	{
+		interpolationPos += line;
+		logTrace("Walking spell Pos x: " + std::to_string(interpolationPos.x)
+			+ " y: " + std::to_string(interpolationPos.y)
+			+ " z: " + std::to_string(interpolationPos.z));
+		float temp = glm::length(interpolationPos - playerPos);
+		logTrace("Length of the spell: " + std::to_string(temp));
+	}
+	logTrace(" ");
+
+
 	return collision;
 }
 
