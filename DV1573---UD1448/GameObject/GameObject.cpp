@@ -5,7 +5,7 @@
 GameObject::GameObject()
 {
 	m_objectName = "Empty";
-	type = 0;
+	m_type = 0;
 	m_bPhysics = nullptr;
 	m_shouldRender = true;
 }
@@ -13,7 +13,7 @@ GameObject::GameObject()
 GameObject::GameObject(std::string objectName)
 {
 	m_objectName = objectName;
-	type = 0;
+	m_type = 0;
 	m_bPhysics = nullptr;
 }
 
@@ -160,7 +160,7 @@ const bool& GameObject::getShouldRender() const
 	return m_shouldRender;
 }
 
-const glm::vec3 GameObject::getlastPosition()
+const glm::vec3 GameObject::getLastPosition() const
 {
 	return m_lastPosition;
 }
@@ -296,7 +296,10 @@ void GameObject::bindMaterialToShader(Shader* shader, const std::string& materia
 {
 	shader->setMaterial(materialName);
 }
-
+void GameObject::bindMaterialToShader(Shader* shader, Material* material)
+{
+	shader->setMaterial(material);
+}
 void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 {
 	if (!m_bPhysics)

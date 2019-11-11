@@ -14,12 +14,12 @@ public:
 	int callTexture(std::string textureName);
 	const int& Program() const;
 	void setVec3(std::string name, glm::vec3 vec);
-
+	void setVec4(std::string name, glm::vec4 vec);
 	void setMat4(std::string name, glm::mat4 mat);
 	GLint getUniformLocation(std::string locationName);
 	int getShaderID() const;
 	void setInt(std::string name, int num);
-
+	void setFloat(std::string name, float f);
 
 private:
 

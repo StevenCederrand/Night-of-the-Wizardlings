@@ -102,6 +102,25 @@ void HUDShader::setVec3(std::string name, glm::vec3 vec)
 	glUniform3fv(uniformLoc, 1, &vec[0]);
 }
 
+void HUDShader::setVec4(std::string name, glm::vec4 vec)
+{
+	GLint uniformLoc = getUniformLocation(name);
+	if (uniformLoc == -1)
+	{
+		uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
+
+		if (uniformLoc == -1)
+		{
+			logError("Could not find uniform {0}", name);
+			return;
+		}
+
+		m_IDMap[name] = uniformLoc; //Save the ID to the hashmap
+	}
+
+	glUniform4fv(uniformLoc, 1, &vec[0]);
+}
+
 void HUDShader::setMat4(std::string name, glm::mat4 mat)
 {
 	GLint uniformLoc = getUniformLocation(name);
@@ -154,6 +173,25 @@ void HUDShader::setInt(std::string name, int num)
 	}
 
 	glUniform1i(uniformLoc, num);
+}
+
+void HUDShader::setFloat(std::string name, float f)
+{
+	GLint uniformLoc = getUniformLocation(name);
+	if (uniformLoc == -1)
+	{
+		uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
+
+		if (uniformLoc == -1)
+		{
+			logError("Could not find uniform {0}", name);
+			return;
+		}
+
+		m_IDMap[name] = uniformLoc; //Save the ID to the hashmap
+	}
+
+	glUniform1f(uniformLoc, f);
 }
 
 void HUDShader::shaderSetup(std::string shaderName, unsigned int& shader)

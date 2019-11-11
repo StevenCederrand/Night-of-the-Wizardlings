@@ -57,12 +57,12 @@ void NetworkPlayers::update(const float& dt)
 			/* Don't render the player if he's dead */
 			if (p.data.health <= 0.0f || p.data.hasBeenUpdatedOnce == false)
 				g->setShouldRender(false);
-			else
+			else {
 				g->setShouldRender(true);
-
+			}
 			
-
 			glm::vec3 pos = CustomLerp(g->getTransform().position, p.data.position, m_lerpSpeed * dt);
+			
 			g->setWorldPosition(pos);
 			g->setTransform(pos, glm::quat(p.data.rotation), glm::vec3(1.0f));
 		}

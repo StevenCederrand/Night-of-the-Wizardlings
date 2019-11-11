@@ -33,6 +33,9 @@ public:
 	void setHealth(int health);
 	void setSpeed(float speed);
 	void logicStop(const bool& stop);
+	const float& getAttackCooldown() const;
+	const float& getSpecialCooldown() const;
+	const float& getDeflectCooldown() const;
 
 private:
 	void move(float deltaTime); 
@@ -53,7 +56,7 @@ private:
 	SPELL_TYPE m_specialSpellType3;
 	
 	float m_attackCooldown;
-	float m_specialCooldown;
+	float m_deflectCooldown;
 	float m_special2Cooldown;
 	float m_special3Cooldown;
 

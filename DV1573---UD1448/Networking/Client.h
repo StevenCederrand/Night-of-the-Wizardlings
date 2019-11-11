@@ -4,6 +4,8 @@
 #include <Spells/Spell.h>
 #include "NetworkPlayers.h"
 #include "NetworkSpells.h"
+#include "NetworkPickups.h"
+#include "PlayerEvents.h"
 
 class Player;
 
@@ -33,6 +35,8 @@ public:
 	void startSendingUpdatePackages();
 	void assignSpellHandler(SpellHandler* spellHandler);
 	void setUsername(const std::string& userName);
+	void renderPickupNotificationsMutexGuard();
+	void renderKillFeedMutexGuard();
 
 	const std::vector<std::pair<unsigned int, ServerInfo>>& getServerList() const;
 	const std::vector<PlayerPacket>& getConnectedPlayers() const;
@@ -43,11 +47,12 @@ public:
 	NetworkSpells& getNetworkSpellsREF();
 	
 	const PlayerPacket& getMyData() const;
+	const PlayerPacket* getLatestPlayerThatHitMe() const;
 	const ServerStateChange& getServerState() const;
 	const CountdownPacket& getCountdownPacket() const;
 	const CountdownPacket& getRespawnTime() const;
 	const RoundTimePacket& getRoundTimePacket() const;
-
+	const PlayerEvents readNextEvent();
 
 	const bool doneRefreshingServerList() const;
 	const bool doesServerExist(const unsigned int& ID) const;
@@ -55,9 +60,8 @@ public:
 	const bool& isConnectedToSever() const;
 	const bool& connectionFailed() const;
 	const bool& isServerOwner() const;
-
 private:
-	
+
 	unsigned char getPacketID(RakNet::Packet* p);
 
 	void updateDataOnServer();
@@ -69,7 +73,7 @@ private:
 	void resetPlayerData();
 
 	SpellPacket* findActiveSpell(const SpellPacket& packet);
-	
+	PlayerPacket* findPlayerByGuid(const RakNet::AddressOrGUID& guid);
 	NetworkSpells::SpellEntity* findSpellEntityInNetworkSpells(const SpellPacket& packet);
 	NetworkPlayers::PlayerEntity* findPlayerEntityInNetworkPlayers(const RakNet::AddressOrGUID& guid);
 
@@ -93,6 +97,7 @@ private:
 	std::thread m_processThread;
 	
 	PlayerPacket m_myPlayerDataPacket;
+	PlayerPacket* m_latestPlayerThatHitMe;
 	ServerStateChange m_serverState;
 	CountdownPacket m_countDownPacket;
 	CountdownPacket m_respawnTime;
@@ -102,7 +107,8 @@ private:
 	std::vector<PlayerPacket> m_connectedPlayers;
 	NetworkPlayers m_networkPlayers;
 	NetworkSpells m_networkSpells;
-	
+	NetworkPickups* m_networkPickup;
+
 	std::mutex m_cleanupMutex;
 	
 	SpellHandler* m_spellHandler;
@@ -112,7 +118,13 @@ private:
 	std::vector<SpellPacket> m_updateSpellQueue;
 	std::vector<SpellPacket> m_removeOrAddSpellQueue;
 	std::vector<SpellPacket> m_removalOfClientSpellsQueue;
+	
+	std::mutex m_renderPickupNotificationMutex;
+	std::mutex m_renderKillFeedMutex;
 
+	std::vector<PlayerEvents> m_playerEvents;
+	std::mutex m_playerEventMutex;
+	
 };
 
 #endif

@@ -41,14 +41,12 @@ void SpellHandler::initAttackSpell()
 	attackBase->m_material->diffuse = glm::vec3(0.65f, 1.0f, 1.0f);
 	attackBase->m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
 
-	attackBase->m_damage = 34;
-	attackBase->m_speed = 100;
-	attackBase->m_radius = 0.5;
-	attackBase->m_coolDown = 1;
-	attackBase->m_lifeTime = 5;
-	attackBase->m_maxBounces = 3;
-
-
+	attackBase->m_damage = 3.0f;
+	attackBase->m_speed = 170.0f;
+	attackBase->m_radius = 0.5f;
+	attackBase->m_coolDown = 0.75f;
+	attackBase->m_lifeTime = 5.0f;
+	attackBase->m_maxBounces = 3.0f;
 }
 
 void SpellHandler::initEnhanceSpell()
@@ -75,7 +73,7 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase->m_material->ambient = glm::vec3(0.85f, 0.3f, 0.2f);
 
 	enhanceAtkBase->m_damage = 34.0f;
-	enhanceAtkBase->m_speed = 120.0f;
+	enhanceAtkBase->m_speed = 180.0f;
 	enhanceAtkBase->m_radius = 0.5f;
 	enhanceAtkBase->m_coolDown = 1.0f;
 	enhanceAtkBase->m_lifeTime = 5.0f;
@@ -377,7 +375,7 @@ void SpellHandler::spellCollisionCheck()
 		{
 			for (size_t j = 0; j < spells.size(); j++)
 			{
-				glm::vec3 lastSpellPos = spells.at(j)->getlastPosition();
+				glm::vec3 lastSpellPos = spells.at(j)->getLastPosition();
 				glm::vec3 spellPos = spells.at(j)->getTransform().position;
 
 				//get the radius from the spelltype
@@ -403,43 +401,6 @@ void SpellHandler::spellCollisionCheck()
 
 						spells[j]->setTravelTime(0.0f);
 						Client::getInstance()->sendHitRequest(*spells[j], list[i]);
-
-						//remove all the logtrace after review
-						logTrace("Hit on substep: " + std::to_string(k));
-						logTrace("Pos for player hit x: " 
-							+ std::to_string(playerPos.x)
-							+ " y: " + std::to_string(playerPos.y)
-							+ " z: " + std::to_string(playerPos.z));
-
-						logTrace("Pos for spell hit x: "
-							+ std::to_string(interpolationPos.x)
-							+ " y: " + std::to_string(interpolationPos.y)
-							+ " z: " + std::to_string(interpolationPos.z));
-
-						logTrace("OLDPos for spell x:"
-							+ std::to_string(lastSpellPos.x)
-							+ " y: " + std::to_string(lastSpellPos.y)
-							+ " z: " + std::to_string(lastSpellPos.z));
-
-						logTrace("Pos for the spell x:" 
-							+ std::to_string(spellPos.x)
-							+ " y: " + std::to_string(spellPos.y)
-							+ " z: " + std::to_string(spellPos.z));
-
-
-						interpolationPos = lastSpellPos;
-						for (size_t l = 0; l < m_nrSubSteps; l++)
-						{
-							interpolationPos += line;
-							logTrace("Walking spell Pos x: " + std::to_string(interpolationPos.x)
-								+ " y: " + std::to_string(interpolationPos.y)
-								+ " z: " + std::to_string(interpolationPos.z));
-
-							float temp = glm::length(interpolationPos - playerPos);
-
-							logTrace("Length of the spell: " + std::to_string(temp));
-						}
-						logTrace(" ");
 
 						if (m_onHitCallback != nullptr) {
 							m_onHitCallback();
@@ -519,6 +480,7 @@ float SpellHandler::OBBsqDist(glm::vec3& spherePos, std::vector<glm::vec3>& axis
 			max.x = fmaxf(vertices[i].position.x, max.x);
 			max.y = fmaxf(vertices[i].position.y, max.y);
 			max.z = fmaxf(vertices[i].position.z, max.z);
+
 		}
 		halfSize = glm::vec3((max - min) * 0.5f); // * scale
 		m_setcharacter = true;
@@ -580,7 +542,6 @@ void SpellHandler::REFLECTupdate(float deltaTime, int i)
 		if (reflectSpell->checkReflectCollision(spellList[i].Position, spellList[i].Direction, hitboxRadius))
 		{
 			createSpell(m_spawnerPos, m_spawnerDir, spellList[i].SpellType);
-			
 		}
 	}
 }
