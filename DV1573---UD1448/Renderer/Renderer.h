@@ -89,7 +89,6 @@ private:
 	glm::uvec2 workGroups;
 	
 
-	void renderHUD();
 	void renderPickupNotifications();
 	void createDepthMap();
 	void initShaders();
@@ -118,6 +117,7 @@ public:
 	void renderSkybox(SkyBox* skybox);
 	void render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandler* m_spellHandler);
 	//void renderSpell();
+	void renderHUD();
 	void renderDebug();
 	void addPickupNotificationText(PickupNotificationText notification);
 	unsigned int getTextWidth(const std::string& text, const glm::vec3& scale);

@@ -3,6 +3,21 @@
 
 HudHandler::HudHandler()
 {
+
+}
+
+HudHandler::~HudHandler()
+{
+	std::map<HUDID, HudObject*>::iterator it;
+
+	for (it = m_hudObjects.begin(); it != m_hudObjects.end(); it++) {
+		delete it->second;
+	}
+
+	m_hudObjects.clear();
+}
+
+void HudHandler::loadPlayStateHUD() {
 	// HUD
 	HudObject* hudObject = new HudObject("Assets/Textures/Crosshair_hit.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(32.0f, 32.0f));
 	hudObject->setAlpha(0.0f);
@@ -15,7 +30,7 @@ HudHandler::HudHandler()
 	hudObject = new HudObject("Assets/Textures/Crosshair_deflect.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(32.0f, 32.0f));
 	hudObject->setAlpha(0.0f);
 	insertHUDObject(hudObject, CROSSHAIR_DEFLECT);
-	
+
 	// ___ ICONS ___
 	hudObject = new HudObject("Assets/Textures/hud/Arcane_BG.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 4) * 3, static_cast<float>(64)), glm::vec2(80.0f, 80.0f));
 	hudObject->setAlpha(1.0f);
@@ -48,17 +63,6 @@ HudHandler::HudHandler()
 	hudObject = new HudObject("Assets/Textures/hud/DamageOverlay.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(static_cast<float>(SCREEN_WIDTH), (static_cast<float>(SCREEN_HEIGHT))));
 	hudObject->setAlpha(0.0f);
 	insertHUDObject(hudObject, DAMAGE_OVERLAY);
-}
-
-HudHandler::~HudHandler()
-{
-	std::map<HUDID, HudObject*>::iterator it;
-
-	for (it = m_hudObjects.begin(); it != m_hudObjects.end(); it++) {
-		delete it->second;
-	}
-
-	m_hudObjects.clear();
 }
 
 void HudHandler::fadeOut() {

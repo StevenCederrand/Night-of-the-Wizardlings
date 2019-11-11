@@ -49,6 +49,7 @@ PlayState::PlayState()
 	if(Client::getInstance()->isInitialized())
 		Client::getInstance()->assignSpellHandler(m_spellHandler);
 
+	m_hudHandler.loadPlayStateHUD();
 	m_hideHUD = false;
 }
 

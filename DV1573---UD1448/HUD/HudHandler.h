@@ -17,6 +17,8 @@ enum HUDID {
 	SPELL_SPECIAL,
 	SPELL_DEFLECT, 
 	POWERUP,
+	TITLE, 
+	BACKGROUND
 };
 
 class HudHandler {
@@ -24,6 +26,7 @@ public:
 	HudHandler();
 	~HudHandler();
 
+	void loadPlayStateHUD();
 	void insertHUDObject(HudObject* object, const HUDID& hudID);
 	void fadeOut();
 	void fadeIn();
