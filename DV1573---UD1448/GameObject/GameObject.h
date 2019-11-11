@@ -36,6 +36,7 @@ public:
 	void setWorldPosition(glm::vec3 worldPosition);
 	void translate(const glm::vec3& translationVector);
 	void setShouldRender(bool condition);
+	void setRestitution(float restitution);
 
 	//Get functions
 	const Transform getTransform() const;
