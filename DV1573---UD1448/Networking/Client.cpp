@@ -399,7 +399,15 @@ void Client::processAndHandlePackets()
 				SoundHandler::getInstance()->setSourcePosition(se.spellData.Position, BasicAttackSound, se.spellData.CreatorGUID);
 				SoundHandler::getInstance()->playSound(BasicAttackSound, se.spellData.CreatorGUID);
 				break;
-			}			
+			case SPELL_TYPE::REFLECT:
+				SoundHandler::getInstance()->setSourcePosition(se.spellData.Position, DeflectSound, se.spellData.CreatorGUID);
+				SoundHandler::getInstance()->playSound(DeflectSound, se.spellData.CreatorGUID);
+				break;
+			case SPELL_TYPE::ENHANCEATTACK:
+				SoundHandler::getInstance()->setSourcePosition(se.spellData.Position, EnhanceAttackSound, se.spellData.CreatorGUID);
+				SoundHandler::getInstance()->playSound(EnhanceAttackSound, se.spellData.CreatorGUID);
+				break;
+			}
 
 			{
 				std::lock_guard<std::mutex> lockGuard(m_networkSpells.m_mutex);
