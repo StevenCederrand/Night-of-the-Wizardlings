@@ -397,9 +397,9 @@ void Client::processAndHandlePackets()
 			{
 			case SPELL_TYPE::NORMALATTACK:
 				SoundHandler::getInstance()->setSourcePosition(se.spellData.Position, BasicAttackSound, se.spellData.CreatorGUID);
-				SoundHandler::getInstance()->playSound(BasicAttackSound, se.spellData.CreatorGUID);
+				SoundHandler::getInstance()->playSound(BasicAttackSound, se.spellData.CreatorGUID);				
 				break;
-			case SPELL_TYPE::REFLECT:
+			case SPELL_TYPE::REFLECT:				
 				SoundHandler::getInstance()->setSourcePosition(se.spellData.Position, DeflectSound, se.spellData.CreatorGUID);
 				SoundHandler::getInstance()->playSound(DeflectSound, se.spellData.CreatorGUID);
 				break;
