@@ -41,7 +41,7 @@ void SpellHandler::initAttackSpell()
 	attackBase->m_material->diffuse = glm::vec3(0.65f, 1.0f, 1.0f);
 	attackBase->m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
 
-	attackBase->m_damage = 3.0f;
+	attackBase->m_damage = 34.0f;
 	attackBase->m_speed = 170.0f;
 	attackBase->m_radius = 0.5f;
 	attackBase->m_coolDown = 0.75f;
