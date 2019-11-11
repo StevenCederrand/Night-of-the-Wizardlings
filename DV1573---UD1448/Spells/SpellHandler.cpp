@@ -47,6 +47,8 @@ void SpellHandler::initAttackSpell()
 	attackBase->m_coolDown = 1;
 	attackBase->m_lifeTime = 5;
 	attackBase->m_maxBounces = 3;
+
+
 }
 
 void SpellHandler::initEnhanceSpell()
@@ -472,30 +474,30 @@ bool SpellHandler::specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPo
 	return collision;
 }
 
-glm::vec3 SpellHandler::OBBclosestPoint(glm::vec3& spherePos, std::vector<glm::vec3>& axis, glm::vec3& playerPos)
-{
-	btVector3 box = m_bp->getCharacterSize();
-	//float boxSize = box.getX();
-	glm::vec3 boxSize = glm::vec3(box.getX(), box.getY(), box.getZ());
-
-	//closest point on obb
-	glm::vec3 boxPoint = playerPos;
-	glm::vec3 ray = glm::vec3(spherePos - playerPos);
-
-	for (int j = 0; j < 3; j++) {
-		float distance = glm::dot(ray, axis.at(j));
-		float distance2 = 0;
-
-		if (distance > boxSize[j])
-			distance2 = boxSize[j];
-
-		if (distance < -boxSize[j])
-			distance2 = -boxSize[j];
-		
-		boxPoint += distance2 * axis.at(j);
-	}
-	return boxPoint;
-}
+//glm::vec3 SpellHandler::OBBclosestPoint(glm::vec3& spherePos, std::vector<glm::vec3>& axis, glm::vec3& playerPos)
+//{
+//	btVector3 box = m_bp->getCharacterSize();
+//	//float boxSize = box.getX();
+//	glm::vec3 boxSize = glm::vec3(box.getX(), box.getY(), box.getZ());
+//
+//	//closest point on obb
+//	glm::vec3 boxPoint = playerPos;
+//	glm::vec3 ray = glm::vec3(spherePos - playerPos);
+//
+//	for (int j = 0; j < 3; j++) {
+//		float distance = glm::dot(ray, axis.at(j));
+//		float distance2 = 0;
+//
+//		if (distance > boxSize[j])
+//			distance2 = boxSize[j];
+//
+//		if (distance < -boxSize[j])
+//			distance2 = -boxSize[j];
+//		
+//		boxPoint += distance2 * axis.at(j);
+//	}
+//	return boxPoint;
+//}
 
 float SpellHandler::OBBsqDist(glm::vec3& spherePos, std::vector<glm::vec3>& axis, glm::vec3& playerPos)
 {	
