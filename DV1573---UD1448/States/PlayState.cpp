@@ -7,6 +7,10 @@
 
 #define PLAYSECTION "PLAYSTATE"
 
+void logVec3(glm::vec3 vector) {
+	logTrace("Vector: ({0}, {1}, {2})", std::to_string(vector.x), std::to_string(vector.y), std::to_string(vector.z));
+}
+
 PlayState::PlayState()
 {
 	m_bPhysics = new BulletPhysics(-20);
@@ -104,8 +108,8 @@ void PlayState::update(float dt)
 			{
 				logWarning("[Event system] Respawned");
 				//Update the HP bar 
-				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(m_player->getHealth()) / 100);
 				m_player->setPlayerPos(Client::getInstance()->getMyData().latestSpawnPosition);
+				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(m_player->getHealth()) / 100);
 				m_camera->resetCamera();
 				m_camera->disableCameraMovement(false);
 				break;
@@ -114,9 +118,12 @@ void PlayState::update(float dt)
 			case PlayerEvents::TookDamage:
 			{
 				logWarning("[Event system] Took damage");
+				glm::vec3 hitVector = Client::getInstance()->getLatestPlayerThatHitMe()->position - m_player->getPlayerPos();
+				logVec3(hitVector);
+
 				//Update the HP bar 
-				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(m_player->getHealth()) / 100);
 				m_player->setHealth(Client::getInstance()->getMyData().health);
+				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(m_player->getHealth()) / 100);
 				m_hudHandler.getHudObject(DAMAGE_OVERLAY)->setAlpha(1.0f);
 				break;
 			}
