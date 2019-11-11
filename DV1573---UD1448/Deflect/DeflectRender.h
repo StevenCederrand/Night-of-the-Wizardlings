@@ -6,9 +6,7 @@
 class DeflectRender : public Deflect
 {
 public:
-	DeflectRender(DeflectRenderInformation& renderInformation, const glm::vec3& position);
-	virtual ~DeflectRender();
-	virtual void update(float dt) override;
+
 private:
 
 };

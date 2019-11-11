@@ -225,6 +225,9 @@ void Renderer::submit(GameObject* gameObject, ObjectType objType)
 	else if (objType == PICKUP) {
 		m_pickups.emplace_back(gameObject);
 	}
+	else if (objType == SHIELD) {
+		m_deflectObject.emplace_back(gameObject);
+	}
 	
 }
 
@@ -592,6 +595,27 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 
 #pragma endregion
 
+#pragma region Deflect_Render
+	shader = shaderMap->useByName(FRESNEL);
+	bindMatrixes(shader);
+
+	for (GameObject* object : m_deflectObject)
+	{
+		for (int index = 0; index < object->getMeshesCount(); index++)
+		{
+			//Fetch the current mesh and its transform
+			mesh = meshMap->getMesh(object->getMeshName(index));
+			//Bind the material
+			object->bindMaterialToShader(shader, mesh->getMaterial());
+			modelMatrix = glm::mat4(1.0f);
+			shader->setMat4("modelMatrix", modelMatrix);
+			glBindVertexArray(mesh->getBuffers().vao);
+			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+			glBindVertexArray(0);
+		}
+	}
+
+#pragma endregion
 
 #pragma region Animation_Render
 	//TODO: Evaluate this implementation, should be an easier way to bind values to shaders as they're changed
