@@ -69,12 +69,11 @@ void Client::connectToAnotherServer(const ServerInfo& server)
 	assert((status == true, "[CLIENT] Client connecting to {0} failed!", server.serverName));
 
 	if (m_processThread.joinable()) {
-		m_processThread.join();
+		m_processThread.join();		
 	}
 
 	m_clientPeer->SetTimeoutTime(NetGlobals::timeoutTimeMS, server.serverAddress);
-	m_processThread = std::thread(&Client::ThreadedUpdate, this);
-	
+	m_processThread = std::thread(&Client::ThreadedUpdate, this);	
 }
 
 void Client::connectToMyServer()
@@ -88,10 +87,10 @@ void Client::connectToMyServer()
 	assert((status == true, "Client connecting to localhost failed!"));
 	
 	if (m_processThread.joinable()) {
-		m_processThread.join();
+		m_processThread.join();		
 	}
 	
-	m_processThread = std::thread(&Client::ThreadedUpdate, this);
+	m_processThread = std::thread(&Client::ThreadedUpdate, this);	
 }
 
 void Client::ThreadedUpdate()
@@ -202,6 +201,7 @@ void Client::processAndHandlePackets()
 			m_serverAddress = packet->systemAddress;
 			m_isConnectedToAnServer = true;
 			m_myPlayerDataPacket.guid = m_clientPeer->GetMyGUID();
+			SoundHandler::getInstance()->setPlayerGUIDs();
 		}
 		break;
 

@@ -925,12 +925,15 @@ void SoundHandler::setPlayerGUIDs()
 	auto& list = Client::getInstance()->getConnectedPlayers();
 	PlayerPacket myDataPacket = Client::getInstance()->getMyData();
 	
-	m_playerSoundInfo.resize(1);
+	if(m_playerSoundInfo.size() < 1)
+			m_playerSoundInfo.resize(1);
+
 	m_playerSoundInfo.at(0).guid = myDataPacket.guid;
 
 	for (int i = 1; i < list.size() + 1; i++)
 	{
-		m_playerSoundInfo.resize(m_playerSoundInfo.size() + 1);
+		if (m_playerSoundInfo.size() < i + 1)
+			m_playerSoundInfo.resize(m_playerSoundInfo.size() + 1);
 		m_playerSoundInfo[i].guid = list[i].guid;
 	}	
 

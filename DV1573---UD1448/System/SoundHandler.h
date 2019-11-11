@@ -82,7 +82,7 @@ public:
 	void setSourceType(ALenum type, SoundIndex bufferName, RakNet::AddressOrGUID playerID); //AL_UNDETERMINED, AL_STATIC or AL_STREAMING
 	void setSourceLooping(bool looping, SoundIndex bufferName, RakNet::AddressOrGUID playerID);
 
-	void setPlayerGUIDs();
+	void setPlayerGUIDs();	
 	void addPlayer(RakNet::AddressOrGUID guid);
 	void removePlayer(RakNet::AddressOrGUID guid);
 
