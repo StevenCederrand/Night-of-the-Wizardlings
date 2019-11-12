@@ -15,7 +15,6 @@ const std::string ENHANCE_ATTACK_SOUND = "Magic sound effect.ogg";
 const int NR_OF_SOUNDS = 7;
 //Nr of sounds every player has in common.
 const int NR_OF_COMMON_SOUNDS = 5;
-//const int MAX_NR_OF_PLAYERS = 5;
 
 //Always put sounds that will come only from this client at the bottom of the list.
 //Put sounds that you will hear from other players aswell at the top of the list.
@@ -25,11 +24,13 @@ const int NR_OF_COMMON_SOUNDS = 5;
 //Make sure to increase NR_OF_COMMON_SOUNDS if it is a sound that you can hear 
 //from other players aswell. For example, you can hear other players' spells.
 enum SoundIndex {	
+	//Sounds in common here:
 	BasicAttackSound,
 	DeflectSound,
 	EnhanceAttackSound,
 	TakingDamageSound,
 	StepsSound,
+	//Sounds only for client here:
 	ThemeSong0,
 	PickupSpawnSound,	
 };

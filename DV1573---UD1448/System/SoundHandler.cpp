@@ -39,6 +39,12 @@ SoundHandler::SoundHandler()
 	{
 		attachBuffersToPlayerSources(m_playerSoundInfo.at(i).guid);
 	}
+
+	//Lower the volume 
+	RakNet::AddressOrGUID myGuid = Client::getInstance()->getMyData().guid;	
+	setSourceGain(0.2, BasicAttackSound, myGuid);
+	setSourceGain(0.2, DeflectSound, myGuid);
+	setSourceGain(0.2, EnhanceAttackSound, myGuid);
 }
 
 SoundHandler::~SoundHandler()
@@ -114,7 +120,7 @@ void SoundHandler::loadAllSound()
 }
 
 //Returns the source name (position in the buffer array) which you use 
-//when you call playSound(int sourceName).
+//when you call playSound(int sourceName). Or just use the enums.
 //Returns -1 if failed
 int SoundHandler::loadSound(SoundIndex whatSound)
 {
@@ -314,12 +320,14 @@ int SoundHandler::attachBuffersToPlayerSources(RakNet::AddressOrGUID playerID)
 	m_error = alGetError();
 	PlayerSoundInfo* playerTemp = nullptr;
 	bool found = false;
+	int index = -1;
 	for (int i = 0; i < m_playerSoundInfo.size(); i++)
 	{
 		if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
 		{
 			playerTemp = &m_playerSoundInfo.at(i);
 			found = true;
+			index = i;
 		}
 	}
 	if (found)
@@ -348,7 +356,7 @@ int SoundHandler::attachBuffersToPlayerSources(RakNet::AddressOrGUID playerID)
 			{
 				logTrace("Error binding buffer to source");
 			}
-		}		
+		}			
 	}	
 	else
 	{
@@ -392,14 +400,16 @@ void SoundHandler::playSound(SoundIndex bufferName, RakNet::AddressOrGUID player
 		{
 			if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
 			{
-				m_error = alGetError();
-				alSourcePlay(m_playerSoundInfo.at(i).sources.at(bufferName));
-
-				if ((m_error = alGetError()) != AL_NO_ERROR)
+				if (getSourceState(bufferName, playerID) != AL_PLAYING)
 				{
-					logTrace("Error playing sound");
-				}
+					m_error = alGetError();
+					alSourcePlay(m_playerSoundInfo.at(i).sources.at(bufferName));
 
+					if ((m_error = alGetError()) != AL_NO_ERROR)
+					{
+						logTrace("Error playing sound");
+					}
+				}
 				found = true;
 			}
 		}

@@ -52,6 +52,12 @@ void NetworkPlayers::update(const float& dt)
 			continue;
 		}
 
+		if (p.data.inDeflectState)
+		{
+			SoundHandler::getInstance()->setSourcePosition(p.data.position, DeflectSound, p.data.guid);
+			SoundHandler::getInstance()->playSound(DeflectSound, p.data.guid);
+		}
+
 		GameObject* g = p.gameobject;
 		
 		if (g != nullptr) {
@@ -61,8 +67,8 @@ void NetworkPlayers::update(const float& dt)
 				g->setShouldRender(false);
 			else {
 				g->setShouldRender(true);
-			}
-			
+			}		
+
 			glm::vec3 pos = CustomLerp(g->getTransform().position, p.data.position, m_lerpSpeed * dt);
 			
 			g->setWorldPosition(pos);
