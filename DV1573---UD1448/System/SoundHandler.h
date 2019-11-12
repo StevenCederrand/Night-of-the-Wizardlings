@@ -13,9 +13,10 @@ const std::string ENHANCE_ATTACK_SOUND = "Magic sound effect.ogg";
 const std::string TAKING_DAMAGE_SOUND = "TakingDamage.ogg";
 const std::string STEPS_SOUND = "Footsteps2.ogg";
 const std::string JUMP_SOUND = "Jump1.ogg";
+const std::string HITMARK_SOUND = "Hitmark.ogg";
 
 //Nr of sounds in total
-const int NR_OF_SOUNDS = 8;
+const int NR_OF_SOUNDS = 9;
 //Nr of sounds every player has in common.
 const int NR_OF_COMMON_SOUNDS = 6;
 
@@ -37,6 +38,7 @@ enum SoundIndex {
 	//Sounds only for client here:
 	ThemeSong0,
 	PickupSpawnSound,	
+	HitmarkSound
 };
 
 struct PlayerSoundInfo
@@ -55,6 +57,7 @@ private:
 	std::vector<PlayerSoundInfo> m_playerSoundInfo;	
 	ALuint themeSong0Source;
 	ALuint pickupSpawnSource;
+	ALuint hitmarkSource;
 	ALenum m_error;
 	int m_nrOfPlayers; // Including me
 

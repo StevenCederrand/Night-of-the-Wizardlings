@@ -78,9 +78,13 @@ void PlayState::update(float dt)
 	m_bPhysics->update(dt);
 	m_player->update(dt);
 	m_spellHandler->spellUpdate(dt);
-
+	
 	//m_hpBar->setYClip(m_player->getHealth() / 100);
 	auto* clientPtr = Client::getInstance();
+	SoundHandler* shPtr = SoundHandler::getInstance();
+
+	shPtr->setSourcePosition(m_player->getPlayerPos(), HitmarkSound, Client::getInstance()->getMyData().guid);
+	
 	for (PlayerEvents evnt = clientPtr->readNextEvent(); evnt != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
 
 		switch (evnt) {
@@ -112,7 +116,9 @@ void PlayState::update(float dt)
 			{
 				logWarning("[Event system] Took damage");
 				m_hudHandler.getHudObject(DAMAGE_OVERLAY)->setAlpha(1.0f);
-				m_player->setHealth(Client::getInstance()->getMyData().health);
+				m_player->setHealth(Client::getInstance()->getMyData().health);	
+				shPtr->setSourcePosition(m_player->getPlayerPos(), TakingDamageSound, clientPtr->getMyData().guid);
+				shPtr->playSound(TakingDamageSound, clientPtr->getMyData().guid);
 				break;
 			}
 
@@ -225,7 +231,8 @@ void PlayState::render()
 
 void PlayState::onSpellHit_callback()
 {
-	m_hudHandler.getHudObject(CROSSHAIR_HIT)->setAlpha(1.0f);
+	m_hudHandler.getHudObject(CROSSHAIR_HIT)->setAlpha(1.0f);	
+	SoundHandler::getInstance()->playSound(HitmarkSound, Client::getInstance()->getMyData().guid);
 }
 
 void PlayState::HUDHandler() {
@@ -278,7 +285,6 @@ void PlayState::HUDHandler() {
 		}
 	}
 }
-
 
 void PlayState::GUIHandler()
 {

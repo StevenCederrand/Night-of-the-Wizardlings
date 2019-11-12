@@ -89,23 +89,24 @@ void Player::update(float deltaTime)
 
 void Player::updateListenerProperties()
 {
-	SoundHandler* sh = SoundHandler::getInstance();
-	Client* c = Client::getInstance();
-	sh->setListenerOrientation(m_playerCamera->getCamFace(),
+	SoundHandler* shPtr = SoundHandler::getInstance();	
+
+	shPtr->setListenerOrientation(m_playerCamera->getCamFace(),
 		m_playerCamera->getCamUp());
-	sh->setListenerPos(m_playerPosition);
-	sh->setListenerVelocity(glm::vec3(m_character->getAngularVelocity().getX(), m_character->getAngularVelocity().getY(), m_character->getAngularVelocity().getZ()));
-	sh->setSourcePosition(m_playerPosition, BasicAttackSound, c->getMyData().guid);
-	sh->setSourcePosition(m_playerPosition, DeflectSound, c->getMyData().guid);
-	sh->setSourcePosition(m_playerPosition, EnhanceAttackSound, c->getMyData().guid);
-	sh->setSourcePosition(m_playerPosition, StepsSound, c->getMyData().guid);
-	sh->setSourcePosition(m_playerPosition, JumpSound, c->getMyData().guid);
-	sh->setSourceLooping(true, StepsSound, c->getMyData().guid);
+	shPtr->setListenerPos(m_playerPosition);
+	//shPtr->setListenerVelocity(glm::vec3(m_character->getAngularVelocity().getX(), m_character->getAngularVelocity().getY(), m_character->getAngularVelocity().getZ()));
+	shPtr->setSourcePosition(m_playerPosition, BasicAttackSound, m_client->getMyData().guid);
+	shPtr->setSourcePosition(m_playerPosition, DeflectSound, m_client->getMyData().guid);
+	shPtr->setSourcePosition(m_playerPosition, EnhanceAttackSound, m_client->getMyData().guid);
+	shPtr->setSourcePosition(m_playerPosition, StepsSound, m_client->getMyData().guid);
+	shPtr->setSourcePosition(m_playerPosition, JumpSound, m_client->getMyData().guid);
+	shPtr->setSourceLooping(true, StepsSound, m_client->getMyData().guid);
 }
 
 void Player::move(float deltaTime)
 {
-	SoundHandler* sh = SoundHandler::getInstance();
+	SoundHandler* sh = SoundHandler::getInstance();	
+
 	m_frameCount++;
 	if (m_frameCount < 5)
 		return;
@@ -141,16 +142,16 @@ void Player::move(float deltaTime)
 		if (m_character->canJump())
 		{
 			m_character->jump(btVector3(0.0f, 16.0f, 0.0f));
-			sh->playSound(JumpSound, Client::getInstance()->getMyData().guid);
+			sh->playSound(JumpSound, m_client->getMyData().guid);
 		}
 
 	if (!m_isWalking || !m_character->onGround())
 	{
-		sh->stopSound(StepsSound, Client::getInstance()->getMyData().guid);
+		sh->stopSound(StepsSound, m_client->getMyData().guid);
 	}
 	else if(m_character->onGround())
 	{
-		sh->playSound(StepsSound, Client::getInstance()->getMyData().guid);
+		sh->playSound(StepsSound, m_client->getMyData().guid);
 	}
 	m_isWalking = false;
 
@@ -174,6 +175,8 @@ void Player::move(float deltaTime)
 
 void Player::attack()
 {
+	SoundHandler* shPtr = SoundHandler::getInstance();	
+
 	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_LEFT))
 	{
 		if (m_attackCooldown <= 0)
@@ -181,8 +184,8 @@ void Player::attack()
 			m_spellhandler->setSpawnerDirection(m_directionVector);
 			m_spellhandler->setSpawnerPosition(m_playerPosition);
 			m_attackCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_spellType); // Put attack on cooldown
-			SoundHandler::getInstance()->setSourcePosition(m_playerPosition, BasicAttackSound, Client::getInstance()->getMyData().guid);
-			SoundHandler::getInstance()->playSound(BasicAttackSound, Client::getInstance()->getMyData().guid);
+			shPtr->setSourcePosition(m_playerPosition, BasicAttackSound, m_client->getMyData().guid);
+			shPtr->playSound(BasicAttackSound, m_client->getMyData().guid);
 		}		
 	}
 
@@ -194,8 +197,8 @@ void Player::attack()
 			m_timeLeftInDeflectState = m_spellhandler->getReflectBase()->m_lifeTime;
 			m_deflecting = true;
 			
-			SoundHandler::getInstance()->setSourcePosition(m_playerPosition, DeflectSound, Client::getInstance()->getMyData().guid);
-			SoundHandler::getInstance()->playSound(DeflectSound, Client::getInstance()->getMyData().guid);	
+			shPtr->setSourcePosition(m_playerPosition, DeflectSound, m_client->getMyData().guid);
+			shPtr->playSound(DeflectSound, m_client->getMyData().guid);
 		}
 	}
 
@@ -209,8 +212,8 @@ void Player::attack()
 				m_spellhandler->setSpawnerPosition(m_playerPosition);
 				// Start loop
 				m_enhanceAttack.start();
-				SoundHandler::getInstance()->setSourcePosition(m_playerPosition, EnhanceAttackSound, Client::getInstance()->getMyData().guid);
-				SoundHandler::getInstance()->playSound(EnhanceAttackSound, Client::getInstance()->getMyData().guid);
+				shPtr->setSourcePosition(m_playerPosition, EnhanceAttackSound, m_client->getMyData().guid);
+				shPtr->playSound(EnhanceAttackSound, m_client->getMyData().guid);
 			}
 		}
 	}
