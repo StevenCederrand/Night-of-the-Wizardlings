@@ -258,9 +258,9 @@ void Shader::setInt(std::string name, int num)
 //Assumption is that you are using the shader
 void Shader::setMaterial(const std::string& materialName) {
 	//If material pointers are the same
-	if (m_oldMaterial == materialName) {
+	/*if (m_oldMaterial == materialName) {
 		return;
-	}
+	}*/
 	m_oldMaterial = materialName;
 
 	Material* mat = MaterialMap::getInstance()->getMaterial(materialName);
