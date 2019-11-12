@@ -45,6 +45,8 @@ private:
 	const uint64_t getUniqueID();
 
 	std::vector<Spell*> spells;
+	std::vector<Spell*> spellstest;
+
 	glm::vec3 m_spawnerPos;
 	glm::vec3 m_spawnerDir;
 
