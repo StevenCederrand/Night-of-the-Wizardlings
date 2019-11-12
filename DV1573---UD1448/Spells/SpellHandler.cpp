@@ -332,7 +332,7 @@ void SpellHandler::spellCollisionCheck()
 	//get the list of att the players on the network
 	auto list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
 
-	for (size_t i = 0; i < list.size(); i++)
+	for (size_t i = 0; i < list.size() && 1 < spells.size() ; i++)
 	{
 		if (list[i].data.health <= 0)
 			continue;
@@ -422,7 +422,13 @@ float SpellHandler::OBBsqDist(glm::vec3& spherePos, std::vector<glm::vec3>& axis
 	float dist = 0.0f;
 	//closest point on obb
 	glm::vec3 boxPoint = playerPos;
-	glm::vec3 ray = glm::vec3(spherePos - playerPos);
+	boxPoint.y += halfSize.y;
+
+	logTrace("X:  " + std::to_string(boxPoint.x) + " Y: " + std::to_string(boxPoint.y) + " Z: " + std::to_string(boxPoint.z));
+
+	logTrace("X:  " + std::to_string(halfSize.x) + " Y: " + std::to_string(halfSize.y) + " Z: " + std::to_string(halfSize.z));
+
+	glm::vec3 ray = glm::vec3(spherePos - boxPoint);
 
 	for (int j = 0; j < 3; j++) {
 		float distance = glm::dot(ray, axis.at(j));
@@ -481,6 +487,7 @@ void SpellHandler::setCharacter(std::string meshName)
 	}
 
 	glm::vec3 halfSize = glm::vec3((max - min) * 0.5f); // * scale
+
 	m_bp->setCharacterSize(halfSize);
 	m_setcharacter = true;
 }

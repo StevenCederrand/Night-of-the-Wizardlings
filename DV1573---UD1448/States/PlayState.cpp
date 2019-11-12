@@ -16,7 +16,7 @@ PlayState::PlayState()
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
 	
 	m_camera = new Camera();
-	m_player = new Player(m_bPhysics, "Player", glm::vec3(0.0f, 12.0f, 0.0f), m_camera, m_spellHandler);
+	m_player = new Player(m_bPhysics, "Player", glm::vec3(0.0f, 3.0f, 0.0f), m_camera, m_spellHandler);
 	Renderer::getInstance()->setupCamera(m_player->getCamera());
 	
 	//TODO: organized loading system?
@@ -69,7 +69,6 @@ PlayState::~PlayState()
 	if (Client::getInstance()->isInitialized()) {
 		Client::getInstance()->destroy();
 	}
-	
 }
 
 void PlayState::update(float dt)
@@ -87,7 +86,6 @@ void PlayState::update(float dt)
 
 			case PlayerEvents::Died: 
 			{
-
 				logWarning("[Event system] Died");
 				m_lastPositionOfMyKiller = clientPtr->getLatestPlayerThatHitMe()->position;
 				m_camera->disableCameraMovement(true);
@@ -106,7 +104,6 @@ void PlayState::update(float dt)
 				//m_deflectCrosshairHUD->setAlpha(0.0f);
 				break;
 			}
-
 
 			case PlayerEvents::TookDamage:
 			{
@@ -137,10 +134,7 @@ void PlayState::update(float dt)
 				m_hudHandler.getHudObject(POWERUP)->setAlpha(0.0f);
 				break;
 			}
-
 		}
-
-
 	}
 	// Look at the killer when dead ( If he exist )
 	if (!m_camera->isCameraActive() && clientPtr->getMyData().health <= 0)
@@ -154,7 +148,6 @@ void PlayState::update(float dt)
 			m_lastPositionOfMyKiller = lookPos;
 		}
 	}
-	
 
 	// Update game objects
 	for (GameObject* object : m_objects)
@@ -214,7 +207,6 @@ void PlayState::update(float dt)
 	//	Renderer::getInstance()->addBigNotification(t);
 	//	
 	//}
-
 }
 
 void PlayState::render()
@@ -278,7 +270,6 @@ void PlayState::HUDHandler() {
 		}
 	}
 }
-
 
 void PlayState::GUIHandler()
 {
