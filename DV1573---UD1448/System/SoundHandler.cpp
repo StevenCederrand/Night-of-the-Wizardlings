@@ -8,9 +8,7 @@ SoundHandler::SoundHandler()
 {	
 	m_nrOfPlayers = 1;
 	
-	m_buffers.resize(NR_OF_SOUNDS);
-	//m_sources.resize(NR_OF_SOUNDS);
-	//m_playerSourceIndices.resize(MAX_NR_OF_PLAYERS);
+	m_buffers.resize(NR_OF_SOUNDS);	
 
 	m_device = alcOpenDevice(NULL);
 
@@ -117,6 +115,24 @@ void SoundHandler::loadAllSound()
 	{
 		logTrace(ENHANCE_ATTACK_SOUND + " failed to be loaded");
 	}	
+
+	success = loadSound(TakingDamageSound);
+	if (success == -1)
+	{
+		logTrace(TAKING_DAMAGE_SOUND + " failed to be loaded");
+	}
+
+	success = loadSound(StepsSound);
+	if (success == -1)
+	{
+		logTrace(STEPS_SOUND + " failed to be loaded");
+	}
+
+	success = loadSound(JumpSound);
+	if (success == -1)
+	{
+		logTrace(JUMP_SOUND + " failed to be loaded");
+	}
 }
 
 //Returns the source name (position in the buffer array) which you use 
@@ -141,14 +157,18 @@ int SoundHandler::loadSound(SoundIndex whatSound)
 		fileName += ENHANCE_ATTACK_SOUND;
 		break;
 	case TakingDamageSound:
-		break;
-	case PickupSpawnSound:		
-		break;
+		fileName += TAKING_DAMAGE_SOUND;
+		break;	
 	case StepsSound:
+		fileName += STEPS_SOUND;
+		break;
+	case JumpSound:
+		fileName += JUMP_SOUND;
+		break;
+	case PickupSpawnSound:
 		break;
 	}
-
-	ALenum error = 0;
+	
 	FILE* fp = 0;
 	OggVorbis_File vf;
 	vorbis_info* vInfo;
@@ -166,13 +186,13 @@ int SoundHandler::loadSound(SoundIndex whatSound)
 	}
 
 	//Generate buffer
-	error = alGetError();
+	m_error = alGetError();
 
 	alGenBuffers((ALsizei)1, &m_buffers[whatSound]);
 
-	error = alGetError();
+	m_error = alGetError();
 
-	if (error != AL_NO_ERROR)
+	if (m_error != AL_NO_ERROR)
 	{
 		logTrace("Error generating buffers");		
 
@@ -225,10 +245,10 @@ int SoundHandler::loadSound(SoundIndex whatSound)
 		}
 	}
 
-	error = alGetError();
+	m_error = alGetError();
 	//send data to openal, vInfo->rate is your freq in Hz
 	alBufferData(m_buffers[whatSound], format, pcmout, data_len, vInfo->rate);
-	if ((error = alGetError() != AL_NO_ERROR))
+	if ((m_error = alGetError() != AL_NO_ERROR))
 	{
 		logTrace("Failed to send audio information buffer to OpenAL");
 
@@ -242,12 +262,12 @@ int SoundHandler::loadSound(SoundIndex whatSound)
 	//because we don't need the enemies sounds for them. 
 	if (whatSound == ThemeSong0)
 	{
-		error = alGetError();
+		m_error = alGetError();
 		
 		alGenSources((ALsizei)1, &themeSong0Source);		
-		error = alGetError();
+		m_error = alGetError();
 
-		if (error != AL_NO_ERROR)
+		if (m_error != AL_NO_ERROR)
 		{
 			logTrace("Error generating sources");
 
@@ -257,12 +277,12 @@ int SoundHandler::loadSound(SoundIndex whatSound)
 			return -1;
 		}
 		
-		error = alGetError();
+		m_error = alGetError();
 		alSourcei(themeSong0Source, AL_BUFFER, m_buffers[whatSound]);
 
-		error = alGetError();
+		m_error = alGetError();
 
-		if (error != AL_NO_ERROR)
+		if (m_error != AL_NO_ERROR)
 		{
 			logTrace("Error binding buffer to source");
 
@@ -275,11 +295,11 @@ int SoundHandler::loadSound(SoundIndex whatSound)
 	}
 	else if (whatSound == PickupSpawnSound)
 	{
-		error = alGetError();		
+		m_error = alGetError();
 		alGenSources((ALsizei)1, &pickupSpawnSource);
-		error = alGetError();
+		m_error = alGetError();
 
-		if (error != AL_NO_ERROR)
+		if (m_error != AL_NO_ERROR)
 		{
 			logTrace("Error generating sources");
 
@@ -289,12 +309,12 @@ int SoundHandler::loadSound(SoundIndex whatSound)
 			return -1;
 		}
 		
-		error = alGetError();
+		m_error = alGetError();
 		alSourcei(pickupSpawnSource, AL_BUFFER, m_buffers[whatSound]);
 
-		error = alGetError();
+		m_error = alGetError();
 
-		if (error != AL_NO_ERROR)
+		if (m_error != AL_NO_ERROR)
 		{
 			logTrace("Error binding buffer to source");
 

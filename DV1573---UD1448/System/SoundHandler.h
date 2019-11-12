@@ -10,11 +10,14 @@ const std::string THEME_SONG0 = "HarryPotterThemeSong.ogg";
 const std::string BASIC_ATTACK_SOUND = "Sound Effect Magic Sound HQ YouTube.ogg";
 const std::string DEFLECT_SOUND = "YouShallNotPassogg.ogg";
 const std::string ENHANCE_ATTACK_SOUND = "Magic sound effect.ogg";
+const std::string TAKING_DAMAGE_SOUND = "TakingDamage.ogg";
+const std::string STEPS_SOUND = "Footsteps2.ogg";
+const std::string JUMP_SOUND = "Jump1.ogg";
 
 //Nr of sounds in total
-const int NR_OF_SOUNDS = 7;
+const int NR_OF_SOUNDS = 8;
 //Nr of sounds every player has in common.
-const int NR_OF_COMMON_SOUNDS = 5;
+const int NR_OF_COMMON_SOUNDS = 6;
 
 //Always put sounds that will come only from this client at the bottom of the list.
 //Put sounds that you will hear from other players aswell at the top of the list.
@@ -30,6 +33,7 @@ enum SoundIndex {
 	EnhanceAttackSound,
 	TakingDamageSound,
 	StepsSound,
+	JumpSound,
 	//Sounds only for client here:
 	ThemeSong0,
 	PickupSpawnSound,	

@@ -78,6 +78,7 @@ private:
 	float m_timeLeftInDeflectState;
 	bool m_deflecting;
 
+	bool m_isWalking;
 	//removed in bulletPhysics.cpp
 	BulletPhysics* m_bp;
 	btKinematicCharacterController* m_character;

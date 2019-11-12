@@ -14,6 +14,7 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_nrOfSpells = 0;
 	m_directionVector = glm::vec3(0, 0, 0);
 	m_moveDir = glm::vec3(0.0f);
+	m_isWalking = false;
 
 	m_spellhandler = spellHandler;
 	m_spellType = NORMALATTACK;
@@ -88,17 +89,23 @@ void Player::update(float deltaTime)
 
 void Player::updateListenerProperties()
 {
-	SoundHandler::getInstance()->setListenerOrientation(m_playerCamera->getCamFace(),
+	SoundHandler* sh = SoundHandler::getInstance();
+	Client* c = Client::getInstance();
+	sh->setListenerOrientation(m_playerCamera->getCamFace(),
 		m_playerCamera->getCamUp());
-	SoundHandler::getInstance()->setListenerPos(m_playerPosition);
-	SoundHandler::getInstance()->setListenerVelocity(glm::vec3(m_character->getAngularVelocity().getX(), m_character->getAngularVelocity().getY(), m_character->getAngularVelocity().getZ()));
-	SoundHandler::getInstance()->setSourcePosition(m_playerPosition, BasicAttackSound, Client::getInstance()->getMyData().guid);
-	SoundHandler::getInstance()->setSourcePosition(m_playerPosition, DeflectSound, Client::getInstance()->getMyData().guid);
-	SoundHandler::getInstance()->setSourcePosition(m_playerPosition, EnhanceAttackSound, Client::getInstance()->getMyData().guid);
+	sh->setListenerPos(m_playerPosition);
+	sh->setListenerVelocity(glm::vec3(m_character->getAngularVelocity().getX(), m_character->getAngularVelocity().getY(), m_character->getAngularVelocity().getZ()));
+	sh->setSourcePosition(m_playerPosition, BasicAttackSound, c->getMyData().guid);
+	sh->setSourcePosition(m_playerPosition, DeflectSound, c->getMyData().guid);
+	sh->setSourcePosition(m_playerPosition, EnhanceAttackSound, c->getMyData().guid);
+	sh->setSourcePosition(m_playerPosition, StepsSound, c->getMyData().guid);
+	sh->setSourcePosition(m_playerPosition, JumpSound, c->getMyData().guid);
+	sh->setSourceLooping(true, StepsSound, c->getMyData().guid);
 }
 
 void Player::move(float deltaTime)
 {
+	SoundHandler* sh = SoundHandler::getInstance();
 	m_frameCount++;
 	if (m_frameCount < 5)
 		return;
@@ -110,18 +117,42 @@ void Player::move(float deltaTime)
 	// Move
 	m_moveDir = glm::vec3(0.0f);
 	if (Input::isKeyHeldDown(GLFW_KEY_A))
-		m_moveDir -= lookRightVector;
+	{
+		m_moveDir -= lookRightVector;		
+		m_isWalking = true;
+	}	
 	if (Input::isKeyHeldDown(GLFW_KEY_D))
+	{
 		m_moveDir += lookRightVector;
+		m_isWalking = true;
+	}
 	if (Input::isKeyHeldDown(GLFW_KEY_W))
+	{
 		m_moveDir += lookDirection;
+		m_isWalking = true;
+	}
 	if (Input::isKeyHeldDown(GLFW_KEY_S))
+	{
 		m_moveDir -= lookDirection;
-
+		m_isWalking = true;
+	}
 	// Jump
 	if (Input::isKeyHeldDown(GLFW_KEY_SPACE))
 		if (m_character->canJump())
+		{
 			m_character->jump(btVector3(0.0f, 16.0f, 0.0f));
+			sh->playSound(JumpSound, Client::getInstance()->getMyData().guid);
+		}
+
+	if (!m_isWalking || !m_character->onGround())
+	{
+		sh->stopSound(StepsSound, Client::getInstance()->getMyData().guid);
+	}
+	else if(m_character->onGround())
+	{
+		sh->playSound(StepsSound, Client::getInstance()->getMyData().guid);
+	}
+	m_isWalking = false;
 
 	// Make sure moving is a constant speed
 	if (glm::length(m_moveDir) >= 0.0001f)
