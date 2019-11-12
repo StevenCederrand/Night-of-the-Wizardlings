@@ -43,7 +43,7 @@ void SpellHandler::initAttackSpell()
 
 	attackBase->m_damage = 34.0f;
 	attackBase->m_speed = 170.0f;
-	attackBase->m_radius = 0.5f;
+	attackBase->m_radius = 0.25f;
 	attackBase->m_coolDown = 0.75f;
 	attackBase->m_lifeTime = 5.0f;
 	attackBase->m_maxBounces = 3.0f;

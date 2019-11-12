@@ -16,6 +16,7 @@ private:
 	void loadGui();
 
 private:
+	float m_rotVal;
 	CEGUI::PushButton* m_quitBtn; 
 	CEGUI::PushButton* m_joinServerBtn; 
 	CEGUI::PushButton* m_startServerBtn; 

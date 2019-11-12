@@ -122,6 +122,7 @@
     <ClInclude Include="Text\HUDShader.h" />
     <ClInclude Include="Deflect\DeflectRender.h" />
     <ClInclude Include="Deflect\Deflect.h" />
+    <ClInclude Include="System\Helper.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />
