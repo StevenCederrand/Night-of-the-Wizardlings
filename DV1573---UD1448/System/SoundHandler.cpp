@@ -43,6 +43,8 @@ SoundHandler::SoundHandler()
 	setSourceGain(0.2, BasicAttackSound, myGuid);
 	setSourceGain(0.2, DeflectSound, myGuid);
 	setSourceGain(0.2, EnhanceAttackSound, myGuid);
+	setSourceGain(0.3, JumpSound, myGuid);
+	setSourceGain(0.3, StepsSound, myGuid);
 }
 
 SoundHandler::~SoundHandler()
@@ -420,7 +422,19 @@ void SoundHandler::playSound(SoundIndex bufferName, RakNet::AddressOrGUID player
 		{
 			if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
 			{
-				if (getSourceState(bufferName, playerID) != AL_PLAYING)
+ 				if (bufferName == JumpSound || bufferName == BasicAttackSound ||
+					bufferName == DeflectSound || bufferName == EnhanceAttackSound|| 
+					bufferName == TakingDamageSound)
+				{
+					m_error = alGetError();
+					alSourcePlay(m_playerSoundInfo.at(i).sources.at(bufferName));
+
+					if ((m_error = alGetError()) != AL_NO_ERROR)
+					{
+						logTrace("Error playing sound");
+					}
+				}
+				else if (getSourceState(bufferName, playerID) != AL_PLAYING)
 				{
 					m_error = alGetError();
 					alSourcePlay(m_playerSoundInfo.at(i).sources.at(bufferName));

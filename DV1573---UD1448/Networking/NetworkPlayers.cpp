@@ -57,7 +57,7 @@ void NetworkPlayers::update(const float& dt)
 			SoundHandler::getInstance()->setSourcePosition(p.data.position, DeflectSound, p.data.guid);
 			SoundHandler::getInstance()->playSound(DeflectSound, p.data.guid);
 		}
-
+		
 		GameObject* g = p.gameobject;
 		
 		if (g != nullptr) {
