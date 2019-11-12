@@ -1,7 +1,7 @@
 #include "Pch/Pch.h"
 #include "fire.h"
 
-fire::fire(glm::vec3 pos, glm::vec3 direction, const FireSpellBase* spellBase, Transform transform)
+fire::fire(glm::vec3 pos, glm::vec3 direction, const FireSpellBase* spellBase)
 	: Spell(pos, direction)
 {
 	m_type = SPELL_TYPE::FIRE;

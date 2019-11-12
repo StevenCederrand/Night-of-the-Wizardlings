@@ -864,6 +864,24 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 		}
+
+		else if (m_spells[i]->getType() == FIRE)
+		{
+			Mesh* meshRef = spellHandler->getAttackBase()->m_mesh;
+			glBindVertexArray(meshRef->getBuffers().vao);
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(spellHandler->getAttackBase()->m_material);
+
+			// TODO: Fix below
+			const Transform meshTransform = m_spells[i]->getTransform();
+			glm::mat4 modelMatrix = glm::mat4(1.0f);
+			modelMatrix = glm::translate(modelMatrix, meshTransform.position);
+			modelMatrix = glm::scale(modelMatrix, meshTransform.scale);
+			modelMatrix *= glm::mat4_cast(meshTransform.rotation);
+			bindMatrixes(BASIC_FORWARD);
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
+
+			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+		}
 	}
 }
 

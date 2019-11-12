@@ -6,6 +6,7 @@
 #include <Spells/EnhanceAttackSpell.h>
 #include <Spells/ReflectSpell.h>
 #include <Spells/AOEAttack.h>
+#include <Spells/fire.h>
 #include <System/BulletPhysics.h>
 #include "SpellTypes.h"
 
@@ -21,6 +22,7 @@ public:
 	void initEnhanceSpell();
 	void initFlamestrikeSpell();
 	void initReflectSpell();
+	void initFireSpell();
 	~SpellHandler();
 
 	float createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SPELL_TYPE type);
@@ -46,6 +48,8 @@ private:
 
 	std::vector<Spell*> spells;
 	std::vector<Spell*> spellstest;
+	std::vector<Spell*> fireSpells;
+	float fireDamageCounter = 1.5f;
 
 	glm::vec3 m_spawnerPos;
 	glm::vec3 m_spawnerDir;
@@ -55,7 +59,7 @@ private:
 	AttackSpellBase* enhanceAtkBase;
 	ReflectSpellBase* reflectBase;
 	FlamestrikeSpellBase* flamestrikeBase;
-	FireSpellBase* fire;
+	FireSpellBase* fireBase;
 
 	void spellCollisionCheck();
 	bool specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis, float scale);

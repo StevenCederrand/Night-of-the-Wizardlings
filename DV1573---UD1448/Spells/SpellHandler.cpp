@@ -16,6 +16,7 @@ SpellHandler::SpellHandler(BulletPhysics * bp)
 	initEnhanceSpell();
 	initFlamestrikeSpell();
 	initReflectSpell();
+	initFireSpell();
 }
 
 void SpellHandler::initAttackSpell()
@@ -110,6 +111,36 @@ void SpellHandler::initFlamestrikeSpell()
 	flamestrikeBase->m_maxBounces = 3;
 }
 
+void SpellHandler::initFireSpell()
+{
+	fireBase = new FireSpellBase();
+	fireBase->m_mesh = new Mesh();
+	fireBase->m_material = new Material();
+
+	BGLoader tempLoader;	// The file loader
+	tempLoader.LoadMesh(MESHPATH + "TestSphere.mesh");
+	fireBase->m_mesh->saveFilePath(tempLoader.GetFileName(), 0);
+	fireBase->m_mesh->nameMesh(tempLoader.GetMeshName());
+	fireBase->m_mesh->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
+	fireBase->m_mesh->setUpBuffers();
+
+	const Material & newMaterial = tempLoader.GetMaterial();
+	fireBase->m_material->ambient = newMaterial.ambient;
+	fireBase->m_material->diffuse = newMaterial.diffuse;
+	fireBase->m_material->name = newMaterial.name;
+	fireBase->m_material->specular = newMaterial.specular;
+	tempLoader.Unload();
+
+	fireBase->m_material->diffuse = glm::vec3(1.0f, 0.0f, 0.5f);
+	fireBase->m_material->ambient = glm::vec3(1.0f, 0.0f, 0.5f);
+
+	fireBase->m_damage = 10.0f;
+	fireBase->m_speed = 0.0f;
+	fireBase->m_coolDown = 1.0f;
+	fireBase->m_lifeTime = 5.0f;
+	fireBase->m_maxBounces = 0.0f;
+}
+
 void SpellHandler::initReflectSpell()
 {
 	reflectBase = new ReflectSpellBase();
@@ -157,6 +188,10 @@ SpellHandler::~SpellHandler()
 	for (Spell* element : spellstest)
 		delete element;
 	spellstest.clear();
+
+	for (Spell* element : fireSpells)
+		delete element;
+	fireSpells.clear();
 }
 
 float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SPELL_TYPE type)
@@ -249,6 +284,29 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 		m_BulletFlamestrikeSpell.at(size - 1)->setUserPointer(spellss);
 	}
 
+	if (type == FIRE)
+	{
+		auto fireSpell = new fire(spellPos, directionVector, fireBase);
+		cooldown = fireBase->m_coolDown;
+
+		fireSpell->setUniqueID(getUniqueID());
+		Client::getInstance()->createSpellOnNetwork(*fireSpell);
+		fireSpells.emplace_back(fireSpell);
+		Renderer::getInstance()->submit(fireSpells.back(), SPELL);
+		logTrace("Created fire spell");
+
+		std::cout << "Created fire spell" << std::endl;
+		//bullet create
+		/*btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.x);
+		m_BulletNormalSpell.emplace_back(
+			m_bp->createObject(sphere, 1.0f, spellPos + directionVector * 2, glm::vec3(fireSpell->getTransform().scale.x, 0.0f, 0.0f)));*/
+
+			//int size = m_BulletNormalSpell.size();
+			//m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
+			//m_BulletNormalSpell.at(size - 1)->setUserPointer(fireSpell);
+			//m_BulletNormalSpell.at(size - 1)->setLinearVelocity(direction * fireBase->m_speed);
+	}
+
 	return cooldown;
 }
 
@@ -278,6 +336,28 @@ void SpellHandler::spellUpdate(float deltaTime)
 			m_BulletFlamestrikeSpell.erase(m_BulletFlamestrikeSpell.begin() + i);
 		}
 
+	}
+
+	for (size_t i = 0; i < fireSpells.size(); i++)
+	{
+		if (fireSpells[i]->getTravelTime() > 0)
+		{
+			fireSpells[i]->update(deltaTime);
+
+			Client::getInstance()->updateSpellOnNetwork(*fireSpells[i]);
+
+
+		}
+
+		if (fireSpells[i]->getTravelTime() <= 0)
+		{
+			Renderer::getInstance()->removeDynamic(fireSpells[i], SPELL);
+
+			Client::getInstance()->destroySpellOnNetwork(*fireSpells[i]);
+			delete fireSpells[i];
+			fireSpells.erase(fireSpells.begin());
+			logTrace("Deleted fireSpell");
+		}
 	}
 
 	for (size_t i = 0; i < spells.size(); i++)
@@ -397,21 +477,21 @@ void SpellHandler::spellCollisionCheck()
 			}
 		}
 
-		/*for (size_t j = 0; j < spellstest.size(); j++) {
+		for (size_t j = 0; j < fireSpells.size(); j++)
+		{
+			glm::vec3 spellPos = fireSpells.at(j)->getTransform().position;
 
-			glm::vec3 spellPos = spellstest.at(j)->getTransform().position;
-			float scale = spellstest.at(j)->getTransform().scale.x;
+			float scale = fireSpells.at(j)->getTransform().scale.x;
 
 			if (specificSpellCollision(spellPos, playerPos, axis, scale))
 			{
-				spellstest[j]->setTravelTime(0.0f);
-				Client::getInstance()->sendHitRequest(*spellstest[j], list[i]);
-
-				if (m_onHitCallback != nullptr) {
-					m_onHitCallback();
+				if (fireDamageCounter <= 0)
+				{
+					Client::getInstance()->sendHitRequest(*fireSpells[j], list[i]);
+					fireDamageCounter = 1.5f;
 				}
 			}
-		}*/
+		}
 	}
 }
 

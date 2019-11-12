@@ -7,7 +7,7 @@
 class fire : public Spell
 {
 public:
-	fire(glm::vec3 pos, glm::vec3 direction, const FireSpellBase* spellBase, Transform transform);
+	fire(glm::vec3 pos, glm::vec3 direction, const FireSpellBase* spellBase);
 	fire(glm::vec3 pos);
 	~fire();
 
