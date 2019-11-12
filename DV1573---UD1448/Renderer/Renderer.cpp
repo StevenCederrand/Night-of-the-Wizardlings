@@ -344,7 +344,6 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	Transform transform;
 	glm::mat4 modelMatrix;
 	Shader* shader;
-	/* It is better to get the singletons directly rather than having to for every new thing, get them. BRANCHING IS A PROBLEM*/
 	MeshMap* meshMap = MeshMap::getInstance();
 	ShaderMap* shaderMap = ShaderMap::getInstance();
 

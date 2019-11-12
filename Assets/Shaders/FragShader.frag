@@ -107,7 +107,7 @@ vec3 calcDirLight(vec3 normal, vec3 diffuseColor) {
     vec3 reflectDir = reflect(-lightDir, f_normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 16);
     //Lock specular
-    //spec = smoothstep(0.001, 0.1, spec);
+    spec = smoothstep(0.001, 0.1, spec);
     vec3 specular = specularStr * spec * GLOBAL_lightColor;
 
     return diffuseColor + specular;
