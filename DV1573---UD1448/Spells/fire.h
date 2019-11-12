@@ -7,18 +7,21 @@
 class fire : public Spell
 {
 public:
+	fire(glm::vec3 pos, glm::vec3 direction, const FireSpellBase* spellBase, Transform transform);
 	fire(glm::vec3 pos);
-	fire(std::string name, glm::vec3 pos, glm::vec3 direction, float speed, float travelTime, std::string meshName, float cooldown);
 	~fire();
 
-	void updateActiveSpell(float deltaTime);
-	void createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector);
-	void spellCooldownUpdate(float deltaTime);
-	void update(float dt);
+	virtual const bool& getHasCollided() const;
+	virtual void hasCollided();
+	virtual void updateRigidbody(float deltaTime, btRigidBody* body);
+	virtual void update(float dt);
+	virtual const float getDamage();
 
-	bool isAOE();
+	void updateActiveSpell(float deltaTime);
 
 
 private:
+	const FireSpellBase* m_spellBase;
+	float fireTimer = 100;
 
 };
