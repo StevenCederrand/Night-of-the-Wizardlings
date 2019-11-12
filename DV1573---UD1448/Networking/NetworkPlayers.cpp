@@ -32,7 +32,7 @@ void NetworkPlayers::update(const float& dt)
 		{
 			if (p.gameobject == nullptr) {
 				p.gameobject = new WorldObject();
-				p.gameobject->loadMesh("TestCube.mesh");
+				p.gameobject->loadMesh("ANIM.mesh");
 				p.gameobject->setWorldPosition(glm::vec3(1, 0, 0));
 				//Submit the player object as a dynamic object
 				Renderer::getInstance()->submit(p.gameobject, DYNAMIC); 
