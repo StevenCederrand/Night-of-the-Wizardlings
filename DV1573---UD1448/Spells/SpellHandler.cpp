@@ -41,12 +41,12 @@ void SpellHandler::initAttackSpell()
 	attackBase->m_material->diffuse = glm::vec3(0.65f, 1.0f, 1.0f);
 	attackBase->m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
 
-	attackBase->m_damage = 34;
-	attackBase->m_speed = 110;
-	attackBase->m_radius = 0.5;
-	attackBase->m_coolDown = 3;
-	attackBase->m_lifeTime = 5;
-	attackBase->m_maxBounces = 3;
+	attackBase->m_damage = 34.0f;
+	attackBase->m_speed = 170.0f;
+	attackBase->m_radius = 0.5f;
+	attackBase->m_coolDown = 0.75f;
+	attackBase->m_lifeTime = 5.0f;
+	attackBase->m_maxBounces = 3.0f;
 }
 
 void SpellHandler::initEnhanceSpell()
@@ -73,7 +73,7 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase->m_material->ambient = glm::vec3(0.85f, 0.3f, 0.2f);
 
 	enhanceAtkBase->m_damage = 34.0f;
-	enhanceAtkBase->m_speed = 120.0f;
+	enhanceAtkBase->m_speed = 180.0f;
 	enhanceAtkBase->m_radius = 0.5f;
 	enhanceAtkBase->m_coolDown = 1.0f;
 	enhanceAtkBase->m_lifeTime = 5.0f;
@@ -134,8 +134,8 @@ void SpellHandler::initReflectSpell()
 	reflectBase->m_material->ambient = glm::vec3(1.0f, 0.0f, 0.5f);
 
 	reflectBase->m_radius = 1.0f;
-	reflectBase->m_coolDown = 2.0f;
-	reflectBase->m_lifeTime = 10.0f;
+	reflectBase->m_coolDown = 10.0f;
+	reflectBase->m_lifeTime = 2.5f;
 }
 
 SpellHandler::~SpellHandler()
@@ -160,17 +160,17 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 	float cooldown = 0.0f;
 	if (Client::getInstance()->getMyData().health <= 0)
 		return cooldown;
-
+	
 	if (type == NORMALATTACK)
 	{
 		auto spell = new AttackSpell(spellPos, directionVector, attackBase);
+		spell->setType(NORMALATTACK);
 		cooldown = attackBase->m_coolDown;
 
 		spell->setUniqueID(getUniqueID());
 		Client::getInstance()->createSpellOnNetwork(*spell);
 		spells.emplace_back(spell);
 		Renderer::getInstance()->submit(spells.back(), SPELL);
-		logTrace("Created attack spell");
 
 		//bullet create
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
@@ -193,8 +193,7 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 		Client::getInstance()->createSpellOnNetwork(*spell);
 		spells.emplace_back(spell);
 		Renderer::getInstance()->submit(spells.back(), SPELL);
-		logTrace("Created enhanceattack spell");
-
+		
 		//bullet create
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
 		m_BulletNormalSpell.emplace_back(
@@ -247,33 +246,29 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 	//	m_BulletNormalSpell.at(size - 1)->setUserPointer(m_BulletNormalSpell.at(size - 1));
 	//}
 
-
 	return cooldown;
 }
 
 void SpellHandler::spellUpdate(float deltaTime)
 {
+	if (Input::isKeyReleased(GLFW_KEY_L))
+	{
+		m_newHit = !m_newHit;
+	}
 	for (size_t i = 0; i < spells.size(); i++)
 	{
 		if (spells[i]->getTravelTime() > 0)
 		{
-
-			//if (static_cast<Spell*>(spells[i])->getType() == REFLECT)
-			//{
-				//REFLECTupdate(deltaTime, i);
-			//}
-
 			/*if (static_cast<Spell*>(spells[i])->getType() == FLAMESTRIKE)
 			{
 				flamestrikeUpdate(deltaTime, i);
 			}
-*/
+			*/
 			spells[i]->update(deltaTime);
 			spells[i]->updateRigidbody(deltaTime, m_BulletNormalSpell.at(i));
 			Client::getInstance()->updateSpellOnNetwork(*spells[i]);
-
 		}
-		
+
 		if (spells[i]->getTravelTime() <= 0)
 		{
 			Renderer::getInstance()->removeDynamic(spells[i], SPELL);
@@ -284,12 +279,20 @@ void SpellHandler::spellUpdate(float deltaTime)
 
 			m_bp->removeObject(m_BulletNormalSpell.at(i));
 			m_BulletNormalSpell.erase(m_BulletNormalSpell.begin() + i);
-			logTrace("Deleted spell");
 		}
-		
 	}
-	
 	spellCollisionCheck();
+	
+	// Scope
+	{
+		Client::getInstance()->deflectSpellsMutexGuard();
+		for (size_t i = 0; i < m_deflectedSpells.size(); i++)
+		{
+			deflectSpellData& data = m_deflectedSpells[i];
+			createSpell(data.position, data.direction, data.type);
+		}
+	}
+	m_deflectedSpells.clear();
 }
 
 void SpellHandler::setSpawnerPosition(glm::vec3 position)
@@ -300,6 +303,11 @@ void SpellHandler::setSpawnerPosition(glm::vec3 position)
 void SpellHandler::setSpawnerDirection(glm::vec3 direction)
 {
 	m_spawnerDir = direction;
+}
+
+void SpellHandler::setOnHitCallback(std::function<void()> func)
+{
+	m_onHitCallback = func;
 }
 
 void SpellHandler::renderSpell()
@@ -330,7 +338,6 @@ void SpellHandler::spellCollisionCheck()
 			continue;
 
 		glm::vec3 playerPos = list[i].data.position;
-		//list[i].data.rotation;
 
 		//create the axis and rotate them
 		glm::vec3 xAxis = glm::vec3(1.0f, 0.0f, 0.0f);
@@ -346,40 +353,148 @@ void SpellHandler::spellCollisionCheck()
 		axis.emplace_back(yAxis);
 		axis.emplace_back(zAxis);
 		
-		//create a box, obb or AABB? from the player position
-		for (size_t j = 0; j < spells.size(); j++) {
-			glm::vec3 spellPos = spells.at(j)->getTransform().position;
-			float scale = spells.at(j)->getTransform().scale.x;
-			if (specificSpellCollision(spellPos, playerPos, axis, scale))
+		//create a box, obb or AABB? from the player position. Old hitdetection press L
+		if (!m_newHit)
+		{
+			for (size_t j = 0; j < spells.size(); j++) {
+				logTrace("Old hit test");
+				glm::vec3 spellPos = spells.at(j)->getTransform().position;
+				float scale = spells.at(j)->getTransform().scale.x * 4.0f; //tested
+				if (specificSpellCollision(spellPos, playerPos, axis, scale))
+				{
+					spells[j]->setTravelTime(0.0f);
+					Client::getInstance()->sendHitRequest(*spells[j], list[i]);
+
+					if (m_onHitCallback != nullptr) {
+						m_onHitCallback();
+					}
+				}
+			}
+		}
+		else
+		{
+			for (size_t j = 0; j < spells.size(); j++)
 			{
-				spells[j]->setTravelTime(0.0f);
-				Client::getInstance()->sendHitRequest(*spells[j], list[i]);
+				glm::vec3 lastSpellPos = spells.at(j)->getLastPosition();
+				glm::vec3 spellPos = spells.at(j)->getTransform().position;
+
+				//get the radius from the spelltype
+				float radius = 0.0;
+				if (static_cast<Spell*>(spells[i])->getType() == NORMALATTACK) {
+					radius = attackBase->m_radius;
+				}
+
+				if (static_cast<Spell*>(spells[i])->getType() == ENHANCEATTACK) {
+					radius = enhanceAtkBase->m_radius;
+				}
+
+				//line is the walking we will do.
+				glm::vec3 line = (spellPos - lastSpellPos) / m_nrSubSteps;
+				glm::vec3 interpolationPos = lastSpellPos;
+
+				//walk from last pos to new pos with substeps
+				for (size_t k = 0; k < m_nrSubSteps; k++)
+				{
+					interpolationPos += line;
+					if (specificSpellCollision(interpolationPos, playerPos, axis, radius))
+					{
+
+						spells[j]->setTravelTime(0.0f);
+						Client::getInstance()->sendHitRequest(*spells[j], list[i]);
+
+						if (m_onHitCallback != nullptr) {
+							m_onHitCallback();
+						}
+						k = m_nrSubSteps;
+					}
+				}
 			}
 		}
 	}
-
-	
 }
 
-bool SpellHandler::specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis, float scale)
+bool SpellHandler::specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis, float radius)
 { 
 	// sphereradius is wrong
 	bool collision = false;
-	float sphereRadius = 1.0f * scale * 2;
+	float sphereRadius = 1.0f * radius;
 
-	glm::vec3 closestPoint = OBBclosestPoint(spellPos, axis, playerPos);
-	glm::vec3 v = closestPoint - spellPos;
+	float distx2 = OBBsqDist(spellPos, axis, playerPos);
 
-	if (glm::dot(v, v) <= sphereRadius * sphereRadius)
+	if (distx2 <= sphereRadius * sphereRadius)
 	{
 		collision = true;
 	}
+	//old collision
+	//glm::vec3 closestPoint = OBBclosestPoint(spellPos, axis, playerPos);
+	//glm::vec3 v = closestPoint - spellPos;
+	/*if (glm::dot(v, v) <= sphereRadius * sphereRadius)
+	{
+		logTrace(" ");
+	}*/
 	return collision;
 }
 
-glm::vec3 SpellHandler::OBBclosestPoint(glm::vec3& spherePos, std::vector<glm::vec3>& axis, glm::vec3& playerPos)
-{
-	float boxSize = 0.5f;
+//glm::vec3 SpellHandler::OBBclosestPoint(glm::vec3& spherePos, std::vector<glm::vec3>& axis, glm::vec3& playerPos)
+//{
+//	btVector3 box = m_bp->getCharacterSize();
+//	//float boxSize = box.getX();
+//	glm::vec3 boxSize = glm::vec3(box.getX(), box.getY(), box.getZ());
+//
+//	//closest point on obb
+//	glm::vec3 boxPoint = playerPos;
+//	glm::vec3 ray = glm::vec3(spherePos - playerPos);
+//
+//	for (int j = 0; j < 3; j++) {
+//		float distance = glm::dot(ray, axis.at(j));
+//		float distance2 = 0;
+//
+//		if (distance > boxSize[j])
+//			distance2 = boxSize[j];
+//
+//		if (distance < -boxSize[j])
+//			distance2 = -boxSize[j];
+//		
+//		boxPoint += distance2 * axis.at(j);
+//	}
+//	return boxPoint;
+//}
+
+float SpellHandler::OBBsqDist(glm::vec3& spherePos, std::vector<glm::vec3>& axis, glm::vec3& playerPos)
+{	
+	glm::vec3 halfSize;
+	if (!m_setcharacter)
+	{
+		auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
+		std::string meshName = list[0].gameobject->getMeshName(0);
+		const std::vector<Vertex>& vertices = MeshMap::getInstance()->getMesh(meshName)->getVertices();
+		glm::vec3 min = vertices[0].position;
+		glm::vec3 max = vertices[0].position;
+
+		for (size_t i = 1; i < vertices.size(); i++)
+		{
+			min.x = fminf(vertices[i].position.x, min.x);
+			min.y = fminf(vertices[i].position.y, min.y);
+			min.z = fminf(vertices[i].position.z, min.z);
+
+			max.x = fmaxf(vertices[i].position.x, max.x);
+			max.y = fmaxf(vertices[i].position.y, max.y);
+			max.z = fmaxf(vertices[i].position.z, max.z);
+
+		}
+		halfSize = glm::vec3((max - min) * 0.5f); // * scale
+		m_setcharacter = true;
+	}
+
+	else
+	{
+		btVector3 box = m_bp->getCharacterSize();
+		halfSize = glm::vec3(box.getX(), box.getY(), box.getZ());
+	}
+
+	//btVector3 box = m_bp->getCharacterSize();
+	//glm::vec3 boxSize = glm::vec3(box.getX(), box.getY(), box.getZ());
+	float dist = 0.0f;
 	//closest point on obb
 	glm::vec3 boxPoint = playerPos;
 	glm::vec3 ray = glm::vec3(spherePos - playerPos);
@@ -388,15 +503,15 @@ glm::vec3 SpellHandler::OBBclosestPoint(glm::vec3& spherePos, std::vector<glm::v
 		float distance = glm::dot(ray, axis.at(j));
 		float distance2 = 0;
 
-		if (distance > boxSize)
-			distance2 = boxSize;
+		if (distance > halfSize[j])
+			distance2 = distance - halfSize[j];
 
-		if (distance < -boxSize)
-			distance2 = -boxSize;
-		
-		boxPoint += distance2 * axis.at(j);
+		if (distance < -halfSize[j])
+			distance2 = distance + halfSize[j];
+
+		dist += distance2 * distance2;
 	}
-	return boxPoint;
+	return dist;
 }
 
 void SpellHandler::REFLECTupdate(float deltaTime, int i)
@@ -419,7 +534,7 @@ void SpellHandler::REFLECTupdate(float deltaTime, int i)
 			break;
 		case REFLECT:
 			hitboxRadius = reflectBase->m_radius;
-			break;
+			break; 
 		default:
 			break;
 		}
@@ -427,8 +542,6 @@ void SpellHandler::REFLECTupdate(float deltaTime, int i)
 		if (reflectSpell->checkReflectCollision(spellList[i].Position, spellList[i].Direction, hitboxRadius))
 		{
 			createSpell(m_spawnerPos, m_spawnerDir, spellList[i].SpellType);
-			Client::getInstance()->requestToDestroyClientSpell(spellList[i]);
-			logTrace("Collision with reflection");
 		}
 	}
 }
@@ -437,12 +550,4 @@ void SpellHandler::flamestrikeUpdate(float deltaTime, int i)
 {
 	AOEAttack* flamestrike = static_cast<AOEAttack*>(spells[i]);
 	flamestrike->updateActiveSpell(deltaTime);
-
-
 }
-
-
-
-
-
-

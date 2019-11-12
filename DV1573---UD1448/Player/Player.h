@@ -22,8 +22,6 @@ public:
 	void createRay(); //create ray for spells
 	void spawnPlayer(glm::vec3 pos);
 
-	void createRigidBody(BulletPhysics* bp);
-	void forceUp();
 	bool isDead();
 
 	//-----Get-----//
@@ -31,12 +29,16 @@ public:
 	glm::vec3 getPlayerPos() const;
 	int getHealth() const;
 	std::string getName() const;
+	const bool& isDeflecting() const;
 
 	//-----Set-----//
 	void setPlayerPos(glm::vec3 pos);
 	void setHealth(int health);
 	void setSpeed(float speed);
 	void logicStop(const bool& stop);
+	const float& getAttackCooldown() const;
+	const float& getSpecialCooldown() const;
+	const float& getDeflectCooldown() const;
 
 private:
 	void move(float deltaTime); 
@@ -57,7 +59,7 @@ private:
 	SPELL_TYPE m_specialSpellType3;
 	
 	float m_attackCooldown;
-	float m_specialCooldown;
+	float m_deflectCooldown;
 	float m_special2Cooldown;
 	float m_special3Cooldown;
 
@@ -72,6 +74,9 @@ private:
 	int m_enhanceSoundIndex;
 
 	std::string name;
+
+	float m_timeLeftInDeflectState;
+	bool m_deflecting;
 
 	//removed in bulletPhysics.cpp
 	BulletPhysics* m_bp;

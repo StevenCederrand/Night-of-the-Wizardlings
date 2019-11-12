@@ -20,7 +20,23 @@ LocalServer::LocalServer()
 	m_timedGameInEndStateTimer.setExecutionInterval(500);
 	m_timedGameInEndStateTimer.registerCallback(std::bind(&LocalServer::endGameTimeExecutionLogic, this));
 
+	m_timedUnusedObjectRemoval.setInfinityExecutionTime(true);
+	m_timedUnusedObjectRemoval.setExecutionInterval(5000);
+	m_timedUnusedObjectRemoval.registerCallback(std::bind(&LocalServer::removeUnusedObjects_routine, this));
 
+	m_timedPickupSpawner.setTotalExecutionTime(NetGlobals::roundTimeMS);
+	m_timedPickupSpawner.setExecutionInterval(NetGlobals::pickupSpawnIntervalMS);
+	m_timedPickupSpawner.registerCallback(std::bind(&LocalServer::spawnPickup, this));
+
+	m_updateClientsWithServertimeTimer.setInfinityExecutionTime(true);
+	m_updateClientsWithServertimeTimer.setExecutionInterval(NetGlobals::UpdateClientsWithServerTimeIntervalMS);
+	m_updateClientsWithServertimeTimer.registerCallback(std::bind(&LocalServer::m_updateClientsWithServertime, this));
+	m_updateClientsWithServertimeTimer.start();
+
+	unsigned int _time = unsigned int(time(NULL));
+	srand(_time);
+
+	m_pickupID = 0;
 }
 
 LocalServer::~LocalServer()
@@ -56,9 +72,14 @@ void LocalServer::startup(const std::string& serverName)
 
 		m_processThread = std::thread(&LocalServer::ThreadedUpdate, this);
 		m_initialized = true;
-		logTrace("[SERVER] Tickrate: {0}", NetGlobals::tickRate);
-		logTrace("[SERVER] Thread sleep time {0}", NetGlobals::threadSleepTime);
+		logTrace("[Server] Tickrate: {0}", NetGlobals::tickRate);
+		logTrace("[Server] Thread sleep time {0}", NetGlobals::threadSleepTime);
 		m_serverPeer->SetTimeoutTime(NetGlobals::timeoutTimeMS, RakNet::UNASSIGNED_SYSTEM_ADDRESS);
+
+		m_adminID = RakNet::UNASSIGNED_RAKNET_GUID;
+		m_timedUnusedObjectRemoval.start();
+		createPickupSpawnLocations();
+		createPlayerSpawnLocations();
 	}
 }
 
@@ -81,8 +102,15 @@ void LocalServer::destroy()
 			m_connectedPlayers.clear();
 			m_respawnList.clear();
 			m_activeSpells.clear();
+			m_pickupSpawnLocations.clear();
+			m_activePickups.clear();
+			m_queuedPickups.clear();
+			m_playerSpawnLocations.clear();
+			m_pickupID = 0;
 		}
 		m_initialized = false;
+		m_adminID = RakNet::UNASSIGNED_RAKNET_GUID;
+		resetServerData();
 		RakNet::RakPeerInterface::DestroyInstance(m_serverPeer);
 	}
 }
@@ -100,6 +128,8 @@ void LocalServer::ThreadedUpdate()
 		currentTimeMS = RakNet::GetTimeMS();
 		timeDiff = (currentTimeMS - lastTimeMS);
 		
+		m_updateClientsWithServertimeTimer.update(timeDiff);
+
 		if (m_serverInfo.currentState == NetGlobals::SERVER_STATE::GAME_IS_STARTING) {
 			handleCountdown(timeDiff);
 		}
@@ -107,6 +137,9 @@ void LocalServer::ThreadedUpdate()
 		if (m_serverInfo.currentState == NetGlobals::SERVER_STATE::GAME_IN_SESSION) {
 			handleRespawns(timeDiff);
 			handleRoundTime(timeDiff);
+			handlePickupTimer(timeDiff);
+			checkCollisionBetweenPlayersAndPickups();
+			updatePlayersWithDamageBuffs(timeDiff);
 		}
 
 		if (m_serverInfo.currentState == NetGlobals::SERVER_STATE::GAME_END_STATE) {
@@ -121,6 +154,8 @@ void LocalServer::ThreadedUpdate()
 			if (m_shutdownServer == true)
 				serverRunning = false;
 		}
+
+		//m_timedUnusedObjectRemoval.update(static_cast<float>(timeDiff));
 
 		RakSleep(NetGlobals::threadSleepTime);
 	}
@@ -139,13 +174,13 @@ void LocalServer::processAndHandlePackets()
 		{
 		case ID_UNCONNECTED_PING:
 		{
-			logTrace("[SERVER] Got a ping from {0}", packet->systemAddress.ToString());
+			logTrace("[Server] Got a ping from {0}", packet->systemAddress.ToString());
 		}
 		break;
 
 		case ID_NEW_INCOMING_CONNECTION:
 		{
-			logTrace("[SERVER] New connection from {0}\nAssigned GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
+			logTrace("[Server] New connection from {0}\nAssigned GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
 			
 			if (m_connectedPlayers.size() >= NetGlobals::MaximumConnections || m_serverInfo.currentState != NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS)
 			{
@@ -154,7 +189,7 @@ void LocalServer::processAndHandlePackets()
 				return;
 			}
 
-			logTrace("[SERVER] Actually creating a player");
+			logTrace("[Server] Actually creating a player");
 
 			RakNet::BitStream acceptStream;
 			acceptStream.Write((RakNet::MessageID)PLAYER_ACCEPTED_TO_SERVER);
@@ -206,7 +241,7 @@ void LocalServer::processAndHandlePackets()
 			// Create the new player and assign it the correct GUID
 			PlayerPacket player;
 			player.guid = packet->guid;
-
+			player.timestamp = RakNet::GetTimeMS();
 			// Tell all other clients about the new client
 			RakNet::BitStream stream_newPlayer;
 			stream_newPlayer.Write((RakNet::MessageID)PLAYER_JOINED);
@@ -216,10 +251,18 @@ void LocalServer::processAndHandlePackets()
 
 			// Lastly, add the new player to the local list of connected players
 			m_connectedPlayers.emplace_back(player);
-
+			
 			// Update the general server information.
 			m_serverInfo.connectedPlayers++;
 			m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
+
+			// Send server state to the new player
+			RakNet::BitStream stateStream;
+			stateStream.Write((RakNet::MessageID)SERVER_CURRENT_STATE);
+			ServerStateChange statePacket;
+			statePacket.currentState = m_serverInfo.currentState;
+			statePacket.Serialize(true, stateStream);
+			m_serverPeer->Send(&stateStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, packet->systemAddress, false);
 
 		}
 		break;
@@ -246,7 +289,7 @@ void LocalServer::processAndHandlePackets()
 					m_activeSpells.erase(item);
 				}
 
-				logTrace("[SERVER] Player disconnected with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
+				logTrace("[Server] Player disconnected with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
 				m_serverInfo.connectedPlayers--;
 				m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
 			}
@@ -257,7 +300,7 @@ void LocalServer::processAndHandlePackets()
 		{
 			bool playerWasAccepted = handleLostPlayer(*packet, bsIn);
 			if (playerWasAccepted) {
-				logTrace("[SERVER] Lost connection with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
+				logTrace("[Server] Lost connection with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
 				m_serverInfo.connectedPlayers--;
 				m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
 			}
@@ -275,15 +318,28 @@ void LocalServer::processAndHandlePackets()
 			for (size_t i = 0; i < m_connectedPlayers.size() && foundPlayer == false; i++)
 			{
 				if (packet->guid == m_connectedPlayers[i].guid.rakNetGuid) {
-					m_connectedPlayers[i].position = playerPacket.position;
-					m_connectedPlayers[i].rotation = playerPacket.rotation;
-						
+					
+					// HasBeenUpdatedOnce will go false always because the client won't update that variable & same goes for latest spawn pos
+					bool hasBeenUpdatedOnce = m_connectedPlayers[i].hasBeenUpdatedOnce;
+					glm::vec3 latestSpawnPos = m_connectedPlayers[i].latestSpawnPosition;
+
+					m_connectedPlayers[i] = playerPacket;
+					m_connectedPlayers[i].hasBeenUpdatedOnce = hasBeenUpdatedOnce;
+					m_connectedPlayers[i].latestSpawnPosition = latestSpawnPos;
+					m_connectedPlayers[i].timestamp = RakNet::GetTimeMS();
+
+
 					if (m_connectedPlayers[i].hasBeenUpdatedOnce == false) {
 						m_connectedPlayers[i].hasBeenUpdatedOnce = true;
 						memcpy(m_connectedPlayers[i].userName, playerPacket.userName, sizeof(playerPacket.userName));
-						logTrace("[SERVER] Flagged player with guid {0} as updated atleast once", m_connectedPlayers[i].guid.ToString());
+						logTrace("[Server] Flagged player with guid {0} as updated atleast once", m_connectedPlayers[i].guid.ToString());
 					}
 					updatedPlayer = &m_connectedPlayers[i];
+
+					if (updatedPlayer->position.y < -20) {
+						hardRespawnPlayer(*updatedPlayer);
+					}
+
 					foundPlayer = true;
 				}
 
@@ -312,7 +368,9 @@ void LocalServer::processAndHandlePackets()
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			ServerStateChange statePacket;
 			statePacket.Serialize(false, bsIn);
-			stateChange(statePacket.currentState);
+			
+			if (m_serverInfo.currentState == NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS)
+				stateChange(statePacket.currentState);
 		}
 		break;
 
@@ -330,10 +388,10 @@ void LocalServer::processAndHandlePackets()
 				spellVec.reserve(10);
 				spellVec.emplace_back(spellPacket);
 				m_activeSpells[spellPacket.CreatorGUID.g] = spellVec;
-				logTrace("[SERVER] Created a new list with spells for player {0}, spell ID {1}", spellPacket.CreatorGUID.ToString(), spellPacket.SpellID);
+				//logTrace("[Server] Created a new list with spells for player {0}, spell ID {1}", spellPacket.CreatorGUID.ToString(), spellPacket.SpellID);
 			}
 			else {
-				logTrace("[SERVER] Added spell to spell list for player {0}, spell ID {1}", spellPacket.CreatorGUID.ToString(), spellPacket.SpellID);
+				//logTrace("[Server] Added spell to spell list for player {0}, spell ID {1}", spellPacket.CreatorGUID.ToString(), spellPacket.SpellID);
 				item._Ptr->_Myval.second.emplace_back(spellPacket);
 			}
 		
@@ -354,8 +412,8 @@ void LocalServer::processAndHandlePackets()
 			SpellPacket spellPacket;
 			spellPacket.Serialize(false, bsIn);
 			bsIn.SetReadOffset(0);
-
-			//logTrace("[SERVER] Update spell {0}", spellPacket.toString());
+			
+			//logTrace("[Server] Update spell {0}", spellPacket.toString());
 			auto item = m_activeSpells.find(spellPacket.CreatorGUID.g);
 
 			if (item != m_activeSpells.end()) {
@@ -363,9 +421,10 @@ void LocalServer::processAndHandlePackets()
 
 				for (size_t i = 0; i < spellVec.size(); i++) {
 					if (spellVec[i].SpellID == spellPacket.SpellID) {
-						spellVec[i].Position = spellPacket.Position;
-						spellVec[i].Rotation = spellPacket.Rotation;
-						spellVec[i].Direction = spellPacket.Direction;
+						spellVec[i] = spellPacket;
+
+						spellVec[i].timestamp = RakNet::GetTimeMS();
+						spellPacket.timestamp = spellVec[i].timestamp; // this will give the clients the server timestamp aswell
 					}
 				}
 
@@ -373,14 +432,15 @@ void LocalServer::processAndHandlePackets()
 				{
 					// Don't send it back to the sender
 					if (packet->guid != m_connectedPlayers[i].guid.rakNetGuid) {
-						m_serverPeer->Send(&bsIn, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_connectedPlayers[i].guid, false);
+						RakNet::BitStream spellStream;
+						spellStream.Write((RakNet::MessageID)SPELL_UPDATE);
+						spellPacket.Serialize(true, spellStream);
+						m_serverPeer->Send(&spellStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_connectedPlayers[i].guid, false);
 					}
 
 				}
 			
 			}
-
-		
 		}
 		break;
 
@@ -400,7 +460,7 @@ void LocalServer::processAndHandlePackets()
 				for (size_t i = 0; i < spellVec.size() && !deleted; i++) {
 					
 					if (spellVec[i].SpellID == spellPacket.SpellID) {
-						//logTrace("[SERVER] Deleted a spell with spell ID: {0} from client {1}", spellVec[i].SpellID, spellVec[i].CreatorGUID.ToString());
+						//logTrace("[Server] Deleted a spell with spell ID: {0} from client {1}", spellVec[i].SpellID, spellVec[i].CreatorGUID.ToString());
 						spellVec.erase(spellVec.begin() + i);
 						deleted = true;
 					}
@@ -408,7 +468,7 @@ void LocalServer::processAndHandlePackets()
 
 				if (spellVec.size() == 0)
 				{
-					//logTrace("[SERVER] Deleted the local spell container for client with ID {0}", spellPacket.CreatorGUID.ToString());
+					//logTrace("[Server] Deleted the local spell container for client with ID {0}", spellPacket.CreatorGUID.ToString());
 					m_activeSpells.erase(item);
 				}
 
@@ -427,54 +487,6 @@ void LocalServer::processAndHandlePackets()
 
 		break;
 		
-		case SPELL_REMOVAL_REQUEST:
-		{
-			logTrace("[SERVER] Spell removal request");
-			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
-			SpellPacket spellPacket;
-			spellPacket.Serialize(false, bsIn);
-			bsIn.SetReadOffset(0);
-
-			auto item = m_activeSpells.find(spellPacket.CreatorGUID.g);
-
-			if (item != m_activeSpells.end()) {
-				//logTrace("Going to delete spell: {0}", spellPacket.toString());
-				auto& spellVec = item._Ptr->_Myval.second;
-				bool deleted = false;
-				for (size_t i = 0; i < spellVec.size() && !deleted; i++) {
-
-					if (spellVec[i].SpellID == spellPacket.SpellID) {
-						//logTrace("[SERVER] Deleted a spell with spell ID: {0} from client {1}", spellVec[i].SpellID, spellVec[i].CreatorGUID.ToString());
-						spellVec.erase(spellVec.begin() + i);
-						deleted = true;
-					}
-				}
-
-				if (spellVec.size() == 0)
-				{
-					//logTrace("[SERVER] Deleted the local spell container for client with ID {0}", spellPacket.CreatorGUID.ToString());
-					m_activeSpells.erase(item);
-				}
-
-			}
-
-			for (size_t i = 0; i < m_connectedPlayers.size(); i++)
-			{
-				// Don't send it back to the sender
-				if (packet->guid != m_connectedPlayers[i].guid.rakNetGuid) {
-					m_serverPeer->Send(&bsIn, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_connectedPlayers[i].guid, false);
-				}
-
-			}
-
-
-			RakNet::BitStream stream;
-			stream.Write((RakNet::MessageID)SPELL_PLAYER_HIT);
-			spellPacket.Serialize(true, stream);
-			m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, spellPacket.CreatorGUID, false);
-		}
-		break;
-
 		case SPELL_PLAYER_HIT:
 		{
 			if (m_serverInfo.currentState != NetGlobals::SERVER_STATE::GAME_IN_SESSION)
@@ -485,73 +497,26 @@ void LocalServer::processAndHandlePackets()
 			hitPacket.Serialize(false, bsIn);
 			bsIn.SetReadOffset(0);
 
-			PlayerPacket* playerThatWasHit = getSpecificPlayer(hitPacket.playerHitGUID);
+			PlayerPacket* target = getSpecificPlayer(hitPacket.playerHitGUID);
 			PlayerPacket* shooter = getSpecificPlayer(hitPacket.CreatorGUID);
 			SpellPacket* spell = getSpecificSpell(hitPacket.CreatorGUID.g, hitPacket.SpellID);
 			
-			if (playerThatWasHit == nullptr || spell == nullptr || shooter == nullptr) {
-				logTrace("[SERVER] Player or spell was null");
+			if (target == nullptr || spell == nullptr || shooter == nullptr) 
 				continue;
-			}
-
-			if (playerThatWasHit->health == 0.0f || shooter->health == 0.0f)
+			
+			if (target->health == 0.0f)
 				continue;
 
-			//create the axis and rotate them
-			glm::vec3 xAxis = glm::vec3(1.0f, 0.0f, 0.0f);
-			glm::vec3 yAxis = glm::vec3(0.0f, 1.0f, 0.0f);
-			glm::vec3 zAxis = glm::vec3(0.0f, 0.0f, 1.0f);
-			std::vector<glm::vec3> axis;
-
-			glm::rotateX(xAxis, playerThatWasHit->rotation.x);
-			glm::rotateY(xAxis, playerThatWasHit->rotation.y);
-			glm::rotateZ(xAxis, playerThatWasHit->rotation.z);
-
-			axis.emplace_back(xAxis);
-			axis.emplace_back(yAxis);
-			axis.emplace_back(zAxis);
-
-		
-			if (specificSpellCollision(*spell, playerThatWasHit->position, axis))
-			{
-				logTrace("[SERVER] sending hit package to client");
-				playerThatWasHit->health -= static_cast<int>(hitPacket.damage);
-
-				if (playerThatWasHit->health <= 0) {
-					playerThatWasHit->health = 0;
-					Respawner respawner;
-					respawner.currentTime = NetGlobals::timeUntilRespawnMS;
-					respawner.player = playerThatWasHit;
-					m_respawnList.emplace_back(respawner);
-					
-					shooter->numberOfKills++;
-					RakNet::BitStream shooterPacketStream;
-					shooterPacketStream.Write((RakNet::MessageID)SCORE_UPDATE);
-					shooter->Serialize(true, shooterPacketStream);
-					m_serverPeer->Send(&shooterPacketStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, shooter->guid, false);
-
-					
-					playerThatWasHit->numberOfDeaths++;
-					RakNet::BitStream hitPlayerStream;
-					hitPlayerStream.Write((RakNet::MessageID)SCORE_UPDATE);
-					playerThatWasHit->Serialize(true, hitPlayerStream);
-					m_serverPeer->Send(&hitPlayerStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, playerThatWasHit->guid, false);
-
-				}
-
-				RakNet::BitStream bsOut;
-				bsOut.Write((RakNet::MessageID)SPELL_PLAYER_HIT);
-				playerThatWasHit->Serialize(true, bsOut);
-				m_serverPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, hitPacket.playerHitGUID, false);
-
-			}
+			
+			handleCollisionWithSpells(&hitPacket, spell, shooter, target);
+			
 		}
 
 		break;
 
 		default:
 		{
-			//logTrace("Unknown package");
+			
 		}
 			break;
 		}
@@ -559,43 +524,158 @@ void LocalServer::processAndHandlePackets()
 	}
 }
 
+void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* spell, PlayerPacket* shooter, PlayerPacket* target)
+{
+	//create the axis and rotate them
+	glm::vec3 xAxis = glm::vec3(1.0f, 0.0f, 0.0f);
+	glm::vec3 yAxis = glm::vec3(0.0f, 1.0f, 0.0f);
+	glm::vec3 zAxis = glm::vec3(0.0f, 0.0f, 1.0f);
+	std::vector<glm::vec3> axis;
+
+	glm::rotateX(xAxis, target->rotation.x);
+	glm::rotateY(yAxis, target->rotation.y);
+	glm::rotateZ(zAxis, target->rotation.z);
+
+	axis.emplace_back(xAxis);
+	axis.emplace_back(yAxis);
+	axis.emplace_back(zAxis);
+
+	if (specificSpellCollision(*spell, target->position, axis))
+	{
+
+		// It collided with a player, now check if the player is in deflect state. If the player is deflect state
+		// then do some deflect logic otherwise just handle it as a normal collision.
+
+		if (target->inDeflectState) {
+
+			if (validDeflect(spell, target))
+			{
+				// Tell the target to create a new spell in his direction
+				RakNet::BitStream spellCreationStream;
+				spellCreationStream.Write((RakNet::MessageID)SPELL_GOT_DEFLECTED);
+				spell->Serialize(true, spellCreationStream);
+				m_serverPeer->Send(&spellCreationStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, target->guid, false);
+
+				return;
+			}
+		}
+
+		float damageMultiplier = 1.0f;
+
+		if (shooter->hasDamageBuff)
+			damageMultiplier = 2.5f;
+
+		float totalDamage = hitpacket->damage * damageMultiplier;
+
+		target->health -= static_cast<int>(totalDamage);
+
+		target->lastHitByGuid = hitpacket->CreatorGUID;
+
+		if (target->health <= 0) {
+			removePlayerBuff(target);
+			target->health = 0;
+			Respawner respawner;
+			respawner.currentTime = NetGlobals::timeUntilRespawnMS;
+			respawner.player = target;
+			m_respawnList.emplace_back(respawner);
+
+			// Update the dead player score
+			target->numberOfDeaths++;
+			RakNet::BitStream hitPlayerStream;
+			hitPlayerStream.Write((RakNet::MessageID)SCORE_UPDATE);
+			target->Serialize(true, hitPlayerStream);
+			m_serverPeer->Send(&hitPlayerStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, target->guid, false);
+
+			// Assign the dead player a spawn position
+			target->latestSpawnPosition = getRandomSpawnLocation();
+			logTrace("[Server] Assigned spawn position: {0}, {1}, {2}", target->latestSpawnPosition.x, target->latestSpawnPosition.y, target->latestSpawnPosition.z);
+
+			// Update the shooters score
+			shooter->numberOfKills++;
+			RakNet::BitStream shooterPacketStream;
+			shooterPacketStream.Write((RakNet::MessageID)SCORE_UPDATE);
+			shooter->Serialize(true, shooterPacketStream);
+			m_serverPeer->Send(&shooterPacketStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, shooter->guid, false);
+
+			// Send the kill feed information
+			RakNet::BitStream killFeedStream;
+			killFeedStream.Write((RakNet::MessageID)KILL_FEED);
+			KillFeedPacket kFeed;
+			kFeed.killerGuid = shooter->guid;
+			kFeed.deadGuid = target->guid;
+			kFeed.Serialize(true, killFeedStream);
+			sendStreamToAllClients(killFeedStream, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
+
+		}
+
+		// Send a hit packet to the target
+		RakNet::BitStream bsOut;
+		bsOut.Write((RakNet::MessageID)SPELL_PLAYER_HIT);
+		target->Serialize(true, bsOut);
+		m_serverPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, hitpacket->playerHitGUID, false);
+
+	}
+}
+
+bool LocalServer::validDeflect(SpellPacket* spell, PlayerPacket* target)
+{
+	float cosVal = glm::dot(glm::normalize(target->lookDirection), glm::normalize(spell->Direction));
+	if (cosVal <= -0.3f)
+		return true;
+
+	return false;
+}
+
 bool LocalServer::specificSpellCollision(const SpellPacket& spellPacket, const glm::vec3& playerPos, const std::vector<glm::vec3>& axis) {
 
 	bool collision = false;
-	float sphereRadius = 1.0f * spellPacket.Scale.x * 2;
+	//float sphereRadius = 2.0f * spellPacket.Scale.x * 2;
+	float sphereRadius = 1.0f * spellPacket.Scale.x;
+	
+	//line is the walking we will do.
+	float nrSubStep = 6.0f;
+	glm::vec3 line = (spellPacket.Position - spellPacket.LastPosition) / nrSubStep;
+	glm::vec3 interpolationPos = spellPacket.LastPosition;
 
-	glm::vec3 closestPoint = OBBclosestPoint(spellPacket, axis, playerPos);
-	glm::vec3 v = closestPoint - spellPacket.Position;
-
-	if (glm::dot(v, v) <= sphereRadius * sphereRadius)
+	//walk from last pos to new pos with substeps
+	for (size_t k = 0; k < nrSubStep; k++)
 	{
-		collision = true;
+		interpolationPos += line;
+
+		float distx2 = OBBsqDist(interpolationPos, axis, playerPos);
+
+		if (distx2 <= sphereRadius * sphereRadius)
+		{
+			collision = true;
+			k = nrSubStep;
+		}
 	}
 	return collision;
 }
 
-glm::vec3 LocalServer::OBBclosestPoint(const SpellPacket& spellPacket, const std::vector<glm::vec3>& axis, const glm::vec3& playerPos) {
+float LocalServer::OBBsqDist(const glm::vec3& spellPosition, const std::vector<glm::vec3>& axis, const glm::vec3& playerPos) {
 
 	float boxSize = 0.5f;
+	float dist = 0.0f;
+	glm::vec3 halfSize = glm::vec3(0.5f); // change this when real character is in
+	
 	//closest point on obb
 	glm::vec3 boxPoint = playerPos;
-	glm::vec3 ray = glm::vec3(spellPacket.Position - playerPos);
+	glm::vec3 ray = glm::vec3(spellPosition - playerPos);
 
 	for (int j = 0; j < 3; j++) {
 		float distance = glm::dot(ray, axis.at(j));
 		float distance2 = 0;
 
-		if (distance > boxSize)
-			distance2 = boxSize;
+		if (distance > halfSize[j])
+			distance2 = distance - halfSize[j];
 
-		if (distance < -boxSize)
-			distance2 = -boxSize;
+		if (distance < -halfSize[j])
+			distance2 = distance + halfSize[j];
 
-
-		boxPoint += distance2 * axis.at(j);
+		dist += distance2 * distance2;
 	}
-
-	return boxPoint;
+	return dist;
 }
 
 PlayerPacket* LocalServer::getSpecificPlayer(const RakNet::RakNetGUID& guid)
@@ -628,6 +708,99 @@ SpellPacket* LocalServer::getSpecificSpell(const uint64_t& creatorGUID, const ui
 	return nullptr;
 }
 
+void LocalServer::checkCollisionBetweenPlayersAndPickups()
+{
+	for (size_t i = 0; i < m_activePickups.size(); i++) {
+		auto& pickup = m_activePickups[i];
+
+		for (size_t j = 0; j < m_connectedPlayers.size(); j++) {
+			auto& player = m_connectedPlayers[j];
+			
+			if (!player.hasBeenUpdatedOnce || player.health <= 0) 
+				continue;
+
+			if (isCollidingWithPickup(player, pickup)) {
+				// Give player buffs here
+				if (pickup.type == PickupType::HealthPotion) {
+					if(player.health < 100)
+						player.health = 100;
+					
+					RakNet::BitStream stream;
+					stream.Write((RakNet::MessageID)HEAL_BUFF);
+					player.Serialize(true, stream);
+					m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, player.guid, false);
+
+
+				}
+				else if (pickup.type == PickupType::DamageBuff) {
+					player.hasDamageBuff = true;
+					RakNet::BitStream stream;
+					stream.Write((RakNet::MessageID)DAMAGE_BUFF_ACTIVE);
+					player.health = 200;
+					player.Serialize(true, stream);
+					m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, player.guid, false);
+
+					BuffedPlayer buffedPlayer;
+					buffedPlayer.currentTime = NetGlobals::damageBuffActiveTimeMS;
+
+					buffedPlayer.player = &player;
+					m_buffedPlayers.emplace_back(buffedPlayer);
+
+				}
+				//----------------------
+
+				destroyPickupOverNetwork(pickup);
+
+				if (m_activePickups.size() == 3)
+				{
+					m_timedPickupSpawner.restartIntervalTimer();
+				}
+
+				m_activePickups.erase(m_activePickups.begin() + i);
+				i--;
+
+			}
+
+
+		}
+
+
+	}
+}
+
+bool LocalServer::isCollidingWithPickup(const PlayerPacket& player, const PickupPacket& pickup)
+{
+	float pickupRadius = 5.0f; // hard coded
+	
+	if (glm::distance(player.position, pickup.position) <= pickupRadius)
+		return true;
+
+	return false;
+}
+
+void LocalServer::updatePlayersWithDamageBuffs(const uint32_t& diff)
+{
+	for (size_t i = 0; i < m_buffedPlayers.size(); i++) {
+		auto& buff = m_buffedPlayers[i];
+
+		if (diff <= buff.currentTime)
+			buff.currentTime -= diff;
+		else
+			buff.currentTime = 0;
+
+
+
+		if (buff.currentTime <= 0) {
+			buff.player->hasDamageBuff = false;
+			RakNet::BitStream stream;
+			stream.Write((RakNet::MessageID)DAMAGE_BUFF_INACTIVE);
+			m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, buff.player->guid, false);
+			m_buffedPlayers.erase(m_buffedPlayers.begin() + i);
+			i--;
+		}
+	}
+}
+
 void LocalServer::handleRespawns(const uint32_t& diff)
 {
 	for (size_t i = 0; i < m_respawnList.size(); i++) {
@@ -643,7 +816,6 @@ void LocalServer::handleRespawns(const uint32_t& diff)
 			m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, rs.player->guid, false);
 		}
 		else {
-			
 			rs.currentTime = 0;
 			rs.player->health = NetGlobals::maxPlayerHealth;
 
@@ -658,10 +830,20 @@ void LocalServer::handleRespawns(const uint32_t& diff)
 	}
 }
 
+void LocalServer::hardRespawnPlayer(PlayerPacket& player)
+{
+
+	RakNet::BitStream stream;
+	stream.Write((RakNet::MessageID)RESPAWN_PLAYER);
+	player.latestSpawnPosition = getRandomSpawnLocation();
+	player.Serialize(true, stream);
+	m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, player.guid, false);
+}
+
 void LocalServer::respawnPlayers()
 {
 	for (size_t i = 0; i < m_connectedPlayers.size(); i++)
-	{
+	{	
 		m_connectedPlayers[i].health = NetGlobals::maxPlayerHealth;
 	
 		RakNet::BitStream stream;
@@ -670,6 +852,36 @@ void LocalServer::respawnPlayers()
 		m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_connectedPlayers[i].guid, false);
 	}
 	m_respawnList.clear();
+}
+
+void LocalServer::resetPlayerBuffs()
+{
+	for (size_t i = 0; i < m_buffedPlayers.size(); i++) {
+		auto& buff = m_buffedPlayers[i];
+		buff.player->hasDamageBuff = false;
+		RakNet::BitStream stream;
+		stream.Write((RakNet::MessageID)DAMAGE_BUFF_INACTIVE);
+		m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, buff.player->guid, false);
+	}
+	m_buffedPlayers.clear();
+}
+
+void LocalServer::removePlayerBuff(const PlayerPacket* player)
+{
+	for (size_t i = 0; i < m_buffedPlayers.size(); i++) {
+		auto& buff = m_buffedPlayers[i];
+
+		if (buff.player->guid == player->guid) {
+			buff.player->hasDamageBuff = false;
+			RakNet::BitStream stream;
+			stream.Write((RakNet::MessageID)DAMAGE_BUFF_INACTIVE);
+			m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, buff.player->guid, false);
+			m_buffedPlayers.erase(m_buffedPlayers.begin() + i);
+			i--;
+			
+		}
+
+	}
 }
 
 void LocalServer::resetScores()
@@ -746,6 +958,278 @@ void LocalServer::endGameTimeExecutionLogic()
 	sendStreamToAllClients(stream);
 }
 
+void LocalServer::handlePickupTimer(const uint32_t& diff)
+{
+	m_timedPickupSpawner.update(static_cast<float>(diff));
+
+	if (m_timedPickupSpawner.getTimeLeftOnInterval() <= NetGlobals::pickupNotificationBeforeSpawnMS && !m_pickupNotified) {
+		m_pickupNotified = true;
+		notifyPickup();
+	}
+
+	if (m_timedPickupSpawner.isDone()) {
+		m_queuedPickups.clear();
+
+	}
+}
+
+void LocalServer::spawnPickup()
+{
+	if (gameAlmostFinished()) return;
+
+
+	for (size_t i = 0; i < m_queuedPickups.size(); i++) {
+		RakNet::BitStream stream;
+		stream.Write((RakNet::MessageID)PICKUP_CREATED);
+		m_queuedPickups[i].Serialize(true, stream);
+		sendStreamToAllClients(stream, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
+		m_activePickups.emplace_back(m_queuedPickups[i]);
+	}
+
+	m_queuedPickups.clear();
+	m_pickupNotified = false;
+}
+
+void LocalServer::notifyPickup()
+{
+	if (gameAlmostFinished()) return;
+	
+	PickupSpawnLocation* spawnLocation = getRandomPickupSpawnLocation();
+
+	if (spawnLocation == nullptr) return;
+
+	PickupPacket pickupPacket;
+	copyCharArrayOver(pickupPacket.locationName, spawnLocation->name);
+	pickupPacket.uniqueID = m_pickupID++;
+	pickupPacket.type = getRandomPickupType(); // this should be randomized too
+	pickupPacket.position = spawnLocation->position;
+	
+	m_queuedPickups.emplace_back(pickupPacket);
+
+	RakNet::BitStream stream;
+	stream.Write((RakNet::MessageID)PICKUP_NOTIFICATION);
+	pickupPacket.Serialize(true, stream);
+	sendStreamToAllClients(stream, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
+}
+
+bool LocalServer::gameAlmostFinished()
+{
+	return m_timedRunTimer.getTimeLeft() <= 15.0f * 1000.0f;
+}
+
+void LocalServer::removeUnusedObjects_routine()
+{
+	for (size_t i = 0; i < m_connectedPlayers.size(); i++)
+	{
+		PlayerPacket& player = m_connectedPlayers[i];
+		uint32_t diff = RakNet::GetTimeMS() - player.timestamp;
+
+		if (diff >= NetGlobals::maxDelayBeforeDeletionMS && player.hasBeenUpdatedOnce)
+		{
+			// Lost player, delete it from server and send it to the clients
+			logTrace("[Server] (Routine check) Removed player");
+			RakNet::BitStream stream_disconnectedPlayer;
+			stream_disconnectedPlayer.Write((RakNet::MessageID)PLAYER_DISCONNECTED);
+			stream_disconnectedPlayer.Write(player.guid);
+			m_connectedPlayers.erase(m_connectedPlayers.begin() + i);
+			sendStreamToAllClients(stream_disconnectedPlayer);
+			i--;
+
+		}
+	}
+
+	for (auto& item : m_activeSpells)
+	{
+
+		auto& vec = item.second;
+
+		for (size_t i = 0; i < vec.size(); i++) {
+			auto& spell = vec[i];
+			uint32_t diff = RakNet::GetTimeMS() - spell.timestamp;
+
+			if (diff >= NetGlobals::maxDelayBeforeDeletionMS)
+			{
+				logTrace("[Server] (Routine check) Removed spell");
+				RakNet::BitStream stream_spellRemoval;
+				stream_spellRemoval.Write((RakNet::MessageID)SPELL_DESTROY);
+				spell.Serialize(true, stream_spellRemoval);
+				sendStreamToAllClients(stream_spellRemoval, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
+
+				vec.erase(vec.begin() + i);
+				i--;
+			}
+		}
+
+		if (vec.size() == 0)
+		{
+			logTrace("[Server] (Routine check) Removed spell section");
+			m_activeSpells.erase(item.first);
+		}
+		
+	}
+
+}
+
+void LocalServer::m_updateClientsWithServertime()
+{
+	RakNet::BitStream stream;
+	stream.Write((RakNet::MessageID)SERVER_TIME);
+	ServerTimePacket time;
+	time.serverTimestamp = RakNet::GetTimeMS();
+	time.Serialize(true, stream);
+	sendStreamToAllClients(stream);
+}
+
+void LocalServer::resetServerData()
+{
+	m_serverInfo.connectedPlayers = 0;
+	m_serverInfo.currentState = NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS;
+	m_serverInfo.maxPlayers = NetGlobals::MaximumConnections;
+	char t[16] = { ' ' };
+	memcpy(m_serverInfo.serverName, t, sizeof(m_serverInfo.serverName));
+}
+
+void LocalServer::createPickupSpawnLocations()
+{
+	
+	PickupSpawnLocation spawn_one;
+	copyStringToCharArray(spawn_one.name, "Red Crystal");
+	spawn_one.position = glm::vec3(44.0f, 6.0f, -1.0f);
+	m_pickupSpawnLocations.emplace_back(spawn_one);
+
+	PickupSpawnLocation spawn_two;
+	copyStringToCharArray(spawn_two.name, "Purple Crystal");
+	spawn_two.position = glm::vec3(-24.8f, 6.0f, -1.0f);
+	m_pickupSpawnLocations.emplace_back(spawn_two);
+
+	PickupSpawnLocation spawn_three;
+	copyStringToCharArray(spawn_three.name, "Middle");
+	spawn_three.position = glm::vec3(10.0f, 7.0f, -1.0f);
+	m_pickupSpawnLocations.emplace_back(spawn_three);
+
+}
+
+void LocalServer::createPlayerSpawnLocations()
+{
+	m_playerSpawnLocations.emplace_back(-19.0f, 6.0f, 35.0f);
+	m_playerSpawnLocations.emplace_back(31.0f, 6.0f, 48.0f);
+	m_playerSpawnLocations.emplace_back(-1.35f, 15.0f, 3.43f);
+
+	m_playerSpawnLocations.emplace_back(12.0f, 6.0f, -51.0f);
+	m_playerSpawnLocations.emplace_back(-37.0f, 6.0f, -15.0f);
+}
+
+void LocalServer::destroyPickupOverNetwork(PickupPacket& pickupPacket)
+{
+
+	RakNet::BitStream stream;
+	stream.Write((RakNet::MessageID)PICKUP_REMOVED);
+	pickupPacket.Serialize(true, stream);
+	sendStreamToAllClients(stream, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
+
+}
+
+void LocalServer::copyStringToCharArray(char Dest[16], std::string Src)
+{
+	memset(Dest, ' ', 16);
+
+	size_t size = Src.size();
+	if (size > 14)
+	{
+		size = 14;
+	}
+
+	memcpy(Dest, Src.c_str(), size * sizeof(char));
+	Dest[size + 1] = '\0';
+}
+
+void LocalServer::copyCharArrayOver(char Dest[16], char Src[16])
+{
+	memset(Dest, ' ', 16);
+	memcpy(Dest, Src, sizeof(char) * 16);
+}
+
+void LocalServer::destroyAllPickups()
+{
+	for (size_t i = 0; i < m_activePickups.size(); i++) {
+		destroyPickupOverNetwork(m_activePickups[i]);
+	}
+}
+
+PickupType LocalServer::getRandomPickupType()
+{
+
+	size_t luckyNumber = Randomizer::single(size_t(0), size_t(1));
+
+	if (luckyNumber == 0) {
+		return PickupType::HealthPotion;
+	}
+	else if (luckyNumber == 1) {
+		return PickupType::DamageBuff;
+	}
+
+	return PickupType::HealthPotion;
+}
+
+LocalServer::PickupSpawnLocation* LocalServer::getRandomPickupSpawnLocation()
+{
+	std::vector<PickupSpawnLocation*> availableLocations;
+	availableLocations.reserve(m_pickupSpawnLocations.size()); // arbitrary number
+
+	for (size_t i = 0; i < m_pickupSpawnLocations.size(); i++) {
+
+		bool isFree = true;
+		for (size_t j = 0; j < m_activePickups.size() && isFree == true; j++) {
+			if (m_activePickups[j].position == m_pickupSpawnLocations[i].position) {
+				isFree = false;
+			}
+		}
+
+		if (isFree == true) {
+			availableLocations.emplace_back(&m_pickupSpawnLocations[i]);
+		}
+	}
+
+	if (availableLocations.size() > 0) {
+		size_t luckyNumber = Randomizer::single(size_t(0), availableLocations.size() - 1);
+		return availableLocations[luckyNumber];
+	}
+
+
+	return nullptr;
+}
+
+const glm::vec3& LocalServer::getRandomSpawnLocation()
+{
+	std::vector<glm::vec3*> availableSpawnLocations;
+
+	for (size_t j = 0; j < m_playerSpawnLocations.size(); j++) {
+
+		bool occupied = false;
+
+		for (size_t i = 0; i < m_respawnList.size() && occupied; i++) {
+			const Respawner& rs = m_respawnList[i];
+			if (rs.player->latestSpawnPosition == m_playerSpawnLocations[j]) {
+				occupied = true;
+			}
+		}
+
+		if (occupied == false) {
+			availableSpawnLocations.emplace_back(&m_playerSpawnLocations[j]);
+		}
+
+	}
+
+	
+	if(availableSpawnLocations.size() == 0)
+		return m_playerSpawnLocations[0];
+
+
+	size_t luckyNumber = Randomizer::single(size_t(0), availableSpawnLocations.size() - 1);
+	return *availableSpawnLocations[luckyNumber];
+
+}
+
 const bool& LocalServer::isInitialized() const
 {
 	return m_initialized;
@@ -789,7 +1273,7 @@ bool LocalServer::handleLostPlayer(const RakNet::Packet& packet, const RakNet::B
 		// Only send them if the player that left/disconnected was accepted otherwise
 		// the clients have no track record of them so they don't need to know anything
 		for (size_t i = 0; i < m_connectedPlayers.size(); i++) {
-			logTrace("[SERVER] Sending disconnection packets to guid: {0}", m_connectedPlayers[i].guid.ToString());
+			logTrace("[Server] Sending disconnection packets to guid: {0}", m_connectedPlayers[i].guid.ToString());
 			m_serverPeer->Send(&stream_disconnectedPlayer, IMMEDIATE_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_connectedPlayers[i].guid, false);
 		}
 		return true;
@@ -817,26 +1301,39 @@ void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 	if (newState == NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS) {
 		respawnPlayers();
 		resetScores();
-		logTrace("[SERVER] Warmup!");
+		destroyAllPickups();
+		resetPlayerBuffs();
+		m_activePickups.clear();
+		m_queuedPickups.clear();
+		logTrace("[Server] Warmup!");
 	}
 
 	if (newState == NetGlobals::SERVER_STATE::GAME_IS_STARTING) {
-		logTrace("[SERVER] Admin requested to start the game!");
+		logTrace("[Server] Admin requested to start the game!");
 		m_timedCountdownTimer.restart();
 		m_timedCountdownTimer.start();
+		m_timedCountdownTimer.forceExecute();
 	}
 
 	if (newState == NetGlobals::SERVER_STATE::GAME_IN_SESSION) {
-		logTrace("[SERVER] Game has officially started!");
+		logTrace("[Server] Game has officially started!");
 		m_timedRunTimer.restart();
 		m_timedRunTimer.start();
+		m_timedRunTimer.forceExecute();
+
+		m_timedPickupSpawner.start();
 	}
 
 	if (newState == NetGlobals::SERVER_STATE::GAME_END_STATE) {
-		logTrace("[SERVER] Game is over!");
+		logTrace("[Server] Game is over!");
 		respawnPlayers();
+		resetPlayerBuffs();
+		destroyAllPickups();
+		m_activePickups.clear();
+		m_queuedPickups.clear();
 		m_timedGameInEndStateTimer.restart();
 		m_timedGameInEndStateTimer.start();
+		m_timedGameInEndStateTimer.forceExecute();
 	}
 
 }

@@ -6,7 +6,9 @@
 #include <Networking/LocalServer.h>
 #include <Gui/Gui.h>
 
-Application::Application() {	
+float DeltaTime = 0.0f;
+
+Application::Application() {
 }
 
 Application::~Application() {
@@ -52,7 +54,7 @@ bool Application::init() {
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
 	m_window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Wizards 'n stuff", NULL, NULL);
-	//m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", glfwGetPrimaryMonitor(), NULL);
+	//m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", glfwGetPrimaryMonitor(), NULL); !!! FULLSCREEN!!!
 
 	//glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	
@@ -75,7 +77,7 @@ bool Application::init() {
 	}
 	
 	// Vsync
-	glfwSwapInterval(0); //Off, should be using delta time properly anyway
+	glfwSwapInterval(1); // Turning this off will cause occasionally freezes, so don't!
 	
 	m_input = new Input();
 
@@ -92,6 +94,9 @@ bool Application::init() {
 	SoundHandler::getInstance()->setSourceType(AL_STREAMING, ThemeSong0, Client::getInstance()->getMyData().guid);
 	SoundHandler::getInstance()->playSound(ThemeSong0, Client::getInstance()->getMyData().guid);
 	SoundHandler::getInstance()->setSourceLooping(true, ThemeSong0, Client::getInstance()->getMyData().guid);
+
+	unsigned int _time = unsigned int(time(NULL));
+	srand(_time);
 
 	logTrace("Application successfully initialized");
 	return statusOK;
@@ -136,15 +141,15 @@ void Application::run()
 		timeNow = static_cast<float>(glfwGetTime());
 
 		//Deltatime
-		float deltaTime = timeNow - timeThen;
+		DeltaTime = timeNow - timeThen;
 		timeThen = timeNow;
 
-		currentTime += deltaTime;
+		currentTime += DeltaTime;
 		
-		calcFPS(deltaTime);
+		calcFPS(DeltaTime);
 		
-		m_stateManager->update(deltaTime);
-		Gui::getInstance()->update(deltaTime);
+		m_stateManager->update(DeltaTime);
+		Gui::getInstance()->update(DeltaTime);
 		
 		m_stateManager->render();
 		glActiveTexture(GL_TEXTURE0);
@@ -153,8 +158,6 @@ void Application::run()
 
 		glfwSwapBuffers(m_window);
 	}
-
-	logInfo("Exiting application loop");
 
 }
 
@@ -213,9 +216,9 @@ void Application::calcFPS(const float& dt)
 	if (frameTimer <= 0.0f)
 	{
 		frameTimer = 1.0f;
-		std::string title = "fps: " + std::to_string(fps);
-		printf("%s\n",title.c_str());
-		glfwSetWindowTitle(m_window, title.c_str());
+		//std::string title = "fps: " + std::to_string(fps);
+		//printf("%s\n", title.c_str());
+		//glfwSetWindowTitle(m_window, title.c_str());
 		fps = 0;
 	}
 

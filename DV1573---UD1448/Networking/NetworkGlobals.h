@@ -3,8 +3,8 @@
 
 namespace NetGlobals {
 
-	constexpr unsigned int MaximumConnections = 12;
-	constexpr unsigned short MaximumIncomingConnections = 12;
+	constexpr unsigned int MaximumConnections = 6;
+	constexpr unsigned short MaximumIncomingConnections = 6;
 	constexpr unsigned short ServerPort = 42405;
 	constexpr int tickRate = 128;
 	constexpr unsigned int threadSleepTime = static_cast<unsigned int>((1.0f / static_cast<float>(tickRate)) * 1000u);
@@ -13,9 +13,15 @@ namespace NetGlobals {
 	constexpr uint32_t timeUntilRespawnMS = 5 * 1000;
 	constexpr uint32_t roundTimeMS = 2 * 60 * 1000;
 	constexpr uint32_t InGameEndStateTimeMS = 10 * 1000;
+	constexpr uint32_t maxDelayBeforeDeletionMS = 20 * 1000;
+	constexpr uint32_t pickupSpawnIntervalMS = 20 * 1000;
+	constexpr uint32_t damageBuffActiveTimeMS = 10 * 1000;
+	constexpr uint32_t pickupNotificationBeforeSpawnMS = 8 * 1000;
+	constexpr uint32_t RoutineCleanupTimeIntervalMS = 20 * 1000;
+	constexpr uint32_t UpdateClientsWithServerTimeIntervalMS = 250;
 	constexpr int maxPlayerHealth = 100;
 
-	static std::mutex gameSyncMutex;
+	//static std::mutex gameSyncMutex;
 
 	enum THREAD_FLAG {
 		REMOVE,

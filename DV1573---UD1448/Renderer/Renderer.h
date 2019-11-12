@@ -8,11 +8,11 @@
 #define SKYBOX "Skybox_Shader"
 #define ANIMATION "Basic_Animation"
 #define DEBUG "Debug_Forward"
-#define BLOOM "Bloom_Shader"
-#define BLUR "Blur_Shader"
-#define BLOOM_BLUR "BloomBlur_Shader"
+#define FRESNEL "Fresnel_Shader"
+//#define BLOOM "Bloom_Shader"
+//#define BLUR "Blur_Shader"
+//#define BLOOM_BLUR "BloomBlur_Shader"
 #define HUD "Hud_Shader"
-
 
 #include <Pch/Pch.h>
 #include <GameObject/GameObject.h>
@@ -23,8 +23,11 @@
 #include <System/Timer.h>
 #include <Renderer/BloomBlur.h>
 #include <Spells/SpellHandler.h>
-#include <Renderer/HudObject.h>
+#include <HUD/HudObject.h>
+#include "NotificationStructure.h"
 #include <Text/FreeType.h>
+#include <Renderer/DeflectRender.h>
+
 
 #define P_LIGHT_COUNT 64
 #define P_LIGHT_RADIUS 2
@@ -38,23 +41,29 @@ struct LightIndex {
 	int index[P_LIGHT_COUNT];
 };
 
+
 enum ObjectType {
 	STATIC,
 	DYNAMIC,
 	ANIMATEDSTATIC,
 	ANIMATEDDYNAMIC,
-	SPELL
+	SPELL,
+	PICKUP,
 };
 
 class Renderer
 {
+private:
+	std::vector<NotificationText> m_bigNotifications;
+	std::vector<NotificationText> m_killFeed;
+
 private:
 	static Renderer* m_rendererInstance;
 	GLFWwindow* m_gWindow;
 	Camera* m_camera;
 	FreeType* m_text;
 	SkyBox* m_skyBox;
-
+	DeflectRender* m_deflectBox;
 	Timer m_timer;
 
 	//Store gameobjects directly to the renderer
@@ -64,27 +73,32 @@ private:
 	std::vector<GameObject*> m_anidynamicObjects;
 	std::vector<GameObject*> m_spells; 
 
+	std::vector<GameObject*> m_pickups;
+	std::vector<GameObject*> m_deflectObject;
+
 	std::unordered_map<GLuint, std::vector<HudObject*>> m_2DHudMap;
 
 	//Buffers
 	unsigned int m_depthFBO;
 	unsigned int m_depthMap;
-	unsigned int m_hdrFbo;
+	//unsigned int m_hdrFbo;
 	unsigned int m_colourBuffer;
 	unsigned int m_rbo;
 
 	//Storage Buffer for light indecies
 	unsigned int m_lightIndexSSBO;
-	
 	glm::uvec2 workGroups;
+	
 
 	void renderHUD();
+	void renderBigNotifications();
+	void renderKillFeed();
 	void createDepthMap();
 	void initShaders();
 	void bindMatrixes(const std::string& shaderName);
+	void bindMatrixes(Shader* shader);
 	
-	
-	BloomBlur* m_bloom;
+	//BloomBlur* m_bloom;
 	//SpellHandler* m_spellHandler;
 
 	Renderer();
@@ -102,10 +116,14 @@ public:
 	void submit(GameObject* gameObject, ObjectType objType);
 	void submit2DHUD(HudObject* hud);
 	void removeDynamic(GameObject* gameObject, ObjectType objType); //Remove an object from the dynamic array
+	void renderDeflectBox(DeflectRender* deflectBox);
 	void renderSkybox(SkyBox* skybox);
-	void render(SkyBox* m_skybox, SpellHandler* m_spellHandler);
+	void render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandler* m_spellHandler);
 	//void renderSpell();
 	void renderDebug();
+	void addBigNotification(NotificationText notification);
+	void addKillFeed(NotificationText notification);
+	unsigned int getTextWidth(const std::string& text, const glm::vec3& scale);
 
 	void renderSpell(SpellHandler* spellHandler);
 	Camera* getMainCamera() const;

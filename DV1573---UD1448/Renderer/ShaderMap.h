@@ -14,7 +14,7 @@ public:
 	void cleanUp();
 	bool existsWithName(std::string name);
 	void reload();
-	void useByName(std::string name);
+	Shader* useByName(std::string name); //Return the object, so that we don't have to get the pointer then use, or vicea versa
 
 	void destroy();
 private:

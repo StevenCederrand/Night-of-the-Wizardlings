@@ -50,12 +50,22 @@ void TimedCallback::registerCallback(std::function<void()> callbackFunc)
 	m_hasCallbackRegistered = true;
 }
 
+void TimedCallback::forceExecute()
+{
+	m_callbackFunc();
+}
+
 // Only really needed if you are not running an infinity loop
 void TimedCallback::restart()
 {
 	m_totalTimeLeft = m_initialTotalTime;
 	m_intervalCounter = 0.0f;
 	m_doneExecuting = false;
+}
+
+void TimedCallback::restartIntervalTimer()
+{
+	m_intervalCounter = 0.0f;
 }
 
 void TimedCallback::start()
@@ -87,6 +97,11 @@ void TimedCallback::setExecutionInterval(float executionInterval)
 void TimedCallback::setInfinityExecutionTime(bool condition)
 {
 	m_runInfinity = condition;
+}
+
+const float TimedCallback::getTimeLeftOnInterval() const
+{
+	return m_interval - m_intervalCounter;
 }
 
 const float& TimedCallback::getTimeLeft() const

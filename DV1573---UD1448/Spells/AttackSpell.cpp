@@ -12,7 +12,7 @@ AttackSpell::AttackSpell(glm::vec3 pos, glm::vec3 direction, const AttackSpellBa
 
 	Transform tempTransform;
 
-	tempTransform.scale = glm::vec3(spellBase->m_radius / 2, spellBase->m_radius / 2, spellBase->m_radius / 2);
+	tempTransform.scale = glm::vec3(spellBase->m_radius, spellBase->m_radius, spellBase->m_radius);
 	setTransform(tempTransform);
 
 	setWorldPosition(pos);
@@ -22,6 +22,7 @@ AttackSpell::AttackSpell(glm::vec3 pos, glm::vec3 direction, const AttackSpellBa
 AttackSpell::AttackSpell(glm::vec3 pos) : Spell(pos, glm::vec3(0))
 {
 	m_type = SPELL_TYPE::NORMALATTACK;
+	m_spellBase = nullptr;
 
 	Transform tempTransform;
 	tempTransform.scale = glm::vec3(0.2f, 0.2f, 0.2f);
@@ -62,6 +63,7 @@ void AttackSpell::updateRigidbody(float deltaTime, btRigidBody* body)
 		{
 			//logTrace("BOUNCE");
 			setTravelTime(0);
+			return;
 		}
 	}
 	m_bounceTime += deltaTime;
