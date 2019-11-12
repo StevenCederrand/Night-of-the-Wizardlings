@@ -594,7 +594,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 
 
 #pragma region Deflect_Render
-	shader = shaderMap->useByName(BASIC_FORWARD);
+	shader = shaderMap->useByName(FRESNEL);
 	
 	//Bind view- and projection matrix
 	bindMatrixes(shader);

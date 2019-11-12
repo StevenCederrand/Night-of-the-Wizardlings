@@ -83,6 +83,7 @@ vec3 calcDirLight(vec3 normal, vec3 diffuseColor)
     vec3 viewDir = normalize(CameraPosition - f_position.xyz);
     vec3 reflectDir = reflect(-lightDir, f_normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 16);
+
     vec3 specular = specularStr * spec * GLOBAL_lightColor;
 
     return diffuseColor + specular;
