@@ -9,6 +9,7 @@ class AOEAttack : public Spell
 {
 public:
 	AOEAttack(glm::vec3 pos, glm::vec3 direction, const FlamestrikeSpellBase* spellBase);
+	AOEAttack(glm::vec3 pos);
 	~AOEAttack();
 
 	// Virtual functions

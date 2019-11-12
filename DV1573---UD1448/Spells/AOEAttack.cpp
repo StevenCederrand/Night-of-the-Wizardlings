@@ -16,6 +16,19 @@ AOEAttack::AOEAttack(glm::vec3 pos, glm::vec3 direction, const FlamestrikeSpellB
 	setDirection(direction);
 }
 
+AOEAttack::AOEAttack(glm::vec3 pos)
+	: Spell(pos, glm::vec3(0))
+{
+	m_type = SPELL_TYPE::FLAMESTRIKE;
+	m_spellBase = nullptr;
+
+	//Transform tempTransform;
+	//tempTransform.scale = glm::vec3(0.2f, 0.2f, 0.2f);
+	//setTransform(tempTransform);
+
+	setWorldPosition(pos);
+}
+
 AOEAttack::~AOEAttack()
 {
 
