@@ -19,7 +19,8 @@ public:
 	virtual const float getDamage();
 
 	void updateActiveSpell(float deltaTime);
-
+	bool spellOnGround();
+	void setSpellBool(bool state);
 
 
 private:
@@ -34,6 +35,7 @@ private:
 	bool loadFire = true;
 	bool test123 = false;
 	bool m_updateSpellPos = true;
+	bool m_fire = false;
 
 	//new---
 	bool m_hasCollided = false;

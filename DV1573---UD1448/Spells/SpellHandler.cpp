@@ -316,12 +316,23 @@ void SpellHandler::spellUpdate(float deltaTime)
 	{
 		if (spellstest[i]->getTravelTime() > 0)
 		{
+			spellstest[i]->update(deltaTime);
+			spellstest[i]->updateRigidbody(deltaTime, m_BulletFlamestrikeSpell.at(i));
 			if (static_cast<Spell*>(spellstest[i])->getType() == FLAMESTRIKE)
 			{
 				flamestrikeUpdate(deltaTime, i);
+				AOEAttack* flamestrike = static_cast<AOEAttack*>(spellstest[i]);
+				//flamestrike->updateActiveSpell(deltaTime);
+				if (flamestrike->spellOnGround())
+				{
+					std::cout << "fire" << std::endl;
+					createSpell(flamestrike->getTransform().position, glm::vec3(0, 0, 0), FIRE);
+					flamestrike->setSpellBool(false);
+				}
 			}
-			spellstest[i]->update(deltaTime);
-			spellstest[i]->updateRigidbody(deltaTime, m_BulletFlamestrikeSpell.at(i));
+			
+
+
 			Client::getInstance()->updateSpellOnNetwork(*spellstest[i]);
 		}
 		if (spellstest[i]->getTravelTime() <= 0)

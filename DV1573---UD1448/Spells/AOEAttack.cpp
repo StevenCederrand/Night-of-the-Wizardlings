@@ -31,6 +31,19 @@ void AOEAttack::hasCollided()
 	m_hasCollided = true;
 }
 
+bool AOEAttack::spellOnGround()
+{
+	if (m_fire)
+		return true;
+	else
+		return false;
+}
+
+void AOEAttack::setSpellBool(bool state)
+{
+	m_fire = state;
+}
+
 void AOEAttack::updateActiveSpell(float deltaTime)
 {
 	
@@ -74,7 +87,7 @@ void AOEAttack::updateRigidbody(float deltaTime, btRigidBody* body)
 {
 	if (m_hasCollided)
 	{
-		m_hasCollided = false;
+		m_fire = true;
 		setTravelTime(0);
 
 	}

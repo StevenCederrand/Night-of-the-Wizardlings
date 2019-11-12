@@ -9,7 +9,7 @@ fire::fire(glm::vec3 pos, glm::vec3 direction, const FireSpellBase* spellBase)
 	setTravelTime(spellBase->m_lifeTime);
 
 	Transform tempTransform;
-	tempTransform.scale = glm::vec3(8.0f, 1.0f, 8.0f);
+	tempTransform.scale = glm::vec3(8.0f, 8.0f, 8.0f);
 	setTransform(tempTransform);
 
 	setWorldPosition(pos);
@@ -23,7 +23,7 @@ fire::fire(glm::vec3 pos)
 	m_spellBase = nullptr;
 
 	Transform tempTransform;
-	tempTransform.scale = glm::vec3(8.0f, 1.0f, 8.0f);
+	tempTransform.scale = glm::vec3(8.0f, 8.0f, 8.0f);
 	setTransform(tempTransform);
 
 	setWorldPosition(pos);
