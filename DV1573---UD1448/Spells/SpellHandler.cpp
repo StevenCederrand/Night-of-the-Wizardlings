@@ -396,6 +396,22 @@ void SpellHandler::spellCollisionCheck()
 				}
 			}
 		}
+
+		/*for (size_t j = 0; j < spellstest.size(); j++) {
+
+			glm::vec3 spellPos = spellstest.at(j)->getTransform().position;
+			float scale = spellstest.at(j)->getTransform().scale.x;
+
+			if (specificSpellCollision(spellPos, playerPos, axis, scale))
+			{
+				spellstest[j]->setTravelTime(0.0f);
+				Client::getInstance()->sendHitRequest(*spellstest[j], list[i]);
+
+				if (m_onHitCallback != nullptr) {
+					m_onHitCallback();
+				}
+			}
+		}*/
 	}
 }
 

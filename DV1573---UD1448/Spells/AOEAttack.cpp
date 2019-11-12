@@ -28,6 +28,7 @@ const bool& AOEAttack::getHasCollided() const
 
 void AOEAttack::hasCollided()
 {
+	m_hasCollided = true;
 }
 
 void AOEAttack::updateActiveSpell(float deltaTime)
@@ -44,6 +45,17 @@ void AOEAttack::updateActiveSpell(float deltaTime)
 
 	setDirection(getDirection() + deltaTime * gravityVector);
 
+	
+	if (m_hasCollided)
+	{
+		m_hasCollided = false;
+
+		if (m_bounceCounter == m_spellBase->m_maxBounces + 1)
+		{
+			//logTrace("BOUNCE");
+			setTravelTime(0);
+		}
+	}
 	//if (getSpellPos().y >= 0)
 	//{
 	//	translate(getDirection());

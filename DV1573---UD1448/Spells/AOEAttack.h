@@ -36,6 +36,7 @@ private:
 	bool m_updateSpellPos = true;
 
 	//new---
-
+	bool m_hasCollided = false;
+	int m_bounceCounter = 0;
 	const FlamestrikeSpellBase* m_spellBase;
 };
