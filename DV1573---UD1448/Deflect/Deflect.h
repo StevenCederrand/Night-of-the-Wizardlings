@@ -3,24 +3,15 @@
 #include <Pch/Pch.h>
 #include <GameObject/GameObject.h>
 
-struct DeflectRenderInformation
-{
-	Mesh* mesh;
-	Material* material;
-};
-
-class Deflect : public GameObject
-{
+class Deflect : public GameObject {
 public:
-	Deflect(DeflectRenderInformation& renderInformation, const glm::vec3& position);
+	Deflect();
+	Deflect(std::string name);
 	virtual ~Deflect();
-	virtual void update(float dt) = 0;
 
-	const DeflectRenderInformation& getRenderInformation() const;
-
+	void update(float dt);
 private:
-	DeflectRenderInformation* m_deflectRenderInformation;
-};
 
+};
 
 #endif // !_DEFLECT_H

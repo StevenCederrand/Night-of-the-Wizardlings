@@ -225,6 +225,9 @@ void Renderer::submit(GameObject* gameObject, ObjectType objType)
 	else if (objType == PICKUP) {
 		m_pickups.emplace_back(gameObject);
 	}
+	else if (objType == SHIELD) {
+		m_shieldObject.emplace_back(gameObject);
+	}
 	
 }
 
@@ -257,7 +260,8 @@ void Renderer::clear() {
 	m_pickups.clear();
 	m_spells.clear();
 	m_2DHudMap.clear();
-
+	m_deflectObject.clear();
+	m_shieldObject.clear();
 }
 
 void Renderer::removeDynamic(GameObject* gameObject, ObjectType objType)
@@ -313,8 +317,7 @@ void Renderer::destroy()
 
 void Renderer::renderDeflectBox(DeflectRender* m_deflectBox)
 {
-	
-
+	//REMOVE
 }
 
 void Renderer::renderSkybox(SkyBox* m_skybox)
@@ -457,9 +460,6 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 #pragma endregion
 	}
 
-#pragma endregion
-
-
 	//BLOOMBLUR MISSION STEP 1: SAMPLE
 	//m_bloom->bindHdrFBO();
 	renderSkybox(m_skybox);
@@ -592,6 +592,43 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 
 #pragma endregion
 
+#pragma region Deflect_Render
+	shader = shaderMap->useByName(FRESNEL);
+
+	//Bind view- and projection matrix
+	bindMatrixes(shader);
+
+	shader->setVec3("CameraPosition", m_camera->getCamPos());
+	//Add a step where we insert lights into the scene
+	shader->setInt("LightCount", m_spells.size());
+
+	//Render Deflect Objects
+	for (GameObject* object : m_shieldObject)
+	{
+		//Then through all of the meshes
+		for (int j = 0; j < object->getMeshesCount(); j++)
+		{
+			//Fetch the current mesh and its transform
+			mesh = meshMap->getMesh(object->getMeshName(j));
+
+			//Bind the material
+			object->bindMaterialToShader(shader, mesh->getMaterial());
+
+			modelMatrix = glm::mat4(1.0f);
+
+			modelMatrix = object->getMatrix(j);
+			//Bind the modelmatrix
+			shader->setMat4("modelMatrix", modelMatrix);
+
+			glBindVertexArray(mesh->getBuffers().vao);
+
+			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+			glBindVertexArray(0);
+		}
+	}
+
+#pragma endregion
 
 #pragma region Animation_Render
 	//TODO: Evaluate this implementation, should be an easier way to bind values to shaders as they're changed

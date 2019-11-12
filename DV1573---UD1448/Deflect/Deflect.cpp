@@ -1,17 +1,24 @@
 #include <Pch/Pch.h>
 #include "Deflect.h"
 
-Deflect::Deflect(DeflectRenderInformation& renderInformation, const glm::vec3& position)
+Deflect::Deflect()
+	: GameObject()
 {
-	m_deflectRenderInformation = &renderInformation;
-	setWorldPosition(position);
+	m_type = 0;
+}
+
+Deflect::Deflect(std::string name)
+	: GameObject(name)
+{
+	m_type = 0;
 }
 
 Deflect::~Deflect()
 {
+
 }
 
-const DeflectRenderInformation& Deflect::getRenderInformation() const
+void Deflect::update(float dt)
 {
-	return *m_deflectRenderInformation;
+
 }
