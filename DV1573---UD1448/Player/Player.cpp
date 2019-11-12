@@ -106,7 +106,7 @@ void Player::move(float deltaTime)
 	// Jump
 	if (Input::isKeyHeldDown(GLFW_KEY_SPACE))
 		if (m_character->canJump())
-			m_character->jump(btVector3(0.0f, 5.0f, 0.0f));
+			m_character->jump(btVector3(0.0f, 8.0f, 0.0f));
 
 	// Make sure moving is a constant speed
 	if (glm::length(m_moveDir) >= 0.0001f)
