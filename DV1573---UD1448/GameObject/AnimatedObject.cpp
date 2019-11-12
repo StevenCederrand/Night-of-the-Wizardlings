@@ -42,6 +42,10 @@ void AnimatedObject::update(float dt)
 		{
 			currentTime += dt;
 		}
+		if (currentTime >= m_stopTime)
+		{
+			isDone = true;
+		}
 	}
 
 
@@ -60,6 +64,7 @@ void AnimatedObject::update(float dt)
 			ComputeMatrix((int)i, m_meshes[i].name, animName);
 		}
 	}
+
 }
 
 //TODO: Optimize if laggy, possibly move to GPU
@@ -155,6 +160,10 @@ void AnimatedObject::initAnimations(std::string name, float startTime, float sto
 
 void AnimatedObject::playAnimation(std::string name)
 {
+	isDone = false;
+	currentAnimation = name;
+
+	tempTime = currentTime;
 	isLooping = false;
 	for (int i = 0; i < animations.size(); i++)
 	{
@@ -164,11 +173,18 @@ void AnimatedObject::playAnimation(std::string name)
 			m_stopTime = animations[i].m_stopTime/ animations[i].m_animSpeed;
 		}
 	}
-	//currentTime = m_startTime;
+	currentTime = m_startTime;
 }
 
 void AnimatedObject::playLoopAnimation(std::string name)
 {
+	if (currentAnimation == name || isDone == false)
+	{
+		return;
+	}
+	currentAnimation = name;
+	isDone = true;
+
 	isLooping = true;
 
 	for (int i = 0; i < animations.size(); i++)
@@ -179,5 +195,5 @@ void AnimatedObject::playLoopAnimation(std::string name)
 			m_stopTime = animations[i].m_stopTime / animations[i].m_animSpeed;
 		}
 	}
-	//currentTime = m_startTime;
+	currentTime = m_startTime;
 }

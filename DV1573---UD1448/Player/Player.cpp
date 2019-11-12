@@ -10,6 +10,8 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_firstPersonMesh->initAnimations("JumpAnimation", 21.0f, 35.0f);
 	m_firstPersonMesh->initAnimations("RunAnimation", 36.0f, 55.0f);
 	m_firstPersonMesh->initAnimations("IdleAnimation", 56.0f, 125.0f);
+	m_firstPersonMesh->initAnimations("DeflectAnimation", 126.0f, 175.0f);
+
 
 
 	Renderer::getInstance()->submit(m_firstPersonMesh, ANIMATEDSTATIC);
@@ -53,7 +55,9 @@ void Player::update(float deltaTime)
 		move(deltaTime);
 		attack();
 	}
+
 	updateMesh();
+
 	if (m_client->isConnectedToSever()) {
 		m_client->updatePlayerData(this);
 	}
@@ -84,7 +88,6 @@ void Player::update(float deltaTime)
 	m_special2Cooldown -= deltaTime; // Cooldown reduces with time
 	m_special3Cooldown -= deltaTime; // Cooldown reduces with time
 	
-	PlayAnimation(deltaTime);
 
 
 
@@ -94,6 +97,8 @@ void Player::update(float deltaTime)
 		m_deflecting = false;
 		m_timeLeftInDeflectState = 0.0f;
 	}
+	PlayAnimation(deltaTime);
+
 }
 
 void Player::move(float deltaTime)
@@ -165,6 +170,11 @@ void Player::PlayAnimation(float deltaTime)
 		m_firstPersonMesh->playLoopAnimation("IdleAnimation");
 		animState.idle = false;
 	}
+	if (animState.deflecting)
+	{
+		m_firstPersonMesh->playAnimation("DeflectAnimation");
+		animState.deflecting = false;
+	}
 
 	m_firstPersonMesh->update(deltaTime);
 }
@@ -188,6 +198,7 @@ void Player::attack()
 		{
 			m_specialCooldown = m_spellhandler->getReflectBase()->m_coolDown;
 			m_timeLeftInDeflectState = m_spellhandler->getReflectBase()->m_lifeTime;
+			animState.deflecting = true;
 			m_deflecting = true;
 		}
 	}
@@ -243,10 +254,14 @@ void Player::updateMesh()
 {
 	btVector3 velocity = m_character->getLinearVelocity();
 	float speed = glm::length(glm::vec3(velocity.getX(), 0.0f, velocity.getZ()));
-	if (speed > 0)
-		animState.running = true;
-	else
-		animState.idle = true;
+
+	if (animState.casting == false)
+	{
+		if (speed > 0)
+			animState.running = true;
+		else
+			animState.idle = true;
+	}
 
 	Transform m_fpsTrans;
 

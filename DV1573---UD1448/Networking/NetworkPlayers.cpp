@@ -79,13 +79,15 @@ void NetworkPlayers::update(const float& dt)
 			if (animObj != nullptr) {
 				if (p.data.animStates.running == true)
 				{
-					logTrace("e du häer");
+					logTrace("e du haer");
 					animObj->playLoopAnimation("RunAnimation");
 
 				}
 				else
 				{
-					animObj->playLoopAnimation("IdleAnimation");
+					//logTrace("e du haaaaaaaar nuuu");
+
+					//animObj->playLoopAnimation("IdleAnimation");
 				}
 
 			}

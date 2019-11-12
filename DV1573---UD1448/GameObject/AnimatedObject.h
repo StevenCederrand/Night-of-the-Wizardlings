@@ -48,6 +48,8 @@ private:
 	float m_stopTime;
 	float m_startTime;
 	float currentTime;
+	float tempTime;
+	std::string currentAnimation;
 
 	bool isLooping = false;
 	bool isDone = false;
