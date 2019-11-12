@@ -591,9 +591,10 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 
 #pragma endregion
 
+
 #pragma region Deflect_Render
 	shader = shaderMap->useByName(FRESNEL);
-
+	
 	//Bind view- and projection matrix
 	bindMatrixes(shader);
 
@@ -628,6 +629,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	}
 
 #pragma endregion
+
 
 #pragma region Animation_Render
 	//TODO: Evaluate this implementation, should be an easier way to bind values to shaders as they're changed
@@ -780,7 +782,6 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 
 
 	}
-
 	renderPickupNotifications();
 
 	renderHUD();

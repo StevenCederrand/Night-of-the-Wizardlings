@@ -257,11 +257,12 @@ void Shader::setInt(std::string name, int num)
 
 //Assumption is that you are using the shader
 void Shader::setMaterial(const std::string& materialName) {
+
 	//If material names are the same
-	if (m_oldMaterial == materialName) {
+	/*if (m_oldMaterial == materialName) {
 		return;
 	}
-	m_oldMaterial = materialName;
+	m_oldMaterial = materialName;*/
 
 	Material* mat = MaterialMap::getInstance()->getMaterial(materialName);
 	setVec3("Ambient_Color", mat->ambient);
