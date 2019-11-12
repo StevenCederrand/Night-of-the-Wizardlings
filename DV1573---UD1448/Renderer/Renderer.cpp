@@ -790,80 +790,52 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 
 void Renderer::renderSpell(SpellHandler* spellHandler)
 {
+	Mesh* meshRef;
+	Shader* shader = ShaderMap::getInstance()->getShader(BASIC_FORWARD);
+	Transform meshTransform;
+	bindMatrixes(shader); //We only need to bind this once, seeing as though we are using only one shader
 
 	for (size_t i = 0; i < m_spells.size(); i++)
 	{
+		meshTransform = m_spells[i]->getTransform();
+
+		glm::mat4 modelMatrix = glm::mat4(1.0f);
+		modelMatrix = glm::translate(modelMatrix, meshTransform.position);
+		modelMatrix = glm::scale(modelMatrix, meshTransform.scale);
+		modelMatrix *= glm::mat4_cast(meshTransform.rotation);
+
+		shader->setMat4("modelMatrix", modelMatrix);
+
 		if (m_spells[i]->getType() == NORMALATTACK)
 		{
-			Mesh* meshRef = spellHandler->getAttackBase()->m_mesh;
+			meshRef = spellHandler->getAttackBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(spellHandler->getAttackBase()->m_material);
-
-			// TODO: Fix below
-			const Transform meshTransform = m_spells[i]->getTransform();
-			glm::mat4 modelMatrix = glm::mat4(1.0f);
-			modelMatrix = glm::translate(modelMatrix, meshTransform.position);
-			modelMatrix = glm::scale(modelMatrix, meshTransform.scale);
-			modelMatrix *= glm::mat4_cast(meshTransform.rotation);
-			bindMatrixes(BASIC_FORWARD);
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
-
+			shader->setMaterial(spellHandler->getAttackBase()->m_material);
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 		}
-
 		else if (m_spells[i]->getType() == ENHANCEATTACK)
 		{
-			Mesh* meshRef = spellHandler->getEnhAttackBase()->m_mesh;
+			meshRef = spellHandler->getEnhAttackBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(spellHandler->getEnhAttackBase()->m_material);
-
-			// TODO: Fix below
-			const Transform meshTransform = m_spells[i]->getTransform();
-			glm::mat4 modelMatrix = glm::mat4(1.0f);
-			modelMatrix = glm::translate(modelMatrix, meshTransform.position);
-			modelMatrix = glm::scale(modelMatrix, meshTransform.scale);
-			modelMatrix *= glm::mat4_cast(meshTransform.rotation);
-			bindMatrixes(BASIC_FORWARD);
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
-
+			shader->setMaterial(spellHandler->getEnhAttackBase()->m_material);
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 		}
-
-		else if (m_spells[i]->getType() == REFLECT)
+		else if (m_spells[i]->getType() == REFLECT) 
 		{
-			Mesh* meshRef = spellHandler->getReflectBase()->m_mesh;
+			meshRef = spellHandler->getReflectBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(spellHandler->getReflectBase()->m_material);
-
-			// TODO: Fix below
-			const Transform meshTransform = m_spells[i]->getTransform();
-			glm::mat4 modelMatrix = glm::mat4(1.0f);
-			modelMatrix = glm::translate(modelMatrix, meshTransform.position);
-			modelMatrix = glm::scale(modelMatrix, meshTransform.scale);
-			modelMatrix *= glm::mat4_cast(meshTransform.rotation);
-			bindMatrixes(BASIC_FORWARD);
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
-
+			shader->setMaterial(spellHandler->getReflectBase()->m_material);
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 		}
 
 		else if (m_spells[i]->getType() == FLAMESTRIKE)
 		{
-			Mesh* meshRef = spellHandler->getAttackBase()->m_mesh;
+			meshRef = spellHandler->getAttackBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(spellHandler->getAttackBase()->m_material);
-
-			// TODO: Fix below
-			const Transform meshTransform = m_spells[i]->getTransform();
-			glm::mat4 modelMatrix = glm::mat4(1.0f);
-			modelMatrix = glm::translate(modelMatrix, meshTransform.position);
-			modelMatrix = glm::scale(modelMatrix, meshTransform.scale);
-			modelMatrix *= glm::mat4_cast(meshTransform.rotation);
-			bindMatrixes(BASIC_FORWARD);
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
-
+			shader->setMaterial(spellHandler->getAttackBase()->m_material);
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 		}
+
 	}
 }
 
