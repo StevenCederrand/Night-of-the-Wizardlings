@@ -19,8 +19,6 @@ in vec4 f_position;
 out vec4 color;
 out vec4 brightColor;
 
-vec3 GLOBAL_lightDirection = vec3(0.2f, -0.7f, 0.0f);
-vec3 GLOBAL_lightColor = normalize(vec3(109, 196, 199));
 float ambientStr = 0.3f;
 
 uniform vec3 CameraPosition;
@@ -31,7 +29,7 @@ uniform vec3 Specular_Color;
 uniform bool HasTex;
 
 uniform int LightCount;
-uniform sampler2D albedoTexture;
+uniform sampler2D shieldTexture;
 
 uniform int grayscale = 0;
 uniform P_LIGHT pLights[LIGHTS_MAX];
@@ -44,7 +42,8 @@ void main() {
     //vec3 ambientCol = (Ambient_Color + ambientStr);
     if (HasTex) {
         //ambientCol = (Ambient_Color + ambientStr) * texture(albedoTexture, f_UV).rgb;
-        diffuse = (Diffuse_Color * texture(albedoTexture, f_UV).rgb);
+        diffuse = texture(shieldTexture, f_UV).rgb;
+        //diffuse = Diffuse_Color;
     }
     vec3 result = diffuse;
 
