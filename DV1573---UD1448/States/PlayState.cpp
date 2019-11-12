@@ -7,6 +7,7 @@
 
 #define PLAYSECTION "PLAYSTATE"
 
+
 void logVec3(glm::vec3 vector) {
 	logTrace("Vector: ({0}, {1}, {2})", std::to_string(vector.x), std::to_string(vector.y), std::to_string(vector.z));
 }
@@ -118,9 +119,20 @@ void PlayState::update(float dt)
 			case PlayerEvents::TookDamage:
 			{
 				logWarning("[Event system] Took damage");
-				glm::vec3 hitVector = Client::getInstance()->getLatestPlayerThatHitMe()->position - m_player->getPlayerPos();
-				logVec3(hitVector);
-
+				//The hit vector
+				glm::vec3 offset = glm::normalize(m_player->getCamera()->getCamFace());
+				const auto& shooterPos = Client::getInstance()->getLatestPlayerThatHitMe()->position;
+				glm::vec3 hitVector = glm::vec3(m_player->getPlayerPos().x - shooterPos.x, shooterPos.y - m_player->getPlayerPos().y, shooterPos.z - m_player->getPlayerPos().z);
+				
+				float cosVal = glm::dot(glm::normalize(hitVector), offset);
+				//float angle = (cosVal * 180 / 3.14);;
+				
+				glm::vec3 diffVec = offset - glm::normalize(hitVector);
+				//float angle = atan2(diffVec.z, diffVec.x) * 180.0 / 3.14;
+				//angle += 180.0f;
+				logTrace("New: " + std::to_string(cosVal));
+				
+				m_hudHandler.getHudObject(DAMAGE_INDICATOR)->setRotation(glm::quat(glm::vec3(0, 0, glm::radians(cosVal))));
 				//Update the HP bar 
 				m_player->setHealth(Client::getInstance()->getMyData().health);
 				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(m_player->getHealth()) / 100);
@@ -156,7 +168,15 @@ void PlayState::update(float dt)
 			m_lastPositionOfMyKiller = lookPos;
 		}
 	}
-	
+	if (Input::isKeyHeldDown(GLFW_KEY_X)) {
+		m_rotVal += 0.01f;
+		m_hudHandler.getHudObject(DAMAGE_INDICATOR)->setRotation(glm::quat(glm::vec3(0, 0, m_rotVal)));
+	}
+
+	if (Input::isKeyHeldDown(GLFW_KEY_Z)) {
+		m_rotVal -= 0.01f;
+		
+	}
 
 	// Update game objects
 	for (GameObject* object : m_objects)

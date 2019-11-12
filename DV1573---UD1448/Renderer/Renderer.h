@@ -30,7 +30,7 @@
 
 
 #define P_LIGHT_COUNT 64
-#define P_LIGHT_RADIUS 2
+#define P_LIGHT_RADIUS 5
 
 struct ObjectRenderData {
 	Buffers buffer;

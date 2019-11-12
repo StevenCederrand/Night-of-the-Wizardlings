@@ -2,14 +2,14 @@
 #include "HudObject.h"
 
 /*	Position and size in world space	*/
-HudObject::HudObject(const std::string& texturePath, const glm::vec2& position, const glm::vec2& scale)
+HudObject::HudObject(const std::string& texturePath, const glm::vec2& position, const glm::vec2& scale, const glm::quat& rotation)
 {
 	loadTexture(texturePath);
 	setupBuffers();
 
 	m_position = position;
 	m_size = scale;
-	
+	//m_rotation = rotation;
 	// Re-do them to NDC coords
 	m_position.x = (m_position.x / SCREEN_WIDTH) * 2 - 1;
 	m_position.y = (m_position.y / SCREEN_HEIGHT) * 2 - 1;
@@ -19,7 +19,7 @@ HudObject::HudObject(const std::string& texturePath, const glm::vec2& position, 
 
 	m_alpha = 1.0f;
 	m_xClip = 1.0f;
-	m_yClip = 1.0f;
+	m_yClip = 1.0f; 
 	m_grayscale = 0;
 	updateModelMatrix();
 }
@@ -52,15 +52,21 @@ void HudObject::setGrayscale(const int& grayscale)
 	m_grayscale = grayscale;
 }
 
-void HudObject::setPosition(const glm::vec3& position)
+void HudObject::setPosition(const glm::vec2& position)
 {
 	m_position = position;
+	//setCenter();
 	updateModelMatrix();
 }
 
-void HudObject::setScale(const glm::vec3& scale)
+void HudObject::setScale(const glm::vec2& scale)
 {
 	m_size = scale;
+	updateModelMatrix();
+}
+
+void HudObject::setRotation(const glm::quat& rotation) {
+	m_rotation = rotation;
 	updateModelMatrix();
 }
 
@@ -111,6 +117,10 @@ const glm::vec3& HudObject::getFillColor() const {
 const int& HudObject::getGrayscale() const
 {
 	return m_grayscale;
+}
+
+const glm::quat& HudObject::getRotation() const {
+	return m_rotation;
 }
 
 void HudObject::setupBuffers()
@@ -173,15 +183,17 @@ void HudObject::loadTexture(const std::string& texturePath)
 	}
 	
 	stbi_image_free(data);
-
-
-
-
 }
 
 void HudObject::updateModelMatrix()
 {
 	m_modelMatrix = glm::mat4(1.0f);
-	m_modelMatrix = glm::translate(m_modelMatrix, glm::vec3(m_position, 1.0f));
-	m_modelMatrix = glm::scale(m_modelMatrix, glm::vec3(m_size, 1.0f));
+	m_modelMatrix = glm::translate(m_modelMatrix, glm::vec3(m_position, 0.0f));
+	m_modelMatrix = glm::scale(m_modelMatrix, glm::vec3(m_size, 0.0f));
+	m_modelMatrix *= glm::mat4_cast(m_rotation);
+}
+
+void HudObject::setCenter()
+{
+	m_centerPosition = m_position - m_size * 0.5;
 }
