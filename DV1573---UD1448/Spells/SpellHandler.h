@@ -61,7 +61,7 @@ private:
 	FlamestrikeSpellBase* flamestrikeBase;
 	FireSpellBase* fireBase;
 
-	void spellCollisionCheck();
+	void spellCollisionCheck(float deltaTime);
 	bool specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis, float scale);
 	glm::vec3 OBBclosestPoint(glm::vec3 &spherePos, std::vector<glm::vec3> &axis, glm::vec3 &playerPos);
 	void REFLECTupdate(float deltaTime, int i);

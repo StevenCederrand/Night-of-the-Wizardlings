@@ -400,7 +400,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 		}
 
 	}
-	spellCollisionCheck();
+	spellCollisionCheck(deltaTime);
 	
 	// Scope
 	{
@@ -446,11 +446,11 @@ const uint64_t SpellHandler::getUniqueID()
 	return id++;
 }
 
-void SpellHandler::spellCollisionCheck()
+void SpellHandler::spellCollisionCheck(float deltaTime)
 {
 	//get the list of att the players on the network
 	auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
-
+	fireDamageCounter = fireDamageCounter - deltaTime * 1;
 	for (size_t i = 0; i < list.size(); i++)
 	{
 		if (list[i].data.health <= 0)
