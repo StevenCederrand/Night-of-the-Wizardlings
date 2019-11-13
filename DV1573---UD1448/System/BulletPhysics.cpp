@@ -130,18 +130,35 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	return body;
 }
 
+void BulletPhysics::setCharacterSize(glm::vec3 halfSize)
+{
+	m_boxSize = btVector3(halfSize.x, halfSize.y, halfSize.z);
+}
+
 btDiscreteDynamicsWorld* BulletPhysics::getDynamicsWorld() const
 {
 	return m_dynamicsWorld;
 }
 
-btKinematicCharacterController* BulletPhysics::createCharacter(const glm::vec3& position)
+btVector3 BulletPhysics::getCharacterSize() const
+{
+	return m_boxSize;
+}
+
+btKinematicCharacterController* BulletPhysics::createCharacter(const glm::vec3& position, float& height)
 {
 	//create the character and add him to the dynamicsWorld
-	m_playerShape = new btCapsuleShape(1.0, 0.5);
+	//m_playerShape = new btCapsuleShape(1.0, height +2 * 1.0);
+
+	m_boxSize = btVector3(0.5, height / 2, 0.5);
+	m_playerShape = new btCapsuleShapeZ(0.5, height);
+
 	m_ghostObject = new btPairCachingGhostObject();
-	
-	m_ghostObject->setWorldTransform(btTransform(btQuaternion(0, 0, 0, 1), btVector3(position.x, position.y, position.z)));
+	btTransform startTransform;
+	startTransform.setIdentity();
+	startTransform.setOrigin(btVector3(position.x, position.y, position.z));
+	m_ghostObject->setWorldTransform(startTransform);
+
 
 	m_dynamicsWorld->getPairCache()->setInternalGhostPairCallback(m_ghostCallback);
 	m_ghostObject->setCollisionShape(m_playerShape);
@@ -153,7 +170,6 @@ btKinematicCharacterController* BulletPhysics::createCharacter(const glm::vec3& 
 	m_dynamicsWorld->addAction(m_character);
 	m_character->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 	m_character->setMaxPenetrationDepth(0.1f);
-	m_character->setUp(btVector3(0.0f, 1.0f, 0.0f));
 
 	return m_character;
 }
@@ -171,15 +187,14 @@ void BulletPhysics::removeObject(btRigidBody* body)
 void BulletPhysics::update(float dt)
 {
 	//counter to make sure that the gravity starts after 60 frames
-	if (counter > 15 && !setGravity)
+	if (m_counter > 15 && !m_setGravity)
 	{
-		m_character->setGravity(btVector3(0.0f, -20.0f, 0.0f));
-		setGravity = true;
+		m_character->setGravity(btVector3(0.0f, -35.0f, 0.0f));
+		m_setGravity = true;
 	}
-	if (!setGravity)
-		counter++;
+	if (!m_setGravity)
+		m_counter++;
 
 	// Testing deltatime based updates // JR
 	m_dynamicsWorld->stepSimulation(dt, 10, 1.0f/ 240.0f);
-
 }

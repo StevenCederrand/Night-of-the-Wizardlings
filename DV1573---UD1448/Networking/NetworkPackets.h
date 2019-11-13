@@ -28,7 +28,9 @@ enum {
 	PICKUP_NOTIFICATION,
 	HEAL_BUFF,
 	DAMAGE_BUFF_ACTIVE,
-	DAMAGE_BUFF_INACTIVE
+	DAMAGE_BUFF_INACTIVE,
+	KILL_FEED,
+	SERVER_TIME
 };
 
 /* To make sure the compiler aligns the bits */
@@ -103,16 +105,29 @@ struct RoundTimePacket {
 
 };
 
+struct KillFeedPacket {
+	RakNet::AddressOrGUID killerGuid;
+	RakNet::AddressOrGUID deadGuid;
+
+	void Serialize(bool writeToStream, RakNet::BitStream& stream)
+	{
+		stream.Serialize(writeToStream, killerGuid);
+		stream.Serialize(writeToStream, deadGuid);
+	}
+};
+
 struct SpellPacket{
 	RakNet::MessageID packetType;
 	uint64_t SpellID = 0;
 	uint32_t timestamp = 0;
 	RakNet::RakNetGUID CreatorGUID = RakNet::UNASSIGNED_RAKNET_GUID;
 	glm::vec3 Position = glm::vec3(0.0f);
+	glm::vec3 LastPosition = glm::vec3(0.0f);
 	glm::vec3 Rotation = glm::vec3(0.0f);
 	glm::vec3 Scale = glm::vec3(1.0f);
 	glm::vec3 Direction = glm::vec3(0.0f);
 	SPELL_TYPE SpellType = SPELL_TYPE::UNKNOWN;
+
 
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
@@ -121,6 +136,7 @@ struct SpellPacket{
 		stream.Serialize(writeToStream, timestamp);
 		stream.Serialize(writeToStream, CreatorGUID);
 		stream.Serialize(writeToStream, Position);
+		stream.Serialize(writeToStream, LastPosition);
 		stream.Serialize(writeToStream, Rotation);
 		stream.Serialize(writeToStream, Scale);
 		stream.Serialize(writeToStream, Direction);
@@ -176,6 +192,14 @@ struct ServerStateChange {
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
 		stream.Serialize(writeToStream, currentState);
+	}
+};
+
+struct ServerTimePacket {
+	uint32_t serverTimestamp;
+
+	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
+		stream.Serialize(writeToStream, serverTimestamp);
 	}
 };
 

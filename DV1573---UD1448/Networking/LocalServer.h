@@ -44,7 +44,7 @@ private:
 	void handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* spell, PlayerPacket* shooter, PlayerPacket* target);
 	bool validDeflect(SpellPacket* spell, PlayerPacket* target);
 	bool specificSpellCollision(const SpellPacket& spellPacket, const glm::vec3& playerPos, const std::vector<glm::vec3>& axis);
-	glm::vec3 OBBclosestPoint(const SpellPacket& spellPacket, const std::vector<glm::vec3>& axis, const glm::vec3& playerPos);
+	float OBBsqDist(const glm::vec3& spellPosition, const std::vector<glm::vec3>& axis, const glm::vec3& playerPos);
 	
 	PlayerPacket* getSpecificPlayer(const RakNet::RakNetGUID& guid);
 	SpellPacket* getSpecificSpell(const uint64_t& creatorGUID, const uint64_t& spellID);
@@ -77,6 +77,7 @@ private:
 	bool gameAlmostFinished();
 
 	void removeUnusedObjects_routine();
+	void m_updateClientsWithServertime();
 	void resetServerData();
 
 	void createPickupSpawnLocations();
@@ -108,6 +109,7 @@ private:
 	TimedCallback m_timedGameInEndStateTimer;
 	TimedCallback m_timedUnusedObjectRemoval;
 	TimedCallback m_timedPickupSpawner;
+	TimedCallback m_updateClientsWithServertimeTimer;;
 
 	
 	uint64_t m_pickupID;

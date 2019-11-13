@@ -20,9 +20,13 @@ public:
 	//objects box, sphere, capsule. (Extend.x is radius, Extend.y is height) 
 	btRigidBody* createObject(CollisionObject object, float inMass,
 		glm::vec3 position, glm::vec3 extend, glm::quat rotation = glm::quat(), float friction = 0.2f);
+	void setCharacterSize(glm::vec3 halfSize);
 
 	btDiscreteDynamicsWorld* getDynamicsWorld() const;
-	btKinematicCharacterController* createCharacter(const glm::vec3& position);
+
+	btKinematicCharacterController* createCharacter(const glm::vec3& position, float& height);
+	btVector3 getCharacterSize() const;
+
 	void removeObject(btRigidBody* body);
 
 	void update(float dt);
@@ -43,8 +47,9 @@ private:
 	btKinematicCharacterController* m_character;
 	btGhostPairCallback* m_ghostCallback;
 
-	int counter = 0;
-	bool setGravity = false;
+	int m_counter = 0;
+	bool m_setGravity = false;
+	btVector3 m_boxSize;
 };
 
 #endif

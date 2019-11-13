@@ -43,6 +43,9 @@ public:
 
 private:
 	const uint64_t getUniqueID();
+	bool m_newHit = true;
+	bool m_setcharacter = false;
+	float m_nrSubSteps = 6;
 
 	std::vector<Spell*> spells;
 	std::vector<Spell*> spellstest;
@@ -56,9 +59,11 @@ private:
 	ReflectSpellBase* reflectBase;
 	FlamestrikeSpellBase* flamestrikeBase;
 
-	void spellCollisionCheck();
-	bool specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis, float scale);
-	glm::vec3 OBBclosestPoint(glm::vec3 &spherePos, std::vector<glm::vec3> &axis, glm::vec3 &playerPos);
+	void spellCollisionCheck();	
+	bool specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis, float radius);
+	//glm::vec3 OBBclosestPoint(glm::vec3 &spherePos, std::vector<glm::vec3> &axis, glm::vec3 &playerPos);
+	float OBBsqDist(glm::vec3& spherePos, std::vector<glm::vec3>& axis, glm::vec3& playerPos);
+
 	void REFLECTupdate(float deltaTime, int i);
 	void flamestrikeUpdate(float deltaTime, int i);
 	
@@ -70,7 +75,6 @@ private:
 	
 	// Don't touch if you don't know what you are doing
 	friend class Client;
-	std::mutex m_clientSyncMutex;
 
 	struct deflectSpellData {
 		glm::vec3 direction;
