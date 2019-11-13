@@ -16,7 +16,7 @@ public:
 	void use();
 	void unuse();
 
-	void clearBinding();
+	void clearBinding(); /* CLEAR THIS BINDING AFTER EACH BATCH OF RENDERING*/
 
 	void setMat3(std::string name, glm::mat3 mat);
 	void setMat4(std::string name, glm::mat4 mat);

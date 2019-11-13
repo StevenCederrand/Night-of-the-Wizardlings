@@ -66,7 +66,9 @@ void main() {
     int lightHolder = LightCount;
     vec3 cameraHolder = CameraPosition;
     //-------------------------
-
+    vec3 viewDir = normalize(cameraHolder - f_position.xyz);
+    float fresnel = 1 - dot(viewDir,  f_normal);
+    result += fresnel;
     color = vec4(result, 1);
 }
 

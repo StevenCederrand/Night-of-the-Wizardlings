@@ -603,12 +603,8 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			mesh = p->getRenderInformation().mesh;
 			//Bind the material
 			object->bindMaterialToShader(shader, p->getRenderInformation().material);
-
-			//Apply the transform to the matrix. This should actually be done automatically in the mesh!
-
-
+				
 			//Bind the modelmatrix
-			
 			glm::mat4 mMatrix = glm::mat4(1.0f);
 			mMatrix = glm::translate(mMatrix, p->getTransform().position);
 			mMatrix *= glm::mat4_cast(p->getTransform().rotation);
