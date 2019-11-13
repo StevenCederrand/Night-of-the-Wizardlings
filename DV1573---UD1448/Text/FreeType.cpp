@@ -72,7 +72,7 @@ void FreeType::RenderText(std::string text, GLfloat x, GLfloat y,
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void FreeType::RenderText(PickupNotificationText notification,const glm::vec3& position, const glm::vec2& scale)
+void FreeType::RenderText(NotificationText notification,const glm::vec3& position, const glm::vec2& scale, bool useAlpha)
 {
 	auto& arr = notification.textParts;
 	m_hudShader->use();
@@ -89,7 +89,11 @@ void FreeType::RenderText(PickupNotificationText notification,const glm::vec3& p
 		
 		auto& pair = arr[i];
 		m_hudShader->setVec3("textColor", pair.second);
-		m_hudShader->setFloat("alpha", notification.alphaColor);
+		if(useAlpha)
+			m_hudShader->setFloat("alpha", notification.alphaColor);
+		else
+			m_hudShader->setFloat("alpha", 1.0f);
+
 		// Iterate through all characters
 		std::string::const_iterator c;
 		for (c = pair.first.begin(); c != pair.first.end(); c++)

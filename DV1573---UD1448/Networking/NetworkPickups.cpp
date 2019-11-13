@@ -37,7 +37,7 @@ void NetworkPickups::update(const float& dt)
 
 	if (clientPtr->isConnectedToSever()) {
 
-		std::lock_guard<std::mutex> lockGuard(m_mutex);
+		Client::getInstance()->updatePickupsMutexGuard();
 
 		for (size_t i = 0; i < m_pickupProps.size(); i++) {
 

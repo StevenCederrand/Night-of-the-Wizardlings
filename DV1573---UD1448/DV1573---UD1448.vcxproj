@@ -321,6 +321,9 @@
     <ClInclude Include="Player\Player.h" />
     <ClInclude Include="Renderer\PickupNotificationStructure.h" />
     <ClInclude Include="Deflect\DeflectRender.h" />
+
+    <ClInclude Include="Renderer\NotificationStructure.h" />
+    <ClInclude Include="Renderer\DeflectRender.h" />
     <ClInclude Include="Spells\ReflectSpell.h" />
     <ClInclude Include="Renderer\BloomBlur.h" />
     <ClInclude Include="Renderer\Camera.h">

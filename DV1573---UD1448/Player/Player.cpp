@@ -23,7 +23,8 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_specialSpellType3 = FLAMESTRIKE;
 
 	m_bp = bp;
-	m_character = m_bp->createCharacter(playerPosition.y);
+	float temp = 1.0f;
+	m_character = m_bp->createCharacter(playerPosition.y, temp);
 
 	m_client = Client::getInstance();
 }
@@ -42,6 +43,8 @@ void Player::update(float deltaTime)
 			move(deltaTime);
 			attack();
 		}
+
+
 	}
 	if (m_client->isConnectedToSever()) {
 		m_client->updatePlayerData(this);
@@ -108,6 +111,7 @@ void Player::move(float deltaTime)
 		if (m_character->canJump())
 			m_character->jump(btVector3(0.0f, 8.0f, 0.0f));
 
+
 	// Make sure moving is a constant speed
 	if (glm::length(m_moveDir) >= 0.0001f)
 		m_moveDir = glm::normalize(m_moveDir);
@@ -115,15 +119,15 @@ void Player::move(float deltaTime)
 	//update player position
 	btScalar yValue = std::ceil(m_character->getLinearVelocity().getY() * 100) / 100;	//Round to two decimals
 	btVector3 bulletVec = btVector3(m_moveDir.x * m_speed, -0.01f, m_moveDir.z * m_speed);
-	//m_character->setLinearVelocity(translate);
-	//m_character->setWalkDirection(translate);
+
 	m_character->setVelocityForTimeInterval(bulletVec, deltaTime);
-	
+
 	btVector3 playerPos = m_character->getGhostObject()->getWorldTransform().getOrigin();
 	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY() + 2.5f, playerPos.getZ());
 
 	m_playerCamera->setCameraPos(m_playerPosition);
 	m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
+
 }
 
 void Player::attack()
@@ -198,6 +202,7 @@ void Player::createRay()
 void Player::setPlayerPos(glm::vec3 pos)
 {
 
+	m_character->setLinearVelocity(btVector3(0.0f, 0.0f, 0.0f));
 	auto transform = m_character->getGhostObject()->getWorldTransform();
 	transform.setOrigin(btVector3(pos.x, pos.y + 1.0f, pos.z));
 	m_character->getGhostObject()->setWorldTransform(transform);

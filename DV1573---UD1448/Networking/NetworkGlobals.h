@@ -11,11 +11,14 @@ namespace NetGlobals {
 	constexpr unsigned short timeoutTimeMS = 5 * 1000;
 	constexpr uint32_t serverCountdownTimeMS = 10 * 1000;
 	constexpr uint32_t timeUntilRespawnMS = 5 * 1000;
-	constexpr uint32_t roundTimeMS = 4 * 60 * 1000;
+	constexpr uint32_t roundTimeMS = 2 * 60 * 1000;
 	constexpr uint32_t InGameEndStateTimeMS = 10 * 1000;
 	constexpr uint32_t maxDelayBeforeDeletionMS = 20 * 1000;
 	constexpr uint32_t pickupSpawnIntervalMS = 20 * 1000;
 	constexpr uint32_t damageBuffActiveTimeMS = 10 * 1000;
+	constexpr uint32_t pickupNotificationBeforeSpawnMS = 8 * 1000;
+	constexpr uint32_t RoutineCleanupTimeIntervalMS = 20 * 1000;
+	constexpr uint32_t UpdateClientsWithServerTimeIntervalMS = 250;
 	constexpr int maxPlayerHealth = 100;
 
 	//static std::mutex gameSyncMutex;

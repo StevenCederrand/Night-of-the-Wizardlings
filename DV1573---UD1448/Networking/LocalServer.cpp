@@ -28,6 +28,11 @@ LocalServer::LocalServer()
 	m_timedPickupSpawner.setExecutionInterval(NetGlobals::pickupSpawnIntervalMS);
 	m_timedPickupSpawner.registerCallback(std::bind(&LocalServer::spawnPickup, this));
 
+	m_updateClientsWithServertimeTimer.setInfinityExecutionTime(true);
+	m_updateClientsWithServertimeTimer.setExecutionInterval(NetGlobals::UpdateClientsWithServerTimeIntervalMS);
+	m_updateClientsWithServertimeTimer.registerCallback(std::bind(&LocalServer::m_updateClientsWithServertime, this));
+	m_updateClientsWithServertimeTimer.start();
+
 	unsigned int _time = unsigned int(time(NULL));
 	srand(_time);
 
@@ -123,6 +128,8 @@ void LocalServer::ThreadedUpdate()
 		currentTimeMS = RakNet::GetTimeMS();
 		timeDiff = (currentTimeMS - lastTimeMS);
 		
+		m_updateClientsWithServertimeTimer.update(timeDiff);
+
 		if (m_serverInfo.currentState == NetGlobals::SERVER_STATE::GAME_IS_STARTING) {
 			handleCountdown(timeDiff);
 		}
@@ -319,6 +326,8 @@ void LocalServer::processAndHandlePackets()
 					m_connectedPlayers[i] = playerPacket;
 					m_connectedPlayers[i].hasBeenUpdatedOnce = hasBeenUpdatedOnce;
 					m_connectedPlayers[i].latestSpawnPosition = latestSpawnPos;
+					m_connectedPlayers[i].timestamp = RakNet::GetTimeMS();
+
 
 					if (m_connectedPlayers[i].hasBeenUpdatedOnce == false) {
 						m_connectedPlayers[i].hasBeenUpdatedOnce = true;
@@ -412,9 +421,10 @@ void LocalServer::processAndHandlePackets()
 
 				for (size_t i = 0; i < spellVec.size(); i++) {
 					if (spellVec[i].SpellID == spellPacket.SpellID) {
-						spellVec[i].Position = spellPacket.Position;
-						spellVec[i].Rotation = spellPacket.Rotation;
-						spellVec[i].Direction = spellPacket.Direction;
+						spellVec[i] = spellPacket;
+
+						spellVec[i].timestamp = RakNet::GetTimeMS();
+						spellPacket.timestamp = spellVec[i].timestamp; // this will give the clients the server timestamp aswell
 					}
 				}
 
@@ -422,14 +432,15 @@ void LocalServer::processAndHandlePackets()
 				{
 					// Don't send it back to the sender
 					if (packet->guid != m_connectedPlayers[i].guid.rakNetGuid) {
-						m_serverPeer->Send(&bsIn, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_connectedPlayers[i].guid, false);
+						RakNet::BitStream spellStream;
+						spellStream.Write((RakNet::MessageID)SPELL_UPDATE);
+						spellPacket.Serialize(true, spellStream);
+						m_serverPeer->Send(&spellStream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_connectedPlayers[i].guid, false);
 					}
 
 				}
 			
 			}
-
-		
 		}
 		break;
 
@@ -529,7 +540,6 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 	axis.emplace_back(yAxis);
 	axis.emplace_back(zAxis);
 
-
 	if (specificSpellCollision(*spell, target->position, axis))
 	{
 
@@ -537,7 +547,7 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 		// then do some deflect logic otherwise just handle it as a normal collision.
 
 		if (target->inDeflectState) {
-			
+
 			if (validDeflect(spell, target))
 			{
 				// Tell the target to create a new spell in his direction
@@ -548,9 +558,6 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 
 				return;
 			}
-
-			
-
 		}
 
 		float damageMultiplier = 1.0f;
@@ -559,8 +566,8 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 			damageMultiplier = 2.5f;
 
 		float totalDamage = hitpacket->damage * damageMultiplier;
-		
-		target->health -= static_cast<int>(0.f);
+
+		target->health -= static_cast<int>(totalDamage);
 
 		target->lastHitByGuid = hitpacket->CreatorGUID;
 
@@ -578,7 +585,7 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 			hitPlayerStream.Write((RakNet::MessageID)SCORE_UPDATE);
 			target->Serialize(true, hitPlayerStream);
 			m_serverPeer->Send(&hitPlayerStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, target->guid, false);
-			
+
 			// Assign the dead player a spawn position
 			target->latestSpawnPosition = getRandomSpawnLocation();
 			logTrace("[Server] Assigned spawn position: {0}, {1}, {2}", target->latestSpawnPosition.x, target->latestSpawnPosition.y, target->latestSpawnPosition.z);
@@ -589,6 +596,16 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 			shooterPacketStream.Write((RakNet::MessageID)SCORE_UPDATE);
 			shooter->Serialize(true, shooterPacketStream);
 			m_serverPeer->Send(&shooterPacketStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, shooter->guid, false);
+
+			// Send the kill feed information
+			RakNet::BitStream killFeedStream;
+			killFeedStream.Write((RakNet::MessageID)KILL_FEED);
+			KillFeedPacket kFeed;
+			kFeed.killerGuid = shooter->guid;
+			kFeed.deadGuid = target->guid;
+			kFeed.Serialize(true, killFeedStream);
+			sendStreamToAllClients(killFeedStream, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
+
 		}
 
 		// Send a hit packet to the target
@@ -612,40 +629,53 @@ bool LocalServer::validDeflect(SpellPacket* spell, PlayerPacket* target)
 bool LocalServer::specificSpellCollision(const SpellPacket& spellPacket, const glm::vec3& playerPos, const std::vector<glm::vec3>& axis) {
 
 	bool collision = false;
-	float sphereRadius = 2.0f * spellPacket.Scale.x * 2;
+	//float sphereRadius = 2.0f * spellPacket.Scale.x * 2;
+	float sphereRadius = 1.0f * spellPacket.Scale.x;
+	
+	//line is the walking we will do.
+	float nrSubStep = 6.0f;
+	glm::vec3 line = (spellPacket.Position - spellPacket.LastPosition) / nrSubStep;
+	glm::vec3 interpolationPos = spellPacket.LastPosition;
 
-	glm::vec3 closestPoint = OBBclosestPoint(spellPacket, axis, playerPos);
-	glm::vec3 v = closestPoint - spellPacket.Position;
-
-	if (glm::dot(v, v) <= sphereRadius * sphereRadius)
+	//walk from last pos to new pos with substeps
+	for (size_t k = 0; k < nrSubStep; k++)
 	{
-		collision = true;
+		interpolationPos += line;
+
+		float distx2 = OBBsqDist(interpolationPos, axis, playerPos);
+
+		if (distx2 <= sphereRadius * sphereRadius)
+		{
+			collision = true;
+			k = nrSubStep;
+		}
 	}
 	return collision;
 }
 
-glm::vec3 LocalServer::OBBclosestPoint(const SpellPacket& spellPacket, const std::vector<glm::vec3>& axis, const glm::vec3& playerPos) {
+float LocalServer::OBBsqDist(const glm::vec3& spellPosition, const std::vector<glm::vec3>& axis, const glm::vec3& playerPos) {
 
 	float boxSize = 0.5f;
+	float dist = 0.0f;
+	glm::vec3 halfSize = glm::vec3(0.5f); // change this when real character is in
+	
 	//closest point on obb
 	glm::vec3 boxPoint = playerPos;
-	glm::vec3 ray = glm::vec3(spellPacket.Position - playerPos);
+	glm::vec3 ray = glm::vec3(spellPosition - playerPos);
 
 	for (int j = 0; j < 3; j++) {
 		float distance = glm::dot(ray, axis.at(j));
 		float distance2 = 0;
 
-		if (distance > boxSize)
-			distance2 = boxSize;
+		if (distance > halfSize[j])
+			distance2 = distance - halfSize[j];
 
-		if (distance < -boxSize)
-			distance2 = -boxSize;
+		if (distance < -halfSize[j])
+			distance2 = distance + halfSize[j];
 
-
-		boxPoint += distance2 * axis.at(j);
+		dist += distance2 * distance2;
 	}
-
-	return boxPoint;
+	return dist;
 }
 
 PlayerPacket* LocalServer::getSpecificPlayer(const RakNet::RakNetGUID& guid)
@@ -813,7 +843,7 @@ void LocalServer::hardRespawnPlayer(PlayerPacket& player)
 void LocalServer::respawnPlayers()
 {
 	for (size_t i = 0; i < m_connectedPlayers.size(); i++)
-	{
+	{	
 		m_connectedPlayers[i].health = NetGlobals::maxPlayerHealth;
 	
 		RakNet::BitStream stream;
@@ -932,7 +962,7 @@ void LocalServer::handlePickupTimer(const uint32_t& diff)
 {
 	m_timedPickupSpawner.update(static_cast<float>(diff));
 
-	if (m_timedPickupSpawner.getTimeLeftOnInterval() <= 5.0f * 1000.0f && !m_pickupNotified) {
+	if (m_timedPickupSpawner.getTimeLeftOnInterval() <= NetGlobals::pickupNotificationBeforeSpawnMS && !m_pickupNotified) {
 		m_pickupNotified = true;
 		notifyPickup();
 	}
@@ -1038,6 +1068,16 @@ void LocalServer::removeUnusedObjects_routine()
 		
 	}
 
+}
+
+void LocalServer::m_updateClientsWithServertime()
+{
+	RakNet::BitStream stream;
+	stream.Write((RakNet::MessageID)SERVER_TIME);
+	ServerTimePacket time;
+	time.serverTimestamp = RakNet::GetTimeMS();
+	time.Serialize(true, stream);
+	sendStreamToAllClients(stream);
 }
 
 void LocalServer::resetServerData()

@@ -26,7 +26,7 @@
 #include <Renderer/BloomBlur.h>
 #include <Spells/SpellHandler.h>
 #include <HUD/HudObject.h>
-#include "PickupNotificationStructure.h"
+#include "NotificationStructure.h"
 #include <Text/FreeType.h>
 #include <Deflect/DeflectRender.h>
 
@@ -61,7 +61,8 @@ enum ObjectType {
 class Renderer
 {
 private:
-	std::vector<PickupNotificationText> m_pickupNotifications;
+	std::vector<NotificationText> m_bigNotifications;
+	std::vector<NotificationText> m_killFeed;
 
 private:
 	static Renderer* m_rendererInstance;
@@ -138,6 +139,9 @@ private:
 	
 
 	void renderPickupNotifications();
+	void renderHUD();
+	void renderBigNotifications();
+	void renderKillFeed();
 	void createDepthMap();
 	void initShaders();
 	void bindMatrixes(const std::string& shaderName);
@@ -167,7 +171,8 @@ public:
 	//void renderSpell();
 	void renderHUD();
 	void renderDebug();
-	void addPickupNotificationText(PickupNotificationText notification);
+	void addBigNotification(NotificationText notification);
+	void addKillFeed(NotificationText notification);
 	unsigned int getTextWidth(const std::string& text, const glm::vec3& scale);
 
 	void renderSpell(SpellHandler* spellHandler);
