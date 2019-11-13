@@ -56,7 +56,7 @@ void Player::update(float deltaTime)
 		m_enhanceAttack.update(deltaTime);	
 		if (m_enhanceAttack.canAttack()) //CAN ATTACK
 		{
-			m_spellhandler->createSpell(m_playerPosition, m_directionVector, ENHANCEATTACK);
+			m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, ENHANCEATTACK);
 			m_enhanceAttack.attacked();
 		}
 		if (m_enhanceAttack.isComplete()) //DONE
@@ -120,7 +120,7 @@ void Player::move(float deltaTime)
 	btVector3 playerPos = m_character->getGhostObject()->getWorldTransform().getOrigin();
 	float characterHalfSize = m_bp->getCharacterSize().getY();
 
-	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY()+0.1f, playerPos.getZ());
+	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY()+0.05f, playerPos.getZ());
 
 
 	m_cameraPosition = m_playerPosition;

@@ -424,9 +424,13 @@ float SpellHandler::OBBsqDist(glm::vec3& spherePos, std::vector<glm::vec3>& axis
 	glm::vec3 boxPoint = playerPos;
 	boxPoint.y += halfSize.y;
 
-	logTrace("X:  " + std::to_string(boxPoint.x) + " Y: " + std::to_string(boxPoint.y) + " Z: " + std::to_string(boxPoint.z));
+	/*logTrace("X:  " + std::to_string(boxPoint.x) +
+		" Y: " + std::to_string(boxPoint.y) + 
+		" Z: " + std::to_string(boxPoint.z));
 
-	logTrace("X:  " + std::to_string(halfSize.x) + " Y: " + std::to_string(halfSize.y) + " Z: " + std::to_string(halfSize.z));
+	logTrace("X:  " + std::to_string(halfSize.x) + 
+		" Y: " + std::to_string(halfSize.y) + 
+		" Z: " + std::to_string(halfSize.z));*/
 
 	glm::vec3 ray = glm::vec3(spherePos - boxPoint);
 
