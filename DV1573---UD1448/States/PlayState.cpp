@@ -21,7 +21,9 @@ PlayState::PlayState()
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
 
 	m_camera = new Camera();
-	m_player = new Player(m_bPhysics, "Player", glm::vec3(0.0f, 2.0f, 0.0f), m_camera, m_spellHandler);
+
+	m_player = new Player(m_bPhysics, "Player", glm::vec3(10.40f, 14.5f, 8.0f), m_camera, m_spellHandler);
+
 	Renderer::getInstance()->setupCamera(m_player->getCamera());
 
 	//TODO: organized loading system?
@@ -54,7 +56,7 @@ PlayState::PlayState()
 	for (size_t i = 0; i < m_objects.size(); i++)
 	{
 		m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);	
-		m_objects.at(i)->createDebugDrawer();
+		//m_objects.at(i)->createDebugDrawer();
 	}
 
 	if(Client::getInstance()->isInitialized())
@@ -103,6 +105,7 @@ void PlayState::update(float dt)
 
 			case PlayerEvents::Died: 
 			{
+
 				logWarning("[Event system] Died");
 				//Update the HP bar 
 				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(m_player->getHealth()) / 100);
@@ -200,6 +203,55 @@ void PlayState::update(float dt)
 	if (!m_hideHUD) {
 		HUDHandler();
 	}
+
+	//if (Input::isKeyPressed(GLFW_KEY_K)) {
+	//	NotificationText t;
+	//	t.alphaColor = 1.0f;
+	//	t.width = 0;
+	//	t.scale = glm::vec3(0.35f);
+	//	t.useAlpha = false;
+	//	t.lifeTimeInSeconds = 5.0f;
+
+	//	glm::vec3 playerColor = glm::vec3(1.0f, 0.5f, 0.0f);
+
+	//	std::string killername = std::string("sdddddddddddddd");
+	//	t.width += Renderer::getInstance()->getTextWidth(killername, t.scale);
+	//	t.textParts.emplace_back(killername, playerColor);
+
+	//	std::string text = std::string(" killed ");
+	//	t.width += Renderer::getInstance()->getTextWidth(text, t.scale);
+	//	t.textParts.emplace_back(text, glm::vec3(1.0f, 1.0f, 1.0f));
+
+	//	std::string deadguyName = std::string("aqwsdergftyuiop");
+	//	t.width += Renderer::getInstance()->getTextWidth(deadguyName, t.scale);
+	//	t.textParts.emplace_back(deadguyName, playerColor);
+	//	
+	//	Renderer::getInstance()->addKillFeed(t);
+	//	
+	//}
+	//if (Input::isKeyPressed(GLFW_KEY_L)) {
+	//	NotificationText t;
+	//	t.alphaColor = 1.0f;
+	//	t.width = 0;
+	//	t.scale = glm::vec3(0.60f);
+	//	t.useAlpha = true;
+	//	t.lifeTimeInSeconds = 6.0f;
+
+	//	
+	//	std::string type = "Test notification ";
+	//	glm::vec3 color = glm::vec3(1.0f, 0.2f, 0.2f);
+	//	t.width += Renderer::getInstance()->getTextWidth(type, t.scale);
+	//	t.textParts.emplace_back(type, color);
+	//	
+	//	std::string text = "is being tested af!";
+	//	t.width += Renderer::getInstance()->getTextWidth(text, t.scale);
+	//	glm::vec3 locColor = glm::vec3(1.0f, 1.0f, 1.0f);
+	//	t.textParts.emplace_back(text, locColor);
+
+	//	Renderer::getInstance()->addBigNotification(t);
+	//	
+	//}
+
 }
 
 void PlayState::render()

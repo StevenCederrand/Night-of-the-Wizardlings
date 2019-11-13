@@ -84,20 +84,52 @@ void Renderer::renderHUD()
 	glEnable(GL_DEPTH_TEST);
 }
 
-void Renderer::renderPickupNotifications()
+void Renderer::renderBigNotifications()
 {
 	Client::getInstance()->renderPickupNotificationsMutexGuard();
-	for (size_t i = 0; i < m_pickupNotifications.size(); i++) {
-		m_text->RenderText(m_pickupNotifications[i],								// Notification
-			glm::vec3(
-			(float)((SCREEN_WIDTH / 2.0f) - m_pickupNotifications[i].width / 2.0f), // X
-			(float)(SCREEN_HEIGHT / 1.25f),											// Y
-				0.0f),																// Z
-			glm::vec2(m_pickupNotifications[i].scale));								// SCALE
-		m_pickupNotifications[i].alphaColor -= DeltaTime * 0.20f;
+	for (size_t i = 0; i < m_bigNotifications.size(); i++) {
 
-		if (m_pickupNotifications[i].alphaColor <= 0.0f) {
-			m_pickupNotifications.erase(m_pickupNotifications.begin() + i);
+		NotificationText& notification = m_bigNotifications[i];
+
+		float xPos = (float)((SCREEN_WIDTH / 2.0f) - notification.width / 2.0f);
+		float yPos = (float)(SCREEN_HEIGHT / 1.25f) - ((60.0f * notification.scale.x) * i);
+
+		m_text->RenderText(notification, glm::vec3(xPos, yPos, 0.0f), glm::vec2(notification.scale), notification.useAlpha);
+
+		float lifeTime = notification.lifeTimeInSeconds;
+		if (lifeTime == 0.0f)
+			lifeTime = 1.0f;
+
+		notification.alphaColor -= DeltaTime * (1.0f / lifeTime);
+
+		if (notification.alphaColor <= 0.0f) {
+			m_bigNotifications.erase(m_bigNotifications.begin() + i);
+			i--;
+		}
+	}
+}
+
+void Renderer::renderKillFeed()
+{
+	Client::getInstance()->renderKillFeedMutexGuard();
+	for (size_t i = 0; i < m_killFeed.size(); i++) {
+		
+		NotificationText& notification = m_killFeed[i];
+
+		float xPos = (float)((SCREEN_WIDTH) - notification.width - 25.0f);
+		float yPos = (float)(SCREEN_HEIGHT - ((60.0f * notification.scale.x) * (i + 1)));
+		
+		m_text->RenderText(notification, glm::vec3(xPos, yPos, 0.0f), glm::vec2(notification.scale), notification.useAlpha);
+
+		float lifeTime = notification.lifeTimeInSeconds;
+		if (lifeTime == 0.0f)
+			lifeTime = 1.0f;
+
+
+		notification.alphaColor -= DeltaTime * (1.0f / lifeTime);
+
+		if (notification.alphaColor <= 0.0f) {
+			m_killFeed.erase(m_killFeed.begin() + i);
 			i--;
 		}
 	}
@@ -258,10 +290,13 @@ void Renderer::clear() {
 	m_anistaticObjects.clear();
 	m_anidynamicObjects.clear();
 	m_pickups.clear();
+	m_killFeed.clear();
+	m_bigNotifications.clear();
 	m_spells.clear();
 	m_2DHudMap.clear();
 	m_deflectObject.clear();
 	m_shieldObject.clear();
+
 }
 
 void Renderer::removeDynamic(GameObject* gameObject, ObjectType objType)
@@ -778,12 +813,14 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 		m_text->RenderText("Health: " + std::to_string(Client::getInstance()->getMyData().health), 10.0f, 680.0f, 0.45f, glm::vec3(1.0f, 1.0f, 1.0f));
 		
 		if(state == NetGlobals::SERVER_STATE::GAME_IN_SESSION)
-			m_text->RenderText("Kills: " + std::to_string(Client::getInstance()->getMyData().numberOfKills), 1000.0f, 680.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+			m_text->RenderText("Kills: " + std::to_string(Client::getInstance()->getMyData().numberOfKills), 10.0f, 620.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
 
 
 	}
-	renderPickupNotifications();
 
+
+	renderBigNotifications();
+	renderKillFeed();
 	renderHUD();
 }
 
@@ -870,9 +907,14 @@ void Renderer::renderDebug()
 	}
 }
 
-void Renderer::addPickupNotificationText(PickupNotificationText notification)
+void Renderer::addBigNotification(NotificationText notification)
 {
-	m_pickupNotifications.push_back(notification);
+	m_bigNotifications.push_back(notification);
+}
+
+void Renderer::addKillFeed(NotificationText notification)
+{
+	m_killFeed.push_back(notification);
 }
 
 unsigned int Renderer::getTextWidth(const std::string& text, const glm::vec3& scale)

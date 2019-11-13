@@ -27,7 +27,7 @@ private:
 
 private:
 	friend class Client;
-	std::mutex m_mutex;
+
 	PickupRenderInformation m_healthRenderInformation;
 	PickupRenderInformation m_damagaRenderInformation;
 	std::vector<PickupProp> m_pickupProps;
