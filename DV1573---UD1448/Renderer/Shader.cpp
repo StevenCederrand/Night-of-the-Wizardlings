@@ -270,13 +270,12 @@ void Shader::setMaterial(const std::string& materialName) {
 	setVec3("Diffuse_Color", mat->diffuse);
 	//setVec3("Specular_Color", mat->specular);
 
-	setVec2("TexAndRim", glm::vec2(1, 1));
+	setVec2("TexAndRim", glm::vec2(mat->texture, mat->rimLighting));
 	
 	for (size_t i = 0; i < mat->textureID.size(); i++) {
 		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D, mat->textureID.at(i));
-	}
-	
+	}	
 }
 
 void Shader::setMaterial(Material* material)
