@@ -46,7 +46,7 @@ public:
 
 private:
 	const uint64_t getUniqueID();
-	bool m_newHit = true;
+	bool m_newHit = false;
 	bool m_setcharacter = false;
 	float m_nrSubSteps = 6;
 
@@ -91,5 +91,4 @@ private:
 
 	std::vector<deflectSpellData> m_deflectedSpells;
 	std::function<void()> m_onHitCallback;
-	bool m_newHit = true;
 };

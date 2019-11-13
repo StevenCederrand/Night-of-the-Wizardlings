@@ -139,7 +139,7 @@ private:
 	
 
 	void renderPickupNotifications();
-	void renderHUD();
+	//void renderHUD();
 	void renderBigNotifications();
 	void renderKillFeed();
 	void createDepthMap();

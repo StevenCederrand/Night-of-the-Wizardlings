@@ -510,13 +510,17 @@ void SpellHandler::spellCollisionCheck(float deltaTime)
 
 	//get the list of att the players on the network
 	auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
+	auto& ownPlayer = Client::getInstance()->getMyData();
+
 	fireDamageCounter = fireDamageCounter - deltaTime * 1;
+
 	for (size_t i = 0; i < list.size(); i++)
 	{
-		if (list[i].data.health <= 0)
+		if (list[i].data.health <= 0 || ownPlayer.health <= 0)
 			continue;
 
 		glm::vec3 playerPos = list[i].data.position;
+		glm::vec3 ownPlayerPos = ownPlayer.position;
 
 		//create the axis and rotate them
 		glm::vec3 xAxis = glm::vec3(1.0f, 0.0f, 0.0f);
@@ -531,6 +535,19 @@ void SpellHandler::spellCollisionCheck(float deltaTime)
 		axis.emplace_back(xAxis);
 		axis.emplace_back(yAxis);
 		axis.emplace_back(zAxis);
+
+		glm::vec3 xAxis1 = glm::vec3(1.0f, 0.0f, 0.0f);
+		glm::vec3 yAxis1 = glm::vec3(0.0f, 1.0f, 0.0f);
+		glm::vec3 zAxis1 = glm::vec3(0.0f, 0.0f, 1.0f);
+		std::vector<glm::vec3> axis1;
+
+		glm::rotateX(xAxis1, ownPlayer.rotation.x);
+		glm::rotateY(xAxis1, ownPlayer.rotation.y);
+		glm::rotateZ(xAxis1, ownPlayer.rotation.z);
+
+		axis1.emplace_back(xAxis1);
+		axis1.emplace_back(yAxis1);
+		axis1.emplace_back(zAxis1);
 		//create a box, obb or AABB? from the player position. Old hitdetection press L
 		if (!m_newHit)
 		{
@@ -547,6 +564,7 @@ void SpellHandler::spellCollisionCheck(float deltaTime)
 						m_onHitCallback();
 					}
 				}
+				
 			}
 
 			for (size_t j = 0; j < fireSpells.size(); j++)
@@ -554,7 +572,7 @@ void SpellHandler::spellCollisionCheck(float deltaTime)
 				glm::vec3 spellPos = fireSpells.at(j)->getTransform().position;
 
 				float scale = fireSpells.at(j)->getTransform().scale.x;
-
+				
 				if (specificSpellCollision(spellPos, playerPos, axis, scale))
 				{
 					if (fireDamageCounter <= 0)
@@ -563,6 +581,15 @@ void SpellHandler::spellCollisionCheck(float deltaTime)
 						fireDamageCounter = 1.5f;
 					}
 				}
+
+				/*if (specificSpellCollision(spellPos, ownPlayerPos, axis1, scale))
+				{
+					if (fireDamageCounter <= 0)
+					{
+						Client::getInstance()->sendHitRequest(*fireSpells[j], ownPlayer);
+						fireDamageCounter = 1.5f;
+					}
+				}*/
 			}
 		}
 		else
@@ -603,45 +630,74 @@ void SpellHandler::spellCollisionCheck(float deltaTime)
 					}
 				}
 			}
+
+			for (size_t j = 0; j < fireSpells.size(); j++)
+			{
+				glm::vec3 lastSpellPos = fireSpells.at(j)->getLastPosition();
+				glm::vec3 spellPos = fireSpells.at(j)->getTransform().position;
+
+				//get the radius from the spelltype
+				float radius = fireBase->m_radius;
+
+				//line is the walking we will do.
+				glm::vec3 line = (spellPos - lastSpellPos) / m_nrSubSteps;
+				glm::vec3 interpolationPos = lastSpellPos;
+
+				//walk from last pos to new pos with substeps
+				for (size_t k = 0; k < m_nrSubSteps; k++)
+				{
+					interpolationPos += line;
+					if (specificSpellCollision(interpolationPos, playerPos, axis, radius))
+					{
+
+						Client::getInstance()->sendHitRequest(*spells[j], list[i]);
+
+						if (m_onHitCallback != nullptr) {
+							m_onHitCallback();
+						}
+						k = m_nrSubSteps;
+					}
+				}
+			}
 		}
 		//else
 		//{
-			//for (size_t j = 0; j < spells.size(); j++)
-			//{
-			//	glm::vec3 lastSpellPos = spells.at(j)->getLastPosition();
-			//	glm::vec3 spellPos = spells.at(j)->getTransform().position;
+		//	for (size_t j = 0; j < spells.size(); j++)
+		//	{
+		//		glm::vec3 lastSpellPos = spells.at(j)->getLastPosition();
+		//		glm::vec3 spellPos = spells.at(j)->getTransform().position;
 
-			//	//get the radius from the spelltype
-			//	float radius = 0.0;
-			//	if (static_cast<Spell*>(spells[i])->getType() == NORMALATTACK) {
-			//		radius = attackBase->m_radius;
-			//	}
+		//		//get the radius from the spelltype
+		//		float radius = 0.0;
+		//		if (static_cast<Spell*>(spells[i])->getType() == NORMALATTACK) {
+		//			radius = attackBase->m_radius;
+		//		}
 
-			//	if (static_cast<Spell*>(spells[i])->getType() == ENHANCEATTACK) {
-			//		radius = enhanceAtkBase->m_radius;
-			//	}
+		//		if (static_cast<Spell*>(spells[i])->getType() == ENHANCEATTACK) {
+		//			radius = enhanceAtkBase->m_radius;
+		//		}
 
-			//	//line is the walking we will do.
-			//	glm::vec3 line = (spellPos - lastSpellPos) / m_nrSubSteps;
-			//	glm::vec3 interpolationPos = lastSpellPos;
+		//		//line is the walking we will do.
+		//		glm::vec3 line = (spellPos - lastSpellPos) / m_nrSubSteps;
+		//		glm::vec3 interpolationPos = lastSpellPos;
 
-			//	//walk from last pos to new pos with substeps
-			//	for (size_t k = 0; k < m_nrSubSteps; k++)
-			//	{
-			//		interpolationPos += line;
-			//		if (specificSpellCollision(interpolationPos, playerPos, axis, radius))
-			//		{
+		//		//walk from last pos to new pos with substeps
+		//		for (size_t k = 0; k < m_nrSubSteps; k++)
+		//		{
+		//			interpolationPos += line;
+		//			if (specificSpellCollision(interpolationPos, playerPos, axis, radius))
+		//			{
 
-			//			spells[j]->setTravelTime(0.0f);
-			//			Client::getInstance()->sendHitRequest(*spells[j], list[i]);
+		//				spells[j]->setTravelTime(0.0f);
+		//				Client::getInstance()->sendHitRequest(*spells[j], list[i]);
 
-			//			if (m_onHitCallback != nullptr) {
-			//				m_onHitCallback();
-			//			}
-			//			k = m_nrSubSteps;
-			//		}
-			//	}
-			//}
+		//				if (m_onHitCallback != nullptr) {
+		//					m_onHitCallback();
+		//				}
+		//				k = m_nrSubSteps;
+		//			}
+		//		}
+		//	}
 		//}
 	}
 }
