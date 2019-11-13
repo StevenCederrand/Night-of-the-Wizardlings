@@ -838,6 +838,8 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 
 	for (size_t i = 0; i < m_spells.size(); i++)
 	{
+		ShaderMap::getInstance()->useByName(BASIC_FORWARD);
+
 		if (m_spells[i]->getType() == NORMALATTACK)
 		{
 			Mesh* meshRef = spellHandler->getAttackBase()->m_mesh;
@@ -900,14 +902,14 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 			glBindVertexArray(0);
-			ps[i].SetPosition(meshTransform.position);
+			//ps[i].SetPosition(meshTransform.position);
 		}
 
 		else if (m_spells[i]->getType() == FLAMESTRIKE)
 		{
-			Mesh* meshRef = spellHandler->getAttackBase()->m_mesh;
+			Mesh* meshRef = spellHandler->getFlamestrikeBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(spellHandler->getAttackBase()->m_material);
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(spellHandler->getFlamestrikeBase()->m_material);
 
 			// TODO: Fix below
 			const Transform meshTransform = m_spells[i]->getTransform();
@@ -921,15 +923,15 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 			glBindVertexArray(0);
-			//ps[i].Render(m_camera, &m_flameInfo);
-			//ps[i].SetPosition(meshTransform.position);
+			ps[i].Render(m_camera, &m_flameInfo);
+			ps[i].SetPosition(meshTransform.position);
 		}
 
 		else if (m_spells[i]->getType() == FIRE)
 		{
-			Mesh* meshRef = spellHandler->getAttackBase()->m_mesh;
+			Mesh* meshRef = spellHandler->getFireBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(spellHandler->getAttackBase()->m_material);
+			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(spellHandler->getFireBase()->m_material);
 
 			// TODO: Fix below
 			const Transform meshTransform = m_spells[i]->getTransform();
@@ -940,7 +942,7 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 			bindMatrixes(BASIC_FORWARD);
 			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
 
-			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+			//glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 			glBindVertexArray(0);
 			ps[i].Render(m_camera, &m_flameInfo);

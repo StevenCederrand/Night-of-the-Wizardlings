@@ -74,7 +74,7 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase->m_material->ambient = glm::vec3(0.3f, 1.0f, 0.3f);
 
 	enhanceAtkBase->m_damage = 34.0f;
-	enhanceAtkBase->m_speed = 180.0f;
+	enhanceAtkBase->m_speed = 100.0f;
 	enhanceAtkBase->m_radius = 0.5f;
 	enhanceAtkBase->m_coolDown = 1.0f;
 	enhanceAtkBase->m_lifeTime = 5.0f;
