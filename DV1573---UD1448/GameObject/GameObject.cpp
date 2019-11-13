@@ -91,7 +91,6 @@ void GameObject::loadMesh(std::string fileName)
 					AnimationMap::getInstance()->createAnimation(animationName, tempAnimation);
 					logTrace("Animation created: {0}", animationName);
 				}
-
 				tempMesh.addAnimation(animationName);
 			}
 
@@ -312,6 +311,7 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 
 	for (size_t i = 0; i < m_meshes.size(); i++)
 	{
+		
 		const std::vector<Vertex>& vertices = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getVertices();
 
 		// Animated mesh case
