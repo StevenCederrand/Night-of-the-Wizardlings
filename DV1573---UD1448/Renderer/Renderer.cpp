@@ -174,7 +174,7 @@ void Renderer::initShaders() {
 	ShaderMap::getInstance()->createShader(ANIMATION, "Animation.vert", "FragShader.frag");
 	ShaderMap::getInstance()->createShader("Skybox_Shader", "Skybox.vs", "Skybox.fs");
 	ShaderMap::getInstance()->getShader("Skybox_Shader")->setInt("skyBox", 4);
-	ShaderMap::getInstance()->createShader(DEBUG, "VertexShader.vert", "DebugFragShader.frag");
+	ShaderMap::getInstance()->createShader(DEBUG_SHADER, "VertexShader.vert", "DebugFragShader.frag");
 	ShaderMap::getInstance()->createShader(FRESNEL, "FresnelFX.vert", "FresnelFX.frag");
 
 
@@ -257,6 +257,9 @@ void Renderer::submit(GameObject* gameObject, ObjectType objType)
 	else if (objType == PICKUP) {
 		m_pickups.emplace_back(gameObject);
 	}
+	else if (objType == SHIELD) {
+		m_shieldObject.emplace_back(gameObject);
+	}
 	
 }
 
@@ -291,6 +294,9 @@ void Renderer::clear() {
 	m_bigNotifications.clear();
 	m_spells.clear();
 	m_2DHudMap.clear();
+	m_deflectObject.clear();
+	m_shieldObject.clear();
+
 }
 
 void Renderer::removeDynamic(GameObject* gameObject, ObjectType objType)
@@ -346,14 +352,7 @@ void Renderer::destroy()
 
 void Renderer::renderDeflectBox(DeflectRender* m_deflectBox)
 {
-	glEnable(GL_BLEND);
-	auto* shader = ShaderMap::getInstance()->useByName(FRESNEL);
-	shader->setMat4("modelMatrix", m_deflectBox->getModelMatrix());
-	bindMatrixes(shader);
-	glBindVertexArray(m_deflectBox->getVAO());
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-	glBindVertexArray(0);
-
+	//REMOVE
 }
 
 void Renderer::renderSkybox(SkyBox* m_skybox)
@@ -380,7 +379,6 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	Transform transform;
 	glm::mat4 modelMatrix;
 	Shader* shader;
-	/* It is better to get the singletons directly rather than having to for every new thing, get them. BRANCHING IS A PROBLEM*/
 	MeshMap* meshMap = MeshMap::getInstance();
 	ShaderMap* shaderMap = ShaderMap::getInstance();
 
@@ -496,13 +494,10 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 #pragma endregion
 	}
 
-#pragma endregion
-
-
 	//BLOOMBLUR MISSION STEP 1: SAMPLE
 	//m_bloom->bindHdrFBO();
 	renderSkybox(m_skybox);
-	//renderDeflectBox(m_deflectBox);
+	renderDeflectBox(m_deflectBox);
 	m_spellHandler->renderSpell();
 
 #pragma region Color_Render
@@ -629,7 +624,44 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 		}
 	}
 
+#pragma endregion
 
+
+#pragma region Deflect_Render
+	shader = shaderMap->useByName(FRESNEL);
+	
+	//Bind view- and projection matrix
+	bindMatrixes(shader);
+
+	shader->setVec3("CameraPosition", m_camera->getCamPos());
+	//Add a step where we insert lights into the scene
+	shader->setInt("LightCount", m_spells.size());
+
+	//Render Deflect Objects
+	for (GameObject* object : m_shieldObject)
+	{
+		//Then through all of the meshes
+		for (int j = 0; j < object->getMeshesCount(); j++)
+		{
+			//Fetch the current mesh and its transform
+			mesh = meshMap->getMesh(object->getMeshName(j));
+
+			//Bind the material
+			object->bindMaterialToShader(shader, mesh->getMaterial());
+
+			modelMatrix = glm::mat4(1.0f);
+
+			modelMatrix = object->getMatrix(j);
+			//Bind the modelmatrix
+			shader->setMat4("modelMatrix", modelMatrix);
+
+			glBindVertexArray(mesh->getBuffers().vao);
+
+			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+			glBindVertexArray(0);
+		}
+	}
 
 #pragma endregion
 
@@ -786,6 +818,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 
 	}
 
+
 	renderBigNotifications();
 	renderKillFeed();
 	renderHUD();
@@ -794,78 +827,49 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 
 void Renderer::renderSpell(SpellHandler* spellHandler)
 {
+	Mesh* meshRef;
+	Shader* shader = ShaderMap::getInstance()->getShader(BASIC_FORWARD);
+	Transform meshTransform;
+	bindMatrixes(shader); //We only need to bind this once, seeing as though we are using only one shader
 
-	for (int i = 0; i < m_spells.size(); i++)
+	for (size_t i = 0; i < m_spells.size(); i++)
 	{
+		meshTransform = m_spells[i]->getTransform();
+
+		glm::mat4 modelMatrix = glm::mat4(1.0f);
+		modelMatrix = glm::translate(modelMatrix, meshTransform.position);
+		modelMatrix = glm::scale(modelMatrix, meshTransform.scale);
+		modelMatrix *= glm::mat4_cast(meshTransform.rotation);
+
+		shader->setMat4("modelMatrix", modelMatrix);
+
 		if (m_spells[i]->getType() == NORMALATTACK)
 		{
-			Mesh* meshRef = spellHandler->getAttackBase()->m_mesh;
+			meshRef = spellHandler->getAttackBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(spellHandler->getAttackBase()->m_material);
-
-			// TODO: Fix below
-			const Transform meshTransform = m_spells[i]->getTransform();
-			glm::mat4 modelMatrix = glm::mat4(1.0f);
-			modelMatrix = glm::translate(modelMatrix, meshTransform.position);
-			modelMatrix = glm::scale(modelMatrix, meshTransform.scale);
-			modelMatrix *= glm::mat4_cast(meshTransform.rotation);
-			bindMatrixes(BASIC_FORWARD);
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
-
+			shader->setMaterial(spellHandler->getAttackBase()->m_material);
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 		}
-
 		else if (m_spells[i]->getType() == ENHANCEATTACK)
 		{
-			Mesh* meshRef = spellHandler->getEnhAttackBase()->m_mesh;
+			meshRef = spellHandler->getEnhAttackBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(spellHandler->getEnhAttackBase()->m_material);
-
-			// TODO: Fix below
-			const Transform meshTransform = m_spells[i]->getTransform();
-			glm::mat4 modelMatrix = glm::mat4(1.0f);
-			modelMatrix = glm::translate(modelMatrix, meshTransform.position);
-			modelMatrix = glm::scale(modelMatrix, meshTransform.scale);
-			modelMatrix *= glm::mat4_cast(meshTransform.rotation);
-			bindMatrixes(BASIC_FORWARD);
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
-
+			shader->setMaterial(spellHandler->getEnhAttackBase()->m_material);
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 		}
-
-		else if (m_spells[i]->getType() == REFLECT)
+		else if (m_spells[i]->getType() == REFLECT) 
 		{
-			Mesh* meshRef = spellHandler->getReflectBase()->m_mesh;
+			meshRef = spellHandler->getReflectBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(spellHandler->getReflectBase()->m_material);
-
-			// TODO: Fix below
-			const Transform meshTransform = m_spells[i]->getTransform();
-			glm::mat4 modelMatrix = glm::mat4(1.0f);
-			modelMatrix = glm::translate(modelMatrix, meshTransform.position);
-			modelMatrix = glm::scale(modelMatrix, meshTransform.scale);
-			modelMatrix *= glm::mat4_cast(meshTransform.rotation);
-			bindMatrixes(BASIC_FORWARD);
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
-
+			shader->setMaterial(spellHandler->getReflectBase()->m_material);
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 		}
 
 		else if (m_spells[i]->getType() == FLAMESTRIKE)
 		{
-			Mesh* meshRef = spellHandler->getAttackBase()->m_mesh;
+			meshRef = spellHandler->getAttackBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMaterial(spellHandler->getAttackBase()->m_material);
-
-			// TODO: Fix below
-			const Transform meshTransform = m_spells[i]->getTransform();
-			glm::mat4 modelMatrix = glm::mat4(1.0f);
-			modelMatrix = glm::translate(modelMatrix, meshTransform.position);
-			modelMatrix = glm::scale(modelMatrix, meshTransform.scale);
-			modelMatrix *= glm::mat4_cast(meshTransform.rotation);
-			bindMatrixes(BASIC_FORWARD);
-			ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setMat4("modelMatrix", modelMatrix);
-
+			shader->setMaterial(spellHandler->getAttackBase()->m_material);
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 		}
 
@@ -875,9 +879,9 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 void Renderer::renderDebug()
 {
 	glm::mat4 modelMatrix;
-	ShaderMap::getInstance()->useByName(DEBUG);
+	ShaderMap::getInstance()->useByName(DEBUG_SHADER);
 	//Bind view- and projection matrix
-	bindMatrixes(DEBUG);	
+	bindMatrixes(DEBUG_SHADER);	
 	
 	//Render Static objects
 	for (size_t i = 0; i < m_staticObjects.size(); i++)
@@ -887,7 +891,7 @@ void Renderer::renderDebug()
 			modelMatrix = glm::mat4(1.0f);
 			//Bind the modelmatrix
 			//modelMatrix = m_staticObjects.at(i)->getMatrix(j);
-			ShaderMap::getInstance()->getShader(DEBUG)->setMat4("modelMatrix", modelMatrix);
+			ShaderMap::getInstance()->getShader(DEBUG_SHADER)->setMat4("modelMatrix", modelMatrix);
 
 			glBindVertexArray(m_staticObjects.at(i)->getDebugDrawers()[j]->getBuffers().vao);
 

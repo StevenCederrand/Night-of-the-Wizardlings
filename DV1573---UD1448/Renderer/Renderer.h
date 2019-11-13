@@ -7,7 +7,7 @@
 #define DEPTH_MAP "Depth_Map"
 #define SKYBOX "Skybox_Shader"
 #define ANIMATION "Basic_Animation"
-#define DEBUG "Debug_Forward"
+#define DEBUG_SHADER "Debug_Forward"
 #define FRESNEL "Fresnel_Shader"
 //#define BLOOM "Bloom_Shader"
 //#define BLUR "Blur_Shader"
@@ -26,11 +26,11 @@
 #include <HUD/HudObject.h>
 #include "NotificationStructure.h"
 #include <Text/FreeType.h>
-#include <Renderer/DeflectRender.h>
+#include <Deflect/DeflectRender.h>
 
 
 #define P_LIGHT_COUNT 64
-#define P_LIGHT_RADIUS 2
+#define P_LIGHT_RADIUS 5
 
 struct ObjectRenderData {
 	Buffers buffer;
@@ -49,6 +49,7 @@ enum ObjectType {
 	ANIMATEDDYNAMIC,
 	SPELL,
 	PICKUP,
+	SHIELD
 };
 
 class Renderer
@@ -74,6 +75,7 @@ private:
 	std::vector<GameObject*> m_spells; 
 
 	std::vector<GameObject*> m_pickups;
+	std::vector<GameObject*> m_shieldObject;
 	std::vector<GameObject*> m_deflectObject;
 
 	std::unordered_map<GLuint, std::vector<HudObject*>> m_2DHudMap;
@@ -89,15 +91,14 @@ private:
 	unsigned int m_lightIndexSSBO;
 	glm::uvec2 workGroups;
 	
-
-	void renderHUD();
+	
 	void renderBigNotifications();
 	void renderKillFeed();
+
 	void createDepthMap();
 	void initShaders();
 	void bindMatrixes(const std::string& shaderName);
 	void bindMatrixes(Shader* shader);
-	
 	//BloomBlur* m_bloom;
 	//SpellHandler* m_spellHandler;
 
@@ -120,6 +121,7 @@ public:
 	void renderSkybox(SkyBox* skybox);
 	void render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandler* m_spellHandler);
 	//void renderSpell();
+	void renderHUD();
 	void renderDebug();
 	void addBigNotification(NotificationText notification);
 	void addKillFeed(NotificationText notification);

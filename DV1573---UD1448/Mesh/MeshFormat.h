@@ -44,7 +44,7 @@ struct Material
 	glm::vec3 specular;
 
 	bool texture;
-	std::vector<GLuint> textureID;
+	std::vector<GLuint> textureID;	
 };
 
 struct Buffers
@@ -71,7 +71,6 @@ struct Skeleton
 	{
 		name = "";
 	}
-
 };
 
 struct Animation

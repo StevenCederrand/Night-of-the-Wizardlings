@@ -145,7 +145,7 @@ btVector3 BulletPhysics::getCharacterSize() const
 	return m_boxSize;
 }
 
-btKinematicCharacterController* BulletPhysics::createCharacter(float& spawnHeight, float& height)
+btKinematicCharacterController* BulletPhysics::createCharacter(const glm::vec3& position, float& height)
 {
 	//create the character and add him to the dynamicsWorld
 	//m_playerShape = new btCapsuleShape(1.0, height +2 * 1.0);
@@ -156,10 +156,9 @@ btKinematicCharacterController* BulletPhysics::createCharacter(float& spawnHeigh
 	m_ghostObject = new btPairCachingGhostObject();
 	btTransform startTransform;
 	startTransform.setIdentity();
-	startTransform.setOrigin(btVector3(0, spawnHeight, 0));
-	
-	//m_ghostObject->setWorldTransform(btTransform(btQuaternion(1, 0, 0, 0), btVector3(0, spawnHeight, 0)));
+	startTransform.setOrigin(btVector3(position.x, position.y, position.z));
 	m_ghostObject->setWorldTransform(startTransform);
+
 
 	m_dynamicsWorld->getPairCache()->setInternalGhostPairCallback(m_ghostCallback);
 	m_ghostObject->setCollisionShape(m_playerShape);
