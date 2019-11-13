@@ -15,30 +15,44 @@ const std::string STEPS_SOUND = "Footsteps2.ogg";
 const std::string JUMP_SOUND = "Jump1.ogg";
 const std::string HITMARK_SOUND = "Hitmark.ogg";
 
-//Nr of sounds in total
-const int NR_OF_SOUNDS = 9;
 //Nr of sounds every player has in common.
 const int NR_OF_COMMON_SOUNDS = 6;
+//Nr of sounds only the client will hear.
+const int NR_OF_CLIENT_SOUNDS = 3;
 
-//Always put sounds that will come only from this client at the bottom of the list.
-//Put sounds that you will hear from other players aswell at the top of the list.
-//Otherwise the will be problems when creating sources for the sounds 
-//everyone has in common.
-//Also, make sure to increase NR_OF_SOUNDS
-//Make sure to increase NR_OF_COMMON_SOUNDS if it is a sound that you can hear 
-//from other players aswell. For example, you can hear other players' spells.
-enum SoundIndex {	
-	//Sounds in common here:
+//Put sounds that you will hear from yourself and other players as a SoundIndexCommon.
+//For example, you can hear other players' spells.
+//Put sounds that will come only from this client as a SoundIndexClient enum.
+//Also, make sure to increase NR_OF_CLIENT_SOUNDS or NR_OF_COMMON_SOUNDS depending 
+//on what type of sound you added.
+
+//Sounds in common here:
+enum SoundIndexCommon {		
 	BasicAttackSound,
 	DeflectSound,
 	EnhanceAttackSound,
 	TakingDamageSound,
 	StepsSound,
-	JumpSound,
-	//Sounds only for client here:
+	JumpSound	
+};
+
+//Sounds only for client here:
+enum SoundIndexClient {	
 	ThemeSong0,
-	PickupSpawnSound,	
+	PickupSpawnSound,
 	HitmarkSound
+};
+
+//Is it a sound only the client will hear (ClientSound) or
+//is it a sound you can hear from other players aswell? (CommonSound)
+struct ClientType
+{
+	SoundIndexClient bufferName;
+};
+
+struct CommonType
+{
+	SoundIndexCommon bufferName;
 };
 
 struct PlayerSoundInfo
@@ -47,9 +61,15 @@ struct PlayerSoundInfo
 	std::vector<ALuint> sources;
 };
 
+struct ClientSoundInfo
+{	
+	std::vector<ALuint> sources;
+};
+
 class SoundHandler
 {
 private:
+	ClientType* hej;
 	static SoundHandler* m_soundHandlerInstance;
 	ALCdevice* m_device;
 	ALCcontext* m_context;

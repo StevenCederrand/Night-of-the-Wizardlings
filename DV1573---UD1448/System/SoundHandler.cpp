@@ -47,6 +47,12 @@ SoundHandler::SoundHandler()
 	setSourceGain(0.3, StepsSound, myGuid);
 	setSourceGain(0.3, TakingDamageSound, myGuid);
 	setSourceGain(0.3, HitmarkSound, myGuid);
+
+	hej = new ClientType();
+
+	ClientType* lel = static_cast<ClientType*>(hej);
+
+
 }
 
 SoundHandler::~SoundHandler()
