@@ -23,8 +23,7 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_specialSpellType3 = FLAMESTRIKE;
 
 	m_bp = bp;
-	m_character = m_bp->createCharacter(playerPosition.y);
-
+	m_character = m_bp->createCharacter(playerPosition);
 	m_client = Client::getInstance();
 }
 

@@ -21,7 +21,7 @@ PlayState::PlayState()
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
 
 	m_camera = new Camera();
-	m_player = new Player(m_bPhysics, "Player", glm::vec3(0.0f, 2.0f, 0.0f), m_camera, m_spellHandler);
+	m_player = new Player(m_bPhysics, "Player", glm::vec3(10.40f, 14.5f, 8.0f), m_camera, m_spellHandler);
 	Renderer::getInstance()->setupCamera(m_player->getCamera());
 
 	//TODO: organized loading system?
@@ -181,6 +181,10 @@ void PlayState::update(float dt)
 
 			m_lastPositionOfMyKiller = lookPos;
 		}
+	}
+
+	if (Input::isKeyPressed(GLFW_KEY_H)) {
+		logVec3(m_player->getPlayerPos());
 	}
 
 	// Update game objects

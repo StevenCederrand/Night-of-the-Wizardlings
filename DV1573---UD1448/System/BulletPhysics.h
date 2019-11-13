@@ -22,7 +22,7 @@ public:
 		glm::vec3 position, glm::vec3 extend, glm::quat rotation = glm::quat(), float friction = 0.2f);
 
 	btDiscreteDynamicsWorld* getDynamicsWorld() const;
-	btKinematicCharacterController* createCharacter(float& spawnHeight);
+	btKinematicCharacterController* createCharacter(const glm::vec3& position);
 	void removeObject(btRigidBody* body);
 
 	void update(float dt);
