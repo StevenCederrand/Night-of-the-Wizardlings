@@ -54,7 +54,8 @@ enum ObjectType {
 	ANIMATEDDYNAMIC,
 	SPELL,
 	PICKUP,
-	SHIELD
+	SHIELD,
+	FIRESPELL
 };
 
 class Renderer
