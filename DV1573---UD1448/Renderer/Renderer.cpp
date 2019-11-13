@@ -503,7 +503,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			//Fetch the current mesh and its transform
 			mesh = meshMap->getMesh(object->getMeshName(j));
 
-			//Bind the material
+			//Bind the material   
 			object->bindMaterialToShader(shader, mesh->getMaterial());
 
 			modelMatrix = glm::mat4(1.0f);
@@ -811,7 +811,7 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 			meshRef = spellHandler->getAttackBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
 			shader->setMaterial(spellHandler->getAttackBase()->m_material);
-			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);	
 		}
 		else if (m_spells[i]->getType() == ENHANCEATTACK)
 		{
@@ -827,7 +827,6 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 			shader->setMaterial(spellHandler->getReflectBase()->m_material);
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 		}
-
 		else if (m_spells[i]->getType() == FLAMESTRIKE)
 		{
 			meshRef = spellHandler->getAttackBase()->m_mesh;
