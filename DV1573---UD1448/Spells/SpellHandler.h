@@ -86,4 +86,5 @@ private:
 
 	std::vector<deflectSpellData> m_deflectedSpells;
 	std::function<void()> m_onHitCallback;
+	bool m_newHit = true;
 };
