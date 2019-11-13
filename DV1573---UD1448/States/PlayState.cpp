@@ -83,7 +83,7 @@ void PlayState::update(float dt)
 	auto* clientPtr = Client::getInstance();
 	SoundHandler* shPtr = SoundHandler::getInstance();
 
-	shPtr->setSourcePosition(m_player->getPlayerPos(), HitmarkSound, Client::getInstance()->getMyData().guid);
+	shPtr->setSourcePosition(m_player->getPlayerPos(), HitmarkSound);
 	
 	for (PlayerEvents evnt = clientPtr->readNextEvent(); evnt != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
 
@@ -117,8 +117,8 @@ void PlayState::update(float dt)
 				logWarning("[Event system] Took damage");
 				m_hudHandler.getHudObject(DAMAGE_OVERLAY)->setAlpha(1.0f);
 				m_player->setHealth(Client::getInstance()->getMyData().health);	
-				shPtr->setSourcePosition(m_player->getPlayerPos(), TakingDamageSound, clientPtr->getMyData().guid);
-				shPtr->playSound(TakingDamageSound, clientPtr->getMyData().guid);
+				shPtr->setSourcePosition(m_player->getPlayerPos(), TakingDamageSound);
+				shPtr->playSound(TakingDamageSound);
 				break;
 			}
 
@@ -232,7 +232,7 @@ void PlayState::render()
 void PlayState::onSpellHit_callback()
 {
 	m_hudHandler.getHudObject(CROSSHAIR_HIT)->setAlpha(1.0f);	
-	SoundHandler::getInstance()->playSound(HitmarkSound, Client::getInstance()->getMyData().guid);
+	SoundHandler::getInstance()->playSound(HitmarkSound);
 }
 
 void PlayState::HUDHandler() {
@@ -383,7 +383,7 @@ bool PlayState::onMainMenuClick(const CEGUI::EventArgs& e)
 {
 	Renderer::getInstance()->clear();
 	m_stateManager->clearAllAndSetState(new MenuState());
-	SoundHandler::getInstance()->playSound(ThemeSong0, Client::getInstance()->getMyData().guid);
+	SoundHandler::getInstance()->playSound(ThemeSong0);
 	return true;
 }
 

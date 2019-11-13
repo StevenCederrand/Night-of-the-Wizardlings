@@ -269,7 +269,12 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="System\Main.cpp" />
-    <ClCompile Include="System\SoundHandler.cpp" />
+    <ClCompile Include="System\SoundHandler.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="System\StateManager.cpp" />
     <ClCompile Include="System\TimedCallback.cpp" />
     <ClCompile Include="System\Timer.cpp" />
@@ -360,7 +365,12 @@
     <ClInclude Include="System\Input.h" />
     <ClInclude Include="System\Lerp.h" />
     <ClInclude Include="System\Log.h" />
-    <ClInclude Include="System\SoundHandler.h" />
+    <ClInclude Include="System\SoundHandler.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="System\Randomizer.h" />
     <ClInclude Include="System\State.h" />
     <ClInclude Include="System\StateManager.h" />

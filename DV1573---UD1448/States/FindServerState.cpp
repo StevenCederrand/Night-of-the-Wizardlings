@@ -155,7 +155,7 @@ bool FindServerState::onJoinServerClicked(const CEGUI::EventArgs& e)
 				return true;
 			}
 		}
-		SoundHandler::getInstance()->stopSound(ThemeSong0, Client::getInstance()->getMyData().guid);
+		SoundHandler::getInstance()->stopSound(ThemeSong0);
 		glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		m_stateManager->clearAllAndSetState(new PlayState());
 	}

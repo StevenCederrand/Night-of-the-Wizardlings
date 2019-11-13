@@ -25,7 +25,7 @@ public:
 	btDiscreteDynamicsWorld* getDynamicsWorld() const;
 	btVector3 getCharacterSize() const;
 	btKinematicCharacterController* createCharacter(float& spawnHeight, float& height);
-	void removeObject(btRigidBody* body);
+	void removeObject(btRigidBody* body);	
 
 	void update(float dt);
 

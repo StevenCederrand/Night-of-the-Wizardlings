@@ -11,14 +11,16 @@ const std::string BASIC_ATTACK_SOUND = "Sound Effect Magic Sound HQ YouTube.ogg"
 const std::string DEFLECT_SOUND = "YouShallNotPassogg.ogg";
 const std::string ENHANCE_ATTACK_SOUND = "Magic sound effect.ogg";
 const std::string TAKING_DAMAGE_SOUND = "TakingDamage.ogg";
-const std::string STEPS_SOUND = "Footsteps2.ogg";
+const std::string STEPS_SOUND = "FootSteps2.ogg";
 const std::string JUMP_SOUND = "Jump1.ogg";
 const std::string HITMARK_SOUND = "Hitmark.ogg";
 
 //Nr of sounds every player has in common.
-const int NR_OF_COMMON_SOUNDS = 6;
+const int NR_OF_COMMON_SOUNDS = 5;
 //Nr of sounds only the client will hear.
-const int NR_OF_CLIENT_SOUNDS = 3;
+const int NR_OF_CLIENT_SOUNDS = 4;
+//Nr of sounds in total
+const int NR_OF_SOUNDS = 9;
 
 //Put sounds that you will hear from yourself and other players as a SoundIndexCommon.
 //For example, you can hear other players' spells.
@@ -30,8 +32,7 @@ const int NR_OF_CLIENT_SOUNDS = 3;
 enum SoundIndexCommon {		
 	BasicAttackSound,
 	DeflectSound,
-	EnhanceAttackSound,
-	TakingDamageSound,
+	EnhanceAttackSound,	
 	StepsSound,
 	JumpSound	
 };
@@ -40,19 +41,8 @@ enum SoundIndexCommon {
 enum SoundIndexClient {	
 	ThemeSong0,
 	PickupSpawnSound,
-	HitmarkSound
-};
-
-//Is it a sound only the client will hear (ClientSound) or
-//is it a sound you can hear from other players aswell? (CommonSound)
-struct ClientType
-{
-	SoundIndexClient bufferName;
-};
-
-struct CommonType
-{
-	SoundIndexCommon bufferName;
+	HitmarkSound,
+	TakingDamageSound
 };
 
 struct PlayerSoundInfo
@@ -68,16 +58,14 @@ struct ClientSoundInfo
 
 class SoundHandler
 {
-private:
-	ClientType* hej;
+private:	
 	static SoundHandler* m_soundHandlerInstance;
 	ALCdevice* m_device;
 	ALCcontext* m_context;
-	std::vector<ALuint> m_buffers;		
+	std::vector<ALuint> m_buffersCommon;
+	std::vector<ALuint> m_buffersClient;
 	std::vector<PlayerSoundInfo> m_playerSoundInfo;	
-	ALuint themeSong0Source;
-	ALuint pickupSpawnSource;
-	ALuint hitmarkSource;
+	ClientSoundInfo m_clientSoundInfo;	
 	ALenum m_error;
 	int m_nrOfPlayers; // Including me
 
@@ -90,31 +78,55 @@ public:
 	void destroy();
 
 	void loadAllSound();
-	int loadSound(SoundIndex whatSound);
+	int loadSound(SoundIndexClient whatSound);
+	int loadSound(SoundIndexCommon whatSound);
+	
+	void attachBuffersToClientSources();
 	int attachBuffersToPlayerSources(RakNet::AddressOrGUID playerID);
 
-	void playSound(SoundIndex bufferName, RakNet::AddressOrGUID playerID);
-	void pauseSound(SoundIndex bufferName, RakNet::AddressOrGUID playerID);
-	void stopSound(SoundIndex buffereName, RakNet::AddressOrGUID playerID);
+	void playSound(SoundIndexClient whatSound);
+	void playSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
+
+	void pauseSound(SoundIndexClient whatSound);
+	void pauseSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
+
+	void stopSound(SoundIndexClient whatSound);
+	void stopSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
 
 	void setListenerPos(glm::vec3 pos);
 	void setListenerVelocity(glm::vec3 vel);
 	void setListenerOrientation(glm::vec3 lookAt, glm::vec3 up);
 
-	void setSourcePitch(float pitch, SoundIndex bufferName, RakNet::AddressOrGUID playerID);
-	void setSourceGain(float gain, SoundIndex bufferName, RakNet::AddressOrGUID playerID);
-	void setSourceMaxDistance(float dist, SoundIndex bufferName, RakNet::AddressOrGUID playerID);
-	void setSourcePosition(glm::vec3 pos, SoundIndex bufferName, RakNet::AddressOrGUID playerID);
-	void setSourceVelocity(glm::vec3 vel, SoundIndex bufferName, RakNet::AddressOrGUID playerID);
-	void setSourceDirection(glm::vec3 dir, SoundIndex bufferName, RakNet::AddressOrGUID playerID);
-	void setSourceType(ALenum type, SoundIndex bufferName, RakNet::AddressOrGUID playerID); //AL_UNDETERMINED, AL_STATIC or AL_STREAMING
-	void setSourceLooping(bool looping, SoundIndex bufferName, RakNet::AddressOrGUID playerID);
+	void setSourcePitch(float pitch, SoundIndexClient whatSound);
+	void setSourcePitch(float pitch, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
 
+	void setSourceGain(float gain, SoundIndexClient whatSound);
+	void setSourceGain(float gain, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
+	
+	void setSourceMaxDistance(float dist, SoundIndexClient whatSound);
+	void setSourceMaxDistance(float dist, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
+	
+	void setSourcePosition(glm::vec3 pos, SoundIndexClient whatSound);
+	void setSourcePosition(glm::vec3 pos, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
+	
+	void setSourceVelocity(glm::vec3 vel, SoundIndexClient whatSound);
+	void setSourceVelocity(glm::vec3 vel, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
+
+	void setSourceDirection(glm::vec3 dir, SoundIndexClient whatSound);
+	void setSourceDirection(glm::vec3 dir, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
+
+	void setSourceType(ALenum type, SoundIndexClient whatSound); //AL_UNDETERMINED, AL_STATIC or AL_STREAMING
+	void setSourceType(ALenum type, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID); //AL_UNDETERMINED, AL_STATIC or AL_STREAMING
+
+	void setSourceLooping(bool looping, SoundIndexClient whatSound);
+	void setSourceLooping(bool looping, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
+	
 	void setPlayerGUIDs();	
 	void addPlayer(RakNet::AddressOrGUID guid);
 	void removePlayer(RakNet::AddressOrGUID guid);
 
-	const ALint& getSourceState(SoundIndex bufferName, RakNet::AddressOrGUID playerID) const;
+	const ALint& getSourceState(SoundIndexClient whatSound) const;
+	const ALint& getSourceState(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID) const;
 	//source relative?	
 };
 

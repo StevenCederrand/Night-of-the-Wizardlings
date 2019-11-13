@@ -6,9 +6,11 @@ SoundHandler* SoundHandler::m_soundHandlerInstance = 0;
 
 SoundHandler::SoundHandler()
 {	
-	m_nrOfPlayers = 1;
+	m_nrOfPlayers = 1;	
 	
-	m_buffers.resize(NR_OF_SOUNDS);	
+	m_buffersClient.resize(NR_OF_CLIENT_SOUNDS);	
+	m_buffersCommon.resize(NR_OF_COMMON_SOUNDS);
+	m_clientSoundInfo.sources.resize(NR_OF_CLIENT_SOUNDS);
 
 	m_device = alcOpenDevice(NULL);
 
@@ -33,6 +35,7 @@ SoundHandler::SoundHandler()
 
 	loadAllSound();
 	setPlayerGUIDs();
+	attachBuffersToClientSources();
 	for (int i = 0; i < m_nrOfPlayers; i++)
 	{
 		attachBuffersToPlayerSources(m_playerSoundInfo.at(i).guid);
@@ -45,14 +48,8 @@ SoundHandler::SoundHandler()
 	setSourceGain(0.2, EnhanceAttackSound, myGuid);
 	setSourceGain(0.3, JumpSound, myGuid);
 	setSourceGain(0.3, StepsSound, myGuid);
-	setSourceGain(0.3, TakingDamageSound, myGuid);
-	setSourceGain(0.3, HitmarkSound, myGuid);
-
-	hej = new ClientType();
-
-	ClientType* lel = static_cast<ClientType*>(hej);
-
-
+	setSourceGain(0.3, TakingDamageSound);
+	setSourceGain(0.3, HitmarkSound);
 }
 
 SoundHandler::~SoundHandler()
@@ -71,10 +68,21 @@ SoundHandler::~SoundHandler()
 		}
 	}	
 
-	for (int i = 0; i < m_buffers.size(); i++)
-	{		
-		alDeleteBuffers(1, &m_buffers[i]);
+	for (int i = 0; i < m_clientSoundInfo.sources.size(); i++)
+	{
+		alSourcei(m_clientSoundInfo.sources.at(i), AL_BUFFER, NULL);
+		alDeleteSources(1, &m_clientSoundInfo.sources.at(i));
 	}	
+
+	for (int i = 0; i < m_buffersClient.size(); i++)
+	{		
+		alDeleteBuffers(1, &m_buffersClient[i]);
+	}	
+
+	for (int i = 0; i < m_buffersCommon.size(); i++)
+	{
+		alDeleteBuffers(1, &m_buffersCommon[i]);
+	}
 
 	//m_context = alcGetCurrentContext();
 	m_device = alcGetContextsDevice(m_context);
@@ -151,43 +159,25 @@ void SoundHandler::loadAllSound()
 	}
 }
 
-//Returns the source name (position in the buffer array) which you use 
-//when you call playSound(int sourceName). Or just use the enums.
-//Returns -1 if failed
-int SoundHandler::loadSound(SoundIndex whatSound)
+int SoundHandler::loadSound(SoundIndexClient whatSound)
 {
-	std::string fileName = SOUNDEFFECTPATH;		
+	std::string fileName = SOUNDEFFECTPATH;
 
 	switch (whatSound)
 	{
 	case ThemeSong0:
-		fileName += THEME_SONG0;		
-		break;
-	case BasicAttackSound:
-		fileName += BASIC_ATTACK_SOUND;		
-		break;
-	case DeflectSound:
-		fileName += DEFLECT_SOUND;
-		break;
-	case EnhanceAttackSound:
-		fileName += ENHANCE_ATTACK_SOUND;
-		break;
+		fileName += THEME_SONG0;
+		break;		
 	case TakingDamageSound:
 		fileName += TAKING_DAMAGE_SOUND;
-		break;	
-	case StepsSound:
-		fileName += STEPS_SOUND;
-		break;
-	case JumpSound:
-		fileName += JUMP_SOUND;
-		break;
+		break;		
 	case PickupSpawnSound:
 		break;
 	case HitmarkSound:
 		fileName += HITMARK_SOUND;
-		break;
+		break;	
 	}
-	
+
 	FILE* fp = 0;
 	OggVorbis_File vf;
 	vorbis_info* vInfo;
@@ -207,16 +197,16 @@ int SoundHandler::loadSound(SoundIndex whatSound)
 	//Generate buffer
 	m_error = alGetError();
 
-	alGenBuffers((ALsizei)1, &m_buffers[whatSound]);
+	alGenBuffers((ALsizei)1, &m_buffersClient.at(whatSound));
 
 	m_error = alGetError();
 
 	if (m_error != AL_NO_ERROR)
 	{
-		logTrace("Error generating buffers");		
+		logTrace("Error generating buffers");
 
 		free(pcmout);
-		fclose(fp);		
+		fclose(fp);
 		return -1;
 	}
 
@@ -225,11 +215,129 @@ int SoundHandler::loadSound(SoundIndex whatSound)
 	{
 		logTrace("Stream is not a valid OggVorbis stream!");
 
-		free(pcmout);		
-		fclose(fp);		
+		free(pcmout);
+		fclose(fp);
+		ov_clear(&vf);
+		return -1;
+	}
+
+	//Fill vInfo with a new ogg vorbis info struct, determine audio format
+	vInfo = ov_info(&vf, -1);
+	format = vInfo->channels == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;	
+
+	size_t data_len = ov_pcm_total(&vf, -1) * vInfo->channels * 2; // 16bits
+	pcmout = (short*)malloc(data_len);
+	if (pcmout == 0)
+	{
+		logTrace("Out of memory");
+
+		free(pcmout);
+		fclose(fp);
+		ov_clear(&vf);
+		return -1;
+	}
+
+	//Fill pcmout buffer with ov_read data samples
+	for (size_t size = 0, offset = 0, sel = 0;
+		(size = ov_read(&vf, (char*)pcmout + offset, 4096, 0, 2, 1, (int*)& sel)) != 0;
+		offset += size)
+	{
+		if (size < 0)
+		{
+			logTrace("Something wrong with the ogg file");
+
+			free(pcmout);
+			fclose(fp);
+			ov_clear(&vf);
+			return -1;
+		}
+	}
+
+	m_error = alGetError();
+	//send data to openal, vInfo->rate is your freq in Hz
+	alBufferData(m_buffersClient[whatSound], format, pcmout, data_len, vInfo->rate);
+	if ((m_error = alGetError() != AL_NO_ERROR))
+	{
+		logTrace("Failed to send audio information buffer to OpenAL");
+
+		free(pcmout);
+		fclose(fp);
 		ov_clear(&vf);
 		return -1;
 	}	
+
+	free(pcmout);
+	fclose(fp);
+	ov_clear(&vf);
+
+	return whatSound;
+}
+
+int SoundHandler::loadSound(SoundIndexCommon whatSound)
+{
+	std::string fileName = SOUNDEFFECTPATH;
+
+	switch (whatSound)
+	{	
+	case BasicAttackSound:
+		fileName += BASIC_ATTACK_SOUND;
+		break;
+	case DeflectSound:
+		fileName += DEFLECT_SOUND;
+		break;
+	case EnhanceAttackSound:
+		fileName += ENHANCE_ATTACK_SOUND;
+		break;	
+	case StepsSound:
+		fileName += STEPS_SOUND;
+		break;
+	case JumpSound:
+		fileName += JUMP_SOUND;
+		break;	
+	}
+
+	FILE* fp = 0;
+	OggVorbis_File vf;
+	vorbis_info* vInfo;
+	ALenum format = 0;
+	short* pcmout = 0;
+
+	//Open sound file for reading
+	fopen_s(&fp, fileName.c_str(), "rb");
+
+	if (fp == 0)
+	{
+		logTrace("Could not open sound file");
+
+		return -1;
+	}
+
+	//Generate buffer
+	m_error = alGetError();
+
+	alGenBuffers((ALsizei)1, &m_buffersCommon[whatSound]);
+
+	m_error = alGetError();
+
+	if (m_error != AL_NO_ERROR)
+	{
+		logTrace("Error generating buffers");
+
+		free(pcmout);
+		fclose(fp);
+		return -1;
+	}
+
+	//Open ogg file
+	if (ov_open_callbacks(fp, &vf, NULL, 0, OV_CALLBACKS_NOCLOSE) < 0)
+	{
+		logTrace("Stream is not a valid OggVorbis stream!");
+
+		free(pcmout);
+		fclose(fp);
+		ov_clear(&vf);
+		return -1;
+	}
 
 	//Fill vInfo with a new ogg vorbis info struct, determine audio format
 	vInfo = ov_info(&vf, -1);
@@ -266,76 +374,10 @@ int SoundHandler::loadSound(SoundIndex whatSound)
 
 	m_error = alGetError();
 	//send data to openal, vInfo->rate is your freq in Hz
-	alBufferData(m_buffers[whatSound], format, pcmout, data_len, vInfo->rate);
+	alBufferData(m_buffersCommon[whatSound], format, pcmout, data_len, vInfo->rate);
 	if ((m_error = alGetError() != AL_NO_ERROR))
 	{
 		logTrace("Failed to send audio information buffer to OpenAL");
-
-		free(pcmout);
-		fclose(fp);
-		ov_clear(&vf);
-		return -1;
-	}
-	
-	//Theme song and pickup spawn sound only needs one source
-	//because we don't need the enemies sounds for them. 
-	m_error = alGetError();
-	switch (whatSound)
-	{
-	case ThemeSong0:
-		
-		alGenSources((ALsizei)1, &themeSong0Source);	
-		if ((m_error = alGetError()) != AL_NO_ERROR)
-		{
-			logTrace("Error generating sources");
-
-			free(pcmout);
-			fclose(fp);
-			ov_clear(&vf);
-			return -1;
-		}
-
-		m_error = alGetError();
-		alSourcei(themeSong0Source, AL_BUFFER, m_buffers[whatSound]);		
-		break;
-	case PickupSpawnSound:
-		
-		alGenSources((ALsizei)1, &pickupSpawnSource);
-		if ((m_error = alGetError()) != AL_NO_ERROR)
-		{
-			logTrace("Error generating sources");
-
-			free(pcmout);
-			fclose(fp);
-			ov_clear(&vf);
-			return -1;
-		}
-
-		m_error = alGetError();
-		alSourcei(pickupSpawnSource, AL_BUFFER, m_buffers[whatSound]);	
-		break;
-	case HitmarkSound:
-		
-		alGenSources((ALsizei)1, &hitmarkSource);		
-
-		if ((m_error = alGetError()) != AL_NO_ERROR)
-		{
-			logTrace("Error generating sources");
-
-			free(pcmout);
-			fclose(fp);
-			ov_clear(&vf);
-			return -1;
-		}
-
-		m_error = alGetError();
-		alSourcei(hitmarkSource, AL_BUFFER, m_buffers[whatSound]);		
-		break;
-	}	
-	
-	if ((m_error = alGetError()) != AL_NO_ERROR)
-	{
-		logTrace("Error binding buffer to source");
 
 		free(pcmout);
 		fclose(fp);
@@ -348,6 +390,25 @@ int SoundHandler::loadSound(SoundIndex whatSound)
 	ov_clear(&vf);
 
 	return whatSound;
+}
+void SoundHandler::attachBuffersToClientSources()
+{	
+	for (int i = 0; i < NR_OF_CLIENT_SOUNDS; i++)
+	{
+		m_error = alGetError();
+		alGenSources((ALsizei)1, &m_clientSoundInfo.sources.at(i));
+		if ((m_error = alGetError()) != AL_NO_ERROR)
+		{
+			logTrace("Error generating sources");			
+		}
+
+		m_error = alGetError();
+		alSourcei(m_clientSoundInfo.sources.at(i), AL_BUFFER, m_buffersClient.at(i));
+		if ((m_error = alGetError()) != AL_NO_ERROR)
+		{
+			logTrace("Error binding buffer to source");
+		}
+	}	
 }
 
 //Create sources for every player's spells and steps.
@@ -380,21 +441,16 @@ int SoundHandler::attachBuffersToPlayerSources(RakNet::AddressOrGUID playerID)
 			{
 				logTrace("Error generating sources");
 			}
-		}		
-
-		for (int i = 0; i < NR_OF_COMMON_SOUNDS; i++)
-		{
-			m_error = alGetError();
-
-			alSourcei(playerTemp->sources[i], AL_BUFFER, m_buffers[i]);
 
 			m_error = alGetError();
 
-			if (m_error != AL_NO_ERROR)
+			alSourcei(playerTemp->sources.at(i), AL_BUFFER, m_buffersCommon.at(i));
+
+			if ((m_error = alGetError()) != AL_NO_ERROR)
 			{
 				logTrace("Error binding buffer to source");
 			}
-		}			
+		}				
 	}	
 	else
 	{
@@ -404,183 +460,128 @@ int SoundHandler::attachBuffersToPlayerSources(RakNet::AddressOrGUID playerID)
 	return success;
 }
 
-void SoundHandler::playSound(SoundIndex bufferName, RakNet::AddressOrGUID playerID)
+void SoundHandler::playSound(SoundIndexClient whatSound)
 {
-
 	/*if (getSourceState(sourceName) != AL_PLAYING)
 	{
 		alSourcePlay(m_sources[sourceName]);
 	}*/		
-	if (bufferName == ThemeSong0)
+	m_error = alGetError();
+	alSourcePlay(m_clientSoundInfo.sources.at(whatSound));
+
+	if ((m_error = alGetError()) != AL_NO_ERROR)
 	{
-		m_error = alGetError();
-		alSourcePlay(themeSong0Source);
-
-		if ((m_error = alGetError()) != AL_NO_ERROR)
-		{
-			logTrace("Error playing sound");
-		}
-	}
-	else if (bufferName == PickupSpawnSound)
-	{
-		m_error = alGetError();
-		alSourcePlay(pickupSpawnSource);
-
-		if ((m_error = alGetError()) != AL_NO_ERROR)
-		{
-			logTrace("Error playing sound");
-		}
-	}
-	else if (bufferName == HitmarkSound)
-	{
-		m_error = alGetError();
-		alSourcePlay(hitmarkSource);
-
-		if ((m_error = alGetError()) != AL_NO_ERROR)
-		{
-			logTrace("Error playing sound");
-		}
-	}
-	else
-	{
-		bool found = false;
-		for (int i = 0; i < m_nrOfPlayers && !found; i++)
-		{
-			if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
-			{
- 				if (bufferName == JumpSound || bufferName == BasicAttackSound ||
-					bufferName == EnhanceAttackSound|| bufferName == TakingDamageSound)
-				{
-					m_error = alGetError();
-					alSourcePlay(m_playerSoundInfo.at(i).sources.at(bufferName));
-
-					if ((m_error = alGetError()) != AL_NO_ERROR)
-					{
-						logTrace("Error playing sound");
-					}
-				}
-				else if (getSourceState(bufferName, playerID) != AL_PLAYING)
-				{
-					m_error = alGetError();
-					alSourcePlay(m_playerSoundInfo.at(i).sources.at(bufferName));
-
-					if ((m_error = alGetError()) != AL_NO_ERROR)
-					{
-						logTrace("Error playing sound");
-					}
-				}
-				found = true;
-			}
-		}
-	}
+		logTrace("Error playing sound");
+	}			
 }
 
-void SoundHandler::pauseSound(SoundIndex bufferName, RakNet::AddressOrGUID playerID)
-{	
-	if (bufferName == ThemeSong0)
-	{
-		m_error = alGetError();
-
-		if (getSourceState(bufferName, playerID) == AL_PLAYING)
-		{
-			alSourcePause(themeSong0Source);
-		}
-
-		if ((m_error = alGetError()) != AL_NO_ERROR)
-		{
-			logTrace("Error pausing sound");
-		}
-	}
-	else if (bufferName == PickupSpawnSound)
-	{
-		m_error = alGetError();
-
-		if (getSourceState(bufferName, playerID) == AL_PLAYING)
-		{
-			alSourcePause(pickupSpawnSource);
-		}
-
-		if ((m_error = alGetError()) != AL_NO_ERROR)
-		{
-			logTrace("Error pausing sound");
-		}
-	}
-	else
-	{
-		bool found = false;
-		for (int i = 0; i < m_nrOfPlayers && !found; i++)
-		{
-			if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
-			{
-				m_error = alGetError();
-
-				if (getSourceState(bufferName, playerID) == AL_PLAYING)
-				{
-					alSourcePause(m_playerSoundInfo.at(i).sources[bufferName]);
-				}
-
-				if ((m_error = alGetError()) != AL_NO_ERROR)
-				{
-					logTrace("Error pausing sound");
-				}
-
-				found = true;
-			}
-		}
-	}
-}
-
-void SoundHandler::stopSound(SoundIndex bufferName, RakNet::AddressOrGUID playerID)
+void SoundHandler::playSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID)
 {
-	if (bufferName == ThemeSong0)
+	bool found = false;
+	for (int i = 0; i < m_nrOfPlayers && !found; i++)
 	{
-		m_error = alGetError();
-
-		if (getSourceState(bufferName, playerID) == AL_PLAYING)
+		if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
 		{
-			alSourceStop(themeSong0Source);
-		}
-
-		if ((m_error = alGetError()) != AL_NO_ERROR)
-		{
-			logTrace("Error stopping sound");
-		}
-	}
-	else if (bufferName == PickupSpawnSound)
-	{
-		m_error = alGetError();
-
-		if (getSourceState(bufferName, playerID) == AL_PLAYING)
-		{
-			alSourceStop(pickupSpawnSource);
-		}
-
-		if ((m_error = alGetError()) != AL_NO_ERROR)
-		{
-			logTrace("Error stopping sound");
-		}
-	}
-	else
-	{
-		bool found = false;
-		for (int i = 0; i < m_nrOfPlayers && !found; i++)
-		{
-			if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
+			if (whatSound == JumpSound || whatSound == BasicAttackSound ||
+				whatSound == EnhanceAttackSound)
 			{
 				m_error = alGetError();
-
-				if (getSourceState(bufferName, playerID) == AL_PLAYING)
-				{
-					alSourceStop(m_playerSoundInfo.at(i).sources.at(bufferName));
-				}
+				alSourcePlay(m_playerSoundInfo.at(i).sources.at(whatSound));
 
 				if ((m_error = alGetError()) != AL_NO_ERROR)
 				{
-					logTrace("Error stopping sound");
+					logTrace("Error playing sound");
 				}
-
-				found = true;
 			}
+			else if (getSourceState(whatSound, playerID) != AL_PLAYING)
+			{
+				m_error = alGetError();
+				alSourcePlay(m_playerSoundInfo.at(i).sources.at(whatSound));
+
+				if ((m_error = alGetError()) != AL_NO_ERROR)
+				{
+					logTrace("Error playing sound");
+				}
+			}
+			found = true;
+		}
+	}
+}
+
+void SoundHandler::pauseSound(SoundIndexClient whatSound)
+{	
+	m_error = alGetError();
+
+	if (getSourceState(whatSound) == AL_PLAYING)
+	{
+		alSourcePause(m_clientSoundInfo.sources.at(whatSound));
+	}
+
+	if ((m_error = alGetError()) != AL_NO_ERROR)
+	{
+		logTrace("Error pausing sound");
+	}	
+}
+
+void SoundHandler::pauseSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID)
+{
+	bool found = false;
+	for (int i = 0; i < m_nrOfPlayers && !found; i++)
+	{
+		if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
+		{
+			m_error = alGetError();
+
+			if (getSourceState(whatSound, playerID) == AL_PLAYING)
+			{
+				alSourcePause(m_playerSoundInfo.at(i).sources.at(whatSound));
+			}
+
+			if ((m_error = alGetError()) != AL_NO_ERROR)
+			{
+				logTrace("Error pausing sound");
+			}
+
+			found = true;
+		}
+	}
+}
+
+void SoundHandler::stopSound(SoundIndexClient whatSound)
+{	
+	m_error = alGetError();
+
+	if (getSourceState(whatSound) == AL_PLAYING)
+	{
+		alSourceStop(m_clientSoundInfo.sources.at(whatSound));
+	}
+
+	if ((m_error = alGetError()) != AL_NO_ERROR)
+	{
+		logTrace("Error stopping sound");
+	}	
+}
+
+void SoundHandler::stopSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID)
+{
+	bool found = false;
+	for (int i = 0; i < m_nrOfPlayers && !found; i++)
+	{
+		if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
+		{
+			m_error = alGetError();
+
+			if (getSourceState(whatSound, playerID) == AL_PLAYING)
+			{
+				alSourceStop(m_playerSoundInfo.at(i).sources.at(whatSound));
+			}
+
+			if ((m_error = alGetError()) != AL_NO_ERROR)
+			{
+				logTrace("Error stopping sound");
+			}
+
+			found = true;
 		}
 	}
 }
@@ -626,109 +627,72 @@ void SoundHandler::setListenerOrientation(glm::vec3 lookAt, glm::vec3 up)
 	}
 }
 
-void SoundHandler::setSourcePitch(float pitch, SoundIndex bufferName, RakNet::AddressOrGUID playerID)
+void SoundHandler::setSourcePitch(float pitch, SoundIndexClient whatSound)
+{	
+	m_error = alGetError();
+
+	alSourcef(m_clientSoundInfo.sources.at(whatSound), AL_PITCH, pitch);
+
+	if ((m_error = alGetError()) != AL_NO_ERROR)
+	{
+		logTrace("Error setting pitch to source");
+	}
+}
+
+void SoundHandler::setSourcePitch(float pitch, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID)
 {
-	if (bufferName == ThemeSong0)
+	bool found = false;
+	for (int i = 0; i < m_nrOfPlayers && !found; i++)
 	{
-		m_error = alGetError();
-
-		alSourcef(themeSong0Source, AL_PITCH, pitch);
-
-		if ((m_error = alGetError()) != AL_NO_ERROR)
+		if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
 		{
-			logTrace("Error setting pitch to source");
-		}
-	}
-	else if (bufferName == PickupSpawnSound)
-	{
-		m_error = alGetError();
+			m_error = alGetError();
 
-		alSourcef(pickupSpawnSource, AL_PITCH, pitch);
+			alSourcef(m_playerSoundInfo.at(i).sources.at(whatSound), AL_PITCH, pitch);
 
-		if ((m_error = alGetError()) != AL_NO_ERROR)
-		{
-			logTrace("Error setting pitch to source");
-		}
-	}
-	else
-	{
-		bool found = false;
-		for (int i = 0; i < m_nrOfPlayers && !found; i++)
-		{
-			if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
+			if ((m_error = alGetError()) != AL_NO_ERROR)
 			{
-				m_error = alGetError();
-
-				alSourcef(m_playerSoundInfo.at(i).sources.at(bufferName), AL_PITCH, pitch);
-
-				if ((m_error = alGetError()) != AL_NO_ERROR)
-				{
-					logTrace("Error setting pitch to source");
-				}
-				found = true;
+				logTrace("Error setting pitch to source");
 			}
+			found = true;
 		}
 	}
 }
 
-void SoundHandler::setSourceGain(float gain, SoundIndex bufferName, RakNet::AddressOrGUID playerID)
+void SoundHandler::setSourceGain(float gain, SoundIndexClient whatSound)
+{	
+	m_error = alGetError();
+
+	alSourcef(m_clientSoundInfo.sources.at(whatSound), AL_GAIN, gain);
+
+	if ((m_error = alGetError()) != AL_NO_ERROR)
+	{
+		logTrace("Error setting gain to source");
+	}	
+}
+
+void SoundHandler::setSourceGain(float gain, SoundIndexCommon bufferName, RakNet::AddressOrGUID playerID)
 {
-	if (bufferName == ThemeSong0)
+	bool found = false;
+	for (int i = 0; i < m_nrOfPlayers && !found; i++)
 	{
-		m_error = alGetError();
-
-		alSourcef(themeSong0Source, AL_GAIN, gain);
-
-		if ((m_error = alGetError()) != AL_NO_ERROR)
+		if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
 		{
-			logTrace("Error setting gain to source");
-		}
-	}
-	else if (bufferName == PickupSpawnSound)
-	{
-		m_error = alGetError();
+			m_error = alGetError();
 
-		alSourcef(pickupSpawnSource, AL_GAIN, gain);
+			alSourcef(m_playerSoundInfo.at(i).sources.at(bufferName), AL_GAIN, gain);
 
-		if ((m_error = alGetError()) != AL_NO_ERROR)
-		{
-			logTrace("Error setting gain to source");
-		}
-	}
-	else if (bufferName == HitmarkSound)
-	{
-		m_error = alGetError();
-
-		alSourcef(hitmarkSource, AL_GAIN, gain);
-
-		if ((m_error = alGetError()) != AL_NO_ERROR)
-		{
-			logTrace("Error setting gain to source");
-		}
-	}
-	else
-	{
-		bool found = false;
-		for (int i = 0; i < m_nrOfPlayers && !found; i++)
-		{
-			if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
+			if ((m_error = alGetError()) != AL_NO_ERROR)
 			{
-				m_error = alGetError();
-
-				alSourcef(m_playerSoundInfo.at(i).sources.at(bufferName), AL_GAIN, gain);
-
-				if ((m_error = alGetError()) != AL_NO_ERROR)
-				{
-					logTrace("Error setting gain to source");
-				}
-				found = true;
+				logTrace("Error setting gain to source");
 			}
+			found = true;
 		}
 	}
 }
 
 //Don't use this for now
-void SoundHandler::setSourceMaxDistance(float dist, SoundIndex bufferName, RakNet::AddressOrGUID playerID)
+void SoundHandler::setSourceMaxDistance(float dist, SoundIndexClient bufferName)
 {	
 	if (bufferName == ThemeSong0)
 	{
@@ -768,7 +732,7 @@ void SoundHandler::setSourceMaxDistance(float dist, SoundIndex bufferName, RakNe
 		bool found = false;
 		for (int i = 0; i < m_nrOfPlayers && !found; i++)
 		{
-			if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
+			/*if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
 			{
 				m_error = alGetError();
 
@@ -780,66 +744,44 @@ void SoundHandler::setSourceMaxDistance(float dist, SoundIndex bufferName, RakNe
 				}
 
 				found = true;
-			}
+			}*/
 		}
 	}
 }
 
-void SoundHandler::setSourcePosition(glm::vec3 pos, SoundIndex bufferName, RakNet::AddressOrGUID playerID)
+void SoundHandler::setSourcePosition(glm::vec3 pos, SoundIndexClient whatSound)
 {	
+	ALfloat sourcePosition[] = { pos.x, pos.y, pos.z };	
+	m_error = alGetError();
+
+	alSourcefv(m_clientSoundInfo.sources.at(whatSound), AL_POSITION, sourcePosition);
+	if ((m_error = alGetError()) != AL_NO_ERROR)
+	{
+		logTrace("Error setting position to source");
+	}	
+}
+
+void SoundHandler::setSourcePosition(glm::vec3 pos, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID)
+{
 	ALfloat sourcePosition[] = { pos.x, pos.y, pos.z };
-
-	if (bufferName == ThemeSong0)
+	bool found = false;
+	for (int i = 0; i < m_nrOfPlayers && !found; i++)
 	{
-		m_error = alGetError();
+		if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
+		{
+			m_error = alGetError();
 
-		alSourcefv(themeSong0Source, AL_POSITION, sourcePosition);
-		if ((m_error = alGetError()) != AL_NO_ERROR)
-		{
-			logTrace("Error setting position to source");
-		}
-	}
-	else if (bufferName == PickupSpawnSound)
-	{
-		m_error = alGetError();
-
-		alSourcefv(pickupSpawnSource, AL_POSITION, sourcePosition);
-		if ((m_error = alGetError()) != AL_NO_ERROR)
-		{
-			logTrace("Error setting position to source");
-		}
-	}
-	else if (bufferName == HitmarkSound)
-	{
-		m_error = alGetError();
-
-		alSourcefv(hitmarkSource, AL_POSITION, sourcePosition);
-		if ((m_error = alGetError()) != AL_NO_ERROR)
-		{
-			logTrace("Error setting position to source");
-		}
-	}
-	else
-	{
-		bool found = false;
-		for (int i = 0; i < m_nrOfPlayers && !found; i++)
-		{
-			if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
+			alSourcefv(m_playerSoundInfo.at(i).sources.at(whatSound), AL_POSITION, sourcePosition);
+			if ((m_error = alGetError()) != AL_NO_ERROR)
 			{
-				m_error = alGetError();
-
-				alSourcefv(m_playerSoundInfo.at(i).sources.at(bufferName), AL_POSITION, sourcePosition);
-				if ((m_error = alGetError()) != AL_NO_ERROR)
-				{
-					logTrace("Error setting position to source");
-				}
-				found = true;
+				logTrace("Error setting position to source");
 			}
+			found = true;
 		}
 	}
 }
 
-void SoundHandler::setSourceVelocity(glm::vec3 vel, SoundIndex bufferName, RakNet::AddressOrGUID playerID)
+void SoundHandler::setSourceVelocity(glm::vec3 vel, SoundIndexClient bufferName)
 {	
 	ALfloat sourceVelocity[] = { vel.x, vel.y, vel.z };	
 
@@ -881,7 +823,7 @@ void SoundHandler::setSourceVelocity(glm::vec3 vel, SoundIndex bufferName, RakNe
 		bool found = false;
 		for (int i = 0; i < m_nrOfPlayers && !found; i++)
 		{
-			if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
+			/*if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
 			{
 				m_error = alGetError();
 
@@ -892,12 +834,12 @@ void SoundHandler::setSourceVelocity(glm::vec3 vel, SoundIndex bufferName, RakNe
 					logTrace("Error setting velocity to source");
 				}
 				found = true;
-			}
+			}*/
 		}
 	}
 }
 
-void SoundHandler::setSourceDirection(glm::vec3 dir, SoundIndex bufferName, RakNet::AddressOrGUID playerID)
+void SoundHandler::setSourceDirection(glm::vec3 dir, SoundIndexCommon bufferName, RakNet::AddressOrGUID playerID)
 {	
 	ALfloat sourceDirection[] = { dir.x, dir.y, dir.z };	
 
@@ -956,110 +898,66 @@ void SoundHandler::setSourceDirection(glm::vec3 dir, SoundIndex bufferName, RakN
 }
 
 //Types are: AL_UNDETERMINED, AL_STATIC or AL_STREAMING
-void SoundHandler::setSourceType(ALenum type, SoundIndex bufferName, RakNet::AddressOrGUID playerID)
+void SoundHandler::setSourceType(ALenum type, SoundIndexClient whatSound)
+{	
+	m_error = alGetError();
+	alSourcei(m_clientSoundInfo.sources.at(whatSound), AL_SOURCE_TYPE, type);
+
+	if ((m_error = alGetError()) != AL_NO_ERROR)
+	{
+		logTrace("Error setting type to source");
+	}	
+}
+
+//Types are: AL_UNDETERMINED, AL_STATIC or AL_STREAMING
+void SoundHandler::setSourceType(ALenum type, SoundIndexCommon bufferName, RakNet::AddressOrGUID playerID)
 {
-	if (bufferName == ThemeSong0)
+	bool found = false;
+	for (int i = 0; i < m_nrOfPlayers && !found; i++)
 	{
-		m_error = alGetError();
-		alSourcei(themeSong0Source, AL_SOURCE_TYPE, type);
+		if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
+		{
+			m_error = alGetError();
+			alSourcei(m_playerSoundInfo.at(i).sources.at(bufferName), AL_SOURCE_TYPE, type);
 
-		if ((m_error = alGetError()) != AL_NO_ERROR)
-		{
-			logTrace("Error setting type to source");
-		}
-	}
-	else if (bufferName == PickupSpawnSound)
-	{
-		m_error = alGetError();
-		alSourcei(pickupSpawnSource, AL_SOURCE_TYPE, type);
-
-		if ((m_error = alGetError()) != AL_NO_ERROR)
-		{
-			logTrace("Error setting type to source");
-		}
-	}
-	else if (bufferName == HitmarkSound)
-	{
-		m_error = alGetError();
-		alSourcei(hitmarkSource, AL_SOURCE_TYPE, type);
-
-		if ((m_error = alGetError()) != AL_NO_ERROR)
-		{
-			logTrace("Error setting type to source");
-		}
-	}
-	else
-	{
-		bool found = false;
-		for (int i = 0; i < m_nrOfPlayers && !found; i++)
-		{
-			if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
+			if ((m_error = alGetError()) != AL_NO_ERROR)
 			{
-				m_error = alGetError();
-				alSourcei(m_playerSoundInfo.at(i).sources.at(bufferName), AL_SOURCE_TYPE, type);
-
-				if ((m_error = alGetError()) != AL_NO_ERROR)
-				{
-					logTrace("Error setting type to source");
-				}
-				found = true;
+				logTrace("Error setting type to source");
 			}
+			found = true;
 		}
 	}
 }
 
-void SoundHandler::setSourceLooping(bool looping, SoundIndex bufferName, RakNet::AddressOrGUID playerID)
+void SoundHandler::setSourceLooping(bool looping, SoundIndexClient whatSound)
 {	
-	if (bufferName == ThemeSong0)
+	
+	m_error = alGetError();
+
+	alSourcei(m_clientSoundInfo.sources.at(whatSound), AL_LOOPING, looping);
+
+	if ((m_error = alGetError()) != AL_NO_ERROR)
 	{
-		m_error = alGetError();
+		logTrace("Error setting looping value to source");
+	}	
+}
 
-		alSourcei(themeSong0Source, AL_LOOPING, looping);
-
-		if ((m_error = alGetError()) != AL_NO_ERROR)
-		{
-			logTrace("Error setting looping value to source");
-		}
-	}
-	else if (bufferName == PickupSpawnSound)
+void SoundHandler::setSourceLooping(bool looping, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID)
+{
+	bool found = false;
+	for (int i = 0; i < m_nrOfPlayers && !found; i++)
 	{
-		m_error = alGetError();
-
-		alSourcei(pickupSpawnSource, AL_LOOPING, looping);
-
-		if ((m_error = alGetError()) != AL_NO_ERROR)
+		if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
 		{
-			logTrace("Error setting looping value to source");
-		}
-	}
-	else if (bufferName == HitmarkSound)
-	{
-		m_error = alGetError();
+			m_error = alGetError();
 
-		alSourcei(hitmarkSource, AL_LOOPING, looping);
+			alSourcei(m_playerSoundInfo.at(i).sources.at(whatSound), AL_LOOPING, looping);
 
-		if ((m_error = alGetError()) != AL_NO_ERROR)
-		{
-			logTrace("Error setting looping value to source");
-		}
-	}
-	else
-	{
-		bool found = false;
-		for (int i = 0; i < m_nrOfPlayers && !found; i++)
-		{
-			if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
+			if ((m_error = alGetError()) != AL_NO_ERROR)
 			{
-				m_error = alGetError();
-
-				alSourcei(m_playerSoundInfo.at(i).sources.at(bufferName), AL_LOOPING, looping);
-
-				if ((m_error = alGetError()) != AL_NO_ERROR)
-				{
-					logTrace("Error setting looping value to source");
-				}
-				found = true;
+				logTrace("Error setting looping value to source");
 			}
+			found = true;
 		}
 	}
 }
@@ -1123,34 +1021,27 @@ void SoundHandler::removePlayer(RakNet::AddressOrGUID guid)
 	}
 }
 
-const ALint& SoundHandler::getSourceState(SoundIndex bufferName, RakNet::AddressOrGUID playerID) const
+const ALint& SoundHandler::getSourceState(SoundIndexClient whatSound) const
+{
+	ALint value;	
+	
+	alGetSourcei(m_clientSoundInfo.sources.at(whatSound), AL_SOURCE_STATE, &value);
+	
+	return value;
+}
+
+const ALint& SoundHandler::getSourceState(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID) const
 {
 	ALint value;
-	
-	if (bufferName == ThemeSong0)
+	bool found = false;
+	for (int i = 0; i < m_playerSoundInfo.size() && !found; i++)
 	{
-		alGetSourcei(themeSong0Source, AL_SOURCE_STATE, &value);
-	}
-	else if (bufferName == PickupSpawnSound)
-	{
-		alGetSourcei(pickupSpawnSource, AL_SOURCE_STATE, &value);
-	}
-	else if (bufferName == HitmarkSound)
-	{
-		alGetSourcei(hitmarkSource, AL_SOURCE_STATE, &value);
-	}
-	else
-	{	
-		bool found = false;
-		for (int i = 0; i < m_playerSoundInfo.size() && !found; i++)
+		if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
 		{
-			if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
-			{
-				alGetSourcei(m_playerSoundInfo.at(i).sources.at(bufferName), AL_SOURCE_STATE, &value);
-				found = true;
-			}
+			alGetSourcei(m_playerSoundInfo.at(i).sources.at(whatSound), AL_SOURCE_STATE, &value);
+			found = true;
 		}
-	}	
+	}
 
 	return value;
 }
