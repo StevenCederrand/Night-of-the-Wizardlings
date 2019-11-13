@@ -38,6 +38,12 @@ PlayState::PlayState()
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 0.0f, -1.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 	
+	m_objects.push_back(new WorldObject("Character"));
+	m_objects[m_objects.size() - 1]->loadMesh("CharacterTest.mesh");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 1.8f, -24.0f));
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+
+
 	m_objects.push_back(new Deflect("playerShield"));
 	m_objects[m_objects.size() - 1]->loadMesh("ShieldMesh.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 4.0f, 0.0f));
