@@ -43,7 +43,7 @@ SoundHandler::SoundHandler()
 
 	//Lower the volume 
 	RakNet::AddressOrGUID myGuid = Client::getInstance()->getMyData().guid;	
-	setSourceGain(0.2, BasicAttackSound, myGuid);
+	setSourceGain(0.8, BasicAttackSound, myGuid);
 	setSourceGain(0.2, DeflectSound, myGuid);
 	setSourceGain(0.2, EnhanceAttackSound, myGuid);
 	setSourceGain(0.3, JumpSound, myGuid);

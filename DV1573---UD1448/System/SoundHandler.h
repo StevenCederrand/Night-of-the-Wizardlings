@@ -7,7 +7,7 @@
 
 //Set custom names for easier reference to soundFile names
 const std::string THEME_SONG0 = "HarryPotterThemeSong.ogg";
-const std::string BASIC_ATTACK_SOUND = "Sound Effect Magic Sound HQ YouTube.ogg";
+const std::string BASIC_ATTACK_SOUND = "BasicSpell2.ogg";
 const std::string DEFLECT_SOUND = "YouShallNotPassogg.ogg";
 const std::string ENHANCE_ATTACK_SOUND = "Magic sound effect.ogg";
 const std::string TAKING_DAMAGE_SOUND = "TakingDamage.ogg";
