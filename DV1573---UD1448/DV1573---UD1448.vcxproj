@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -184,11 +184,13 @@
   <ItemGroup>
     <ClCompile Include="DebugDrawer\DebugDrawer.cpp" />
     <ClCompile Include="Destruction\DelaunayGenerator.cpp" />
+    <ClCompile Include="Destruction\DstrGenerator.cpp" />
     <ClCompile Include="Destruction\PointCompare.cpp" />
     <ClCompile Include="Destruction\VoroniClipper.cpp" />
     <ClCompile Include="GameObject\AnimatedObject.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="GameObject\DestructibleObject.cpp" />
     <ClCompile Include="Gui\GameGUI.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -283,6 +285,7 @@
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
     <ClInclude Include="Destruction\DelaunayGenerator.h" />
+    <ClInclude Include="Destruction\DstrGenerator.h" />
     <ClInclude Include="Destruction\Geometry.h" />
     <ClInclude Include="Destruction\PointCompare.h" />
     <ClInclude Include="Destruction\TriangleNode.h" />
@@ -290,6 +293,7 @@
     <ClInclude Include="GameObject\AnimatedObject.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="GameObject\DestructibleObject.h" />
     <ClInclude Include="Gui\GameGUI.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

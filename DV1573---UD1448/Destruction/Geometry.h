@@ -5,7 +5,6 @@
 class Geometry
 {
 public:
-
 	// Is point p to the left of the line from l0 to l1?
 	static bool ToTheLeft(glm::vec2 p, glm::vec2 l0, glm::vec2 l1)
 	{
@@ -72,7 +71,7 @@ public:
 	{
 		float det = (v0.x * v1.y - v0.y * v1.x);
 
-		if (glm::abs(det) < 0.001f) 
+		if (glm::abs(det) < 0.000001f) 
 		{
 			m0 = NAN;
 			m1 = NAN;
@@ -83,7 +82,7 @@ public:
 		{
 			m0 = ((p0.y - p1.y) * v1.x - (p0.x - p1.x) * v1.y) / det;
 
-			if (glm::abs(v1.x) >= 0.001f) 
+			if (glm::abs(v1.x) >= 0.000001f) 
 			{
 				m1 = (p0.x + m0 * v0.x - p1.x) / v1.x;
 			}

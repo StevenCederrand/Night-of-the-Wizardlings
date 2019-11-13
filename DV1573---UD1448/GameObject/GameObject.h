@@ -26,7 +26,11 @@ public:
 
 	//Create a rigid body of the shape of your choice and add it to the collision world
 	void createRigidBody(CollisionObject shape, BulletPhysics* bp);
+	void createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp, float weight);
+	void createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp, float weight, int meshIndex);
 	void createDebugDrawer();
+	void updateBulletRigids();
+
 
 	virtual void update(float dt) = 0;
 	   	
@@ -34,6 +38,8 @@ public:
 	void setTransform(Transform transform);
 	void setTransform(glm::vec3 worldPosition, glm::quat worldRot, glm::vec3 worldScale);
 	void setWorldPosition(glm::vec3 worldPosition);
+	void setWorldPosition(glm::vec3 worldPosition, int meshIndex);
+	void setBTWorldPosition(glm::vec3 worldPosition, int meshIndex);
 	void translate(const glm::vec3& translationVector);
 	void setShouldRender(bool condition);
 
@@ -41,7 +47,8 @@ public:
 	const Transform getTransform() const;
 	//Returns mesh worldposition
 	const Transform getTransform(int meshIndex) const;
-	const std::string& getMeshName(int meshIndex) const;
+	const Transform getTransformMesh(int meshIndex) const;
+	const std::string& getMeshName(int meshIndex = 0) const;
 	const int getMeshesCount() const { return (int)m_meshes.size(); }
 	const glm::mat4& getMatrix(const int& i) const;
 	const int getType() const { return type; }

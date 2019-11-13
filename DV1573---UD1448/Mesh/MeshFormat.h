@@ -134,6 +134,15 @@ struct DelaunayTriangulation
 
 		return result;
 	}
+
+	void Clear()
+	{
+		vertices.clear();
+		vertices.shrink_to_fit();
+		faces.clear();
+		faces.shrink_to_fit();
+	}
+	
 };
 
 struct PointTriangle
@@ -190,6 +199,20 @@ struct VoroniDiagram
 	VoroniDiagram()
 	{
 		sites = triangulation.vertices;
+	}
+
+	void Clear()
+	{
+		triangulation.Clear();
+
+		sites.clear();
+		sites.shrink_to_fit();
+		vertices.clear();
+		vertices.shrink_to_fit();
+		edges.clear();
+		edges.shrink_to_fit();
+		firstEdgeBySite.clear();
+		firstEdgeBySite.shrink_to_fit();
 	}
 
 };

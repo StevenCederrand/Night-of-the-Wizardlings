@@ -396,6 +396,11 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 	renderSkybox(m_skybox);
 	m_spellHandler->renderSpell();
 	
+	if (glfwGetKey(m_camera->getWindow(), GLFW_KEY_M) == GLFW_PRESS)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	if (glfwGetKey(m_camera->getWindow(), GLFW_KEY_N) == GLFW_PRESS)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
 #pragma region Color_Render
 	ShaderMap::getInstance()->useByName(BASIC_FORWARD);
 	//Bind view- and projection matrix

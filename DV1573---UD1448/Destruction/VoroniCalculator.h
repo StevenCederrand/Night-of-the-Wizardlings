@@ -16,7 +16,7 @@ public:
 	VoroniDiagram CalculateDiagram(std::vector<glm::vec2> inputVertices);
 	void CalculateDiagram(std::vector<glm::vec2> inputVertices, VoroniDiagram &diagram);
 
-	bool NonSharedPoint(std::vector<int> tris, int ti0, int ti1);
+	int NonSharedPoint(std::vector<int> tris, int ti0, int ti1);
 	bool SharesEdge(std::vector<int> tris, int ti0, int ti1);
 
 

@@ -9,10 +9,10 @@ void VoroniClipper::ClipSite(VoroniDiagram diagram, std::vector<glm::vec2> polyg
 
 	int firstEdge, lastEdge = 0;
 	
-	if (site == diagram.sites.size() - 1)
+	if (site == (int)diagram.sites.size() - 1)
 	{
 		firstEdge = diagram.firstEdgeBySite[site];
-		lastEdge = diagram.edges.size() - 1;
+		lastEdge = (int)diagram.edges.size() - 1;
 	}
 	else
 	{
@@ -49,17 +49,18 @@ void VoroniClipper::ClipSite(VoroniDiagram diagram, std::vector<glm::vec2> polyg
 		}
 		else if (edge.type == Edge::EdgeType::Line)
 		{
-			logTrace("No Support for voroni halfplanes");
+			// No Support for voroni halfplanes;
 			return;
 		}
 		else
 		{
+			assert(false);
 			return;
 		}
 
-		for (int pi0 = 0; pi0 < pointsIn.size(); pi0++)
+		for (int pi0 = 0; pi0 < (int)pointsIn.size(); pi0++)
 		{
-			int pi1 = pi0 == pointsIn.size() - 1 ? 0 : pi0 + 1;
+			int pi1 = pi0 == (int)pointsIn.size() - 1 ? 0 : pi0 + 1;
 
 			glm::vec2 p0 = pointsIn[pi0];
 			glm::vec2 p1 = pointsIn[pi1];
@@ -88,7 +89,10 @@ void VoroniClipper::ClipSite(VoroniDiagram diagram, std::vector<glm::vec2> polyg
 					pointsOut.push_back(intersection);
 					pointsOut.push_back(p1);
 				}
-
+				else
+				{
+					assert(false);
+				}
 			}
 		}
 

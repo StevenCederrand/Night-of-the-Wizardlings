@@ -12,14 +12,14 @@ struct TriangleNode
 	int m_vertex_2;
 	
 	// Child triangle
-	int m_cvertex_0;
-	int m_cvertex_1;
-	int m_cvertex_2;
+	int m_C0;
+	int m_C1;
+	int m_C2;
 	
 	// Adjacent triangle (vertex_1 & vertex_2 as an edge).
-	int m_avertex_0;
-	int m_avertex_1;
-	int m_avertex_2;
+	int m_A0;
+	int m_A1;
+	int m_A2;
 
 	TriangleNode(int vertex_0, int vertex_1, int vertex_2)
 	{
@@ -27,16 +27,16 @@ struct TriangleNode
 		m_vertex_1 = vertex_1;
 		m_vertex_2 = vertex_2;
 
-		m_cvertex_0 = -1;
-		m_cvertex_1 = -1;
-		m_cvertex_2 = -1;
+		m_C0 = -1;
+		m_C1 = -1;
+		m_C2 = -1;
 
-		m_avertex_0 = -1;
-		m_avertex_1 = -1;
-		m_avertex_2 = -1;
+		m_A0 = -1;
+		m_A1 = -1;
+		m_A2 = -1;
 	}
 
-	bool Is_Leaf() { return m_cvertex_0 < 0 && m_cvertex_1 < 0 && m_cvertex_2 < 0; }
+	bool Is_Leaf() { return m_C0 < 0 && m_C1 < 0 && m_C2 < 0; }
 	bool Is_Inner() { return m_vertex_0 >= 0 && m_vertex_1 >= 0 && m_vertex_2 >= 0; }
 
 	bool Has_Edge(int edge_0, int edge_1)
@@ -68,13 +68,19 @@ struct TriangleNode
 			if (vertex_1 == m_vertex_0) return m_vertex_1;
 			if (vertex_1 == m_vertex_1) return m_vertex_0;
 		}
+		else
+		{
+			logTrace("DSTR: Error");
+		}
 	}
 
 	int GetOpposite(int vertex)
 	{
-		if (vertex == m_vertex_0) return m_avertex_0;
-		if (vertex == m_vertex_1) return m_avertex_1;
-		if (vertex == m_vertex_2) return m_avertex_2;
+		if (vertex == m_vertex_0) return m_A0;
+		if (vertex == m_vertex_1) return m_A1;
+		if (vertex == m_vertex_2) return m_A2;
+
+		logTrace("DSTR: Error");
 	}
 
 

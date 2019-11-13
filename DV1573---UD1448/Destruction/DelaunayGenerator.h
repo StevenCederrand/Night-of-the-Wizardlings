@@ -20,11 +20,10 @@ public:
 
 	int LeafWithEdge(int triangleIndex, int edge_0, int edge_1);
 	bool LegalEdge(int k, int l, int i, int j);
-	bool LegalizeEdge(int index_0, int index_1, int pointIndex, int edge_0, int edge_1);
+	void LegalizeEdge(int index_0, int index_1, int pointIndex, int edge_0, int edge_1);
 
 private:
 	std::vector<glm::vec2> m_vertices;
-	std::vector<int> m_indices;
 	std::vector<TriangleNode> m_triangles;
 
 	int highest;

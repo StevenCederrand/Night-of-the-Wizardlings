@@ -7,6 +7,7 @@
 
 #define PLAYSECTION "PLAYSTATE"
 
+
 PlayState::PlayState()
 {
 	m_bPhysics = new BulletPhysics(-10);
@@ -36,27 +37,27 @@ PlayState::PlayState()
 	m_player->setHealth(NetGlobals::maxPlayerHealth);
 
 	//Test enviroment with 4 meshes inside 1 GameObject, inherited transforms
-	m_objects.push_back(new WorldObject("TestScene"));
-	m_objects[m_objects.size() - 1]->loadMesh("TestScene.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+	//m_objects.push_back(new WorldObject("TestScene"));
+	//m_objects[m_objects.size() - 1]->loadMesh("TestScene.mesh");
+	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
 	//Cube and sphere centered in scene
-	m_objects.push_back(new WorldObject("TestCube"));
-	m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 0.0f, 0.0f));
+	//m_objects.push_back(new WorldObject("TestCube"));
+	//m_objects[m_objects.size() - 1]->loadMesh("TestCube.mesh");
+	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 0.0f, 0.0f));
+	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+
+	m_objects.push_back(new WorldObject("TestSphere"));
+	m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 8.0f, -8.0f));
+	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 1.0f, -2.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
-	//m_objects.push_back(new WorldObject("TestSphere"));
-	//m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
-	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -4.0f));
-	////m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(5.0f, 1.0f, -2.0f));
-	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
-
-	//m_objects.push_back(new WorldObject("internalTestmap"));
-	//m_objects[m_objects.size() - 1]->loadMesh("internalTestmap.mesh");
-	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -1.0f));
-	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+	m_objects.push_back(new WorldObject("internalTestmap"));
+	m_objects[m_objects.size() - 1]->loadMesh("internalTestmap.mesh");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 	
 	//Animated rectangle
 	//m_objects.push_back(new AnimatedObject("TestRectangle"));
@@ -73,7 +74,8 @@ PlayState::PlayState()
 	//m_objects[m_objects.size() - 1]->setTransform(tempTransform);
 	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
 
-	
+
+
 	gContactAddedCallback = callbackFunc;
 	// Geneterate bullet objects / hitboxes
 	for (size_t i = 0; i < m_objects.size(); i++)
@@ -82,110 +84,28 @@ PlayState::PlayState()
 		m_objects.at(i)->createDebugDrawer();
 	}
 
+	// DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP
+	// DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP
+
+	// Destruction test object
+	m_objects.push_back(new DestructibleObject("Destructible"));
+	static_cast<DestructibleObject*>(m_objects.back())->loadBasic("Dstr_1");
+	m_objects.back()->setWorldPosition(glm::vec3(0.0f, 5.0f, -3.0f));
+	//m_objects.back()->createDynamicRigidBody(CollisionObject::box, m_bPhysics, 5.0f);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+
+	m_objects.push_back(new DestructibleObject("Destructible2"));
+	static_cast<DestructibleObject*>(m_objects.back())->loadBasic("Dstr_2");
+	m_objects.back()->setWorldPosition(glm::vec3(0.0f, 5.0f, 3.0f));
+	//m_objects.back()->createDynamicRigidBody(CollisionObject::box, m_bPhysics, 5.0f);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+
+	// DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP
+	// DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP
+
+
 	if(Client::getInstance()->isInitialized())
 		Client::getInstance()->assignSpellHandler(m_spellHandler);
-
-
-
-
-
-	// DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP
-	// DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP
-	// DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP
-
-	DelaunayGenerator triangulator;
-	DelaunayTriangulation triangulation;
-
-	std::vector<glm::vec2> randomPoints;
-	randomPoints.resize(10);
-	for (int i = 0; i < randomPoints.size(); i++)
-	{
-		float length = (rand() % 99 + 1);
-		length = length / 100;
-		float angle = 2.0f * glm::pi<float>() * (rand() % 99 + 1);
-		angle = angle / 100;
-
-		randomPoints[i].x = length * glm::cos(angle);
-		randomPoints[i].y = length * glm::sin(angle);
-	}
-	triangulator.Triangulate(randomPoints, triangulation);
-
-	Geometry test_geom;
-	for (int i = 0; i < triangulation.faces.size(); i += 3)
-	{
-		glm::vec2 c0 = triangulation.vertices[triangulation.faces[i]];
-		glm::vec2 c1 = triangulation.vertices[triangulation.faces[i + 1]];
-		glm::vec2 c2 = triangulation.vertices[triangulation.faces[i + 2]];
-
-
-		for (int j = 0; j < triangulation.vertices.size(); j++)
-		{
-			glm::vec2 p = triangulation.vertices[j];
-
-			if (test_geom.InsideCircumcircle(p, c0, c1, c2))
-			{
-				logTrace("DSTR: False");
-			}
-		}
-	}
-
-
-	VoroniCalculator voroniCalc;
-	VoroniDiagram diagram = voroniCalc.CalculateDiagram(randomPoints);
-	diagram.sites = diagram.triangulation.vertices;
-
-	std::vector<glm::vec2> polygon;
-	polygon.push_back(glm::vec2(-4.0f, -4.0f));
-	polygon.push_back(glm::vec2(4.0f, -4.0f));
-	polygon.push_back(glm::vec2(4.0f, 4.0f));
-	polygon.push_back(glm::vec2(-4.0f, 4.0f));
-
-	VoroniClipper clipper;
-	std::vector<glm::vec2> clipped;
-	for (int i = 0; i < randomPoints.size(); i++)
-	{
-		clipper.ClipSite(diagram, polygon, i, clipped);
-
-		if (clipped.size() > 0)
-		{
-			clipped;
-			//TODO: one point was nan(ind)
-
-			std::vector<Vertex> tempVertices;
-			std::vector<Face> tempFaces = triangulation.GetAsFaces();
-
-
-
-
-
-		}
-	}
-
-	
-	std::vector<Vertex> tempVertices = triangulation.GetAsVertices();
-	std::vector<Face> tempFaces = triangulation.GetAsFaces();
-
-	
-
-	//for (int i = 0; i < (int)tempVertices.size(); i++)
-	//{
-	//	float nr = (rand() % 99 + 1);
-	//	nr /= 100;
-	//	tempVertices[i].position.z = nr;
-	//}
-
-	//Test enviroment with 4 meshes inside 1 GameObject, inherited transforms
-	m_objects.push_back(new WorldObject("TriangulatedPoints"));
-	m_objects[m_objects.size() - 1]->initMesh("TriangulatedPoints", tempVertices, tempFaces);
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 2.0f, 0.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
-
-
-	// DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP
-	// DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP
-	// DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP
-
-
 
 }
 
@@ -256,6 +176,22 @@ void PlayState::update(float dt)
 
 	//Enable GUI
 	GUIHandler();
+
+
+	// DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP
+	// DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP
+	// DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP
+	if (glfwGetKey(m_camera->getWindow(), GLFW_KEY_J) == GLFW_PRESS)
+		m_dstr.Destroy(static_cast<DestructibleObject*>(m_objects[m_objects.size() - 1]), glm::vec3(0.0f));
+	if (glfwGetKey(m_camera->getWindow(), GLFW_KEY_K) == GLFW_PRESS)
+		m_dstr.Destroy(static_cast<DestructibleObject*>(m_objects[m_objects.size() - 2]), glm::vec3(0.0f));
+
+	// DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP
+	// DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP
+	// DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP
+
+
+
 
 }
 

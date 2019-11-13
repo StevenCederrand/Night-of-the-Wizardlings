@@ -9,9 +9,11 @@
 #include <Player/Player.h>
 #include <GameObject/WorldObject.h>
 #include <GameObject/AnimatedObject.h>
+#include <GameObject/DestructibleObject.h>
 #include <Spells/Spell.h>
 #include <System/BulletPhysics.h>
 #include <Renderer/HudObject.h>
+#include <Destruction/DstrGenerator.h>
 
 
 bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
@@ -34,6 +36,7 @@ private:
 	//Any inherited GameObject class added to this vector will support basic rendering
 	std::vector<GameObject*> m_objects;
 
+	DstrGenerator m_dstr;
 	SpellHandler* m_spellHandler;
 	Player* m_player;
 	Camera* m_camera;
