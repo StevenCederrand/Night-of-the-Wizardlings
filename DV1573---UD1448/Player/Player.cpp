@@ -168,7 +168,7 @@ void Player::attack()
 		}
 	}
 
-	if (Input::isKeyHeldDown(GLFW_KEY_E))
+	if (Input::isKeyHeldDown(GLFW_KEY_R))
 	{
 		if (m_special3Cooldown <= 0)
 		{

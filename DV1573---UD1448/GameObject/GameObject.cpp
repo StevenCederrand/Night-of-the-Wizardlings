@@ -288,6 +288,7 @@ void GameObject::bindMaterialToShader(Shader* shader, const int& meshIndex)
 
 void GameObject::bindMaterialToShader(Shader* shader, const std::string& materialName)
 {
+	//logWarning("Material: {0}", materialName);
 	shader->setMaterial(materialName);
 }
 void GameObject::bindMaterialToShader(Shader* shader, Material* material)

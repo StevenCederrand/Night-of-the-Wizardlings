@@ -32,16 +32,16 @@ PlayState::PlayState()
 	m_player->setHealth(NetGlobals::maxPlayerHealth);
 
 	m_objects.push_back(new WorldObject("internalTestmap"));
-	m_objects[m_objects.size() - 1]->loadMesh("internalTestmap.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -1.0f));
+	m_objects[m_objects.size() - 1]->loadMesh("map1.mesh");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 0.0f, -1.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
-
+	
 	m_objects.push_back(new Deflect("playerShield"));
 	m_objects[m_objects.size() - 1]->loadMesh("ShieldMesh.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 4.0f, 0.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], SHIELD);
 	
-
+	MaterialMap::getInstance();
 	gContactAddedCallback = callbackFunc;
 	// Geneterate bullet objects / hitboxes
 	for (size_t i = 0; i < m_objects.size(); i++)
