@@ -204,6 +204,8 @@
     <ClCompile Include="Mesh\Mesh.cpp" />
     <ClCompile Include="Networking\NetworkPlayers.cpp" />
     <ClCompile Include="Networking\NetworkSpells.cpp" />
+    <ClCompile Include="Particles\ParticleBuffers.cpp" />
+    <ClCompile Include="Particles\Particles.cpp" />
     <ClCompile Include="Pch\Pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -309,6 +311,8 @@
     <ClInclude Include="Networking\NetworkPlayers.h" />
     <ClInclude Include="Networking\NetworkSpells.h" />
     <ClInclude Include="Networking\PlayerEvents.h" />
+    <ClInclude Include="Particles\ParticleBuffers.h" />
+    <ClInclude Include="Particles\Particles.h" />
     <ClInclude Include="Pch\Pch.h" />
     <ClInclude Include="Pickups\HealthPickup.h" />
     <ClInclude Include="Pickups\Pickup.h" />

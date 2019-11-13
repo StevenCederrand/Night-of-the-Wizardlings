@@ -87,6 +87,7 @@ void PlayState::update(float dt)
 	m_bPhysics->update(dt);
 	m_player->update(dt);
 	m_spellHandler->spellUpdate(dt);
+	Renderer::getInstance()->updateParticles(dt);
 
 	//m_hpBar->setYClip(m_player->getHealth() / 100);
 	auto* clientPtr = Client::getInstance();
@@ -181,6 +182,7 @@ void PlayState::update(float dt)
 	for (GameObject* object : m_objects)
 	{
 		object->update(dt);
+		Renderer::getInstance()->updateParticles(dt);
 	}
 	
 	GUIHandler();

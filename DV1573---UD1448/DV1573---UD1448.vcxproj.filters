@@ -55,6 +55,8 @@
     <ClCompile Include="Text\HUDShader.cpp" />
     <ClCompile Include="Deflect\DeflectRender.cpp" />
     <ClCompile Include="Deflect\Deflect.cpp" />
+    <ClCompile Include="Particles\Particles.cpp" />
+    <ClCompile Include="Particles\ParticleBuffers.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
@@ -123,6 +125,8 @@
     <ClInclude Include="Deflect\DeflectRender.h" />
     <ClInclude Include="Deflect\Deflect.h" />
     <ClInclude Include="System\Helper.h" />
+    <ClInclude Include="Particles\Particles.h" />
+    <ClInclude Include="Particles\ParticleBuffers.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />
