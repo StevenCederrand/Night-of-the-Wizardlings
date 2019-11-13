@@ -492,6 +492,12 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			else if (m_spells[i]->getType() == ENHANCEATTACK) {
 				shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getEnhAttackBase()->m_material->diffuse);
 			}
+			else if (m_spells[i]->getType() == FLAMESTRIKE) {
+				shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getFlamestrikeBase()->m_material->diffuse);
+			}
+			else if (m_spells[i]->getType() == FIRE) {
+				shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getFireBase()->m_material->diffuse);
+			}
 			shader->setFloat("pLights[" + std::to_string(i) + "].radius", P_LIGHT_RADIUS);
 		}
 	}

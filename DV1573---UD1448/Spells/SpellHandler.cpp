@@ -185,9 +185,9 @@ SpellHandler::~SpellHandler()
 		delete element;
 	spells.clear();
 
-	for (Spell* element : spellstest)
+	for (Spell* element : flamestrikeSpells)
 		delete element;
-	spellstest.clear();
+	flamestrikeSpells.clear();
 
 	for (Spell* element : fireSpells)
 		delete element;
@@ -265,23 +265,23 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 
 	if (type == FLAMESTRIKE)
 	{
-		auto spellss = new AOEAttack(spellPos, directionVector, flamestrikeBase);
+		auto spell = new AOEAttack(spellPos, directionVector, flamestrikeBase);
 		cooldown = flamestrikeBase->m_coolDown;
 
-		spellss->setUniqueID(getUniqueID());
-		Client::getInstance()->createSpellOnNetwork(*spellss);
-		spellstest.emplace_back(spellss);
-		Renderer::getInstance()->submit(spellstest.back(), SPELL);
+		spell->setUniqueID(getUniqueID());
+		Client::getInstance()->createSpellOnNetwork(*spell);
+		flamestrikeSpells.emplace_back(spell);
+		Renderer::getInstance()->submit(flamestrikeSpells.back(), SPELL);
 		logTrace("Created flamestrike spell");
 
 		//bullet create
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.x);
 		m_BulletFlamestrikeSpell.emplace_back(
-			m_bp->createObject(sphere, 1.0f, spellPos + directionVector * 2, glm::vec3(spellss->getTransform().scale.x, 0.0f, 0.0f)));
+			m_bp->createObject(sphere, 1.0f, spellPos + directionVector * 2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
 
 		int size = m_BulletFlamestrikeSpell.size();
 		m_BulletFlamestrikeSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
-		m_BulletFlamestrikeSpell.at(size - 1)->setUserPointer(spellss);
+		m_BulletFlamestrikeSpell.at(size - 1)->setUserPointer(spell);
 	}
 
 	if (type == FIRE)
@@ -312,16 +312,16 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 
 void SpellHandler::spellUpdate(float deltaTime)
 {
-	for (size_t i = 0; i < spellstest.size(); i++)
+	for (size_t i = 0; i < flamestrikeSpells.size(); i++)
 	{
-		if (spellstest[i]->getTravelTime() > 0)
+		if (flamestrikeSpells[i]->getTravelTime() > 0)
 		{
-			spellstest[i]->update(deltaTime);
-			spellstest[i]->updateRigidbody(deltaTime, m_BulletFlamestrikeSpell.at(i));
-			if (static_cast<Spell*>(spellstest[i])->getType() == FLAMESTRIKE)
+			flamestrikeSpells[i]->update(deltaTime);
+			flamestrikeSpells[i]->updateRigidbody(deltaTime, m_BulletFlamestrikeSpell.at(i));
+			if (static_cast<Spell*>(flamestrikeSpells[i])->getType() == FLAMESTRIKE)
 			{
 				flamestrikeUpdate(deltaTime, i);
-				AOEAttack* flamestrike = static_cast<AOEAttack*>(spellstest[i]);
+				AOEAttack* flamestrike = static_cast<AOEAttack*>(flamestrikeSpells[i]);
 				//flamestrike->updateActiveSpell(deltaTime);
 				if (flamestrike->spellOnGround())
 				{
@@ -333,15 +333,15 @@ void SpellHandler::spellUpdate(float deltaTime)
 			
 
 
-			Client::getInstance()->updateSpellOnNetwork(*spellstest[i]);
+			Client::getInstance()->updateSpellOnNetwork(*flamestrikeSpells[i]);
 		}
-		if (spellstest[i]->getTravelTime() <= 0)
+		if (flamestrikeSpells[i]->getTravelTime() <= 0)
 		{
-			Renderer::getInstance()->removeDynamic(spellstest[i], SPELL);
+			Renderer::getInstance()->removeDynamic(flamestrikeSpells[i], SPELL);
 
-			Client::getInstance()->destroySpellOnNetwork(*spellstest[i]);
-			delete spellstest[i];
-			spellstest.erase(spellstest.begin() + i);
+			Client::getInstance()->destroySpellOnNetwork(*flamestrikeSpells[i]);
+			delete flamestrikeSpells[i];
+			flamestrikeSpells.erase(flamestrikeSpells.begin() + i);
 
 			m_bp->removeObject(m_BulletFlamestrikeSpell.at(i));
 			m_BulletFlamestrikeSpell.erase(m_BulletFlamestrikeSpell.begin() + i);
@@ -578,6 +578,6 @@ void SpellHandler::REFLECTupdate(float deltaTime, int i)
 
 void SpellHandler::flamestrikeUpdate(float deltaTime, int i)
 {
-	AOEAttack* flamestrike = static_cast<AOEAttack*>(spellstest[i]);
+	AOEAttack* flamestrike = static_cast<AOEAttack*>(flamestrikeSpells[i]);
 	flamestrike->updateActiveSpell(deltaTime);
 }

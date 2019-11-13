@@ -39,6 +39,7 @@ public:
 	const AttackSpellBase* getEnhAttackBase() { return enhanceAtkBase; }
 	const ReflectSpellBase* getReflectBase() { return reflectBase; }
 	const FlamestrikeSpellBase* getFlamestrikeBase() { return flamestrikeBase; }
+	const FireSpellBase* getFireBase() { return fireBase; }
 
 	void renderSpell();
 
@@ -47,7 +48,7 @@ private:
 	const uint64_t getUniqueID();
 
 	std::vector<Spell*> spells;
-	std::vector<Spell*> spellstest;
+	std::vector<Spell*> flamestrikeSpells;
 	std::vector<Spell*> fireSpells;
 	float fireDamageCounter = 1.5f;
 
