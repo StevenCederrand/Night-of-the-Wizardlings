@@ -120,6 +120,11 @@ void Shader::unuse()
 	glUseProgram(NULL);
 }
 
+void Shader::clearBinding()
+{
+	m_oldMaterial = "";
+}
+
 //uniform mat3
 void Shader::setMat3(std::string name, glm::mat3 mat)
 {
@@ -260,7 +265,7 @@ void Shader::setInt(std::string name, int num)
 void Shader::setMaterial(const std::string& materialName) {
 
 	//If material names are the same
-	if (m_oldMaterial == materialName) {
+	if (m_oldMaterial == materialName) { /* FIX THIS */
 		return;
 	}
 	m_oldMaterial = materialName;
@@ -280,6 +285,11 @@ void Shader::setMaterial(const std::string& materialName) {
 
 void Shader::setMaterial(Material* material)
 {
+	if (m_oldMaterial == material->name) { 
+		return;
+	}
+	m_oldMaterial = material->name;
+
 	setVec3("Ambient_Color", material->ambient);
 	setVec3("Diffuse_Color", material->diffuse);
 	setVec2("TexAndRim", glm::vec2(material->texture, 1));

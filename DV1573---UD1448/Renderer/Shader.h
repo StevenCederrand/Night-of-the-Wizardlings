@@ -16,6 +16,8 @@ public:
 	void use();
 	void unuse();
 
+	void clearBinding();
+
 	void setMat3(std::string name, glm::mat3 mat);
 	void setMat4(std::string name, glm::mat4 mat);
 	void setVec2(std::string name, glm::vec2 vec);

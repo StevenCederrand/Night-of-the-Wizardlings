@@ -554,6 +554,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			glBindVertexArray(0);
 		}
 	}
+	shader->clearBinding();
 
 	//Dynamic objects
 	if (m_dynamicObjects.size() > 0) {
@@ -586,7 +587,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			}
 		}
 	}
-
+	shader->clearBinding();
 
 	//Pickup objects
 	if (m_pickups.size() > 0) {
@@ -623,7 +624,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 
 		}
 	}
-
+	shader->clearBinding();
 #pragma endregion
 
 
@@ -662,7 +663,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			glBindVertexArray(0);
 		}
 	}
-
+	shader->clearBinding();
 #pragma endregion
 
 
