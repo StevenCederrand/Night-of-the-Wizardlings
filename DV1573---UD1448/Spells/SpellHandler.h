@@ -39,6 +39,7 @@ public:
 	const AttackSpellBase* getEnhAttackBase() { return enhanceAtkBase; }
 	const ReflectSpellBase* getReflectBase() { return reflectBase; }
 	const FlamestrikeSpellBase* getFlamestrikeBase() { return flamestrikeBase; }
+	const FireSpellBase* getFireBase() { return fireBase; }
 
 	void renderSpell();
 

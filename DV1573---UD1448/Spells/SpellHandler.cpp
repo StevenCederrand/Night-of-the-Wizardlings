@@ -39,11 +39,11 @@ void SpellHandler::initAttackSpell()
 	attackBase->m_material->specular = newMaterial.specular;
 	tempLoader.Unload();
 
-	attackBase->m_material->diffuse = glm::vec3(0.65f, 1.0f, 1.0f);
-	attackBase->m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
+	attackBase->m_material->diffuse = glm::vec3(0.9f, 0.0f, 0.9f);
+	attackBase->m_material->ambient = glm::vec3(0.9f, 0.0f, 0.9f);
 
 	attackBase->m_damage = 34.0f;
-	attackBase->m_speed = 170.0f;
+	attackBase->m_speed = 100.0f;
 	attackBase->m_radius = 0.25f;
 	attackBase->m_coolDown = 0.75f;
 	attackBase->m_lifeTime = 5.0f;
@@ -70,8 +70,8 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase->m_material->specular = newMaterial.specular;
 	tempLoader.Unload();
 
-	enhanceAtkBase->m_material->diffuse = glm::vec3(0.85f, 0.3f, 0.2f);
-	enhanceAtkBase->m_material->ambient = glm::vec3(0.85f, 0.3f, 0.2f);
+	enhanceAtkBase->m_material->diffuse = glm::vec3(0.3f, 1.0f, 0.3f);
+	enhanceAtkBase->m_material->ambient = glm::vec3(0.3f, 1.0f, 0.3f);
 
 	enhanceAtkBase->m_damage = 34.0f;
 	enhanceAtkBase->m_speed = 180.0f;
@@ -101,8 +101,8 @@ void SpellHandler::initFlamestrikeSpell()
 	flamestrikeBase->m_material->specular = newMaterial.specular;
 	tempLoader.Unload();
 
-	flamestrikeBase->m_material->diffuse = glm::vec3(1.0f, 0.0f, 0.5f);
-	flamestrikeBase->m_material->ambient = glm::vec3(1.0f, 0.0f, 0.5f);
+	flamestrikeBase->m_material->diffuse = glm::vec3(1.0f, 0.5f, 0.0f);
+	flamestrikeBase->m_material->ambient = glm::vec3(1.0f, 0.5f, 0.0f);
 
 	flamestrikeBase->m_damage = 10;
 	flamestrikeBase->m_speed = 50;
@@ -131,8 +131,8 @@ void SpellHandler::initFireSpell()
 	fireBase->m_material->specular = newMaterial.specular;
 	tempLoader.Unload();
 
-	fireBase->m_material->diffuse = glm::vec3(1.0f, 0.0f, 0.5f);
-	fireBase->m_material->ambient = glm::vec3(1.0f, 0.0f, 0.5f);
+	fireBase->m_material->diffuse = glm::vec3(1.0f, 0.5f, 0.0f);
+	fireBase->m_material->ambient = glm::vec3(1.0f, 0.5f, 0.0f);
 
 	fireBase->m_damage = 10.0f;
 	fireBase->m_speed = 0.0f;
@@ -275,7 +275,7 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 		logTrace("Created flamestrike spell");
 
 		//bullet create
-		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.x);
+		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
 		m_BulletFlamestrikeSpell.emplace_back(
 			m_bp->createObject(sphere, 1.0f, spellPos + directionVector * 2, glm::vec3(spellss->getTransform().scale.x, 0.0f, 0.0f)));
 

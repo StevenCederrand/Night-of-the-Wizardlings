@@ -14,6 +14,8 @@
 //#define BLOOM_BLUR "BloomBlur_Shader"
 #define HUD "Hud_Shader"
 
+#define PARTICLES "Particle_Shader"
+
 #include <Pch/Pch.h>
 #include <GameObject/GameObject.h>
 #include <GameObject/AnimatedObject.h>
@@ -27,6 +29,9 @@
 #include "PickupNotificationStructure.h"
 #include <Text/FreeType.h>
 #include <Deflect/DeflectRender.h>
+
+#include <Particles/Particles.h>
+#include <Particles/ParticleBuffers.h>
 
 
 #define P_LIGHT_COUNT 64
@@ -89,6 +94,46 @@ private:
 	//Storage Buffer for light indecies
 	unsigned int m_lightIndexSSBO;
 	glm::uvec2 workGroups;
+
+	//Particle variables
+	unsigned int m_matrixID;
+	unsigned int m_cameraID;
+	unsigned int m_sizeID;
+	unsigned int m_glowID;
+	unsigned int m_scaleDirection;
+	unsigned int m_fadeID;
+	unsigned int m_colorID;
+
+
+	int	thisActive = 0;
+	int	vertexCountDiff = 0;
+	float emissionDiff = 0.0f;
+
+	int	thisActive2 = 0;
+	int	vertexCountDiff2 = 0;
+	float emissionDiff2 = 0.0f;
+
+	int	thisActive3 = 0;
+	int	vertexCountDiff3 = 0;
+	float emissionDiff3 = 0.0f;
+
+	TextureInfo m_txtInfo;
+	PSinfo m_PSinfo;
+	PSinfo m_flameInfo;
+	PSinfo m_enhanceInfo;
+	PSinfo m_smoke;
+
+	std::vector<ParticleSystem> ps;
+	//1 for every spelltype
+	psBuffers attackBuffer;
+	psBuffers flameBuffer; //Do I need 1 for every spell?
+	psBuffers enhanceBuffer; // Yes, yes I do
+	psBuffers smokeBuffer;
+
+	ParticleBuffers* attackPS;
+	ParticleBuffers* flamestrikePS;
+	ParticleBuffers* enhancePS;
+	ParticleBuffers* smokePS;
 	
 
 	void renderPickupNotifications();
@@ -127,6 +172,8 @@ public:
 	void renderSpell(SpellHandler* spellHandler);
 	Camera* getMainCamera() const;
 
+	void initializeParticle();
+	void updateParticles(float dt);
 };
 
 #endif
