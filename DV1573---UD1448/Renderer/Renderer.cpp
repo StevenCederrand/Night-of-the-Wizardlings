@@ -958,8 +958,8 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 			glBindVertexArray(0);
-			ps[i].Render(m_camera, &m_flameInfo);
-			ps[i].SetPosition(meshTransform.position);
+			//ps[i].Render(m_camera, &m_flameInfo);
+			//ps[i].SetPosition(meshTransform.position);
 		}
 
 		else if (m_spells[i]->getType() == FIRE)
@@ -981,7 +981,7 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 
 			glBindVertexArray(0);
 			ps[i].Render(m_camera, &m_flameInfo);
-			ps[i].SetPosition(meshTransform.position);
+			ps[i].SetPosition(glm::vec3(meshTransform.position.x, meshTransform.position.y -1, meshTransform.position.z));
 		}
 	}
 }
@@ -1051,7 +1051,7 @@ void Renderer::initializeParticle()
 	m_PSinfo.heigth = 0.2f;
 	m_PSinfo.lifetime = 0.3f;
 	m_PSinfo.maxParticles = 5000; //350
-	m_PSinfo.emission = 0.0005f; //0.00001f;
+	m_PSinfo.emission = 0.001f; //0.00001f;
 	m_PSinfo.force = -1.0f; //5
 	m_PSinfo.drag = 0.0f;
 	m_PSinfo.gravity = 0.0f; //Standard is 1
@@ -1083,7 +1083,7 @@ void Renderer::initializeParticle()
 	m_enhanceInfo.heigth = 0.2f;
 	m_enhanceInfo.lifetime = 0.3f;
 	m_enhanceInfo.maxParticles = 5000; //350
-	m_enhanceInfo.emission = 0.0005f; //0.00001f;
+	m_enhanceInfo.emission = 0.001f; //0.00001f;
 	m_enhanceInfo.force = -1.0f; //5
 	m_enhanceInfo.drag = 0.0f;
 	m_enhanceInfo.gravity = 0.0f; //Standard is 1
