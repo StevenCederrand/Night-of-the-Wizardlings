@@ -81,15 +81,17 @@ PlayState::PlayState()
 	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
 	//
 	////Animated goblino
-	//m_firstPerson = new AnimatedObject("TestFps");
-	//m_firstPerson->loadMesh("FirstPersonMesh.mesh");
+	m_firstPerson = new AnimatedObject("TestFps");
+	m_firstPerson->loadMesh("ANIM.mesh");
+	m_firstPerson->initAnimations("WalkAnimation", 1.0f, 21.0f);
+	m_firstPerson->initAnimations("IdleAnimation", 22.0f, 92.0f);
 
-	//m_objects.push_back(m_firstPerson);
+	m_objects.push_back(m_firstPerson);
 	//m_objects[m_objects.size() - 1]->loadMesh("FirstPersonMesh.mesh");
-
-	//tempTransform.position = glm::vec3(-3.0f, 0.0f, 3.0f);
-	//m_objects[m_objects.size() - 1]->setTransform(tempTransform);
-	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
+	Transform tempTransform;
+	tempTransform.position = glm::vec3(0.0f, 5.0f, 0.0f);
+	m_objects[m_objects.size() - 1]->setTransform(tempTransform);
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], ANIMATEDSTATIC);
 
 	
 	gContactAddedCallback = callbackFunc;
@@ -139,7 +141,8 @@ void PlayState::update(float dt)
 	m_player->update(dt);
 	m_spellHandler->spellUpdate(dt);
 	m_player->update(dt);
-	
+	m_firstPerson->playLoopAnimation("IdleAnimation");
+
 
 	if (m_player->isDeflecting()) {
 		m_crosshairHUD->setAlpha(0.0f);
