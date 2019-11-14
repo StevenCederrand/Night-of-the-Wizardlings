@@ -30,6 +30,7 @@ public:
 	void destroySpellOnNetwork(const Spell& spell);
 	void requestToDestroyClientSpell(const SpellPacket& packet);
 	void sendHitRequest(Spell& spell, NetworkPlayers::PlayerEntity& playerThatWasHit);
+	void sendHitRequest(Spell& spell, const PlayerPacket& playerThatWasHit);
 	void updateNetworkEntities(const float& dt);
 	void sendStartRequestToServer();
 	void refreshServerList();

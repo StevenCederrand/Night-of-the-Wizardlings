@@ -55,6 +55,9 @@
     <ClCompile Include="Text\HUDShader.cpp" />
     <ClCompile Include="Deflect\DeflectRender.cpp" />
     <ClCompile Include="Deflect\Deflect.cpp" />
+    <ClCompile Include="Particles\Particles.cpp" />
+    <ClCompile Include="Particles\ParticleBuffers.cpp" />
+    <ClCompile Include="GameObject\MapObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
@@ -83,7 +86,6 @@
     <ClInclude Include="Networking\NetworkPickups.h" />
     <ClInclude Include="Pickups\PickupTypes.h" />
     <ClInclude Include="Player\Player.h" />
-    <ClInclude Include="Renderer\PickupNotificationStructure.h" />
     <ClInclude Include="Spells\ReflectSpell.h" />
     <ClInclude Include="Renderer\BloomBlur.h" />
     <ClInclude Include="Renderer\Camera.h" />
@@ -123,6 +125,10 @@
     <ClInclude Include="Deflect\DeflectRender.h" />
     <ClInclude Include="Deflect\Deflect.h" />
     <ClInclude Include="System\Helper.h" />
+    <ClInclude Include="Particles\Particles.h" />
+    <ClInclude Include="Particles\ParticleBuffers.h" />
+    <ClInclude Include="Deflect\Deflect.h" />
+    <ClInclude Include="System\Helper.h" />
     <ClInclude Include="HUD\HudObject.h" />
     <ClInclude Include="HUD\HudTextureMap.h" />
     <ClInclude Include="HUD\HudHandler.h" />
@@ -135,7 +141,7 @@
     <ClInclude Include="Renderer\DeflectRender.h" />
     <ClInclude Include="Networking\PlayerEvents.h" />
     <ClInclude Include="Renderer\NotificationStructure.h" />
-
+    <ClInclude Include="GameObject\MapObject.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />
