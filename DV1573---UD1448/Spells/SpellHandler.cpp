@@ -43,7 +43,7 @@ void SpellHandler::initAttackSpell()
 
 	attackBase->m_damage = 34.0f;
 	attackBase->m_speed = 170.0f;
-	attackBase->m_radius = 0.5f;
+	attackBase->m_radius = 0.25f;
 	attackBase->m_coolDown = 0.75f;
 	attackBase->m_lifeTime = 5.0f;
 	attackBase->m_maxBounces = 3.0f;
@@ -153,6 +153,10 @@ SpellHandler::~SpellHandler()
 	for (Spell* element : spells)
 		delete element;
 	spells.clear();
+
+	for (Spell* element : spellstest)
+		delete element;
+	spellstest.clear();
 }
 
 float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SPELL_TYPE type)
@@ -225,36 +229,60 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 	//	m_BulletNormalSpell.at(size - 1)->setUserPointer(m_BulletNormalSpell.at(size - 1));
 	//}
 
-	//if (type == FLAMESTRIKE)
-	//{
-	//	auto spell = new AOEAttack(spellPos, directionVector, flamestrikeBase);
-	//	cooldown = flamestrikeBase->m_coolDown;
+	if (type == FLAMESTRIKE)
+	{
+		auto spellss = new AOEAttack(spellPos, directionVector, flamestrikeBase);
+		cooldown = flamestrikeBase->m_coolDown;
 
-	//	spell->setUniqueID(getUniqueID());
-	//	Client::getInstance()->createSpellOnNetwork(*spell);
-	//	spells.emplace_back(spell);
-	//	Renderer::getInstance()->submit(spells.back(), SPELL);
-	//	logTrace("Created flamestrike spell");
+		spellss->setUniqueID(getUniqueID());
+		Client::getInstance()->createSpellOnNetwork(*spellss);
+		spellstest.emplace_back(spellss);
+		Renderer::getInstance()->submit(spellstest.back(), SPELL);
+		logTrace("Created flamestrike spell");
 
-	//	//bullet create
-	//	btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.x);
-	//	m_BulletNormalSpell.emplace_back(
-	//		m_bp->createObject(sphere, 1.0f, spellPos + directionVector * 2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
+		//bullet create
+		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.x);
+		m_BulletFlamestrikeSpell.emplace_back(
+			m_bp->createObject(sphere, 1.0f, spellPos + directionVector * 2, glm::vec3(spellss->getTransform().scale.x, 0.0f, 0.0f)));
 
-	//	int size = m_BulletNormalSpell.size();
-	//	m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
-	//	m_BulletNormalSpell.at(size - 1)->setUserPointer(m_BulletNormalSpell.at(size - 1));
-	//}
+		int size = m_BulletFlamestrikeSpell.size();
+		m_BulletFlamestrikeSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
+		m_BulletFlamestrikeSpell.at(size - 1)->setUserPointer(spellss);
+	}
 
 	return cooldown;
 }
 
 void SpellHandler::spellUpdate(float deltaTime)
 {
-	if (Input::isKeyReleased(GLFW_KEY_L))
+
+	for (size_t i = 0; i < spellstest.size(); i++)
 	{
-		m_newHit = !m_newHit;
+		if (spellstest[i]->getTravelTime() > 0)
+		{
+			if (static_cast<Spell*>(spellstest[i])->getType() == FLAMESTRIKE)
+			{
+				flamestrikeUpdate(deltaTime, i);
+			}
+			spellstest[i]->update(deltaTime);
+			spellstest[i]->updateRigidbody(deltaTime, m_BulletFlamestrikeSpell.at(i));
+			Client::getInstance()->updateSpellOnNetwork(*spellstest[i]);
+		}
+		if (spellstest[i]->getTravelTime() <= 0)
+		{
+			Renderer::getInstance()->removeDynamic(spellstest[i], SPELL);
+
+			Client::getInstance()->destroySpellOnNetwork(*spellstest[i]);
+			delete spellstest[i];
+			spellstest.erase(spellstest.begin() + i);
+
+			m_bp->removeObject(m_BulletFlamestrikeSpell.at(i));
+			m_BulletFlamestrikeSpell.erase(m_BulletFlamestrikeSpell.begin() + i);
+		}
+
 	}
+
+
 	for (size_t i = 0; i < spells.size(); i++)
 	{
 		if (spells[i]->getTravelTime() > 0)
@@ -262,8 +290,8 @@ void SpellHandler::spellUpdate(float deltaTime)
 			/*if (static_cast<Spell*>(spells[i])->getType() == FLAMESTRIKE)
 			{
 				flamestrikeUpdate(deltaTime, i);
-			}
-			*/
+			}*/
+			
 			spells[i]->update(deltaTime);
 			spells[i]->updateRigidbody(deltaTime, m_BulletNormalSpell.at(i));
 			Client::getInstance()->updateSpellOnNetwork(*spells[i]);
@@ -548,6 +576,6 @@ void SpellHandler::REFLECTupdate(float deltaTime, int i)
 
 void SpellHandler::flamestrikeUpdate(float deltaTime, int i)
 {
-	AOEAttack* flamestrike = static_cast<AOEAttack*>(spells[i]);
+	AOEAttack* flamestrike = static_cast<AOEAttack*>(spellstest[i]);
 	flamestrike->updateActiveSpell(deltaTime);
 }

@@ -66,28 +66,28 @@ void LobbyState::loadGui()
 {
 	//Setup Servername input
 	InputBox inputSNameBox;
-	inputSNameBox.inputBox.first = static_cast<CEGUI::Editbox*>(Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/Editbox", glm::vec4(0.425f, 0.40f, 0.15f, 0.05f), glm::vec4(0.0f), "ServerNameInput"));
+	inputSNameBox.inputBox.first = static_cast<CEGUI::Editbox*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Editbox", glm::vec4(0.425f, 0.40f, 0.15f, 0.05f), glm::vec4(0.0f), "ServerNameInput"));
 	inputSNameBox.inputBox.first->setMaxTextLength(16);
 	inputSNameBox.defaultText = "Server Name...";
 	inputSNameBox.inputBox.first->setText(inputSNameBox.defaultText);
 	inputSNameBox.inputBox.second = SERVERNAME;
 	m_inputBoxes.emplace_back(inputSNameBox);
-		
+
 	//Setup Username input
 	InputBox inputUNameBox;
-	inputUNameBox.inputBox.first = static_cast<CEGUI::Editbox*>(Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/Editbox", glm::vec4(0.425f, 0.50f, 0.15f, 0.05f), glm::vec4(0.0f), "UserNameInput"));
+	inputUNameBox.inputBox.first = static_cast<CEGUI::Editbox*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Editbox", glm::vec4(0.425f, 0.50f, 0.15f, 0.05f), glm::vec4(0.0f), "UserNameInput"));
 	inputUNameBox.inputBox.first->setMaxTextLength(16);
 	inputSNameBox.defaultText = "User Name...";
 	inputUNameBox.inputBox.first->setText(inputSNameBox.defaultText);
 	inputUNameBox.inputBox.second = USERNAME;
 	m_inputBoxes.emplace_back(inputUNameBox);
-	
+
 	/* BUTTONS */
-	m_startServerBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/Button", glm::vec4(0.425f, 0.65f, 0.15f, 0.05f), glm::vec4(0.0f), "StartServer"));
+	m_startServerBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.425f, 0.65f, 0.15f, 0.05f), glm::vec4(0.0f), "StartServer"));
 	m_startServerBtn->setText("Launch server");
 	m_startServerBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&LobbyState::onStartSeverClicked, this));
 
-	m_backToMenuBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, "TaharezLook/Button", glm::vec4(0.05f, 0.90f, 0.1f, 0.05f), glm::vec4(0.0f), "BackToMenuBtn"));
+	m_backToMenuBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.05f, 0.90f, 0.1f, 0.05f), glm::vec4(0.0f), "BackToMenuBtn"));
 	m_backToMenuBtn->setText("Go back");
 	m_backToMenuBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&LobbyState::onBackToMenuClicked, this));
 }

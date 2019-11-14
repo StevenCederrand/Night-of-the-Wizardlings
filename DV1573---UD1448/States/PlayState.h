@@ -7,6 +7,7 @@
 #include <GameObject/GameObject.h>
 #include <Player/Player.h>
 #include <GameObject/WorldObject.h>
+#include <GameObject/MapObject.h>
 #include <GameObject/AnimatedObject.h>
 #include <Spells/Spell.h>
 #include <System/BulletPhysics.h>
@@ -30,7 +31,7 @@ private:
 
 private:
 	int key = 1;
-
+	float m_rotVal;
 	bool m_GUIOpen;
 	
 	//Any inherited GameObject class added to this vector will support basic rendering

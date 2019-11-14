@@ -3,7 +3,7 @@
 #include <Pch/Pch.h>
 #include <System/State.h>
 #include <Gui/Gui.h>
-#include <System/SoundHandler.h>
+#include <HUD/HudHandler.h>
 
 class MenuState : public State {
 
@@ -16,11 +16,12 @@ private:
 	void loadGui();
 
 private:
+	float m_rotVal;
 	CEGUI::PushButton* m_quitBtn; 
 	CEGUI::PushButton* m_joinServerBtn; 
 	CEGUI::PushButton* m_startServerBtn; 
 	CEGUI::PushButton* m_startWithoutServerBtn;
-
+	HudHandler m_hudHandler; //Basic HUD objects
 private:
 	bool onStartOfflineClicked(const CEGUI::EventArgs& e);
 	bool onStartServerClicked(const CEGUI::EventArgs& e);

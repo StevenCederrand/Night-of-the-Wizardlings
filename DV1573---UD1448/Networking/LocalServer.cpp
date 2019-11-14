@@ -33,9 +33,6 @@ LocalServer::LocalServer()
 	m_updateClientsWithServertimeTimer.registerCallback(std::bind(&LocalServer::m_updateClientsWithServertime, this));
 	m_updateClientsWithServertimeTimer.start();
 
-	unsigned int _time = unsigned int(time(NULL));
-	srand(_time);
-
 	m_pickupID = 0;
 }
 
@@ -122,6 +119,10 @@ void LocalServer::ThreadedUpdate()
 	uint32_t currentTimeMS = 0;
 	uint32_t lastTimeMS = 0;
 	uint32_t timeDiff = 0;
+
+	unsigned int _time = unsigned int(time(NULL));
+	srand(_time);
+
 	while (serverRunning) {
 		
 		lastTimeMS = currentTimeMS;
@@ -1093,30 +1094,36 @@ void LocalServer::createPickupSpawnLocations()
 {
 	
 	PickupSpawnLocation spawn_one;
-	copyStringToCharArray(spawn_one.name, "Red Crystal");
-	spawn_one.position = glm::vec3(44.0f, 6.0f, -1.0f);
+	copyStringToCharArray(spawn_one.name, "Top");
+	spawn_one.position = glm::vec3(10.0f, 14.0f, -1.0f);
 	m_pickupSpawnLocations.emplace_back(spawn_one);
 
 	PickupSpawnLocation spawn_two;
-	copyStringToCharArray(spawn_two.name, "Purple Crystal");
-	spawn_two.position = glm::vec3(-24.8f, 6.0f, -1.0f);
+	copyStringToCharArray(spawn_two.name, "Graveyard");
+	spawn_two.position = glm::vec3(82.0f, 2.3f, 0.5f);
 	m_pickupSpawnLocations.emplace_back(spawn_two);
 
 	PickupSpawnLocation spawn_three;
-	copyStringToCharArray(spawn_three.name, "Middle");
-	spawn_three.position = glm::vec3(10.0f, 7.0f, -1.0f);
+	copyStringToCharArray(spawn_three.name, "Maze");
+	spawn_three.position = glm::vec3(-84.4f, 2.6f, 0.08f);
 	m_pickupSpawnLocations.emplace_back(spawn_three);
+
+	PickupSpawnLocation spawn_four;
+	copyStringToCharArray(spawn_four.name, "Tunnels");
+	spawn_four.position = glm::vec3(10.28f, 2.4f, 53.0f);
+	m_pickupSpawnLocations.emplace_back(spawn_four);
 
 }
 
 void LocalServer::createPlayerSpawnLocations()
 {
-	m_playerSpawnLocations.emplace_back(-19.0f, 6.0f, 35.0f);
-	m_playerSpawnLocations.emplace_back(31.0f, 6.0f, 48.0f);
-	m_playerSpawnLocations.emplace_back(-1.35f, 15.0f, 3.43f);
+	m_playerSpawnLocations.emplace_back(0.0f, 3.0f, 17.0f);
+	m_playerSpawnLocations.emplace_back(59.0f, 3.0f, 6.0f);
+	m_playerSpawnLocations.emplace_back(36.0f, 7.5f, -51.43f);
 
-	m_playerSpawnLocations.emplace_back(12.0f, 6.0f, -51.0f);
-	m_playerSpawnLocations.emplace_back(-37.0f, 6.0f, -15.0f);
+	m_playerSpawnLocations.emplace_back(-37.55f, 7.5f, -51.3f);
+	m_playerSpawnLocations.emplace_back(-33.6f, 2.0f, 60.0f);
+	m_playerSpawnLocations.emplace_back(-76.0f, 2.0f, 24.0f);
 }
 
 void LocalServer::destroyPickupOverNetwork(PickupPacket& pickupPacket)

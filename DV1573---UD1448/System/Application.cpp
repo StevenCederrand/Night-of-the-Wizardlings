@@ -85,7 +85,7 @@ bool Application::init() {
 	initSound();
 
 	Gui::getInstance()->init();
-	Gui::getInstance()->loadScheme("TaharezLook.scheme");
+	Gui::getInstance()->loadScheme(CEGUI_TYPE + ".scheme");
 	Gui::getInstance()->setFont("DejaVuSans-10");
 
 	m_stateManager = new StateManager();

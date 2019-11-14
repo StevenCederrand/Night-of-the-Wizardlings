@@ -67,7 +67,7 @@
 #include <System/Input.h>
 #include <System/SoundHandler.h>
 
-
+const std::string CEGUI_TYPE = "OgreTray";
 const std::string SHADERPATH = "Assets/Shaders/";
 const std::string TEXTUREPATH = "Assets/Textures/";
 const std::string MESHPATH = "Assets/Meshes/";

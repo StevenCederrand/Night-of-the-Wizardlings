@@ -13,10 +13,13 @@ enum HUDID {
 	CROSSHAIR_HIT, 
 	CROSSHAIR_DEFLECT, 
 	DAMAGE_OVERLAY,
+	DAMAGE_INDICATOR,
 	SPELL_ARCANE, 
 	SPELL_SPECIAL,
 	SPELL_DEFLECT, 
 	POWERUP,
+	TITLE, 
+	BACKGROUND
 };
 
 class HudHandler {
@@ -24,6 +27,7 @@ public:
 	HudHandler();
 	~HudHandler();
 
+	void loadPlayStateHUD();
 	void insertHUDObject(HudObject* object, const HUDID& hudID);
 	void fadeOut();
 	void fadeIn();
