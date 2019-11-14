@@ -141,6 +141,7 @@ void PlayState::update(float dt)
 	m_player->update(dt);
 	m_spellHandler->spellUpdate(dt);
 	m_player->update(dt);
+
 	m_firstPerson->playLoopAnimation("IdleAnimation");
 
 
