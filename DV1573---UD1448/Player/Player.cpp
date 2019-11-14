@@ -286,8 +286,8 @@ void Player::updateMesh()
 
 	Transform m_fpsTrans;
 
-	//m_fpsTrans.position = m_playerCamera->getCamPos();
-	m_fpsTrans.position = glm::vec3(0.0f, 0.0f, 0.0f);
+	m_fpsTrans.position = m_playerCamera->getCamPos();
+	//m_fpsTrans.position = glm::vec3(0.0f, 0.0f, 0.0f);
 	m_fpsTrans.rotation = glm::quat(glm::vec3(
 		glm::radians(m_playerCamera->getPitch()),
 		-glm::radians(m_playerCamera->getYaw() + 90.0f),
