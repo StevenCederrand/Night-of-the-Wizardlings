@@ -505,6 +505,10 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 		//Loop through all of the gameobjects
 		for (GameObject* object : m_staticObjects)
 		{
+			if (object == nullptr || !object->getShouldRender()) {
+				continue;
+			}
+
 			//Then through all of the meshes
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
@@ -530,6 +534,10 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 		//TODO: Consider animation for the depth shader
 		for (GameObject* object : m_anistaticObjects)
 		{
+			if (object == nullptr || !object->getShouldRender()) {
+				continue;
+			}
+
 			//Then through all of the meshes
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
@@ -553,6 +561,10 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 
 		for (GameObject* object : m_pickups)
 		{
+			if (object == nullptr || !object->getShouldRender()) {
+				continue;
+			}
+
 			Pickup* p = dynamic_cast<Pickup*>(object);
 
 			//Then through all of the meshes
@@ -650,6 +662,10 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	//Render Static objects
 	for (GameObject* object : m_staticObjects)
 	{
+		if (object == nullptr || !object->getShouldRender()) {
+			continue;
+		}
+
 		//Then through all of the meshes
 		for (int j = 0; j < object->getMeshesCount(); j++)
 		{
@@ -759,6 +775,10 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	//Render Deflect Objects
 	for (GameObject* object : m_shieldObject)
 	{
+		if (object == nullptr || !object->getShouldRender()) {
+			continue;
+		}
+
 		//Then through all of the meshes
 		for (int j = 0; j < object->getMeshesCount(); j++)
 		{
@@ -813,6 +833,10 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 		}
 		for (GameObject* object : m_anistaticObjects)
 		{
+			if (object == nullptr || !object->getShouldRender()) {
+				continue;
+			}
+
 			//Then through all of the meshes
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
