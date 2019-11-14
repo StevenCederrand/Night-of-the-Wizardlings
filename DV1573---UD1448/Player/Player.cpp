@@ -118,15 +118,14 @@ void Player::move(float deltaTime)
 
 	m_character->setVelocityForTimeInterval(bulletVec, deltaTime);
 
+	//set playerpos from bullet character
 	btVector3 playerPos = m_character->getGhostObject()->getWorldTransform().getOrigin();
-	float characterHalfSize = m_bp->getCharacterSize().getY();
-
 	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY()+0.05f, playerPos.getZ());
 
-
+	//set cameraPos and spellSpawnPos 
+	float characterHalfSize = m_bp->getCharacterSize().getY();
 	m_cameraPosition = m_playerPosition;
 	m_cameraPosition.y += (2* characterHalfSize);
-
 	m_spellSpawnPosition = m_playerPosition;
 	m_spellSpawnPosition.y += (2 * characterHalfSize) * 0.85f;
 

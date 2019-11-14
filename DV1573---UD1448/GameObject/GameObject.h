@@ -37,6 +37,7 @@ public:
 	void translate(const glm::vec3& translationVector);
 	void setShouldRender(bool condition);
 	void setRestitution(float restitution);
+	void setMass(float mass);
 
 	//Get functions
 	const Transform getTransform() const;
@@ -65,6 +66,7 @@ private:
 	glm::vec3 m_lastPosition;
 	BulletPhysics* m_bPhysics;
 	float m_restitution = 1.0f;
+	float m_mass = 0.0f;
 
 	std::vector<btRigidBody*> m_bodies;
 	std::vector<DebugDrawer*> m_debugDrawers;

@@ -49,7 +49,6 @@ BulletPhysics::~BulletPhysics()
 		m_collisionShapes[i] = 0;
 		delete shape;
 	}
-	
 	delete m_character;
 
 	delete m_ghostCallback;
@@ -119,12 +118,18 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 
 	body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
 
+
 	//how much bounce and friction a object should have
 	
 	body->setRestitution(restitution);	
-	body->setFriction(0);
-	body->setSpinningFriction(1.0f);
+	body->setFriction(friction);
+	body->setSpinningFriction(0.5f);
 
+	if (restitution == 0.0f)
+	{
+		body->setFriction(0.8f);
+		body->setSpinningFriction(0.2f);
+	}
 	m_dynamicsWorld->addRigidBody(body);
 
 	return body;
