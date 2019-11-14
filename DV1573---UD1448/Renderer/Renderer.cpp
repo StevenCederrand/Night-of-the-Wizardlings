@@ -743,6 +743,10 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 
 
 #pragma region Deflect_Render
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_CULL_FACE);
+	glDepthFunc(GL_LEQUAL);
 	shader = shaderMap->useByName(FRESNEL);
 	
 	//Bind view- and projection matrix
@@ -779,6 +783,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	}
 	
 	shader->clearBinding();
+	glEnable(GL_CULL_FACE);
 #pragma endregion
 
 

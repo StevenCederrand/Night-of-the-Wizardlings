@@ -44,10 +44,12 @@ void main() {
     vec3 position = vec3(0);
     //Create the diffuse color once
     vec3 diffuse = Diffuse_Color;
+    vec4 alphaTexture = texture(shieldTexture, f_UV);
+
     //vec3 ambientCol = (Ambient_Color + ambientStr);
     if (TexAndRim.x == 1) {
         //ambientCol = (Ambient_Color + ambientStr) * texture(albedoTexture, f_UV).rgb;
-        diffuse *= texture(shieldTexture, f_UV).rgb;
+        diffuse *= alphaTexture.rgb;
         //diffuse = Diffuse_Color;
     }
 
@@ -60,16 +62,17 @@ void main() {
     //This is a light accumilation over the point lights
 
 
-    //HOLDERS
+    //HOLDERS (Values that we take in but not currently use: aka CLEAN UP)
     int grayHolder = grayscale;
     vec3 ambientHolder = Ambient_Color;
     int lightHolder = LightCount;
     vec3 cameraHolder = CameraPosition;
     //-------------------------
+
     vec3 viewDir = normalize(cameraHolder - f_position.xyz);
     float fresnel = 1 - dot(viewDir,  f_normal);
-    result += fresnel;
-    color = vec4(result, 1);
+    result += fresnel * 1;
+    color = vec4(result * 2, alphaTexture.a);
 }
 
 vec3 calcDirLight(vec3 normal, vec3 diffuseColor)

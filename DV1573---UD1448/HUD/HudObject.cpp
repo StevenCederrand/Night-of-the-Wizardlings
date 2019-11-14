@@ -152,7 +152,7 @@ void HudObject::loadTexture(const std::string& texturePath)
 
 	// load and generate the texture
 	int width, height, nrChannels;
-	unsigned char* data = stbi_load(texturePath.c_str(), &width, &height, &nrChannels, NULL);
+	unsigned char* data = stbi_load(texturePath.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
 	if (data)
 	{
 		GLenum format = {};
