@@ -467,16 +467,17 @@ void Client::processAndHandlePackets()
 			se.spellData = spellPacket;
 			se.flag = NetGlobals::THREAD_FLAG::ADD;
 			se.gameobject = nullptr;				
-						
+					
+			SoundHandler* shPtr = SoundHandler::getInstance();
 			switch (se.spellData.SpellType)
 			{
 			case SPELL_TYPE::NORMALATTACK:
-				SoundHandler::getInstance()->setSourcePosition(se.spellData.Position, BasicAttackSound, se.spellData.CreatorGUID);
-				SoundHandler::getInstance()->playSound(BasicAttackSound, se.spellData.CreatorGUID);				
+				shPtr->setSourcePosition(se.spellData.Position, BasicAttackSound, se.spellData.CreatorGUID);
+				shPtr->playSound(BasicAttackSound, se.spellData.CreatorGUID);
 				break;			
 			case SPELL_TYPE::ENHANCEATTACK:
-				SoundHandler::getInstance()->setSourcePosition(se.spellData.Position, EnhanceAttackSound, se.spellData.CreatorGUID);
-				SoundHandler::getInstance()->playSound(EnhanceAttackSound, se.spellData.CreatorGUID);
+				shPtr->setSourcePosition(se.spellData.Position, EnhanceAttackSound, se.spellData.CreatorGUID);
+				shPtr->playSound(EnhanceAttackSound, se.spellData.CreatorGUID);
 				break;
 			}
 

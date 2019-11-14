@@ -43,8 +43,6 @@ void Player::update(float deltaTime)
 			move(deltaTime);
 			attack();
 		}
-
-
 	}
 	if (m_client->isConnectedToSever()) {
 		m_client->updatePlayerData(this);
@@ -93,8 +91,7 @@ void Player::updateListenerProperties()
 
 	shPtr->setListenerOrientation(m_playerCamera->getCamFace(),
 		m_playerCamera->getCamUp());
-	shPtr->setListenerPos(m_playerPosition);
-	//shPtr->setListenerVelocity(glm::vec3(m_character->getAngularVelocity().getX(), m_character->getAngularVelocity().getY(), m_character->getAngularVelocity().getZ()));
+	shPtr->setListenerPos(m_playerPosition);	
 	shPtr->setSourcePosition(m_playerPosition, BasicAttackSound, m_client->getMyData().guid);
 	shPtr->setSourcePosition(m_playerPosition, DeflectSound, m_client->getMyData().guid);
 	shPtr->setSourcePosition(m_playerPosition, EnhanceAttackSound, m_client->getMyData().guid);
@@ -184,7 +181,6 @@ void Player::attack()
 			m_spellhandler->setSpawnerDirection(m_directionVector);
 			m_spellhandler->setSpawnerPosition(m_playerPosition);
 			m_attackCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_spellType); // Put attack on cooldown
-			shPtr->setSourcePosition(m_playerPosition, BasicAttackSound, m_client->getMyData().guid);
 			shPtr->playSound(BasicAttackSound, m_client->getMyData().guid);
 		}		
 	}
@@ -195,9 +191,8 @@ void Player::attack()
 		{
 			m_deflectCooldown = m_spellhandler->getReflectBase()->m_coolDown;
 			m_timeLeftInDeflectState = m_spellhandler->getReflectBase()->m_lifeTime;
-			m_deflecting = true;
+			m_deflecting = true;			
 			
-			shPtr->setSourcePosition(m_playerPosition, DeflectSound, m_client->getMyData().guid);
 			shPtr->playSound(DeflectSound, m_client->getMyData().guid);
 		}
 	}
@@ -212,7 +207,7 @@ void Player::attack()
 				m_spellhandler->setSpawnerPosition(m_playerPosition);
 				// Start loop
 				m_enhanceAttack.start();
-				shPtr->setSourcePosition(m_playerPosition, EnhanceAttackSound, m_client->getMyData().guid);
+				
 				shPtr->playSound(EnhanceAttackSound, m_client->getMyData().guid);
 			}
 		}

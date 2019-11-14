@@ -21,12 +21,14 @@ const int NR_OF_COMMON_SOUNDS = 5;
 const int NR_OF_CLIENT_SOUNDS = 4;
 //Nr of sounds in total
 const int NR_OF_SOUNDS = 9;
+//Nr of sounds from the same source that can be played subsequently
+const int NR_OF_SUBSEQUENT_SOUNDS = 3;
 
-//Put sounds that you will hear from yourself and other players as a SoundIndexCommon.
+//Put sounds that you will hear from yourself and other players as a SoundIndexCommon enum.
 //For example, you can hear other players' spells.
 //Put sounds that will come only from this client as a SoundIndexClient enum.
 //Also, make sure to increase NR_OF_CLIENT_SOUNDS or NR_OF_COMMON_SOUNDS depending 
-//on what type of sound you added.
+//on what type of sound you added. And, of course, increase the number of total sounds aswell. 
 
 //Sounds in common here:
 enum SoundIndexCommon {		
@@ -48,7 +50,7 @@ enum SoundIndexClient {
 struct PlayerSoundInfo
 {
 	RakNet::AddressOrGUID guid;	
-	std::vector<ALuint> sources;
+	std::vector<std::vector<ALuint>> sources;
 };
 
 struct ClientSoundInfo
@@ -61,7 +63,7 @@ class SoundHandler
 private:	
 	static SoundHandler* m_soundHandlerInstance;
 	ALCdevice* m_device;
-	ALCcontext* m_context;
+	ALCcontext* m_context;	
 	std::vector<ALuint> m_buffersCommon;
 	std::vector<ALuint> m_buffersClient;
 	std::vector<PlayerSoundInfo> m_playerSoundInfo;	
@@ -126,7 +128,7 @@ public:
 	void removePlayer(RakNet::AddressOrGUID guid);
 
 	const ALint& getSourceState(SoundIndexClient whatSound) const;
-	const ALint& getSourceState(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID) const;
+	const ALint& getSourceState(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID, int slot = 0) const;
 	//source relative?	
 };
 

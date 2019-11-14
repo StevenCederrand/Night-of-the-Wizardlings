@@ -91,9 +91,10 @@ bool Application::init() {
 	m_stateManager = new StateManager();
 	m_stateManager->pushState(new MenuState());	
 
-	SoundHandler::getInstance()->setSourceType(AL_STREAMING, ThemeSong0);
-	SoundHandler::getInstance()->playSound(ThemeSong0);
-	SoundHandler::getInstance()->setSourceLooping(true, ThemeSong0);
+	SoundHandler* shPtr = SoundHandler::getInstance();
+	shPtr->setSourceType(AL_STREAMING, ThemeSong0);
+	shPtr->playSound(ThemeSong0);
+	shPtr->setSourceLooping(true, ThemeSong0);
 
 	unsigned int _time = unsigned int(time(NULL));
 	srand(_time);
