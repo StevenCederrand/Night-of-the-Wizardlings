@@ -223,6 +223,7 @@ void Player::attack()
 				m_spellhandler->setSpawnerPosition(m_playerPosition);
 				// Start loop
 				m_enhanceAttack.start();
+				animState.casting = true;
 			}
 		}
 	}
@@ -234,6 +235,7 @@ void Player::attack()
 			m_spellhandler->setSpawnerDirection(m_directionVector);
 			m_spellhandler->setSpawnerPosition(m_playerPosition);
 			m_special3Cooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_specialSpellType3); // Put attack on cooldown
+			animState.casting = true;
 		}
 	}
 }

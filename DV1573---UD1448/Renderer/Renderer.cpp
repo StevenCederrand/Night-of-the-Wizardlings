@@ -704,16 +704,17 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			glBindVertexArray(0);
 		}
 	}
+	
 	shader->clearBinding();
 #pragma endregion
 
 
 #pragma region Animation_Render
-	shader = shaderMap->useByName(ANIMATION); 
 	//TODO: Evaluate this implementation, should be an easier way to bind values to shaders as they're changed
 	// Possibly extract functions. Only difference in rendering is the shader and the binding of bone matrices
 	if (m_anistaticObjects.size() > 0) {
-		shader->use();
+		shader = shaderMap->useByName(ANIMATION);
+		
 		//Bind view- and projection matrix
 		bindMatrixes(shader);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
@@ -739,6 +740,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			{
 				//Fetch the current mesh and its transform
 				mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
+				
 				//Bind calculated bone matrices
 				static_cast<AnimatedObject*>(object)->BindAnimation(j);
 				transform = object->getTransform(mesh, j);
@@ -747,9 +749,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 				object->bindMaterialToShader(ANIMATION, j);
 
 				modelMatrix = glm::mat4(1.0f);
-				modelMatrix = glm::translate(modelMatrix, transform.position);
-				modelMatrix = glm::scale(modelMatrix, transform.scale);
-				modelMatrix *= glm::mat4_cast(transform.rotation);
+				modelMatrix = object->getMatrix(j);
 
 				//Bind the modelmatrix
 				shader->setMat4("modelMatrix", modelMatrix);
@@ -762,7 +762,8 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			}
 		}
 	}
-
+	
+	shader->clearBinding();
 #pragma endregion
 	m_spellHandler->renderSpell();
 	//ShaderMap::getInstance()->useByName(BLUR);
