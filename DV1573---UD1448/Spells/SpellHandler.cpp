@@ -275,7 +275,6 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 		Client::getInstance()->createSpellOnNetwork(*spell);
 		flamestrikeSpells.emplace_back(spell);
 		Renderer::getInstance()->submit(flamestrikeSpells.back(), SPELL);
-		logTrace("Created flamestrike spell");
 
 		//bullet create
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
@@ -296,9 +295,7 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 		Client::getInstance()->createSpellOnNetwork(*fireSpell);
 		fireSpells.emplace_back(fireSpell);
 		Renderer::getInstance()->submit(fireSpells.back(), SPELL);
-		logTrace("Created fire spell");
-
-		std::cout << "Created fire spell" << std::endl;
+		
 		//bullet create
 		/*btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.x);
 		m_BulletNormalSpell.emplace_back(
@@ -329,7 +326,6 @@ void SpellHandler::spellUpdate(float deltaTime)
 				//flamestrike->updateActiveSpell(deltaTime);
 				if (flamestrike->spellOnGround())
 				{
-					std::cout << "fire" << std::endl;
 					createSpell(flamestrike->getTransform().position, glm::vec3(0, 0, 0), FIRE);
 					flamestrike->setSpellBool(false);
 				}
@@ -371,7 +367,6 @@ void SpellHandler::spellUpdate(float deltaTime)
 			Client::getInstance()->destroySpellOnNetwork(*fireSpells[i]);
 			delete fireSpells[i];
 			fireSpells.erase(fireSpells.begin() + i);
-			logTrace("Deleted fireSpell");
 		}
 	}
 

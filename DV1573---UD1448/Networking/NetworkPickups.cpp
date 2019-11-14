@@ -50,7 +50,6 @@ void NetworkPickups::update(const float& dt)
 						e.pickup = new HealthPickup(m_healthRenderInformation, e.packet.type, e.packet.position, e.packet.uniqueID);
 					}
 					else if (e.packet.type == PickupType::DamageBuff) {
-						printf("Spawned Damage buff\n");
 						e.pickup = new HealthPickup(m_damagaRenderInformation, e.packet.type, e.packet.position, e.packet.uniqueID);
 					}
 					
