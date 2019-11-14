@@ -180,7 +180,8 @@ SpellHandler::~SpellHandler()
 		delete flamestrikeBase;
 	if (reflectBase)
 		delete reflectBase;
-
+	if (fireBase)
+		delete fireBase;
 
 	for (Spell* element : spells)
 		delete element;
