@@ -345,6 +345,7 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 	if (!m_bPhysics)
 		m_bPhysics = bp;
 
+
 	for (size_t i = 0; i < m_meshes.size(); i++)
 	{
 		const std::vector<Vertex>& vertices = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getVertices();
@@ -370,7 +371,7 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 
 			glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(i).position;
 			glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale;
-			// TODO: ROTATE
+
 			m_bodies.emplace_back(m_bPhysics->createObject(shape, 0.0f, center, halfSize));
 		}
 		else
@@ -391,13 +392,13 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 
 			glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(i).position;
 			glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale;
-			// TODO: ROTATE
 
 			m_bodies.emplace_back(m_bPhysics->createObject(shape, 0.0f, center, halfSize, getTransform(i).rotation));
-			m_transform.position = glm::vec3(0.0f);
 		}
-
 	}
+
+	m_transform.position = glm::vec3(0.0f);
+	m_transform.rotation = glm::quat();
 }
 
 void GameObject::createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp, float weight)
@@ -411,56 +412,31 @@ void GameObject::createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp
 	{
 		const std::vector<Vertex>& vertices = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getVertices();
 
-		// Animated mesh case
-		if (vertices.size() == 0)
+		
+		glm::vec3 min = vertices[0].position;
+		glm::vec3 max = vertices[0].position;
+
+		for (size_t i = 1; i < vertices.size(); i++)
 		{
-			const std::vector<Vertex2>& vertices2 = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getVerticesSkele();
+			min.x = fminf(vertices[i].position.x, min.x);
+			min.y = fminf(vertices[i].position.y, min.y);
+			min.z = fminf(vertices[i].position.z, min.z);
 
-			glm::vec3 min = vertices2[0].position;
-			glm::vec3 max = vertices2[0].position;
-
-			for (size_t i = 1; i < vertices2.size(); i++)
-			{
-				min.x = fminf(vertices2[i].position.x, min.x);
-				min.y = fminf(vertices2[i].position.y, min.y);
-				min.z = fminf(vertices2[i].position.z, min.z);
-
-				max.x = fmaxf(vertices2[i].position.x, max.x);
-				max.y = fmaxf(vertices2[i].position.y, max.y);
-				max.z = fmaxf(vertices2[i].position.z, max.z);
-			}
-
-			glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(i).position;
-			glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale;
-			// TODO: ROTATE
-			m_bodies.emplace_back(m_bPhysics->createObject(shape, 0.0f, center, halfSize));
-		}
-		else
-		{
-			glm::vec3 min = vertices[0].position;
-			glm::vec3 max = vertices[0].position;
-
-			for (size_t i = 1; i < vertices.size(); i++)
-			{
-				min.x = fminf(vertices[i].position.x, min.x);
-				min.y = fminf(vertices[i].position.y, min.y);
-				min.z = fminf(vertices[i].position.z, min.z);
-
-				max.x = fmaxf(vertices[i].position.x, max.x);
-				max.y = fmaxf(vertices[i].position.y, max.y);
-				max.z = fmaxf(vertices[i].position.z, max.z);
-			}
-
-			glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(i).position;
-			glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale;
-			// TODO: ROTATE
-
-			m_bodies.emplace_back(m_bPhysics->createObject(shape, weight, center, halfSize, getTransform(i).rotation));
-			m_bodies.back()->setGravity(btVector3(0.0f, -5.0f, 0.0f));
-			m_transform.position = glm::vec3(0.0f);
+			max.x = fmaxf(vertices[i].position.x, max.x);
+			max.y = fmaxf(vertices[i].position.y, max.y);
+			max.z = fmaxf(vertices[i].position.z, max.z);
 		}
 
+		glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(i).position;
+		glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale;
+
+		m_bodies.emplace_back(m_bPhysics->createObject(shape, weight, center, halfSize, getTransform(i).rotation));
+		m_bodies.back()->setUserPointer(this);
+		m_bodies.back()->setGravity(btVector3(0.0f, -5.0f, 0.0f));
 	}
+
+	m_transform.position = glm::vec3(0.0f);
+	m_transform.rotation = glm::quat();
 }
 
 void GameObject::createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp, float weight, int meshIndex)
@@ -470,56 +446,29 @@ void GameObject::createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp
 
 	const std::vector<Vertex>& vertices = MeshMap::getInstance()->getMesh(m_meshes[meshIndex].name)->getVertices();
 
-	// Animated mesh case
-	if (vertices.size() == 0)
+	glm::vec3 min = vertices[0].position;
+	glm::vec3 max = vertices[0].position;
+
+	for (size_t i = 1; i < vertices.size(); i++)
 	{
-		const std::vector<Vertex2>& vertices2 = MeshMap::getInstance()->getMesh(m_meshes[meshIndex].name)->getVerticesSkele();
+		min.x = fminf(vertices[meshIndex].position.x, min.x);
+		min.y = fminf(vertices[meshIndex].position.y, min.y);
+		min.z = fminf(vertices[meshIndex].position.z, min.z);
 
-		glm::vec3 min = vertices2[0].position;
-		glm::vec3 max = vertices2[0].position;
-
-		for (size_t i = 1; i < vertices2.size(); i++)
-		{
-			min.x = fminf(vertices2[meshIndex].position.x, min.x);
-			min.y = fminf(vertices2[meshIndex].position.y, min.y);
-			min.z = fminf(vertices2[meshIndex].position.z, min.z);
-
-			max.x = fmaxf(vertices2[meshIndex].position.x, max.x);
-			max.y = fmaxf(vertices2[meshIndex].position.y, max.y);
-			max.z = fmaxf(vertices2[meshIndex].position.z, max.z);
-		}
-
-		glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransformMesh(meshIndex).position;
-		glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransformMesh(meshIndex).scale;
-		// TODO: ROTATE
-		m_bodies.emplace_back(m_bPhysics->createObject(shape, 0.0f, center, halfSize));
-	}
-	else
-	{
-		glm::vec3 min = vertices[0].position;
-		glm::vec3 max = vertices[0].position;
-
-		for (size_t i = 1; i < vertices.size(); i++)
-		{
-			min.x = fminf(vertices[meshIndex].position.x, min.x);
-			min.y = fminf(vertices[meshIndex].position.y, min.y);
-			min.z = fminf(vertices[meshIndex].position.z, min.z);
-
-			max.x = fmaxf(vertices[meshIndex].position.x, max.x);
-			max.y = fmaxf(vertices[meshIndex].position.y, max.y);
-			max.z = fmaxf(vertices[meshIndex].position.z, max.z);
-		}
-
-		glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransformMesh(meshIndex).position;
-		glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransformMesh(meshIndex).scale;
-		// TODO: ROTATE
-
-		m_bodies.emplace_back(m_bPhysics->createObject(shape, weight, center, halfSize, getTransformMesh(meshIndex).rotation));
-		m_bodies.back()->setGravity(btVector3(0.0f, -5.0f, 0.0f));
-		m_transform.position = glm::vec3(0.0f);
+		max.x = fmaxf(vertices[meshIndex].position.x, max.x);
+		max.y = fmaxf(vertices[meshIndex].position.y, max.y);
+		max.z = fmaxf(vertices[meshIndex].position.z, max.z);
 	}
 
-	
+	glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(meshIndex).position;
+	glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(meshIndex).scale;
+
+	m_bodies.emplace_back(m_bPhysics->createObject(shape, weight, center, halfSize, getTransform(meshIndex).rotation));
+	m_bodies.back()->setUserPointer(this);
+	m_bodies.back()->setGravity(btVector3(0.0f, -5.0f, 0.0f));
+
+	m_transform.position = glm::vec3(0.0f);
+	m_transform.rotation = glm::quat();
 }
 
 void GameObject::createDebugDrawer()

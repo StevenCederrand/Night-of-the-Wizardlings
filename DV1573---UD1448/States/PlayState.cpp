@@ -90,13 +90,15 @@ PlayState::PlayState()
 	// Destruction test object
 	m_objects.push_back(new DestructibleObject("Destructible"));
 	static_cast<DestructibleObject*>(m_objects.back())->loadBasic("Dstr_1");
-	m_objects.back()->setWorldPosition(glm::vec3(0.0f, 5.0f, -3.0f));
+	m_objects.back()->setWorldPosition(glm::vec3(0.0f, 15.0f, -3.0f), 0);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
 	//m_objects.back()->createDynamicRigidBody(CollisionObject::box, m_bPhysics, 5.0f);
 	Renderer::getInstance()->submit(m_objects.back(), STATIC);
 
 	m_objects.push_back(new DestructibleObject("Destructible2"));
 	static_cast<DestructibleObject*>(m_objects.back())->loadBasic("Dstr_2");
-	m_objects.back()->setWorldPosition(glm::vec3(0.0f, 5.0f, 3.0f));
+	m_objects.back()->setWorldPosition(glm::vec3(0.0f, 15.0f, 3.0f), 0);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
 	//m_objects.back()->createDynamicRigidBody(CollisionObject::box, m_bPhysics, 5.0f);
 	Renderer::getInstance()->submit(m_objects.back(), STATIC);
 
@@ -316,22 +318,16 @@ bool PlayState::onQuitClick(const CEGUI::EventArgs& e) {
 bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
 	const btCollisionObjectWrapper* obj2, int id2, int index2)
 {
-	Spell* sp1 = reinterpret_cast<Spell*>(obj1->getCollisionObject()->getUserPointer());
-	Spell* sp2 = reinterpret_cast<Spell*>(obj2->getCollisionObject()->getUserPointer());
+	//Spell* sp1 = reinterpret_cast<Spell*>(obj1->getCollisionObject()->getUserPointer());
+	//Spell* sp2 = reinterpret_cast<Spell*>(obj2->getCollisionObject()->getUserPointer());
+	GameObject* sp1 = static_cast<GameObject*>(obj1->getCollisionObject()->getUserPointer());
+	GameObject* sp2 = static_cast<GameObject*>(obj2->getCollisionObject()->getUserPointer());
 
-	 //Currently off, unknown error on reflect and AOE spell // JR
-	//if (sp1 != nullptr && sp2 == nullptr) {
-	//	logTrace("sp1: Spell collided");
-	//
-	//	if (!sp1->getHasCollided())
-	//		sp1->hasCollided();	
-	//}
-	//
-	//else if (sp2 != nullptr) {
-	//	
-	//	if (!sp2->getHasCollided())
-	//		sp2->hasCollided();
-	//}
+	if (sp1)
+	{
+		int test = 0;
+	}
+
 	return false;
 }
 
