@@ -72,6 +72,15 @@ struct Skeleton
 		name = "";
 	}
 };
+struct AnimationState
+{
+	bool running = false;
+	bool casting = false;
+	bool jumping = false;
+	bool deflecting = false;
+	bool idle = false;
+};
+
 
 struct Animation
 {

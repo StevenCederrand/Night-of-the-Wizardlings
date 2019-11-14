@@ -879,12 +879,16 @@ void Client::updatePlayerData(Player* player)
 	m_myPlayerDataPacket.lookDirection = player->getCamera()->getCamFace();
 	m_myPlayerDataPacket.timestamp = RakNet::GetTimeMS();
 	m_myPlayerDataPacket.rotation = glm::vec3(
-		-glm::radians(player->getCamera()->getPitch()),
+		0.0f,
 		-glm::radians(player->getCamera()->getYaw() - 90.0f),
 		0.0f);
 
+	m_myPlayerDataPacket.animStates = *player->getAnimState();
+
+	
 	if (m_sendUpdatePackages == false)
 		m_sendUpdatePackages = true;
+
 }
 
 /* You created a spell locally and wants to tell the server and all the other clients that.

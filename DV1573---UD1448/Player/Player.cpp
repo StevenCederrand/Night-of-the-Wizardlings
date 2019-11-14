@@ -4,6 +4,18 @@
 
 Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Camera *camera, SpellHandler* spellHandler)
 {
+	m_firstPersonMesh = new AnimatedObject("fpsMesh");
+	m_firstPersonMesh->loadMesh("Fps2Arm.mesh");
+	m_firstPersonMesh->initAnimations("CastAnimation", 1.0f, 20.0f);
+	m_firstPersonMesh->initAnimations("JumpAnimation", 21.0f, 35.0f);
+	m_firstPersonMesh->initAnimations("RunAnimation", 36.0f, 55.0f);
+	m_firstPersonMesh->initAnimations("IdleAnimation", 56.0f, 125.0f);
+	m_firstPersonMesh->initAnimations("DeflectAnimation", 126.0f, 175.0f);
+
+
+
+	Renderer::getInstance()->submit(m_firstPersonMesh, ANIMATEDSTATIC);
+
 	m_playerCamera = camera;
 	m_playerPosition = playerPosition;
 	m_name = name;
@@ -31,6 +43,7 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 
 Player::~Player()
 {
+	delete m_firstPersonMesh;
 }
 
 void Player::update(float deltaTime)
@@ -48,6 +61,9 @@ void Player::update(float deltaTime)
 
 
 	}
+
+	updateMesh();
+
 	if (m_client->isConnectedToSever()) {
 		m_client->updatePlayerData(this);
 	}
@@ -76,6 +92,9 @@ void Player::update(float deltaTime)
 	m_deflectCooldown -= deltaTime; // Cooldown reduces with time
 	m_special2Cooldown -= deltaTime; // Cooldown reduces with time
 	m_special3Cooldown -= deltaTime; // Cooldown reduces with time
+	
+
+
 
 	//Regenerate mana when we are not deflecting
 	if (!m_deflecting && m_mana <= 100 && m_deflectCooldown <= 0) {
@@ -84,6 +103,7 @@ void Player::update(float deltaTime)
 	else if (m_deflectCooldown > 0 && !m_deflecting) {
 		m_deflectCooldown -= DeltaTime;
 	}
+	PlayAnimation(deltaTime);
 
 }
 
@@ -102,7 +122,6 @@ void Player::move(float deltaTime)
 		glm::vec3 lookRightVector = m_playerCamera->getCamRight();
 
 		// Move
-		
 		if (Input::isKeyHeldDown(GLFW_KEY_A))
 			m_moveDir -= lookRightVector;
 		if (Input::isKeyHeldDown(GLFW_KEY_D))
@@ -133,8 +152,39 @@ void Player::move(float deltaTime)
 
 	m_playerCamera->setCameraPos(m_playerPosition);
 	m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
+}
+
+void Player::PlayAnimation(float deltaTime)
+{
+	
+
+	if (animState.running){
+		m_firstPersonMesh->playLoopAnimation("RunAnimation");
+		animState.running = false;
+	}
+	if (animState.casting) {
+		m_firstPersonMesh->playAnimation("CastAnimation");
+		animState.casting = false;
+	}
+	if (animState.jumping) {
+		m_firstPersonMesh->playAnimation("JumpAnimation");
+		animState.jumping = false;
+	}
+	if (animState.idle){
+		m_firstPersonMesh->playLoopAnimation("IdleAnimation");
+		animState.idle = false;
+	}
+	if (animState.deflecting)
+	{
+		m_firstPersonMesh->playAnimation("DeflectAnimation");
+		animState.deflecting = false;
+	}
+
+	m_firstPersonMesh->update(deltaTime);
 
 }
+
+
 
 void Player::attack()
 {
@@ -145,6 +195,7 @@ void Player::attack()
 			m_spellhandler->setSpawnerDirection(m_directionVector);
 			m_spellhandler->setSpawnerPosition(m_playerPosition);
 			m_attackCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_spellType); // Put attack on cooldown
+			animState.casting = true;
 		}
 	}
 
@@ -152,6 +203,7 @@ void Player::attack()
 	{
 		if (!m_deflecting)
 		{
+			animState.deflecting = true;
 			m_deflecting = true;
 			m_deflectCooldown = 0.5f; 
 		}
@@ -174,6 +226,7 @@ void Player::attack()
 				m_spellhandler->setSpawnerPosition(m_playerPosition);
 				// Start loop
 				m_enhanceAttack.start();
+				animState.casting = true;
 			}
 		}
 	}
@@ -185,6 +238,7 @@ void Player::attack()
 			m_spellhandler->setSpawnerDirection(m_directionVector);
 			m_spellhandler->setSpawnerPosition(m_playerPosition);
 			m_special3Cooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_specialSpellType3); // Put attack on cooldown
+			animState.casting = true;
 		}
 	}
 }
@@ -218,6 +272,33 @@ void Player::setPlayerPos(glm::vec3 pos)
 void Player::spawnPlayer(glm::vec3 pos)
 {
 	this->m_playerPosition = pos;
+}
+
+void Player::updateMesh()
+{
+	btVector3 velocity = m_character->getLinearVelocity();
+	float speed = glm::length(glm::vec3(velocity.getX(), 0.0f, velocity.getZ()));
+
+	if (animState.casting == false)
+	{
+		if (speed > 0)
+			animState.running = true;
+		else
+			animState.idle = true;
+	}
+
+	Transform m_fpsTrans;
+
+	m_fpsTrans.position = m_playerCamera->getCamPos();
+	//m_fpsTrans.position = glm::vec3(0.0f, 0.0f, 0.0f);
+	m_fpsTrans.rotation = glm::quat(glm::vec3(
+		glm::radians(m_playerCamera->getPitch()),
+		-glm::radians(m_playerCamera->getYaw() + 90.0f),
+		0.0f));
+	//m_fpsTrans.scale = glm::vec3(10.0f, 10.0f, 10.0f);
+
+	m_firstPersonMesh->setTransform(m_fpsTrans);
+
 }
 
 void Player::setHealth(int health)
@@ -278,6 +359,11 @@ const std::string& Player::getName() const
 const bool& Player::isDeflecting() const
 {
 	return m_deflecting;
+}
+
+const AnimationState* Player::getAnimState() const
+{
+	return &animState;
 }
 
 bool Player::isDead()

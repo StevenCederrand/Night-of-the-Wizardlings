@@ -174,15 +174,17 @@ const glm::vec3& Camera::getCamFace()
 	return m_camFace;
 }
 
-const glm::vec3& Camera::getCamRight()
-{
-	return m_camRight;
-}
 
 void Camera::setCameraPos(const glm::vec3& pos)
 {
 	m_camPos = pos;
 }
+
+const glm::vec3& Camera::getCamRight()
+{
+	return m_camRight;
+}
+
 
 void Camera::lookAt(const glm::vec3& position)
 {
