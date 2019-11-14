@@ -19,6 +19,7 @@ private:
 	glm::vec3 m_camRight;
 
 	glm::mat4 m_projectionMatrix;
+	glm::mat4 m_viewMatrix;
 
 	float m_camYaw;
 	float m_camPitch;
@@ -29,8 +30,9 @@ private:
 	float m_camSpeed;
 	float m_sensitivity;
 
-	void mouse_callback(GLFWwindow* window);
+	void updateMouseMovement();
 	bool m_fpEnabled;
+	bool m_activeCamera;
 	glm::vec2 oldPosition;
 public:
 	Camera();
@@ -41,6 +43,10 @@ public:
 	void mouseControls(float xOffset, float yOffset, bool pitchLimit);
 	void setProjMat(float width, float height, float nearPlane, float farPlane);
 	void setCameraPos(const glm::vec3& pos);
+	void lookAt(const glm::vec3& position);
+	void enableFP(const bool& fpEnable);
+	void disableCameraMovement(const bool condition);
+	void resetCamera();
 
 	const glm::mat4 getViewMat() const;
 	const glm::mat4& getProjMat() const;
@@ -49,14 +55,15 @@ public:
 
 	const float& getPitch() const;
 	const float& getYaw() const;
+	const glm::vec3& getCamPos() const;
+	const bool& isFPEnabled() const;
+	const bool& isCameraActive() const;
 
 	const glm::vec3& getCamFace();
 	const glm::vec3& getCamRight();
-	GLFWwindow* getWindow();
+	
 
-	void enableFP(const bool& fpEnable);
-
-	void update(GLFWwindow* window);
+	void update();
 	
 };
 

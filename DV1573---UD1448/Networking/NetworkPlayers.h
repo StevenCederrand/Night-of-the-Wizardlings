@@ -22,7 +22,6 @@ public:
 
 private:
 	friend class Client;
-	std::mutex m_mutex;
 	std::vector<PlayerEntity> m_players;
 	float m_lerpSpeed = 15.f;
 

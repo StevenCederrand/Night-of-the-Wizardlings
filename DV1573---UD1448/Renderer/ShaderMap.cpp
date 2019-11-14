@@ -70,7 +70,13 @@ void ShaderMap::reload() {
 	std::map<std::string, Shader*>::iterator it;
 
 	for (it = m_shaderMap.begin(); it != m_shaderMap.end(); it++) {
-		Shader* tempShader = new Shader(it->second->getShaderNames()[0], it->second->getShaderNames()[1]);
+		Shader* tempShader;
+		if (it->second->getShaderNames().size() == 1) {
+			tempShader = new Shader(it->second->getShaderNames()[0]);
+		}
+		else {
+			tempShader = new Shader(it->second->getShaderNames()[0], it->second->getShaderNames()[1]);
+		}
 		if (tempShader->getValid()) {
 			delete it->second;
 			it->second = tempShader;
@@ -87,11 +93,13 @@ void ShaderMap::reload() {
 	}
 }
 
-void ShaderMap::useByName(std::string name) {
+Shader* ShaderMap::useByName(std::string name) {
 
 	if (existsWithName(name)) {
 		m_shaderMap[name]->use();
+		return m_shaderMap[name];
 	}
+	return nullptr;
 }
 
 void ShaderMap::destroy()

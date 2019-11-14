@@ -256,29 +256,28 @@ void Shader::setInt(std::string name, int num)
 }
 
 //Assumption is that you are using the shader
-void Shader::setMaterial(std::string materialName) {
-	Material* mat = MaterialMap::getInstance()->getMaterial(materialName);
-	if (mat)
-	{
-		setVec3("Ambient_Color", mat->ambient);
-		setVec3("Diffuse_Color", mat->diffuse);
-		setInt("HasTex", mat->texture);
-		//setVec3("Specular_Color", mat->specular);
+void Shader::setMaterial(const std::string& materialName) {
 
-		for (size_t i = 0; i < mat->textureID.size(); i++) {
-			glActiveTexture(GL_TEXTURE0 + i);
-			glBindTexture(GL_TEXTURE_2D, mat->textureID.at(i));
-		}
+	//If material names are the same
+	/*if (m_oldMaterial == materialName) {
+		return;
 	}
-	else
-	{
-		setVec3("Ambient_Color", glm::vec3(0.5f));
-		setVec3("Diffuse_Color", glm::vec3(0.5f));
-		setInt("HasTex", 0);
+	m_oldMaterial = materialName;*/
+
+	Material* mat = MaterialMap::getInstance()->getMaterial(materialName);
+	setVec3("Ambient_Color", mat->ambient);
+	setVec3("Diffuse_Color", mat->diffuse);
+	//setVec3("Specular_Color", mat->specular);
+	setInt("HasTex", mat->texture);
+	
+	for (size_t i = 0; i < mat->textureID.size(); i++) {
+		glActiveTexture(GL_TEXTURE0 + i);
+		glBindTexture(GL_TEXTURE_2D, mat->textureID.at(i));
 	}
+	
 }
 
-void Shader::setMaterial(const Material* material)
+void Shader::setMaterial(Material* material)
 {
 	setVec3("Ambient_Color", material->ambient);
 	setVec3("Diffuse_Color", material->diffuse);

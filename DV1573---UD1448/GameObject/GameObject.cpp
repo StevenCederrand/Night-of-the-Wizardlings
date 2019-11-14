@@ -5,7 +5,7 @@
 GameObject::GameObject()
 {
 	m_objectName = "Empty";
-	type = 0;
+	m_type = 0;
 	m_bPhysics = nullptr;
 	m_shouldRender = true;
 }
@@ -13,7 +13,7 @@ GameObject::GameObject()
 GameObject::GameObject(std::string objectName)
 {
 	m_objectName = objectName;
-	type = 0;
+	m_type = 0;
 	m_bPhysics = nullptr;
 }
 
@@ -121,10 +121,10 @@ void GameObject::loadMesh(std::string fileName)
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 				// load and generate the texture
 				int width, height, nrChannels;
-				unsigned char* data = stbi_load(albedoFile.c_str(), &width, &height, &nrChannels, NULL);
+				unsigned char* data = stbi_load(albedoFile.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
 				if (data)
 				{
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 					glGenerateMipmap(GL_TEXTURE_2D);
 				}
 				else
@@ -202,6 +202,11 @@ const bool& GameObject::getShouldRender() const
 	return m_shouldRender;
 }
 
+const glm::vec3 GameObject::getLastPosition() const
+{
+	return m_lastPosition;
+}
+
 //Update each individual modelmatrix for the meshes
 void GameObject::updateModelMatrix() {
 	
@@ -233,6 +238,7 @@ void GameObject::setTransform(glm::vec3 worldPosition = glm::vec3(.0f), glm::qua
 
 void GameObject::setWorldPosition(glm::vec3 worldPosition)
 {
+	m_lastPosition = m_transform.position;
 	m_transform.position = worldPosition;
 	updateModelMatrix();
 }
@@ -289,8 +295,19 @@ const Transform GameObject::getTransform() const
 
 const Transform GameObject::getTransform(int meshIndex) const
 {
-	Mesh* mesh = MeshMap::getInstance()->getMesh(m_meshes[meshIndex].name);
+	Mesh* mesh = MeshMap::getInstance()->getMesh(m_meshes[meshIndex].name); //This costs a lot
 
+	// Adds the inherited transforms together to get the world position of a mesh
+	Transform world_transform;
+	world_transform.position = m_transform.position + m_meshes[meshIndex].transform.position + mesh->getTransform().position;
+	world_transform.rotation = m_transform.rotation * m_meshes[meshIndex].transform.rotation * mesh->getTransform().rotation;
+	world_transform.scale = m_transform.scale * m_meshes[meshIndex].transform.scale * mesh->getTransform().scale;
+
+	return world_transform;
+}
+
+const Transform& GameObject::getTransform(Mesh* mesh, const int& meshIndex) const
+{
 	// Adds the inherited transforms together to get the world position of a mesh
 	Transform world_transform;
 	world_transform.position = m_transform.position + m_meshes[meshIndex].transform.position + mesh->getTransform().position;
@@ -340,6 +357,20 @@ void GameObject::bindMaterialToShader(std::string shaderName, int meshIndex)
 	ShaderMap::getInstance()->getShader(shaderName)->setMaterial(MeshMap::getInstance()->getMesh(m_meshes[meshIndex].name)->getMaterial());
 }
 
+void GameObject::bindMaterialToShader(Shader* shader, const int& meshIndex)
+{
+	shader->setMaterial(MeshMap::getInstance()->getMesh(m_meshes[meshIndex].name)->getMaterial());
+}
+
+void GameObject::bindMaterialToShader(Shader* shader, const std::string& materialName)
+{
+	//logWarning("Material: {0}", materialName);
+	shader->setMaterial(materialName);
+}
+void GameObject::bindMaterialToShader(Shader* shader, Material* material)
+{
+	shader->setMaterial(material);
+}
 void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 {
 	if (!m_bPhysics)

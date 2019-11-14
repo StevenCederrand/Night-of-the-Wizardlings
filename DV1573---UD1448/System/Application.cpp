@@ -6,6 +6,7 @@
 #include <Networking/LocalServer.h>
 #include <Gui/Gui.h>
 
+float DeltaTime = 0.0f;
 
 Application::Application() {
 }
@@ -51,7 +52,7 @@ bool Application::init() {
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
-	m_window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Wizards 'n stuff", NULL, NULL); 
+	m_window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Wizards 'n stuff", NULL, NULL);
 	//m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", glfwGetPrimaryMonitor(), NULL); !!! FULLSCREEN!!!
 
 	//glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -82,11 +83,14 @@ bool Application::init() {
 	initGraphics();
 
 	Gui::getInstance()->init();
-	Gui::getInstance()->loadScheme("TaharezLook.scheme");
+	Gui::getInstance()->loadScheme(CEGUI_TYPE + ".scheme");
 	Gui::getInstance()->setFont("DejaVuSans-10");
 
 	m_stateManager = new StateManager();
 	m_stateManager->pushState(new MenuState());
+
+	unsigned int _time = unsigned int(time(NULL));
+	srand(_time);
 
 	logTrace("Application successfully initialized");
 	return statusOK;
@@ -131,15 +135,15 @@ void Application::run()
 		timeNow = static_cast<float>(glfwGetTime());
 
 		//Deltatime
-		float deltaTime = timeNow - timeThen;
+		DeltaTime = timeNow - timeThen;
 		timeThen = timeNow;
 
-		currentTime += deltaTime;
+		currentTime += DeltaTime;
 		
-		calcFPS(deltaTime);
+		calcFPS(DeltaTime);
 		
-		m_stateManager->update(deltaTime);
-		Gui::getInstance()->update(deltaTime);
+		m_stateManager->update(DeltaTime);
+		Gui::getInstance()->update(DeltaTime);
 		
 		m_stateManager->render();
 		glActiveTexture(GL_TEXTURE0);
@@ -148,8 +152,6 @@ void Application::run()
 
 		glfwSwapBuffers(m_window);
 	}
-
-	logInfo("Exiting application loop");
 
 }
 

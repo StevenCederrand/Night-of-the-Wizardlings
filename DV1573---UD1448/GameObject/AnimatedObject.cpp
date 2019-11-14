@@ -3,7 +3,7 @@
 
 AnimatedObject::AnimatedObject(std::string name) : GameObject(name)
 {
-	type = 1;
+	m_type = 1;
 	currentTime = 0;
 	boneBuffer = 0;
 

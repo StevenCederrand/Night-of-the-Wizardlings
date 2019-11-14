@@ -27,6 +27,14 @@ void Client::startup()
 		m_clientPeer->Startup(1, &RakNet::SocketDescriptor(), 1);
 		m_initialized = true;	
 		m_sendUpdatePackages = false;
+
+		m_networkPickup = new NetworkPickups();
+
+		m_routineCleanupTimer.setInfinityExecutionTime(true);
+		m_routineCleanupTimer.setExecutionInterval(NetGlobals::RoutineCleanupTimeIntervalMS);
+		m_routineCleanupTimer.registerCallback(std::bind(&Client::routineCleanup, this));
+		m_routineCleanupTimer.start();
+
 	}
 }
 
@@ -36,13 +44,14 @@ void Client::destroy()
 		
 		// In it's own scope
 		{
-			std::lock_guard<std::mutex> lockGuard(m_cleanupMutex);
+			cleanupMutexGuard();
 			m_shutdownThread = true;
 		}
 
 		if (m_processThread.joinable()) {
 			m_processThread.join();
 		}
+	
 
 		m_serverList.clear();
 		m_connectedPlayers.clear();
@@ -52,6 +61,8 @@ void Client::destroy()
 		m_removeOrAddSpellQueue.clear();
 		m_networkPlayers.cleanUp();
 		m_networkSpells.cleanUp();
+		m_networkPickup->cleanUp();
+		delete m_networkPickup;
 		resetPlayerData();
 		m_initialized = false;
 		RakNet::RakPeerInterface::DestroyInstance(m_clientPeer);
@@ -66,7 +77,7 @@ void Client::connectToAnotherServer(const ServerInfo& server)
 	m_serverOwner = false;
 
 	bool status = m_clientPeer->Connect(server.serverAddress.ToString(false), server.serverAddress.GetPort(), 0, 0, 0) == RakNet::CONNECTION_ATTEMPT_STARTED;
-	assert((status == true, "[CLIENT] Client connecting to {0} failed!", server.serverName));
+	assert((status == true, "[Client] Client connecting to {0} failed!", server.serverName));
 
 	if (m_processThread.joinable()) {
 		m_processThread.join();
@@ -97,20 +108,29 @@ void Client::connectToMyServer()
 void Client::ThreadedUpdate()
 {
 	bool clientRunning = true;
-	
+	uint32_t currentTimeMS = 0;
+	uint32_t lastTimeMS = 0;
+	uint32_t timeDiff = 0;
+
 	while (clientRunning)
 	{	
-		
+		lastTimeMS = currentTimeMS;
+		currentTimeMS = RakNet::GetTimeMS();
+		timeDiff = (currentTimeMS - lastTimeMS);
+
 		processAndHandlePackets();
 		
 		/* Sends my data (such as my position, my spells) to the server and to 
 		   all the other clients */
 		updateDataOnServer();
 		
+		// Update the routine loop
+		m_routineCleanupTimer.update(timeDiff);
+
 		/* Checking for cleanups, it's in its own scope due to the lock guard
 		   releases the mutex upon destruction. */ 
 		{
-			std::lock_guard<std::mutex> lockGuard(m_cleanupMutex);
+			cleanupMutexGuard();
 			if (m_shutdownThread == true)
 				clientRunning = false;
 		}
@@ -122,7 +142,7 @@ void Client::ThreadedUpdate()
 	// Client has been told to shutdown here so send a disconnection packet if you're still connected
 	if (m_isConnectedToAnServer)
 	{
-		logTrace("[CLIENT] Sent a disconnect package to server :)");
+		logTrace("[Client] Sent a disconnect package to server :)");
 		RakNet::BitStream stream;
 		stream.Write((RakNet::MessageID)ID_DISCONNECTION_NOTIFICATION);
 		m_clientPeer->Send(&stream, IMMEDIATE_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_serverAddress, false);
@@ -147,50 +167,50 @@ void Client::processAndHandlePackets()
 		{
 		case ID_CONNECTION_REQUEST_ACCEPTED:
 		{
-			logTrace("[CLIENT] Connected to server but not sure if actually accepted to the server.\n");
+			logTrace("[Client] Connected to server but not sure if actually accepted to the server.\n");
 		}
 		break;
 
 		case ID_CONNECTION_ATTEMPT_FAILED:
-			logTrace("[CLIENT] Connection failed, server might be full.\n");
+			logTrace("[Client] Connection failed, server might be full.\n");
 			m_isConnectedToAnServer = false;
 			m_failedToConnect = true;
 			m_shutdownThread = true;
 			break;
 
 		case ID_ALREADY_CONNECTED:
-			logTrace("[CLIENT] You are already connected to the server\n");
+			logTrace("[Client] You are already connected to the server\n");
 			break;
 
 		case ID_CONNECTION_BANNED:
-			logTrace("[CLIENT] You are banned for that server.\n");
+			logTrace("[Client] You are banned for that server.\n");
 			break;
 
 		case ID_INVALID_PASSWORD:
-			logTrace("[CLIENT] Invalid server password.\n");
+			logTrace("[Client] Invalid server password.\n");
 			break;
 
 		case ID_INCOMPATIBLE_PROTOCOL_VERSION:
 			m_shutdownThread = true;
-			logTrace("[CLIENT] Client Error: incompatible protocol version!\n");
+			logTrace("[Client] Client Error: incompatible protocol version!\n");
 			break;
 
 		case ID_NO_FREE_INCOMING_CONNECTIONS:
-			logTrace("[CLIENT] Client Error: No free incoming connection slots!\n");
+			logTrace("[Client] Client Error: No free incoming connection slots!\n");
 			m_failedToConnect = true;
 			m_isConnectedToAnServer = false;
 			m_shutdownThread = true;
 			break;
 
 		case ID_DISCONNECTION_NOTIFICATION:
-			logTrace("[CLIENT] Disconnected from server!\n");
+			logTrace("[Client] Disconnected from server!\n");
 			m_failedToConnect = true;
 			m_isConnectedToAnServer = false;
 			m_shutdownThread = true;
 			break;
 
 		case ID_CONNECTION_LOST:
-			logTrace("[CLIENT] Connection to the server is lost!\n");
+			logTrace("[Client] Connection to the server is lost!\n");
 			m_isConnectedToAnServer = false;
 			m_shutdownThread = true;
 			break;
@@ -198,7 +218,7 @@ void Client::processAndHandlePackets()
 		case PLAYER_ACCEPTED_TO_SERVER:
 		{
 			/* The server accepted you which means that the server had room for you & wasn't in session */
-			logTrace("[CLIENT] Connected and accepted by server! Welcome!.\n");
+			logTrace("[Client] Connected and accepted by server! Welcome!.\n");
 			m_serverAddress = packet->systemAddress;
 			m_isConnectedToAnServer = true;
 			m_myPlayerDataPacket.guid = m_clientPeer->GetMyGUID();
@@ -233,7 +253,7 @@ void Client::processAndHandlePackets()
 				   (whenever the lock guard goes out of scope.). This will make it synced &
 				   avoid deadlocks. */
 				{
-					std::lock_guard<std::mutex> lockGuard(NetGlobals::gameSyncMutex);
+					updatePlayersMutexGuard();
 					m_networkPlayers.m_players.emplace_back(pE);
 				}
 			}
@@ -246,7 +266,7 @@ void Client::processAndHandlePackets()
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			size_t nrOfSpellsInGame;
 			bsIn.Read(nrOfSpellsInGame);
-			logTrace("[CLIENT] Got packet with all the existing spells");
+			logTrace("[Client] Got packet with all the existing spells");
 			for (size_t i = 0; i < nrOfSpellsInGame; i++) {
 				SpellPacket spellPacket;
 				spellPacket.Serialize(false, bsIn);
@@ -257,7 +277,7 @@ void Client::processAndHandlePackets()
 				se.gameobject = nullptr;
 
 				{
-					std::lock_guard<std::mutex> lockGuard(m_networkSpells.m_mutex);
+					updateSpellsMutexGuard();
 					m_networkSpells.m_entities.emplace_back(se);
 				}
 
@@ -274,20 +294,23 @@ void Client::processAndHandlePackets()
 			   This works just as "INFO_ABOUT_OTHER_PLAYERS". The reason why there is two different ID's that does the same
 			   thing is that, whenever a client joins a server he/she needs to know about ALL the players that are present on the server before
 			   doing anything else. This one is just called whenever a player joins the server. */
-			logTrace("New player joined!");
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			PlayerPacket player;
 			player.Serialize(false, bsIn);
 			m_connectedPlayers.emplace_back(player);
 
-			std::lock_guard<std::mutex> lockGuard(m_networkPlayers.m_mutex);
 			NetworkPlayers::PlayerEntity pE;
 
 			pE.data = player;
 			pE.flag = NetGlobals::THREAD_FLAG::ADD;
 			pE.gameobject = nullptr;
-			m_networkPlayers.m_players.emplace_back(pE);
+			
+			{
+				updatePlayersMutexGuard();
+				m_networkPlayers.m_players.emplace_back(pE);
+			}
 
+		
 		}
 		break;
 		case PLAYER_DISCONNECTED:
@@ -300,14 +323,42 @@ void Client::processAndHandlePackets()
 			RakNet::AddressOrGUID guidOfDisconnectedPlayer;
 			bsIn.Read(guidOfDisconnectedPlayer);
 
+			std::string playerName;
+
 			{
-				std::lock_guard<std::mutex> lockGuard(m_networkPlayers.m_mutex);
+				updatePlayersMutexGuard();
 				NetworkPlayers::PlayerEntity* pE = findPlayerEntityInNetworkPlayers(guidOfDisconnectedPlayer);
-				if (pE != nullptr)
+				if (pE != nullptr) {
+					playerName = std::string(pE->data.userName);
 					pE->flag = NetGlobals::THREAD_FLAG::REMOVE;
+				}
 			}
 
 			removeConnectedPlayer(guidOfDisconnectedPlayer);
+
+			NotificationText t;
+			t.alphaColor = 1.0f;
+			t.width = 0;
+			t.scale = glm::vec3(0.35f);
+			t.useAlpha = true;
+			t.lifeTimeInSeconds = 6.0f;
+
+			glm::vec3 color = glm::vec3(1.0f, 0.5f, 0.0f);
+			t.width += Renderer::getInstance()->getTextWidth(playerName, t.scale);
+			t.textParts.emplace_back(playerName, color);
+
+			std::string Information = " Left the server! ";
+			color = glm::vec3(1.0f, 1.0f, 1.0f);
+			t.width += Renderer::getInstance()->getTextWidth(Information, t.scale);
+			t.textParts.emplace_back(Information, color);
+
+			{
+				renderPickupNotificationsMutexGuard();
+				Renderer::getInstance()->addBigNotification(t);
+			}
+
+
+
 		}
 		break;
 		case PLAYER_UPDATE_PACKET:
@@ -330,6 +381,32 @@ void Client::processAndHandlePackets()
 
 				if (m_connectedPlayers[i].guid == pData.guid)
 				{
+					if (m_connectedPlayers[i].hasBeenUpdatedOnce == false && pData.hasBeenUpdatedOnce == true)
+					{
+						NotificationText t;
+						t.alphaColor = 1.0f;
+						t.width = 0;
+						t.scale = glm::vec3(0.35f);
+						t.useAlpha = true;
+						t.lifeTimeInSeconds = 6.0f;
+
+						std::string PlayerName = std::string(pData.userName);
+						glm::vec3 color = glm::vec3(1.0f, 0.5f, 0.0f);
+						t.width += Renderer::getInstance()->getTextWidth(PlayerName, t.scale);
+						t.textParts.emplace_back(PlayerName, color);
+
+						std::string Information = " Joined the server! ";
+						color = glm::vec3(1.0f, 1.0f, 1.0f);
+						t.width += Renderer::getInstance()->getTextWidth(Information, t.scale);
+						t.textParts.emplace_back(Information, color);
+
+						{
+							renderPickupNotificationsMutexGuard();
+							Renderer::getInstance()->addBigNotification(t);
+						}
+
+					}
+
 					m_connectedPlayers[i] = pData;
 
 					if (m_networkPlayers.m_players[i].data.guid == pData.guid)
@@ -337,7 +414,7 @@ void Client::processAndHandlePackets()
 						m_networkPlayers.m_players[i].data = pData;
 					}
 					else {
-						logWarning("[CLIENT] Client skipped a update on a client due to sync problems. (Should resolve itself with time)");
+						logWarning("[Client] Client skipped a update on a client due to sync problems. (Should resolve itself with time)");
 					}
 
 					break;
@@ -351,7 +428,7 @@ void Client::processAndHandlePackets()
 			/* You get this if you are the one that started the server, essentially this means that the
 			   server confirmed that you are the admin/serve creator. */
 			m_serverOwner = true;
-			logTrace("[CLIENT-ADMIN] Press E to start game!");
+			logTrace("[Client-ADMIN] Press E to start game!");
 		}
 		break;
 		case SERVER_CURRENT_STATE:
@@ -363,16 +440,16 @@ void Client::processAndHandlePackets()
 
 			m_serverState.Serialize(false, bsIn);
 			if (m_serverState.currentState == NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS) {
-				logTrace("[CLIENT]******** WARMUP ********");
+				logTrace("[Client]******** WARMUP ********");
 			}
 			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GAME_IS_STARTING) {
-				logTrace("[CLIENT]******** GAME IS STARTING ********");
+				logTrace("[Client]******** GAME IS STARTING ********");
 			}
 			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GAME_IN_SESSION) {
-				logTrace("[CLIENT]******** GAME HAS STARTED ********");
+				logTrace("[Client]******** GAME HAS STARTED ********");
 			}
 			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GAME_END_STATE) {
-				logTrace("[CLIENT]******** GAME HAS ENDED ********");
+				logTrace("[Client]******** GAME HAS ENDED ********");
 
 			}
 		}
@@ -392,7 +469,7 @@ void Client::processAndHandlePackets()
 			se.gameobject = nullptr;
 
 			{
-				std::lock_guard<std::mutex> lockGuard(m_networkSpells.m_mutex);
+				updateSpellsMutexGuard();
 				m_networkSpells.m_entities.emplace_back(se);
 			}
 
@@ -433,7 +510,7 @@ void Client::processAndHandlePackets()
 					}
 					else {
 						/* Just as the "PLAYER_UPDATE" this will resolve itself a couple of frames later */
-						//logWarning("[CLIENT] Client skipped a update on a spell due to sync problems. (Should resolve itself with time)");
+						//logWarning("[Client] Client skipped a update on a spell due to sync problems. (Should resolve itself with time)");
 					}
 
 					break;
@@ -455,7 +532,7 @@ void Client::processAndHandlePackets()
 
 			// The scope
 			{
-				std::lock_guard<std::mutex> lockGuard(m_networkSpells.m_mutex);
+				updateSpellsMutexGuard();
 				NetworkSpells::SpellEntity* ne = findSpellEntityInNetworkSpells(spellPacket);
 				if (ne != nullptr) {
 					ne->flag = NetGlobals::THREAD_FLAG::REMOVE;
@@ -472,8 +549,21 @@ void Client::processAndHandlePackets()
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			PlayerPacket playerPacket;
 			playerPacket.Serialize(false, bsIn);
-
+			m_myPlayerDataPacket.lastHitByGuid = playerPacket.lastHitByGuid;
 			m_myPlayerDataPacket.health = playerPacket.health;
+			m_latestPlayerThatHitMe = findPlayerByGuid(playerPacket.lastHitByGuid);
+			
+			// Add this to the event list
+			{
+				eventMutexGuard(); // Thread safe
+				m_playerEvents.push_back(PlayerEvents::TookDamage);
+
+				if (m_myPlayerDataPacket.health <= 0) {
+					m_playerEvents.push_back(PlayerEvents::Died);
+					
+				}
+			}
+
 		}
 		break;
 
@@ -504,8 +594,16 @@ void Client::processAndHandlePackets()
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			PlayerPacket playerPacket;
 			playerPacket.Serialize(false, bsIn);
-
+			logTrace("[Client] Spawn at: {0}, {1}, {2}", playerPacket.latestSpawnPosition.x, playerPacket.latestSpawnPosition.y, playerPacket.latestSpawnPosition.z);
+			m_myPlayerDataPacket.latestSpawnPosition = playerPacket.latestSpawnPosition;
 			m_myPlayerDataPacket.health = playerPacket.health;
+
+			// Add this to the event list
+			{
+				eventMutexGuard(); // Thread safe
+				m_playerEvents.push_back(PlayerEvents::Respawned);
+			}
+
 
 		}
 		break;
@@ -538,11 +636,195 @@ void Client::processAndHandlePackets()
 			
 			// scope
 			{
-				std::lock_guard<std::mutex> lockGuard(m_spellHandler->m_clientSyncMutex);
+				deflectSpellsMutexGuard();
 				m_spellHandler->m_deflectedSpells.emplace_back(data);
 			}
 		}
 		break;
+
+		case PICKUP_CREATED:
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			PickupPacket pickupPacket;
+			pickupPacket.Serialize(false, bsIn);
+			NetworkPickups::PickupProp pp;
+
+			pp.flag = NetGlobals::THREAD_FLAG::ADD;
+			pp.packet = pickupPacket;
+			pp.pickup = nullptr;
+			
+			{
+				updatePickupsMutexGuard();
+				m_networkPickup->m_pickupProps.emplace_back(pp);
+			}
+
+		}
+		break;
+
+		case PICKUP_REMOVED: 
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			PickupPacket pickupPacket;
+			pickupPacket.Serialize(false, bsIn);
+
+			bool found = false;
+			for (size_t i = 0; i < m_networkPickup->m_pickupProps.size() && !found; i++) {
+				auto& prop = m_networkPickup->m_pickupProps[i];
+				
+				if (prop.packet.uniqueID == pickupPacket.uniqueID) {
+					updatePickupsMutexGuard();
+					prop.flag = NetGlobals::THREAD_FLAG::REMOVE;
+					found = true;
+				}
+			}
+		}
+		break;
+
+		case PICKUP_NOTIFICATION: 
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			PickupPacket pickupPacket;
+			pickupPacket.Serialize(false, bsIn);
+
+			NotificationText t;
+			t.alphaColor = 1.0f;
+			t.width = 0;
+			t.scale = glm::vec3(0.60f);
+			t.useAlpha = true;
+			t.lifeTimeInSeconds = 6.0f;
+
+			if (pickupPacket.type == PickupType::HealthPotion) {
+				std::string type = "Health potion ";
+				glm::vec3 color = glm::vec3(1.0f, 0.2f, 0.2f);
+				t.width += Renderer::getInstance()->getTextWidth(type, t.scale);
+				t.textParts.emplace_back(type, color);
+			}
+			else if (pickupPacket.type == PickupType::DamageBuff)
+			{
+				std::string type = "Damage potion ";
+				glm::vec3 color = glm::vec3(1.0f, 0.5f, 0.0f);
+				t.width += Renderer::getInstance()->getTextWidth(type, t.scale);
+				t.textParts.emplace_back(type, color);
+			}
+		
+			std::string text = "will spawn soon at " + std::string(pickupPacket.locationName) + "!";
+			t.width += Renderer::getInstance()->getTextWidth(text, t.scale);
+			glm::vec3 locColor = glm::vec3(1.0f, 1.0f, 1.0f);
+			t.textParts.emplace_back(text, locColor);
+
+			{
+				renderPickupNotificationsMutexGuard();
+				Renderer::getInstance()->addBigNotification(t);
+			}
+
+		}
+		break;
+
+		case HEAL_BUFF:
+		{
+			
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			PlayerPacket pData;
+			pData.Serialize(false, bsIn);
+
+			// Add this to the event list
+			{
+				eventMutexGuard(); // Thread safe
+				m_playerEvents.push_back(PlayerEvents::TookHeal);
+			}
+
+			m_myPlayerDataPacket.health = pData.health;
+		}
+		break;
+
+		case DAMAGE_BUFF_ACTIVE:
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			PlayerPacket pData;
+			pData.Serialize(false, bsIn);
+
+			// Add this to the event list
+			{
+				eventMutexGuard(); // Thread safe
+				m_playerEvents.push_back(PlayerEvents::TookPowerup);
+			}
+
+			m_myPlayerDataPacket.hasDamageBuff = pData.hasDamageBuff;
+			m_myPlayerDataPacket.health = pData.health;
+			
+		}
+		break;
+
+		case DAMAGE_BUFF_INACTIVE: 
+		{	
+			// Add this to the event list
+			{
+				eventMutexGuard(); // Thread safe
+				m_playerEvents.push_back(PlayerEvents::PowerupRemoved);
+			}
+
+			m_myPlayerDataPacket.hasDamageBuff = false;
+		}
+		break;
+
+		case KILL_FEED:
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			KillFeedPacket killFeed;
+			killFeed.Serialize(false, bsIn);
+
+			PlayerPacket* killer;
+			PlayerPacket* dead;
+
+			if (killFeed.killerGuid == m_myPlayerDataPacket.guid)
+				killer = &m_myPlayerDataPacket;
+			else
+				killer = findPlayerByGuid(killFeed.killerGuid);
+			
+			
+			if (killFeed.deadGuid == m_myPlayerDataPacket.guid)
+				dead = &m_myPlayerDataPacket;
+			else
+				dead = findPlayerByGuid(killFeed.deadGuid);
+
+			if (killer == nullptr || dead == nullptr)
+				return;
+
+			NotificationText t;
+			t.alphaColor = 1.0f;
+			t.width = 0;
+			t.scale = glm::vec3(0.35f);
+			t.useAlpha = false;
+			t.lifeTimeInSeconds = 5.0f;
+
+			glm::vec3 playerColor = glm::vec3(1.0f, 0.5f, 0.0f);
+			
+			std::string killername = std::string(killer->userName);
+			t.width += Renderer::getInstance()->getTextWidth(killername, t.scale);
+			t.textParts.emplace_back(killername, playerColor);
+
+			std::string text = std::string(" killed ");
+			t.width += Renderer::getInstance()->getTextWidth(text, t.scale);
+			t.textParts.emplace_back(text, glm::vec3(1.0f, 1.0f, 1.0f));
+
+			std::string deadguyName = std::string(dead->userName);
+			t.width += Renderer::getInstance()->getTextWidth(deadguyName, t.scale);
+			t.textParts.emplace_back(deadguyName, playerColor);
+
+			{
+				renderKillFeedMutexGuard();
+				Renderer::getInstance()->addKillFeed(t);
+			}
+
+			break;
+		}
+		
+		case SERVER_TIME:
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			m_serverTimePacket.Serialize(false, bsIn);
+			break;
+		}
 
 		default:
 		{
@@ -584,6 +866,7 @@ void Client::createSpellOnNetwork(const Spell& spell)
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
 	spellPacket.timestamp = RakNet::GetTimeMS();
 	spellPacket.Position = spell.getTransform().position;
+	spellPacket.LastPosition = spell.getLastPosition();
 	spellPacket.Direction = spell.getDirection();
 	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Rotation = glm::vec3(0.0f);
@@ -601,8 +884,8 @@ void Client::updateSpellOnNetwork(const Spell& spell)
 	SpellPacket spellPacket;
 	spellPacket.packetType = SPELL_UPDATE;
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
-	spellPacket.timestamp = RakNet::GetTimeMS();
 	spellPacket.Position = spell.getTransform().position;
+	spellPacket.LastPosition = spell.getLastPosition();
 	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Direction = spell.getDirection();
 	spellPacket.Rotation = glm::vec3(0.0f);
@@ -621,6 +904,7 @@ void Client::destroySpellOnNetwork(const Spell& spell)
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
 	spellPacket.timestamp = RakNet::GetTimeMS();
 	spellPacket.Position = spell.getTransform().position;
+	spellPacket.LastPosition = spell.getLastPosition();
 	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Direction = spell.getDirection();
 	spellPacket.Rotation = glm::vec3(0.0f);
@@ -657,6 +941,7 @@ void Client::updateNetworkEntities(const float& dt)
 	if (m_initialized && m_isConnectedToAnServer) {
 		m_networkPlayers.update(dt);
 		m_networkSpells.update(dt);
+		m_networkPickup->update(dt);
 	}
 
 }
@@ -758,6 +1043,11 @@ const PlayerPacket& Client::getMyData() const
 	return m_myPlayerDataPacket;
 }
 
+const PlayerPacket* Client::getLatestPlayerThatHitMe() const
+{
+	return m_latestPlayerThatHitMe;
+}
+
 const ServerStateChange& Client::getServerState() const
 {
 	return m_serverState;
@@ -778,6 +1068,23 @@ const RoundTimePacket& Client::getRoundTimePacket() const
 	return m_roundTimePacket;
 }
 
+const PlayerEvents Client::readNextEvent()
+{
+	if (m_playerEvents.size() == 0)
+		return PlayerEvents::None;
+
+	// Save it
+	PlayerEvents evnt = m_playerEvents[0];
+
+	// Remove it so that the next time this function is called the next event will be shown
+	{
+		eventMutexGuard(); // Thread safe
+		m_playerEvents.erase(m_playerEvents.begin());
+	}
+	// Return the event
+	return evnt;
+}
+
 const std::vector<SpellPacket>& Client::getNetworkSpells()
 {
 	return m_activeSpells;
@@ -785,7 +1092,7 @@ const std::vector<SpellPacket>& Client::getNetworkSpells()
 
 void Client::refreshServerList()
 {
-	logTrace("[CLIENT] Fetching server list...");
+	logTrace("[Client] Fetching server list...");
 	m_isRefreshingServerList = true;
 	m_serverList.clear();
 	findAllServerAddresses();
@@ -807,6 +1114,46 @@ void Client::setUsername(const std::string& userName)
 		std::memcpy(m_userName, userName.c_str(), 16);
 	}
 	std::memcpy(m_myPlayerDataPacket.userName, userName.c_str(), userName.size());
+}
+
+void Client::updatePlayersMutexGuard()
+{
+	std::lock_guard<std::mutex> lockGuard(m_updatePlayersMutex);
+}
+
+void Client::updateSpellsMutexGuard()
+{
+	std::lock_guard<std::mutex> lockGuard(m_updateSpellsMutex);
+}
+
+void Client::updatePickupsMutexGuard()
+{
+	std::lock_guard<std::mutex> lockGuard(m_updatePickupsMutex);
+}
+
+void Client::eventMutexGuard()
+{
+	std::lock_guard<std::mutex> lockGuard(m_playerEventMutex);
+}
+
+void Client::cleanupMutexGuard()
+{
+	std::lock_guard<std::mutex> lockGuard(m_cleanupMutex);
+}
+
+void Client::deflectSpellsMutexGuard()
+{
+	std::lock_guard<std::mutex> lockGuard(m_deflectSpellMutex);
+}
+
+void Client::renderPickupNotificationsMutexGuard()
+{
+	std::lock_guard<std::mutex> lockGuard(m_renderPickupNotificationMutex);
+}
+
+void Client::renderKillFeedMutexGuard()
+{
+	std::lock_guard<std::mutex> lockGuard(m_renderKillFeedMutex);
 }
 
 const bool Client::doneRefreshingServerList() const
@@ -916,6 +1263,17 @@ SpellPacket* Client::findActiveSpell(const SpellPacket& packet)
 	return nullptr;
 }
 
+PlayerPacket* Client::findPlayerByGuid(const RakNet::AddressOrGUID& guid)
+{
+	for (size_t i = 0; i < m_connectedPlayers.size(); i++) {
+		if (m_connectedPlayers[i].guid == guid) {
+			return &m_connectedPlayers[i];
+		}
+	}
+
+	return nullptr;
+}
+
 NetworkSpells::SpellEntity* Client::findSpellEntityInNetworkSpells(const SpellPacket& packet)
 {
 	for (size_t i = 0; i < m_networkSpells.m_entities.size(); i++) {
@@ -980,4 +1338,58 @@ void Client::resetPlayerData()
 	m_myPlayerDataPacket.hasBeenUpdatedOnce = false;
 	char t[16] = { ' ' };
 	memcpy(m_myPlayerDataPacket.userName, t, sizeof(m_myPlayerDataPacket.userName));
+}
+
+void Client::routineCleanup()
+{
+	// Scope
+	{
+		logInfo("[Client-Routine] Running Dead spell cleanup routine");
+		updateSpellsMutexGuard();
+		auto& spellVec = m_networkSpells.getSpellEntitiesREF();
+
+		for (size_t i = 0; i < spellVec.size(); i++) {
+			auto& spell = spellVec[i];
+
+			if (spell.spellData.timestamp > m_serverTimePacket.serverTimestamp)
+				continue;
+
+			if (m_serverTimePacket.serverTimestamp - spell.spellData.timestamp >= NetGlobals::RoutineCleanupTimeIntervalMS)
+			{
+				logWarning("[Client-Routine] Marking dead projectile for removal..");
+				spell.flag = NetGlobals::THREAD_FLAG::REMOVE;
+			}
+
+		}
+	}
+
+	// Scope
+	{
+		logInfo("[Client-Routine] Running lost player cleanup routine");
+		for (size_t i = 0; i < m_connectedPlayers.size(); i++){
+			auto& player = m_connectedPlayers[i];
+
+			if (player.timestamp > m_serverTimePacket.serverTimestamp)
+				continue;
+
+			if (m_serverTimePacket.serverTimestamp - player.timestamp >= NetGlobals::RoutineCleanupTimeIntervalMS)
+			{
+				logWarning("[Client-Routine] Marking lost player for removal..");
+				// Scope
+				{
+					updatePlayersMutexGuard();
+					NetworkPlayers::PlayerEntity* pE = findPlayerEntityInNetworkPlayers(player.guid);
+					if (pE != nullptr) {
+						pE->flag = NetGlobals::THREAD_FLAG::REMOVE;
+					}
+				}
+
+				removeConnectedPlayer(player.guid);
+			}
+
+		}
+
+	}
+
+
 }

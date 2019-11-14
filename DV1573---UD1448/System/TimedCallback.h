@@ -11,13 +11,15 @@ public:
 	void registerCallback(std::function<void()> callbackFunc);
 	void forceExecute();
 	void restart();
+	void restartIntervalTimer();
 	void start();
 	void stop();
 	const bool& isDone() const;
 	void setTotalExecutionTime(float totalExecutionTime);
 	void setExecutionInterval(float executionInterval);
 	void setInfinityExecutionTime(bool condition);
-
+	
+	const float getTimeLeftOnInterval() const;
 	const float& getTimeLeft() const;
 
 private:

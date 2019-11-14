@@ -25,8 +25,8 @@ public:
 	void setInt(std::string name, int num);
 	void setName(std::string name);
 	//Sets a standard material
-	void setMaterial(std::string materalName);
-	void setMaterial(const Material* material);
+	void setMaterial(const std::string& materialName);
+	void setMaterial(Material* material);
 
 	bool getValid() const;
 	int getShaderID() const;
@@ -34,13 +34,12 @@ public:
 	std::vector<std::string> getShaderNames() const;
 	GLint getUniformLocation(std::string locationName);
 
-
 	void clearIDs();
-
-
 	Shader& operator=(const Shader& other);
 
 private:
+
+	std::string m_oldMaterial;
 
 	void shaderSetup(std::string shaderName, unsigned int& shader);
 	bool m_valid;
