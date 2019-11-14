@@ -24,6 +24,16 @@ private:
 		PlayerPacket* player;
 	};
 
+	struct PickupSpawnLocation {
+		char name[16];
+		glm::vec3 position;
+	};
+
+	struct BuffedPlayer {
+		PlayerPacket* player;
+		uint32_t currentTime = NetGlobals::damageBuffActiveTimeMS;
+	};
+
 private:
 	unsigned char getPacketID(RakNet::Packet* p);
 	bool handleLostPlayer(const RakNet::Packet& packet, const RakNet::BitStream& bsIn);
@@ -34,14 +44,23 @@ private:
 	void handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* spell, PlayerPacket* shooter, PlayerPacket* target);
 	bool validDeflect(SpellPacket* spell, PlayerPacket* target);
 	bool specificSpellCollision(const SpellPacket& spellPacket, const glm::vec3& playerPos, const std::vector<glm::vec3>& axis);
-	glm::vec3 OBBclosestPoint(const SpellPacket& spellPacket, const std::vector<glm::vec3>& axis, const glm::vec3& playerPos);
+	float OBBsqDist(const glm::vec3& spellPosition, const std::vector<glm::vec3>& axis, const glm::vec3& playerPos);
+	
 	PlayerPacket* getSpecificPlayer(const RakNet::RakNetGUID& guid);
 	SpellPacket* getSpecificSpell(const uint64_t& creatorGUID, const uint64_t& spellID);
 
+	void checkCollisionBetweenPlayersAndPickups();
+	bool isCollidingWithPickup(const PlayerPacket& player, const PickupPacket& pickup);
+
 	// Helper funcs
+	void updatePlayersWithDamageBuffs(const uint32_t& diff);
+
 	void handleRespawns(const uint32_t& diff);
+	void hardRespawnPlayer(PlayerPacket& player);
 	void resetScores();
 	void respawnPlayers();
+	void resetPlayerBuffs();
+	void removePlayerBuff(const PlayerPacket* player);
 
 	void handleCountdown(const uint32_t& diff);
 	void countdownExecutionLogic();
@@ -52,8 +71,25 @@ private:
 	void handleEndGameStateTime(const uint32_t& diff);
 	void endGameTimeExecutionLogic();
 
+	void handlePickupTimer(const uint32_t& diff);
+	void spawnPickup();
+	void notifyPickup();
+	bool gameAlmostFinished();
+
 	void removeUnusedObjects_routine();
+	void m_updateClientsWithServertime();
 	void resetServerData();
+
+	void createPickupSpawnLocations();
+	void createPlayerSpawnLocations();
+	void destroyPickupOverNetwork(PickupPacket& pickupPacket);
+	void copyStringToCharArray(char Dest[16], std::string Src);
+	void copyCharArrayOver(char Dest[16], char Src[16]);
+	void destroyAllPickups();
+	PickupType getRandomPickupType();
+	PickupSpawnLocation* getRandomPickupSpawnLocation();
+	const glm::vec3& getRandomSpawnLocation();
+
 private:
 	RakNet::RakPeerInterface* m_serverPeer = nullptr;
 	std::thread m_processThread;
@@ -62,7 +98,6 @@ private:
 	std::vector<PlayerPacket> m_connectedPlayers;
 	std::vector<Respawner> m_respawnList;
 	std::unordered_map<uint64_t, std::vector<SpellPacket>> m_activeSpells;
-
 	ServerInfo m_serverInfo;
 	bool m_initialized = false;
 	RakNet::RakNetGUID m_adminID;
@@ -73,6 +108,17 @@ private:
 	TimedCallback m_timedCountdownTimer;
 	TimedCallback m_timedGameInEndStateTimer;
 	TimedCallback m_timedUnusedObjectRemoval;
+	TimedCallback m_timedPickupSpawner;
+	TimedCallback m_updateClientsWithServertimeTimer;;
+
+	
+	uint64_t m_pickupID;
+	bool m_pickupNotified;
+	std::vector<PickupSpawnLocation> m_pickupSpawnLocations;
+	std::vector<PickupPacket> m_activePickups;
+	std::vector<PickupPacket> m_queuedPickups;
+	std::vector<BuffedPlayer> m_buffedPlayers;
+	std::vector<glm::vec3> m_playerSpawnLocations;
 
 };
 

@@ -21,18 +21,20 @@ public:
 	void spawnPlayer(glm::vec3 pos);
 	void updateMesh();
 
-	void createRigidBody(BulletPhysics* bp);
-	void forceUp();
 	bool isDead();
 
 	//-----Get-----//
 	Camera* getCamera();
-	glm::vec3 getPlayerPos() const;
-	int getHealth() const;
-	std::string getName() const;
+	const glm::vec3& getPlayerPos() const;
+	const int& getHealth() const;
+	const std::string& getName() const;
 	const bool& isDeflecting() const;
 	const AnimationState* getAnimState() const;
 
+	const float& getAttackCooldown() const;
+	const float& getSpecialCooldown() const;
+	const float& getDeflectCooldown() const;
+	const float& getMana() const;
 	//-----Set-----//
 	void setPlayerPos(glm::vec3 pos);
 	void setHealth(int health);
@@ -45,7 +47,6 @@ private:
 	std::string m_name;
 	glm::vec3 m_directionVector;
 	glm::vec3 m_playerPosition;
-	glm::vec3 m_inputVector;
 	glm::vec3 m_moveDir;
 	Camera* m_playerCamera;
 	bool m_logicStop;
@@ -59,12 +60,14 @@ private:
 	SPELL_TYPE m_specialSpellType3;
 	
 	float m_attackCooldown;
-	float m_specialCooldown;
+	float m_deflectCooldown;
 	float m_special2Cooldown;
 	float m_special3Cooldown;
 
 	float m_spellSpeed = 1;
 	float m_speed;
+	
+	float m_mana;
 
 	int m_nrOfSpells;
 	int m_health;
@@ -81,6 +84,4 @@ private:
 	BulletPhysics* m_bp;
 	btKinematicCharacterController* m_character;
 	Client* m_client;
-
-
 };
