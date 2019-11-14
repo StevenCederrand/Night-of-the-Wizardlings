@@ -688,7 +688,7 @@ float SpellHandler::OBBsqDist(glm::vec3& spherePos, std::vector<glm::vec3>& axis
 	{
 		auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
 		std::string meshName = list[0].gameobject->getMeshName(0);
-		const std::vector<Vertex>& vertices = MeshMap::getInstance()->getMesh(meshName)->getVertices();
+		const std::vector<Vertex2>& vertices = MeshMap::getInstance()->getMesh(meshName)->getVerticesSkele();
 		glm::vec3 min = vertices[0].position;
 		glm::vec3 max = vertices[0].position;
 
