@@ -433,7 +433,7 @@ void SpellHandler::spellCollisionCheck()
 						if (m_onHitCallback != nullptr) {
 							m_onHitCallback();
 						}
-						k = m_nrSubSteps;
+						k = static_cast<size_t>(m_nrSubSteps);
 					}
 				}
 			}

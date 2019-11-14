@@ -28,7 +28,7 @@ void NetworkPlayers::update(const float& dt)
 	{
 		PlayerEntity& p = m_players[i];
 
-		if (p.flag == NetGlobals::THREAD_FLAG::ADD)
+		if (p.flag == NetGlobals::THREAD_FLAG::Add)
 		{
 			if (p.gameobject == nullptr) {
 				p.gameobject = new WorldObject();
@@ -38,9 +38,9 @@ void NetworkPlayers::update(const float& dt)
 				Renderer::getInstance()->submit(p.gameobject, DYNAMIC); 
 			}
 			p.gameobject->setWorldPosition(p.data.position);
-			p.flag = NetGlobals::THREAD_FLAG::NONE;
+			p.flag = NetGlobals::THREAD_FLAG::None;
 		}
-		else if (p.flag == NetGlobals::THREAD_FLAG::REMOVE)
+		else if (p.flag == NetGlobals::THREAD_FLAG::Remove)
 		{
 
 			Renderer::getInstance()->removeDynamic(p.gameobject, DYNAMIC);

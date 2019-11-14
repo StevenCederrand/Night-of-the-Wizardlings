@@ -43,7 +43,7 @@ void NetworkPickups::update(const float& dt)
 
 			auto& e = m_pickupProps[i];
 
-			if (e.flag == NetGlobals::THREAD_FLAG::ADD) {
+			if (e.flag == NetGlobals::THREAD_FLAG::Add) {
 				if (e.pickup == nullptr) {
 
 					if (e.packet.type == PickupType::HealthPotion) {
@@ -55,11 +55,11 @@ void NetworkPickups::update(const float& dt)
 					
 					
 					Renderer::getInstance()->submit(e.pickup, PICKUP); 
-					e.flag = NetGlobals::THREAD_FLAG::NONE;
+					e.flag = NetGlobals::THREAD_FLAG::None;
 
 				}
 			}
-			else if (e.flag == NetGlobals::THREAD_FLAG::REMOVE)
+			else if (e.flag == NetGlobals::THREAD_FLAG::Remove)
 			{
 				Renderer::getInstance()->removeDynamic(e.pickup, PICKUP);
 				delete e.pickup;

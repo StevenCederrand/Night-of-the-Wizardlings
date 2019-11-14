@@ -3,37 +3,36 @@
 
 namespace NetGlobals {
 
+	static glm::vec3 PlayerFirstSpawnPoint = glm::vec3(10.40f, 14.5f, 8.0f);
+
 	constexpr unsigned int MaximumConnections = 6;
 	constexpr unsigned short MaximumIncomingConnections = 6;
 	constexpr unsigned short ServerPort = 42405;
-	constexpr int tickRate = 128;
-	constexpr unsigned int threadSleepTime = static_cast<unsigned int>((1.0f / static_cast<float>(tickRate)) * 1000u);
-	constexpr unsigned short timeoutTimeMS = 5 * 1000;
-	constexpr uint32_t serverCountdownTimeMS = 10 * 1000;
-	constexpr uint32_t timeUntilRespawnMS = 5 * 1000;
-	constexpr uint32_t roundTimeMS = 2 * 60 * 1000;
+	constexpr int TickRate = 128;
+	constexpr unsigned int NetThreadSleepTime = static_cast<unsigned int>((1.0f / static_cast<float>(TickRate)) * 1000u);
+	constexpr unsigned short PlayerTimeoutTimeMS = 5 * 1000;
+	constexpr uint32_t WarmupCountdownTimeMS = 10 * 1000;
+	constexpr uint32_t TimeBeforeRespawnMS = 5 * 1000;
+	constexpr uint32_t GameRoundTimeMS = 2 * 60 * 1000;
 	constexpr uint32_t InGameEndStateTimeMS = 10 * 1000;
-	constexpr uint32_t maxDelayBeforeDeletionMS = 20 * 1000;
-	constexpr uint32_t pickupSpawnIntervalMS = 20 * 1000;
-	constexpr uint32_t damageBuffActiveTimeMS = 10 * 1000;
-	constexpr uint32_t pickupNotificationBeforeSpawnMS = 8 * 1000;
+	constexpr uint32_t PickupSpawnIntervalMS = 20 * 1000;
+	constexpr uint32_t DamageBuffActiveTimeMS = 10 * 1000;
+	constexpr uint32_t PickupNotificationBeforeSpawnMS = 8 * 1000;
 	constexpr uint32_t RoutineCleanupTimeIntervalMS = 20 * 1000;
 	constexpr uint32_t UpdateClientsWithServerTimeIntervalMS = 250;
-	constexpr int maxPlayerHealth = 100;
-
-	//static std::mutex gameSyncMutex;
+	constexpr int PlayerMaxHealth = 100;
 
 	enum THREAD_FLAG {
-		REMOVE,
-		ADD,
-		NONE
+		Remove,
+		Add,
+		None
 	};
 
 	enum SERVER_STATE {
-		WAITING_FOR_PLAYERS = 0,
-		GAME_IS_STARTING,
-		GAME_IN_SESSION,
-		GAME_END_STATE
+		WaitingForPlayers = 0,
+		GameIsStarting,
+		GameInSession,
+		GameFinished
 	};
 }
 

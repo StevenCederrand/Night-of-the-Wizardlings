@@ -755,11 +755,11 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 		
 		NetGlobals::SERVER_STATE state = Client::getInstance()->getServerState().currentState;
 
-		if (state == NetGlobals::SERVER_STATE::GAME_IS_STARTING) {
+		if (state == NetGlobals::SERVER_STATE::GameIsStarting) {
 			std::string timeText = std::to_string(Client::getInstance()->getCountdownPacket().timeLeft / 1000);
 			m_text->RenderText("Game starts in: " + timeText, (SCREEN_WIDTH / 2) - 125.0f , 680.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
 		}
-		else if (state == NetGlobals::SERVER_STATE::GAME_IN_SESSION) {
+		else if (state == NetGlobals::SERVER_STATE::GameInSession) {
 			
 			uint32_t minutes = Client::getInstance()->getRoundTimePacket().minutes;
 			uint32_t seconds = Client::getInstance()->getRoundTimePacket().seconds;
@@ -777,7 +777,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			//std::string timeText = std::to_string(Client::getInstance()->getRoundTimePacket().timeLeft / 1000);
 			m_text->RenderText("Game time " + timeText, (SCREEN_WIDTH / 2) - 125.0f, 680.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
 		}
-		else if (state == NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS) {
+		else if (state == NetGlobals::SERVER_STATE::WaitingForPlayers) {
 			std::string timeText = std::to_string(Client::getInstance()->getCountdownPacket().timeLeft / 1000);
 			m_text->RenderText("Warmup", SCREEN_WIDTH / 2 - 80.0f, 680.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
 
@@ -786,7 +786,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			}
 			
 		}
-		else if (state == NetGlobals::SERVER_STATE::GAME_END_STATE) {
+		else if (state == NetGlobals::SERVER_STATE::GameFinished) {
 			uint32_t minutes = Client::getInstance()->getRoundTimePacket().minutes;
 			uint32_t seconds = Client::getInstance()->getRoundTimePacket().seconds;
 			std::string timeText = std::to_string(minutes) + ":";
@@ -809,7 +809,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 
 		m_text->RenderText("Health: " + std::to_string(Client::getInstance()->getMyData().health), 10.0f, 680.0f, 0.45f, glm::vec3(1.0f, 1.0f, 1.0f));
 		
-		if(state == NetGlobals::SERVER_STATE::GAME_IN_SESSION)
+		if(state == NetGlobals::SERVER_STATE::GameInSession)
 			m_text->RenderText("Kills: " + std::to_string(Client::getInstance()->getMyData().numberOfKills), 10.0f, 620.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
 
 

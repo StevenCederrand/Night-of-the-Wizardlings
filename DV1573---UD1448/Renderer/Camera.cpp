@@ -195,6 +195,8 @@ void Camera::update()
 	if (m_fpEnabled && m_activeCamera) {
 		updateMouseMovement();
 	}
+	if(m_activeCamera)
+		m_viewMatrix = glm::lookAt(m_camPos, m_camPos + m_camFace, m_camUp);
 }
 
 void Camera::enableFP(const bool& fpEnable) {

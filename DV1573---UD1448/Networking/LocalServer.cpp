@@ -5,14 +5,14 @@
 LocalServer::LocalServer()
 {
 	m_adminID = RakNet::UNASSIGNED_RAKNET_GUID;
-	m_countdown = NetGlobals::serverCountdownTimeMS;
-	m_roundTimer = NetGlobals::roundTimeMS;
+	m_countdown = NetGlobals::WarmupCountdownTimeMS;
+	m_roundTimer = NetGlobals::GameRoundTimeMS;
 
-	m_timedCountdownTimer.setTotalExecutionTime(NetGlobals::serverCountdownTimeMS);
+	m_timedCountdownTimer.setTotalExecutionTime(NetGlobals::WarmupCountdownTimeMS);
 	m_timedCountdownTimer.setExecutionInterval(500);
 	m_timedCountdownTimer.registerCallback(std::bind(&LocalServer::countdownExecutionLogic, this));
 
-	m_timedRunTimer.setTotalExecutionTime(NetGlobals::roundTimeMS);
+	m_timedRunTimer.setTotalExecutionTime(NetGlobals::GameRoundTimeMS);
 	m_timedRunTimer.setExecutionInterval(500);
 	m_timedRunTimer.registerCallback(std::bind(&LocalServer::roundTimeExecutionLogic, this));
 
@@ -20,12 +20,8 @@ LocalServer::LocalServer()
 	m_timedGameInEndStateTimer.setExecutionInterval(500);
 	m_timedGameInEndStateTimer.registerCallback(std::bind(&LocalServer::endGameTimeExecutionLogic, this));
 
-	m_timedUnusedObjectRemoval.setInfinityExecutionTime(true);
-	m_timedUnusedObjectRemoval.setExecutionInterval(5000);
-	m_timedUnusedObjectRemoval.registerCallback(std::bind(&LocalServer::removeUnusedObjects_routine, this));
-
-	m_timedPickupSpawner.setTotalExecutionTime(NetGlobals::roundTimeMS);
-	m_timedPickupSpawner.setExecutionInterval(NetGlobals::pickupSpawnIntervalMS);
+	m_timedPickupSpawner.setTotalExecutionTime(NetGlobals::GameRoundTimeMS);
+	m_timedPickupSpawner.setExecutionInterval(NetGlobals::PickupSpawnIntervalMS);
 	m_timedPickupSpawner.registerCallback(std::bind(&LocalServer::spawnPickup, this));
 
 	m_updateClientsWithServertimeTimer.setInfinityExecutionTime(true);
@@ -56,7 +52,7 @@ void LocalServer::startup(const std::string& serverName)
 		m_serverPeer->SetMaximumIncomingConnections(NetGlobals::MaximumIncomingConnections);
 
 		memcpy(&m_serverInfo.serverName, serverName.c_str(), serverName.length());
-		m_serverInfo.currentState = NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS;
+		m_serverInfo.currentState = NetGlobals::SERVER_STATE::WaitingForPlayers;
 		m_serverInfo.maxPlayers = NetGlobals::MaximumConnections;
 		m_serverInfo.connectedPlayers = 0;
 		m_connectedPlayers.reserve(NetGlobals::MaximumConnections);
@@ -69,12 +65,11 @@ void LocalServer::startup(const std::string& serverName)
 
 		m_processThread = std::thread(&LocalServer::ThreadedUpdate, this);
 		m_initialized = true;
-		logTrace("[Server] Tickrate: {0}", NetGlobals::tickRate);
-		logTrace("[Server] Thread sleep time {0}", NetGlobals::threadSleepTime);
-		m_serverPeer->SetTimeoutTime(NetGlobals::timeoutTimeMS, RakNet::UNASSIGNED_SYSTEM_ADDRESS);
+		logTrace("[Server] Tickrate: {0}", NetGlobals::TickRate);
+		logTrace("[Server] Thread sleep time {0}", NetGlobals::NetThreadSleepTime);
+		m_serverPeer->SetTimeoutTime(NetGlobals::PlayerTimeoutTimeMS, RakNet::UNASSIGNED_SYSTEM_ADDRESS);
 
 		m_adminID = RakNet::UNASSIGNED_RAKNET_GUID;
-		m_timedUnusedObjectRemoval.start();
 		createPickupSpawnLocations();
 		createPlayerSpawnLocations();
 	}
@@ -129,13 +124,13 @@ void LocalServer::ThreadedUpdate()
 		currentTimeMS = RakNet::GetTimeMS();
 		timeDiff = (currentTimeMS - lastTimeMS);
 		
-		m_updateClientsWithServertimeTimer.update(timeDiff);
+		m_updateClientsWithServertimeTimer.update(static_cast<float>(timeDiff));
 
-		if (m_serverInfo.currentState == NetGlobals::SERVER_STATE::GAME_IS_STARTING) {
+		if (m_serverInfo.currentState == NetGlobals::SERVER_STATE::GameIsStarting) {
 			handleCountdown(timeDiff);
 		}
 
-		if (m_serverInfo.currentState == NetGlobals::SERVER_STATE::GAME_IN_SESSION) {
+		if (m_serverInfo.currentState == NetGlobals::SERVER_STATE::GameInSession) {
 			handleRespawns(timeDiff);
 			handleRoundTime(timeDiff);
 			handlePickupTimer(timeDiff);
@@ -143,7 +138,7 @@ void LocalServer::ThreadedUpdate()
 			updatePlayersWithDamageBuffs(timeDiff);
 		}
 
-		if (m_serverInfo.currentState == NetGlobals::SERVER_STATE::GAME_END_STATE) {
+		if (m_serverInfo.currentState == NetGlobals::SERVER_STATE::GameFinished) {
 			handleEndGameStateTime(timeDiff);
 		}
 
@@ -158,7 +153,7 @@ void LocalServer::ThreadedUpdate()
 
 		//m_timedUnusedObjectRemoval.update(static_cast<float>(timeDiff));
 
-		RakSleep(NetGlobals::threadSleepTime);
+		RakSleep(NetGlobals::NetThreadSleepTime);
 	}
 }
 
@@ -183,7 +178,7 @@ void LocalServer::processAndHandlePackets()
 		{
 			logTrace("[Server] New connection from {0}\nAssigned GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
 			
-			if (m_connectedPlayers.size() >= NetGlobals::MaximumConnections || m_serverInfo.currentState != NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS)
+			if (m_connectedPlayers.size() >= NetGlobals::MaximumConnections || m_serverInfo.currentState != NetGlobals::SERVER_STATE::WaitingForPlayers)
 			{
 				m_serverPeer->CloseConnection(packet->guid, true);
 				m_serverPeer->DeallocatePacket(packet);
@@ -370,7 +365,7 @@ void LocalServer::processAndHandlePackets()
 			ServerStateChange statePacket;
 			statePacket.Serialize(false, bsIn);
 			
-			if (m_serverInfo.currentState == NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS)
+			if (m_serverInfo.currentState == NetGlobals::SERVER_STATE::WaitingForPlayers)
 				stateChange(statePacket.currentState);
 		}
 		break;
@@ -490,7 +485,7 @@ void LocalServer::processAndHandlePackets()
 		
 		case SPELL_PLAYER_HIT:
 		{
-			if (m_serverInfo.currentState != NetGlobals::SERVER_STATE::GAME_IN_SESSION)
+			if (m_serverInfo.currentState != NetGlobals::SERVER_STATE::GameInSession)
 				continue;
 
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
@@ -576,7 +571,7 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 			removePlayerBuff(target);
 			target->health = 0;
 			Respawner respawner;
-			respawner.currentTime = NetGlobals::timeUntilRespawnMS;
+			respawner.currentTime = NetGlobals::TimeBeforeRespawnMS;
 			respawner.player = target;
 			m_respawnList.emplace_back(respawner);
 
@@ -648,7 +643,7 @@ bool LocalServer::specificSpellCollision(const SpellPacket& spellPacket, const g
 		if (distx2 <= sphereRadius * sphereRadius)
 		{
 			collision = true;
-			k = nrSubStep;
+			k = static_cast<size_t>(nrSubStep);
 		}
 	}
 	return collision;
@@ -742,7 +737,7 @@ void LocalServer::checkCollisionBetweenPlayersAndPickups()
 					m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, player.guid, false);
 
 					BuffedPlayer buffedPlayer;
-					buffedPlayer.currentTime = NetGlobals::damageBuffActiveTimeMS;
+					buffedPlayer.currentTime = NetGlobals::DamageBuffActiveTimeMS;
 
 					buffedPlayer.player = &player;
 					m_buffedPlayers.emplace_back(buffedPlayer);
@@ -818,10 +813,10 @@ void LocalServer::handleRespawns(const uint32_t& diff)
 		}
 		else {
 			rs.currentTime = 0;
-			rs.player->health = NetGlobals::maxPlayerHealth;
+			rs.player->health = NetGlobals::PlayerMaxHealth;
 
 			RakNet::BitStream stream;
-			stream.Write((RakNet::MessageID)RESPAWN_PLAYER);
+			stream.Write((RakNet::MessageID)RESPAWN_PLAYER_DURING_SESSION);
 			rs.player->Serialize(true, stream);
 			m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, rs.player->guid, false);
 
@@ -835,9 +830,7 @@ void LocalServer::hardRespawnPlayer(PlayerPacket& player)
 {
 
 	RakNet::BitStream stream;
-	stream.Write((RakNet::MessageID)RESPAWN_PLAYER);
-	player.latestSpawnPosition = getRandomSpawnLocation();
-	player.Serialize(true, stream);
+	stream.Write((RakNet::MessageID)RESPAWN_PLAYER_NOT_IN_SESSION);
 	m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, player.guid, false);
 }
 
@@ -845,12 +838,33 @@ void LocalServer::respawnPlayers()
 {
 	for (size_t i = 0; i < m_connectedPlayers.size(); i++)
 	{	
-		m_connectedPlayers[i].health = NetGlobals::maxPlayerHealth;
-	
-		RakNet::BitStream stream;
-		stream.Write((RakNet::MessageID)RESPAWN_PLAYER);
-		m_connectedPlayers[i].Serialize(true, stream);
-		m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_connectedPlayers[i].guid, false);
+		// Two cases:
+		/*
+			1. Player is dead then respawn him at the regular spawnpoint
+			2. Player is alive then just give the player full health
+		*/
+
+		// The player is dead
+		if (m_connectedPlayers[i].health <= 0)
+		{
+			m_connectedPlayers[i].health = NetGlobals::PlayerMaxHealth;
+
+			RakNet::BitStream stream;
+			stream.Write((RakNet::MessageID)RESPAWN_PLAYER_NOT_IN_SESSION);
+			m_connectedPlayers[i].Serialize(true, stream);
+			m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_connectedPlayers[i].guid, false);
+		}
+		// The player is not dead, just need full health
+		else
+		{
+			m_connectedPlayers[i].health = NetGlobals::PlayerMaxHealth;
+
+			RakNet::BitStream stream;
+			stream.Write((RakNet::MessageID)GIVE_PLAYER_FULL_HEALTH);
+			m_connectedPlayers[i].Serialize(true, stream);
+			m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_connectedPlayers[i].guid, false);
+		}
+
 	}
 	m_respawnList.clear();
 }
@@ -904,7 +918,7 @@ void LocalServer::handleCountdown(const uint32_t& diff)
 	m_timedCountdownTimer.update(static_cast<float>(diff));
 
 	if (m_timedCountdownTimer.isDone()) {
-		stateChange(NetGlobals::SERVER_STATE::GAME_IN_SESSION);
+		stateChange(NetGlobals::SERVER_STATE::GameInSession);
 	}
 
 }
@@ -924,7 +938,7 @@ void LocalServer::handleRoundTime(const uint32_t& diff)
 	m_timedRunTimer.update(static_cast<float>(diff));
 
 	if (m_timedRunTimer.isDone()) {
-		stateChange(NetGlobals::SERVER_STATE::GAME_END_STATE);
+		stateChange(NetGlobals::SERVER_STATE::GameFinished);
 	}
 }
 
@@ -944,7 +958,7 @@ void LocalServer::handleEndGameStateTime(const uint32_t& diff)
 	m_timedGameInEndStateTimer.update(static_cast<float>(diff));
 
 	if (m_timedGameInEndStateTimer.isDone()) {
-		stateChange(NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS);
+		stateChange(NetGlobals::SERVER_STATE::WaitingForPlayers);
 	}
 }
 
@@ -963,7 +977,7 @@ void LocalServer::handlePickupTimer(const uint32_t& diff)
 {
 	m_timedPickupSpawner.update(static_cast<float>(diff));
 
-	if (m_timedPickupSpawner.getTimeLeftOnInterval() <= NetGlobals::pickupNotificationBeforeSpawnMS && !m_pickupNotified) {
+	if (m_timedPickupSpawner.getTimeLeftOnInterval() <= NetGlobals::PickupNotificationBeforeSpawnMS && !m_pickupNotified) {
 		m_pickupNotified = true;
 		notifyPickup();
 	}
@@ -1018,58 +1032,7 @@ bool LocalServer::gameAlmostFinished()
 	return m_timedRunTimer.getTimeLeft() <= 15.0f * 1000.0f;
 }
 
-void LocalServer::removeUnusedObjects_routine()
-{
-	for (size_t i = 0; i < m_connectedPlayers.size(); i++)
-	{
-		PlayerPacket& player = m_connectedPlayers[i];
-		uint32_t diff = RakNet::GetTimeMS() - player.timestamp;
 
-		if (diff >= NetGlobals::maxDelayBeforeDeletionMS && player.hasBeenUpdatedOnce)
-		{
-			// Lost player, delete it from server and send it to the clients
-			logTrace("[Server] (Routine check) Removed player");
-			RakNet::BitStream stream_disconnectedPlayer;
-			stream_disconnectedPlayer.Write((RakNet::MessageID)PLAYER_DISCONNECTED);
-			stream_disconnectedPlayer.Write(player.guid);
-			m_connectedPlayers.erase(m_connectedPlayers.begin() + i);
-			sendStreamToAllClients(stream_disconnectedPlayer);
-			i--;
-
-		}
-	}
-
-	for (auto& item : m_activeSpells)
-	{
-
-		auto& vec = item.second;
-
-		for (size_t i = 0; i < vec.size(); i++) {
-			auto& spell = vec[i];
-			uint32_t diff = RakNet::GetTimeMS() - spell.timestamp;
-
-			if (diff >= NetGlobals::maxDelayBeforeDeletionMS)
-			{
-				logTrace("[Server] (Routine check) Removed spell");
-				RakNet::BitStream stream_spellRemoval;
-				stream_spellRemoval.Write((RakNet::MessageID)SPELL_DESTROY);
-				spell.Serialize(true, stream_spellRemoval);
-				sendStreamToAllClients(stream_spellRemoval, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
-
-				vec.erase(vec.begin() + i);
-				i--;
-			}
-		}
-
-		if (vec.size() == 0)
-		{
-			logTrace("[Server] (Routine check) Removed spell section");
-			m_activeSpells.erase(item.first);
-		}
-		
-	}
-
-}
 
 void LocalServer::m_updateClientsWithServertime()
 {
@@ -1084,7 +1047,7 @@ void LocalServer::m_updateClientsWithServertime()
 void LocalServer::resetServerData()
 {
 	m_serverInfo.connectedPlayers = 0;
-	m_serverInfo.currentState = NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS;
+	m_serverInfo.currentState = NetGlobals::SERVER_STATE::WaitingForPlayers;
 	m_serverInfo.maxPlayers = NetGlobals::MaximumConnections;
 	char t[16] = { ' ' };
 	memcpy(m_serverInfo.serverName, t, sizeof(m_serverInfo.serverName));
@@ -1305,7 +1268,7 @@ void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 	statePacket.Serialize(true, stream);
 	sendStreamToAllClients(stream, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
 
-	if (newState == NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS) {
+	if (newState == NetGlobals::SERVER_STATE::WaitingForPlayers) {
 		respawnPlayers();
 		resetScores();
 		destroyAllPickups();
@@ -1315,14 +1278,14 @@ void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 		logTrace("[Server] Warmup!");
 	}
 
-	if (newState == NetGlobals::SERVER_STATE::GAME_IS_STARTING) {
+	if (newState == NetGlobals::SERVER_STATE::GameIsStarting) {
 		logTrace("[Server] Admin requested to start the game!");
 		m_timedCountdownTimer.restart();
 		m_timedCountdownTimer.start();
 		m_timedCountdownTimer.forceExecute();
 	}
 
-	if (newState == NetGlobals::SERVER_STATE::GAME_IN_SESSION) {
+	if (newState == NetGlobals::SERVER_STATE::GameInSession) {
 		logTrace("[Server] Game has officially started!");
 		m_timedRunTimer.restart();
 		m_timedRunTimer.start();
@@ -1331,7 +1294,7 @@ void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 		m_timedPickupSpawner.start();
 	}
 
-	if (newState == NetGlobals::SERVER_STATE::GAME_END_STATE) {
+	if (newState == NetGlobals::SERVER_STATE::GameFinished) {
 		logTrace("[Server] Game is over!");
 		respawnPlayers();
 		resetPlayerBuffs();

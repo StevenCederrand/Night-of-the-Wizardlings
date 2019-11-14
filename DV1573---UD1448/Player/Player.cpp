@@ -39,10 +39,12 @@ void Player::update(float deltaTime)
 		m_playerCamera->update();											// Update this first so that subsequent uses are synced
 		m_directionVector = glm::normalize(m_playerCamera->getCamFace());	// Update this first so that subsequent uses are synced
 
+		move(deltaTime);
+		
 		if (!m_logicStop) {
-			move(deltaTime);
 			attack();
 		}
+		
 
 
 	}
@@ -90,27 +92,30 @@ void Player::move(float deltaTime)
 	m_frameCount++;
 	if (m_frameCount < 5)
 		return;
-
-	glm::vec3 lookDirection = m_directionVector;
-	lookDirection.y = 0.0f;
-	glm::vec3 lookRightVector = m_playerCamera->getCamRight();
-
-	// Move
 	m_moveDir = glm::vec3(0.0f);
-	if (Input::isKeyHeldDown(GLFW_KEY_A))
-		m_moveDir -= lookRightVector;
-	if (Input::isKeyHeldDown(GLFW_KEY_D))
-		m_moveDir += lookRightVector;
-	if (Input::isKeyHeldDown(GLFW_KEY_W))
-		m_moveDir += lookDirection;
-	if (Input::isKeyHeldDown(GLFW_KEY_S))
-		m_moveDir -= lookDirection;
+	if (!m_logicStop) {
 
-	// Jump
-	if (Input::isKeyHeldDown(GLFW_KEY_SPACE))
-		if (m_character->canJump())
-			m_character->jump(btVector3(0.0f, 16.0f, 0.0f));
+		glm::vec3 lookDirection = m_directionVector;
+		lookDirection.y = 0.0f;
+		glm::vec3 lookRightVector = m_playerCamera->getCamRight();
 
+		// Move
+		
+		if (Input::isKeyHeldDown(GLFW_KEY_A))
+			m_moveDir -= lookRightVector;
+		if (Input::isKeyHeldDown(GLFW_KEY_D))
+			m_moveDir += lookRightVector;
+		if (Input::isKeyHeldDown(GLFW_KEY_W))
+			m_moveDir += lookDirection;
+		if (Input::isKeyHeldDown(GLFW_KEY_S))
+			m_moveDir -= lookDirection;
+
+		// Jump
+		if (Input::isKeyHeldDown(GLFW_KEY_SPACE))
+			if (m_character->canJump())
+				m_character->jump(btVector3(0.0f, 16.0f, 0.0f));
+
+	}
 	// Make sure moving is a constant speed
 	if (glm::length(m_moveDir) >= 0.0001f)
 		m_moveDir = glm::normalize(m_moveDir);
