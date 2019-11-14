@@ -37,6 +37,17 @@ Shader* ShaderMap::createShader(std::string name, std::string csName) {
 	return shader;
 }
 
+Shader* ShaderMap::createShader(std::string name, std::string vsName, std::string gsName, std::string fsName)
+{
+	if (existsWithName(name)) {
+		return NULL;
+	}
+
+	Shader* shader = new Shader(vsName, gsName, fsName);
+	m_shaderMap[name] = shader;
+	return shader;
+}
+
 Shader* ShaderMap::getShader(std::string name)
 {
 	if (existsWithName(name)) 

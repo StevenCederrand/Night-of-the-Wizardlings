@@ -56,6 +56,8 @@
     <ClCompile Include="System\SoundHandler.cpp" />
     <ClCompile Include="Deflect\DeflectRender.cpp" />
     <ClCompile Include="Deflect\Deflect.cpp" />
+    <ClCompile Include="Particles\Particles.cpp" />
+    <ClCompile Include="Particles\ParticleBuffers.cpp" />
     <ClCompile Include="GameObject\MapObject.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -122,6 +124,11 @@
     <ClInclude Include="Text\FreeType.h" />
     <ClInclude Include="Text\HUDShader.h" />
     <ClInclude Include="System\SoundHandler.h" />
+    <ClInclude Include="Deflect\DeflectRender.h" />
+    <ClInclude Include="Deflect\Deflect.h" />
+    <ClInclude Include="System\Helper.h" />
+    <ClInclude Include="Particles\Particles.h" />
+    <ClInclude Include="Particles\ParticleBuffers.h" />
     <ClInclude Include="Deflect\Deflect.h" />
     <ClInclude Include="System\Helper.h" />
     <ClInclude Include="HUD\HudObject.h" />

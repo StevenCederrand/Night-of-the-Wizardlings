@@ -83,8 +83,9 @@ void Client::connectToAnotherServer(const ServerInfo& server)
 		m_processThread.join();		
 	}
 
-	m_clientPeer->SetTimeoutTime(NetGlobals::timeoutTimeMS, server.serverAddress);
-	m_processThread = std::thread(&Client::ThreadedUpdate, this);	
+	m_clientPeer->SetTimeoutTime(NetGlobals::PlayerTimeoutTimeMS, server.serverAddress);
+	m_processThread = std::thread(&Client::ThreadedUpdate, this);
+	
 }
 
 void Client::connectToMyServer()
@@ -124,7 +125,7 @@ void Client::ThreadedUpdate()
 		updateDataOnServer();
 		
 		// Update the routine loop
-		m_routineCleanupTimer.update(timeDiff);
+		m_routineCleanupTimer.update(static_cast<float>(timeDiff));
 
 		/* Checking for cleanups, it's in its own scope due to the lock guard
 		   releases the mutex upon destruction. */ 
@@ -135,7 +136,7 @@ void Client::ThreadedUpdate()
 		}
 		
 		/* Put the thread to sleep, the tick rate is in NetGlobals class */
-		RakSleep(NetGlobals::threadSleepTime);
+		RakSleep(NetGlobals::NetThreadSleepTime);
 	}
 
 	// Client has been told to shutdown here so send a disconnection packet if you're still connected
@@ -243,7 +244,7 @@ void Client::processAndHandlePackets()
 				NetworkPlayers::PlayerEntity pE;
 
 				pE.data = player;
-				pE.flag = NetGlobals::THREAD_FLAG::ADD;
+				pE.flag = NetGlobals::THREAD_FLAG::Add;
 				pE.gameobject = nullptr;
 
 				/* Thread lock guard because this needs to be synced with the main game thread because
@@ -273,7 +274,7 @@ void Client::processAndHandlePackets()
 				NetworkSpells::SpellEntity se;
 
 				se.spellData = spellPacket;
-				se.flag = NetGlobals::THREAD_FLAG::ADD;
+				se.flag = NetGlobals::THREAD_FLAG::Add;
 				se.gameobject = nullptr;
 
 				{
@@ -302,7 +303,7 @@ void Client::processAndHandlePackets()
 			NetworkPlayers::PlayerEntity pE;
 
 			pE.data = player;
-			pE.flag = NetGlobals::THREAD_FLAG::ADD;
+			pE.flag = NetGlobals::THREAD_FLAG::Add;
 			pE.gameobject = nullptr;
 			
 			{
@@ -330,7 +331,7 @@ void Client::processAndHandlePackets()
 				NetworkPlayers::PlayerEntity* pE = findPlayerEntityInNetworkPlayers(guidOfDisconnectedPlayer);
 				if (pE != nullptr) {
 					playerName = std::string(pE->data.userName);
-					pE->flag = NetGlobals::THREAD_FLAG::REMOVE;
+					pE->flag = NetGlobals::THREAD_FLAG::Remove;
 				}
 			}
 
@@ -439,16 +440,16 @@ void Client::processAndHandlePackets()
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 
 			m_serverState.Serialize(false, bsIn);
-			if (m_serverState.currentState == NetGlobals::SERVER_STATE::WAITING_FOR_PLAYERS) {
+			if (m_serverState.currentState == NetGlobals::SERVER_STATE::WaitingForPlayers) {
 				logTrace("[Client]******** WARMUP ********");
 			}
-			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GAME_IS_STARTING) {
+			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GameIsStarting) {
 				logTrace("[Client]******** GAME IS STARTING ********");
 			}
-			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GAME_IN_SESSION) {
+			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GameInSession) {
 				logTrace("[Client]******** GAME HAS STARTED ********");
 			}
-			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GAME_END_STATE) {
+			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GameFinished) {
 				logTrace("[Client]******** GAME HAS ENDED ********");
 
 			}
@@ -464,9 +465,7 @@ void Client::processAndHandlePackets()
 			spellPacket.Serialize(false, bsIn);
 			NetworkSpells::SpellEntity se;
 
-			se.spellData = spellPacket;
-			se.flag = NetGlobals::THREAD_FLAG::ADD;
-			se.gameobject = nullptr;				
+			se.spellData = spellPacket;							
 					
 			SoundHandler* shPtr = SoundHandler::getInstance();
 			switch (se.spellData.SpellType)
@@ -480,6 +479,9 @@ void Client::processAndHandlePackets()
 				shPtr->playSound(EnhanceAttackSound, se.spellData.CreatorGUID);
 				break;
 			}
+			
+			se.flag = NetGlobals::THREAD_FLAG::Add;
+			se.gameobject = nullptr;
 
 			{
 				updateSpellsMutexGuard();
@@ -548,7 +550,7 @@ void Client::processAndHandlePackets()
 				updateSpellsMutexGuard();
 				NetworkSpells::SpellEntity* ne = findSpellEntityInNetworkSpells(spellPacket);
 				if (ne != nullptr) {
-					ne->flag = NetGlobals::THREAD_FLAG::REMOVE;
+					ne->flag = NetGlobals::THREAD_FLAG::Remove;
 				}
 			}
 
@@ -564,7 +566,17 @@ void Client::processAndHandlePackets()
 			playerPacket.Serialize(false, bsIn);
 			m_myPlayerDataPacket.lastHitByGuid = playerPacket.lastHitByGuid;
 			m_myPlayerDataPacket.health = playerPacket.health;
-			m_latestPlayerThatHitMe = findPlayerByGuid(playerPacket.lastHitByGuid);
+
+			// I damaged myself
+			if (playerPacket.lastHitByGuid == m_myPlayerDataPacket.guid)
+			{
+				m_latestPlayerThatHitMe = &m_myPlayerDataPacket;
+			}
+			// Someone else damaged me
+			else
+			{
+				m_latestPlayerThatHitMe = findPlayerByGuid(playerPacket.lastHitByGuid);
+			}
 			
 			// Add this to the event list
 			{
@@ -602,12 +614,11 @@ void Client::processAndHandlePackets()
 		}
 		break;
 
-		case RESPAWN_PLAYER:
+		case RESPAWN_PLAYER_DURING_SESSION:
 		{
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			PlayerPacket playerPacket;
 			playerPacket.Serialize(false, bsIn);
-			logTrace("[Client] Spawn at: {0}, {1}, {2}", playerPacket.latestSpawnPosition.x, playerPacket.latestSpawnPosition.y, playerPacket.latestSpawnPosition.z);
 			m_myPlayerDataPacket.latestSpawnPosition = playerPacket.latestSpawnPosition;
 			m_myPlayerDataPacket.health = playerPacket.health;
 
@@ -618,8 +629,32 @@ void Client::processAndHandlePackets()
 			}
 
 
+			break;
 		}
-		break;
+		case RESPAWN_PLAYER_NOT_IN_SESSION:
+		{
+			m_myPlayerDataPacket.health = NetGlobals::PlayerMaxHealth;
+			m_myPlayerDataPacket.latestSpawnPosition = NetGlobals::PlayerFirstSpawnPoint;
+
+			// Add this to the event list
+			{
+				eventMutexGuard(); // Thread safe
+				m_playerEvents.push_back(PlayerEvents::Respawned);
+			}
+			break;
+		}
+
+		case GIVE_PLAYER_FULL_HEALTH:
+		{
+			m_myPlayerDataPacket.health = NetGlobals::PlayerMaxHealth;
+			// Add this to the event list
+			{
+				eventMutexGuard(); // Thread safe
+				m_playerEvents.push_back(PlayerEvents::SessionOver);
+			}
+			break;
+		}
+		
 
 		case SCORE_UPDATE:
 		{
@@ -662,7 +697,7 @@ void Client::processAndHandlePackets()
 			pickupPacket.Serialize(false, bsIn);
 			NetworkPickups::PickupProp pp;
 
-			pp.flag = NetGlobals::THREAD_FLAG::ADD;
+			pp.flag = NetGlobals::THREAD_FLAG::Add;
 			pp.packet = pickupPacket;
 			pp.pickup = nullptr;
 			
@@ -686,7 +721,7 @@ void Client::processAndHandlePackets()
 				
 				if (prop.packet.uniqueID == pickupPacket.uniqueID) {
 					updatePickupsMutexGuard();
-					prop.flag = NetGlobals::THREAD_FLAG::REMOVE;
+					prop.flag = NetGlobals::THREAD_FLAG::Remove;
 					found = true;
 				}
 			}
@@ -859,12 +894,16 @@ void Client::updatePlayerData(Player* player)
 	m_myPlayerDataPacket.lookDirection = player->getCamera()->getCamFace();
 	m_myPlayerDataPacket.timestamp = RakNet::GetTimeMS();
 	m_myPlayerDataPacket.rotation = glm::vec3(
-		-glm::radians(player->getCamera()->getPitch()),
+		0.0f,
 		-glm::radians(player->getCamera()->getYaw() - 90.0f),
 		0.0f);
 
+	m_myPlayerDataPacket.animStates = *player->getAnimState();
+
+	
 	if (m_sendUpdatePackages == false)
 		m_sendUpdatePackages = true;
+
 }
 
 /* You created a spell locally and wants to tell the server and all the other clients that.
@@ -934,7 +973,7 @@ void Client::requestToDestroyClientSpell(const SpellPacket& packet)
 
 void Client::sendHitRequest(Spell& spell, NetworkPlayers::PlayerEntity& playerThatWasHit)
 {
-	if (!m_initialized || !m_isConnectedToAnServer || m_serverState.currentState != NetGlobals::SERVER_STATE::GAME_IN_SESSION) return;
+	if (!m_initialized || !m_isConnectedToAnServer || m_serverState.currentState != NetGlobals::SERVER_STATE::GameInSession) return;
 
 	HitPacket hitPacket;
 	hitPacket.SpellID = spell.getUniqueID();
@@ -947,6 +986,24 @@ void Client::sendHitRequest(Spell& spell, NetworkPlayers::PlayerEntity& playerTh
 	hitPacket.SpellDirection = spell.getDirection();
 
 	m_spellsHitQueue.emplace_back(hitPacket);
+}
+
+void Client::sendHitRequest(Spell& spell, const PlayerPacket& playerThatWasHit)
+{
+	if (!m_initialized || !m_isConnectedToAnServer || m_serverState.currentState != NetGlobals::SERVER_STATE::GameInSession) return;
+
+	HitPacket hitPacket;
+	hitPacket.SpellID = spell.getUniqueID();
+	hitPacket.CreatorGUID = m_clientPeer->GetMyGUID();
+	hitPacket.playerHitGUID = playerThatWasHit.guid.rakNetGuid;
+	hitPacket.Position = spell.getTransform().position;
+	hitPacket.Rotation = spell.getTransform().rotation;
+	hitPacket.Scale = spell.getTransform().scale;
+	hitPacket.damage = spell.getDamage();
+	hitPacket.SpellDirection = spell.getDirection();
+
+	m_spellsHitQueue.emplace_back(hitPacket);
+
 }
 
 void Client::updateNetworkEntities(const float& dt)
@@ -965,7 +1022,7 @@ void Client::sendStartRequestToServer()
 		RakNet::BitStream stream;
 		stream.Write((RakNet::MessageID)SERVER_CHANGE_STATE);
 		ServerStateChange stateChange;
-		stateChange.currentState = NetGlobals::SERVER_STATE::GAME_IS_STARTING;
+		stateChange.currentState = NetGlobals::SERVER_STATE::GameIsStarting;
 		stateChange.Serialize(true, stream);
 		m_clientPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
 	}
@@ -1241,7 +1298,7 @@ void Client::findAllServerAddresses()
 
 					// If the pinged server is full or in session then don't add it to the server list
 					if (info.connectedPlayers >= info.maxPlayers) continue;
-					if (info.currentState == NetGlobals::SERVER_STATE::GAME_IN_SESSION) continue;
+					if (info.currentState == NetGlobals::SERVER_STATE::GameInSession) continue;
 
 					info.serverAddress = packet->systemAddress;
 					m_serverList.emplace_back(std::make_pair(ID++, info));
@@ -1344,7 +1401,7 @@ void Client::removeConnectedPlayer(const RakNet::AddressOrGUID& guid)
 void Client::resetPlayerData()
 {
 	m_myPlayerDataPacket.guid = m_clientPeer->GetMyGUID();
-	m_myPlayerDataPacket.health = NetGlobals::maxPlayerHealth;
+	m_myPlayerDataPacket.health = NetGlobals::PlayerMaxHealth;
 	m_myPlayerDataPacket.inDeflectState = false;
 	m_myPlayerDataPacket.numberOfDeaths = 0;
 	m_myPlayerDataPacket.numberOfKills = 0;
@@ -1370,7 +1427,7 @@ void Client::routineCleanup()
 			if (m_serverTimePacket.serverTimestamp - spell.spellData.timestamp >= NetGlobals::RoutineCleanupTimeIntervalMS)
 			{
 				logWarning("[Client-Routine] Marking dead projectile for removal..");
-				spell.flag = NetGlobals::THREAD_FLAG::REMOVE;
+				spell.flag = NetGlobals::THREAD_FLAG::Remove;
 			}
 
 		}
@@ -1393,7 +1450,7 @@ void Client::routineCleanup()
 					updatePlayersMutexGuard();
 					NetworkPlayers::PlayerEntity* pE = findPlayerEntityInNetworkPlayers(player.guid);
 					if (pE != nullptr) {
-						pE->flag = NetGlobals::THREAD_FLAG::REMOVE;
+						pE->flag = NetGlobals::THREAD_FLAG::Remove;
 					}
 				}
 

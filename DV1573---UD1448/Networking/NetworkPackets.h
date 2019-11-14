@@ -1,7 +1,7 @@
 #ifndef _NET_PACKETS_H
 #define _NET_PACKETS_H
 #include <Spells/SpellTypes.h>
-
+#include <Mesh/MeshFormat.h>
 enum {
 	INFO_ABOUT_OTHER_PLAYERS = ID_USER_PACKET_ENUM + 1,
 	PLAYER_ACCEPTED_TO_SERVER,
@@ -20,7 +20,9 @@ enum {
 	GAME_START_COUNTDOWN,
 	GAME_ROUND_TIMER,
 	RESPAWN_TIME,
-	RESPAWN_PLAYER,
+	RESPAWN_PLAYER_DURING_SESSION,
+	RESPAWN_PLAYER_NOT_IN_SESSION,
+	GIVE_PLAYER_FULL_HEALTH,
 	SCORE_UPDATE,
 	SPELL_GOT_DEFLECTED,
 	PICKUP_CREATED,
@@ -52,7 +54,7 @@ struct PlayerPacket {
 	RakNet::AddressOrGUID guid;
 	RakNet::AddressOrGUID lastHitByGuid;
 	uint32_t timestamp = 0;
-	int health = NetGlobals::maxPlayerHealth;
+	int health = NetGlobals::PlayerMaxHealth;
 	glm::vec3 position = glm::vec3(0.0f);
 	glm::vec3 rotation = glm::vec3(0.0f);
 	glm::vec3 lookDirection = glm::vec3(0.0f);
@@ -62,7 +64,9 @@ struct PlayerPacket {
 	int numberOfDeaths = 0;
 	bool inDeflectState = false;
 	bool hasBeenUpdatedOnce = false;
-	bool hasDamageBuff = false;	
+
+	AnimationState animStates;
+	bool hasDamageBuff = false;
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream)
 	{
@@ -79,6 +83,7 @@ struct PlayerPacket {
 		stream.Serialize(writeToStream, numberOfDeaths);
 		stream.Serialize(writeToStream, inDeflectState);
 		stream.Serialize(writeToStream, hasBeenUpdatedOnce);
+		stream.Serialize(writeToStream, animStates);
 		stream.Serialize(writeToStream, hasDamageBuff);
 	}
 };
@@ -202,5 +207,7 @@ struct ServerTimePacket {
 		stream.Serialize(writeToStream, serverTimestamp);
 	}
 };
+
+
 
 #endif

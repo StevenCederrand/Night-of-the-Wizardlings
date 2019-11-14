@@ -174,10 +174,6 @@ const glm::vec3& Camera::getCamFace()
 	return m_camFace;
 }
 
-const glm::vec3& Camera::getCamRight()
-{
-	return m_camRight;
-}
 
 const glm::vec3& Camera::getCamUp()
 {
@@ -188,6 +184,12 @@ void Camera::setCameraPos(const glm::vec3& pos)
 {
 	m_camPos = pos;
 }
+
+const glm::vec3& Camera::getCamRight()
+{
+	return m_camRight;
+}
+
 
 void Camera::lookAt(const glm::vec3& position)
 {
@@ -200,6 +202,8 @@ void Camera::update()
 	if (m_fpEnabled && m_activeCamera) {
 		updateMouseMovement();
 	}
+	if(m_activeCamera)
+		m_viewMatrix = glm::lookAt(m_camPos, m_camPos + m_camFace, m_camUp);
 }
 
 void Camera::enableFP(const bool& fpEnable) {

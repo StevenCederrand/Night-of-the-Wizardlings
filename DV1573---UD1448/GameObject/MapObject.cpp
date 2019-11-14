@@ -9,7 +9,7 @@ MapObject::MapObject() : GameObject()
 MapObject::MapObject(std::string name) : GameObject(name)
 {
 	m_type = 0;
-	MaterialMap* matMap = MaterialMap::getInstance();
+	MaterialMap* matMap = MaterialMap::getInstance(); 
 	/* Loop through all of the object and set the materials rim lighting value*/
 	for (auto mesh : m_meshes) {
 		//Set the rimlighting value
