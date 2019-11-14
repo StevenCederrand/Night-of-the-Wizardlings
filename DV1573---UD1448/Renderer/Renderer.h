@@ -91,7 +91,7 @@ private:
 	unsigned int m_lightIndexSSBO;
 	glm::uvec2 workGroups;
 	
-	
+	void renderAndAnimateNetworkingTexts();
 	void renderBigNotifications();
 	void renderKillFeed();
 

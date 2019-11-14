@@ -1058,22 +1058,22 @@ void LocalServer::createPickupSpawnLocations()
 	
 	PickupSpawnLocation spawn_one;
 	copyStringToCharArray(spawn_one.name, "Top");
-	spawn_one.position = glm::vec3(10.0f, 14.0f, -1.0f);
+	spawn_one.position = glm::vec3(0.0f, 13.45f, 0.0f);
 	m_pickupSpawnLocations.emplace_back(spawn_one);
 
 	PickupSpawnLocation spawn_two;
 	copyStringToCharArray(spawn_two.name, "Graveyard");
-	spawn_two.position = glm::vec3(82.0f, 2.3f, 0.5f);
+	spawn_two.position = glm::vec3(70.0f, 2.3f, 0.67f);
 	m_pickupSpawnLocations.emplace_back(spawn_two);
 
 	PickupSpawnLocation spawn_three;
 	copyStringToCharArray(spawn_three.name, "Maze");
-	spawn_three.position = glm::vec3(-84.4f, 2.6f, 0.08f);
+	spawn_three.position = glm::vec3(-94.42f, 2.6f, 2.08f);
 	m_pickupSpawnLocations.emplace_back(spawn_three);
 
 	PickupSpawnLocation spawn_four;
 	copyStringToCharArray(spawn_four.name, "Tunnels");
-	spawn_four.position = glm::vec3(10.28f, 2.4f, 53.0f);
+	spawn_four.position = glm::vec3(0.282f, 2.4f, 53.94f);
 	m_pickupSpawnLocations.emplace_back(spawn_four);
 
 }

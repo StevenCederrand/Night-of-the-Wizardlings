@@ -3,7 +3,7 @@
 
 namespace NetGlobals {
 
-	static glm::vec3 PlayerFirstSpawnPoint = glm::vec3(10.40f, 14.5f, 8.0f);
+	static glm::vec3 PlayerFirstSpawnPoint = glm::vec3(0.0f, 14.5f, 7.0f);
 
 	constexpr unsigned int MaximumConnections = 6;
 	constexpr unsigned short MaximumIncomingConnections = 6;

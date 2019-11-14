@@ -84,6 +84,79 @@ void Renderer::renderHUD()
 	glEnable(GL_DEPTH_TEST);
 }
 
+void Renderer::renderAndAnimateNetworkingTexts()
+{
+	if (Client::getInstance()->isConnectedToSever()) {
+
+		NetGlobals::SERVER_STATE state = Client::getInstance()->getServerState().currentState;
+
+		if (state == NetGlobals::SERVER_STATE::GameIsStarting) {
+			std::string timeText = "Deathmatch starts in: " + std::to_string(Client::getInstance()->getCountdownPacket().timeLeft / 1000);
+			glm::vec3 scale = glm::vec3(1.15f, 1.0f, 1.0f);
+			glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
+			float width = m_text->getTotalWidth(timeText, scale);
+
+			m_text->RenderText(timeText, (SCREEN_WIDTH * 0.5f) - width * 0.5f, (SCREEN_HEIGHT * 0.80), scale.x, color);
+		}
+		else if (state == NetGlobals::SERVER_STATE::GameInSession) {
+
+			uint32_t minutes = Client::getInstance()->getRoundTimePacket().minutes;
+			uint32_t seconds = Client::getInstance()->getRoundTimePacket().seconds;
+			std::string timeText = std::to_string(minutes) + ":";
+
+			if (seconds >= 10) {
+				timeText += std::to_string(seconds);
+			}
+
+			else {
+				timeText += "0" + std::to_string(seconds);
+			}
+
+			timeText = "Time Left: " + timeText;
+			glm::vec3 scale = glm::vec3(0.5f, 1.0f, 1.0f);
+			float width = m_text->getTotalWidth(timeText, scale);
+
+			m_text->RenderText(timeText, (SCREEN_WIDTH / 2) - 125.0f, (SCREEN_HEIGHT * 0.95f), scale.x, glm::vec3(1.0f, 1.0f, 1.0f));
+		}
+		else if (state == NetGlobals::SERVER_STATE::WaitingForPlayers) {
+			std::string timeText = std::to_string(Client::getInstance()->getCountdownPacket().timeLeft / 1000);
+			m_text->RenderText("Waiting for players", SCREEN_WIDTH / 2 - 80.0f, 680.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+
+			if (Client::getInstance()->isServerOwner()) {
+				m_text->RenderText("Press \"E\" to start the game", 10.0f, 620.0f, 0.35f, glm::vec3(1.0f, 1.0f, 1.0f));
+			}
+
+		}
+		else if (state == NetGlobals::SERVER_STATE::GameFinished) {
+			uint32_t minutes = Client::getInstance()->getRoundTimePacket().minutes;
+			uint32_t seconds = Client::getInstance()->getRoundTimePacket().seconds;
+			std::string timeText = std::to_string(minutes) + ":";
+
+			if (seconds >= 10) {
+				timeText += std::to_string(seconds);
+			}
+
+			else {
+				timeText += "0" + std::to_string(seconds);
+			}
+			m_text->RenderText("End of round: " + timeText, SCREEN_WIDTH / 2 - 135.0f, 680.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+		}
+
+
+		if (Client::getInstance()->getMyData().health == 0) {
+			std::string timeText = std::to_string(Client::getInstance()->getRespawnTime().timeLeft / 1000);
+			m_text->RenderText("Respawn in " + timeText + " seconds", (SCREEN_WIDTH / 2) - 200.0f, 480.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
+		}
+
+		m_text->RenderText("Health: " + std::to_string(Client::getInstance()->getMyData().health), 10.0f, 680.0f, 0.45f, glm::vec3(1.0f, 1.0f, 1.0f));
+
+		if (state == NetGlobals::SERVER_STATE::GameInSession)
+			m_text->RenderText("Kills: " + std::to_string(Client::getInstance()->getMyData().numberOfKills), 10.0f, 620.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+
+
+	}
+}
+
 void Renderer::renderBigNotifications()
 {
 	Client::getInstance()->renderPickupNotificationsMutexGuard();
@@ -751,71 +824,9 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_CULL_FACE);
-	if (Client::getInstance()->isConnectedToSever()) {
-		
-		NetGlobals::SERVER_STATE state = Client::getInstance()->getServerState().currentState;
+	
 
-		if (state == NetGlobals::SERVER_STATE::GameIsStarting) {
-			std::string timeText = std::to_string(Client::getInstance()->getCountdownPacket().timeLeft / 1000);
-			m_text->RenderText("Game starts in: " + timeText, (SCREEN_WIDTH / 2) - 125.0f , 680.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
-		}
-		else if (state == NetGlobals::SERVER_STATE::GameInSession) {
-			
-			uint32_t minutes = Client::getInstance()->getRoundTimePacket().minutes;
-			uint32_t seconds = Client::getInstance()->getRoundTimePacket().seconds;
-			std::string timeText = std::to_string(minutes) +":";
-
-			if (seconds >= 10) {
-				timeText += std::to_string(seconds);
-			}
-				
-			else{
-				timeText += "0" + std::to_string(seconds);
-			}
-				
-			
-			//std::string timeText = std::to_string(Client::getInstance()->getRoundTimePacket().timeLeft / 1000);
-			m_text->RenderText("Game time " + timeText, (SCREEN_WIDTH / 2) - 125.0f, 680.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
-		}
-		else if (state == NetGlobals::SERVER_STATE::WaitingForPlayers) {
-			std::string timeText = std::to_string(Client::getInstance()->getCountdownPacket().timeLeft / 1000);
-			m_text->RenderText("Warmup", SCREEN_WIDTH / 2 - 80.0f, 680.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
-
-			if (Client::getInstance()->isServerOwner()) {
-				m_text->RenderText("Press \"E\" to start the game", 10.0f, 620.0f, 0.35f, glm::vec3(1.0f, 1.0f, 1.0f));
-			}
-			
-		}
-		else if (state == NetGlobals::SERVER_STATE::GameFinished) {
-			uint32_t minutes = Client::getInstance()->getRoundTimePacket().minutes;
-			uint32_t seconds = Client::getInstance()->getRoundTimePacket().seconds;
-			std::string timeText = std::to_string(minutes) + ":";
-
-			if (seconds >= 10) {
-				timeText += std::to_string(seconds);
-			}
-
-			else {
-				timeText += "0" + std::to_string(seconds);
-			}
-			m_text->RenderText("End of round: " + timeText, SCREEN_WIDTH / 2 - 135.0f, 680.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
-		}
-
-		
-		if (Client::getInstance()->getMyData().health == 0) {
-			std::string timeText = std::to_string(Client::getInstance()->getRespawnTime().timeLeft / 1000);
-			m_text->RenderText("Respawn in " + timeText + " seconds", (SCREEN_WIDTH / 2) - 200.0f, 480.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
-		}
-
-		m_text->RenderText("Health: " + std::to_string(Client::getInstance()->getMyData().health), 10.0f, 680.0f, 0.45f, glm::vec3(1.0f, 1.0f, 1.0f));
-		
-		if(state == NetGlobals::SERVER_STATE::GameInSession)
-			m_text->RenderText("Kills: " + std::to_string(Client::getInstance()->getMyData().numberOfKills), 10.0f, 620.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
-
-
-	}
-
-
+	renderAndAnimateNetworkingTexts();
 	renderBigNotifications();
 	renderKillFeed();
 	renderHUD();

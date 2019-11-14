@@ -35,7 +35,7 @@ PlayState::PlayState()
 
 	m_objects.push_back(new MapObject("internalTestmap"));
 	m_objects[m_objects.size() - 1]->loadMesh("map1.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 0.0f, -1.0f));
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 	
 	/*m_objects.push_back(new WorldObject("sphere"));
