@@ -488,7 +488,6 @@ void SpellHandler::spellCollisionCheck(float deltaTime)
 			
 				if (specificSpellCollision(spellPos, ownPlayerPos, axis1, scale))
 				{
-					std::cout << "hit" << std::endl;
 					if (ownfireDamageCounter <= 0)
 					{
 						Client::getInstance()->sendHitRequest(*fireSpells[j], ownPlayer);
