@@ -62,7 +62,7 @@ struct PlayerPacket {
 	int numberOfDeaths = 0;
 	bool inDeflectState = false;
 	bool hasBeenUpdatedOnce = false;
-	bool hasDamageBuff = false;
+	bool hasDamageBuff = false;	
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream)
 	{

@@ -201,6 +201,7 @@ void Player::attack()
 	}
 	if (Input::isMouseReleased(GLFW_MOUSE_BUTTON_RIGHT)) {
 		m_deflecting = false;
+		shPtr->stopSound(DeflectSound, m_client->getMyData().guid);
 	}
 
 	if (Input::isKeyHeldDown(GLFW_KEY_Q))

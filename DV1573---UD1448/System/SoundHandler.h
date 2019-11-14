@@ -82,6 +82,8 @@ public:
 	void loadAllSound();
 	int loadSound(SoundIndexClient whatSound);
 	int loadSound(SoundIndexCommon whatSound);
+
+	void setPlayerSourceGains(RakNet::AddressOrGUID guid);
 	
 	void attachBuffersToClientSources();
 	int attachBuffersToPlayerSources(RakNet::AddressOrGUID playerID);
@@ -105,6 +107,9 @@ public:
 	void setSourceGain(float gain, SoundIndexClient whatSound);
 	void setSourceGain(float gain, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
 	
+	void setSourceMaxGain(float gain, SoundIndexClient whatSound);
+	void setSourceMaxGain(float gain, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
+	
 	void setSourceMaxDistance(float dist, SoundIndexClient whatSound);
 	void setSourceMaxDistance(float dist, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
 	
@@ -123,7 +128,7 @@ public:
 	void setSourceLooping(bool looping, SoundIndexClient whatSound);
 	void setSourceLooping(bool looping, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
 	
-	void setPlayerGUIDs();	
+	void setPlayerGUIDs();
 	void addPlayer(RakNet::AddressOrGUID guid);
 	void removePlayer(RakNet::AddressOrGUID guid);
 

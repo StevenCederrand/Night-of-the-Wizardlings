@@ -38,8 +38,8 @@ SoundHandler::SoundHandler()
 	{
 		attachBuffersToPlayerSources(m_playerSoundInfo.at(i).guid);
 	}
-
-	//Lower the volume 
+	
+	//Set the volume for the client sources. 
 	RakNet::AddressOrGUID myGuid = Client::getInstance()->getMyData().guid;	
 	setSourceGain(0.8, BasicAttackSound, myGuid);
 	setSourceGain(0.2, DeflectSound, myGuid);
@@ -47,7 +47,7 @@ SoundHandler::SoundHandler()
 	setSourceGain(0.3, JumpSound, myGuid);
 	setSourceGain(0.3, StepsSound, myGuid);
 	setSourceGain(0.3, TakingDamageSound);
-	setSourceGain(0.3, HitmarkSound);
+	setSourceGain(0.3, HitmarkSound);	
 }
 
 SoundHandler::~SoundHandler()
@@ -387,6 +387,23 @@ int SoundHandler::loadSound(SoundIndexCommon whatSound)
 
 	return whatSound;
 }
+void SoundHandler::setPlayerSourceGains(RakNet::AddressOrGUID guid)
+{
+	bool found = false;
+
+	for (int i = 0; i < m_playerSoundInfo.size() && !found; i++)
+	{
+		if (m_playerSoundInfo.at(i).guid.rakNetGuid == guid.rakNetGuid)
+		{
+			setSourceGain(0.8, BasicAttackSound, m_playerSoundInfo.at(i).guid);
+			setSourceGain(0.2, DeflectSound, m_playerSoundInfo.at(i).guid);
+			setSourceGain(0.2, EnhanceAttackSound, m_playerSoundInfo.at(i).guid);
+			setSourceGain(0.3, JumpSound, m_playerSoundInfo.at(i).guid);
+			setSourceGain(0.3, StepsSound, m_playerSoundInfo.at(i).guid);
+			found = true;
+		}
+	}	
+}
 void SoundHandler::attachBuffersToClientSources()
 {	
 	for (int i = 0; i < NR_OF_CLIENT_SOUNDS; i++)
@@ -679,7 +696,7 @@ void SoundHandler::setSourceGain(float gain, SoundIndexClient whatSound)
 	}	
 }
 
-void SoundHandler::setSourceGain(float gain, SoundIndexCommon bufferName, RakNet::AddressOrGUID playerID)
+void SoundHandler::setSourceGain(float gain, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID)
 {
 	bool found = false;
 	for (int i = 0; i < m_nrOfPlayers && !found; i++)
@@ -690,7 +707,42 @@ void SoundHandler::setSourceGain(float gain, SoundIndexCommon bufferName, RakNet
 			{
 				m_error = alGetError();
 
-				alSourcef(m_playerSoundInfo.at(i).sources.at(bufferName).at(j), AL_GAIN, gain);
+				alSourcef(m_playerSoundInfo.at(i).sources.at(whatSound).at(j), AL_GAIN, gain);
+
+				if ((m_error = alGetError()) != AL_NO_ERROR)
+				{
+					logTrace("Error setting gain to source");
+				}
+			}
+			found = true;
+		}
+	}
+}
+
+void SoundHandler::setSourceMaxGain(float gain, SoundIndexClient whatSound)
+{
+	m_error = alGetError();
+
+	alSourcef(m_clientSoundInfo.sources.at(whatSound), AL_MAX_GAIN, gain);
+
+	if ((m_error = alGetError()) != AL_NO_ERROR)
+	{
+		logTrace("Error setting gain to source");
+	}
+}
+
+void SoundHandler::setSourceMaxGain(float gain, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID)
+{
+	bool found = false;
+	for (int i = 0; i < m_nrOfPlayers && !found; i++)
+	{
+		if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
+		{
+			for (int j = 0; j < NR_OF_SUBSEQUENT_SOUNDS; j++)
+			{
+				m_error = alGetError();
+
+				alSourcef(m_playerSoundInfo.at(i).sources.at(whatSound).at(j), AL_MAX_GAIN, gain);
 
 				if ((m_error = alGetError()) != AL_NO_ERROR)
 				{
@@ -924,8 +976,9 @@ void SoundHandler::setSourceLooping(bool looping, SoundIndexCommon whatSound, Ra
 
 void SoundHandler::setPlayerGUIDs()
 {	
-	auto& list = Client::getInstance()->getConnectedPlayers();
-	PlayerPacket myDataPacket = Client::getInstance()->getMyData();
+	auto clientPtr = Client::getInstance();
+	auto& list = clientPtr->getConnectedPlayers();
+	PlayerPacket myDataPacket = clientPtr->getMyData();
 	
 	if(m_playerSoundInfo.size() < 1)
 			m_playerSoundInfo.resize(1);
@@ -940,6 +993,13 @@ void SoundHandler::setPlayerGUIDs()
 	}	
 
 	m_nrOfPlayers = list.size() + 1;
+
+	
+	if (list.size() != 0)
+	{
+		for (int i = 0; i < m_playerSoundInfo.size(); i++)
+			setPlayerSourceGains(m_playerSoundInfo.at(i).guid);
+	}
 }
 
 void SoundHandler::addPlayer(RakNet::AddressOrGUID guid)
@@ -948,6 +1008,7 @@ void SoundHandler::addPlayer(RakNet::AddressOrGUID guid)
 	m_playerSoundInfo.at(m_playerSoundInfo.size() - 1).guid = guid;
 	m_nrOfPlayers++;
 	attachBuffersToPlayerSources(guid);
+	setPlayerSourceGains(guid);
 }
 
 void SoundHandler::removePlayer(RakNet::AddressOrGUID guid)

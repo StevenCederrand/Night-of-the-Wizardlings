@@ -56,8 +56,12 @@ void NetworkPlayers::update(const float& dt)
 		if (p.data.inDeflectState)
 		{
 			shPtr->setSourcePosition(p.data.position, DeflectSound, p.data.guid);
-			shPtr->playSound(DeflectSound, p.data.guid);
+			shPtr->playSound(DeflectSound, p.data.guid);			
 		}
+		else
+		{
+			shPtr->stopSound(DeflectSound, p.data.guid);				
+		}		
 		
 		GameObject* g = p.gameobject;
 		
