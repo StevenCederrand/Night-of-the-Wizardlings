@@ -36,6 +36,11 @@ Renderer::~Renderer()
 {
 	//delete m_bloom;
 	delete m_text;
+
+	delete attackPS;
+	delete enhancePS;
+	delete flamestrikePS;
+	delete smokePS;
 }
 
 void Renderer::renderHUD()
@@ -203,6 +208,9 @@ void Renderer::initShaders() {
 	shader->use();
 	shader->setInt("textureSampler", 0);
 	
+	ShaderMap::getInstance()->createShader(PARTICLES, "Particles.vs", "Particles.gs", "Particles.fs");
+
+	initializeParticle();
 }
 
 void Renderer::bindMatrixes(const std::string& shaderName) {
@@ -239,11 +247,41 @@ void Renderer::setupCamera(Camera* camera)
 
 void Renderer::submit(GameObject* gameObject, ObjectType objType)
 {
+	TextureInfo rings;
+	rings.name = "Assets/Textures/Spell_1.png";
+
+	TextureInfo smoke;
+	smoke.name = "Assets/Textures/Spell_2.png";
+
 	if (objType == STATIC) {
 		m_staticObjects.emplace_back(gameObject);
 	}
 	else if (objType == SPELL) {
 		m_spells.emplace_back(gameObject);
+
+		if (static_cast<Spell*>(gameObject)->getType() == NORMALATTACK)
+		{
+			ps.emplace_back(ParticleSystem(&m_PSinfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), attackBuffer,
+				attackPS->getVertex(), attackPS->getDir(), attackPS->getParticle(), attackPS->getLifetime()));
+		}
+
+		if (static_cast<Spell*>(gameObject)->getType() == ENHANCEATTACK)
+		{
+			ps.emplace_back(ParticleSystem(&m_enhanceInfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), enhanceBuffer,
+				enhancePS->getVertex(), enhancePS->getDir(), enhancePS->getParticle(), enhancePS->getLifetime()));
+		}
+
+		if (static_cast<Spell*>(gameObject)->getType() == FIRE)
+		{
+			ps.emplace_back(ParticleSystem(&m_flameInfo, &smoke, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
+				flamestrikePS->getVertex(), flamestrikePS->getDir(), flamestrikePS->getParticle(), flamestrikePS->getLifetime()));
+		}
+
+		if (static_cast<Spell*>(gameObject)->getType() == FLAMESTRIKE)
+		{
+			ps.emplace_back(ParticleSystem(&m_flameInfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
+				flamestrikePS->getVertex(), flamestrikePS->getDir(), flamestrikePS->getParticle(), flamestrikePS->getLifetime()));
+		}
 	}
 	else if (objType == DYNAMIC) {
 		m_dynamicObjects.emplace_back(gameObject);
@@ -327,6 +365,7 @@ void Renderer::removeDynamic(GameObject* gameObject, ObjectType objType)
 		}
 		if (index > -1) {
 			m_spells.erase(m_spells.begin() + index);
+			ps.erase(ps.begin() + index);
 		}
 	}
 	else if (objType == PICKUP) { //remove spells from the spell vector!!
@@ -498,7 +537,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	//m_bloom->bindHdrFBO();
 	renderSkybox(m_skybox);
 	renderDeflectBox(m_deflectBox);
-	m_spellHandler->renderSpell();
+	//m_spellHandler->renderSpell();
 
 #pragma region Color_Render
 	shader = shaderMap->useByName(BASIC_FORWARD);
@@ -525,6 +564,12 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			}
 			else if (m_spells[i]->getType() == ENHANCEATTACK) {
 				shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getEnhAttackBase()->m_material->diffuse);
+			}
+			else if (m_spells[i]->getType() == FLAMESTRIKE) {
+				shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getFlamestrikeBase()->m_material->diffuse);
+			}
+			else if (m_spells[i]->getType() == FIRE) {
+				shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getFireBase()->m_material->diffuse);
 			}
 			shader->setFloat("pLights[" + std::to_string(i) + "].radius", P_LIGHT_RADIUS);
 		}
@@ -719,7 +764,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	}
 
 #pragma endregion
-
+	m_spellHandler->renderSpell();
 	//ShaderMap::getInstance()->useByName(BLUR);
 
 	//ShaderMap::getInstance()->getShader(BLUR)->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
@@ -837,6 +882,7 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 
 	for (size_t i = 0; i < m_spells.size(); i++)
 	{
+		ShaderMap::getInstance()->useByName(BASIC_FORWARD);
 		meshTransform = m_spells[i]->getTransform();
 
 		glm::mat4 modelMatrix = glm::mat4(1.0f);
@@ -846,12 +892,17 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 
 		shader->setMat4("modelMatrix", modelMatrix);
 
+
 		if (m_spells[i]->getType() == NORMALATTACK)
 		{
 			meshRef = spellHandler->getAttackBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
 			shader->setMaterial(spellHandler->getAttackBase()->m_material);
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);	
+
+			glBindVertexArray(0);
+			ps[i].SetPosition(meshTransform.position);
+			ps[i].Render(m_camera, &m_PSinfo);
 		}
 		else if (m_spells[i]->getType() == ENHANCEATTACK)
 		{
@@ -859,6 +910,10 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 			glBindVertexArray(meshRef->getBuffers().vao);
 			shader->setMaterial(spellHandler->getEnhAttackBase()->m_material);
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+			glBindVertexArray(0);
+			ps[i].Render(m_camera, &m_enhanceInfo);
+			ps[i].SetPosition(meshTransform.position);
 		}
 		else if (m_spells[i]->getType() == REFLECT) 
 		{
@@ -866,13 +921,32 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 			glBindVertexArray(meshRef->getBuffers().vao);
 			shader->setMaterial(spellHandler->getReflectBase()->m_material);
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+			glBindVertexArray(0);
+			//ps[i].SetPosition(meshTransform.position);
 		}
 		else if (m_spells[i]->getType() == FLAMESTRIKE)
 		{
-			meshRef = spellHandler->getAttackBase()->m_mesh;
+
+			meshRef = spellHandler->getFlamestrikeBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
-			shader->setMaterial(spellHandler->getAttackBase()->m_material);
+			shader->setMaterial(spellHandler->getFlamestrikeBase()->m_material);
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+			glBindVertexArray(0);
+			//ps[i].Render(m_camera, &m_flameInfo);
+			//ps[i].SetPosition(meshTransform.position);
+		}
+
+		else if (m_spells[i]->getType() == FIRE)
+		{
+			meshRef = spellHandler->getFireBase()->m_mesh;
+			glBindVertexArray(meshRef->getBuffers().vao);
+			shader->setMaterial(spellHandler->getFireBase()->m_material);
+			//glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+			glBindVertexArray(0);
+
+			ps[i].Render(m_camera, &m_flameInfo);
+			ps[i].SetPosition(glm::vec3(meshTransform.position.x, meshTransform.position.y -1, meshTransform.position.z));
 		}
 
 	}
@@ -928,4 +1002,187 @@ unsigned int Renderer::getTextWidth(const std::string& text, const glm::vec3& sc
 Camera* Renderer::getMainCamera() const
 {
 	return m_camera;
+}
+
+void Renderer::initializeParticle()
+{
+	//Particle stuff
+	//TextureInfo rings;
+
+	//
+	//rings.name = "Assets/Textures/Spell_1.png";
+	m_txtInfo.name = "Assets/Textures/Spell_1.png";
+
+	m_PSinfo.width = 0.2f;
+	m_PSinfo.heigth = 0.2f;
+	m_PSinfo.lifetime = 0.3f;
+	m_PSinfo.maxParticles = 5000; //350
+	m_PSinfo.emission = 0.001f; //0.00001f;
+	m_PSinfo.force = -1.0f; //5
+	m_PSinfo.drag = 0.0f;
+	m_PSinfo.gravity = 0.0f; //Standard is 1
+	m_PSinfo.seed = 0;
+	m_PSinfo.cont = true;
+	m_PSinfo.omnious = false;
+	m_PSinfo.spread = 0.0f;
+	m_PSinfo.glow = false;
+	m_PSinfo.scaleDirection = 0;
+	m_PSinfo.fade = 1;
+	m_PSinfo.color = glm::vec3(1.0f, 0.0f, 1.0f);
+	m_PSinfo.direction = glm::vec3(1.0f, 0.0f, 0.0f);
+	vertexCountDiff = m_PSinfo.maxParticles;
+	emissionDiff = m_PSinfo.emission;
+	//ps = new ParticleSystem(&m_PSinfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
+
+
+	attackPS = new ParticleBuffers(m_PSinfo);
+	attackPS->setTexture(m_txtInfo);
+	attackPS->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
+	attackPS->bindBuffers();
+
+	attackBuffer = attackPS->getBuffer();
+
+
+	//------------------------------------------
+
+	m_enhanceInfo.width = 0.2f;
+	m_enhanceInfo.heigth = 0.2f;
+	m_enhanceInfo.lifetime = 0.3f;
+	m_enhanceInfo.maxParticles = 5000; //350
+	m_enhanceInfo.emission = 0.001f; //0.00001f;
+	m_enhanceInfo.force = -1.0f; //5
+	m_enhanceInfo.drag = 0.0f;
+	m_enhanceInfo.gravity = 0.0f; //Standard is 1
+	m_enhanceInfo.seed = 0;
+	m_enhanceInfo.cont = true;
+	m_enhanceInfo.omnious = false;
+	m_enhanceInfo.spread = 0.0f;
+	m_enhanceInfo.glow = false;
+	m_enhanceInfo.scaleDirection = 0;
+	m_enhanceInfo.fade = 1;
+	m_enhanceInfo.color = glm::vec3(0.5f, 1.0f, 0.0f);
+	m_enhanceInfo.direction = glm::vec3(1.0f, 0.0f, 0.0f);
+	vertexCountDiff2 = m_enhanceInfo.maxParticles;
+	emissionDiff2 = m_enhanceInfo.emission;
+	//ps = new ParticleSystem(&m_PSinfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
+
+
+	enhancePS = new ParticleBuffers(m_enhanceInfo);
+	enhancePS->setTexture(m_txtInfo);
+	enhancePS->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
+	enhancePS->bindBuffers();
+
+	enhanceBuffer = enhancePS->getBuffer();
+
+	//------------------------------------------
+
+	m_txtInfo.name = "Assets/Textures/Spell_2.png";
+
+	m_flameInfo.width = 0.3f;
+	m_flameInfo.heigth = 0.3f;
+	m_flameInfo.lifetime = 1.0f;
+	m_flameInfo.maxParticles = 5000; //350
+	m_flameInfo.emission = 0.0001f; //0.00001f;
+	m_flameInfo.force = -1.0f; //5
+	m_flameInfo.drag = -1.0f;
+	m_flameInfo.gravity = 0.0f; //Standard is 1
+	m_flameInfo.seed = -1;
+	m_flameInfo.cont = true;
+	m_flameInfo.omnious = true;
+	m_flameInfo.spread = 10.0f;
+	m_flameInfo.glow = false;
+	m_flameInfo.scaleDirection = 0;
+	m_flameInfo.fade = 1;
+	m_flameInfo.color = glm::vec3(1.0f, 0.5f, 0.0f);
+	m_flameInfo.direction = glm::vec3(0.0f, 10.0f, 0.0f);
+	vertexCountDiff3 = m_flameInfo.maxParticles;
+	emissionDiff3 = m_flameInfo.emission;
+	//ps = new ParticleSystem(&m_PSinfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
+
+
+	flamestrikePS = new ParticleBuffers(m_flameInfo);
+	flamestrikePS->setTexture(m_txtInfo);
+	flamestrikePS->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
+	flamestrikePS->bindBuffers();
+
+	flameBuffer = flamestrikePS->getBuffer();
+}
+
+void Renderer::updateParticles(float dt)
+{
+	//if (static_cast <Spell*>(m_spells[i])->getType() == NORMALATTACK)
+	for (int i = 0; i < ps.size(); i++)
+	{
+		if (static_cast <Spell*>(m_spells[i])->getType() == NORMALATTACK)
+		{
+			if (m_PSinfo.emission != emissionDiff)
+			{
+				ps[i].Build(&m_PSinfo);
+			}
+
+			if (m_PSinfo.maxParticles != vertexCountDiff)
+			{
+				ps[i].Build(&m_PSinfo);
+			}
+
+			vertexCountDiff = m_PSinfo.maxParticles;
+			emissionDiff = m_PSinfo.emission;
+
+			m_PSinfo.direction = glm::clamp(m_PSinfo.direction, -1.0f, 1.0f);
+
+
+			//Update temp with new values
+
+			ps[i].Update(&m_PSinfo, m_camera->getCamPos(), dt);
+			thisActive = ps[i].GetNrOfParticles();
+		}
+
+		if (static_cast <Spell*>(m_spells[i])->getType() == ENHANCEATTACK)
+		{
+			if (m_enhanceInfo.emission != emissionDiff2)
+			{
+				ps[i].Build(&m_enhanceInfo);
+			}
+
+			if (m_enhanceInfo.maxParticles != vertexCountDiff2)
+			{
+				ps[i].Build(&m_enhanceInfo);
+			}
+
+			vertexCountDiff2 = m_enhanceInfo.maxParticles;
+			emissionDiff2 = m_enhanceInfo.emission;
+
+			m_enhanceInfo.direction = glm::clamp(m_enhanceInfo.direction, -1.0f, 1.0f);
+
+
+			//Update temp with new values
+
+			ps[i].Update(&m_enhanceInfo, m_camera->getCamPos(), dt);
+			thisActive2 = ps[i].GetNrOfParticles();
+		}
+
+		if (static_cast <Spell*>(m_spells[i])->getType() == FIRE)
+		{
+			if (m_flameInfo.emission != emissionDiff3)
+			{
+				ps[i].Build(&m_flameInfo);
+			}
+
+			if (m_flameInfo.maxParticles != vertexCountDiff3)
+			{
+				ps[i].Build(&m_flameInfo);
+			}
+
+			vertexCountDiff3 = m_flameInfo.maxParticles;
+			emissionDiff3 = m_flameInfo.emission;
+
+			m_flameInfo.direction = glm::clamp(m_flameInfo.direction, -1.0f, 1.0f);
+
+
+			//Update temp with new values
+
+			ps[i].Update(&m_flameInfo, m_camera->getCamPos(), dt);
+			thisActive3 = ps[i].GetNrOfParticles();
+		}
+	}
 }

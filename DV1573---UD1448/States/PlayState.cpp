@@ -33,6 +33,7 @@ PlayState::PlayState()
 
 	m_player->setHealth(NetGlobals::maxPlayerHealth);
 
+
 	m_objects.push_back(new MapObject("internalTestmap"));
 	m_objects[m_objects.size() - 1]->loadMesh("map1.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 0.0f, -1.0f));
@@ -46,6 +47,7 @@ PlayState::PlayState()
 	m_objects.push_back(new WorldObject("Character"));
 	m_objects[m_objects.size() - 1]->loadMesh("CharacterTest.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 1.8f, -24.0f));
+
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
 
@@ -102,6 +104,7 @@ void PlayState::update(float dt)
 	m_bPhysics->update(dt);
 	m_player->update(dt);
 	m_spellHandler->spellUpdate(dt);
+	Renderer::getInstance()->updateParticles(dt);
 
 	//m_hpBar->setYClip(m_player->getHealth() / 100);
 	auto* clientPtr = Client::getInstance();
@@ -203,6 +206,7 @@ void PlayState::update(float dt)
 	for (GameObject* object : m_objects)
 	{
 		object->update(dt);
+		Renderer::getInstance()->updateParticles(dt);
 	}
 	
 	GUIHandler();

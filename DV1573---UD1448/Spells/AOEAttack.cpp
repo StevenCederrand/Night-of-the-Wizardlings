@@ -16,6 +16,19 @@ AOEAttack::AOEAttack(glm::vec3 pos, glm::vec3 direction, const FlamestrikeSpellB
 	setDirection(direction);
 }
 
+AOEAttack::AOEAttack(glm::vec3 pos)
+	: Spell(pos, glm::vec3(0))
+{
+	m_type = SPELL_TYPE::FLAMESTRIKE;
+	m_spellBase = nullptr;
+
+	//Transform tempTransform;
+	//tempTransform.scale = glm::vec3(0.2f, 0.2f, 0.2f);
+	//setTransform(tempTransform);
+
+	setWorldPosition(pos);
+}
+
 AOEAttack::~AOEAttack()
 {
 
@@ -23,11 +36,25 @@ AOEAttack::~AOEAttack()
 
 const bool& AOEAttack::getHasCollided() const
 {
-	return true;
+	return m_hasCollided;
 }
 
 void AOEAttack::hasCollided()
 {
+	m_hasCollided = true;
+}
+
+bool AOEAttack::spellOnGround()
+{
+	if (m_fire)
+		return true;
+	else
+		return false;
+}
+
+void AOEAttack::setSpellBool(bool state)
+{
+	m_fire = state;
 }
 
 void AOEAttack::updateActiveSpell(float deltaTime)
@@ -43,7 +70,9 @@ void AOEAttack::updateActiveSpell(float deltaTime)
 	////updateSpellPos(getSpellPos());
 
 	setDirection(getDirection() + deltaTime * gravityVector);
-
+	
+	
+	
 	//if (getSpellPos().y >= 0)
 	//{
 	//	translate(getDirection());
@@ -69,6 +98,13 @@ void AOEAttack::updateActiveSpell(float deltaTime)
 
 void AOEAttack::updateRigidbody(float deltaTime, btRigidBody* body)
 {
+	if (m_hasCollided)
+	{
+		m_fire = true;
+		setTravelTime(0);
+
+	}
+
 	btVector3 pos2 = btVector3(
 		getDirection().x,
 		getDirection().y,
@@ -83,6 +119,12 @@ void AOEAttack::updateRigidbody(float deltaTime, btRigidBody* body)
 void AOEAttack::update(float dt)
 {
 	setTravelTime(getTravelTime() - dt);
+
+	//transform1.rotation.x += 1 + dt;
+	//transform1.rotation.y += 1 + dt;
+	////transform.rotation.z *= dt;
+
+	//setTransform(transform1);
 }
 
 const float AOEAttack::getDamage()
