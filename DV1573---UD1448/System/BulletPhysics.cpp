@@ -106,7 +106,7 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	//rigidbody is dynamic if and only if mass is non zero, otherwise static
 	bool isDynamic = (mass != 0.f);
 
-	btVector3 localInertia(0.0f, 0.0f, 0.0f);
+	btVector3 localInertia(1.0f, 1.0f, 1.0f);
 	//btVector3 localInertia(inLocalInertia.x, inLocalInertia.y, inLocalInertia.z);
 	if (isDynamic)
 		objectShape->calculateLocalInertia(mass, localInertia);
@@ -121,9 +121,9 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 
 	//how much bounce and friction a object should have
 	
-	body->setRestitution(1.0f);	
-	body->setFriction(0);
-	body->setSpinningFriction(1.0f);
+	body->setRestitution(0.1f);	
+	body->setFriction(10.0f);
+	body->setSpinningFriction(10.0f);
 
 	m_dynamicsWorld->addRigidBody(body);
 

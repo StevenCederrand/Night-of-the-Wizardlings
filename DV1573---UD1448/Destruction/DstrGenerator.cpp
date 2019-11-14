@@ -1,12 +1,11 @@
 #include <Pch/Pch.h>
 #include <Destruction/DstrGenerator.h>
 
-
 DstrGenerator::DstrGenerator()
 {
 	m_seed = 0;
-	m_breakPoints = 10;
-	m_breakAreaRadius = 1.1f;
+	m_breakPoints = 100;
+	m_breakAreaRadius = 4.1f;
 	m_randomPoints.resize(m_breakPoints);
 	initPoints();
 }
@@ -171,21 +170,21 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition)
 
 
 			object->initMesh(object->getMeshName() + "_" + std::to_string(i), m_newVertices, m_newFace);
-			object->setWorldPosition(object->getTransform(0).position,  mi);
-			//object->setWorldPosition(glm::vec3(
+			object->setTransform(object->getTransform(0),  mi);
+			//object->setWorldPosition(object->getTransform(0).position + glm::vec3(
 			//	(m_diagram.sites[i].x * 0.2f),
 			//	(m_diagram.sites[i].y * 0.2f),
 			//	0.0f),
 			//	mi);
-			//object->setWorldPosition(glm::vec3(0.0f, 5.0f, 1.0f), mi);
 			mi++;
 
 		}
 	}
 
-	object->createDynamicRigidBody(CollisionObject::box, NULL, 2.0f);
 	object->setBTWorldPosition(glm::vec3(-99.0f), 0);
-	object->setWorldPosition(glm::vec3(-99.0f), 0);
+	object->set_BtActive(false, 0);
+	object->createDynamicRigidBody(CollisionObject::box, NULL, 200.0f);
+	object->set_BtActive(false, 0);
 	object->set_destroyed(true);
 }
 

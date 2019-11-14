@@ -42,7 +42,7 @@ void SpellHandler::initAttackSpell()
 	attackBase->m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
 
 	attackBase->m_damage = 34.0f;
-	attackBase->m_speed = 170.0f;
+	attackBase->m_speed = 7.0f;
 	attackBase->m_radius = 0.25f;
 	attackBase->m_coolDown = 0.75f;
 	attackBase->m_lifeTime = 5.0f;
@@ -73,7 +73,7 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase->m_material->ambient = glm::vec3(0.85f, 0.3f, 0.2f);
 
 	enhanceAtkBase->m_damage = 34.0f;
-	enhanceAtkBase->m_speed = 180.0f;
+	enhanceAtkBase->m_speed = 5.0f;
 	enhanceAtkBase->m_radius = 0.5f;
 	enhanceAtkBase->m_coolDown = 1.0f;
 	enhanceAtkBase->m_lifeTime = 5.0f;
@@ -104,7 +104,7 @@ void SpellHandler::initFlamestrikeSpell()
 	flamestrikeBase->m_material->ambient = glm::vec3(1.0f, 0.0f, 0.5f);
 
 	flamestrikeBase->m_damage = 10;
-	flamestrikeBase->m_speed = 50;
+	flamestrikeBase->m_speed = 15.0f;
 	flamestrikeBase->m_coolDown = 1;
 	flamestrikeBase->m_lifeTime = 5;
 	flamestrikeBase->m_maxBounces = 3;
@@ -159,7 +159,7 @@ SpellHandler::~SpellHandler()
 	spellstest.clear();
 }
 
-float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SPELL_TYPE type)
+float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, OBJECT_TYPE type)
 {
 	float cooldown = 0.0f;
 	if (Client::getInstance()->getMyData().health <= 0)
@@ -551,7 +551,7 @@ void SpellHandler::REFLECTupdate(float deltaTime, int i)
 	for (size_t i = 0; i < spellList.size(); i++)
 	{
 		float hitboxRadius = 0.0f;
-		SPELL_TYPE type = spellList[i].SpellType;
+		OBJECT_TYPE type = spellList[i].SpellType;
 		switch (type)
 		{
 		case NORMALATTACK:

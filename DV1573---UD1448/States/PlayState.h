@@ -13,10 +13,9 @@
 #include <System/BulletPhysics.h>
 #include <HUD/HudObject.h>
 #include <HUD/HudHandler.h>
-#include <Destruction/DstrGenerator.h>
 
-bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
-	const btCollisionObjectWrapper* obj2, int id2, int index2);
+//bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
+//	const btCollisionObjectWrapper* obj2, int id2, int index2);
 
 class PlayState : public State {
 
@@ -25,6 +24,9 @@ public:
 	virtual ~PlayState() override;
 	virtual void update(float dt) override;
 	virtual void render() override;
+
+	static bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
+		const btCollisionObjectWrapper* obj2, int id2, int index2);
 
 private:
 	/* Callbacks */

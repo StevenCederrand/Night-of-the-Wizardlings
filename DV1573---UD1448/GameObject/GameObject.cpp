@@ -228,6 +228,12 @@ void GameObject::setTransform(Transform transform)
 	updateModelMatrix();
 }
 
+void GameObject::setTransform(Transform transform, int meshIndex)
+{
+	m_meshes[meshIndex].transform = transform;
+	updateModelMatrix();
+}
+
 void GameObject::setTransform(glm::vec3 worldPosition = glm::vec3(.0f), glm::quat worldRot = glm::quat(), glm::vec3 worldScale = glm::vec3(1.0f))
 {
 	m_transform.position = worldPosition;
@@ -251,11 +257,29 @@ void GameObject::setWorldPosition(glm::vec3 worldPosition, int meshIndex)
 
 void GameObject::setBTWorldPosition(glm::vec3 worldPosition, int meshIndex)
 {
-	btTransform newTransform;
+	btTransform newTransform = m_bodies[meshIndex]->getWorldTransform();
 	newTransform.setOrigin(btVector3(worldPosition.x, worldPosition.y, worldPosition.z));
 	m_bodies[meshIndex]->setWorldTransform(newTransform);
 	updateBulletRigids();
 	updateModelMatrix();
+}
+
+void GameObject::setBTTransform(Transform transform, int meshIndex)
+{
+	btTransform newTransform = m_bodies[meshIndex]->getWorldTransform();
+	newTransform.setOrigin(btVector3(transform.position.x, transform.position.y, transform.position.z));
+	newTransform.setRotation(btQuaternion(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w));
+	m_bodies[meshIndex]->setWorldTransform(newTransform);
+	updateBulletRigids();
+	updateModelMatrix();
+}
+
+void GameObject::set_BtActive(bool state, int meshIndex)
+{
+	if (!state)
+		m_bodies[meshIndex]->setActivationState(false);
+	else if(state)
+		m_bodies[meshIndex]->setActivationState(true);
 }
 
 void GameObject::translate(const glm::vec3& translationVector)
@@ -404,6 +428,7 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 			glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale;
 
 			m_bodies.emplace_back(m_bPhysics->createObject(shape, 0.0f, center, halfSize));
+			m_bodies.back()->setUserPointer(this);
 		}
 		else
 		{
@@ -425,6 +450,7 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 			glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale;
 
 			m_bodies.emplace_back(m_bPhysics->createObject(shape, 0.0f, center, halfSize, getTransform(i).rotation));
+			m_bodies.back()->setUserPointer(this);
 		}
 	}
 
@@ -516,7 +542,21 @@ void GameObject::updateBulletRigids()
 {
 	for (int i = 0; i < (int)m_bodies.size(); i++)
 	{
+		if (!m_bodies[i])
+			continue;
 		btVector3 rigidBodyPos = m_bodies[i]->getWorldTransform().getOrigin();
-		setWorldPosition(glm::vec3(rigidBodyPos.getX(), rigidBodyPos.getY(), rigidBodyPos.getZ()), i);
+
+		btTransform rigidBodyTransform = m_bodies[i]->getWorldTransform();
+		Transform newTransform;
+		newTransform.position.x = rigidBodyTransform.getOrigin().getX();
+		newTransform.position.y = rigidBodyTransform.getOrigin().getY();
+		newTransform.position.z = rigidBodyTransform.getOrigin().getZ();
+
+		newTransform.rotation.x = rigidBodyTransform.getRotation().getX();
+		newTransform.rotation.y = rigidBodyTransform.getRotation().getY();
+		newTransform.rotation.z = rigidBodyTransform.getRotation().getZ();
+		newTransform.rotation.w = rigidBodyTransform.getRotation().getW();
+
+		setTransform(newTransform, i);
 	}
 }

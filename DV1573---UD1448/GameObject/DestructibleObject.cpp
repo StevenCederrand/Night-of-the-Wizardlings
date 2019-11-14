@@ -1,14 +1,18 @@
 #include <Pch/Pch.h>
 #include "DestructibleObject.h"
 
-DestructibleObject::DestructibleObject()
+DestructibleObject::DestructibleObject(DstrGenerator* dstr)
 {
+	dstrRef = dstr;
+	m_type = DESTRUCTIBLE;
 	m_scale = 0;
 	m_polygonFace.reserve(4);
 }
 
-DestructibleObject::DestructibleObject(std::string name)
+DestructibleObject::DestructibleObject(std::string name, DstrGenerator* dstr)
 {
+	dstrRef = dstr;
+	m_type = DESTRUCTIBLE;
 	m_scale = 0;
 	m_polygonFace.reserve(4);
 }
@@ -26,23 +30,22 @@ void DestructibleObject::loadDestructible(std::string fileName)
 {
 	BGLoader meshLoader;	// The file loader
 	meshLoader.LoadMesh(MESHPATH + fileName);
-	if (meshLoader.GetVertexCount() > 4)
+	if (meshLoader.GetVertexCount() < 4)
 	{
-		logWarning("DSTR: Invalid destructible mesh: {0}, no support for more than 4 vertices", fileName);
+		logWarning("DSTR: Invalid destructible mesh: {0}", fileName);
 		return;
 	}
 
 	std::vector<Vertex> vertices;
 	vertices.resize(4);
-	vertices[0] = meshLoader.GetVertices()[0];
+	vertices[0] = meshLoader.GetVertices()[4];
 	vertices[0].position.z = 0.0f;
-	vertices[1] = meshLoader.GetVertices()[1];
+	vertices[1] = meshLoader.GetVertices()[2];
 	vertices[1].position.z = 0.0f;
-	vertices[2] = meshLoader.GetVertices()[2];
+	vertices[2] = meshLoader.GetVertices()[1];
 	vertices[2].position.z = 0.0f;
-	vertices[3] = meshLoader.GetVertices()[3];
+	vertices[3] = meshLoader.GetVertices()[0];
 	vertices[3].position.z = 0.0f;
-	initMesh(meshLoader.GetMeshName(), vertices, meshLoader.GetFaces());
 
 	m_polygonFace.resize(4);
 	m_polygonFace[0] = vertices[0].position;
@@ -51,6 +54,8 @@ void DestructibleObject::loadDestructible(std::string fileName)
 	m_polygonFace[3] = vertices[3].position;
 	m_scale = meshLoader.GetScale().z;
 
+	meshFromPolygon(meshLoader.GetMeshName());
+	
 	// Load material
 	Material newMaterial = meshLoader.GetMaterial();
 	std::string materialName = newMaterial.name;
@@ -93,19 +98,19 @@ void DestructibleObject::loadDestructible(std::string fileName)
 		MaterialMap::getInstance()->createMaterial(materialName, newMaterial);
 		logTrace("Material created: {0}", materialName);
 	}
-	
-	m_modelMatrixes[0] = glm::mat4(1.0);
 
+
+	setTransform(meshLoader.GetTransform());
 	meshLoader.Unload();
 }
 
 void DestructibleObject::loadBasic(std::string name)
 {
 	m_polygonFace.resize(4);
-	m_polygonFace[0] = glm::vec2(-3.0f, -2.0f);
-	m_polygonFace[1] = glm::vec2(3.0f, -2.0f);
-	m_polygonFace[2] = glm::vec2(3.0f, 2.0f);
-	m_polygonFace[3] = glm::vec2(-3.0f, 2.0f);
+	m_polygonFace[0] = glm::vec2(-5.0f, -4.0f);
+	m_polygonFace[1] = glm::vec2(4.0f, -4.0f);
+	m_polygonFace[2] = glm::vec2(4.0f, 2.0f);
+	m_polygonFace[3] = glm::vec2(-5.0f, 2.0f);
 	m_scale = 0.05f;
 
 	int count = 0;
@@ -190,19 +195,25 @@ void DestructibleObject::loadBasic(std::string name)
 
 
 	initMesh(name, newVertices, newFace);
+
 }
 
 void DestructibleObject::loadDefined(std::string name, std::vector<glm::vec2> polygon)
 {
-	if (polygon.size() > 4)
-	{
-		logWarning("DSTR: Invalid destructible mesh: {0}, no support for more than 4 vertices", name);
-		return;
-	}
 
 	m_polygonFace = polygon;
+	if (polygon.size() < 4)
+	{
+		logWarning("DSTR: Invalid destructible mesh: {0}", name);
+		return;
+	}
 	m_scale = 0.05f;
 
+	meshFromPolygon(name);
+}
+
+void DestructibleObject::meshFromPolygon(std::string name)
+{
 	int count = 0;
 	glm::vec3 normal = glm::vec3();
 
@@ -217,6 +228,8 @@ void DestructibleObject::loadDefined(std::string name, std::vector<glm::vec2> po
 	int vi = 0;
 	int ni = 0;
 	int ti = 0;
+
+	m_scale = 0.05f;
 	float scale = m_scale;
 
 	// Top
