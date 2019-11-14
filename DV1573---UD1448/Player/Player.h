@@ -30,6 +30,8 @@ public:
 	const float& getAttackCooldown() const;
 	const float& getSpecialCooldown() const;
 	const float& getDeflectCooldown() const;
+	const float& getMaxAttackCooldown() const;
+	const float& getMaxSpecialCooldown() const;
 	const float& getMana() const;
 	//-----Set-----//
 	void setPlayerPos(glm::vec3 pos);
@@ -56,9 +58,9 @@ private:
 	
 	float m_attackCooldown;
 	float m_deflectCooldown;
-	float m_special2Cooldown;
+	float m_specialCooldown;
 	float m_special3Cooldown;
-
+	float m_maxAttackCooldown, m_maxSpecialCooldown;
 	float m_spellSpeed = 1;
 	float m_speed;
 	

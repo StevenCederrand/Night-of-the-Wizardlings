@@ -70,7 +70,7 @@ void Renderer::renderHUD()
 
 			shader->setMat4("modelMatrix", hudObject->getModelMatrix());
 			shader->setFloat("alphaValue", hudObject->getAlpha());
-			shader->setInt("grayscale", hudObject->getGrayscale());
+			shader->setFloat("grayscale", hudObject->getGrayscale());
 			shader->setVec2("clip", glm::vec2(hudObject->getXClip(), hudObject->getYClip()));
 			glBindVertexArray(hudObject->getVAO());
 

@@ -21,7 +21,7 @@ public:
 	void setXClip(const float& xClip);
 	void setYClip(const float& yClip);
 	void setFillColor(const glm::vec3& color);
-	void setGrayscale(const int& grayscale);
+	void setGrayscale(const float& grayscale);
 
 	/* GET FUNCTIONS */
 	const glm::mat4& getModelMatrix() const;
@@ -32,7 +32,7 @@ public:
 	const float& getXClip() const;
 	const float& getYClip() const;
 	const glm::vec3& getFillColor() const;
-	const int& getGrayscale() const;
+	const float& getGrayscale() const;
 	const glm::quat& getRotation() const;
 
 private:
@@ -48,7 +48,7 @@ private:
 	glm::mat4 m_modelMatrix;
 	glm::vec3 m_fillColor; //For bars
 	glm::vec2 m_centerPosition; //Center position of the sprite
-	int m_grayscale;
+	float m_grayscale;
 	float m_alpha;
 	float m_xClip;	//Clip the texture uv -- Can be used for other things, but mainly for HP
 	float m_yClip;	//Clip the texture uv -- Can be used for other things, but mainly for HP

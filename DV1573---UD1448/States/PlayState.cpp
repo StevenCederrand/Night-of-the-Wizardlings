@@ -277,15 +277,16 @@ void PlayState::HUDHandler() {
 	m_hudHandler.getHudObject(BAR_MANA)->setYClip(m_player->getMana() / 100.0f);
 
 	if (m_player->getAttackCooldown() > 0) {
-		m_hudHandler.getHudObject(SPELL_ARCANE)->setGrayscale(1);
+		m_hudHandler.getHudObject(SPELL_ARCANE)->setGrayscale(m_player->getAttackCooldown() / m_player->getMaxAttackCooldown());
 	}
 	else {
 		m_hudHandler.getHudObject(SPELL_ARCANE)->setGrayscale(0);
 	}
 	
 	if (m_player->getSpecialCooldown() > 0) {
-		m_hudHandler.getHudObject(SPELL_SPECIAL)->setGrayscale(1);
-	}
+		//logTrace(std::to_string(m_player->getSpecialCooldown() / m_player->getMaxSpecialCooldown()));
+		m_hudHandler.getHudObject(SPELL_SPECIAL)->setGrayscale(m_player->getSpecialCooldown() / m_player->getMaxSpecialCooldown());
+	} 
 	else {
 		m_hudHandler.getHudObject(SPELL_SPECIAL)->setGrayscale(0);
 	}

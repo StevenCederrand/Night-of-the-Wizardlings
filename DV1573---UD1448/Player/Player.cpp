@@ -10,7 +10,7 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_speed = 18.0f;
 	m_health = 100;
 	m_attackCooldown = 0;
-	m_special2Cooldown = 0;
+	m_specialCooldown = 0;
 	m_nrOfSpells = 0;
 	m_directionVector = glm::vec3(0, 0, 0);
 	m_moveDir = glm::vec3(0.0f);
@@ -22,6 +22,8 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_specialSpellType2 = ENHANCEATTACK;
 	m_specialSpellType3 = FLAMESTRIKE;
 
+	m_maxAttackCooldown = m_spellhandler->getAttackBase()->m_coolDown;
+	m_maxSpecialCooldown = m_spellhandler->getEnhAttackBase()->m_coolDown;
 	m_bp = bp;
 	float temp = 1.0f;
 	m_character = m_bp->createCharacter(playerPosition, temp);
@@ -61,18 +63,16 @@ void Player::update(float deltaTime)
 		{
 			m_spellhandler->createSpell(m_playerPosition, m_directionVector, ENHANCEATTACK);
 			m_enhanceAttack.attacked();
-		}
+		}/*
 		if (m_enhanceAttack.isComplete()) //DONE
 		{
 			m_special2Cooldown = m_enhanceAttack.getCooldown(); // GET from enhance attack handler
-		}
+		}*/
 	}
 
-
-	/* This is unnecessary*/
 	m_attackCooldown -= deltaTime; // Cooldown reduces with time
 	m_deflectCooldown -= deltaTime; // Cooldown reduces with time
-	m_special2Cooldown -= deltaTime; // Cooldown reduces with time
+	m_specialCooldown -= deltaTime; // Cooldown reduces with time
 	m_special3Cooldown -= deltaTime; // Cooldown reduces with time
 
 	//Regenerate mana when we are not deflecting
@@ -135,9 +135,9 @@ void Player::attack()
 	{
 		if (m_attackCooldown <= 0)
 		{
+			m_attackCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_spellType); // Put attack on cooldown
 			m_spellhandler->setSpawnerDirection(m_directionVector);
 			m_spellhandler->setSpawnerPosition(m_playerPosition);
-			m_attackCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_spellType); // Put attack on cooldown
 		}
 	}
 
@@ -159,10 +159,11 @@ void Player::attack()
 
 	if (Input::isKeyHeldDown(GLFW_KEY_Q))
 	{
-		if (m_special2Cooldown <= 0)
+		if (m_specialCooldown <= 0)
 		{
 			if (m_specialSpellType2 == ENHANCEATTACK)
 			{
+				m_specialCooldown = m_spellhandler->getEnhAttackBase()->m_coolDown;
 				m_spellhandler->setSpawnerDirection(m_directionVector);
 				m_spellhandler->setSpawnerPosition(m_playerPosition);
 				// Start loop
@@ -235,12 +236,22 @@ const float& Player::getAttackCooldown() const
 
 const float& Player::getSpecialCooldown() const
 {
-	return m_special2Cooldown;
+	return m_specialCooldown;
 }
 
 const float& Player::getDeflectCooldown() const
 {
 	return m_deflectCooldown;
+}
+
+const float& Player::getMaxAttackCooldown() const
+{
+	return m_maxAttackCooldown;
+}
+
+const float& Player::getMaxSpecialCooldown() const
+{
+	return m_maxSpecialCooldown;
 }
 
 const float& Player::getMana() const
