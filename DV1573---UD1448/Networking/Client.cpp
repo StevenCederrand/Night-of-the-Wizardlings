@@ -551,7 +551,7 @@ void Client::processAndHandlePackets()
 			playerPacket.Serialize(false, bsIn);
 			m_myPlayerDataPacket.lastHitByGuid = playerPacket.lastHitByGuid;
 			m_myPlayerDataPacket.health = playerPacket.health;
-			
+
 			// I damaged myself
 			if (playerPacket.lastHitByGuid == m_myPlayerDataPacket.guid)
 			{
@@ -967,6 +967,24 @@ void Client::sendHitRequest(Spell& spell, NetworkPlayers::PlayerEntity& playerTh
 	hitPacket.SpellDirection = spell.getDirection();
 
 	m_spellsHitQueue.emplace_back(hitPacket);
+}
+
+void Client::sendHitRequest(Spell& spell, const PlayerPacket& playerThatWasHit)
+{
+	if (!m_initialized || !m_isConnectedToAnServer || m_serverState.currentState != NetGlobals::SERVER_STATE::GameInSession) return;
+
+	HitPacket hitPacket;
+	hitPacket.SpellID = spell.getUniqueID();
+	hitPacket.CreatorGUID = m_clientPeer->GetMyGUID();
+	hitPacket.playerHitGUID = playerThatWasHit.guid.rakNetGuid;
+	hitPacket.Position = spell.getTransform().position;
+	hitPacket.Rotation = spell.getTransform().rotation;
+	hitPacket.Scale = spell.getTransform().scale;
+	hitPacket.damage = spell.getDamage();
+	hitPacket.SpellDirection = spell.getDirection();
+
+	m_spellsHitQueue.emplace_back(hitPacket);
+
 }
 
 void Client::updateNetworkEntities(const float& dt)

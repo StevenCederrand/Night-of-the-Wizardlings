@@ -92,7 +92,9 @@ void Player::move(float deltaTime)
 	m_frameCount++;
 	if (m_frameCount < 5)
 		return;
+	
 	m_moveDir = glm::vec3(0.0f);
+
 	if (!m_logicStop) {
 
 		glm::vec3 lookDirection = m_directionVector;
@@ -127,7 +129,7 @@ void Player::move(float deltaTime)
 	m_character->setVelocityForTimeInterval(bulletVec, deltaTime);
 
 	btVector3 playerPos = m_character->getGhostObject()->getWorldTransform().getOrigin();
-	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY() + 2.0f, playerPos.getZ());
+	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY() + 2.5f, playerPos.getZ());
 
 	m_playerCamera->setCameraPos(m_playerPosition);
 	m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
