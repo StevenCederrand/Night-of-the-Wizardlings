@@ -118,7 +118,11 @@ void PlayState::update(float dt)
 				logWarning("[Event system] Died");
 				//Update the HP bar 
 				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(m_player->getHealth()) / 100);
-				m_lastPositionOfMyKiller = clientPtr->getLatestPlayerThatHitMe()->position;
+				const PlayerPacket* shooter = clientPtr->getLatestPlayerThatHitMe();
+				if (shooter != nullptr) {
+					m_lastPositionOfMyKiller = shooter->position;
+				}
+
 				m_camera->disableCameraMovement(true);
 				break;
 			}
