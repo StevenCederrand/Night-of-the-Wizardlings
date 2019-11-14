@@ -202,8 +202,6 @@ void Player::attack()
 	{
 		if (!m_deflecting)
 		{
-			m_specialCooldown = m_spellhandler->getReflectBase()->m_coolDown;
-			m_timeLeftInDeflectState = m_spellhandler->getReflectBase()->m_lifeTime;
 			animState.deflecting = true;
 			m_deflecting = true;
 			m_deflectCooldown = 0.5f; 
@@ -288,12 +286,13 @@ void Player::updateMesh()
 
 	Transform m_fpsTrans;
 
-	m_fpsTrans.position = getCamera()->getPosition();
-
+	//m_fpsTrans.position = m_playerCamera->getCamPos();
+	m_fpsTrans.position = glm::vec3(0.0f, 0.0f, 0.0f);
 	m_fpsTrans.rotation = glm::quat(glm::vec3(
-		glm::radians(getCamera()->getPitch()),
-		-glm::radians(getCamera()->getYaw() + 90.0f),
+		glm::radians(m_playerCamera->getPitch()),
+		-glm::radians(m_playerCamera->getYaw() + 90.0f),
 		0.0f));
+	//m_fpsTrans.scale = glm::vec3(10.0f, 10.0f, 10.0f);
 
 	m_firstPersonMesh->setTransform(m_fpsTrans);
 
