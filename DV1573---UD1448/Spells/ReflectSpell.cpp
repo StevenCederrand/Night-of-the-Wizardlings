@@ -67,7 +67,7 @@ void ReflectSpell::updateReflection(float deltaTime, btRigidBody* body, glm::vec
 bool ReflectSpell::checkReflectCollision(glm::vec3 position, glm::vec3 direction, float radius)
 {
 
-	int radiusSquared = static_cast<float>(m_spellBase->m_radius + radius);
+	int radiusSquared = static_cast<int>(m_spellBase->m_radius + radius);
 	radiusSquared *= radiusSquared;
 
 	glm::vec3 difVec = m_transform.position - position;
