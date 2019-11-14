@@ -10,7 +10,7 @@ public:
 	struct PickupProp {
 		Pickup* pickup;
 		PickupPacket packet;
-		NetGlobals::THREAD_FLAG flag = NetGlobals::THREAD_FLAG::NONE;
+		NetGlobals::THREAD_FLAG flag = NetGlobals::THREAD_FLAG::None;
 	};
 
 public:

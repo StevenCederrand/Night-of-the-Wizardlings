@@ -27,20 +27,29 @@ void NetworkPlayers::update(const float& dt)
 	for (size_t i = 0; i < m_players.size(); i++)
 	{
 		PlayerEntity& p = m_players[i];
+		AnimatedObject* animObj = nullptr;
+		if (p.flag == NetGlobals::THREAD_FLAG::Add){
 
-		if (p.flag == NetGlobals::THREAD_FLAG::ADD)
-		{
 			if (p.gameobject == nullptr) {
-				p.gameobject = new WorldObject();
-				p.gameobject->loadMesh("TestCube.mesh");
-				p.gameobject->setWorldPosition(glm::vec3(1, 0, 0));
+				p.gameobject = new AnimatedObject("asd");
+				p.gameobject->loadMesh("ANIM.mesh");
+				p.gameobject->setWorldPosition(glm::vec3(0, 0, 0));
+				animObj = dynamic_cast<AnimatedObject*>(p.gameobject);
+
+				if (animObj != nullptr)
+				{
+					animObj->initAnimations("RunAnimation", 1.0f, 21.0f);
+					animObj->initAnimations("IdleAnimation", 22.0f, 93.0f);
+					animObj->initAnimations("JumpAnimation", 0.0f, 1.0f);
+				}
+
 				//Submit the player object as a dynamic object
-				Renderer::getInstance()->submit(p.gameobject, DYNAMIC); 
+				Renderer::getInstance()->submit(p.gameobject, ANIMATEDSTATIC); 
 			}
 			p.gameobject->setWorldPosition(p.data.position);
-			p.flag = NetGlobals::THREAD_FLAG::NONE;
+			p.flag = NetGlobals::THREAD_FLAG::None;
 		}
-		else if (p.flag == NetGlobals::THREAD_FLAG::REMOVE)
+		else if (p.flag == NetGlobals::THREAD_FLAG::Remove)
 		{
 
 			Renderer::getInstance()->removeDynamic(p.gameobject, DYNAMIC);
@@ -51,6 +60,7 @@ void NetworkPlayers::update(const float& dt)
 		}
 
 		GameObject* g = p.gameobject;
+		
 		
 		if (g != nullptr) {
 			
@@ -65,6 +75,19 @@ void NetworkPlayers::update(const float& dt)
 			
 			g->setWorldPosition(pos);
 			g->setTransform(pos, glm::quat(p.data.rotation), glm::vec3(1.0f));
+
+			animObj = dynamic_cast<AnimatedObject*>(p.gameobject);
+			if (animObj != nullptr) {
+				if (p.data.animStates.running == true)
+					animObj->playLoopAnimation("RunAnimation");
+				if (p.data.animStates.idle == true)
+				{
+					animObj->playLoopAnimation("IdleAnimation");
+				}
+
+			}
+			g->update(dt);
+
 		}
 	}
 }

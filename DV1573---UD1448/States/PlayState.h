@@ -36,7 +36,7 @@ private:
 	
 	//Any inherited GameObject class added to this vector will support basic rendering
 	std::vector<GameObject*> m_objects;
-
+	AnimatedObject* m_firstPerson;
 	SpellHandler* m_spellHandler;
 	Player* m_player;
 	Camera* m_camera;
