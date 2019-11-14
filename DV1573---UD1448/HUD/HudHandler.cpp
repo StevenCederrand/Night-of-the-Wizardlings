@@ -32,7 +32,7 @@ void HudHandler::loadPlayStateHUD() {
 	insertHUDObject(hudObject, CROSSHAIR_DEFLECT);
 
 	hudObject = new HudObject("Assets/Textures/hud/DamageIndicator.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(64.0f, 64.0f));
-	hudObject->setAlpha(1.0f);	
+	hudObject->setAlpha(0.0f);	
 	insertHUDObject(hudObject, DAMAGE_INDICATOR);
 
 
@@ -83,7 +83,7 @@ void HudHandler::fadeIn() {
 	std::map<HUDID, HudObject*>::iterator it;
 
 	for (it = m_hudObjects.begin(); it != m_hudObjects.end(); it++) {
-		if (it->first == DAMAGE_OVERLAY || it->first == CROSSHAIR_HIT) {
+		if (it->first == DAMAGE_OVERLAY || it->first == CROSSHAIR_HIT || it->first == DAMAGE_INDICATOR) {
 			continue;
 		}
 		it->second->setAlpha(1.0f);

@@ -140,7 +140,7 @@ void GameObject::loadMesh(std::string fileName)
 			}
 
 			MaterialMap::getInstance()->createMaterial(materialName, tempMaterial);
-			logTrace("Material created: {0}", materialName);
+ 			logTrace("Material created: {0}", materialName);
 		}
 	}
 
@@ -294,6 +294,7 @@ void GameObject::bindMaterialToShader(Shader* shader, const int& meshIndex)
 
 void GameObject::bindMaterialToShader(Shader* shader, const std::string& materialName)
 {
+	//logWarning("Material: {0}", materialName);
 	shader->setMaterial(materialName);
 }
 void GameObject::bindMaterialToShader(Shader* shader, Material* material)

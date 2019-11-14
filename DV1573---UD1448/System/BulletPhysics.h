@@ -23,8 +23,10 @@ public:
 	void setCharacterSize(glm::vec3 halfSize);
 
 	btDiscreteDynamicsWorld* getDynamicsWorld() const;
+
+	btKinematicCharacterController* createCharacter(const glm::vec3& position, float& height);
 	btVector3 getCharacterSize() const;
-	btKinematicCharacterController* createCharacter(float& spawnHeight, float& height);
+
 	void removeObject(btRigidBody* body);
 
 	void update(float dt);

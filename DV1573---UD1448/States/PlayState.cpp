@@ -21,7 +21,9 @@ PlayState::PlayState()
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
 
 	m_camera = new Camera();
-	m_player = new Player(m_bPhysics, "Player", glm::vec3(0.0f, 12.0f, 0.0f), m_camera, m_spellHandler);
+
+	m_player = new Player(m_bPhysics, "Player", glm::vec3(10.40f, 14.5f, 8.0f), m_camera, m_spellHandler);
+
 	Renderer::getInstance()->setupCamera(m_player->getCamera());
 
 	//TODO: organized loading system?
@@ -31,17 +33,32 @@ PlayState::PlayState()
 
 	m_player->setHealth(NetGlobals::maxPlayerHealth);
 
-	m_objects.push_back(new WorldObject("internalTestmap"));
+
+	m_objects.push_back(new MapObject("internalTestmap"));
 	m_objects[m_objects.size() - 1]->loadMesh("map1.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 0.0f, -1.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+	
+	/*m_objects.push_back(new WorldObject("sphere"));
+	m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -20.0f));
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);*/
+
+	m_objects.push_back(new WorldObject("Character"));
+	m_objects[m_objects.size() - 1]->loadMesh("CharacterTest.mesh");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 1.8f, -24.0f));
+
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+
 
 	m_objects.push_back(new Deflect("playerShield"));
 	m_objects[m_objects.size() - 1]->loadMesh("ShieldMesh.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 4.0f, 0.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], SHIELD);
-	
 
+
+	
+	MaterialMap::getInstance();
 	gContactAddedCallback = callbackFunc;
 	// Geneterate bullet objects / hitboxes
 	for (size_t i = 0; i < m_objects.size(); i++)
@@ -120,24 +137,39 @@ void PlayState::update(float dt)
 			case PlayerEvents::TookDamage:
 			{
 				logWarning("[Event system] Took damage");
-				//The hit vector
-				glm::vec3 offset = glm::normalize(m_player->getCamera()->getCamFace());
-				const auto& shooterPos = Client::getInstance()->getLatestPlayerThatHitMe()->position;
-				glm::vec3 hitVector = glm::vec3(m_player->getPlayerPos().x - shooterPos.x, shooterPos.y - m_player->getPlayerPos().y, shooterPos.z - m_player->getPlayerPos().z);
+			
+				const PlayerPacket* shooter = clientPtr->getLatestPlayerThatHitMe();
+
+				if (shooter != nullptr) {
+					const glm::vec3& playerPosition = m_player->getPlayerPos();
+					const glm::vec3& shooterPosition = shooter->position;
+					const glm::vec3& playerRotation = Client::getInstance()->getMyData().rotation; // cause i don't want quaternions..
+					
+					glm::vec3 diffVec = shooterPosition - playerPosition;
+
+					float angle = (atan2f(diffVec.x, diffVec.z) * 180.00) / glm::pi<float>();
+					float playerAngle = glm::degrees(playerRotation.y);
+					float indicatorAngle = angle - playerAngle;
+
+					// Health 
+					float myNewHealth = Client::getInstance()->getMyData().health;
+					float clipPercentage = myNewHealth / 100.0f;
+
+					// Get all the involved hud objects
+					HudObject* DmgIndicator = m_hudHandler.getHudObject(DAMAGE_INDICATOR);
+					HudObject* DmgOverlay = m_hudHandler.getHudObject(DAMAGE_OVERLAY);
+					HudObject* HpBar = m_hudHandler.getHudObject(BAR_HP);
+
+					DmgIndicator->setRotation(glm::quat(glm::vec3(0, 0, glm::radians(indicatorAngle))));
+					DmgIndicator->setAlpha(1.0f);
+					DmgOverlay->setAlpha(1.0f);
+
+					HpBar->setYClip(clipPercentage);
+					m_player->setHealth(myNewHealth);
+					
+				}
+
 				
-				float cosVal = glm::dot(glm::normalize(hitVector), offset);
-				//float angle = (cosVal * 180 / 3.14);;
-				
-				glm::vec3 diffVec = offset - glm::normalize(hitVector);
-				//float angle = atan2(diffVec.z, diffVec.x) * 180.0 / 3.14;
-				//angle += 180.0f;
-				logTrace("New: " + std::to_string(cosVal));
-				
-				m_hudHandler.getHudObject(DAMAGE_INDICATOR)->setRotation(glm::quat(glm::vec3(0, 0, glm::radians(cosVal))));
-				//Update the HP bar 
-				m_player->setHealth(Client::getInstance()->getMyData().health);
-				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(m_player->getHealth()) / 100);
-				m_hudHandler.getHudObject(DAMAGE_OVERLAY)->setAlpha(1.0f);
 				break;
 			}
 
@@ -168,15 +200,6 @@ void PlayState::update(float dt)
 
 			m_lastPositionOfMyKiller = lookPos;
 		}
-	}
-	if (Input::isKeyHeldDown(GLFW_KEY_X)) {
-		m_rotVal += 0.01f;
-		m_hudHandler.getHudObject(DAMAGE_INDICATOR)->setRotation(glm::quat(glm::vec3(0, 0, m_rotVal)));
-	}
-
-	if (Input::isKeyHeldDown(GLFW_KEY_Z)) {
-		m_rotVal -= 0.01f;
-		
 	}
 
 	// Update game objects
@@ -255,7 +278,7 @@ void PlayState::onSpellHit_callback()
 void PlayState::HUDHandler() {
 	
 	//Mana bar
-	m_hudHandler.getHudObject(BAR_MANA)->setYClip(static_cast<float>(m_player->getMana()) / 100);
+	m_hudHandler.getHudObject(BAR_MANA)->setYClip(m_player->getMana() / 100.0f);
 
 	if (m_player->getAttackCooldown() > 0) {
 		m_hudHandler.getHudObject(SPELL_ARCANE)->setGrayscale(1);
@@ -294,12 +317,22 @@ void PlayState::HUDHandler() {
 	{
 		m_hudHandler.getHudObject(DAMAGE_OVERLAY)->setAlpha(m_hudHandler.getHudObject(DAMAGE_OVERLAY)->getAlpha() - DeltaTime);
 	}
+	
 	//Hitmarker
 	if (m_hudHandler.getHudObject(CROSSHAIR_HIT)->getAlpha() > 0.0f) {
 		m_hudHandler.getHudObject(CROSSHAIR_HIT)->setAlpha(m_hudHandler.getHudObject(CROSSHAIR_HIT)->getAlpha() - DeltaTime);
 
 		if (m_hudHandler.getHudObject(CROSSHAIR_HIT)->getAlpha() < 0.0f) {
 			m_hudHandler.getHudObject(CROSSHAIR_HIT)->setAlpha(0.0f);
+		}
+	}
+
+	// Damage indicator
+	if (m_hudHandler.getHudObject(DAMAGE_INDICATOR)->getAlpha() > 0.0f) {
+		m_hudHandler.getHudObject(DAMAGE_INDICATOR)->setAlpha(m_hudHandler.getHudObject(DAMAGE_INDICATOR)->getAlpha() - DeltaTime);
+
+		if (m_hudHandler.getHudObject(DAMAGE_INDICATOR)->getAlpha() < 0.0f) {
+			m_hudHandler.getHudObject(DAMAGE_INDICATOR)->setAlpha(0.0f);
 		}
 	}
 }

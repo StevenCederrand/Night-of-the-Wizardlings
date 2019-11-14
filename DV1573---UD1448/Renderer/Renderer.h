@@ -136,7 +136,6 @@ private:
 	ParticleBuffers* flamestrikePS;
 	ParticleBuffers* enhancePS;
 	ParticleBuffers* smokePS;
-	
 
 	void renderPickupNotifications();
 	//void renderHUD();
@@ -146,7 +145,6 @@ private:
 	void initShaders();
 	void bindMatrixes(const std::string& shaderName);
 	void bindMatrixes(Shader* shader);
-	
 	//BloomBlur* m_bloom;
 	//SpellHandler* m_spellHandler;
 

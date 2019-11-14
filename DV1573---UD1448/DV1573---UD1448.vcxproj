@@ -187,6 +187,7 @@
     <ClCompile Include="GameObject\AnimatedObject.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="GameObject\MapObject.cpp" />
     <ClCompile Include="Gui\GameGUI.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -290,6 +291,7 @@
     <ClInclude Include="GameObject\AnimatedObject.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="GameObject\MapObject.h" />
     <ClInclude Include="Gui\GameGUI.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -321,7 +323,6 @@
     <ClInclude Include="Player\Player.h" />
     <ClInclude Include="Renderer\PickupNotificationStructure.h" />
     <ClInclude Include="Deflect\DeflectRender.h" />
-
     <ClInclude Include="Renderer\NotificationStructure.h" />
     <ClInclude Include="Renderer\DeflectRender.h" />
     <ClInclude Include="Spells\ReflectSpell.h" />
