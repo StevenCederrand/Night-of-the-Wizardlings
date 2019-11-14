@@ -62,7 +62,7 @@ BulletPhysics::~BulletPhysics()
 	m_collisionShapes.clear();
 }
 
-btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, glm::vec3 position, glm::vec3 extend, glm::quat rotation, float friction)
+btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, glm::vec3 position, glm::vec3 extend, glm::quat rotation, bool destruction, float restitution, float friction)
 {
 	btCollisionShape* objectShape;
 	switch (object)
@@ -121,9 +121,15 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 
 	//how much bounce and friction a object should have
 	
-	body->setRestitution(1.0f);	
-	body->setFriction(0);
+	body->setRestitution(restitution);	
+	body->setFriction(friction);
 	body->setSpinningFriction(1.0f);
+	//body->setAngularFactor(btVector3(1.0f, 1.0f, 1.0f));
+
+	if (destruction)
+	{
+		destructionobj(body);
+	}
 
 	m_dynamicsWorld->addRigidBody(body);
 
@@ -197,4 +203,13 @@ void BulletPhysics::update(float dt)
 
 	// Testing deltatime based updates // JR
 	m_dynamicsWorld->stepSimulation(dt, 10, 1.0f/ 240.0f);
+}
+
+void BulletPhysics::destructionobj(btRigidBody* body)
+{
+	body->setRestitution(0.0f);
+	body->setFriction(1.0f);
+	body->setSpinningFriction(1.0f);
+	body->setAngularFactor(btVector3(1.0f, 1.0f, 1.0f));
+	body->setDamping(0.6f, 0.1f);
 }

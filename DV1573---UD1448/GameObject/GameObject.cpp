@@ -230,7 +230,7 @@ void GameObject::setTransform(Transform transform)
 
 void GameObject::setTransform(glm::vec3 worldPosition = glm::vec3(.0f), glm::quat worldRot = glm::quat(), glm::vec3 worldScale = glm::vec3(1.0f))
 {
-	m_transform.position = worldPosition;
+	//m_transform.position = worldPosition;
 	m_transform.scale = worldScale;
 	m_transform.rotation = worldRot;
 	updateModelMatrix();
@@ -461,7 +461,7 @@ void GameObject::createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp
 		glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(i).position;
 		glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale;
 
-		m_bodies.emplace_back(m_bPhysics->createObject(shape, weight, center, halfSize, getTransform(i).rotation));
+		m_bodies.emplace_back(m_bPhysics->createObject(shape, weight, center, halfSize, getTransform(i).rotation,true, 0.0f, 1.0f));
 		m_bodies.back()->setUserPointer(this);
 		m_bodies.back()->setGravity(btVector3(0.0f, -5.0f, 0.0f));
 	}
@@ -494,7 +494,7 @@ void GameObject::createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp
 	glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(meshIndex).position;
 	glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(meshIndex).scale;
 
-	m_bodies.emplace_back(m_bPhysics->createObject(shape, weight, center, halfSize, getTransform(meshIndex).rotation));
+	m_bodies.emplace_back(m_bPhysics->createObject(shape, weight, center, halfSize, getTransform(meshIndex).rotation,true, 0.0f, 1.0f));
 	m_bodies.back()->setUserPointer(this);
 	m_bodies.back()->setGravity(btVector3(0.0f, -5.0f, 0.0f));
 
@@ -516,7 +516,22 @@ void GameObject::updateBulletRigids()
 {
 	for (int i = 0; i < (int)m_bodies.size(); i++)
 	{
-		btVector3 rigidBodyPos = m_bodies[i]->getWorldTransform().getOrigin();
+		btVector3 rigidBodyPos = m_bodies[i]->getWorldTransform().getOrigin();		
+
+		btQuaternion btQ = (m_bodies[i]->getWorldTransform().getRotation());
+		glm::quat rotation = glm::quat();
+		rotation.w = btQ.getW();
+		rotation.x = btQ.getX();
+		rotation.y = btQ.getY();
+		rotation.z = btQ.getZ();
+
+		if (i!=0)
+		{
+			m_meshes[i].transform.rotation = rotation;
+			updateModelMatrix();
+		}
+
 		setWorldPosition(glm::vec3(rigidBodyPos.getX(), rigidBodyPos.getY(), rigidBodyPos.getZ()), i);
+		//setTransform(glm::vec3(rigidBodyPos.getX(), rigidBodyPos.getY(), rigidBodyPos.getZ()), rotation);
 	}
 }
