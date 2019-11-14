@@ -646,7 +646,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 		{
 			//Fetch the current mesh and its transform
 			mesh = meshMap->getMesh(object->getMeshName(j));
-
+			shader->setFloat("time", glfwGetTime());
 			//Bind the material
 			object->bindMaterialToShader(shader, mesh->getMaterial());
 

@@ -30,6 +30,7 @@ uniform vec3 Ambient_Color;
 uniform vec3 Diffuse_Color;
 uniform vec3 Specular_Color;
 uniform vec2 TexAndRim;
+uniform float time;
 
 uniform int LightCount;
 uniform sampler2D shieldTexture;
@@ -40,11 +41,18 @@ uniform P_LIGHT pLights[LIGHTS_MAX];
 vec3 calcDirLight(vec3 normal, vec3 diffuseColor);
 
 void main() {
+    vec3 pivot = vec3(0.5, -0.5, 1.);
+    vec2 p = f_UV - pivot.xy;
+    float a = atan(p.y, p.x) * 0.5;
+    float r = sqrt(dot(p,p));
+    vec2 finalUV;
+    finalUV.x = (time * -.5) - 1/(r + 1.0);
+    finalUV.y = pivot.z * a/3.1416;
 
     vec3 position = vec3(0);
     //Create the diffuse color once
     vec3 diffuse = Diffuse_Color;
-    vec4 alphaTexture = texture(shieldTexture, f_UV);
+    vec4 alphaTexture = texture(shieldTexture, finalUV);
 
     //vec3 ambientCol = (Ambient_Color + ambientStr);
     if (TexAndRim.x == 1) {
@@ -72,7 +80,7 @@ void main() {
     vec3 viewDir = normalize(cameraHolder - f_position.xyz);
     float fresnel = 1 - dot(viewDir,  f_normal);
     result += fresnel * 1;
-    color = vec4(result * 2, alphaTexture.a);
+    color = vec4(result * 2, 1.0f);
 }
 
 vec3 calcDirLight(vec3 normal, vec3 diffuseColor)
