@@ -84,10 +84,7 @@ void NetworkPlayers::update(const float& dt)
 				{
 					animObj->playLoopAnimation("IdleAnimation");
 				}
-				if (p.data.animStates.jumping == true)
-				{
-					animObj->playAnimation("JumpAnimation");
-				}
+
 			}
 			g->update(dt);
 
