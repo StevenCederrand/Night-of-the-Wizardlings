@@ -25,6 +25,7 @@ public:
 
 
 private:
+	//Transform transform1;
 	glm::vec3 gravityVector = glm::vec3(0,-1,0);
 	glm::vec3 newVer = glm::vec3(0, 0, 0);
 	glm::vec3 tempVer = glm::vec3(0, 0, 0);

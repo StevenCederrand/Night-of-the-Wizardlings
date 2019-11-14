@@ -70,7 +70,7 @@ void AOEAttack::updateActiveSpell(float deltaTime)
 	////updateSpellPos(getSpellPos());
 
 	setDirection(getDirection() + deltaTime * gravityVector);
-
+	
 	
 	
 	//if (getSpellPos().y >= 0)
@@ -119,6 +119,12 @@ void AOEAttack::updateRigidbody(float deltaTime, btRigidBody* body)
 void AOEAttack::update(float dt)
 {
 	setTravelTime(getTravelTime() - dt);
+
+	//transform1.rotation.x += 1 + dt;
+	//transform1.rotation.y += 1 + dt;
+	////transform.rotation.z *= dt;
+
+	//setTransform(transform1);
 }
 
 const float AOEAttack::getDamage()

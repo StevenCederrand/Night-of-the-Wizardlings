@@ -27,7 +27,7 @@ void SpellHandler::initAttackSpell()
 	attackBase->m_material = new Material();
 
 	BGLoader tempLoader;	// The file loader
-	tempLoader.LoadMesh(MESHPATH + "TestSphere.mesh");
+	tempLoader.LoadMesh(MESHPATH + "attackSpell.mesh");
 	attackBase->m_mesh->saveFilePath(tempLoader.GetFileName(), 0);
 	attackBase->m_mesh->nameMesh(tempLoader.GetMeshName());
 	attackBase->m_mesh->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
@@ -58,7 +58,7 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase->m_material = new Material();
 
 	BGLoader tempLoader;	// The file loader
-	tempLoader.LoadMesh(MESHPATH + "TestSphere.mesh");
+	tempLoader.LoadMesh(MESHPATH + "enhanceSpell.mesh");
 	enhanceAtkBase->m_mesh->saveFilePath(tempLoader.GetFileName(), 0);
 	enhanceAtkBase->m_mesh->nameMesh(tempLoader.GetMeshName());
 	enhanceAtkBase->m_mesh->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
@@ -89,7 +89,7 @@ void SpellHandler::initFlamestrikeSpell()
 	flamestrikeBase->m_material = new Material();
 
 	BGLoader tempLoader;	// The file loader
-	tempLoader.LoadMesh(MESHPATH + "TestSphere.mesh");
+	tempLoader.LoadMesh(MESHPATH + "dragonfirepotion.mesh");
 	flamestrikeBase->m_mesh->saveFilePath(tempLoader.GetFileName(), 0);
 	flamestrikeBase->m_mesh->nameMesh(tempLoader.GetMeshName());
 	flamestrikeBase->m_mesh->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
@@ -320,6 +320,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 		{
 			flamestrikeSpells[i]->update(deltaTime);
 			flamestrikeSpells[i]->updateRigidbody(deltaTime, m_BulletFlamestrikeSpell.at(i));
+			
 			if (static_cast<Spell*>(flamestrikeSpells[i])->getType() == FLAMESTRIKE)
 			{
 				flamestrikeUpdate(deltaTime, i);
@@ -368,7 +369,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 
 			Client::getInstance()->destroySpellOnNetwork(*fireSpells[i]);
 			delete fireSpells[i];
-			fireSpells.erase(fireSpells.begin());
+			fireSpells.erase(fireSpells.begin() + i);
 			logTrace("Deleted fireSpell");
 		}
 	}

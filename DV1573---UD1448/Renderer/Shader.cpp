@@ -270,7 +270,7 @@ void Shader::setMaterial(const std::string& materialName) {
 
 	If material names are the same
 	if (m_oldMaterial == materialName) { /* FIX THIS */
-		return;
+		//return;
 	//}*/
 	m_oldMaterial = materialName;
 
