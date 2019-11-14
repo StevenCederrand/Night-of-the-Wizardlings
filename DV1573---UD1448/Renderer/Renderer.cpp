@@ -499,11 +499,12 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	renderSkybox(m_skybox);
 	renderDeflectBox(m_deflectBox);
 	m_spellHandler->renderSpell();
+
 #ifdef DEBUG_WIREFRAME
 	// DEBUG (MOSTLY FOR DSTR)
-	if (glfwGetKey(m_camera->getWindow(), GLFW_KEY_M) == GLFW_PRESS)
+	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_M) == GLFW_PRESS)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	if (glfwGetKey(m_camera->getWindow(), GLFW_KEY_N) == GLFW_PRESS)
+	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_N) == GLFW_PRESS)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 #endif
 
@@ -723,6 +724,11 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	}
 
 #pragma endregion
+
+#ifdef DEBUG_WIREFRAME
+	// DEBUG (MOSTLY FOR DSTR)
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
 
 	//ShaderMap::getInstance()->useByName(BLUR);
 

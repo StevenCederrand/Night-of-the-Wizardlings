@@ -50,6 +50,7 @@ public:
 	//Returns mesh worldposition
 	const Transform getTransform(int meshIndex) const;
 	const Transform& getTransform(Mesh* mesh, const int& meshIndex) const;
+	const Transform getTransformMesh(int meshIndex) const;
 	const std::string& getMeshName(int meshIndex = 0) const;
 	const int getMeshesCount() const { return (int)m_meshes.size(); }
 	const glm::mat4& getMatrix(const int& i) const;

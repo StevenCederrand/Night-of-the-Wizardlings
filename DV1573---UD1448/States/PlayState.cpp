@@ -271,9 +271,9 @@ void PlayState::update(float dt)
 	// DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP
 	// DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP
 	// DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP
-	if (glfwGetKey(m_camera->getWindow(), GLFW_KEY_J) == GLFW_PRESS)
+	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_J) == GLFW_PRESS)
 		m_dstr.Destroy(static_cast<DestructibleObject*>(m_objects[m_objects.size() - 1]), glm::vec3(0.0f));
-	if (glfwGetKey(m_camera->getWindow(), GLFW_KEY_K) == GLFW_PRESS)
+	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_K) == GLFW_PRESS)
 		m_dstr.Destroy(static_cast<DestructibleObject*>(m_objects[m_objects.size() - 2]), glm::vec3(0.0f));
 
 	// DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP

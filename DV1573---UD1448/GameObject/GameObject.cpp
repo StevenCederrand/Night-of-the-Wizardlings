@@ -126,15 +126,15 @@ void GameObject::loadMesh(std::string fileName)
 				{
 					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 					glGenerateMipmap(GL_TEXTURE_2D);
+
+					tempMaterial.texture = true;
+					tempMaterial.textureID.push_back(texture);
 				}
 				else
 				{
 					std::cout << "Failed to load texture" << std::endl;
 				}
 				stbi_image_free(data);
-
-				tempMaterial.texture = true;
-				tempMaterial.textureID.push_back(texture);
 			}
 			else
 			{
