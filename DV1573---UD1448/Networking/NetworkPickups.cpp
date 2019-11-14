@@ -81,7 +81,7 @@ void NetworkPickups::setupHealthPickupRenderInformation(BGLoader* loader)
 	auto* mesh = m_healthRenderInformation.mesh;
 	auto* mat = m_healthRenderInformation.material;
 
-	loader->LoadMesh(MESHPATH + "TestSphere.mesh");
+	loader->LoadMesh(MESHPATH + "dragonfirepotion.mesh");
 	
 	mesh->saveFilePath(loader->GetFileName(), 0);
 	mesh->nameMesh(loader->GetMeshName());
@@ -109,7 +109,7 @@ void NetworkPickups::setupDamagePickupRenderInformation(BGLoader* loader)
 	auto* mesh = m_damagaRenderInformation.mesh;
 	auto* mat = m_damagaRenderInformation.material;
 
-	loader->LoadMesh(MESHPATH + "TestSphere.mesh");
+	loader->LoadMesh(MESHPATH + "dragonfirepotion.mesh");
 
 	mesh->saveFilePath(loader->GetFileName(), 0);
 	mesh->nameMesh(loader->GetMeshName());
