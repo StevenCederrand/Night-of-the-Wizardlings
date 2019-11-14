@@ -29,7 +29,7 @@ uniform vec3 CameraPosition;
 uniform vec3 Ambient_Color;
 uniform vec3 Diffuse_Color;
 uniform vec3 Specular_Color;
-uniform bool HasTex;
+uniform vec2 TexAndRim;
 
 uniform int LightCount;
 uniform sampler2D shieldTexture;
@@ -45,7 +45,7 @@ void main() {
     //Create the diffuse color once
     vec3 diffuse = Diffuse_Color;
     //vec3 ambientCol = (Ambient_Color + ambientStr);
-    if (HasTex) {
+    if (TexAndRim.x == 1) {
         //ambientCol = (Ambient_Color + ambientStr) * texture(albedoTexture, f_UV).rgb;
         diffuse *= texture(shieldTexture, f_UV).rgb;
         //diffuse = Diffuse_Color;
@@ -58,7 +58,7 @@ void main() {
 
     //result += calcDirLight(f_normal, diffuse);
     //This is a light accumilation over the point lights
-   
+
 
     //HOLDERS
     int grayHolder = grayscale;
@@ -66,7 +66,9 @@ void main() {
     int lightHolder = LightCount;
     vec3 cameraHolder = CameraPosition;
     //-------------------------
-
+    vec3 viewDir = normalize(cameraHolder - f_position.xyz);
+    float fresnel = 1 - dot(viewDir,  f_normal);
+    result += fresnel;
     color = vec4(result, 1);
 }
 

@@ -538,7 +538,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			//Fetch the current mesh and its transform
 			mesh = meshMap->getMesh(object->getMeshName(j));
 
-			//Bind the material
+			//Bind the material   
 			object->bindMaterialToShader(shader, mesh->getMaterial());
 
 			modelMatrix = glm::mat4(1.0f);
@@ -554,6 +554,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			glBindVertexArray(0);
 		}
 	}
+	shader->clearBinding();
 
 	//Dynamic objects
 	if (m_dynamicObjects.size() > 0) {
@@ -586,7 +587,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			}
 		}
 	}
-
+	shader->clearBinding();
 
 	//Pickup objects
 	if (m_pickups.size() > 0) {
@@ -602,12 +603,8 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			mesh = p->getRenderInformation().mesh;
 			//Bind the material
 			object->bindMaterialToShader(shader, p->getRenderInformation().material);
-
-			//Apply the transform to the matrix. This should actually be done automatically in the mesh!
-
-
+				
 			//Bind the modelmatrix
-			
 			glm::mat4 mMatrix = glm::mat4(1.0f);
 			mMatrix = glm::translate(mMatrix, p->getTransform().position);
 			mMatrix *= glm::mat4_cast(p->getTransform().rotation);
@@ -623,7 +620,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 
 		}
 	}
-
+	shader->clearBinding();
 #pragma endregion
 
 
@@ -662,7 +659,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			glBindVertexArray(0);
 		}
 	}
-
+	shader->clearBinding();
 #pragma endregion
 
 
@@ -848,7 +845,7 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 			meshRef = spellHandler->getAttackBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
 			shader->setMaterial(spellHandler->getAttackBase()->m_material);
-			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);	
 		}
 		else if (m_spells[i]->getType() == ENHANCEATTACK)
 		{
@@ -864,7 +861,6 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 			shader->setMaterial(spellHandler->getReflectBase()->m_material);
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 		}
-
 		else if (m_spells[i]->getType() == FLAMESTRIKE)
 		{
 			meshRef = spellHandler->getAttackBase()->m_mesh;

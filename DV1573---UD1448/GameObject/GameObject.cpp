@@ -140,7 +140,7 @@ void GameObject::loadMesh(std::string fileName)
 			}
 
 			MaterialMap::getInstance()->createMaterial(materialName, tempMaterial);
-			logTrace("Material created: {0}", materialName);
+ 			logTrace("Material created: {0}", materialName);
 		}
 	}
 
