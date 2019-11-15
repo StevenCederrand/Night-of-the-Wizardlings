@@ -291,7 +291,7 @@ void Shader::setMaterial(const std::string& materialName) {
 	{
 		setVec3("Ambient_Color", glm::vec3(0.5f));
 		setVec3("Diffuse_Color", glm::vec3(0.5f));
-		setVec2("TexAndRim", glm::vec2(false, false);
+		setVec2("TexAndRim", glm::vec2(false, false));
 	}
 }
 

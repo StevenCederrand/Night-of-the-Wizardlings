@@ -35,10 +35,10 @@ void NetworkSpells::update(const float& dt)
 					else if (e.spellData.SpellType == OBJECT_TYPE::REFLECT) {
 						e.gameobject = new ReflectSpell(e.spellData.Position);
 					}
-					else if (e.spellData.SpellType == SPELL_TYPE::FLAMESTRIKE) {
+					else if (e.spellData.SpellType == OBJECT_TYPE::FLAMESTRIKE) {
 						e.gameobject = new AOEAttack(e.spellData.Position);
 					}
-					else if (e.spellData.SpellType == SPELL_TYPE::FIRE) {
+					else if (e.spellData.SpellType == OBJECT_TYPE::FIRE) {
 						e.gameobject = new fire(e.spellData.Position);
 					}
 					else {
