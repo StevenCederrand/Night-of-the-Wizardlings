@@ -188,9 +188,7 @@ void Player::attack()
 	{
 		if (m_attackCooldown <= 0)
 		{
-			m_attackCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, NORMALATTACK); // Put attack on cooldown
-			m_spellhandler->setSpawnerDirection(m_directionVector);
-			m_spellhandler->setSpawnerPosition(m_spellSpawnPosition);
+			m_attackCooldown = m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, NORMALATTACK); // Put attack on cooldown
 			animState.casting = true;
 
 		}
@@ -224,8 +222,6 @@ void Player::attack()
 		if (m_specialCooldown <= 0)
 		{
 			m_specialCooldown = m_spellhandler->getEnhAttackBase()->m_coolDown;
-			m_spellhandler->setSpawnerDirection(m_directionVector);
-			m_spellhandler->setSpawnerPosition(m_playerPosition);
 			// Start loop
 			m_enhanceAttack.start();
 			animState.casting = true;
@@ -236,9 +232,7 @@ void Player::attack()
 	{
 		if (m_special3Cooldown <= 0)
 		{
-			m_spellhandler->setSpawnerDirection(m_directionVector);
-			m_spellhandler->setSpawnerPosition(m_playerPosition);
-			m_special3Cooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, FLAMESTRIKE); // Put attack on cooldown
+			m_special3Cooldown = m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, FLAMESTRIKE); // Put attack on cooldown
 
 			animState.casting = true;
 		}
