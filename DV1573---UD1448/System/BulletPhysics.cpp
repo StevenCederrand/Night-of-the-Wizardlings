@@ -125,10 +125,18 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	body->setFriction(friction);
 	body->setSpinningFriction(1.0f);
 	//body->setAngularFactor(btVector3(1.0f, 1.0f, 1.0f));
-
+	int myGroup = 1;
+	int collideMask = 1;
 	if (destruction)
 	{
 		destructionobj(body);
+		myGroup = 2;
+		collideMask = 1;
+	}
+	else
+	{
+		myGroup = 1;
+		collideMask = 1;
 	}
 
 	/*body->setRestitution(0.1f);	
@@ -136,7 +144,7 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	body->setSpinningFriction(10.0f);*/
 
 
-	m_dynamicsWorld->addRigidBody(body);
+	m_dynamicsWorld->addRigidBody(body,myGroup, collideMask);
 
 	return body;
 }
@@ -200,7 +208,7 @@ void BulletPhysics::update(float dt)
 	//counter to make sure that the gravity starts after 60 frames
 	if (m_counter > 15 && !m_setGravity)
 	{
-		m_character->setGravity(btVector3(0.0f, -35.0f, 0.0f));
+		//m_character->setGravity(btVector3(0.0f, -35.0f, 0.0f));
 		m_setGravity = true;
 	}
 	if (!m_setGravity)
