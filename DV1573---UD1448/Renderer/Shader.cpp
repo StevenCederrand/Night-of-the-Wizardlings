@@ -265,15 +265,13 @@ void Shader::setInt(std::string name, int num)
 void Shader::setMaterial(const std::string& materialName) {
 
 	//If material pointers are the same
-	/*if (m_oldMaterial == materialName) {
+	/*if (m_oldMaterial == materialName) { 
+		return;
+	}*/
 
-
-	If material names are the same
-	if (m_oldMaterial == materialName) { /* FIX THIS */
-		//return;
-	//}*/
-	m_oldMaterial = materialName;
-
+	if (materialName == "lambert2") {
+		m_oldMaterial = materialName;
+	}
 	Material* mat = MaterialMap::getInstance()->getMaterial(materialName);
 	setVec3("Ambient_Color", mat->ambient);
 	setVec3("Diffuse_Color", mat->diffuse);
@@ -289,9 +287,9 @@ void Shader::setMaterial(const std::string& materialName) {
 
 void Shader::setMaterial(Material* material)
 {
-	if (m_oldMaterial == material->name) { 
+	/*if (m_oldMaterial == material->name) { 
 		return;
-	}
+	}*/
 	m_oldMaterial = material->name;
 
 	setVec3("Ambient_Color", material->ambient);

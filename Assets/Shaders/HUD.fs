@@ -13,7 +13,6 @@ out vec4 pixelColor;
 
 void main()
 {
-
 	vec2 sampler = vec2(texCoords.x, 1 - texCoords.y);
 
 	if(sampler.x > clip.x)
