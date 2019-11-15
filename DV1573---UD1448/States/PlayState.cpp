@@ -15,6 +15,11 @@ void logVec3(glm::vec3 vector) {
 PlayState::PlayState()
 {
 	m_bPhysics = new BulletPhysics(-20.0f);
+	//to get the right character heigth
+	GameObject* AnimationMesh = new WorldObject("AnimationMesh");
+	AnimationMesh->loadMesh("ANIM.mesh");
+	delete AnimationMesh;
+
 	m_spellHandler = new SpellHandler(m_bPhysics);
 	m_spellHandler->setOnHitCallback(std::bind(&PlayState::onSpellHit_callback, this));
 
@@ -34,24 +39,18 @@ PlayState::PlayState()
 	m_player->setHealth(NetGlobals::PlayerMaxHealth);
 
 
-	m_objects.push_back(new MapObject("internalTestmap"));
+	m_objects.push_back(new MapObject("InternalTestmap"));
 	m_objects[m_objects.size() - 1]->loadMesh("map1.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 	
-	/*m_objects.push_back(new WorldObject("sphere"));
-	m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -20.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);*/
 
 	m_objects.push_back(new WorldObject("Character"));
 	m_objects[m_objects.size() - 1]->loadMesh("CharacterTest.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 1.8f, -24.0f));
-
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
-
-	m_objects.push_back(new Deflect("playerShield"));
+	m_objects.push_back(new Deflect("PlayerShield"));
 	m_objects[m_objects.size() - 1]->loadMesh("ShieldMesh.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 13.0f, 6.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], SHIELD);

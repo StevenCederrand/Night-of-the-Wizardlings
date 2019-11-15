@@ -18,6 +18,8 @@ SpellHandler::SpellHandler(BulletPhysics * bp)
 	initFlamestrikeSpell();
 	initReflectSpell();
 	initFireSpell();
+	
+	setCharacter(CHARACTER);
 }
 
 void SpellHandler::initAttackSpell()
@@ -501,12 +503,6 @@ void SpellHandler::spellCollisionCheck()
 		if (list[i].data.health <= 0)
 			continue;
 
-		if (!m_setcharacter)
-		{
-			auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
-			std::string meshName = list[0].gameobject->getMeshName(0);
-			setCharacter(meshName);
-		}
 		glm::vec3 playerPos = list[i].data.position;
 		
 		//create the axis and rotate them
@@ -538,9 +534,6 @@ void SpellHandler::spellCollisionCheck()
 			if (static_cast<Spell*>(spells[i])->getType() == ENHANCEATTACK) {
 				radius = enhanceAtkBase->m_radius;
 			}
-			if (m_onHitCallback != nullptr) {
-				m_onHitCallback();
-			}
 
 			//line is the walking we will do.
 			glm::vec3 line = (spellPos - lastSpellPos) / m_nrSubSteps;
@@ -561,36 +554,34 @@ void SpellHandler::spellCollisionCheck()
 					k = static_cast<size_t>(m_nrSubSteps);
 				}
 			}
+		}
 
-			for (size_t k = 0; k < fireSpells.size(); k++)
+		for (size_t k = 0; k < fireSpells.size(); k++)
+		{
+			glm::vec3 lastSpellPos = fireSpells.at(k)->getLastPosition();
+			glm::vec3 spellPos = fireSpells.at(k)->getTransform().position;
+
+			//get the radius from the spelltype
+			float radius = fireBase->m_radius;
+
+			//line is the walking we will do.
+			glm::vec3 line = (spellPos - lastSpellPos) / m_nrSubSteps;
+			glm::vec3 interpolationPos = lastSpellPos;
+
+			//walk from last pos to new pos with substeps
+			for (size_t l = 0; l < m_nrSubSteps; l++)
 			{
-				glm::vec3 lastSpellPos = fireSpells.at(k)->getLastPosition();
-				glm::vec3 spellPos = fireSpells.at(k)->getTransform().position;
-
-				//get the radius from the spelltype
-				float radius = fireBase->m_radius;
-
-				//line is the walking we will do.
-				glm::vec3 line = (spellPos - lastSpellPos) / m_nrSubSteps;
-				glm::vec3 interpolationPos = lastSpellPos;
-
-				//walk from last pos to new pos with substeps
-				for (size_t l = 0; l < m_nrSubSteps; l++)
+				interpolationPos += line;
+				if (specificSpellCollision(interpolationPos, playerPos, axis, radius))
 				{
-					interpolationPos += line;
-					if (specificSpellCollision(interpolationPos, playerPos, axis, radius))
-					{
+					Client::getInstance()->sendHitRequest(*spells[k], list[i]);
 
-						Client::getInstance()->sendHitRequest(*spells[k], list[i]);
-
-						if (m_onHitCallback != nullptr) {
-							m_onHitCallback();
-						}
-						k = m_nrSubSteps;
+					if (m_onHitCallback != nullptr) {
+						m_onHitCallback();
 					}
+					k = m_nrSubSteps;
 				}
 			}
-
 		}
 	}
 }

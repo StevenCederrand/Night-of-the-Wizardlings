@@ -528,9 +528,10 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 	glm::vec3 zAxis = glm::vec3(0.0f, 0.0f, 1.0f);
 	std::vector<glm::vec3> axis;
 
-	glm::rotateX(xAxis, target->rotation.x);
-	glm::rotateY(yAxis, target->rotation.y);
-	glm::rotateZ(zAxis, target->rotation.z);
+	glm::quat playerrot = glm::quat(target->rotation);
+	xAxis = glm::rotate(playerrot, xAxis);
+	yAxis = glm::rotate(playerrot, yAxis);
+	zAxis = glm::rotate(playerrot, zAxis);
 
 	axis.emplace_back(xAxis);
 	axis.emplace_back(yAxis);
