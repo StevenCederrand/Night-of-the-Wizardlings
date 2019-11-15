@@ -27,6 +27,7 @@ void MaterialMap::cleanUp()
 bool MaterialMap::existsWithName(std::string name)
 {
 	if (m_Material.find(name) != m_Material.end()) {
+		
 		return true;
 	}
 	return false;
@@ -56,6 +57,7 @@ Material* MaterialMap::createMaterial(std::string name, Material material)
 {
 	if (existsWithName(name))
 	{
+		logWarning("Material {0} already exists", name);
 		return nullptr;
 	}
 	Material* newMaterial = new Material();

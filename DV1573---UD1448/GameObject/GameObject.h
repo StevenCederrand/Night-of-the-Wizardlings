@@ -36,6 +36,8 @@ public:
 	void setWorldPosition(glm::vec3 worldPosition);
 	void translate(const glm::vec3& translationVector);
 	void setShouldRender(bool condition);
+	void setRestitution(float restitution);
+	void setMass(float mass);
 
 	//Get functions
 	const Transform getTransform() const;
@@ -43,6 +45,7 @@ public:
 	const Transform getTransform(int meshIndex) const;
 	const Transform& getTransform(Mesh* mesh, const int& meshIndex) const;
 	const std::string& getMeshName(int meshIndex) const;
+
 	const int getMeshesCount() const { return (int)m_meshes.size(); }
 	const glm::mat4& getMatrix(const int& i) const;
 	const int getType() const { return m_type; }
@@ -63,6 +66,8 @@ private:
 	Transform m_transform;
 	glm::vec3 m_lastPosition;
 	BulletPhysics* m_bPhysics;
+	float m_restitution = 1.0f;
+	float m_mass = 0.0f;
 
 	std::vector<btRigidBody*> m_bodies;
 	std::vector<DebugDrawer*> m_debugDrawers;

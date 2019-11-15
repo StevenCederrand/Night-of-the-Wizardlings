@@ -528,9 +528,10 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 	glm::vec3 zAxis = glm::vec3(0.0f, 0.0f, 1.0f);
 	std::vector<glm::vec3> axis;
 
-	glm::rotateX(xAxis, target->rotation.x);
-	glm::rotateY(yAxis, target->rotation.y);
-	glm::rotateZ(zAxis, target->rotation.z);
+	glm::quat playerrot = glm::quat(target->rotation);
+	xAxis = glm::rotate(playerrot, xAxis);
+	yAxis = glm::rotate(playerrot, yAxis);
+	zAxis = glm::rotate(playerrot, zAxis);
 
 	axis.emplace_back(xAxis);
 	axis.emplace_back(yAxis);
@@ -654,12 +655,12 @@ bool LocalServer::specificSpellCollision(const SpellPacket& spellPacket, const g
 
 float LocalServer::OBBsqDist(const glm::vec3& spellPosition, const std::vector<glm::vec3>& axis, const glm::vec3& playerPos) {
 
-	float boxSize = 0.5f;
 	float dist = 0.0f;
-	glm::vec3 halfSize = glm::vec3(0.5f); // change this when real character is in
-	
+	glm::vec3 halfSize = glm::vec3(2.7f, 6.0f, 0.5f); // change this when real character is in
+
 	//closest point on obb
 	glm::vec3 boxPoint = playerPos;
+	boxPoint.y += halfSize.y;
 	glm::vec3 ray = glm::vec3(spellPosition - playerPos);
 
 	for (int j = 0; j < 3; j++) {
@@ -993,7 +994,10 @@ void LocalServer::handlePickupTimer(const uint32_t& diff)
 
 void LocalServer::spawnPickup()
 {
-	if (gameAlmostFinished()) return;
+	if (gameAlmostFinished()) {
+		logTrace("[Server] Game is almost finished so no pickups will be spawned!");
+		return;
+	}
 
 
 	for (size_t i = 0; i < m_queuedPickups.size(); i++) {
@@ -1010,11 +1014,16 @@ void LocalServer::spawnPickup()
 
 void LocalServer::notifyPickup()
 {
-	if (gameAlmostFinished()) return;
-	
+	if (gameAlmostFinished()) {
+		logTrace("[Server] Game is almost finished so no pickups will be spawned!");
+		return;
+	}
 	PickupSpawnLocation* spawnLocation = getRandomPickupSpawnLocation();
 
-	if (spawnLocation == nullptr) return;
+	if (spawnLocation == nullptr) {
+		logTrace("[Server] There is no free spawn locations for pickups, so no pickup will be spawned!");
+		return;
+	}
 
 	PickupPacket pickupPacket;
 	copyCharArrayOver(pickupPacket.locationName, spawnLocation->name);
@@ -1034,8 +1043,6 @@ bool LocalServer::gameAlmostFinished()
 {
 	return m_timedRunTimer.getTimeLeft() <= 15.0f * 1000.0f;
 }
-
-
 
 void LocalServer::m_updateClientsWithServertime()
 {
@@ -1094,7 +1101,6 @@ void LocalServer::createPlayerSpawnLocations()
 
 void LocalServer::destroyPickupOverNetwork(PickupPacket& pickupPacket)
 {
-
 	RakNet::BitStream stream;
 	stream.Write((RakNet::MessageID)PICKUP_REMOVED);
 	pickupPacket.Serialize(true, stream);
@@ -1127,6 +1133,7 @@ void LocalServer::destroyAllPickups()
 	for (size_t i = 0; i < m_activePickups.size(); i++) {
 		destroyPickupOverNetwork(m_activePickups[i]);
 	}
+	m_activePickups.clear();
 }
 
 PickupType LocalServer::getRandomPickupType()
@@ -1276,7 +1283,6 @@ void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 		resetScores();
 		destroyAllPickups();
 		resetPlayerBuffs();
-		m_activePickups.clear();
 		m_queuedPickups.clear();
 		logTrace("[Server] Warmup!");
 	}
@@ -1294,6 +1300,7 @@ void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 		m_timedRunTimer.start();
 		m_timedRunTimer.forceExecute();
 
+		m_timedPickupSpawner.restart();
 		m_timedPickupSpawner.start();
 	}
 
@@ -1302,7 +1309,6 @@ void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 		respawnPlayers();
 		resetPlayerBuffs();
 		destroyAllPickups();
-		m_activePickups.clear();
 		m_queuedPickups.clear();
 		m_timedGameInEndStateTimer.restart();
 		m_timedGameInEndStateTimer.start();

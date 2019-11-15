@@ -373,6 +373,7 @@ void ParticleSystem::Render(const Camera* camera, const PSinfo* psInfo)
 	glDepthMask(GL_FALSE);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
+
 	glUniform1i(glGetUniformLocation(m_shader, "ps_texture"), 0);
 	glEnableVertexAttribArray(m_vertexPosition); //varje frame?
 	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
