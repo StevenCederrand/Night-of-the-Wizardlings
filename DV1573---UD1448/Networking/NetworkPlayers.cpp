@@ -78,12 +78,15 @@ void NetworkPlayers::update(const float& dt)
 
 			animObj = dynamic_cast<AnimatedObject*>(p.gameobject);
 			if (animObj != nullptr) {
+				if (p.data.animStates.jumping == true)
+				{
+					animObj->playAnimation("JumpAnimation");
+				}
 				if (p.data.animStates.running == true)
 					animObj->playLoopAnimation("RunAnimation");
 				if (p.data.animStates.idle == true)
-				{
 					animObj->playLoopAnimation("IdleAnimation");
-				}
+
 
 			}
 			g->update(dt);
