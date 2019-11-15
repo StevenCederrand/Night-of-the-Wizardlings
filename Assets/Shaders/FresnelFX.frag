@@ -46,7 +46,7 @@ void main() {
     float a = atan(p.y, p.x) * 0.5;
     float r = sqrt(dot(p,p));
     vec2 finalUV;
-    finalUV.x = (time * -.5) - 1/(r + 1.0);
+    finalUV.x = (time * -.5) - 1/(r + 1.7);
     finalUV.y = pivot.z * a/3.1416;
 
     vec3 position = vec3(0);
@@ -56,19 +56,10 @@ void main() {
 
     //vec3 ambientCol = (Ambient_Color + ambientStr);
     if (TexAndRim.x == 1) {
-        //ambientCol = (Ambient_Color + ambientStr) * texture(albedoTexture, f_UV).rgb;
         diffuse *= alphaTexture.rgb;
-        //diffuse = Diffuse_Color;
     }
 
     vec3 result = diffuse;
-    result += calcDirLight(f_normal, diffuse);
-
-
-
-    //result += calcDirLight(f_normal, diffuse);
-    //This is a light accumilation over the point lights
-
 
     //HOLDERS (Values that we take in but not currently use: aka CLEAN UP)
     int grayHolder = grayscale;
@@ -79,8 +70,8 @@ void main() {
 
     vec3 viewDir = normalize(cameraHolder - f_position.xyz);
     float fresnel = 1 - dot(viewDir,  f_normal);
-    result += fresnel * 1;
-    color = vec4(result * 2, 1.0f);
+    result += fresnel;
+    color = vec4(result, alphaTexture.a);
 }
 
 vec3 calcDirLight(vec3 normal, vec3 diffuseColor)

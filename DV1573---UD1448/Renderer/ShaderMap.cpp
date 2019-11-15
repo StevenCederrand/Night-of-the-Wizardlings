@@ -85,6 +85,9 @@ void ShaderMap::reload() {
 		if (it->second->getShaderNames().size() == 1) {
 			tempShader = new Shader(it->second->getShaderNames()[0]);
 		}
+		else if (it->second->getShaderNames().size() == 3) {
+			tempShader = new Shader(it->second->getShaderNames()[0], it->second->getShaderNames()[1], it->second->getShaderNames()[2]);
+		}
 		else {
 			tempShader = new Shader(it->second->getShaderNames()[0], it->second->getShaderNames()[1]);
 		}

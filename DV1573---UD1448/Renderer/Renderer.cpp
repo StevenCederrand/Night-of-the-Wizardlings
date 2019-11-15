@@ -741,52 +741,6 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	shader->clearBinding();
 #pragma endregion
 
-
-#pragma region Deflect_Render
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDisable(GL_CULL_FACE);
-	glDepthFunc(GL_LEQUAL);
-	shader = shaderMap->useByName(FRESNEL);
-	
-	//Bind view- and projection matrix
-	bindMatrixes(shader);
-
-	shader->setVec3("CameraPosition", m_camera->getCamPos());
-	//Add a step where we insert lights into the scene
-	shader->setInt("LightCount", m_spells.size());
-
-	//Render Deflect Objects
-	for (GameObject* object : m_shieldObject)
-	{
-		//Then through all of the meshes
-		for (int j = 0; j < object->getMeshesCount(); j++)
-		{
-			//Fetch the current mesh and its transform
-			mesh = meshMap->getMesh(object->getMeshName(j));
-			shader->setFloat("time", glfwGetTime());
-			//Bind the material
-			object->bindMaterialToShader(shader, mesh->getMaterial());
-
-			modelMatrix = glm::mat4(1.0f);
-
-			modelMatrix = object->getMatrix(j);
-			//Bind the modelmatrix
-			shader->setMat4("modelMatrix", modelMatrix);
-
-			glBindVertexArray(mesh->getBuffers().vao);
-
-			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
-			glBindVertexArray(0);
-		}
-	}
-	
-	shader->clearBinding();
-	glEnable(GL_CULL_FACE);
-#pragma endregion
-
-
 #pragma region Animation_Render
 	//TODO: Evaluate this implementation, should be an easier way to bind values to shaders as they're changed
 	// Possibly extract functions. Only difference in rendering is the shader and the binding of bone matrices
@@ -873,6 +827,50 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	//m_bloom->sendTextureLastPass();
 	//m_bloom->renderQuad();
 	//m_bloom->unbindTextures();
+
+#pragma region Deflect_Render
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_CULL_FACE);
+	glDepthFunc(GL_LEQUAL);
+	shader = shaderMap->useByName(FRESNEL);
+
+	//Bind view- and projection matrix
+	bindMatrixes(shader);
+
+	shader->setVec3("CameraPosition", m_camera->getCamPos());
+	//Add a step where we insert lights into the scene
+	shader->setInt("LightCount", m_spells.size());
+
+	//Render Deflect Objects
+	for (GameObject* object : m_shieldObject)
+	{
+		//Then through all of the meshes
+		for (int j = 0; j < object->getMeshesCount(); j++)
+		{
+			//Fetch the current mesh and its transform
+			mesh = meshMap->getMesh(object->getMeshName(j));
+			shader->setFloat("time", glfwGetTime());
+			//Bind the material
+			object->bindMaterialToShader(shader, mesh->getMaterial());
+
+			modelMatrix = glm::mat4(1.0f);
+
+			modelMatrix = object->getMatrix(j);
+			//Bind the modelmatrix
+			shader->setMat4("modelMatrix", modelMatrix);
+
+			glBindVertexArray(mesh->getBuffers().vao);
+
+			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+			glBindVertexArray(0);
+		}
+	}
+
+	shader->clearBinding();
+	glEnable(GL_CULL_FACE);
+#pragma endregion
 	
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
@@ -967,6 +965,7 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 		}
 
 	}
+
 }
 
 void Renderer::renderDebug()
