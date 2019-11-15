@@ -477,7 +477,7 @@ void Client::processAndHandlePackets()
 			case SPELL_TYPE::ENHANCEATTACK:
 				shPtr->setSourcePosition(se.spellData.Position, EnhanceAttackSound, se.spellData.CreatorGUID);
 				shPtr->playSound(EnhanceAttackSound, se.spellData.CreatorGUID);
-				break;
+				break;					
 			}
 			
 			se.flag = NetGlobals::THREAD_FLAG::Add;

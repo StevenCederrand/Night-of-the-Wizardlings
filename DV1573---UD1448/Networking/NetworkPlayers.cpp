@@ -63,6 +63,17 @@ void NetworkPlayers::update(const float& dt)
 			continue;
 		}
 
+		//Sound stuff
+
+		/*for (int j = 0; j < NR_OF_SUBSEQUENT_SOUNDS; j++)
+		{
+			if (shPtr->getSourceState(FireSound, p.data.guid, j) == AL_PLAYING)
+			{
+				shPtr->setSourcePosition(p.data.FireSound)
+			}
+		}*/
+		
+
 		if (p.data.inDeflectState)
 		{
 			shPtr->setSourcePosition(p.data.position, DeflectSound, p.data.guid);

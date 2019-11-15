@@ -14,13 +14,15 @@ const std::string TAKING_DAMAGE_SOUND = "TakingDamage.ogg";
 const std::string STEPS_SOUND = "FootSteps2.ogg";
 const std::string JUMP_SOUND = "Jump1.ogg";
 const std::string HITMARK_SOUND = "Hitmark.ogg";
+const std::string FIRE_SOUND = "Fire.ogg";
+const std::string GLASS_BREAK_SOUND = "GlassBreak.ogg";
 
 //Nr of sounds every player has in common.
-const int NR_OF_COMMON_SOUNDS = 5;
+const int NR_OF_COMMON_SOUNDS = 7;
 //Nr of sounds only the client will hear.
 const int NR_OF_CLIENT_SOUNDS = 4;
 //Nr of sounds in total
-const int NR_OF_SOUNDS = 9;
+const int NR_OF_SOUNDS = 11;
 //Nr of sounds from the same source that can be played subsequently
 const int NR_OF_SUBSEQUENT_SOUNDS = 3;
 
@@ -36,7 +38,9 @@ enum SoundIndexCommon {
 	DeflectSound,
 	EnhanceAttackSound,	
 	StepsSound,
-	JumpSound	
+	JumpSound,
+	FireSound,
+	GlassBreakSound
 };
 
 //Sounds only for client here:

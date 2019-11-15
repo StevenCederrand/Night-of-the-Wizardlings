@@ -153,6 +153,18 @@ void SoundHandler::loadAllSound()
 	{
 		logTrace(HITMARK_SOUND + " failed to be loaded");
 	}
+
+	success = loadSound(FireSound);
+	if (success == -1)
+	{
+		logTrace(FIRE_SOUND + " failed to be loaded");
+	}
+
+	success = loadSound(GlassBreakSound);
+	if (success == -1)
+	{
+		logTrace(GLASS_BREAK_SOUND + " failed to be loaded");
+	}
 }
 
 int SoundHandler::loadSound(SoundIndexClient whatSound)
@@ -290,6 +302,11 @@ int SoundHandler::loadSound(SoundIndexCommon whatSound)
 	case JumpSound:
 		fileName += JUMP_SOUND;
 		break;	
+	case FireSound:
+		fileName += FIRE_SOUND;
+		break;
+	case GlassBreakSound:
+		fileName += GLASS_BREAK_SOUND;
 	}
 
 	FILE* fp = 0;
@@ -400,6 +417,7 @@ void SoundHandler::setPlayerSourceGains(RakNet::AddressOrGUID guid)
 			setSourceGain(0.2, EnhanceAttackSound, m_playerSoundInfo.at(i).guid);
 			setSourceGain(0.3, JumpSound, m_playerSoundInfo.at(i).guid);
 			setSourceGain(0.3, StepsSound, m_playerSoundInfo.at(i).guid);
+			setSourceGain(0.3, FireSound, m_playerSoundInfo.at(i).guid);
 			found = true;
 		}
 	}	
@@ -493,8 +511,10 @@ void SoundHandler::playSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID p
 	{
 		if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
 		{
+			//Sounds that should be able to play over each other
 			if (whatSound == JumpSound || whatSound == BasicAttackSound ||
-				whatSound == EnhanceAttackSound)
+				whatSound == EnhanceAttackSound || whatSound == FireSound ||
+				whatSound == GlassBreakSound)
 			{
 				m_error = alGetError();
 				bool foundFreeSlot = false;
@@ -513,6 +533,7 @@ void SoundHandler::playSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID p
 					logTrace("Error playing sound");
 				}				
 			}
+			//Sounds that are not supposed to play more than one at a time
 			else if (getSourceState(whatSound, playerID) != AL_PLAYING)
 			{
 				m_error = alGetError();
