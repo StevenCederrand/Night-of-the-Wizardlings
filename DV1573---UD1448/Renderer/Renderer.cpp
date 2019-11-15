@@ -876,12 +876,14 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	shader->clearBinding();
 #pragma endregion
 
+	// Spell Rendering
+	m_spellHandler->renderSpell();
+
 #ifdef DEBUG_WIREFRAME
 	// DEBUG (MOSTLY FOR DSTR)
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 #endif
 
-	m_spellHandler->renderSpell();
 	//ShaderMap::getInstance()->useByName(BLUR);
 
 	//ShaderMap::getInstance()->getShader(BLUR)->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
