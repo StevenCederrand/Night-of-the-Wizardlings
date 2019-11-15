@@ -48,7 +48,7 @@ void SpellHandler::initAttackSpell()
 	attackBase->m_damage = 34.0f;
 	attackBase->m_speed = 100.0f;
 	attackBase->m_radius = 0.25f;
-	attackBase->m_coolDown = 0.75f;
+	attackBase->m_coolDown = 1.0f;
 	attackBase->m_lifeTime = 5.0f;
 	attackBase->m_maxBounces = 3.0f;
 }
@@ -79,7 +79,7 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase->m_damage = 34.0f;
 	enhanceAtkBase->m_speed = 100.0f;
 	enhanceAtkBase->m_radius = 0.5f;
-	enhanceAtkBase->m_coolDown = 1.0f;
+	enhanceAtkBase->m_coolDown = 3.0f;
 	enhanceAtkBase->m_lifeTime = 5.0f;
 	enhanceAtkBase->m_maxBounces = 3.0f;
 }
@@ -109,7 +109,7 @@ void SpellHandler::initFlamestrikeSpell()
 
 	flamestrikeBase->m_damage = 10;
 	flamestrikeBase->m_speed = 50;
-	flamestrikeBase->m_coolDown = 1;
+	flamestrikeBase->m_coolDown = 4.0;
 	flamestrikeBase->m_lifeTime = 5;
 	flamestrikeBase->m_maxBounces = 3;
 }
@@ -139,7 +139,7 @@ void SpellHandler::initFireSpell()
 
 	fireBase->m_damage = 10.0f;
 	fireBase->m_speed = 0.0f;
-	fireBase->m_coolDown = 1.0f;
+	fireBase->m_coolDown = 4.0f;
 	fireBase->m_lifeTime = 5.0f;
 	fireBase->m_maxBounces = 0.0f;
 }
