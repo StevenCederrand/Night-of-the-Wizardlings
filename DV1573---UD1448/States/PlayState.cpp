@@ -133,7 +133,7 @@ void PlayState::update(float dt)
 				//Update the HP bar 
 				m_player->setPlayerPos(Client::getInstance()->getMyData().latestSpawnPosition);
 				m_player->setHealth(NetGlobals::PlayerMaxHealth);
-				m_hudHandler.getHudObject(BAR_HP)->setYClip(1.0f);
+				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(m_player->getHealth()) / 100);
 				m_camera->resetCamera();
 				m_camera->disableCameraMovement(false);
 				break;
@@ -182,6 +182,7 @@ void PlayState::update(float dt)
 			{
 				logWarning("[Event system] Took a powerup");
 				m_hudHandler.getHudObject(POWERUP)->setAlpha(1.0f);
+				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(m_player->getHealth()) / 100);
 				break;
 			}
 
