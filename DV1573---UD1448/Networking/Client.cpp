@@ -1103,6 +1103,19 @@ const PlayerPacket* Client::getLatestPlayerThatHitMe() const
 	return m_latestPlayerThatHitMe;
 }
 
+const PlayerPacket* Client::findPlayerWithGuid(const RakNet::AddressOrGUID guid)
+{
+	for (size_t i = 0; i < m_connectedPlayers.size(); i++) {
+		auto& pp = m_connectedPlayers[i];
+
+		if (pp.guid == guid) {
+			return &pp;
+		}
+	}
+	logTrace("[Client] \"findPlayerWithGuid\" Could not find player with GUID: {0}", guid.ToString());
+	return nullptr;
+}
+
 const ServerStateChange& Client::getServerState() const
 {
 	return m_serverState;

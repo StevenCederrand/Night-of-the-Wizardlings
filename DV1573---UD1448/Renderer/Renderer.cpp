@@ -505,7 +505,11 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 		//Loop through all of the gameobjects
 		for (GameObject* object : m_staticObjects)
 		{
-			if (object == nullptr || !object->getShouldRender()) {
+			if (object == nullptr) {
+				continue;
+			}
+
+			if (!object->getShouldRender()) {
 				continue;
 			}
 
@@ -534,7 +538,11 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 		//TODO: Consider animation for the depth shader
 		for (GameObject* object : m_anistaticObjects)
 		{
-			if (object == nullptr || !object->getShouldRender()) {
+			if (object == nullptr) {
+				continue;
+			}
+
+			if (!object->getShouldRender()) {
 				continue;
 			}
 
@@ -561,7 +569,11 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 
 		for (GameObject* object : m_pickups)
 		{
-			if (object == nullptr || !object->getShouldRender()) {
+			if (object == nullptr) {
+				continue;
+			}
+
+			if (!object->getShouldRender()) {
 				continue;
 			}
 
@@ -662,7 +674,11 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	//Render Static objects
 	for (GameObject* object : m_staticObjects)
 	{
-		if (object == nullptr || !object->getShouldRender()) {
+		if (object == nullptr) {
+			continue;
+		}
+
+		if (!object->getShouldRender()) {
 			continue;
 		}
 
@@ -694,7 +710,11 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	if (m_dynamicObjects.size() > 0) {
 		for (GameObject* object : m_dynamicObjects)
 		{
-			if (object == nullptr || !object->getShouldRender()) {
+			if (object == nullptr) {
+				continue;
+			}
+
+			if (!object->getShouldRender()) {
 				continue;
 			}
 
@@ -727,7 +747,11 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	if (m_pickups.size() > 0) {
 		for (GameObject* object : m_pickups)
 		{
-			if (object == nullptr || !object->getShouldRender()) {
+			if (object == nullptr) {
+				continue;
+			}
+
+			if (!object->getShouldRender()) {
 				continue;
 			}
 
@@ -775,7 +799,11 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	//Render Deflect Objects
 	for (GameObject* object : m_shieldObject)
 	{
-		if (object == nullptr || !object->getShouldRender()) {
+		if (object == nullptr) {
+			continue;
+		}
+
+		if (!object->getShouldRender()) {
 			continue;
 		}
 
@@ -833,7 +861,11 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 		}
 		for (GameObject* object : m_anistaticObjects)
 		{
-			if (object == nullptr || !object->getShouldRender()) {
+			if (object == nullptr) {
+				continue;
+			}
+
+			if (!object->getShouldRender()) {
 				continue;
 			}
 
@@ -906,7 +938,6 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_CULL_FACE);
 	
-
 	renderAndAnimateNetworkingTexts();
 	renderBigNotifications();
 	renderKillFeed();
