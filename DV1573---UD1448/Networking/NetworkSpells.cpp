@@ -46,7 +46,7 @@ void NetworkSpells::update(const float& dt)
 					}
 					
 
-
+				
 				
 					e.gameobject->setWorldPosition(e.spellData.Position);
 					Renderer::getInstance()->submit(e.gameobject, SPELL);

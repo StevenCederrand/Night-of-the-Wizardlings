@@ -994,7 +994,10 @@ void LocalServer::handlePickupTimer(const uint32_t& diff)
 
 void LocalServer::spawnPickup()
 {
-	if (gameAlmostFinished()) return;
+	if (gameAlmostFinished()) {
+		logTrace("[Server] Game is almost finished so no pickups will be spawned!");
+		return;
+	}
 
 
 	for (size_t i = 0; i < m_queuedPickups.size(); i++) {
@@ -1011,11 +1014,16 @@ void LocalServer::spawnPickup()
 
 void LocalServer::notifyPickup()
 {
-	if (gameAlmostFinished()) return;
-	
+	if (gameAlmostFinished()) {
+		logTrace("[Server] Game is almost finished so no pickups will be spawned!");
+		return;
+	}
 	PickupSpawnLocation* spawnLocation = getRandomPickupSpawnLocation();
 
-	if (spawnLocation == nullptr) return;
+	if (spawnLocation == nullptr) {
+		logTrace("[Server] There is no free spawn locations for pickups, so no pickup will be spawned!");
+		return;
+	}
 
 	PickupPacket pickupPacket;
 	copyCharArrayOver(pickupPacket.locationName, spawnLocation->name);
@@ -1035,8 +1043,6 @@ bool LocalServer::gameAlmostFinished()
 {
 	return m_timedRunTimer.getTimeLeft() <= 15.0f * 1000.0f;
 }
-
-
 
 void LocalServer::m_updateClientsWithServertime()
 {
@@ -1095,7 +1101,6 @@ void LocalServer::createPlayerSpawnLocations()
 
 void LocalServer::destroyPickupOverNetwork(PickupPacket& pickupPacket)
 {
-
 	RakNet::BitStream stream;
 	stream.Write((RakNet::MessageID)PICKUP_REMOVED);
 	pickupPacket.Serialize(true, stream);
@@ -1128,6 +1133,7 @@ void LocalServer::destroyAllPickups()
 	for (size_t i = 0; i < m_activePickups.size(); i++) {
 		destroyPickupOverNetwork(m_activePickups[i]);
 	}
+	m_activePickups.clear();
 }
 
 PickupType LocalServer::getRandomPickupType()
@@ -1277,7 +1283,6 @@ void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 		resetScores();
 		destroyAllPickups();
 		resetPlayerBuffs();
-		m_activePickups.clear();
 		m_queuedPickups.clear();
 		logTrace("[Server] Warmup!");
 	}
@@ -1295,6 +1300,7 @@ void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 		m_timedRunTimer.start();
 		m_timedRunTimer.forceExecute();
 
+		m_timedPickupSpawner.restart();
 		m_timedPickupSpawner.start();
 	}
 
@@ -1303,7 +1309,6 @@ void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 		respawnPlayers();
 		resetPlayerBuffs();
 		destroyAllPickups();
-		m_activePickups.clear();
 		m_queuedPickups.clear();
 		m_timedGameInEndStateTimer.restart();
 		m_timedGameInEndStateTimer.start();
