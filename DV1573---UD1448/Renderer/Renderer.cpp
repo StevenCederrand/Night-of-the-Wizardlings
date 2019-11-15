@@ -622,10 +622,10 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	//m_bloom->bindHdrFBO();
 	renderSkybox(m_skybox);
 	renderDeflectBox(m_deflectBox);
-	//m_spellHandler->renderSpell();
 
 #pragma region Color_Render
 	shader = shaderMap->useByName(BASIC_FORWARD);
+	shader->clearBinding();
 
 	if (Client::getInstance()->getMyData().health <= 0) {
 		shader->setInt("grayscale", 1);
@@ -659,6 +659,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			shader->setFloat("pLights[" + std::to_string(i) + "].radius", P_LIGHT_RADIUS);
 		}
 	}
+
 	//Render Static objects
 	for (GameObject* object : m_staticObjects)
 	{
@@ -688,8 +689,8 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			glBindVertexArray(0);
 		}
 	}
+	
 	shader->clearBinding();
-
 	//Dynamic objects
 	if (m_dynamicObjects.size() > 0) {
 		for (GameObject* object : m_dynamicObjects)
