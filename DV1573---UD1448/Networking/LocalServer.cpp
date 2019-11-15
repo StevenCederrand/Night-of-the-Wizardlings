@@ -528,9 +528,10 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 	glm::vec3 zAxis = glm::vec3(0.0f, 0.0f, 1.0f);
 	std::vector<glm::vec3> axis;
 
-	glm::rotateX(xAxis, target->rotation.x);
-	glm::rotateY(yAxis, target->rotation.y);
-	glm::rotateZ(zAxis, target->rotation.z);
+	glm::quat playerrot = glm::quat(target->rotation);
+	xAxis = glm::rotate(playerrot, xAxis);
+	yAxis = glm::rotate(playerrot, yAxis);
+	zAxis = glm::rotate(playerrot, zAxis);
 
 	axis.emplace_back(xAxis);
 	axis.emplace_back(yAxis);
@@ -654,12 +655,12 @@ bool LocalServer::specificSpellCollision(const SpellPacket& spellPacket, const g
 
 float LocalServer::OBBsqDist(const glm::vec3& spellPosition, const std::vector<glm::vec3>& axis, const glm::vec3& playerPos) {
 
-	float boxSize = 0.5f;
 	float dist = 0.0f;
-	glm::vec3 halfSize = glm::vec3(0.5f); // change this when real character is in
-	
+	glm::vec3 halfSize = glm::vec3(2.7f, 6.0f, 0.5f); // change this when real character is in
+
 	//closest point on obb
 	glm::vec3 boxPoint = playerPos;
+	boxPoint.y += halfSize.y;
 	glm::vec3 ray = glm::vec3(spellPosition - playerPos);
 
 	for (int j = 0; j < 3; j++) {

@@ -1,4 +1,4 @@
-#include "Pch/Pch.h"
+ #include "Pch/Pch.h"
 #include "Player.h"
 #include <Networking/Client.h>
 
@@ -71,7 +71,7 @@ void Player::update(float deltaTime)
 		m_enhanceAttack.update(deltaTime);	
 		if (m_enhanceAttack.canAttack()) //CAN ATTACK
 		{
-			m_spellhandler->createSpell(m_playerPosition, m_directionVector, ENHANCEATTACK);
+			m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, ENHANCEATTACK);
 			m_enhanceAttack.attacked();
 		}
 	}
@@ -81,9 +81,6 @@ void Player::update(float deltaTime)
 	m_specialCooldown -= deltaTime; // Cooldown reduces with time
 	m_special3Cooldown -= deltaTime; // Cooldown reduces with time
 	
-
-
-
 	//Regenerate mana when we are not deflecting
 	if (!m_rMouse && m_mana <= 100 && m_deflectCooldown <= 0) {
 		m_mana += 0.1f;
@@ -135,10 +132,21 @@ void Player::move(float deltaTime)
 
 	m_character->setVelocityForTimeInterval(bulletVec, deltaTime);
 
+	//set playerpos from bullet character
 	btVector3 playerPos = m_character->getGhostObject()->getWorldTransform().getOrigin();
-	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY() + 2.5f, playerPos.getZ());
+	float characterHalfSize = m_bp->getCharacterSize().getY();
 
-	m_playerCamera->setCameraPos(m_playerPosition);
+	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY()-1.0f, playerPos.getZ());
+	//m_playerPosition.y -= characterHalfSize;
+
+	//set cameraPos and spellSpawnPos 
+	m_cameraPosition = m_playerPosition;
+	m_cameraPosition.y += characterHalfSize + characterHalfSize*0.85f;
+	m_spellSpawnPosition = m_playerPosition;
+	m_spellSpawnPosition.y += (2 * characterHalfSize) * 0.85f;
+
+
+	m_playerCamera->setCameraPos(m_cameraPosition);
 	m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
 }
 
@@ -182,8 +190,9 @@ void Player::attack()
 		{
 			m_attackCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, NORMALATTACK); // Put attack on cooldown
 			m_spellhandler->setSpawnerDirection(m_directionVector);
-			m_spellhandler->setSpawnerPosition(m_playerPosition);
+			m_spellhandler->setSpawnerPosition(m_spellSpawnPosition);
 			animState.casting = true;
+
 		}
 	}
 
@@ -230,6 +239,7 @@ void Player::attack()
 			m_spellhandler->setSpawnerDirection(m_directionVector);
 			m_spellhandler->setSpawnerPosition(m_playerPosition);
 			m_special3Cooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, FLAMESTRIKE); // Put attack on cooldown
+
 			animState.casting = true;
 		}
 	}
