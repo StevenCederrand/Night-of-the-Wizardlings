@@ -588,11 +588,14 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 			logTrace("[Server] Assigned spawn position: {0}, {1}, {2}", target->latestSpawnPosition.x, target->latestSpawnPosition.y, target->latestSpawnPosition.z);
 
 			// Update the shooters score
-			shooter->numberOfKills++;
-			RakNet::BitStream shooterPacketStream;
-			shooterPacketStream.Write((RakNet::MessageID)SCORE_UPDATE);
-			shooter->Serialize(true, shooterPacketStream);
-			m_serverPeer->Send(&shooterPacketStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, shooter->guid, false);
+			if (shooter->guid.rakNetGuid != target->guid.rakNetGuid) {
+
+				shooter->numberOfKills++;
+				RakNet::BitStream shooterPacketStream;
+				shooterPacketStream.Write((RakNet::MessageID)SCORE_UPDATE);
+				shooter->Serialize(true, shooterPacketStream);
+				m_serverPeer->Send(&shooterPacketStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, shooter->guid, false);
+			}
 
 			// Send the kill feed information
 			RakNet::BitStream killFeedStream;

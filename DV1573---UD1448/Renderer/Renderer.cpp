@@ -665,6 +665,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 		if (object == nullptr || !object->getShouldRender()) {
 			continue;
 		}
+
 		//Then through all of the meshes
 		for (int j = 0; j < object->getMeshesCount(); j++)
 		{
@@ -774,6 +775,10 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	//Render Deflect Objects
 	for (GameObject* object : m_shieldObject)
 	{
+		if (object == nullptr || !object->getShouldRender()) {
+			continue;
+		}
+
 		//Then through all of the meshes
 		for (int j = 0; j < object->getMeshesCount(); j++)
 		{
@@ -828,6 +833,10 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 		}
 		for (GameObject* object : m_anistaticObjects)
 		{
+			if (object == nullptr || !object->getShouldRender()) {
+				continue;
+			}
+
 			//Then through all of the meshes
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
