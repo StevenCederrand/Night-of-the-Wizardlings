@@ -61,6 +61,9 @@
     <ClCompile Include="GameObject\DestructibleObject.cpp" />
     <ClCompile Include="Deflect\DeflectRender.cpp" />
     <ClCompile Include="Deflect\Deflect.cpp" />
+    <ClCompile Include="Particles\Particles.cpp" />
+    <ClCompile Include="Particles\ParticleBuffers.cpp" />
+    <ClCompile Include="GameObject\MapObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
@@ -134,6 +137,10 @@
     <ClInclude Include="GameObject\DestructibleObject.h" />
     <ClInclude Include="Deflect\Deflect.h" />
     <ClInclude Include="System\Helper.h" />
+    <ClInclude Include="Particles\Particles.h" />
+    <ClInclude Include="Particles\ParticleBuffers.h" />
+    <ClInclude Include="Deflect\Deflect.h" />
+    <ClInclude Include="System\Helper.h" />
     <ClInclude Include="HUD\HudObject.h" />
     <ClInclude Include="HUD\HudTextureMap.h" />
     <ClInclude Include="HUD\HudHandler.h" />
@@ -146,6 +153,7 @@
     <ClInclude Include="Renderer\DeflectRender.h" />
     <ClInclude Include="Networking\PlayerEvents.h" />
     <ClInclude Include="Renderer\NotificationStructure.h" />
+    <ClInclude Include="GameObject\MapObject.h" />
     <ClInclude Include="GameObject\ObjectTypes.h" />
   </ItemGroup>
   <ItemGroup>

@@ -44,11 +44,8 @@ void HudObject::setFillColor(const glm::vec3& color)
 	m_fillColor = color;
 }
 
-void HudObject::setGrayscale(const int& grayscale)
+void HudObject::setGrayscale(const float& grayscale)
 {
-	if (grayscale == m_grayscale) { //if we are trying to set something to the same value
-		return;
-	}
 	m_grayscale = grayscale;
 }
 
@@ -114,7 +111,7 @@ const glm::vec3& HudObject::getFillColor() const {
 	return m_fillColor;
 }
 
-const int& HudObject::getGrayscale() const
+const float& HudObject::getGrayscale() const
 {
 	return m_grayscale;
 }
@@ -155,7 +152,7 @@ void HudObject::loadTexture(const std::string& texturePath)
 
 	// load and generate the texture
 	int width, height, nrChannels;
-	unsigned char* data = stbi_load(texturePath.c_str(), &width, &height, &nrChannels, NULL);
+	unsigned char* data = stbi_load(texturePath.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
 	if (data)
 	{
 		GLenum format = {};

@@ -9,6 +9,8 @@ public:
 	Shader* createShader(std::string name, std::string vsName, std::string fsName);
 	//@ csName enter just the name of the compute shader
 	Shader* createShader(std::string name, std::string csName);
+	//gs for particles
+	Shader* createShader(std::string name, std::string vsName, std::string gsName, std::string fsName);
 
 	Shader* getShader(std::string name);
 	void cleanUp();

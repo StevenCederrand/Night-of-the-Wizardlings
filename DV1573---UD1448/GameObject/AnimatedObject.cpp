@@ -22,13 +22,37 @@ AnimatedObject::~AnimatedObject()
 
 void AnimatedObject::update(float dt)
 {
+
+
 	// Update animation time
-	currentTime += dt;
+	if (isLooping)
+	{
+		if (currentTime <= m_stopTime)
+		{
+			currentTime += dt;
+		}
+		else
+		{
+			currentTime = m_startTime;
+		}
+	}
+	else
+	{
+		if (currentTime <= m_stopTime)
+		{
+			currentTime += dt;
+		}
+		if (currentTime >= m_stopTime)
+		{
+			isDone = true;
+		}
+	}
+
 
 	// Basic animation update for testing
 	// TODO: Only update 1 animation, Choose animation to update
 	// Should come naturally with specific animation implementation
-
+	
 	// (DEBUG) This loop temporarily updates all the animations for all the meshes based on time,
 	// looping with the shortest animation and always replacing the pallete.
 	for (size_t i = 0; i < m_meshes.size(); i++)
@@ -40,6 +64,7 @@ void AnimatedObject::update(float dt)
 			ComputeMatrix((int)i, m_meshes[i].name, animName);
 		}
 	}
+
 }
 
 //TODO: Optimize if laggy, possibly move to GPU
@@ -53,7 +78,7 @@ void AnimatedObject::ComputeMatrix(int meshId, std::string meshn, std::string an
 
 	// time must be less than duration. Also resets animation.
 	if (currentTime > anim.duration)
-		currentTime = 0;
+		return;
 
 	// keyframes involved.
 	int k1 = (int)(currentTime * anim.rate);
@@ -121,4 +146,54 @@ void AnimatedObject::BindAnimation(int meshId)
 	glUniformBlockBinding(aniShader, boneDataIndex, 1);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 1, boneBuffer);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(BonePalleteBuffer), &bonePallete, GL_STATIC_DRAW);
+}
+
+
+void AnimatedObject::initAnimations(std::string name, float startTime, float stopTime)
+{
+	frameAnimation tempAnimation;
+	tempAnimation.m_name = name;
+	tempAnimation.m_startTime = startTime;
+	tempAnimation.m_stopTime = stopTime;
+	animations.push_back(tempAnimation);
+}
+
+void AnimatedObject::playAnimation(std::string name)
+{
+	isDone = false;
+	currentAnimation = name;
+
+	tempTime = currentTime;
+	isLooping = false;
+	for (int i = 0; i < animations.size(); i++)
+	{
+		if (animations[i].m_name == name)
+		{
+			m_startTime = animations[i].m_startTime/ animations[i].m_animSpeed;
+			m_stopTime = animations[i].m_stopTime/ animations[i].m_animSpeed;
+		}
+	}
+	currentTime = m_startTime;
+}
+
+void AnimatedObject::playLoopAnimation(std::string name)
+{
+	if (currentAnimation == name || isDone == false)
+	{
+		return;
+	}
+	currentAnimation = name;
+	isDone = true;
+
+	isLooping = true;
+
+	for (int i = 0; i < animations.size(); i++)
+	{
+		if (animations[i].m_name == name)
+		{
+			m_startTime = animations[i].m_startTime / animations[i].m_animSpeed;
+			m_stopTime = animations[i].m_stopTime / animations[i].m_animSpeed;
+		}
+	}
+	currentTime = m_startTime;
 }

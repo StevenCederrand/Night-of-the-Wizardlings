@@ -15,6 +15,7 @@ GameObject::GameObject(std::string objectName)
 	m_objectName = objectName;
 	m_type = 0;
 	m_bPhysics = nullptr;
+	m_shouldRender = true;
 }
 
 GameObject::~GameObject()
@@ -124,7 +125,7 @@ void GameObject::loadMesh(std::string fileName)
 				unsigned char* data = stbi_load(albedoFile.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
 				if (data)
 				{
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 					glGenerateMipmap(GL_TEXTURE_2D);
 
 					tempMaterial.texture = true;
@@ -142,7 +143,7 @@ void GameObject::loadMesh(std::string fileName)
 			}
 
 			MaterialMap::getInstance()->createMaterial(materialName, tempMaterial);
-			logTrace("Material created: {0}", materialName);
+ 			logTrace("Material created: {0}", materialName);
 		}
 	}
 

@@ -20,7 +20,7 @@ public:
 
 private:
 	struct Respawner {
-		uint32_t currentTime = NetGlobals::timeUntilRespawnMS;
+		uint32_t currentTime = NetGlobals::TimeBeforeRespawnMS;
 		PlayerPacket* player;
 	};
 
@@ -31,7 +31,7 @@ private:
 
 	struct BuffedPlayer {
 		PlayerPacket* player;
-		uint32_t currentTime = NetGlobals::damageBuffActiveTimeMS;
+		uint32_t currentTime = NetGlobals::DamageBuffActiveTimeMS;
 	};
 
 private:
@@ -76,7 +76,6 @@ private:
 	void notifyPickup();
 	bool gameAlmostFinished();
 
-	void removeUnusedObjects_routine();
 	void m_updateClientsWithServertime();
 	void resetServerData();
 
@@ -107,7 +106,6 @@ private:
 	TimedCallback m_timedRunTimer;
 	TimedCallback m_timedCountdownTimer;
 	TimedCallback m_timedGameInEndStateTimer;
-	TimedCallback m_timedUnusedObjectRemoval;
 	TimedCallback m_timedPickupSpawner;
 	TimedCallback m_updateClientsWithServertimeTimer;;
 
