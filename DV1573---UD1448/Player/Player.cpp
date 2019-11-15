@@ -245,16 +245,13 @@ void Player::attack()
 
 	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_RIGHT))
 	{
-		if (!m_deflecting)
-		{			
-			shPtr->playSound(DeflectSound, m_client->getMyData().guid);		
-			
 
 		//Actually deflecting
 		if (m_mana > 10) {
 			if (!m_deflecting) {
 				animState.deflecting = true; //Play the animation once
 				m_mana -= 10; //This is the initial manacost for the deflect
+				shPtr->playSound(DeflectSound, m_client->getMyData().guid);
 			}
 			m_mana -= 1;
 			m_deflecting = true;
