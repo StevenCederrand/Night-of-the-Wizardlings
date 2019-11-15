@@ -218,15 +218,10 @@ void BGLoader::BGFormatData()
 	{
 		// Material
 		bggMaterials[i].name = (std::string)material[i].name;
-		bggMaterials[i].ambient = glm::vec3(*material[i].ambient);
-		bggMaterials[i].diffuse = glm::vec3(*material[i].diffuse);
-		bggMaterials[i].specular = glm::vec3(*material[i].specular);
-		bggMaterials[i].ambient = glm::vec3(*material[i].ambient);
+		bggMaterials[i].ambient = glm::make_vec3(material[i].ambient);
+		bggMaterials[i].diffuse = glm::make_vec3(material[i].diffuse);
+		bggMaterials[i].specular = glm::make_vec3(material[i].specular);
 	}
-
-
-	
-
 }
 
 bool BGLoader::LoadMesh(std::string file)

@@ -19,9 +19,10 @@ in vec4 f_position;
 out vec4 color;
 out vec4 brightColor;
 
-vec3 GLOBAL_lightDirection = vec3(0.2f, -0.7f, 0.0f);
-vec3 GLOBAL_lightColor = normalize(vec3(109, 196, 199));
-float ambientStr = 0.3f;
+vec3 GLOBAL_lightDirection = vec3(0.2f, -0.7f, 0.4f);
+//vec3 GLOBAL_lightColor = normalize(vec3(109, 196, 199));  // CHANGED
+vec3 GLOBAL_lightColor = normalize(vec3(1, 1, 1));  
+float ambientStr = 0.2f;
 
 uniform vec3 CameraPosition;
 
@@ -44,17 +45,18 @@ vec3 grayscaleColour(vec3 col);
 
 void main() {
 
-    vec3 ambientCol = (Ambient_Color + ambientStr);
+    vec3 ambientCol = (Ambient_Color + ambientStr);   // CHANGED
+    ambientCol = (Diffuse_Color * ambientStr);
+    
     if (TexAndRim.x == 1) {
-        ambientCol = (Ambient_Color + ambientStr) * texture(albedoTexture, f_UV).rgb;
+        ambientCol = ambientStr * texture(albedoTexture, f_UV).rgb * 0.5f;
     }
     //vec3 position = vec3(0);
     vec3 result = ambientCol;
     //Create the diffuse color once
     vec3 diffuse = Diffuse_Color;
-
     if(TexAndRim.x == 1) {
-        diffuse = (Diffuse_Color * texture(albedoTexture, f_UV).rgb);
+        diffuse = texture(albedoTexture, f_UV).rgb * 0.5;
     }
 
     result += calcDirLight(f_normal, diffuse);
@@ -89,22 +91,34 @@ vec3 calcPointLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance)
     vec3 lightDir = normalize(pLight.position - position); //From the surface to the light
     float diff = max(dot(normal, lightDir), 0);
     vec3 ambient = vec3(0.1f) * pLight.color * ambientStr;
-    vec3 diffuse = Diffuse_Color * diff;
+    vec3 diffuse = Diffuse_Color * diff * normalize(pLight.color); 
 
     if(TexAndRim.x == 1) {
-        diffuse = (Diffuse_Color * texture(albedoTexture, f_UV).rgb) * diff * normalize(pLight.color);
+        diffuse = texture(albedoTexture, f_UV).rgb * diff * normalize(pLight.color);
     }
 
     return ( diffuse);// * attenuation;
 }
 vec3 calcDirLight(vec3 normal, vec3 diffuseColor) {
     /* --- DIFFUSE SHADING --- */
-    float lightStr = 0.5f;
+    float lightStr = 0.61f;
     vec3 lightDir = normalize(-GLOBAL_lightDirection);
     float nDotL = dot(normal, lightDir);
 
     float diff = smoothstep(0.0, 0.01, (max(dot(normal, lightDir), 0.0)));
-    diffuseColor = (Diffuse_Color * texture(albedoTexture, f_UV).rgb) * diff * lightStr * GLOBAL_lightColor;
+
+    vec3 newDiffuse = diffuseColor;
+    //if(TexAndRim.x == 1) 
+    //    newDiffuse = texture(albedoTexture, f_UV).rgb;
+    
+    float f = 0.2; // desaturate by %
+    float L = 0.3 * newDiffuse.r + 0.6 * newDiffuse.g + 0.1 * newDiffuse.b;
+    float new_r = newDiffuse.r + f * (L - newDiffuse.r);
+    float new_g = newDiffuse.g + f * (L - newDiffuse.g);
+    float new_b = newDiffuse.b + f * (L - newDiffuse.b);
+    newDiffuse = vec3(new_r, new_g, new_b);
+
+    diffuseColor = newDiffuse * (max(dot(normal, lightDir), 0.0)) * lightStr * GLOBAL_lightColor;
     /* --- SPECULAR SHADING --- */
     float specularStr = 0.5f;
 

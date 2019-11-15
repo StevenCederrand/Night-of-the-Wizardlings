@@ -9,8 +9,8 @@ public:
 	DstrGenerator();
 	~DstrGenerator();
 
-	void initPoints(glm::vec2 position = glm::vec3(), int amount = 0);
-	void offsetPoints(glm::vec2 position = glm::vec3());
+	void initPoints(glm::vec2 position = glm::vec2(), int amount = 0);
+	void offsetPoints(glm::vec2 position = glm::vec2());
 
 	void Destroy(DestructibleObject* object, glm::vec2 hitPosition);
 

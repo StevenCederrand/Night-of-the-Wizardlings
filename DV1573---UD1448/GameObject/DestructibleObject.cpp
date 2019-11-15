@@ -52,7 +52,7 @@ void DestructibleObject::loadDestructible(std::string fileName)
 	m_polygonFace[1] = vertices[1].position;
 	m_polygonFace[2] = vertices[2].position;
 	m_polygonFace[3] = vertices[3].position;
-	m_scale = meshLoader.GetScale().z;
+	m_scale = meshLoader.GetScale().z; 
 
 	meshFromPolygon(meshLoader.GetMeshName());
 	

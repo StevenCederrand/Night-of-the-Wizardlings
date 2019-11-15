@@ -256,6 +256,16 @@ void GameObject::setWorldPosition(glm::vec3 worldPosition, int meshIndex)
 	updateModelMatrix();
 }
 
+void GameObject::offsetMesh(glm::vec3 position, int meshIndex)
+{
+	Mesh* mesh = nullptr;
+	if (m_meshes.size() > 0)
+		mesh = MeshMap::getInstance()->getMesh(m_meshes[meshIndex].name);
+
+	mesh->setPos(position);
+	updateModelMatrix();
+}
+
 void GameObject::setBTWorldPosition(glm::vec3 worldPosition, int meshIndex)
 {
 	btTransform newTransform = m_bodies[meshIndex]->getWorldTransform();
@@ -296,17 +306,17 @@ void GameObject::setShouldRender(bool condition)
 
 const Transform GameObject::getTransform() const
 {
-	Mesh* mesh = nullptr;
-	if (m_meshes.size() > 0)
-		mesh = MeshMap::getInstance()->getMesh(m_meshes[0].name);
+	//Mesh* mesh = nullptr;
+	//if (m_meshes.size() > 0)
+	//	mesh = MeshMap::getInstance()->getMesh(m_meshes[0].name);
 	
 	// Adds the inherited transforms together to get the world position of a mesh
 	Transform world_transform;
-	if (mesh)
+	if (m_meshes.size() > 0)
 	{
-		world_transform.position = m_transform.position + m_meshes[0].transform.position + mesh->getTransform().position;
-		world_transform.rotation = m_transform.rotation * m_meshes[0].transform.rotation *  mesh->getTransform().rotation;
-		world_transform.scale = m_transform.scale * m_meshes[0].transform.scale * mesh->getTransform().scale;
+		world_transform.position = m_transform.position + m_meshes[0].transform.position;
+		world_transform.rotation = m_transform.rotation * m_meshes[0].transform.rotation;
+		world_transform.scale = m_transform.scale * m_meshes[0].transform.scale;
 	}
 	else
 	{
@@ -320,13 +330,13 @@ const Transform GameObject::getTransform() const
 
 const Transform GameObject::getTransform(int meshIndex) const
 {
-	Mesh* mesh = MeshMap::getInstance()->getMesh(m_meshes[meshIndex].name); //This costs a lot
+	//Mesh* mesh = MeshMap::getInstance()->getMesh(m_meshes[meshIndex].name); //This costs a lot //True we get rid off
 
 	// Adds the inherited transforms together to get the world position of a mesh
 	Transform world_transform;
-	world_transform.position = m_transform.position + m_meshes[meshIndex].transform.position + mesh->getTransform().position;
-	world_transform.rotation = m_transform.rotation * m_meshes[meshIndex].transform.rotation * mesh->getTransform().rotation;
-	world_transform.scale = m_transform.scale * m_meshes[meshIndex].transform.scale * mesh->getTransform().scale;
+	world_transform.position = m_transform.position + m_meshes[meshIndex].transform.position;
+	world_transform.rotation = m_transform.rotation * m_meshes[meshIndex].transform.rotation;
+	world_transform.scale = m_transform.scale * m_meshes[meshIndex].transform.scale;
 
 	return world_transform;
 }
@@ -353,6 +363,29 @@ const Transform GameObject::getTransformMesh(int meshIndex) const
 	world_transform.scale = m_meshes[meshIndex].transform.scale * mesh->getTransform().scale;
 
 	return world_transform;
+}
+
+const Transform GameObject::getTransformRigid(int meshIndex) const
+{
+	if (!m_bodies[meshIndex])
+		Transform newTransform;
+
+	btVector3 rigidBodyPos = m_bodies[meshIndex]->getWorldTransform().getOrigin();
+
+	btTransform rigidBodyTransform = m_bodies[meshIndex]->getWorldTransform();
+	Transform newTransform;
+	newTransform.position.x = rigidBodyTransform.getOrigin().getX();
+	newTransform.position.y = rigidBodyTransform.getOrigin().getY();
+	newTransform.position.z = rigidBodyTransform.getOrigin().getZ();
+
+	newTransform.rotation.x = rigidBodyTransform.getRotation().getX();
+	newTransform.rotation.y = rigidBodyTransform.getRotation().getY();
+	newTransform.rotation.z = rigidBodyTransform.getRotation().getZ();
+	newTransform.rotation.w = rigidBodyTransform.getRotation().getW();
+
+	newTransform.scale = getTransformMesh(meshIndex).scale;
+
+	return newTransform;
 }
 
 const std::string& GameObject::getMeshName(int meshIndex) const
@@ -430,6 +463,7 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 
 			m_bodies.emplace_back(m_bPhysics->createObject(shape, 0.0f, center, halfSize));
 			m_bodies.back()->setUserPointer(this);
+			setTransformFromRigid(i);
 		}
 		else
 		{
@@ -452,6 +486,7 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 
 			m_bodies.emplace_back(m_bPhysics->createObject(shape, 0.0f, center, halfSize, getTransform(i).rotation));
 			m_bodies.back()->setUserPointer(this);
+			setTransformFromRigid(i);
 		}
 	}
 
@@ -490,14 +525,15 @@ void GameObject::createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp
 
 		m_bodies.emplace_back(m_bPhysics->createObject(shape, weight, center, halfSize, getTransform(i).rotation));
 		m_bodies.back()->setUserPointer(this);
-		m_bodies.back()->setGravity(btVector3(0.0f, -5.0f, 0.0f));
+		m_bodies.back()->setGravity(btVector3(0.0f, -20.0f, 0.0f));
+		setTransformFromRigid(i);
 	}
 
 	m_transform.position = glm::vec3(0.0f);
 	m_transform.rotation = glm::quat();
 }
 
-void GameObject::createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp, float weight, int meshIndex)
+void GameObject::createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp, float weight, int meshIndex, bool recenter)
 {
 	if (!m_bPhysics)
 		m_bPhysics = bp;
@@ -509,24 +545,32 @@ void GameObject::createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp
 
 	for (size_t i = 1; i < vertices.size(); i++)
 	{
-		min.x = fminf(vertices[meshIndex].position.x, min.x);
-		min.y = fminf(vertices[meshIndex].position.y, min.y);
-		min.z = fminf(vertices[meshIndex].position.z, min.z);
+		min.x = fminf(vertices[i].position.x, min.x);
+		min.y = fminf(vertices[i].position.y, min.y);
+		min.z = fminf(vertices[i].position.z, min.z);
 
-		max.x = fmaxf(vertices[meshIndex].position.x, max.x);
-		max.y = fmaxf(vertices[meshIndex].position.y, max.y);
-		max.z = fmaxf(vertices[meshIndex].position.z, max.z);
+		max.x = fmaxf(vertices[i].position.x, max.x);
+		max.y = fmaxf(vertices[i].position.y, max.y);
+		max.z = fmaxf(vertices[i].position.z, max.z);
 	}
 
-	glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(meshIndex).position;
+	glm::vec3 center = getTransform(meshIndex).position;
+	if (!recenter)
+		glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(meshIndex).position;
+
+
 	glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(meshIndex).scale;
+
+	//offsetMesh(getTransform(meshIndex).position - center, meshIndex);
 
 	m_bodies.emplace_back(m_bPhysics->createObject(shape, weight, center, halfSize, getTransform(meshIndex).rotation));
 	m_bodies.back()->setUserPointer(this);
-	m_bodies.back()->setGravity(btVector3(0.0f, -5.0f, 0.0f));
+	m_bodies.back()->setGravity(btVector3(0.0f, -20.0f, 0.0f));
 
 	m_transform.position = glm::vec3(0.0f);
 	m_transform.rotation = glm::quat();
+
+	setTransformFromRigid(meshIndex);
 }
 
 void GameObject::createDebugDrawer()
@@ -543,21 +587,30 @@ void GameObject::updateBulletRigids()
 {
 	for (int i = 0; i < (int)m_bodies.size(); i++)
 	{
-		if (!m_bodies[i])
-			continue;
-		btVector3 rigidBodyPos = m_bodies[i]->getWorldTransform().getOrigin();
-
-		btTransform rigidBodyTransform = m_bodies[i]->getWorldTransform();
-		Transform newTransform;
-		newTransform.position.x = rigidBodyTransform.getOrigin().getX();
-		newTransform.position.y = rigidBodyTransform.getOrigin().getY();
-		newTransform.position.z = rigidBodyTransform.getOrigin().getZ();
-
-		newTransform.rotation.x = rigidBodyTransform.getRotation().getX();
-		newTransform.rotation.y = rigidBodyTransform.getRotation().getY();
-		newTransform.rotation.z = rigidBodyTransform.getRotation().getZ();
-		newTransform.rotation.w = rigidBodyTransform.getRotation().getW();
-
-		setTransform(newTransform, i);
+		setTransformFromRigid(i);
 	}
+}
+
+void GameObject::setTransformFromRigid(int i)
+{
+	if (!m_bodies[i])
+		return;
+
+	btVector3& rigidBodyPos = m_bodies[i]->getWorldTransform().getOrigin();
+
+	const btTransform& rigidBodyTransform = m_bodies[i]->getWorldTransform();
+	const btVector3& btOrigin = rigidBodyTransform.getOrigin();
+	t_transform.position.x = btOrigin.getX();
+	t_transform.position.y = btOrigin.getY();
+	t_transform.position.z = btOrigin.getZ();
+
+	const btQuaternion& btRotation = rigidBodyTransform.getRotation();
+	t_transform.rotation.x = btRotation.getX();
+	t_transform.rotation.y = btRotation.getY();
+	t_transform.rotation.z = btRotation.getZ();
+	t_transform.rotation.w = btRotation.getW();
+
+	t_transform.scale = getTransformMesh(i).scale;
+
+	setTransform(t_transform, i);
 }

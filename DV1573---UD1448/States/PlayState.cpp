@@ -34,8 +34,8 @@ PlayState::PlayState()
 	m_player->setHealth(NetGlobals::PlayerMaxHealth);
 
 
-	m_objects.push_back(new MapObject("internalTestmap"));
-	m_objects[m_objects.size() - 1]->loadMesh("map1.mesh");
+	m_objects.push_back(new MapObject("Academy_Map"));
+	m_objects[m_objects.size() - 1]->loadMesh("Academy.mesh");
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 	
 	/*m_objects.push_back(new WorldObject("sphere"));
@@ -90,9 +90,8 @@ PlayState::PlayState()
 
 	m_objects.push_back(new DestructibleObject("Destructible4", &m_dstr));
 	static_cast<DestructibleObject*>(m_objects.back())->loadBasic("Dstr_4");
-	m_objects.back()->setWorldPosition(glm::vec3(8.0f, 15.0f, 3.0f), 0);
+	m_objects.back()->setWorldPosition(glm::vec3(0.0f, 17.0f, -3.0f), 0);
 	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	m_objects.back()->setBTWorldPosition(glm::vec3(0.0f, 15.0f, 3.0f), 0);
 
 	Renderer::getInstance()->submit(m_objects.back(), STATIC);
 	// DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP
@@ -285,10 +284,13 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 	DestructibleObject* dstrobj = nullptr;
 	Spell* spellobj = nullptr;
 
+	btVector3 hitpoint;
+
 	switch (sp1->getType())
 	{
 	case (DESTRUCTIBLE):
 		dstrobj = static_cast<DestructibleObject*>(sp1);
+		hitpoint = cp.m_localPointA;
 		break;
 
 	case (NORMALATTACK):
@@ -311,34 +313,52 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 	switch (sp2->getType())
 	{
 	case (DESTRUCTIBLE):
-		dstrobj = static_cast<DestructibleObject*>(sp1);
+		dstrobj = static_cast<DestructibleObject*>(sp2);
+		hitpoint = cp.m_localPointB;
 		break;
 
 	case (NORMALATTACK):
-		spellobj = static_cast<Spell*>(sp1);
+		spellobj = static_cast<Spell*>(sp2);
 		break;
 
 	case (ENHANCEATTACK):
-		spellobj = static_cast<Spell*>(sp1);
+		spellobj = static_cast<Spell*>(sp2);
 		break;
 
 	case (REFLECT):
-		spellobj = static_cast<Spell*>(sp1);
+		spellobj = static_cast<Spell*>(sp2);
 		break;
 
 	case (FLAMESTRIKE):
-		spellobj = static_cast<Spell*>(sp1);
+		spellobj = static_cast<Spell*>(sp2);
 		break;
 	}
 
+	if (spellobj) 
+	{
+		if (!spellobj->getHasCollided())
+			spellobj->hasCollided();
+	}
 
-	if (!dstrobj || !spellobj)
-		return false;
-
-	if (dstrobj->getType() == DESTRUCTIBLE && spellobj)
+	if (dstrobj && spellobj)
 	{
 		DstrGenerator* m_dstr = dstrobj->getDstr();
-		m_dstr->Destroy(dstrobj, glm::vec3(0.0f));
+
+		float test1 = cp.getAppliedImpulse();
+		btVector3 test2 = cp.m_localPointA;
+		btVector3 test3 = cp.m_localPointB;
+		float test4 = cp.getDistance();
+		float test5 = cp.m_contactMotion1;
+		float test6 = cp.m_contactMotion2;
+		float test7= cp.m_appliedImpulseLateral1;
+		float test8 = cp.m_appliedImpulseLateral2;
+		btVector3 test9 = cp.m_positionWorldOnA;
+		btVector3 test10 = cp.m_positionWorldOnB;
+
+		float test99 = 1;
+		
+		
+		m_dstr->Destroy(dstrobj, glm::vec2(hitpoint.getX(), hitpoint.getY()));
 	}
 
 
@@ -517,80 +537,6 @@ bool PlayState::onMainMenuClick(const CEGUI::EventArgs& e)
 bool PlayState::onQuitClick(const CEGUI::EventArgs& e) {
 	glfwSetWindowShouldClose(glfwGetCurrentContext(), true);
 	return true;	
-}
-
-//This function is called everytime two collision objects collide
-bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
-	const btCollisionObjectWrapper* obj2, int id2, int index2)
-{
-	GameObject* sp1 = static_cast<GameObject*>(obj1->getCollisionObject()->getUserPointer());
-	GameObject* sp2 = static_cast<GameObject*>(obj2->getCollisionObject()->getUserPointer());
-	if (!sp1 || !sp2)
-		return false;
-
-	DestructibleObject* dstrobj = nullptr;
-	Spell* spellobj = nullptr;
-
-	switch (sp1->getType())
-	{
-		case (DESTRUCTIBLE):
-			dstrobj = static_cast<DestructibleObject*>(sp1);
-			break;
-
-		case (NORMALATTACK):
-			spellobj = static_cast<Spell*>(sp1);
-			break;
-
-		case (ENHANCEATTACK):
-			spellobj = static_cast<Spell*>(sp1);
-			break;
-
-		case (REFLECT):
-			spellobj = static_cast<Spell*>(sp1);
-			break;
-
-		case (FLAMESTRIKE):
-			spellobj = static_cast<Spell*>(sp1);
-			break;
-	}
-
-	switch (sp2->getType())
-	{
-	case (DESTRUCTIBLE):
-		dstrobj = static_cast<DestructibleObject*>(sp1);
-		break;
-
-	case (NORMALATTACK):
-		spellobj = static_cast<Spell*>(sp1);
-		break;
-
-	case (ENHANCEATTACK):
-		spellobj = static_cast<Spell*>(sp1);
-		break;
-
-	case (REFLECT):
-		spellobj = static_cast<Spell*>(sp1);
-		break;
-
-	case (FLAMESTRIKE):
-		spellobj = static_cast<Spell*>(sp1);
-		break;
-	}
-
-
-	if (!dstrobj || !spellobj)
-		return false;
-	
-	if (dstrobj->getType() == DESTRUCTIBLE && spellobj)
-	{
-
-	}
-
-
-
-
-
-	return false;
 }
 
 
