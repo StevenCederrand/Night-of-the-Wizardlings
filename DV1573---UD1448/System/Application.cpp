@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "States/PlayState.h"
 #include "States/MenuState.h"
+#include "States/SpellCreatorState.h"
 #include <Networking/Client.h>
 #include <Networking/LocalServer.h>
 #include <Gui/Gui.h>
@@ -87,7 +88,7 @@ bool Application::init() {
 	Gui::getInstance()->setFont("DejaVuSans-10");
 
 	m_stateManager = new StateManager();
-	m_stateManager->pushState(new MenuState());
+	m_stateManager->pushState(new SpellCreatorState());
 
 	unsigned int _time = unsigned int(time(NULL));
 	srand(_time);

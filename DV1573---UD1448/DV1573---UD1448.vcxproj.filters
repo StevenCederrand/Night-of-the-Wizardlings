@@ -58,6 +58,7 @@
     <ClCompile Include="Particles\Particles.cpp" />
     <ClCompile Include="Particles\ParticleBuffers.cpp" />
     <ClCompile Include="GameObject\MapObject.cpp" />
+    <ClCompile Include="States\SpellCreatorState.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
@@ -142,6 +143,8 @@
     <ClInclude Include="Networking\PlayerEvents.h" />
     <ClInclude Include="Renderer\NotificationStructure.h" />
     <ClInclude Include="GameObject\MapObject.h" />
+    <ClInclude Include="Renderer\PickupNotificationStructure.h" />
+    <ClInclude Include="States\SpellCreatorState.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />
