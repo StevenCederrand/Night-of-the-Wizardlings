@@ -467,7 +467,7 @@ void Client::processAndHandlePackets()
 			se.spellData = spellPacket;
 			se.flag = NetGlobals::THREAD_FLAG::Add;
 			se.gameobject = nullptr;
-
+			
 			{
 				updateSpellsMutexGuard();
 				m_networkSpells.m_entities.emplace_back(se);
