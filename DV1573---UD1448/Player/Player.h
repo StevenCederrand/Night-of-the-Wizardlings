@@ -49,6 +49,10 @@ private:
 	std::string m_name;
 	glm::vec3 m_directionVector;
 	glm::vec3 m_playerPosition;
+	glm::vec3 m_cameraPosition;
+	glm::vec3 m_spellSpawnPosition;
+	//glm::vec3 m_inputVector;
+
 	glm::vec3 m_moveDir;
 	Camera* m_playerCamera;
 	bool m_logicStop;

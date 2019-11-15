@@ -31,6 +31,7 @@ void NetworkPlayers::update(const float& dt)
 		if (p.flag == NetGlobals::THREAD_FLAG::Add){
 
 			if (p.gameobject == nullptr) {
+
 				p.gameobject = new AnimatedObject("asd");
 				p.gameobject->loadMesh("ANIM.mesh");
 				p.gameobject->setWorldPosition(glm::vec3(0, 0, 0));

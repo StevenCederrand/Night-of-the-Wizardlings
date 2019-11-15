@@ -19,7 +19,7 @@ public:
 	~BulletPhysics();
 	//objects box, sphere, capsule. (Extend.x is radius, Extend.y is height) 
 	btRigidBody* createObject(CollisionObject object, float inMass,
-		glm::vec3 position, glm::vec3 extend, glm::quat rotation = glm::quat(), float friction = 0.2f);
+		glm::vec3 position, glm::vec3 extend, glm::quat rotation = glm::quat(), float restitution = 1.0f, float friction = 0.2f);
 	void setCharacterSize(glm::vec3 halfSize);
 
 	btDiscreteDynamicsWorld* getDynamicsWorld() const;

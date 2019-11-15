@@ -18,7 +18,7 @@ Renderer::Renderer()
 	//Define Work Groups
 	workGroups.x = (SCREEN_WIDTH + (SCREEN_WIDTH % TILE_SIZE)) / TILE_SIZE;
 	workGroups.y = (SCREEN_HEIGHT + (SCREEN_HEIGHT % TILE_SIZE)) / TILE_SIZE;
-	//INIT SHADER_STORAGE_BUFFER_OBJECT 
+	//INIT SHADER_STORAGE_BUFFER_OBJECT
 	glGenBuffers(1, &m_lightIndexSSBO);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_lightIndexSSBO);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(LightIndex), 0, GL_STATIC_DRAW);
@@ -29,7 +29,7 @@ Renderer::Renderer()
 	//Blending
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
+
 }
 
 Renderer::~Renderer()
@@ -56,12 +56,12 @@ void Renderer::renderHUD()
 	for (auto& item : m_2DHudMap) {
 
 		auto& vec = item.second;
-		
+
 		if (vec.size() == 0)
 			continue;
-			   
+
 		auto* hudObjectDummy = vec[0];
-		
+
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, hudObjectDummy->getTextureID());
 
@@ -191,12 +191,12 @@ void Renderer::renderKillFeed()
 {
 	Client::getInstance()->renderKillFeedMutexGuard();
 	for (size_t i = 0; i < m_killFeed.size(); i++) {
-		
+
 		NotificationText& notification = m_killFeed[i];
 
 		float xPos = (float)((SCREEN_WIDTH) - notification.width - 25.0f);
 		float yPos = (float)(SCREEN_HEIGHT - ((60.0f * notification.scale.x) * (i + 1)));
-		
+
 		m_text->RenderText(notification, glm::vec3(xPos, yPos, 0.0f), glm::vec2(notification.scale), notification.useAlpha);
 
 		float lifeTime = notification.lifeTimeInSeconds;
@@ -233,7 +233,7 @@ void Renderer::createDepthMap() {
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	
+
 	glGenRenderbuffers(1, &m_rbo);
 	glBindRenderbuffer(GL_RENDERBUFFER, m_rbo);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -280,7 +280,7 @@ void Renderer::initShaders() {
 	auto* shader = ShaderMap::getInstance()->createShader(HUD, "HUD.vs", "HUD.fs");
 	shader->use();
 	shader->setInt("textureSampler", 0);
-	
+
 	ShaderMap::getInstance()->createShader(PARTICLES, "Particles.vs", "Particles.gs", "Particles.fs");
 
 	initializeParticle();
@@ -371,7 +371,7 @@ void Renderer::submit(GameObject* gameObject, ObjectType objType)
 	else if (objType == SHIELD) {
 		m_shieldObject.emplace_back(gameObject);
 	}
-	
+
 }
 
 void Renderer::submit2DHUD(HudObject* hud)
@@ -395,7 +395,7 @@ void Renderer::submit2DHUD(HudObject* hud)
 }
 
 void Renderer::clear() {
-	
+
 	m_staticObjects.clear();
 	m_dynamicObjects.clear();
 	m_anistaticObjects.clear();
@@ -413,7 +413,7 @@ void Renderer::clear() {
 void Renderer::removeDynamic(GameObject* gameObject, ObjectType objType)
 {
 	int index = -1;
-	
+
 	if (objType == DYNAMIC) { //Remove dynamic objet from the dynamic objet vector
 		//Find the index of the object
 		for (size_t i = 0; i < m_dynamicObjects.size(); i++)
@@ -505,6 +505,10 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 		//Loop through all of the gameobjects
 		for (GameObject* object : m_staticObjects)
 		{
+			if (object == nullptr || !object->getShouldRender()) {
+				continue;
+			}
+
 			//Then through all of the meshes
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
@@ -530,6 +534,10 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 		//TODO: Consider animation for the depth shader
 		for (GameObject* object : m_anistaticObjects)
 		{
+			if (object == nullptr || !object->getShouldRender()) {
+				continue;
+			}
+
 			//Then through all of the meshes
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
@@ -553,6 +561,10 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 
 		for (GameObject* object : m_pickups)
 		{
+			if (object == nullptr || !object->getShouldRender()) {
+				continue;
+			}
+
 			Pickup* p = dynamic_cast<Pickup*>(object);
 
 			//Then through all of the meshes
@@ -560,7 +572,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			{
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
-				
+
 				mesh = p->getRenderInformation().mesh;
 				transform = object->getTransform(mesh, j);
 
@@ -578,7 +590,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 		}
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			   
+
 #pragma region Light_Culling
 		shader = shaderMap->useByName(LIGHT_CULL);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
@@ -586,14 +598,14 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 
 		glm::vec2 screenSize = glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT);
 		shader->setVec2("screenSize", screenSize);
-		shader->setInt("lightCount", m_spells.size());//Set the number of active pointlights in the scene 
+		shader->setInt("lightCount", m_spells.size());//Set the number of active pointlights in the scene
 
-		//Bind the depthmap	
+		//Bind the depthmap
 		glActiveTexture(GL_TEXTURE0);
 		shader->setInt("depthMap", 0); //Not sure if this has to happen every frame
 		glBindTexture(GL_TEXTURE_2D, m_depthMap);
 
-		//Send all of the light data into the compute shader	
+		//Send all of the light data into the compute shader
 		for (size_t i = 0; i < m_spells.size(); i++) {
 			shader->setVec3("lights[" + std::to_string(i) + "].position", m_spells[i]->getTransform().position);
 			shader->setFloat("lights[" + std::to_string(i) + "].radius", P_LIGHT_RADIUS);
@@ -650,13 +662,17 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	//Render Static objects
 	for (GameObject* object : m_staticObjects)
 	{
+		if (object == nullptr || !object->getShouldRender()) {
+			continue;
+		}
+
 		//Then through all of the meshes
 		for (int j = 0; j < object->getMeshesCount(); j++)
 		{
 			//Fetch the current mesh and its transform
 			mesh = meshMap->getMesh(object->getMeshName(j));
 
-			//Bind the material   
+			//Bind the material
 			object->bindMaterialToShader(shader, mesh->getMaterial());
 
 			modelMatrix = glm::mat4(1.0f);
@@ -721,7 +737,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			mesh = p->getRenderInformation().mesh;
 			//Bind the material
 			object->bindMaterialToShader(shader, p->getRenderInformation().material);
-				
+
 			//Bind the modelmatrix
 			glm::mat4 mMatrix = glm::mat4(1.0f);
 			mMatrix = glm::translate(mMatrix, p->getTransform().position);
@@ -746,7 +762,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	// Possibly extract functions. Only difference in rendering is the shader and the binding of bone matrices
 	if (m_anistaticObjects.size() > 0) {
 		shader = shaderMap->useByName(ANIMATION);
-		
+
 		//Bind view- and projection matrix
 		bindMatrixes(shader);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
@@ -767,12 +783,16 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 		}
 		for (GameObject* object : m_anistaticObjects)
 		{
+			if (object == nullptr || !object->getShouldRender()) {
+				continue;
+			}
+
 			//Then through all of the meshes
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
 				//Fetch the current mesh and its transform
 				mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
-				
+
 				//Bind calculated bone matrices
 				static_cast<AnimatedObject*>(object)->BindAnimation(j);
 				transform = object->getTransform(mesh, j);
@@ -794,7 +814,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			}
 		}
 	}
-	
+
 	shader->clearBinding();
 #pragma endregion
 	m_spellHandler->renderSpell();
@@ -815,7 +835,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	ShaderMap::getInstance()->useByName(BLOOM_BLUR);*/
 	//If the client is dead
-	
+
 	/*if (Client::getInstance()->getMyData().health <= 0) {
 		ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("grayscale", 1);
 	}
@@ -871,7 +891,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	shader->clearBinding();
 	glEnable(GL_CULL_FACE);
 #pragma endregion
-	
+
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -879,7 +899,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_CULL_FACE);
-	
+
 
 	renderAndAnimateNetworkingTexts();
 	renderBigNotifications();
@@ -913,7 +933,7 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 			meshRef = spellHandler->getAttackBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
 			shader->setMaterial(spellHandler->getAttackBase()->m_material);
-			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);	
+			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 			glBindVertexArray(0);
 			ps[i].SetPosition(meshTransform.position);
@@ -930,7 +950,7 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 			ps[i].Render(m_camera, &m_enhanceInfo);
 			ps[i].SetPosition(meshTransform.position);
 		}
-		else if (m_spells[i]->getType() == REFLECT) 
+		else if (m_spells[i]->getType() == REFLECT)
 		{
 			meshRef = spellHandler->getReflectBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
@@ -973,13 +993,13 @@ void Renderer::renderDebug()
 	glm::mat4 modelMatrix;
 	ShaderMap::getInstance()->useByName(DEBUG_SHADER);
 	//Bind view- and projection matrix
-	bindMatrixes(DEBUG_SHADER);	
-	
+	bindMatrixes(DEBUG_SHADER);
+
 	//Render Static objects
 	for (size_t i = 0; i < m_staticObjects.size(); i++)
-	{		
+	{
 		for (size_t j = 0; j < m_staticObjects.at(i)->getDebugDrawers().size(); j++)
-		{			
+		{
 			modelMatrix = glm::mat4(1.0f);
 			//Bind the modelmatrix
 			//modelMatrix = m_staticObjects.at(i)->getMatrix(j);
