@@ -106,7 +106,7 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	//rigidbody is dynamic if and only if mass is non zero, otherwise static
 	bool isDynamic = (mass != 0.f);
 
-	btVector3 localInertia(0.0f, 0.0f, 0.0f);
+	btVector3 localInertia(1.0f, 1.0f, 1.0f);
 	//btVector3 localInertia(inLocalInertia.x, inLocalInertia.y, inLocalInertia.z);
 	if (isDynamic)
 		objectShape->calculateLocalInertia(mass, localInertia);
@@ -130,6 +130,11 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	{
 		destructionobj(body);
 	}
+
+	/*body->setRestitution(0.1f);	
+	body->setFriction(10.0f);
+	body->setSpinningFriction(10.0f);*/
+
 
 	m_dynamicsWorld->addRigidBody(body);
 
@@ -211,5 +216,5 @@ void BulletPhysics::destructionobj(btRigidBody* body)
 	body->setFriction(1.0f);
 	body->setSpinningFriction(1.0f);
 	body->setAngularFactor(btVector3(1.0f, 1.0f, 1.0f));
-	body->setDamping(0.6f, 0.1f);
+	body->setDamping(0.6f, 0.6f);
 }

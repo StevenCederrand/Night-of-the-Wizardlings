@@ -7,7 +7,7 @@
 #include <Spells/ReflectSpell.h>
 #include <Spells/AOEAttack.h>
 #include <System/BulletPhysics.h>
-#include "SpellTypes.h"
+#include <GameObject/ObjectTypes.h>
 
 
 //enum TYPE { NORMALATTACK, ENHANCEATTACK };
@@ -23,7 +23,7 @@ public:
 	void initReflectSpell();
 	~SpellHandler();
 
-	float createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SPELL_TYPE type);
+	float createSpell(glm::vec3 spellPos, glm::vec3 directionVector, OBJECT_TYPE type);
 
 	void spellUpdate(float deltaTime);
 	void setSpawnerPosition(glm::vec3 position);
@@ -79,7 +79,7 @@ private:
 	struct deflectSpellData {
 		glm::vec3 direction;
 		glm::vec3 position;
-		SPELL_TYPE type;
+		OBJECT_TYPE type;
 	};
 
 	std::vector<deflectSpellData> m_deflectedSpells;

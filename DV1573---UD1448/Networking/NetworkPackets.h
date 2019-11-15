@@ -1,6 +1,6 @@
 #ifndef _NET_PACKETS_H
 #define _NET_PACKETS_H
-#include <Spells/SpellTypes.h>
+#include <GameObject/ObjectTypes.h>
 
 enum {
 	INFO_ABOUT_OTHER_PLAYERS = ID_USER_PACKET_ENUM + 1,
@@ -126,7 +126,7 @@ struct SpellPacket{
 	glm::vec3 Rotation = glm::vec3(0.0f);
 	glm::vec3 Scale = glm::vec3(1.0f);
 	glm::vec3 Direction = glm::vec3(0.0f);
-	SPELL_TYPE SpellType = SPELL_TYPE::UNKNOWN;
+	OBJECT_TYPE SpellType = OBJECT_TYPE::UNKNOWN;
 
 
 
@@ -156,7 +156,7 @@ struct HitPacket {
 	glm::vec3 SpellDirection = glm::vec3(0.0f);
 	glm::quat Rotation = glm::quat();
 	float damage = 0.0f;
-	SPELL_TYPE SpellType = SPELL_TYPE::UNKNOWN;
+	OBJECT_TYPE SpellType = OBJECT_TYPE::UNKNOWN;
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
 		stream.Serialize(writeToStream, SpellID);

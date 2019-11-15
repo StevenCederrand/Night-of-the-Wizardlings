@@ -49,10 +49,10 @@ private:
 	SpellHandler* m_spellhandler;
 	EnhanceAttackSpell m_enhanceAttack;
 
-	SPELL_TYPE m_spellType;
-	SPELL_TYPE m_specialSpelltype;
-	SPELL_TYPE m_specialSpellType2;
-	SPELL_TYPE m_specialSpellType3;
+	OBJECT_TYPE m_spellType;
+	OBJECT_TYPE m_specialSpelltype;
+	OBJECT_TYPE m_specialSpellType2;
+	OBJECT_TYPE m_specialSpellType3;
 	
 	float m_attackCooldown;
 	float m_deflectCooldown;

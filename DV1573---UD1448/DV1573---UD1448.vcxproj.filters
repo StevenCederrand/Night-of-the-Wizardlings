@@ -89,7 +89,6 @@
     <ClInclude Include="Networking\NetworkPickups.h" />
     <ClInclude Include="Pickups\PickupTypes.h" />
     <ClInclude Include="Player\Player.h" />
-    <ClInclude Include="Renderer\PickupNotificationStructure.h" />
     <ClInclude Include="Spells\ReflectSpell.h" />
     <ClInclude Include="Renderer\BloomBlur.h" />
     <ClInclude Include="Renderer\Camera.h" />
@@ -106,7 +105,6 @@
     <ClInclude Include="Renderer\SkyBox.h" />
     <ClInclude Include="Mesh\SkeletonMap.h" />
     <ClInclude Include="Spells\SpellHandler.h" />
-    <ClInclude Include="Spells\SpellTypes.h" />
     <ClInclude Include="Spells\Spells.h" />
     <ClInclude Include="States\FindServerState.h" />
     <ClInclude Include="States\LobbyState.h" />
@@ -134,7 +132,6 @@
     <ClInclude Include="Destruction\VoroniClipper.h" />
     <ClInclude Include="Destruction\DstrGenerator.h" />
     <ClInclude Include="GameObject\DestructibleObject.h" />
-    <ClInclude Include="Deflect\DeflectRender.h" />
     <ClInclude Include="Deflect\Deflect.h" />
     <ClInclude Include="System\Helper.h" />
     <ClInclude Include="HUD\HudObject.h" />
@@ -149,7 +146,7 @@
     <ClInclude Include="Renderer\DeflectRender.h" />
     <ClInclude Include="Networking\PlayerEvents.h" />
     <ClInclude Include="Renderer\NotificationStructure.h" />
-
+    <ClInclude Include="GameObject\ObjectTypes.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

@@ -4,7 +4,7 @@
 ReflectSpell::ReflectSpell(glm::vec3 pos, glm::vec3 direction, const ReflectSpellBase* spellBase) 
 	: Spell(pos, direction)
 {
-	m_type = SPELL_TYPE::REFLECT;
+	m_type = OBJECT_TYPE::REFLECT;
 	m_spellBase = spellBase;
 	hitboxRadius = spellBase->m_radius;
 
@@ -20,7 +20,7 @@ ReflectSpell::ReflectSpell(glm::vec3 pos, glm::vec3 direction, const ReflectSpel
 
 ReflectSpell::ReflectSpell(glm::vec3 pos) : Spell(pos, glm::vec3(0))
 {
-	m_type = SPELL_TYPE::REFLECT;
+	m_type = OBJECT_TYPE::REFLECT;
 
 	Transform tempTransform;
 	tempTransform.scale = glm::vec3(0.01f, 0.01f, 0.01f);

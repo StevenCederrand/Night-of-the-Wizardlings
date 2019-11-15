@@ -35,7 +35,7 @@ PlayState::PlayState()
 
 	m_objects.push_back(new WorldObject("internalTestmap"));
 	m_objects[m_objects.size() - 1]->loadMesh("map1.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 0.0f, -1.0f));
+	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 0.0f, -1.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 	
 	m_objects.push_back(new Deflect("playerShield"));
@@ -44,6 +44,7 @@ PlayState::PlayState()
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], SHIELD);
 	
 	MaterialMap::getInstance();
+
 	gContactAddedCallback = callbackFunc;
 	// Geneterate bullet objects / hitboxes
 	for (size_t i = 0; i < m_objects.size(); i++)
@@ -52,26 +53,36 @@ PlayState::PlayState()
 		//m_objects.at(i)->createDebugDrawer();
 	}
 
-	// DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP
-	// DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP
 
+	// DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP
 	// Destruction test object
-	m_objects.push_back(new DestructibleObject("Destructible"));
-	static_cast<DestructibleObject*>(m_objects.back())->loadBasic("Dstr_1");
-	m_objects.back()->setWorldPosition(glm::vec3(0.0f, 15.0f, -3.0f), 0);
+	m_objects.push_back(new DestructibleObject("Destructible", &m_dstr));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall1.mesh");
+	//m_objects.back()->setWorldPosition(glm::vec3(0.0f, 15.0f, -3.0f));
 	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	//m_objects.back()->createDynamicRigidBody(CollisionObject::box, m_bPhysics, 5.0f);
 	Renderer::getInstance()->submit(m_objects.back(), STATIC);
 
-	m_objects.push_back(new DestructibleObject("Destructible2"));
-	static_cast<DestructibleObject*>(m_objects.back())->loadBasic("Dstr_2");
-	m_objects.back()->setWorldPosition(glm::vec3(0.0f, 15.0f, 3.0f), 0);
+	m_objects.push_back(new DestructibleObject("Destructible2", &m_dstr));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall2.mesh");
+	//m_objects.back()->setWorldPosition(glm::vec3(0.0f, 15.0f, 3.0f));
 	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	//m_objects.back()->createDynamicRigidBody(CollisionObject::box, m_bPhysics, 5.0f);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+	
+	m_objects.push_back(new DestructibleObject("Destructible3", &m_dstr));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTMazeWall.mesh");
+	//m_objects.back()->setWorldPosition(glm::vec3(0.0f, 15.0f, 3.0f), 0);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
 	Renderer::getInstance()->submit(m_objects.back(), STATIC);
 
+	m_objects.push_back(new DestructibleObject("Destructible4", &m_dstr));
+	static_cast<DestructibleObject*>(m_objects.back())->loadBasic("Dstr_4");
+	m_objects.back()->setWorldPosition(glm::vec3(8.0f, 15.0f, 3.0f), 0);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	m_objects.back()->setBTWorldPosition(glm::vec3(0.0f, 15.0f, 3.0f), 0);
+
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
 	// DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP
-	// DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP
+
 
 
 	if(Client::getInstance()->isInitialized())
@@ -269,16 +280,12 @@ void PlayState::update(float dt)
 
 
 	// DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP
-	// DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP
-	// DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP
 	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_J) == GLFW_PRESS)
 		m_dstr.Destroy(static_cast<DestructibleObject*>(m_objects[m_objects.size() - 1]), glm::vec3(0.0f));
 	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_K) == GLFW_PRESS)
 		m_dstr.Destroy(static_cast<DestructibleObject*>(m_objects[m_objects.size() - 2]), glm::vec3(0.0f));
+	// DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP
 
-	// DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP
-	// DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP
-	// DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP
 
 
 
@@ -289,6 +296,76 @@ void PlayState::render()
 {	
 	Renderer::getInstance()->render(m_skybox, m_deflectBox, m_spellHandler);
 	//Renderer::getInstance()->renderDebug();
+}
+
+bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1, const btCollisionObjectWrapper* obj2, int id2, int index2)
+{
+	GameObject* sp1 = static_cast<GameObject*>(obj1->getCollisionObject()->getUserPointer());
+	GameObject* sp2 = static_cast<GameObject*>(obj2->getCollisionObject()->getUserPointer());
+	if (!sp1 || !sp2)
+		return false;
+
+	DestructibleObject* dstrobj = nullptr;
+	Spell* spellobj = nullptr;
+
+	switch (sp1->getType())
+	{
+	case (DESTRUCTIBLE):
+		dstrobj = static_cast<DestructibleObject*>(sp1);
+		break;
+
+	case (NORMALATTACK):
+		spellobj = static_cast<Spell*>(sp1);
+		break;
+
+	case (ENHANCEATTACK):
+		spellobj = static_cast<Spell*>(sp1);
+		break;
+
+	case (REFLECT):
+		spellobj = static_cast<Spell*>(sp1);
+		break;
+
+	case (FLAMESTRIKE):
+		spellobj = static_cast<Spell*>(sp1);
+		break;
+	}
+
+	switch (sp2->getType())
+	{
+	case (DESTRUCTIBLE):
+		dstrobj = static_cast<DestructibleObject*>(sp1);
+		break;
+
+	case (NORMALATTACK):
+		spellobj = static_cast<Spell*>(sp1);
+		break;
+
+	case (ENHANCEATTACK):
+		spellobj = static_cast<Spell*>(sp1);
+		break;
+
+	case (REFLECT):
+		spellobj = static_cast<Spell*>(sp1);
+		break;
+
+	case (FLAMESTRIKE):
+		spellobj = static_cast<Spell*>(sp1);
+		break;
+	}
+
+
+	if (!dstrobj || !spellobj)
+		return false;
+
+	if (dstrobj->getType() == DESTRUCTIBLE && spellobj)
+	{
+		DstrGenerator* m_dstr = dstrobj->getDstr();
+		m_dstr->Destroy(dstrobj, glm::vec3(0.0f));
+	}
+
+
+	return false;
 }
 
 void PlayState::onSpellHit_callback()
@@ -468,15 +545,72 @@ bool PlayState::onQuitClick(const CEGUI::EventArgs& e) {
 bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
 	const btCollisionObjectWrapper* obj2, int id2, int index2)
 {
-	//Spell* sp1 = reinterpret_cast<Spell*>(obj1->getCollisionObject()->getUserPointer());
-	//Spell* sp2 = reinterpret_cast<Spell*>(obj2->getCollisionObject()->getUserPointer());
 	GameObject* sp1 = static_cast<GameObject*>(obj1->getCollisionObject()->getUserPointer());
 	GameObject* sp2 = static_cast<GameObject*>(obj2->getCollisionObject()->getUserPointer());
+	if (!sp1 || !sp2)
+		return false;
 
-	if (sp1)
+	DestructibleObject* dstrobj = nullptr;
+	Spell* spellobj = nullptr;
+
+	switch (sp1->getType())
 	{
-		int test = 0;
+		case (DESTRUCTIBLE):
+			dstrobj = static_cast<DestructibleObject*>(sp1);
+			break;
+
+		case (NORMALATTACK):
+			spellobj = static_cast<Spell*>(sp1);
+			break;
+
+		case (ENHANCEATTACK):
+			spellobj = static_cast<Spell*>(sp1);
+			break;
+
+		case (REFLECT):
+			spellobj = static_cast<Spell*>(sp1);
+			break;
+
+		case (FLAMESTRIKE):
+			spellobj = static_cast<Spell*>(sp1);
+			break;
 	}
+
+	switch (sp2->getType())
+	{
+	case (DESTRUCTIBLE):
+		dstrobj = static_cast<DestructibleObject*>(sp1);
+		break;
+
+	case (NORMALATTACK):
+		spellobj = static_cast<Spell*>(sp1);
+		break;
+
+	case (ENHANCEATTACK):
+		spellobj = static_cast<Spell*>(sp1);
+		break;
+
+	case (REFLECT):
+		spellobj = static_cast<Spell*>(sp1);
+		break;
+
+	case (FLAMESTRIKE):
+		spellobj = static_cast<Spell*>(sp1);
+		break;
+	}
+
+
+	if (!dstrobj || !spellobj)
+		return false;
+	
+	if (dstrobj->getType() == DESTRUCTIBLE && spellobj)
+	{
+
+	}
+
+
+
+
 
 	return false;
 }

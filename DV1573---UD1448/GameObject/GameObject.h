@@ -3,7 +3,6 @@
 #include <Pch/Pch.h>
 #include <Mesh/Mesh.h>
 #include <GFX/MaterialMap.h>
-#include <System/BulletPhysics.h>
 #include <Mesh/Mesh.h>
 #include <DebugDrawer/DebugDrawer.h>
 #include <System/BulletPhysics.h>
@@ -38,10 +37,13 @@ public:
 	   	
 	//Set functions
 	void setTransform(Transform transform);
+	void setTransform(Transform transform, int meshIndex);
 	void setTransform(glm::vec3 worldPosition, glm::quat worldRot, glm::vec3 worldScale);
 	void setWorldPosition(glm::vec3 worldPosition);
 	void setWorldPosition(glm::vec3 worldPosition, int meshIndex);
 	void setBTWorldPosition(glm::vec3 worldPosition, int meshIndex);
+	void setBTTransform(Transform transform, int meshIndex);
+	void set_BtActive(bool state = false, int meshIndex = 0);
 	void translate(const glm::vec3& translationVector);
 	void setShouldRender(bool condition);
 

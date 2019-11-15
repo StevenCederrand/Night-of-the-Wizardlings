@@ -4,7 +4,7 @@
 AOEAttack::AOEAttack(glm::vec3 pos, glm::vec3 direction, const FlamestrikeSpellBase* spellBase)
 	: Spell(pos, direction)
 {
-	m_type = SPELL_TYPE::FLAMESTRIKE;
+	m_type = OBJECT_TYPE::FLAMESTRIKE;
 	m_spellBase = spellBase;
 	setTravelTime(spellBase->m_lifeTime);
 
