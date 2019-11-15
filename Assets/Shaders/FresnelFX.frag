@@ -39,11 +39,13 @@ uniform int grayscale = 0;
 uniform P_LIGHT pLights[LIGHTS_MAX];
 
 vec3 calcDirLight(vec3 normal, vec3 diffuseColor);
+vec2 rotate(float magnitude, vec2 p);
 
 void main() {
     vec3 pivot = vec3(0.5, -0.5, 1.);
     vec2 p = f_UV - pivot.xy;
-    float a = atan(p.y, p.x) * 0.5;
+    p = rotate(3.14 * time * 0.2, p); 
+    float a = atan(p.y, p.x) * 1.0;
     float r = sqrt(dot(p,p));
     vec2 finalUV;
     finalUV.x = (time * -.5) - 1/(r + 1.7);
@@ -72,6 +74,14 @@ void main() {
     float fresnel = 1 - dot(viewDir,  f_normal);
     result += fresnel;
     color = vec4(result, alphaTexture.a);
+}
+
+vec2 rotate(float magnitude, vec2 p)
+{
+    float sinTheta = sin(magnitude);
+    float cosTheta = cos(magnitude);
+    mat2 rotationMat = mat2(cosTheta, -sinTheta, sinTheta, cosTheta);
+    return p * rotationMat;
 }
 
 vec3 calcDirLight(vec3 normal, vec3 diffuseColor)
