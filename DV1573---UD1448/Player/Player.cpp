@@ -1,4 +1,4 @@
-#include "Pch/Pch.h"
+ #include "Pch/Pch.h"
 #include "Player.h"
 #include <Networking/Client.h>
 
@@ -23,16 +23,11 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_health = 100;
 	m_attackCooldown = 0;
 	m_specialCooldown = 0;
-	m_nrOfSpells = 0;
 	m_directionVector = glm::vec3(0, 0, 0);
 	m_moveDir = glm::vec3(0.0f);
 
 	m_spellhandler = spellHandler;
 	m_mana = 100.0f; //A  players mana pool
-	m_spellType = NORMALATTACK;
-	m_specialSpelltype = REFLECT;
-	m_specialSpellType2 = ENHANCEATTACK;
-	m_specialSpellType3 = FLAMESTRIKE;
 
 	m_maxAttackCooldown = m_spellhandler->getAttackBase()->m_coolDown;
 	m_maxSpecialCooldown = m_spellhandler->getEnhAttackBase()->m_coolDown;
@@ -59,9 +54,6 @@ void Player::update(float deltaTime)
 		if (!m_logicStop) {
 			attack();
 		}
-		
-
-
 	}
 
 	updateMesh();
@@ -79,13 +71,9 @@ void Player::update(float deltaTime)
 		m_enhanceAttack.update(deltaTime);	
 		if (m_enhanceAttack.canAttack()) //CAN ATTACK
 		{
-			m_spellhandler->createSpell(m_playerPosition, m_directionVector, ENHANCEATTACK);
+			m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, ENHANCEATTACK);
 			m_enhanceAttack.attacked();
-		}/*
-		if (m_enhanceAttack.isComplete()) //DONE
-		{
-			m_special2Cooldown = m_enhanceAttack.getCooldown(); // GET from enhance attack handler
-		}*/
+		}
 	}
 
 	m_attackCooldown -= deltaTime; // Cooldown reduces with time
@@ -93,14 +81,11 @@ void Player::update(float deltaTime)
 	m_specialCooldown -= deltaTime; // Cooldown reduces with time
 	m_special3Cooldown -= deltaTime; // Cooldown reduces with time
 	
-
-
-
 	//Regenerate mana when we are not deflecting
-	if (!m_deflecting && m_mana <= 100 && m_deflectCooldown <= 0) {
-		m_mana += 0.5f;
+	if (!m_rMouse && m_mana <= 100 && m_deflectCooldown <= 0) {
+		m_mana += 0.1f;
 	}
-	else if (m_deflectCooldown > 0 && !m_deflecting) {
+	else if (m_deflectCooldown > 0 && !m_rMouse) {
 		m_deflectCooldown -= DeltaTime;
 	}
 	PlayAnimation(deltaTime);
@@ -149,10 +134,21 @@ void Player::move(float deltaTime)
 
 	m_character->setVelocityForTimeInterval(bulletVec, deltaTime);
 
+	//set playerpos from bullet character
 	btVector3 playerPos = m_character->getGhostObject()->getWorldTransform().getOrigin();
-	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY() + 2.5f, playerPos.getZ());
+	float characterHalfSize = m_bp->getCharacterSize().getY();
 
-	m_playerCamera->setCameraPos(m_playerPosition);
+	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY()-1.0f, playerPos.getZ());
+	//m_playerPosition.y -= characterHalfSize;
+
+	//set cameraPos and spellSpawnPos 
+	m_cameraPosition = m_playerPosition;
+	m_cameraPosition.y += characterHalfSize + characterHalfSize*0.85f;
+	m_spellSpawnPosition = m_playerPosition;
+	m_spellSpawnPosition.y += (2 * characterHalfSize) * 0.85f;
+
+
+	m_playerCamera->setCameraPos(m_cameraPosition);
 	m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
 }
 
@@ -194,43 +190,43 @@ void Player::attack()
 	{
 		if (m_attackCooldown <= 0)
 		{
-			m_attackCooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_spellType); // Put attack on cooldown
-			m_spellhandler->setSpawnerDirection(m_directionVector);
-			m_spellhandler->setSpawnerPosition(m_playerPosition);
+			m_attackCooldown = m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, NORMALATTACK); // Put attack on cooldown
 			animState.casting = true;
+
 		}
 	}
 
-	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_RIGHT) && m_mana > 5)
+	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_RIGHT))
 	{
-		if (!m_deflecting)
-		{
-			animState.deflecting = true;
+
+		//Actually deflecting
+		if (m_mana > 10) {
+			if (!m_deflecting) {
+				animState.deflecting = true; //Play the animation once
+				m_mana -= 10; //This is the initial manacost for the deflect
+			}
+			m_mana -= 1;
 			m_deflecting = true;
-			m_deflectCooldown = 0.5f; 
+			m_deflectCooldown = 0.5f; 			
 		}
-		m_mana -= 1;
-	}	
-	else {
-		m_deflecting = false;
+		else { //Player is holding down RM without any mana
+			m_deflecting = false;
+		}
+		m_rMouse = true;
 	}
 	if (Input::isMouseReleased(GLFW_MOUSE_BUTTON_RIGHT)) {
 		m_deflecting = false;
+		m_rMouse = false;
 	}
 
 	if (Input::isKeyHeldDown(GLFW_KEY_Q))
 	{
 		if (m_specialCooldown <= 0)
 		{
-			if (m_specialSpellType2 == ENHANCEATTACK)
-			{
-				m_specialCooldown = m_spellhandler->getEnhAttackBase()->m_coolDown;
-				m_spellhandler->setSpawnerDirection(m_directionVector);
-				m_spellhandler->setSpawnerPosition(m_playerPosition);
-				// Start loop
-				m_enhanceAttack.start();
-				animState.casting = true;
-			}
+			m_specialCooldown = m_spellhandler->getEnhAttackBase()->m_coolDown;
+			// Start loop
+			m_enhanceAttack.start();
+			animState.casting = true;
 		}
 	}
 
@@ -238,9 +234,8 @@ void Player::attack()
 	{
 		if (m_special3Cooldown <= 0)
 		{
-			m_spellhandler->setSpawnerDirection(m_directionVector);
-			m_spellhandler->setSpawnerPosition(m_playerPosition);
-			m_special3Cooldown = m_spellhandler->createSpell(m_playerPosition, m_directionVector, m_specialSpellType3); // Put attack on cooldown
+			m_special3Cooldown = m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, FLAMESTRIKE); // Put attack on cooldown
+
 			animState.casting = true;
 		}
 	}

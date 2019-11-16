@@ -47,7 +47,6 @@ public:
 	void renderPickupNotificationsMutexGuard();
 	void renderKillFeedMutexGuard();
 
-
 	const std::vector<std::pair<unsigned int, ServerInfo>>& getServerList() const;
 	const std::vector<PlayerPacket>& getConnectedPlayers() const;
 	const std::vector<SpellPacket>& getNetworkSpells();
@@ -58,6 +57,7 @@ public:
 	
 	const PlayerPacket& getMyData() const;
 	const PlayerPacket* getLatestPlayerThatHitMe() const;
+	const PlayerPacket* findPlayerWithGuid(const RakNet::AddressOrGUID guid);
 	const ServerStateChange& getServerState() const;
 	const CountdownPacket& getCountdownPacket() const;
 	const CountdownPacket& getRespawnTime() const;

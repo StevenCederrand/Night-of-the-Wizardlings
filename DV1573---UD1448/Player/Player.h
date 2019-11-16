@@ -37,6 +37,7 @@ public:
 	const float& getMaxAttackCooldown() const;
 	const float& getMaxSpecialCooldown() const;
 	const float& getMana() const;
+
 	//-----Set-----//
 	void setPlayerPos(glm::vec3 pos);
 	void setHealth(int health);
@@ -49,6 +50,10 @@ private:
 	std::string m_name;
 	glm::vec3 m_directionVector;
 	glm::vec3 m_playerPosition;
+	glm::vec3 m_cameraPosition;
+	glm::vec3 m_spellSpawnPosition;
+	//glm::vec3 m_inputVector;
+
 	glm::vec3 m_moveDir;
 	Camera* m_playerCamera;
 	bool m_logicStop;
@@ -56,11 +61,6 @@ private:
 	EnhanceAttackSpell m_enhanceAttack;
 	AnimatedObject* m_firstPersonMesh;
 
-	SPELL_TYPE m_spellType;
-	SPELL_TYPE m_specialSpelltype;
-	SPELL_TYPE m_specialSpellType2;
-	SPELL_TYPE m_specialSpellType3;
-	
 	float m_attackCooldown;
 	float m_deflectCooldown;
 	float m_specialCooldown;
@@ -69,15 +69,11 @@ private:
 	float m_spellSpeed = 1;
 	float m_speed;
 	
+	bool m_rMouse; //Right Mouse
 	float m_mana;
-
-	int m_nrOfSpells;
 	int m_health;
 	int m_frameCount;
-
-	std::string name;
-
-	float m_timeLeftInDeflectState;
+	
 	bool m_deflecting;
 
 	AnimationState animState;

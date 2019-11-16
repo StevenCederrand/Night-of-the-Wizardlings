@@ -49,7 +49,6 @@ BulletPhysics::~BulletPhysics()
 		m_collisionShapes[i] = 0;
 		delete shape;
 	}
-	
 	delete m_character;
 
 	delete m_ghostCallback;
@@ -62,7 +61,7 @@ BulletPhysics::~BulletPhysics()
 	m_collisionShapes.clear();
 }
 
-btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, glm::vec3 position, glm::vec3 extend, glm::quat rotation, float friction)
+btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, glm::vec3 position, glm::vec3 extend, glm::quat rotation, float restitution, float friction)
 {
 	btCollisionShape* objectShape;
 	switch (object)
@@ -119,12 +118,18 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 
 	body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
 
+
 	//how much bounce and friction a object should have
 	
-	body->setRestitution(1.0f);	
-	body->setFriction(0);
-	body->setSpinningFriction(1.0f);
+	body->setRestitution(restitution);	
+	body->setFriction(friction);
+	body->setSpinningFriction(0.5f);
 
+	if (restitution == 0.0f)
+	{
+		body->setFriction(0.8f);
+		body->setSpinningFriction(0.2f);
+	}
 	m_dynamicsWorld->addRigidBody(body);
 
 	return body;
@@ -150,8 +155,12 @@ btKinematicCharacterController* BulletPhysics::createCharacter(const glm::vec3& 
 	//create the character and add him to the dynamicsWorld
 	//m_playerShape = new btCapsuleShape(1.0, height +2 * 1.0);
 
-	m_boxSize = btVector3(0.5, height / 2, 0.5);
-	m_playerShape = new btCapsuleShapeZ(0.5, height);
+	//m_boxSize
+
+	//m_boxSize = btVector3(0.5, height / 2, 0.5);
+	btScalar capsule1 = m_boxSize.getX();
+	btScalar capsule2 = m_boxSize.getY()*0.5f;
+	m_playerShape = new btCapsuleShapeZ(0.6f, height);
 
 	m_ghostObject = new btPairCachingGhostObject();
 	btTransform startTransform;
