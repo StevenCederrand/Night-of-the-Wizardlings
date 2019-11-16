@@ -41,7 +41,7 @@ void NetworkPlayers::update(const float& dt)
 					animObj->initAnimations("RunAnimation", 1.0f, 21.0f);
 					animObj->initAnimations("IdleAnimation", 22.0f, 92.0f);
 					animObj->initAnimations("CastAnimation", 93.0f, 112.0f);
-					animObj->initAnimations("JumpAnimation", 93.0f, 112.0f);
+					animObj->initAnimations("JumpAnimation", 1.0f, 21.0f);
 
 				}
 
