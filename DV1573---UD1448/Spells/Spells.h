@@ -1,6 +1,9 @@
 #ifndef	_SPELLS_h
 #define _SPELLS_h
 #include <Pch/Pch.h>
+#include <Particles/Particles.h>
+#include <Mesh/MeshFormat.h>
+#include <Particles/ParticleBuffers.h>
 
 struct AttackSpellBase
 {
