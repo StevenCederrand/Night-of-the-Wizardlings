@@ -62,17 +62,17 @@ void NetworkPlayers::update(const float& dt)
 			continue;
 		}
 
-		GameObject* g = p.gameobject;
 		
 		if (p.data.inDeflectState)
 		{
-			GameObject* shieldObject;
-			shieldObject = new DeflectObject("PlayerShield");
+			GameObject* shieldObject = new DeflectObject("playerShield");
+			logTrace("The deflect");
 			shieldObject->loadMesh("ShieldMesh.mesh");
 			shieldObject->setWorldPosition(glm::vec3(0.0f, 13.0f, 6.0f));
 			Renderer::getInstance()->submit(shieldObject, SHIELD);
 		}
 		
+		GameObject* g = p.gameobject;
 		if (g != nullptr) {
 			
 			/* Don't render the player if he's dead */

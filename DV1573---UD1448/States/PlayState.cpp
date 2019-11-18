@@ -74,7 +74,7 @@ PlayState::~PlayState()
 		delete object;
 
 	GUIclear();
-
+	 
 	m_objects.clear();
 	delete m_skybox;
 	delete m_player;

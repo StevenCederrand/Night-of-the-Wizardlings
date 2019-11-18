@@ -912,6 +912,12 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 		}
 	}
 
+	for (size_t i = 0; i < m_shieldObject.size(); i++)
+	{
+		delete m_shieldObject[i];
+	}
+
+	m_shieldObject.clear();
 	shader->clearBinding();
 #pragma endregion
 
@@ -927,6 +933,7 @@ void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 	renderBigNotifications();
 	renderKillFeed();
 	renderHUD();
+	m_deflectObject.clear();
 }
 
 
