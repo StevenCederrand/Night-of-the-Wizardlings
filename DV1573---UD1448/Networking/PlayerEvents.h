@@ -9,7 +9,8 @@ enum PlayerEvents {
 	PowerupRemoved,
 	TookHeal,
 	SessionOver,
-	None
+	None,
+	Deflected
 };
 
 #endif

@@ -682,6 +682,12 @@ void Client::processAndHandlePackets()
 			data.direction = m_myPlayerDataPacket.lookDirection;
 			data.type = spellPacket.SpellType;
 			
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+				m_playerEvents.push_back(PlayerEvents::Deflected);
+			}
+
 			// scope
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateDeflectSpellMutex);

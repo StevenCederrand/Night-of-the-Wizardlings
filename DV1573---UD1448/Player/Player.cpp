@@ -83,7 +83,7 @@ void Player::update(float deltaTime)
 	
 	//Regenerate mana when we are not deflecting
 	if (!m_rMouse && m_mana <= 100 && m_deflectCooldown <= 0) {
-		m_mana += 0.1f;
+		m_mana += 0.25f;
 	}
 	else if (m_deflectCooldown > 0 && !m_rMouse) {
 		m_deflectCooldown -= DeltaTime;
@@ -217,7 +217,7 @@ void Player::attack()
 				animState.deflecting = true; //Play the animation once
 				m_mana -= 10; //This is the initial manacost for the deflect
 			}
-			m_mana -= 1;
+			m_mana -= 0.5f;
 			m_deflecting = true;
 			m_deflectCooldown = 0.5f; 			
 		}

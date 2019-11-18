@@ -102,6 +102,10 @@ void FindServerState::loadServersIntoList()
 		m_serverList->setItem(itemMultiColumnList, 1, static_cast<CEGUI::uint>(i)); // ColumnID, RowID
 		itemMultiColumnList->setSelectionColours(CEGUI::Colour(0.8f, 0.8f, 0.0f));
 	}
+	m_serverList->setSortColumnByID(1); 
+	m_serverList->setSortDirection(CEGUI::ListHeaderSegment::SortDirection::Descending);
+
+
 }
 
 void FindServerState::removeAllRows()

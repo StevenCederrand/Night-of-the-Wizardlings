@@ -168,105 +168,115 @@ void PlayState::update_isPlaying(const float& dt)
 
 		switch (evnt) {
 
-		case PlayerEvents::Died:
-		{
-			logWarning("[Event system] Died");
-			//Update the HP bar 
-			m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(clientPtr->getMyData().health) / 100);
-			const PlayerPacket* shooter = clientPtr->getLatestPlayerThatHitMe();
-			if (shooter != nullptr) {
-				m_lastPositionOfMyKiller = shooter->position;
+			case PlayerEvents::Died:
+			{
+				logWarning("[Event system] Died");
+				//Update the HP bar 
+				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				const PlayerPacket* shooter = clientPtr->getLatestPlayerThatHitMe();
+				if (shooter != nullptr) {
+					m_lastPositionOfMyKiller = shooter->position;
+				}
+
+				m_camera->disableCameraMovement(true);
+				break;
 			}
 
-			m_camera->disableCameraMovement(true);
-			break;
-		}
+			case PlayerEvents::Respawned:
+			{
+				logWarning("[Event system] Respawned");
+				//Update the HP bar 
+				m_player->setPlayerPos(Client::getInstance()->getMyData().latestSpawnPosition);
+				m_player->setHealth(NetGlobals::PlayerMaxHealth);
+				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_camera->resetCamera();
+				m_camera->disableCameraMovement(false);
+				break;
+			}
 
-		case PlayerEvents::Respawned:
-		{
-			logWarning("[Event system] Respawned");
-			//Update the HP bar 
-			m_player->setPlayerPos(Client::getInstance()->getMyData().latestSpawnPosition);
-			m_player->setHealth(NetGlobals::PlayerMaxHealth);
-			m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(clientPtr->getMyData().health) / 100);
-			m_camera->resetCamera();
-			m_camera->disableCameraMovement(false);
-			break;
-		}
+			case PlayerEvents::TookDamage:
+			{
+				logWarning("[Event system] Took damage");
 
-		case PlayerEvents::TookDamage:
-		{
-			logWarning("[Event system] Took damage");
+				const PlayerPacket* shooter = clientPtr->getLatestPlayerThatHitMe();
 
-			const PlayerPacket* shooter = clientPtr->getLatestPlayerThatHitMe();
+				if (shooter != nullptr) {
+					const glm::vec3& playerPosition = m_player->getPlayerPos();
+					const glm::vec3& shooterPosition = shooter->position;
+					const glm::vec3& playerRotation = clientPtr->getMyData().rotation; // cause i don't want quaternions..
 
-			if (shooter != nullptr) {
-				const glm::vec3& playerPosition = m_player->getPlayerPos();
-				const glm::vec3& shooterPosition = shooter->position;
-				const glm::vec3& playerRotation = clientPtr->getMyData().rotation; // cause i don't want quaternions..
+					glm::vec3 diffVec = shooterPosition - playerPosition;
 
-				glm::vec3 diffVec = shooterPosition - playerPosition;
+					float angle = (atan2f(diffVec.x, diffVec.z) * 180.0f) / glm::pi<float>();
+					float playerAngle = glm::degrees(playerRotation.y);
+					float indicatorAngle = angle - playerAngle;
 
-				float angle = (atan2f(diffVec.x, diffVec.z) * 180.0f) / glm::pi<float>();
-				float playerAngle = glm::degrees(playerRotation.y);
-				float indicatorAngle = angle - playerAngle;
+					// Health 
+					int myNewHealth = Client::getInstance()->getMyData().health;
+					float clipPercentage = static_cast<float>(myNewHealth) / 100.0f;
 
-				// Health 
-				int myNewHealth = Client::getInstance()->getMyData().health;
-				float clipPercentage = static_cast<float>(myNewHealth) / 100.0f;
+					// Get all the involved hud objects
+					HudObject* DmgIndicator = m_hudHandler.getHudObject(DAMAGE_INDICATOR);
+					HudObject* DmgOverlay = m_hudHandler.getHudObject(DAMAGE_OVERLAY);
+					HudObject* HpBar = m_hudHandler.getHudObject(BAR_HP);
 
-				// Get all the involved hud objects
-				HudObject* DmgIndicator = m_hudHandler.getHudObject(DAMAGE_INDICATOR);
-				HudObject* DmgOverlay = m_hudHandler.getHudObject(DAMAGE_OVERLAY);
+					DmgIndicator->setRotation(glm::quat(glm::vec3(0, 0, glm::radians(indicatorAngle))));
+					DmgIndicator->setAlpha(1.0f);
+					DmgOverlay->setAlpha(1.0f);
+
+					HpBar->setYClip(clipPercentage);
+					m_player->setHealth(myNewHealth);
+				}
+
+				break;
+			}
+
+			case PlayerEvents::TookPowerup:
+			{
+				logWarning("[Event system] Took a powerup");
+				m_hudHandler.getHudObject(POWERUP)->setAlpha(1.0f);
+				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				break;
+			}
+
+			case PlayerEvents::TookHeal:
+			{
+				logWarning("[Event system] Took a heal");
+				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				break;
+			}
+			case PlayerEvents::PowerupRemoved:
+			{
+				logWarning("[Event system] Powerup was removed");
+				m_hudHandler.getHudObject(POWERUP)->setAlpha(0.0f);
+				break;
+			}
+
+
+			case PlayerEvents::SessionOver:
+			{
+				logWarning("[Event system] Session is over");
 				HudObject* HpBar = m_hudHandler.getHudObject(BAR_HP);
-
-				DmgIndicator->setRotation(glm::quat(glm::vec3(0, 0, glm::radians(indicatorAngle))));
-				DmgIndicator->setAlpha(1.0f);
-				DmgOverlay->setAlpha(1.0f);
-
+				int myNewHealth = clientPtr->getMyData().health;
+				float clipPercentage = 1.0f;
 				HpBar->setYClip(clipPercentage);
 				m_player->setHealth(myNewHealth);
-
+				break;
 			}
 
+			case PlayerEvents::Deflected:
+			{
+				m_hudHandler.getHudObject(CROSSHAIR_DEFLECT_INDICATOR)->setAlpha(1.0f);
+				break;
+			}
 
-			break;
 		}
-
-		case PlayerEvents::TookPowerup:
-		{
-			logWarning("[Event system] Took a powerup");
-			m_hudHandler.getHudObject(POWERUP)->setAlpha(1.0f);
-			m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(clientPtr->getMyData().health) / 100);
-			break;
-		}
-
-		case PlayerEvents::TookHeal:
-		{
-			logWarning("[Event system] Took a heal");
-			m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(clientPtr->getMyData().health) / 100);
-			break;
-		}
-		case PlayerEvents::PowerupRemoved:
-		{
-			logWarning("[Event system] Powerup was removed");
-			m_hudHandler.getHudObject(POWERUP)->setAlpha(0.0f);
-			break;
-		}
-
-		case PlayerEvents::SessionOver:
-		{
-			logWarning("[Event system] Session is over");
-			HudObject* HpBar = m_hudHandler.getHudObject(BAR_HP);
-			int myNewHealth = clientPtr->getMyData().health;
-			float clipPercentage = 1.0f;
-			HpBar->setYClip(clipPercentage);
-			m_player->setHealth(myNewHealth);
-			break;
-		}
-		}
+	
 	}
-
 	// Look at the killer when dead ( If he exist )
 	if (!m_camera->isCameraActive() && clientPtr->getMyData().health <= 0)
 	{
@@ -423,6 +433,8 @@ void PlayState::HUDHandler() {
 
 	//Mana bar
 	m_hudHandler.getHudObject(BAR_MANA)->setYClip(m_player->getMana() / 100.0f);
+	m_hudHandler.getHudObject(CROSSHAIR_MANA)->setYClip(m_player->getMana() / 100.0f);
+
 
 	if (m_player->getAttackCooldown() > 0) {
 		m_hudHandler.getHudObject(SPELL_ARCANE)->setGrayscale(m_player->getAttackCooldown() / m_player->getMaxAttackCooldown());
@@ -456,13 +468,17 @@ void PlayState::HUDHandler() {
 		m_hudHandler.getHudObject(CROSSHAIR)->setAlpha(1.0f);
 		m_hudHandler.getHudObject(CROSSHAIR_DEFLECT)->setAlpha(0.0f);
 	}
-	
+
 	//Damage Overlay
 	if (m_hudHandler.getHudObject(DAMAGE_OVERLAY)->getAlpha() != 0)
 	{
 		m_hudHandler.getHudObject(DAMAGE_OVERLAY)->setAlpha(m_hudHandler.getHudObject(DAMAGE_OVERLAY)->getAlpha() - DeltaTime);
 	}
-	
+
+	if (m_hudHandler.getHudObject(CROSSHAIR_DEFLECT_INDICATOR)->getAlpha() != 0)
+	{
+		m_hudHandler.getHudObject(CROSSHAIR_DEFLECT_INDICATOR)->setAlpha(m_hudHandler.getHudObject(CROSSHAIR_DEFLECT_INDICATOR)->getAlpha() - DeltaTime);
+	}
 	//Hitmarker
 	if (m_hudHandler.getHudObject(CROSSHAIR_HIT)->getAlpha() > 0.0f) {
 		m_hudHandler.getHudObject(CROSSHAIR_HIT)->setAlpha(m_hudHandler.getHudObject(CROSSHAIR_HIT)->getAlpha() - DeltaTime);
@@ -523,6 +539,7 @@ void PlayState::GUILoadScoreboard() {
 	if (!m_scoreboardExists) {
 		//Create the scoreboard
 		m_scoreBoard = static_cast<CEGUI::MultiColumnList*>(Gui::getInstance()->createWidget(PLAYSECTION, CEGUI_TYPE + "/MultiColumnList", glm::vec4(0.20f, 0.25f, 0.60f, 0.40f), glm::vec4(0.0f), "Scoreboard"));
+
 		m_scoreBoard->addColumn("Players: ", 0, CEGUI::UDim(0.33f, 0));
 		m_scoreBoard->addColumn("Kills: ", 1, CEGUI::UDim(0.33f, 0));
 		m_scoreBoard->addColumn("Deaths: ", 2, CEGUI::UDim(0.34f, 0));
@@ -544,6 +561,7 @@ void PlayState::GUILoadScoreboard() {
 			index++;
 		}
 		
+
 		//Add other players
 		auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
 
@@ -562,6 +580,8 @@ void PlayState::GUILoadScoreboard() {
 			index++;
 		}
 		m_scoreboardExists = true;
+		m_scoreBoard->setSortColumnByID(1);
+		m_scoreBoard->setSortDirection(CEGUI::ListHeaderSegment::SortDirection::Descending);
 	}
 }
 
