@@ -504,8 +504,9 @@ void SoundHandler::playSound(SoundIndexClient whatSound)
 	}			
 }
 
-void SoundHandler::playSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID)
+int SoundHandler::playSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID)
 {
+	int slot = -1;
 	bool found = false;
 	for (int i = 0; i < m_nrOfPlayers && !found; i++)
 	{
@@ -525,6 +526,7 @@ void SoundHandler::playSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID p
 					{
 						alSourcePlay(m_playerSoundInfo.at(i).sources.at(whatSound).at(j));
 						foundFreeSlot = true;
+						slot = j;						
 					}
 				}				
 
@@ -547,6 +549,8 @@ void SoundHandler::playSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID p
 			found = true;
 		}
 	}
+
+	return slot;
 }
 
 void SoundHandler::pauseSound(SoundIndexClient whatSound)
@@ -823,7 +827,7 @@ void SoundHandler::setSourcePosition(glm::vec3 pos, SoundIndexClient whatSound)
 	}	
 }
 
-void SoundHandler::setSourcePosition(glm::vec3 pos, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID)
+void SoundHandler::setSourcePosition(glm::vec3 pos, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID, int slot)
 {
 	ALfloat sourcePosition[] = { pos.x, pos.y, pos.z };
 	bool found = false;
@@ -831,7 +835,8 @@ void SoundHandler::setSourcePosition(glm::vec3 pos, SoundIndexCommon whatSound, 
 	{
 		if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
 		{
-			for (int j = 0; j < NR_OF_SUBSEQUENT_SOUNDS; j++)
+			alSourcefv(m_playerSoundInfo.at(i).sources.at(whatSound).at(slot), AL_POSITION, sourcePosition);
+			/*for (int j = 0; j < NR_OF_SUBSEQUENT_SOUNDS; j++)
 			{
 				m_error = alGetError();
 
@@ -840,7 +845,7 @@ void SoundHandler::setSourcePosition(glm::vec3 pos, SoundIndexCommon whatSound, 
 				{
 					logTrace("Error setting position to source");
 				}
-			}
+			}*/
 			found = true;
 		}
 	}

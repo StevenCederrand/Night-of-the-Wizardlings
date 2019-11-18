@@ -21,7 +21,7 @@ void NetworkSpells::update(const float& dt)
 		
 		for (size_t i = 0; i < m_entities.size(); i++) {
 		
-			SpellEntity& e = m_entities[i];
+			SpellEntity& e = m_entities[i];			
 			
 			if (e.flag == NetGlobals::THREAD_FLAG::Add) {
 				if (e.gameobject == nullptr) {
@@ -39,9 +39,13 @@ void NetworkSpells::update(const float& dt)
 					}
 					else if (e.spellData.SpellType == SPELL_TYPE::FLAMESTRIKE) {
 						e.gameobject = new AOEAttack(e.spellData.Position);							
+						e.spellData.SoundSlot = shPtr->playSound(FireSound, e.spellData.CreatorGUID);
+						shPtr->setSourcePosition(e.spellData.Position, FireSound, e.spellData.CreatorGUID, e.spellData.SoundSlot);
 					}
 					else if (e.spellData.SpellType == SPELL_TYPE::FIRE) {
-						e.gameobject = new fire(e.spellData.Position);						
+						e.gameobject = new fire(e.spellData.Position);		
+						shPtr->setSourcePosition(e.spellData.Position, GlassBreakSound, e.spellData.CreatorGUID);
+						shPtr->playSound(GlassBreakSound, e.spellData.CreatorGUID);
 					}
 					else {
 						return;
@@ -60,7 +64,7 @@ void NetworkSpells::update(const float& dt)
 							shPtr->setSourcePosition(e.spellData.Position, FireSound, e.spellData.CreatorGUID);
 							shPtr->playSound(FireSound, e.spellData.CreatorGUID);
 						}
-					}					*/
+					}*/					
 
 					e.gameobject->setWorldPosition(e.spellData.Position);
 					Renderer::getInstance()->submit(e.gameobject, SPELL);
@@ -75,6 +79,10 @@ void NetworkSpells::update(const float& dt)
 				m_entities.erase(m_entities.begin() + i);
 				i--;
 				continue;
+			}
+			else if (e.flag == NetGlobals::THREAD_FLAG::None && e.spellData.SpellType == SPELL_TYPE::FLAMESTRIKE)
+			{				
+				shPtr->setSourcePosition(e.spellData.Position, FireSound, e.spellData.CreatorGUID, e.spellData.SoundSlot);
 			}
 
 			GameObject* g = e.gameobject;

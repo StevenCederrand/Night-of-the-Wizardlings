@@ -132,6 +132,7 @@ struct SpellPacket{
 	glm::vec3 Scale = glm::vec3(1.0f);
 	glm::vec3 Direction = glm::vec3(0.0f);
 	SPELL_TYPE SpellType = SPELL_TYPE::UNKNOWN;
+	uint64_t SoundSlot = 0;
 
 
 

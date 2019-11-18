@@ -93,7 +93,7 @@ public:
 	int attachBuffersToPlayerSources(RakNet::AddressOrGUID playerID);
 
 	void playSound(SoundIndexClient whatSound);
-	void playSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
+	int playSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
 
 	void pauseSound(SoundIndexClient whatSound);
 	void pauseSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
@@ -118,7 +118,7 @@ public:
 	void setSourceMaxDistance(float dist, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
 	
 	void setSourcePosition(glm::vec3 pos, SoundIndexClient whatSound);
-	void setSourcePosition(glm::vec3 pos, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
+	void setSourcePosition(glm::vec3 pos, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID, int slot = 0);
 	
 	void setSourceVelocity(glm::vec3 vel, SoundIndexClient whatSound);
 	void setSourceVelocity(glm::vec3 vel, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
