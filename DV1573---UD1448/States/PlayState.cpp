@@ -70,30 +70,30 @@ PlayState::PlayState()
 
 	// DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP
 	// Destruction test object
-	m_objects.push_back(new DestructibleObject("Destructible", &m_dstr));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall1.mesh");
-	//m_objects.back()->setWorldPosition(glm::vec3(0.0f, 15.0f, -3.0f));
-	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	Renderer::getInstance()->submit(m_objects.back(), STATIC);
-	
-	m_objects.push_back(new DestructibleObject("Destructible2", &m_dstr));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall2.mesh");
-	//m_objects.back()->setWorldPosition(glm::vec3(0.0f, 15.0f, 3.0f));
-	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	Renderer::getInstance()->submit(m_objects.back(), STATIC);
-	
-	m_objects.push_back(new DestructibleObject("Destructible3", &m_dstr));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTMazeWall.mesh");
-	//m_objects.back()->setWorldPosition(glm::vec3(0.0f, 15.0f, 3.0f), 0);
-	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	Renderer::getInstance()->submit(m_objects.back(), STATIC);
-	
-	m_objects.push_back(new DestructibleObject("Destructible4", &m_dstr));
-	static_cast<DestructibleObject*>(m_objects.back())->loadBasic("Dstr_4");
-	m_objects.back()->setWorldPosition(glm::vec3(0.0f, 17.0f, -3.0f), 0);
-	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	//m_objects.push_back(new DestructibleObject("Destructible", &m_dstr));
+	//static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall1.mesh");
+	////m_objects.back()->setWorldPosition(glm::vec3(0.0f, 15.0f, -3.0f));
+	//m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	//Renderer::getInstance()->submit(m_objects.back(), STATIC);
+	//
+	//m_objects.push_back(new DestructibleObject("Destructible2", &m_dstr));
+	//static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall2.mesh");
+	////m_objects.back()->setWorldPosition(glm::vec3(0.0f, 15.0f, 3.0f));
+	//m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	//Renderer::getInstance()->submit(m_objects.back(), STATIC);
+	//
+	//m_objects.push_back(new DestructibleObject("Destructible3", &m_dstr));
+	//static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTMazeWall.mesh");
+	////m_objects.back()->setWorldPosition(glm::vec3(0.0f, 15.0f, 3.0f), 0);
+	//m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	//Renderer::getInstance()->submit(m_objects.back(), STATIC);
+	//
+	//m_objects.push_back(new DestructibleObject("Destructible4", &m_dstr));
+	//static_cast<DestructibleObject*>(m_objects.back())->loadBasic("Dstr_4");
+	//m_objects.back()->setWorldPosition(glm::vec3(0.0f, 17.0f, -3.0f), 0);
+	//m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	//Renderer::getInstance()->submit(m_objects.back(), STATIC);
 
-	Renderer::getInstance()->submit(m_objects.back(), STATIC);
 	// DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP
 
 
