@@ -114,8 +114,13 @@ void PlayState::update(float dt)
 			case PlayerEvents::Died:
 			{
 				logWarning("[Event system] Died");
+<<<<<<< HEAD
 				//Update the HP bar
 				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(m_player->getHealth()) / 100);
+=======
+				//Update the HP bar 
+				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+>>>>>>> a2e34857d495a72505b838b3503d12659cf91da8
 				const PlayerPacket* shooter = clientPtr->getLatestPlayerThatHitMe();
 				if (shooter != nullptr) {
 					m_lastPositionOfMyKiller = shooter->position;
@@ -131,7 +136,7 @@ void PlayState::update(float dt)
 				//Update the HP bar
 				m_player->setPlayerPos(Client::getInstance()->getMyData().latestSpawnPosition);
 				m_player->setHealth(NetGlobals::PlayerMaxHealth);
-				m_hudHandler.getHudObject(BAR_HP)->setYClip(1.0f);
+				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				m_camera->resetCamera();
 				m_camera->disableCameraMovement(false);
 				break;
@@ -180,9 +185,16 @@ void PlayState::update(float dt)
 			{
 				logWarning("[Event system] Took a powerup");
 				m_hudHandler.getHudObject(POWERUP)->setAlpha(1.0f);
+				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				break;
 			}
 
+			case PlayerEvents::TookHeal:
+			{
+				logWarning("[Event system] Took a heal");
+				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				break;
+			}
 			case PlayerEvents::PowerupRemoved:
 			{
 				logWarning("[Event system] Powerup was removed");

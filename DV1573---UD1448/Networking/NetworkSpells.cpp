@@ -15,7 +15,7 @@ void NetworkSpells::update(const float& dt)
 {
 	if (Client::getInstance()->isConnectedToSever()) {
 		
-		Client::getInstance()->updateSpellsMutexGuard();
+		std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateSpellsMutex);
 		
 		for (size_t i = 0; i < m_entities.size(); i++) {
 		
@@ -46,7 +46,7 @@ void NetworkSpells::update(const float& dt)
 					}
 					
 
-
+				
 				
 					e.gameobject->setWorldPosition(e.spellData.Position);
 					Renderer::getInstance()->submit(e.gameobject, SPELL);
