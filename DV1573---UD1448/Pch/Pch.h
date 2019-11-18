@@ -80,6 +80,7 @@ const std::string CEGUI_TYPE = "OgreTray";
 const std::string SHADERPATH = "Assets/Shaders/";
 const std::string TEXTUREPATH = "Assets/Textures/";
 const std::string MESHPATH = "Assets/Meshes/";
+const std::string CHARACTER = "pCharacter";
 
 const unsigned int SCREEN_WIDTH = 1280;
 const unsigned int SCREEN_HEIGHT = 720;

@@ -18,6 +18,8 @@ SpellHandler::SpellHandler(BulletPhysics * bp)
 	initFlamestrikeSpell();
 	initReflectSpell();
 	initFireSpell();
+	
+	setCharacter(CHARACTER);
 }
 
 void SpellHandler::initAttackSpell()
@@ -46,7 +48,7 @@ void SpellHandler::initAttackSpell()
 	attackBase->m_damage = 34.0f;
 	attackBase->m_speed = 70.0f;
 	attackBase->m_radius = 0.25f;
-	attackBase->m_coolDown = 0.75f;
+	attackBase->m_coolDown = 1.0f;
 	attackBase->m_lifeTime = 5.0f;
 	attackBase->m_maxBounces = 3.0f;
 }
@@ -79,7 +81,7 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase->m_damage = 34.0f;
 	enhanceAtkBase->m_speed = 150.0f;
 	enhanceAtkBase->m_radius = 0.5f;
-	enhanceAtkBase->m_coolDown = 1.0f;
+	enhanceAtkBase->m_coolDown = 3.0f;
 	enhanceAtkBase->m_lifeTime = 5.0f;
 	enhanceAtkBase->m_maxBounces = 3;
 }
@@ -139,7 +141,7 @@ void SpellHandler::initFireSpell()
 
 	fireBase->m_damage = 10.0f;
 	fireBase->m_speed = 0.0f;
-	fireBase->m_coolDown = 1.0f;
+	fireBase->m_coolDown = 4.0f;
 	fireBase->m_lifeTime = 5.0f;
 	fireBase->m_maxBounces = 0;
 }
@@ -403,11 +405,11 @@ void SpellHandler::spellUpdate(float deltaTime)
 			m_BulletNormalSpell.erase(m_BulletNormalSpell.begin() + i);
 		}
 	}
-	spellCollisionCheck(deltaTime);
+	spellCollisionCheck();
 	
 	// Scope
 	{
-		Client::getInstance()->deflectSpellsMutexGuard();
+		std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateDeflectSpellMutex);
 		for (size_t i = 0; i < m_deflectedSpells.size(); i++)
 		{
 			deflectSpellData& data = m_deflectedSpells[i];
@@ -449,15 +451,16 @@ const uint64_t SpellHandler::getUniqueID()
 	return id++;
 }
 
-void SpellHandler::spellCollisionCheck(float deltaTime)
+void SpellHandler::spellCollisionCheck()
 {
 
 	//get the list of att the players on the network
-	auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
-	auto& ownPlayer = Client::getInstance()->getMyData();
+
+	auto list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
+	auto ownPlayer = Client::getInstance()->getMyData();
 	
-	fireDamageCounter = fireDamageCounter - deltaTime * 1;
-	ownfireDamageCounter = ownfireDamageCounter - deltaTime * 1;
+	fireDamageCounter = fireDamageCounter - DeltaTime * 1;
+	ownfireDamageCounter = ownfireDamageCounter - DeltaTime * 1;
 
 	if (ownPlayer.health > 0 && list.size() >= 1)
 	{
@@ -469,8 +472,8 @@ void SpellHandler::spellCollisionCheck(float deltaTime)
 		std::vector<glm::vec3> axis1;
 
 		glm::rotateX(xAxis1, ownPlayer.rotation.x);
-		glm::rotateY(xAxis1, ownPlayer.rotation.y);
-		glm::rotateZ(xAxis1, ownPlayer.rotation.z);
+		glm::rotateY(yAxis1, ownPlayer.rotation.y);
+		glm::rotateZ(zAxis1, ownPlayer.rotation.z);
 
 		axis1.emplace_back(xAxis1);
 		axis1.emplace_back(yAxis1);
@@ -478,7 +481,7 @@ void SpellHandler::spellCollisionCheck(float deltaTime)
 
 		if (!m_newHit)
 		{
-		
+			//Me and fire spell
 			for (size_t j = 0; j < fireSpells.size(); j++)
 			{
 				glm::vec3 spellPos = fireSpells.at(j)->getTransform().position;
@@ -496,41 +499,53 @@ void SpellHandler::spellCollisionCheck(float deltaTime)
 			}
 		}
 	}
-
-
-
-	for (size_t i = 0; i < list.size(); i++)
+	//move camera and spell collision
+	for (size_t i = 0; i < list.size() && 1 <= spells.size() ; i++)
 	{
 		if (list[i].data.health <= 0)
 			continue;
 
 		glm::vec3 playerPos = list[i].data.position;
 		
-
 		//create the axis and rotate them
 		glm::vec3 xAxis = glm::vec3(1.0f, 0.0f, 0.0f);
 		glm::vec3 yAxis = glm::vec3(0.0f, 1.0f, 0.0f);
 		glm::vec3 zAxis = glm::vec3(0.0f, 0.0f, 1.0f);
 		std::vector<glm::vec3> axis;
 
-		glm::rotateX(xAxis, list[i].data.rotation.x);
-		glm::rotateY(xAxis, list[i].data.rotation.y);
-		glm::rotateZ(xAxis, list[i].data.rotation.z);
+		glm::quat playerrot = glm::quat(list[i].data.rotation);
+		xAxis =	glm::rotate(playerrot, xAxis);
+		yAxis = glm::rotate(playerrot, yAxis);
+		zAxis = glm::rotate(playerrot, zAxis);
 
 		axis.emplace_back(xAxis);
 		axis.emplace_back(yAxis);
 		axis.emplace_back(zAxis);
 
-		
-
 		//create a box, obb or AABB? from the player position. Old hitdetection press L
-		if (!m_newHit)
+		for (size_t j = 0; j < spells.size(); j++)
 		{
-			for (size_t j = 0; j < spells.size(); j++) {
-				logTrace("Old hit test");
-				glm::vec3 spellPos = spells.at(j)->getTransform().position;
-				float scale = spells.at(j)->getTransform().scale.x * 4.0f; //tested
-				if (specificSpellCollision(spellPos, playerPos, axis, scale))
+			glm::vec3 lastSpellPos = spells.at(j)->getLastPosition();
+			glm::vec3 spellPos = spells.at(j)->getTransform().position;
+
+			//get the radius from the spelltype
+			float radius = 0.0;
+			if (static_cast<Spell*>(spells[i])->getType() == NORMALATTACK) {
+				radius = attackBase->m_radius;
+			}
+			if (static_cast<Spell*>(spells[i])->getType() == ENHANCEATTACK) {
+				radius = enhanceAtkBase->m_radius;
+			}
+
+			//line is the walking we will do.
+			glm::vec3 line = (spellPos - lastSpellPos) / m_nrSubSteps;
+			glm::vec3 interpolationPos = lastSpellPos;
+
+			//walk from last pos to new pos with substeps
+			for (size_t k = 0; k < m_nrSubSteps; k++)
+			{
+				interpolationPos += line;
+				if (specificSpellCollision(interpolationPos, playerPos, axis, radius))
 				{
 					spells[j]->setTravelTime(0.0f);
 					Client::getInstance()->sendHitRequest(*spells[j], list[i]);
@@ -538,102 +553,43 @@ void SpellHandler::spellCollisionCheck(float deltaTime)
 					if (m_onHitCallback != nullptr) {
 						m_onHitCallback();
 					}
+					k = static_cast<size_t>(m_nrSubSteps);
 				}
-				
-			}
-
-			for (size_t j = 0; j < fireSpells.size(); j++)
-			{
-				glm::vec3 spellPos = fireSpells.at(j)->getTransform().position;
-
-				float scale = fireSpells.at(j)->getTransform().scale.x;
-				
-				if (specificSpellCollision(spellPos, playerPos, axis, scale))
-				{
-					if (fireDamageCounter <= 0)
-					{
-						Client::getInstance()->sendHitRequest(*fireSpells[j], list[i]);
-						fireDamageCounter = 1.0f;
-					}
-				}
-
 			}
 		}
-		else
+
+		for (size_t k = 0; k < fireSpells.size(); k++)
 		{
-			for (size_t j = 0; j < spells.size(); j++)
+			glm::vec3 lastSpellPos = fireSpells.at(k)->getLastPosition();
+			glm::vec3 spellPos = fireSpells.at(k)->getTransform().position;
+
+			//get the radius from the spelltype
+			float radius = fireBase->m_radius;
+
+			//line is the walking we will do.
+			glm::vec3 line = (spellPos - lastSpellPos) / m_nrSubSteps;
+			glm::vec3 interpolationPos = lastSpellPos;
+
+			//walk from last pos to new pos with substeps
+			for (size_t l = 0; l < m_nrSubSteps; l++)
 			{
-				glm::vec3 lastSpellPos = spells.at(j)->getLastPosition();
-				glm::vec3 spellPos = spells.at(j)->getTransform().position;
-
-				//get the radius from the spelltype
-				float radius = 0.0;
-				if (static_cast<Spell*>(spells[i])->getType() == NORMALATTACK) {
-					radius = attackBase->m_radius;
-				}
-
-				if (static_cast<Spell*>(spells[i])->getType() == ENHANCEATTACK) {
-					radius = enhanceAtkBase->m_radius;
-				}
-
-				//line is the walking we will do.
-				glm::vec3 line = (spellPos - lastSpellPos) / m_nrSubSteps;
-				glm::vec3 interpolationPos = lastSpellPos;
-
-				//walk from last pos to new pos with substeps
-				for (size_t k = 0; k < m_nrSubSteps; k++)
+				interpolationPos += line;
+				if (specificSpellCollision(interpolationPos, playerPos, axis, radius))
 				{
-					interpolationPos += line;
-					if (specificSpellCollision(interpolationPos, playerPos, axis, radius))
-					{
+					Client::getInstance()->sendHitRequest(*spells[k], list[i]);
 
-						spells[j]->setTravelTime(0.0f);
-						Client::getInstance()->sendHitRequest(*spells[j], list[i]);
-
-						if (m_onHitCallback != nullptr) {
-							m_onHitCallback();
-						}
-						k = static_cast<size_t>(m_nrSubSteps);
+					if (m_onHitCallback != nullptr) {
+						m_onHitCallback();
 					}
-				}
-			}
-
-			for (size_t j = 0; j < fireSpells.size(); j++)
-			{
-				glm::vec3 lastSpellPos = fireSpells.at(j)->getLastPosition();
-				glm::vec3 spellPos = fireSpells.at(j)->getTransform().position;
-
-				//get the radius from the spelltype
-				float radius = fireBase->m_radius;
-
-				//line is the walking we will do.
-				glm::vec3 line = (spellPos - lastSpellPos) / m_nrSubSteps;
-				glm::vec3 interpolationPos = lastSpellPos;
-
-				//walk from last pos to new pos with substeps
-				for (size_t k = 0; k < m_nrSubSteps; k++)
-				{
-					interpolationPos += line;
-					if (specificSpellCollision(interpolationPos, playerPos, axis, radius))
-					{
-
-						Client::getInstance()->sendHitRequest(*spells[j], list[i]);
-
-						if (m_onHitCallback != nullptr) {
-							m_onHitCallback();
-						}
-						k = m_nrSubSteps;
-					}
+					k = m_nrSubSteps;
 				}
 			}
 		}
-	
 	}
 }
 
 bool SpellHandler::specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis, float radius)
 { 
-	// sphereradius is wrong
 	bool collision = false;
 	float sphereRadius = 1.0f * radius;
 
@@ -643,79 +599,20 @@ bool SpellHandler::specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPo
 	{
 		collision = true;
 	}
-	//old collision
-	//glm::vec3 closestPoint = OBBclosestPoint(spellPos, axis, playerPos);
-	//glm::vec3 v = closestPoint - spellPos;
-	/*if (glm::dot(v, v) <= sphereRadius * sphereRadius)
-	{
-		logTrace(" ");
-	}*/
 	return collision;
 }
 
-//glm::vec3 SpellHandler::OBBclosestPoint(glm::vec3& spherePos, std::vector<glm::vec3>& axis, glm::vec3& playerPos)
-//{
-//	btVector3 box = m_bp->getCharacterSize();
-//	//float boxSize = box.getX();
-//	glm::vec3 boxSize = glm::vec3(box.getX(), box.getY(), box.getZ());
-//
-//	//closest point on obb
-//	glm::vec3 boxPoint = playerPos;
-//	glm::vec3 ray = glm::vec3(spherePos - playerPos);
-//
-//	for (int j = 0; j < 3; j++) {
-//		float distance = glm::dot(ray, axis.at(j));
-//		float distance2 = 0;
-//
-//		if (distance > boxSize[j])
-//			distance2 = boxSize[j];
-//
-//		if (distance < -boxSize[j])
-//			distance2 = -boxSize[j];
-//		
-//		boxPoint += distance2 * axis.at(j);
-//	}
-//	return boxPoint;
-//}
-
 float SpellHandler::OBBsqDist(glm::vec3& spherePos, std::vector<glm::vec3>& axis, glm::vec3& playerPos)
 {	
-	glm::vec3 halfSize;
-	if (!m_setcharacter)
-	{
-		auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
-		std::string meshName = list[0].gameobject->getMeshName(0);
-		const std::vector<Vertex2>& vertices = MeshMap::getInstance()->getMesh(meshName)->getVerticesSkele();
-		glm::vec3 min = vertices[0].position;
-		glm::vec3 max = vertices[0].position;
-
-		for (size_t i = 1; i < vertices.size(); i++)
-		{
-			min.x = fminf(vertices[i].position.x, min.x);
-			min.y = fminf(vertices[i].position.y, min.y);
-			min.z = fminf(vertices[i].position.z, min.z);
-
-			max.x = fmaxf(vertices[i].position.x, max.x);
-			max.y = fmaxf(vertices[i].position.y, max.y);
-			max.z = fmaxf(vertices[i].position.z, max.z);
-
-		}
-		halfSize = glm::vec3((max - min) * 0.5f); // * scale
-		m_setcharacter = true;
-	}
-
-	else
-	{
-		btVector3 box = m_bp->getCharacterSize();
-		halfSize = glm::vec3(box.getX(), box.getY(), box.getZ());
-	}
-
-	//btVector3 box = m_bp->getCharacterSize();
-	//glm::vec3 boxSize = glm::vec3(box.getX(), box.getY(), box.getZ());
+	btVector3 box = m_bp->getCharacterSize();
+	glm::vec3 halfSize = glm::vec3(box.getX(), box.getY(), box.getZ());
+	
 	float dist = 0.0f;
 	//closest point on obb
 	glm::vec3 boxPoint = playerPos;
-	glm::vec3 ray = glm::vec3(spherePos - playerPos);
+	boxPoint.y += halfSize.y;
+
+	glm::vec3 ray = glm::vec3(spherePos - boxPoint);
 
 	for (int j = 0; j < 3; j++) {
 		float distance = glm::dot(ray, axis.at(j));
@@ -730,6 +627,52 @@ float SpellHandler::OBBsqDist(glm::vec3& spherePos, std::vector<glm::vec3>& axis
 		dist += distance2 * distance2;
 	}
 	return dist;
+}
+
+void SpellHandler::setCharacter(std::string meshName)
+{
+	std::string skeleton = MeshMap::getInstance()->getMesh(meshName)->getSkeleton();
+	glm::vec3 min;
+	glm::vec3 max;
+
+	if (skeleton[0] == NULL)
+	{
+		const std::vector<Vertex> vertices = MeshMap::getInstance()->getMesh(meshName)->getVertices();
+		min = vertices[0].position;
+		max = vertices[0].position;
+
+		for (size_t i = 1; i < vertices.size(); i++)
+		{
+			min.x = fminf(vertices[i].position.x, min.x);
+			min.y = fminf(vertices[i].position.y, min.y);
+			min.z = fminf(vertices[i].position.z, min.z);
+
+			max.x = fmaxf(vertices[i].position.x, max.x);
+			max.y = fmaxf(vertices[i].position.y, max.y);
+			max.z = fmaxf(vertices[i].position.z, max.z);
+		}
+	}
+	else
+	{
+		const std::vector<Vertex2> vertices = MeshMap::getInstance()->getMesh(meshName)->getVerticesSkele();
+		min = vertices[0].position;
+		max = vertices[0].position;
+
+		for (size_t i = 1; i < vertices.size(); i++)
+		{
+			min.x = fminf(vertices[i].position.x, min.x);
+			min.y = fminf(vertices[i].position.y, min.y);
+			min.z = fminf(vertices[i].position.z, min.z);
+
+			max.x = fmaxf(vertices[i].position.x, max.x);
+			max.y = fmaxf(vertices[i].position.y, max.y);
+			max.z = fmaxf(vertices[i].position.z, max.z);
+		}
+	}
+	glm::vec3 halfSize = glm::vec3((max - min) * 0.5f);
+
+	m_bp->setCharacterSize(halfSize);
+	m_setcharacter = true;
 }
 
 void SpellHandler::REFLECTupdate(float deltaTime, int i)

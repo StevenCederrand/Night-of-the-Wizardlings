@@ -164,7 +164,7 @@ void Renderer::renderAndAnimateNetworkingTexts()
 
 void Renderer::renderBigNotifications()
 {
-	Client::getInstance()->renderPickupNotificationsMutexGuard();
+	std::lock_guard<std::mutex> lockGuard(NetGlobals::PickupNotificationMutex);
 	for (size_t i = 0; i < m_bigNotifications.size(); i++) {
 
 		NotificationText& notification = m_bigNotifications[i];
@@ -189,7 +189,7 @@ void Renderer::renderBigNotifications()
 
 void Renderer::renderKillFeed()
 {
-	Client::getInstance()->renderKillFeedMutexGuard();
+	std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateKillFeedMutex);
 	for (size_t i = 0; i < m_killFeed.size(); i++) {
 		
 		NotificationText& notification = m_killFeed[i];
@@ -505,7 +505,11 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 		//Loop through all of the gameobjects
 		for (GameObject* object : m_staticObjects)
 		{
-			if (object == nullptr || !object->getShouldRender()) {
+			if (object == nullptr) {
+				continue;
+			}
+
+			if (!object->getShouldRender()) {
 				continue;
 			}
 
@@ -534,7 +538,11 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 		//TODO: Consider animation for the depth shader
 		for (GameObject* object : m_anistaticObjects)
 		{
-			if (object == nullptr || !object->getShouldRender()) {
+			if (object == nullptr) {
+				continue;
+			}
+
+			if (!object->getShouldRender()) {
 				continue;
 			}
 
@@ -561,7 +569,11 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 
 		for (GameObject* object : m_pickups)
 		{
-			if (object == nullptr || !object->getShouldRender()) {
+			if (object == nullptr) {
+				continue;
+			}
+
+			if (!object->getShouldRender()) {
 				continue;
 			}
 
@@ -622,7 +634,6 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	//m_bloom->bindHdrFBO();
 	renderSkybox(m_skybox);
 	renderDeflectBox(m_deflectBox);
-	//m_spellHandler->renderSpell();
 
 #ifdef DEBUG_WIREFRAME
 	// DEBUG (MOSTLY FOR DSTR)
@@ -634,6 +645,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 
 #pragma region Color_Render
 	shader = shaderMap->useByName(BASIC_FORWARD);
+	shader->clearBinding();
 
 	if (Client::getInstance()->getMyData().health <= 0) {
 		shader->setInt("grayscale", 1);
@@ -667,10 +679,15 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			shader->setFloat("pLights[" + std::to_string(i) + "].radius", P_LIGHT_RADIUS);
 		}
 	}
+
 	//Render Static objects
 	for (GameObject* object : m_staticObjects)
 	{
-		if (object == nullptr || !object->getShouldRender()) {
+		if (object == nullptr) {
+			continue;
+		}
+
+		if (!object->getShouldRender()) {
 			continue;
 		}
 
@@ -696,13 +713,17 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			glBindVertexArray(0);
 		}
 	}
+	
 	shader->clearBinding();
-
 	//Dynamic objects
 	if (m_dynamicObjects.size() > 0) {
 		for (GameObject* object : m_dynamicObjects)
 		{
-			if (object == nullptr || !object->getShouldRender()) {
+			if (object == nullptr) {
+				continue;
+			}
+
+			if (!object->getShouldRender()) {
 				continue;
 			}
 
@@ -735,7 +756,11 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	if (m_pickups.size() > 0) {
 		for (GameObject* object : m_pickups)
 		{
-			if (object == nullptr || !object->getShouldRender()) {
+			if (object == nullptr) {
+				continue;
+			}
+
+			if (!object->getShouldRender()) {
 				continue;
 			}
 
@@ -783,7 +808,11 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	//Render Deflect Objects
 	for (GameObject* object : m_shieldObject)
 	{
-		if (object == nullptr || !object->getShouldRender()) {
+		if (object == nullptr) {
+			continue;
+		}
+
+		if (!object->getShouldRender()) {
 			continue;
 		}
 
@@ -841,7 +870,11 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 		}
 		for (GameObject* object : m_anistaticObjects)
 		{
-			if (object == nullptr || !object->getShouldRender()) {
+			if (object == nullptr) {
+				continue;
+			}
+
+			if (!object->getShouldRender()) {
 				continue;
 			}
 
@@ -922,7 +955,6 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_CULL_FACE);
 	
-
 	renderAndAnimateNetworkingTexts();
 	renderBigNotifications();
 	renderKillFeed();

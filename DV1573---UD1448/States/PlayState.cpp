@@ -15,6 +15,11 @@ void logVec3(glm::vec3 vector) {
 PlayState::PlayState()
 {
 	m_bPhysics = new BulletPhysics(-20.0f);
+	//to get the right character heigth
+	GameObject* AnimationMesh = new WorldObject("AnimationMesh");
+	AnimationMesh->loadMesh("ANIM.mesh");
+	delete AnimationMesh;
+
 	m_spellHandler = new SpellHandler(m_bPhysics);
 	m_spellHandler->setOnHitCallback(std::bind(&PlayState::onSpellHit_callback, this));
 
@@ -38,19 +43,13 @@ PlayState::PlayState()
 	m_objects[m_objects.size() - 1]->loadMesh("Academy.mesh");
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 	
-	/*m_objects.push_back(new WorldObject("sphere"));
-	m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -20.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);*/
 
 	m_objects.push_back(new WorldObject("Character"));
 	m_objects[m_objects.size() - 1]->loadMesh("CharacterTest.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 1.8f, -24.0f));
-
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
-
-	m_objects.push_back(new Deflect("playerShield"));
+	m_objects.push_back(new Deflect("PlayerShield"));
 	m_objects[m_objects.size() - 1]->loadMesh("ShieldMesh.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 13.0f, 6.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], SHIELD);
@@ -126,7 +125,6 @@ PlayState::~PlayState()
 	if (Client::getInstance()->isInitialized()) {
 		Client::getInstance()->destroy();
 	}
-	
 }
 
 void PlayState::update(float dt)
@@ -145,10 +143,9 @@ void PlayState::update(float dt)
 
 			case PlayerEvents::Died: 
 			{
-
 				logWarning("[Event system] Died");
 				//Update the HP bar 
-				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(m_player->getHealth()) / 100);
+				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				const PlayerPacket* shooter = clientPtr->getLatestPlayerThatHitMe();
 				if (shooter != nullptr) {
 					m_lastPositionOfMyKiller = shooter->position;
@@ -164,7 +161,7 @@ void PlayState::update(float dt)
 				//Update the HP bar 
 				m_player->setPlayerPos(Client::getInstance()->getMyData().latestSpawnPosition);
 				m_player->setHealth(NetGlobals::PlayerMaxHealth);
-				m_hudHandler.getHudObject(BAR_HP)->setYClip(1.0f);
+				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				m_camera->resetCamera();
 				m_camera->disableCameraMovement(false);
 				break;
@@ -213,9 +210,16 @@ void PlayState::update(float dt)
 			{
 				logWarning("[Event system] Took a powerup");
 				m_hudHandler.getHudObject(POWERUP)->setAlpha(1.0f);
+				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				break;
 			}
 
+			case PlayerEvents::TookHeal:
+			{
+				logWarning("[Event system] Took a heal");
+				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				break;
+			}
 			case PlayerEvents::PowerupRemoved:
 			{
 				logWarning("[Event system] Powerup was removed");
@@ -260,12 +264,7 @@ void PlayState::update(float dt)
 	if (!m_hideHUD) {
 		HUDHandler();
 	}
-	// DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP
-	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_J) == GLFW_PRESS)
-		m_dstr.Destroy(static_cast<DestructibleObject*>(m_objects[m_objects.size() - 1]), glm::vec3(0.0f));
-	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_K) == GLFW_PRESS)
-		m_dstr.Destroy(static_cast<DestructibleObject*>(m_objects[m_objects.size() - 2]), glm::vec3(0.0f));
-	// DESTRUCTION TEM
+
 }
 
 void PlayState::render()
@@ -432,7 +431,6 @@ void PlayState::HUDHandler() {
 		}
 	}
 }
-
 
 void PlayState::GUIHandler()
 {
