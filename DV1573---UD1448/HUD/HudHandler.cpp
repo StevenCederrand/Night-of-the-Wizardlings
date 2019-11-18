@@ -39,10 +39,18 @@ void HudHandler::loadPlayStateHUD() {
 	hudObject->setAlpha(0.0f);
 	insertHUDObject(hudObject, CROSSHAIR_DEFLECT);
 
+	
 	hudObject = new HudObject("Assets/Textures/hud/DamageIndicator.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(64.0f, 64.0f));
 	hudObject->setAlpha(0.0f);	
 	insertHUDObject(hudObject, DAMAGE_INDICATOR);
 
+	hudObject = new HudObject("Assets/Textures/hud/DamageIndicator.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(64.0f, 64.0f));
+	hudObject->setAlpha(0.0f);
+	insertHUDObject(hudObject, DAMAGE_INDICATOR);
+
+	hudObject = new HudObject("Assets/Textures/hud/deflect_hit.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(70.0f, 70.0f));
+	hudObject->setAlpha(1.0f);
+	insertHUDObject(hudObject, CROSSHAIR_DEFLECT_INDICATOR);
 
 	// ___ ICONS ___
 	hudObject = new HudObject("Assets/Textures/hud/Arcane_BG.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 4) * 3, static_cast<float>(64)), glm::vec2(80.0f, 80.0f));

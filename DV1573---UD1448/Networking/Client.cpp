@@ -667,6 +667,12 @@ void Client::processAndHandlePackets()
 			data.direction = m_myPlayerDataPacket.lookDirection;
 			data.type = spellPacket.SpellType;
 			
+			// Add this to the event list
+			{
+				eventMutexGuard(); // Thread safe
+				m_playerEvents.push_back(PlayerEvents::Deflected);
+			}
+
 			// scope
 			{
 				deflectSpellsMutexGuard();

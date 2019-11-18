@@ -211,6 +211,12 @@ void PlayState::update(float dt)
 				m_player->setHealth(myNewHealth);
 				break;
 			}
+
+			case PlayerEvents::Deflected:
+			{
+
+				break;
+			}
 		}
 	}
 
