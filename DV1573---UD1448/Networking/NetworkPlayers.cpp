@@ -63,6 +63,7 @@ void NetworkPlayers::update(const float& dt)
 		}
 
 		
+		GameObject* g = p.gameobject;
 		if (p.data.inDeflectState)
 		{
 			GameObject* shieldObject = new DeflectObject("playerShield");
@@ -70,11 +71,12 @@ void NetworkPlayers::update(const float& dt)
 			shieldObject->loadMesh("ShieldMesh.mesh");
 			
 			glm::vec3 spawnpos = p.data.position + glm::vec3(0.0f, p.data.meshHalfSize.y * 1.2, 0.0f);
-			shieldObject->setTransform(spawnpos, p.data.rotation, glm::vec3(1.0));
+			glm::vec3 newShieldpos = g->getTransform().position + glm::vec3(0.0f, p.data.meshHalfSize.y * 1.2, 0.0f);
+			glm::vec3 shieldLerp = CustomLerp(newShieldpos, spawnpos, m_lerpSpeed * dt);
+			shieldObject->setTransform(shieldLerp, p.data.rotation, glm::vec3(1.0));
 			Renderer::getInstance()->submit(shieldObject, SHIELD);
 		}
 		
-		GameObject* g = p.gameobject;
 		if (g != nullptr) {
 			
 			/* Don't render the player if he's dead */
