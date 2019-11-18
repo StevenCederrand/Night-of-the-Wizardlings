@@ -1,6 +1,11 @@
 #include "Pch/Pch.h"
 #include "BulletPhysics.h"
 
+enum {
+	NormalObjects = 1,
+	DestructableObjects
+};
+
 BulletPhysics::BulletPhysics(float gravity)
 {
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -117,23 +122,26 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, objectShape, localInertia);
 	btRigidBody* body = new btRigidBody(rbInfo);
 
-	body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
-
+	
 	//how much bounce and friction a object should have
 	body->setRestitution(restitution);	
 	body->setFriction(friction);
 	body->setSpinningFriction(1.0f);
-	/*body->setRestitution(0.1f);
-	body->setFriction(10.0f);
-	body->setSpinningFriction(10.0f);*/
-	
+	int myGoup = 1;
+	int mask = NormalObjects | DestructableObjects | btBroadphaseProxy::CharacterFilter;
+
 	if (destruction)
 	{
+		myGoup = 2;
+		mask = NormalObjects | btBroadphaseProxy::CharacterFilter;
+
 		destructionobj(body);	
 	}
+	//mask |= body->getCollisionFlags();
+	body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+	
 
-
-	m_dynamicsWorld->addRigidBody(body);
+	m_dynamicsWorld->addRigidBody(body,myGoup, mask);
 
 	return body;
 }
@@ -172,7 +180,7 @@ btKinematicCharacterController* BulletPhysics::createCharacter(const glm::vec3& 
 	m_ghostObject->setCollisionShape(m_playerShape);
 	m_ghostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
 	m_character = new btKinematicCharacterController(m_ghostObject, m_playerShape, 0.5f, btVector3(0.0f, 1.0f, 0.0f));
-	m_dynamicsWorld->addCollisionObject(m_ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
+	m_dynamicsWorld->addCollisionObject(m_ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter | NormalObjects | DestructableObjects);
 
 	m_collisionShapes.push_back(m_playerShape);
 	m_dynamicsWorld->addAction(m_character);
