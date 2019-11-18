@@ -81,7 +81,7 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase->m_radius = 0.5f;
 	enhanceAtkBase->m_coolDown = 1.0f;
 	enhanceAtkBase->m_lifeTime = 5.0f;
-	enhanceAtkBase->m_maxBounces = 3.0f;
+	enhanceAtkBase->m_maxBounces = 3;
 }
 
 void SpellHandler::initFlamestrikeSpell()
@@ -141,7 +141,7 @@ void SpellHandler::initFireSpell()
 	fireBase->m_speed = 0.0f;
 	fireBase->m_coolDown = 1.0f;
 	fireBase->m_lifeTime = 5.0f;
-	fireBase->m_maxBounces = 0.0f;
+	fireBase->m_maxBounces = 0;
 }
 
 void SpellHandler::initReflectSpell()
@@ -280,14 +280,25 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 
 		//bullet create
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
-		m_BulletFlamestrikeSpell.emplace_back(
-			m_bp->createObject(sphere, 0.1f, spellPos + directionVector * 2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
+		m_BulletFlamestrikeSpell.emplace_back(m_bp->createObject(
+			sphere,
+			1.0f,
+			spellPos + directionVector * 2,
+			glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f),
+			glm::quat(),
+			false,
+			0.15f,
+			1.0f
+		));
 
 		int size = m_BulletFlamestrikeSpell.size();
-		m_BulletFlamestrikeSpell.at(size - 1)->setGravity(btVector3(0.0f, -60.0f, 0.0f));
-		m_BulletFlamestrikeSpell.at(size - 1)->setAngularVelocity(btVector3(direction * 5));
-		m_BulletFlamestrikeSpell.at(size - 1)->setLinearVelocity(btVector3(direction * flamestrikeBase->m_speed));
-		m_BulletFlamestrikeSpell.at(size - 1)->setUserPointer(spell);
+		m_BulletFlamestrikeSpell.back()->setGravity(btVector3(0.0f, -60.0f, 0.0f));
+		float rndX = rand() % 1999 + 1 - 1000; rndX /= 100;
+		float rndY = rand() % 1999 + 1 - 1000; rndY /= 100;
+		float rndZ = rand() % 1999 + 1 - 1000; rndZ /= 100;
+		m_BulletFlamestrikeSpell.back()->setAngularVelocity(btVector3(rndX, rndY, rndZ));
+		m_BulletFlamestrikeSpell.back()->setLinearVelocity(btVector3(direction * flamestrikeBase->m_speed));
+		m_BulletFlamestrikeSpell.back()->setUserPointer(spell);
 	}
 
 	if (type == FIRE)
@@ -300,15 +311,6 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 		fireSpells.emplace_back(fireSpell);
 		Renderer::getInstance()->submit(fireSpells.back(), SPELL);
 		
-		//bullet create
-		/*btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.x);
-		m_BulletNormalSpell.emplace_back(
-			m_bp->createObject(sphere, 1.0f, spellPos + directionVector * 2, glm::vec3(fireSpell->getTransform().scale.x, 0.0f, 0.0f)));*/
-
-			//int size = m_BulletNormalSpell.size();
-			//m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
-			//m_BulletNormalSpell.at(size - 1)->setUserPointer(fireSpell);
-			//m_BulletNormalSpell.at(size - 1)->setLinearVelocity(direction * fireBase->m_speed);
 	}
 
 	return cooldown;

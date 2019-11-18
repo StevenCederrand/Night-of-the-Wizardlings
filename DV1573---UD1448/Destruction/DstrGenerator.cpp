@@ -45,7 +45,7 @@ void DstrGenerator::initPoints(glm::vec2 position, int amount)
 		rnd = rand() % 999 + 1;
 		rnd /= 1000;
 		offset = 1.5f;
-		offset += (0.01f * m_breakAreaRadius * glm::sqrt(rnd));
+		offset += (0.05f * m_breakAreaRadius * glm::sqrt(rnd));
 
 		rnd = rand() % 999 + 1;
 		rnd /= 1000;

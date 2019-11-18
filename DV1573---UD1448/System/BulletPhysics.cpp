@@ -123,6 +123,9 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	body->setRestitution(restitution);	
 	body->setFriction(friction);
 	body->setSpinningFriction(1.0f);
+	/*body->setRestitution(0.1f);
+	body->setFriction(10.0f);
+	body->setSpinningFriction(10.0f);*/
 	
 	if (destruction)
 	{
