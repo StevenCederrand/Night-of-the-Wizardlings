@@ -223,8 +223,8 @@ const SpectatorMode& Camera::getSpectatorMode() const
 
 void Camera::lookAt(const glm::vec3& position)
 {
-	glm::vec3 dir = glm::normalize(position - m_camPos);
-	m_viewMatrix = glm::lookAt(m_camPos, m_camPos + dir, glm::vec3(0.0f, 1.0f, 0.0f));
+	m_camFace = glm::normalize(position - m_camPos);
+	m_viewMatrix = glm::lookAt(m_camPos, m_camPos + m_camFace, glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 void Camera::update()
@@ -247,9 +247,11 @@ void Camera::update()
 		}
 		else {
 			updateMouseMovement();
-			m_viewMatrix = glm::lookAt(m_camPos, m_camPos + m_camFace, m_camUp);
+		
 		}
+
 	}
+	m_viewMatrix = glm::lookAt(m_camPos, m_camPos + m_camFace, m_camUp);
 
 }
 
