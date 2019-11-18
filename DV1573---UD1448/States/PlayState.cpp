@@ -115,6 +115,7 @@ void PlayState::update(float dt)
 				logWarning("[Event system] Died");
 				//Update the HP bar 
 				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				const PlayerPacket* shooter = clientPtr->getLatestPlayerThatHitMe();
 				if (shooter != nullptr) {
 					m_lastPositionOfMyKiller = shooter->position;
@@ -131,6 +132,7 @@ void PlayState::update(float dt)
 				m_player->setPlayerPos(Client::getInstance()->getMyData().latestSpawnPosition);
 				m_player->setHealth(NetGlobals::PlayerMaxHealth);
 				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				m_camera->resetCamera();
 				m_camera->disableCameraMovement(false);
 				break;
@@ -167,6 +169,7 @@ void PlayState::update(float dt)
 					DmgOverlay->setAlpha(1.0f);
 
 					HpBar->setYClip(clipPercentage);
+					m_hudHandler.getHudObject(CROSSHAIR_HP)->setYClip(clipPercentage);
 					m_player->setHealth(myNewHealth);
 					
 				}
@@ -180,6 +183,7 @@ void PlayState::update(float dt)
 				logWarning("[Event system] Took a powerup");
 				m_hudHandler.getHudObject(POWERUP)->setAlpha(1.0f);
 				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				break;
 			}
 
@@ -187,6 +191,7 @@ void PlayState::update(float dt)
 			{
 				logWarning("[Event system] Took a heal");
 				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				break;
 			}
 			case PlayerEvents::PowerupRemoved:
@@ -250,6 +255,8 @@ void PlayState::HUDHandler() {
 	
 	//Mana bar
 	m_hudHandler.getHudObject(BAR_MANA)->setYClip(m_player->getMana() / 100.0f);
+	m_hudHandler.getHudObject(CROSSHAIR_MANA)->setYClip(m_player->getMana() / 100.0f);
+
 
 	if (m_player->getAttackCooldown() > 0) {
 		m_hudHandler.getHudObject(SPELL_ARCANE)->setGrayscale(m_player->getAttackCooldown() / m_player->getMaxAttackCooldown());
