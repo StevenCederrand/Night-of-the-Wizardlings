@@ -59,6 +59,7 @@ struct PlayerPacket {
 	glm::vec3 rotation = glm::vec3(0.0f);
 	glm::vec3 lookDirection = glm::vec3(0.0f);
 	glm::vec3 latestSpawnPosition = glm::vec3(0.0f);
+	glm::vec3 meshHalfSize = glm::vec3(0.0f);
 	char userName[16] = { ' ' };
 	int numberOfKills = 0;
 	int numberOfDeaths = 0;
@@ -78,6 +79,7 @@ struct PlayerPacket {
 		stream.Serialize(writeToStream, rotation);
 		stream.Serialize(writeToStream, lookDirection);
 		stream.Serialize(writeToStream, latestSpawnPosition);
+		stream.Serialize(writeToStream, meshHalfSize);
 		stream.Serialize(writeToStream, userName);
 		stream.Serialize(writeToStream, numberOfKills);
 		stream.Serialize(writeToStream, numberOfDeaths);

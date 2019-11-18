@@ -37,6 +37,7 @@ public:
 	const float& getMaxAttackCooldown() const;
 	const float& getMaxSpecialCooldown() const;
 	const float& getMana() const;
+	const glm::vec3 getMeshHalfSize() const;
 
 	//-----Set-----//
 	void setPlayerPos(glm::vec3 pos);

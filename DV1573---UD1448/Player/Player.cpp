@@ -27,7 +27,7 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_moveDir = glm::vec3(0.0f);
 
 	m_spellhandler = spellHandler;
-	m_mana = 100.0f; //A  players mana pool
+	m_mana = 10000.0f; //A  players mana pool
 
 	m_maxAttackCooldown = m_spellhandler->getAttackBase()->m_coolDown;
 	m_maxSpecialCooldown = m_spellhandler->getEnhAttackBase()->m_coolDown;
@@ -342,6 +342,11 @@ const float& Player::getMaxSpecialCooldown() const
 const float& Player::getMana() const
 {
 	return m_mana;
+}
+
+const glm::vec3 Player::getMeshHalfSize() const
+{
+	return glm::vec3(m_bp->getCharacterSize().getX(), m_bp->getCharacterSize().getY(), m_bp->getCharacterSize().getZ());
 }
 
 const glm::vec3& Player::getPlayerPos() const

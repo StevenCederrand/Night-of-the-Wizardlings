@@ -68,7 +68,9 @@ void NetworkPlayers::update(const float& dt)
 			GameObject* shieldObject = new DeflectObject("playerShield");
 			logTrace("The deflect");
 			shieldObject->loadMesh("ShieldMesh.mesh");
-			shieldObject->setWorldPosition(glm::vec3(0.0f, 13.0f, 6.0f));
+			
+			glm::vec3 spawnpos = p.data.position + glm::vec3(0.0f, p.data.meshHalfSize.y * 1.2, 0.0f);
+			shieldObject->setTransform(spawnpos, p.data.rotation, glm::vec3(1.0));
 			Renderer::getInstance()->submit(shieldObject, SHIELD);
 		}
 		
