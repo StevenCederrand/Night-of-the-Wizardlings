@@ -538,5 +538,3 @@ bool PlayState::onQuitClick(const CEGUI::EventArgs& e) {
 	glfwSetWindowShouldClose(glfwGetCurrentContext(), true);
 	return true;	
 }
-
-
