@@ -34,6 +34,16 @@ namespace NetGlobals {
 		GameInSession,
 		GameFinished
 	};
+
+	static std::mutex m_cleanupMutex;
+	static std::mutex m_updatePickupsMutex;
+	static std::mutex m_updatePlayersMutex;
+	static std::mutex m_updateSpellsMutex;
+	static std::mutex m_playerEventMutex;
+	static std::mutex m_deflectSpellMutex;
+	static std::mutex m_renderPickupNotificationMutex;
+	static std::mutex m_renderKillFeedMutex;
+
 }
 
 #endif

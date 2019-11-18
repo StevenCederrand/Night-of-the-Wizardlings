@@ -15,7 +15,7 @@ void NetworkSpells::update(const float& dt)
 {
 	if (Client::getInstance()->isConnectedToSever()) {
 		
-		Client::getInstance()->updateSpellsMutexGuard();
+		std::lock_guard<std::mutex> lockGuard(NetGlobals::m_updateSpellsMutex);
 		
 		for (size_t i = 0; i < m_entities.size(); i++) {
 		

@@ -407,7 +407,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 	
 	// Scope
 	{
-		Client::getInstance()->deflectSpellsMutexGuard();
+		std::lock_guard<std::mutex> lockGuard(NetGlobals::m_deflectSpellMutex);
 		for (size_t i = 0; i < m_deflectedSpells.size(); i++)
 		{
 			deflectSpellData& data = m_deflectedSpells[i];

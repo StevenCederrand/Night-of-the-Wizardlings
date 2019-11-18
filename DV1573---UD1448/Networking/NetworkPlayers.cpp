@@ -23,7 +23,7 @@ void NetworkPlayers::cleanUp()
 
 void NetworkPlayers::update(const float& dt)
 {
-	Client::getInstance()->updatePlayersMutexGuard();
+	std::lock_guard<std::mutex> lockGuard(NetGlobals::m_updatePlayersMutex);
 	for (size_t i = 0; i < m_players.size(); i++)
 	{
 		PlayerEntity& p = m_players[i];
