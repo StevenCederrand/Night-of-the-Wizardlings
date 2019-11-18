@@ -113,6 +113,7 @@ void AOEAttack::updateRigidbody(float deltaTime, btRigidBody* body)
 
 	btVector3 pos = body->getWorldTransform().getOrigin();
 	setWorldPosition(glm::vec3(pos.getX(), pos.getY(), pos.getZ()));
+	m_pos = glm::vec3(pos.getX(), pos.getY(), pos.getZ());
 }
 
 
@@ -130,4 +131,9 @@ void AOEAttack::update(float dt)
 const float AOEAttack::getDamage()
 {
 	return m_spellBase->m_damage;
+}
+
+const glm::vec3& AOEAttack::getPos() const
+{
+	return m_pos;
 }

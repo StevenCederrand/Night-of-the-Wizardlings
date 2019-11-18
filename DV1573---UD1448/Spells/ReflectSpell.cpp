@@ -58,6 +58,11 @@ const float ReflectSpell::getDamage()
 	return 0.0f;
 }
 
+const glm::vec3& ReflectSpell::getPos() const
+{
+	return glm::vec3(0);
+}
+
 void ReflectSpell::updateReflection(float deltaTime, btRigidBody* body, glm::vec3 position, glm::vec3 direction)
 {
 	m_transform.position = position + (direction * 0.5f);

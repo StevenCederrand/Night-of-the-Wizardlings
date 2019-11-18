@@ -46,6 +46,7 @@ SoundHandler::SoundHandler()
 	setSourceGain(0.2, EnhanceAttackSound, myGuid);
 	setSourceGain(0.3, JumpSound, myGuid);
 	setSourceGain(0.3, StepsSound, myGuid);
+	setSourceGain(0.3, FireSound, myGuid);
 	setSourceGain(0.3, TakingDamageSound);
 	setSourceGain(0.3, HitmarkSound);	
 }

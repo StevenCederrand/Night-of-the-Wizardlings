@@ -86,6 +86,11 @@ const float AttackSpell::getDamage()
 	return m_spellBase->m_damage;
 }
 
+const glm::vec3& AttackSpell::getPos() const
+{
+	return glm::vec3(0);
+}
+
 
 //const AttackSpellBase* AttackSpell::getSpellBase()
 //{

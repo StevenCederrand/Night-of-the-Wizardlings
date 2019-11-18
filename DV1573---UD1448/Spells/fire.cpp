@@ -68,3 +68,8 @@ const float fire::getDamage()
 {
 	return m_spellBase->m_damage;
 }
+
+const glm::vec3& fire::getPos() const
+{
+	return glm::vec3(0);
+}
