@@ -164,7 +164,7 @@ void Renderer::renderAndAnimateNetworkingTexts()
 
 void Renderer::renderBigNotifications()
 {
-	std::lock_guard<std::mutex> lockGuard(NetGlobals::m_renderPickupNotificationMutex);
+	std::lock_guard<std::mutex> lockGuard(NetGlobals::PickupNotificationMutex);
 	for (size_t i = 0; i < m_bigNotifications.size(); i++) {
 
 		NotificationText& notification = m_bigNotifications[i];
@@ -189,7 +189,7 @@ void Renderer::renderBigNotifications()
 
 void Renderer::renderKillFeed()
 {
-	std::lock_guard<std::mutex> lockGuard(NetGlobals::m_renderKillFeedMutex);
+	std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateKillFeedMutex);
 	for (size_t i = 0; i < m_killFeed.size(); i++) {
 		
 		NotificationText& notification = m_killFeed[i];

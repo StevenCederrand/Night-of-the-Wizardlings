@@ -35,14 +35,14 @@ namespace NetGlobals {
 		GameFinished
 	};
 
-	static std::mutex m_cleanupMutex;
-	static std::mutex m_updatePickupsMutex;
-	static std::mutex m_updatePlayersMutex;
-	static std::mutex m_updateSpellsMutex;
-	static std::mutex m_playerEventMutex;
-	static std::mutex m_deflectSpellMutex;
-	static std::mutex m_renderPickupNotificationMutex;
-	static std::mutex m_renderKillFeedMutex;
+	static std::mutex ClientCleanupMutex;
+	static std::mutex UpdatePickupsMutex;
+	static std::mutex UpdatePlayersMutex;
+	static std::mutex UpdateSpellsMutex;
+	static std::mutex UpdatePlayerEventMutex;
+	static std::mutex UpdateDeflectSpellMutex;
+	static std::mutex UpdateKillFeedMutex;
+	static std::mutex PickupNotificationMutex;
 
 }
 

@@ -44,7 +44,7 @@ void Client::destroy()
 		
 		// In it's own scope
 		{
-			std::lock_guard<std::mutex> lockGuard(NetGlobals::m_cleanupMutex);
+			std::lock_guard<std::mutex> lockGuard(NetGlobals::ClientCleanupMutex);
 			m_shutdownThread = true;
 		}
 
@@ -130,7 +130,7 @@ void Client::ThreadedUpdate()
 		/* Checking for cleanups, it's in its own scope due to the lock guard
 		   releases the mutex upon destruction. */ 
 		{
-			std::lock_guard<std::mutex> lockGuard(NetGlobals::m_cleanupMutex);
+			std::lock_guard<std::mutex> lockGuard(NetGlobals::ClientCleanupMutex);
 			if (m_shutdownThread == true)
 				clientRunning = false;
 		}
@@ -253,7 +253,7 @@ void Client::processAndHandlePackets()
 				   (whenever the lock guard goes out of scope.). This will make it synced &
 				   avoid deadlocks. */
 				{
-					std::lock_guard<std::mutex> lockGuard(NetGlobals::m_updatePlayersMutex);
+					std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayersMutex);
 					m_networkPlayers.m_players.emplace_back(pE);
 				}
 			}
@@ -277,7 +277,7 @@ void Client::processAndHandlePackets()
 				se.gameobject = nullptr;
 
 				{
-					std::lock_guard<std::mutex> lockGuard(NetGlobals::m_updatePlayersMutex);
+					std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayersMutex);
 					m_networkSpells.m_entities.emplace_back(se);
 				}
 
@@ -306,7 +306,7 @@ void Client::processAndHandlePackets()
 			pE.gameobject = nullptr;
 			
 			{
-				std::lock_guard<std::mutex> lockGuard(NetGlobals::m_updatePlayersMutex);
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayersMutex);
 				m_networkPlayers.m_players.emplace_back(pE);
 			}
 
@@ -326,7 +326,7 @@ void Client::processAndHandlePackets()
 			std::string playerName;
 
 			{
-				std::lock_guard<std::mutex> lockGuard(NetGlobals::m_updatePlayersMutex);
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayersMutex);
 				NetworkPlayers::PlayerEntity* pE = findPlayerEntityInNetworkPlayers(guidOfDisconnectedPlayer);
 				if (pE != nullptr) {
 					playerName = std::string(pE->data.userName);
@@ -353,7 +353,7 @@ void Client::processAndHandlePackets()
 			t.textParts.emplace_back(Information, color);
 
 			{
-				std::lock_guard<std::mutex> lockGuard(NetGlobals::m_renderPickupNotificationMutex);
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::PickupNotificationMutex);
 				Renderer::getInstance()->addBigNotification(t);
 			}
 
@@ -401,7 +401,7 @@ void Client::processAndHandlePackets()
 						t.textParts.emplace_back(Information, color);
 
 						{
-							std::lock_guard<std::mutex> lockGuard(NetGlobals::m_renderPickupNotificationMutex);
+							std::lock_guard<std::mutex> lockGuard(NetGlobals::PickupNotificationMutex);
 							Renderer::getInstance()->addBigNotification(t);
 						}
 
@@ -469,7 +469,7 @@ void Client::processAndHandlePackets()
 			se.gameobject = nullptr;
 			
 			{
-				std::lock_guard<std::mutex> lockGuard(NetGlobals::m_updateSpellsMutex);
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateSpellsMutex);
 				m_networkSpells.m_entities.emplace_back(se);
 			}
 
@@ -532,7 +532,7 @@ void Client::processAndHandlePackets()
 
 			// The scope
 			{
-				std::lock_guard<std::mutex> lockGuard(NetGlobals::m_updateSpellsMutex);
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateSpellsMutex);
 				NetworkSpells::SpellEntity* ne = findSpellEntityInNetworkSpells(spellPacket);
 				if (ne != nullptr) {
 					ne->flag = NetGlobals::THREAD_FLAG::Remove;
@@ -565,7 +565,7 @@ void Client::processAndHandlePackets()
 			
 			// Add this to the event list
 			{
-				std::lock_guard<std::mutex> lockGuard(NetGlobals::m_playerEventMutex); // Thread safe
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
 				m_playerEvents.push_back(PlayerEvents::TookDamage);
 
 				if (m_myPlayerDataPacket.health <= 0) {
@@ -609,7 +609,7 @@ void Client::processAndHandlePackets()
 
 			// Add this to the event list
 			{
-				std::lock_guard<std::mutex> lockGuard(NetGlobals::m_playerEventMutex); // Thread safe
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
 				m_playerEvents.push_back(PlayerEvents::Respawned);
 			}
 
@@ -623,7 +623,7 @@ void Client::processAndHandlePackets()
 
 			// Add this to the event list
 			{
-				std::lock_guard<std::mutex> lockGuard(NetGlobals::m_playerEventMutex); // Thread safe
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
 				m_playerEvents.push_back(PlayerEvents::Respawned);
 			}
 			break;
@@ -634,7 +634,7 @@ void Client::processAndHandlePackets()
 			m_myPlayerDataPacket.health = NetGlobals::PlayerMaxHealth;
 			// Add this to the event list
 			{
-				std::lock_guard<std::mutex> lockGuard(NetGlobals::m_playerEventMutex); // Thread safe
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
 				m_playerEvents.push_back(PlayerEvents::SessionOver);
 			}
 			break;
@@ -669,7 +669,7 @@ void Client::processAndHandlePackets()
 			
 			// scope
 			{
-				std::lock_guard<std::mutex> lockGuard(NetGlobals::m_deflectSpellMutex);
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateDeflectSpellMutex);
 				m_spellHandler->m_deflectedSpells.emplace_back(data);
 			}
 		}
@@ -687,7 +687,7 @@ void Client::processAndHandlePackets()
 			pp.pickup = nullptr;
 			
 			{
-				std::lock_guard<std::mutex> lockGuard(NetGlobals::m_updatePickupsMutex);
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePickupsMutex);
 				m_networkPickup->m_pickupProps.emplace_back(pp);
 			}
 
@@ -705,7 +705,7 @@ void Client::processAndHandlePackets()
 				auto& prop = m_networkPickup->m_pickupProps[i];
 				
 				if (prop.packet.uniqueID == pickupPacket.uniqueID) {
-					std::lock_guard<std::mutex> lockGuard(NetGlobals::m_updatePickupsMutex);
+					std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePickupsMutex);
 					prop.flag = NetGlobals::THREAD_FLAG::Remove;
 					found = true;
 				}
@@ -746,7 +746,7 @@ void Client::processAndHandlePackets()
 			t.textParts.emplace_back(text, locColor);
 
 			{
-				std::lock_guard<std::mutex> lockGuard(NetGlobals::m_renderPickupNotificationMutex);
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::PickupNotificationMutex);
 				Renderer::getInstance()->addBigNotification(t);
 			}
 
@@ -762,7 +762,7 @@ void Client::processAndHandlePackets()
 
 			// Add this to the event list
 			{
-				std::lock_guard<std::mutex> lockGuard(NetGlobals::m_playerEventMutex); // Thread safe
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
 				m_playerEvents.push_back(PlayerEvents::TookHeal);
 			}
 
@@ -778,7 +778,7 @@ void Client::processAndHandlePackets()
 
 			// Add this to the event list
 			{
-				std::lock_guard<std::mutex> lockGuard(NetGlobals::m_playerEventMutex); // Thread safe
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
 				m_playerEvents.push_back(PlayerEvents::TookPowerup);
 			}
 
@@ -792,7 +792,7 @@ void Client::processAndHandlePackets()
 		{	
 			// Add this to the event list
 			{
-				std::lock_guard<std::mutex> lockGuard(NetGlobals::m_playerEventMutex); // Thread safe
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
 				m_playerEvents.push_back(PlayerEvents::PowerupRemoved);
 			}
 
@@ -845,7 +845,7 @@ void Client::processAndHandlePackets()
 			t.textParts.emplace_back(deadguyName, playerColor);
 
 			{
-				std::lock_guard<std::mutex> lockGuard(NetGlobals::m_renderKillFeedMutex);
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateKillFeedMutex);
 				Renderer::getInstance()->addKillFeed(t);
 			}
 
@@ -1146,7 +1146,7 @@ const PlayerEvents Client::readNextEvent()
 
 	// Remove it so that the next time this function is called the next event will be shown
 	{
-		std::lock_guard<std::mutex> lockGuard(NetGlobals::m_playerEventMutex); // Thread safe
+		std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
 		m_playerEvents.erase(m_playerEvents.begin());
 	}
 	// Return the event
@@ -1373,7 +1373,7 @@ void Client::routineCleanup()
 	// Scope
 	{
 		logInfo("[Client-Routine] Running Dead spell cleanup routine");
-		std::lock_guard<std::mutex> lockGuard(NetGlobals::m_updateSpellsMutex);
+		std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateSpellsMutex);
 		auto& spellVec = m_networkSpells.getSpellEntitiesREF();
 
 		for (size_t i = 0; i < spellVec.size(); i++) {
@@ -1405,7 +1405,7 @@ void Client::routineCleanup()
 				logWarning("[Client-Routine] Marking lost player for removal..");
 				// Scope
 				{
-					std::lock_guard<std::mutex> lockGuard(NetGlobals::m_updatePlayersMutex);
+					std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayersMutex);
 					NetworkPlayers::PlayerEntity* pE = findPlayerEntityInNetworkPlayers(player.guid);
 					if (pE != nullptr) {
 						pE->flag = NetGlobals::THREAD_FLAG::Remove;
