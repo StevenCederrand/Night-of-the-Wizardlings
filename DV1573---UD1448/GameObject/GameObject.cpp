@@ -463,7 +463,7 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 
 			m_bodies.emplace_back(m_bPhysics->createObject(shape, 0.0f, center, halfSize));
 			m_bodies.back()->setUserPointer(this);
-			setTransformFromRigid(i);
+			//setTransformFromRigid(i);
 		}
 		else
 		{
@@ -486,7 +486,8 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 
 			m_bodies.emplace_back(m_bPhysics->createObject(shape, 0.0f, center, halfSize, getTransform(i).rotation));
 			m_bodies.back()->setUserPointer(this);
-			setTransformFromRigid(i);
+			//setTransformFromRigid(i);
+
 		}
 	}
 
