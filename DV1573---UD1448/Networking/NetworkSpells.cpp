@@ -49,22 +49,7 @@ void NetworkSpells::update(const float& dt)
 					}
 					else {
 						return;
-					}					
-
-					/*Spell* spellTemp = dynamic_cast<Spell*>(e.gameobject);
-					if (spellTemp != nullptr)
-					{
-						if (dynamic_cast<fire*>(spellTemp) != nullptr)
-						{
-							shPtr->setSourcePosition(e.spellData.Position, GlassBreakSound, e.spellData.CreatorGUID);
-							shPtr->playSound(GlassBreakSound, e.spellData.CreatorGUID);
-						}
-						else if (dynamic_cast<AOEAttack*>(spellTemp) != nullptr)
-						{
-							shPtr->setSourcePosition(e.spellData.Position, FireSound, e.spellData.CreatorGUID);
-							shPtr->playSound(FireSound, e.spellData.CreatorGUID);
-						}
-					}*/					
+					}									
 
 					e.gameobject->setWorldPosition(e.spellData.Position);
 					Renderer::getInstance()->submit(e.gameobject, SPELL);
@@ -80,9 +65,13 @@ void NetworkSpells::update(const float& dt)
 				i--;
 				continue;
 			}
-			else if (e.flag == NetGlobals::THREAD_FLAG::None && e.spellData.SpellType == SPELL_TYPE::FLAMESTRIKE)
-			{				
-				shPtr->setSourcePosition(e.spellData.Position, FireSound, e.spellData.CreatorGUID, e.spellData.SoundSlot);
+			else if (e.flag == NetGlobals::THREAD_FLAG::None)
+			{			
+				if (e.spellData.SpellType == SPELL_TYPE::FLAMESTRIKE)
+				{
+					shPtr->setSourcePosition(e.spellData.Position, FireSound, e.spellData.CreatorGUID, e.spellData.SoundSlot);
+				}
+				
 			}
 
 			GameObject* g = e.gameobject;
