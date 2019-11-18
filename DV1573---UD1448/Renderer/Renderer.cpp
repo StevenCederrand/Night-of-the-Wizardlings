@@ -164,7 +164,7 @@ void Renderer::renderAndAnimateNetworkingTexts()
 
 void Renderer::renderBigNotifications()
 {
-	Client::getInstance()->renderPickupNotificationsMutexGuard();
+	std::lock_guard<std::mutex> lockGuard(NetGlobals::PickupNotificationMutex);
 	for (size_t i = 0; i < m_bigNotifications.size(); i++) {
 
 		NotificationText& notification = m_bigNotifications[i];
@@ -189,7 +189,7 @@ void Renderer::renderBigNotifications()
 
 void Renderer::renderKillFeed()
 {
-	Client::getInstance()->renderKillFeedMutexGuard();
+	std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateKillFeedMutex);
 	for (size_t i = 0; i < m_killFeed.size(); i++) {
 		
 		NotificationText& notification = m_killFeed[i];
@@ -505,7 +505,11 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 		//Loop through all of the gameobjects
 		for (GameObject* object : m_staticObjects)
 		{
-			if (object == nullptr || !object->getShouldRender()) {
+			if (object == nullptr) {
+				continue;
+			}
+
+			if (!object->getShouldRender()) {
 				continue;
 			}
 
@@ -534,7 +538,11 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 		//TODO: Consider animation for the depth shader
 		for (GameObject* object : m_anistaticObjects)
 		{
-			if (object == nullptr || !object->getShouldRender()) {
+			if (object == nullptr) {
+				continue;
+			}
+
+			if (!object->getShouldRender()) {
 				continue;
 			}
 
@@ -561,7 +569,11 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 
 		for (GameObject* object : m_pickups)
 		{
-			if (object == nullptr || !object->getShouldRender()) {
+			if (object == nullptr) {
+				continue;
+			}
+
+			if (!object->getShouldRender()) {
 				continue;
 			}
 
@@ -623,6 +635,14 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	renderSkybox(m_skybox);
 	renderDeflectBox(m_deflectBox);
 
+#ifdef DEBUG_WIREFRAME
+	// DEBUG (MOSTLY FOR DSTR)
+	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_M) == GLFW_PRESS)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_N) == GLFW_PRESS)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
+
 #pragma region Color_Render
 	shader = shaderMap->useByName(BASIC_FORWARD);
 	shader->clearBinding();
@@ -663,7 +683,11 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	//Render Static objects
 	for (GameObject* object : m_staticObjects)
 	{
-		if (object == nullptr || !object->getShouldRender()) {
+		if (object == nullptr) {
+			continue;
+		}
+
+		if (!object->getShouldRender()) {
 			continue;
 		}
 
@@ -695,7 +719,11 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	if (m_dynamicObjects.size() > 0) {
 		for (GameObject* object : m_dynamicObjects)
 		{
-			if (object == nullptr || !object->getShouldRender()) {
+			if (object == nullptr) {
+				continue;
+			}
+
+			if (!object->getShouldRender()) {
 				continue;
 			}
 
@@ -728,7 +756,11 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	if (m_pickups.size() > 0) {
 		for (GameObject* object : m_pickups)
 		{
-			if (object == nullptr || !object->getShouldRender()) {
+			if (object == nullptr) {
+				continue;
+			}
+
+			if (!object->getShouldRender()) {
 				continue;
 			}
 
@@ -776,7 +808,11 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	//Render Deflect Objects
 	for (GameObject* object : m_shieldObject)
 	{
-		if (object == nullptr || !object->getShouldRender()) {
+		if (object == nullptr) {
+			continue;
+		}
+
+		if (!object->getShouldRender()) {
 			continue;
 		}
 
@@ -834,7 +870,11 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 		}
 		for (GameObject* object : m_anistaticObjects)
 		{
-			if (object == nullptr || !object->getShouldRender()) {
+			if (object == nullptr) {
+				continue;
+			}
+
+			if (!object->getShouldRender()) {
 				continue;
 			}
 
@@ -868,7 +908,15 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	
 	shader->clearBinding();
 #pragma endregion
+
+	// Spell Rendering
 	m_spellHandler->renderSpell();
+
+#ifdef DEBUG_WIREFRAME
+	// DEBUG (MOSTLY FOR DSTR)
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
+
 	//ShaderMap::getInstance()->useByName(BLUR);
 
 	//ShaderMap::getInstance()->getShader(BLUR)->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
@@ -907,7 +955,6 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_CULL_FACE);
 	
-
 	renderAndAnimateNetworkingTexts();
 	renderBigNotifications();
 	renderKillFeed();
@@ -1070,7 +1117,7 @@ void Renderer::initializeParticle()
 	m_PSinfo.glow = false;
 	m_PSinfo.scaleDirection = 0;
 	m_PSinfo.fade = 1;
-	m_PSinfo.color = glm::vec3(1.0f, 0.0f, 1.0f);
+	m_PSinfo.color = glm::vec3(0.65f, 1.0f, 1.0f);
 	m_PSinfo.direction = glm::vec3(1.0f, 0.0f, 0.0f);
 	vertexCountDiff = m_PSinfo.maxParticles;
 	emissionDiff = m_PSinfo.emission;
@@ -1102,7 +1149,7 @@ void Renderer::initializeParticle()
 	m_enhanceInfo.glow = false;
 	m_enhanceInfo.scaleDirection = 0;
 	m_enhanceInfo.fade = 1;
-	m_enhanceInfo.color = glm::vec3(0.5f, 1.0f, 0.0f);
+	m_enhanceInfo.color = glm::vec3(0.85f, 0.3f, 0.2f);
 	m_enhanceInfo.direction = glm::vec3(1.0f, 0.0f, 0.0f);
 	vertexCountDiff2 = m_enhanceInfo.maxParticles;
 	emissionDiff2 = m_enhanceInfo.emission;
@@ -1120,23 +1167,23 @@ void Renderer::initializeParticle()
 
 	m_txtInfo.name = "Assets/Textures/Spell_2.png";
 
-	m_flameInfo.width = 0.3f;
-	m_flameInfo.heigth = 0.3f;
-	m_flameInfo.lifetime = 1.0f;
-	m_flameInfo.maxParticles = 5000; //350
-	m_flameInfo.emission = 0.0001f; //0.00001f;
-	m_flameInfo.force = -1.0f; //5
-	m_flameInfo.drag = -1.0f;
+	m_flameInfo.width = 1.2f;
+	m_flameInfo.heigth = 1.2f;
+	m_flameInfo.lifetime = 8.0f;
+	m_flameInfo.maxParticles = 1000; //350
+	m_flameInfo.emission = 0.005f; //0.00001f;
+	m_flameInfo.force = -0.04f; //5
+	m_flameInfo.drag = 0.0f;
 	m_flameInfo.gravity = 0.0f; //Standard is 1
 	m_flameInfo.seed = -1;
 	m_flameInfo.cont = true;
 	m_flameInfo.omnious = true;
-	m_flameInfo.spread = 10.0f;
+	m_flameInfo.spread = 15.0f;
 	m_flameInfo.glow = false;
 	m_flameInfo.scaleDirection = 0;
 	m_flameInfo.fade = 1;
-	m_flameInfo.color = glm::vec3(1.0f, 0.5f, 0.0f);
-	m_flameInfo.direction = glm::vec3(0.0f, 10.0f, 0.0f);
+	m_flameInfo.color = glm::vec3(1.0f, 0.6f, 0.2f);
+	m_flameInfo.direction = glm::vec3(0.0f, 1.0f, 0.0f);
 	vertexCountDiff3 = m_flameInfo.maxParticles;
 	emissionDiff3 = m_flameInfo.emission;
 	//ps = new ParticleSystem(&m_PSinfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
