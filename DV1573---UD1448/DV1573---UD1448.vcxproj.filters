@@ -53,11 +53,10 @@
     <ClCompile Include="Texture\stb_image.cpp" />
     <ClCompile Include="Text\FreeType.cpp" />
     <ClCompile Include="Text\HUDShader.cpp" />
-    <ClCompile Include="Deflect\DeflectRender.cpp" />
-    <ClCompile Include="Deflect\Deflect.cpp" />
     <ClCompile Include="Particles\Particles.cpp" />
     <ClCompile Include="Particles\ParticleBuffers.cpp" />
     <ClCompile Include="GameObject\MapObject.cpp" />
+    <ClCompile Include="GameObject\DeflectObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
@@ -122,8 +121,6 @@
     <ClInclude Include="Texture\stb_image.h" />
     <ClInclude Include="Text\FreeType.h" />
     <ClInclude Include="Text\HUDShader.h" />
-    <ClInclude Include="Deflect\DeflectRender.h" />
-    <ClInclude Include="Deflect\Deflect.h" />
     <ClInclude Include="System\Helper.h" />
     <ClInclude Include="Particles\Particles.h" />
     <ClInclude Include="Particles\ParticleBuffers.h" />
@@ -142,6 +139,8 @@
     <ClInclude Include="Networking\PlayerEvents.h" />
     <ClInclude Include="Renderer\NotificationStructure.h" />
     <ClInclude Include="GameObject\MapObject.h" />
+    <ClInclude Include="Renderer\PickupNotificationStructure.h" />
+    <ClInclude Include="GameObject\DeflectObject.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

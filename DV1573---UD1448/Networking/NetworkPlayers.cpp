@@ -64,6 +64,14 @@ void NetworkPlayers::update(const float& dt)
 
 		GameObject* g = p.gameobject;
 		
+		if (p.data.inDeflectState)
+		{
+			GameObject* shieldObject;
+			shieldObject = new DeflectObject("PlayerShield");
+			shieldObject->loadMesh("ShieldMesh.mesh");
+			shieldObject->setWorldPosition(glm::vec3(0.0f, 13.0f, 6.0f));
+			Renderer::getInstance()->submit(shieldObject, SHIELD);
+		}
 		
 		if (g != nullptr) {
 			

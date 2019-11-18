@@ -52,13 +52,9 @@ bool Application::init() {
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
-<<<<<<< HEAD
-	m_window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Wizards 'n stuff", NULL, NULL);
-	//m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", glfwGetPrimaryMonitor(), NULL); //!!! FULLSCREEN!!!
-=======
+
 	m_window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Night of the Wizardlings", NULL, NULL);
 	//m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", glfwGetPrimaryMonitor(), NULL); !!! FULLSCREEN!!!
->>>>>>> a2e34857d495a72505b838b3503d12659cf91da8
 
 	//glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	

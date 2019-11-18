@@ -51,12 +51,6 @@ PlayState::PlayState()
 
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
-	m_objects.push_back(new Deflect("PlayerShield"));
-	m_objects[m_objects.size() - 1]->loadMesh("ShieldMesh.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 13.0f, 6.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], SHIELD);
-
-
 
 	MaterialMap::getInstance();
 	gContactAddedCallback = callbackFunc;
@@ -87,7 +81,6 @@ PlayState::~PlayState()
 	delete m_bPhysics;
 	delete m_spellHandler;
 	delete m_camera;
-	delete m_deflectBox;
 	if (LocalServer::getInstance()->isInitialized()) {
 		LocalServer::getInstance()->destroy();
 	}
@@ -114,13 +107,8 @@ void PlayState::update(float dt)
 			case PlayerEvents::Died:
 			{
 				logWarning("[Event system] Died");
-<<<<<<< HEAD
-				//Update the HP bar
-				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(m_player->getHealth()) / 100);
-=======
 				//Update the HP bar 
 				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
->>>>>>> a2e34857d495a72505b838b3503d12659cf91da8
 				const PlayerPacket* shooter = clientPtr->getLatestPlayerThatHitMe();
 				if (shooter != nullptr) {
 					m_lastPositionOfMyKiller = shooter->position;
@@ -243,7 +231,7 @@ void PlayState::update(float dt)
 
 void PlayState::render()
 {
-	Renderer::getInstance()->render(m_skybox, m_deflectBox, m_spellHandler);
+	Renderer::getInstance()->render(m_skybox, m_spellHandler);
 	//Renderer::getInstance()->renderDebug();
 }
 

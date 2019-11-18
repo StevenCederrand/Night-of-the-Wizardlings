@@ -462,10 +462,6 @@ void Renderer::destroy()
 	delete m_rendererInstance;
 }
 
-void Renderer::renderDeflectBox(DeflectRender* m_deflectBox)
-{
-	//REMOVE
-}
 
 void Renderer::renderSkybox(SkyBox* m_skybox)
 {
@@ -486,7 +482,7 @@ void Renderer::renderSkybox(SkyBox* m_skybox)
 	glEnable(GL_CULL_FACE);
 }
 
-void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandler* m_spellHandler) {
+void Renderer::render(SkyBox* m_skybox, SpellHandler* m_spellHandler) {
 	Mesh* mesh;
 	Transform transform;
 	glm::mat4 modelMatrix;
@@ -633,7 +629,6 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	//BLOOMBLUR MISSION STEP 1: SAMPLE
 	//m_bloom->bindHdrFBO();
 	renderSkybox(m_skybox);
-	renderDeflectBox(m_deflectBox);
 
 #pragma region Color_Render
 	shader = shaderMap->useByName(BASIC_FORWARD);
@@ -782,63 +777,6 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	shader->clearBinding();
 #pragma endregion
 
-<<<<<<< HEAD
-=======
-
-#pragma region Deflect_Render
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDisable(GL_CULL_FACE);
-	glDepthFunc(GL_LEQUAL);
-	shader = shaderMap->useByName(FRESNEL);
-	
-	//Bind view- and projection matrix
-	bindMatrixes(shader);
-
-	shader->setVec3("CameraPosition", m_camera->getCamPos());
-	//Add a step where we insert lights into the scene
-	shader->setInt("LightCount", m_spells.size());
-
-	//Render Deflect Objects
-	for (GameObject* object : m_shieldObject)
-	{
-		if (object == nullptr) {
-			continue;
-		}
-
-		if (!object->getShouldRender()) {
-			continue;
-		}
-
-		//Then through all of the meshes
-		for (int j = 0; j < object->getMeshesCount(); j++)
-		{
-			//Fetch the current mesh and its transform
-			mesh = meshMap->getMesh(object->getMeshName(j));
-
-			//Bind the material
-			object->bindMaterialToShader(shader, mesh->getMaterial());
-
-			modelMatrix = glm::mat4(1.0f);
-
-			modelMatrix = object->getMatrix(j);
-			//Bind the modelmatrix
-			shader->setMat4("modelMatrix", modelMatrix);
-
-			glBindVertexArray(mesh->getBuffers().vao);
-
-			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
-			glBindVertexArray(0);
-		}
-	}
-	
-	shader->clearBinding();
-	glEnable(GL_CULL_FACE);
-#pragma endregion
-
-
->>>>>>> a2e34857d495a72505b838b3503d12659cf91da8
 #pragma region Animation_Render
 	//TODO: Evaluate this implementation, should be an easier way to bind values to shaders as they're changed
 	// Possibly extract functions. Only difference in rendering is the shader and the binding of bone matrices
@@ -975,7 +913,6 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	}
 
 	shader->clearBinding();
-	glEnable(GL_CULL_FACE);
 #pragma endregion
 
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -985,12 +922,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_CULL_FACE);
-<<<<<<< HEAD
 
-
-=======
-	
->>>>>>> a2e34857d495a72505b838b3503d12659cf91da8
 	renderAndAnimateNetworkingTexts();
 	renderBigNotifications();
 	renderKillFeed();
