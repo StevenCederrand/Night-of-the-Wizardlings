@@ -493,7 +493,9 @@ void PlayState::GUILoadScoreboard() {
 		m_scoreBoard->addColumn("PLAYER: ", 0, CEGUI::UDim(0.33f, 0));
 		m_scoreBoard->addColumn("KILLS: ", 1, CEGUI::UDim(0.33f, 0));
 		m_scoreBoard->addColumn("DEATHS: ", 2, CEGUI::UDim(0.34f, 0));
-
+		m_scoreBoard->setSortColumnByID(1);
+		
+		
 		//Add the client
 		m_scoreBoard->addRow();
 		CEGUI::ListboxTextItem* itemMultiColumnList;
@@ -505,6 +507,7 @@ void PlayState::GUILoadScoreboard() {
 		m_scoreBoard->setItem(itemMultiColumnList, 1, static_cast<CEGUI::uint>(0)); // ColumnID, RowID
 		itemMultiColumnList = new CEGUI::ListboxTextItem(std::to_string(Client::getInstance()->getMyData().numberOfDeaths));
 		m_scoreBoard->setItem(itemMultiColumnList, 2, static_cast<CEGUI::uint>(0)); // ColumnID, RowID
+
 		//Add other players
 		auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
 
@@ -522,6 +525,8 @@ void PlayState::GUILoadScoreboard() {
 			m_scoreBoard->setItem(itemMultiColumnList, 2, static_cast<CEGUI::uint>(i + 1)); // ColumnID, RowID
 		}
 		m_scoreboardExists = true;
+		m_scoreBoard->setSortColumnByID(1);
+		m_scoreBoard->setSortDirection(CEGUI::ListHeaderSegment::SortDirection::Descending);
 	}
 }
 
