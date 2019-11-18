@@ -11,7 +11,7 @@ SoundHandler::SoundHandler()
 	m_buffersClient.resize(NR_OF_CLIENT_SOUNDS);	
 	m_buffersCommon.resize(NR_OF_COMMON_SOUNDS);
 	m_clientSoundInfo.sources.resize(NR_OF_CLIENT_SOUNDS);
-
+	
 	m_device = alcOpenDevice(NULL);
 
 	if (!m_device)
@@ -992,15 +992,22 @@ void SoundHandler::setPlayerGUIDs()
 	auto& list = clientPtr->getConnectedPlayers();
 	PlayerPacket myDataPacket = clientPtr->getMyData();
 	
-	if(m_playerSoundInfo.size() < 1)
-			m_playerSoundInfo.resize(1);
+	if (m_playerSoundInfo.size() < 1)
+	{
+		m_playerSoundInfo.resize(1);
+		m_playerSoundInfo.at(0).sources.resize(NR_OF_SUBSEQUENT_SOUNDS);
+	}
 
 	m_playerSoundInfo.at(0).guid = myDataPacket.guid;
 
 	for (int i = 1; i < list.size() + 1; i++)
 	{
 		if (m_playerSoundInfo.size() < i + 1)
+		{
 			m_playerSoundInfo.resize(m_playerSoundInfo.size() + 1);
+			m_playerSoundInfo.at(m_playerSoundInfo.size() - 1).sources.resize(NR_OF_SUBSEQUENT_SOUNDS);
+		}
+		
 		m_playerSoundInfo[i].guid = list[i].guid;
 	}	
 
@@ -1017,6 +1024,7 @@ void SoundHandler::setPlayerGUIDs()
 void SoundHandler::addPlayer(RakNet::AddressOrGUID guid)
 {
 	m_playerSoundInfo.resize(m_playerSoundInfo.size() + 1);
+	m_playerSoundInfo.at(m_playerSoundInfo.size() - 1).sources.resize(NR_OF_SUBSEQUENT_SOUNDS);
 	m_playerSoundInfo.at(m_playerSoundInfo.size() - 1).guid = guid;
 	m_nrOfPlayers++;
 	attachBuffersToPlayerSources(guid);

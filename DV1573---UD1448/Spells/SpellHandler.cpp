@@ -306,7 +306,11 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 		m_BulletFlamestrikeSpell.back()->setUserPointer(spell);
 
 		spell->setSoundSlot(shPtr->playSound(FireSound, clientPtr->getMyData().guid));
-		shPtr->setSourcePosition(spell->getPos(), FireSound, clientPtr->getMyData().guid, spell->getSoundSlot());
+
+		if (spell->getSoundSlot() != -1) //out of slots
+		{
+			shPtr->setSourcePosition(spell->getPos(), FireSound, clientPtr->getMyData().guid, spell->getSoundSlot());
+		}		
 	}
 
 	if (type == FIRE)
@@ -342,9 +346,12 @@ void SpellHandler::spellUpdate(float deltaTime)
 				AOEAttack* flamestrike = static_cast<AOEAttack*>(flamestrikeSpells[i]);
 				//flamestrike->updateActiveSpell(deltaTime);
 				
-				SoundHandler::getInstance()->setSourcePosition(flamestrike->getPos(),
-					FireSound, Client::getInstance()->getMyData().guid,
-					flamestrikeSpells[i]->getSoundSlot());	
+				if (flamestrikeSpells[i]->getSoundSlot() != -1)
+				{
+					SoundHandler::getInstance()->setSourcePosition(flamestrike->getPos(),
+						FireSound, Client::getInstance()->getMyData().guid,
+						flamestrikeSpells[i]->getSoundSlot());	
+				}
 
 				if (flamestrike->spellOnGround())
 				{

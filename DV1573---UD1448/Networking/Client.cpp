@@ -470,11 +470,11 @@ void Client::processAndHandlePackets()
 			SoundHandler* shPtr = SoundHandler::getInstance();
 			switch (se.spellData.SpellType)
 			{
-			case SPELL_TYPE::NORMALATTACK:
+			case OBJECT_TYPE::NORMALATTACK:
 				shPtr->setSourcePosition(se.spellData.Position, BasicAttackSound, se.spellData.CreatorGUID);
 				shPtr->playSound(BasicAttackSound, se.spellData.CreatorGUID);
 				break;			
-			case SPELL_TYPE::ENHANCEATTACK:
+			case OBJECT_TYPE::ENHANCEATTACK:
 				shPtr->setSourcePosition(se.spellData.Position, EnhanceAttackSound, se.spellData.CreatorGUID);
 				shPtr->playSound(EnhanceAttackSound, se.spellData.CreatorGUID);
 				break;					

@@ -39,13 +39,14 @@ void NetworkSpells::update(const float& dt)
 					}
 					else if (e.spellData.SpellType == OBJECT_TYPE::FLAMESTRIKE) {
 						e.gameobject = new AOEAttack(e.spellData.Position);						
-						e.spellData.SoundSlot = shPtr->playSound(FireSound, e.spellData.CreatorGUID);
+						if((e.spellData.SoundSlot = shPtr->playSound(FireSound, e.spellData.CreatorGUID)) != -1);
 						shPtr->setSourcePosition(e.spellData.Position, FireSound, e.spellData.CreatorGUID, e.spellData.SoundSlot);
 					}
 					else if (e.spellData.SpellType == OBJECT_TYPE::FIRE) {
-						e.gameobject = new fire(e.spellData.Position);		
+						e.gameobject = new fire(e.spellData.Position);
 						shPtr->setSourcePosition(e.spellData.Position, GlassBreakSound, e.spellData.CreatorGUID);
-						shPtr->playSound(GlassBreakSound, e.spellData.CreatorGUID);					
+						shPtr->playSound(GlassBreakSound, e.spellData.CreatorGUID);
+					}
 					else {
 						return;
 					}									
@@ -66,9 +67,10 @@ void NetworkSpells::update(const float& dt)
 			}
 			else if (e.flag == NetGlobals::THREAD_FLAG::None)
 			{			
-				if (e.spellData.SpellType == SPELL_TYPE::FLAMESTRIKE)
+				if (e.spellData.SpellType == OBJECT_TYPE::FLAMESTRIKE)
 				{
-					shPtr->setSourcePosition(e.spellData.Position, FireSound, e.spellData.CreatorGUID, e.spellData.SoundSlot);
+					if(e.spellData.SoundSlot != -1)
+						shPtr->setSourcePosition(e.spellData.Position, FireSound, e.spellData.CreatorGUID, e.spellData.SoundSlot);
 				}
 				
 			}
