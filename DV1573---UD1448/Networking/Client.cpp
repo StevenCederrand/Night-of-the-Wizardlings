@@ -669,7 +669,7 @@ void Client::processAndHandlePackets()
 			
 			// Add this to the event list
 			{
-				eventMutexGuard(); // Thread safe
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
 				m_playerEvents.push_back(PlayerEvents::Deflected);
 			}
 
