@@ -19,7 +19,8 @@ SpellHandler::SpellHandler(BulletPhysics * bp)
 	initReflectSpell();
 	initFireSpell();
 	
-	setCharacter(CHARACTER);
+	if(bp != nullptr && Client::getInstance()->isSpectating() == false)
+		setCharacter(CHARACTER);
 }
 
 void SpellHandler::initAttackSpell()

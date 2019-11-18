@@ -1,6 +1,35 @@
 #include <Pch/Pch.h>
 #include <System/Input.h>
 #include "Camera.h"
+#include <Networking/Client.h>
+
+void Camera::freeCameraMode()
+{
+	updateMouseMovement();
+	
+	glm::vec3 moveDir = glm::vec3(0.0f);
+	// Move
+	if (Input::isKeyHeldDown(GLFW_KEY_A))
+		moveDir -= m_camRight;
+	if (Input::isKeyHeldDown(GLFW_KEY_D))
+		moveDir += m_camRight;
+	if (Input::isKeyHeldDown(GLFW_KEY_W))
+		moveDir += m_camFace;
+	if (Input::isKeyHeldDown(GLFW_KEY_S))
+		moveDir -= m_camFace;
+
+	m_camPos += moveDir * DeltaTime * m_spectatorMoveSpeed;
+
+	m_viewMatrix = glm::lookAt(m_camPos, m_camPos + m_camFace, m_camUp);
+}
+
+void Camera::thirdPersonCamera()
+{
+}
+
+void Camera::firstPersonCamera()
+{
+}
 
 void Camera::calcVectors()
 {
@@ -73,11 +102,13 @@ Camera::Camera()
 	m_nearPlane = 0.1f;
 	m_farPlane = 200.0f;
 
+	m_spectatorMoveSpeed = 20.0f;
 	setWindowSize(m_width, m_height);
 	calcVectors();
 	m_viewMatrix = glm::lookAt(m_camPos, m_camPos + m_camFace, m_camUp);
 	m_fpEnabled = true;
 	m_activeCamera = true;
+
 }
 
 Camera::~Camera()
@@ -185,6 +216,10 @@ const glm::vec3& Camera::getCamRight()
 	return m_camRight;
 }
 
+const SpectatorMode& Camera::getSpectatorMode() const
+{
+	return m_spectatorMode;
+}
 
 void Camera::lookAt(const glm::vec3& position)
 {
@@ -194,11 +229,28 @@ void Camera::lookAt(const glm::vec3& position)
 
 void Camera::update()
 {
+
 	if (m_fpEnabled && m_activeCamera) {
-		updateMouseMovement();
+
+		if (Client::getInstance()->isSpectating()) {
+
+			if (m_spectatorMode == SpectatorMode::FreeCamera) {
+				freeCameraMode();
+			}
+			else if (m_spectatorMode == SpectatorMode::ThirdPerson) {
+				thirdPersonCamera();
+			}
+			else if (m_spectatorMode == SpectatorMode::FirstPerson) {
+				firstPersonCamera();
+			}
+
+		}
+		else {
+			updateMouseMovement();
+			m_viewMatrix = glm::lookAt(m_camPos, m_camPos + m_camFace, m_camUp);
+		}
 	}
-	if(m_activeCamera)
-		m_viewMatrix = glm::lookAt(m_camPos, m_camPos + m_camFace, m_camUp);
+
 }
 
 void Camera::enableFP(const bool& fpEnable) {
@@ -216,4 +268,9 @@ void Camera::enableFP(const bool& fpEnable) {
 void Camera::disableCameraMovement(const bool condition)
 {
 	m_activeCamera = !condition;
+}
+
+void Camera::setSpectatorMode(SpectatorMode mode)
+{
+	m_spectatorMode = mode;
 }

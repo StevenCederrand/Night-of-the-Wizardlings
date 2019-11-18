@@ -1,13 +1,24 @@
 #pragma once
 #include <Pch/Pch.h>
 
-
+enum SpectatorMode {
+	FreeCamera,
+	FirstPerson,
+	ThirdPerson
+};
 
 class Camera
 {
 private:
+	// Spectator Modes
+	void freeCameraMode();
+	void thirdPersonCamera();
+	void firstPersonCamera();
+
+	float m_spectatorMoveSpeed;
+
 	void calcVectors();
-	
+	SpectatorMode m_spectatorMode;
 	bool m_firstMouse = true;
 	double m_xpos, m_ypos;
 	float m_lastX, m_lastY;
@@ -46,6 +57,7 @@ public:
 	void lookAt(const glm::vec3& position);
 	void enableFP(const bool& fpEnable);
 	void disableCameraMovement(const bool condition);
+	void setSpectatorMode(SpectatorMode mode);
 	void resetCamera();
 
 	const glm::mat4 getViewMat() const;
@@ -61,7 +73,7 @@ public:
 
 	const glm::vec3& getCamFace();
 	const glm::vec3& getCamRight();
-	
+	const SpectatorMode& getSpectatorMode() const;
 
 	void update();
 	

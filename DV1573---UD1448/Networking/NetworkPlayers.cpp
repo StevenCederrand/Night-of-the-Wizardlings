@@ -64,7 +64,6 @@ void NetworkPlayers::update(const float& dt)
 
 		GameObject* g = p.gameobject;
 		
-		
 		if (g != nullptr) {
 			
 			/* Don't render the player if he's dead */

@@ -316,6 +316,9 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 	if (!m_bPhysics)
 		m_bPhysics = bp;
 
+	if (m_bPhysics == nullptr && bp == nullptr)
+		return;
+
 	for (size_t i = 0; i < m_meshes.size(); i++)
 	{
 		

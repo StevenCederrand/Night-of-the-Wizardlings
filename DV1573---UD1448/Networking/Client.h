@@ -20,7 +20,7 @@ public:
 
 	void startup();
 	void destroy();
-	void connectToAnotherServer(const ServerInfo& server);
+	void connectToAnotherServer(const ServerInfo& server, bool spectatorMode);
 	void connectToMyServer();
 	void ThreadedUpdate();
 	void processAndHandlePackets();
@@ -61,6 +61,7 @@ public:
 	const bool& isConnectedToSever() const;
 	const bool& connectionFailed() const;
 	const bool& isServerOwner() const;
+	const bool& isSpectating() const;
 private:
 
 	unsigned char getPacketID(RakNet::Packet* p);
@@ -91,6 +92,7 @@ private:
 	bool m_shutdownThread;
 	bool m_initialized = false;
 	bool m_sendUpdatePackages;
+	bool m_spectating;
 
 	PlayerPacket m_myPlayerDataPacket;
 	PlayerPacket* m_latestPlayerThatHitMe;

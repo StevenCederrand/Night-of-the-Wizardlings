@@ -24,6 +24,7 @@ private:
 	CEGUI::PushButton* m_backToMenu;
 	CEGUI::PushButton* m_backToList;
 	CEGUI::PushButton* m_joinServer;
+	CEGUI::PushButton* m_spectateServer;
 	CEGUI::PushButton* m_refreshServerList;
 	CEGUI::MultiColumnList* m_serverList;
 	CEGUI::Editbox* m_usernameBox;
@@ -37,6 +38,7 @@ private:
 	bool onBackToListClicked(const CEGUI::EventArgs& e);
 	bool onJoinServerClicked(const CEGUI::EventArgs& e);
 	bool onRefreshServerListClicked(const CEGUI::EventArgs& e);
+	bool onSpectateServerClicked(const CEGUI::EventArgs& e);
 };
 
 

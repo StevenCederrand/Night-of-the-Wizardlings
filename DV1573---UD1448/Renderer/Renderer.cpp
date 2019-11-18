@@ -160,6 +160,8 @@ void Renderer::renderAndAnimateNetworkingTexts()
 
 
 	}
+
+
 }
 
 void Renderer::renderBigNotifications()

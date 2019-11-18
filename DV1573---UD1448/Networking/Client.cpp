@@ -69,12 +69,13 @@ void Client::destroy()
 	}
 }
 
-void Client::connectToAnotherServer(const ServerInfo& server)
+void Client::connectToAnotherServer(const ServerInfo& server, bool spectatorMode)
 {
 	m_failedToConnect = false;
 	m_shutdownThread = false;
 	m_isConnectedToAnServer = false;
 	m_serverOwner = false;
+	m_spectating = spectatorMode;
 
 	bool status = m_clientPeer->Connect(server.serverAddress.ToString(false), server.serverAddress.GetPort(), 0, 0, 0) == RakNet::CONNECTION_ATTEMPT_STARTED;
 	assert((status == true, "[Client] Client connecting to {0} failed!", server.serverName));
@@ -168,6 +169,20 @@ void Client::processAndHandlePackets()
 		case ID_CONNECTION_REQUEST_ACCEPTED:
 		{
 			logTrace("[Client] Connected to server but not sure if actually accepted to the server.\n");
+			RakNet::BitStream stream;
+			if (m_spectating)
+			{	
+				logTrace("[Client] Sending spectator request to server.\n");
+				stream.Write((RakNet::MessageID)SPECTATE_REQUEST);
+				m_clientPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, packet->guid, false);
+			}
+			else
+			{
+				logTrace("[Client] Sending Play request to server.\n");
+				stream.Write((RakNet::MessageID)PLAY_REQUEST);
+				m_clientPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, packet->guid, false);
+			}
+
 		}
 		break;
 
@@ -496,7 +511,7 @@ void Client::processAndHandlePackets()
 					/* Update the internal information about the spell */
 					activeSpell.Position = spellPacket.Position;
 					activeSpell.Rotation = spellPacket.Rotation;
-
+				
 					/* Get the entity on the main thread */
 					NetworkSpells::SpellEntity& spellEntity = m_networkSpells.m_entities[i];
 
@@ -1230,6 +1245,11 @@ const bool& Client::connectionFailed() const
 const bool& Client::isServerOwner() const
 {
 	return m_serverOwner;
+}
+
+const bool& Client::isSpectating() const
+{
+	return m_spectating;
 }
 
 void Client::findAllServerAddresses()

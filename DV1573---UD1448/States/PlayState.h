@@ -20,7 +20,8 @@ bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int
 class PlayState : public State {
 
 public:
-	PlayState();
+	//PlayState(){}
+	PlayState(bool spectator);
 	virtual ~PlayState() override;
 	virtual void update(float dt) override;
 	virtual void render() override;
@@ -28,6 +29,10 @@ public:
 private:
 	/* Callbacks */
 	void onSpellHit_callback();
+
+	/* Helper */
+	void update_isPlaying(const float& dt);
+	void update_isSpectating(const float& dt);
 
 private:
 	int key = 1;

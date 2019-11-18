@@ -58,14 +58,19 @@ void FindServerState::loadGui()
 	m_backToMenu->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&FindServerState::onBackToMenuClicked, this));
 
 	//Join server button
-	m_joinServer = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.35f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f), "JoinServer"));
+	m_joinServer = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.25f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f), "JoinServer"));
 	m_joinServer->setText("Join");
 	m_joinServer->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&FindServerState::onJoinServerClicked, this));
 
 	//Refresh server list button
-	m_refreshServerList = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.55f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f), "RefreshServer"));
+	m_refreshServerList = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.45f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f), "RefreshServer"));
 	m_refreshServerList->setText("Refresh");
 	m_refreshServerList->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&FindServerState::onRefreshServerListClicked, this));
+
+	//Spectate server button
+	m_spectateServer = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.65f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f), "SpectateServer"));
+	m_spectateServer->setText("Spectate");
+	m_spectateServer->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&FindServerState::onSpectateServerClicked, this));
 
 	//The button to close the username input window
 	m_backToList = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.55f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f), "Close-username-input"));
@@ -130,7 +135,6 @@ bool FindServerState::onJoinServerClicked(const CEGUI::EventArgs& e)
 {
 	CEGUI::ListboxItem* item = m_serverList->getFirstSelectedItem();
 	
-	
 	if (item != NULL)
 	{
 		usernameInput();
@@ -144,7 +148,7 @@ bool FindServerState::onJoinServerClicked(const CEGUI::EventArgs& e)
 		if (Client::getInstance()->doesServerExist(serverID))
 		{
 			const ServerInfo& serverInfo = Client::getInstance()->getServerByID(serverID);
-			Client::getInstance()->connectToAnotherServer(serverInfo);
+			Client::getInstance()->connectToAnotherServer(serverInfo, false);
 			Client::getInstance()->setUsername(m_usernameBox->getText().c_str());
 		}
 
@@ -158,7 +162,7 @@ bool FindServerState::onJoinServerClicked(const CEGUI::EventArgs& e)
 			}
 		}
 		glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		m_stateManager->clearAllAndSetState(new PlayState());
+		m_stateManager->clearAllAndSetState(new PlayState(false));
 	}
 
 	
@@ -169,6 +173,41 @@ bool FindServerState::onRefreshServerListClicked(const CEGUI::EventArgs& e)
 {
 	m_serverListRefreshing = true;
 	Client::getInstance()->refreshServerList();
+	return true;
+}
+
+bool FindServerState::onSpectateServerClicked(const CEGUI::EventArgs& e)
+{
+	CEGUI::ListboxItem* item = m_serverList->getFirstSelectedItem();
+
+	if (item != NULL)
+	{
+		std::string serverName = item->getText().c_str();
+		unsigned int serverID = item->getID();
+		item = m_serverList->getNextSelected(item);
+
+		if (Client::getInstance()->doesServerExist(serverID))
+		{
+			const ServerInfo& serverInfo = Client::getInstance()->getServerByID(serverID);
+			Client::getInstance()->connectToAnotherServer(serverInfo, true);
+		}
+
+
+		while (!Client::getInstance()->isConnectedToSever())
+		{
+			
+			if (Client::getInstance()->connectionFailed()) {
+
+				logTrace("Failed to connect as a spectator.. Don't know why this would happen but lets' hope that this never occurs :)");
+				return true;
+			}
+		}
+
+		glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		m_stateManager->clearAllAndSetState(new PlayState(true));
+	}
+
+
 	return true;
 }
 

@@ -51,7 +51,7 @@ void Player::update(float deltaTime)
 
 		move(deltaTime);
 		
-		if (!m_logicStop) {
+		if (m_playerCamera->isFPEnabled()) {
 			attack();
 		}
 	}
@@ -88,7 +88,19 @@ void Player::update(float deltaTime)
 	else if (m_deflectCooldown > 0 && !m_rMouse) {
 		m_deflectCooldown -= DeltaTime;
 	}
-	PlayAnimation(deltaTime);
+	
+	
+	
+	if (m_health <= 0) {
+		if (m_firstPersonMesh->getShouldRender() == true) {
+			m_firstPersonMesh->setShouldRender(false);
+		}
+	}else{
+		if (m_firstPersonMesh->getShouldRender() == false) {
+			m_firstPersonMesh->setShouldRender(true);
+		}
+		PlayAnimation(deltaTime);
+	}
 
 }
 
@@ -100,7 +112,7 @@ void Player::move(float deltaTime)
 	
 	m_moveDir = glm::vec3(0.0f);
 
-	if (!m_logicStop) {
+	if (m_playerCamera->isFPEnabled()) {
 
 		glm::vec3 lookDirection = m_directionVector;
 		lookDirection.y = 0.0f;
@@ -117,12 +129,12 @@ void Player::move(float deltaTime)
 			m_moveDir -= lookDirection;
 
 		// Jump
-		if (Input::isKeyHeldDown(GLFW_KEY_SPACE))
+		if (Input::isKeyHeldDown(GLFW_KEY_SPACE)) {
 			if (m_character->canJump()) {
 				m_character->jump(btVector3(0.0f, 16.0f, 0.0f));
 				animState.jumping = true;
 			}
-
+		}
 	}
 	// Make sure moving is a constant speed
 	if (glm::length(m_moveDir) >= 0.0001f)
