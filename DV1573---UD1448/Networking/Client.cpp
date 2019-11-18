@@ -923,7 +923,7 @@ void Client::createSpellOnNetwork(const Spell& spell)
 	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Rotation = glm::vec3(0.0f);
 	spellPacket.Scale = spell.getTransform().scale;
-	spellPacket.SpellType = (SPELL_TYPE)spell.getType();
+	spellPacket.SpellType = (OBJECT_TYPE)spell.getType();
 
 	m_removeOrAddSpellQueue.emplace_back(spellPacket);
 }
@@ -942,7 +942,7 @@ void Client::updateSpellOnNetwork(const Spell& spell)
 	spellPacket.Direction = spell.getDirection();
 	spellPacket.Rotation = glm::vec3(0.0f);
 	spellPacket.Scale = spell.getTransform().scale;
-	spellPacket.SpellType = (SPELL_TYPE)spell.getType(); 
+	spellPacket.SpellType = (OBJECT_TYPE)spell.getType(); 
 
 	m_updateSpellQueue.emplace_back(spellPacket);
 }
@@ -961,7 +961,7 @@ void Client::destroySpellOnNetwork(const Spell& spell)
 	spellPacket.Direction = spell.getDirection();
 	spellPacket.Rotation = glm::vec3(0.0f);
 	spellPacket.Scale = spell.getTransform().scale;
-	spellPacket.SpellType = (SPELL_TYPE)spell.getType();
+	spellPacket.SpellType = (OBJECT_TYPE)spell.getType();
 
 	m_removeOrAddSpellQueue.emplace_back(spellPacket);
 }

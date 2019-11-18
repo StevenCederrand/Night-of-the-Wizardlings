@@ -1,7 +1,7 @@
 #ifndef _NETWORK_SPELLS_H
 #define _NETWORK_SPELLS_H
 #include <Pch/Pch.h>
-#include <Spells/SpellTypes.h>
+#include <GameObject/ObjectTypes.h>
 
 
 class NetworkSpells{
