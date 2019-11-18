@@ -21,16 +21,14 @@ public:
 	btRigidBody* createObject(CollisionObject object, float inMass,
 		glm::vec3 position, glm::vec3 extend, glm::quat rotation = glm::quat(), bool destruction = false, float restitution = 1.0f, float friction = 0.2f);
 	
+	btKinematicCharacterController* createCharacter(const glm::vec3& position, float& height);
 	
-	void setCharacterSize(glm::vec3 halfSize);
 
 	btDiscreteDynamicsWorld* getDynamicsWorld() const;
-
-	btKinematicCharacterController* createCharacter(const glm::vec3& position, float& height);
 	btVector3 getCharacterSize() const;
 
+	void setCharacterSize(glm::vec3 halfSize);
 	void removeObject(btRigidBody* body);
-
 	void update(float dt);
 
 private:

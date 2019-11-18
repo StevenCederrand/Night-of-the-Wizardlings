@@ -550,6 +550,8 @@ bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int
 	if (!sp1 || !sp2)
 		return false;
 
+	
+
 	DestructibleObject* dstrobj = nullptr;
 	Spell* spellobj = nullptr;
 
