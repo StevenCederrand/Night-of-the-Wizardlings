@@ -42,7 +42,7 @@ void VoroniCalculator::CalculateDiagram(std::vector<glm::vec2> inputVertices, Vo
 		{
 			glm::vec2 p = trig.vertices[j];
 
-			assert(!geometry.InsideCircumcircle(p, c0, c1, c2));
+			//assert(!geometry.InsideCircumcircle(p, c0, c1, c2));
 		}
 	}
 

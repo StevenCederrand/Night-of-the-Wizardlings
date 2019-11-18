@@ -6,6 +6,7 @@
 #include <Spells/EnhanceAttackSpell.h>
 #include <Spells/ReflectSpell.h>
 #include <Spells/AOEAttack.h>
+#include <Spells/fire.h>
 #include <System/BulletPhysics.h>
 #include <GameObject/ObjectTypes.h>
 
@@ -21,6 +22,7 @@ public:
 	void initEnhanceSpell();
 	void initFlamestrikeSpell();
 	void initReflectSpell();
+	void initFireSpell();
 	~SpellHandler();
 
 	float createSpell(glm::vec3 spellPos, glm::vec3 directionVector, OBJECT_TYPE type);
@@ -37,18 +39,22 @@ public:
 	const AttackSpellBase* getEnhAttackBase() { return enhanceAtkBase; }
 	const ReflectSpellBase* getReflectBase() { return reflectBase; }
 	const FlamestrikeSpellBase* getFlamestrikeBase() { return flamestrikeBase; }
+	const FireSpellBase* getFireBase() { return fireBase; }
 
 	void renderSpell();
 
 
 private:
 	const uint64_t getUniqueID();
-	bool m_newHit = true;
+	bool m_newHit = false;
 	bool m_setcharacter = false;
 	float m_nrSubSteps = 6;
 
 	std::vector<Spell*> spells;
-	std::vector<Spell*> spellstest;
+	std::vector<Spell*> flamestrikeSpells;
+	std::vector<Spell*> fireSpells;
+	float fireDamageCounter = 1.0f;
+	float ownfireDamageCounter = 1.0f;
 
 	glm::vec3 m_spawnerPos;
 	glm::vec3 m_spawnerDir;
@@ -58,9 +64,11 @@ private:
 	AttackSpellBase* enhanceAtkBase;
 	ReflectSpellBase* reflectBase;
 	FlamestrikeSpellBase* flamestrikeBase;
+	FireSpellBase* fireBase;
 
-	void spellCollisionCheck();	
-	bool specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis, float radius);
+	void spellCollisionCheck(float deltaTime);
+	bool specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis, float scale);
+
 	//glm::vec3 OBBclosestPoint(glm::vec3 &spherePos, std::vector<glm::vec3> &axis, glm::vec3 &playerPos);
 	float OBBsqDist(glm::vec3& spherePos, std::vector<glm::vec3>& axis, glm::vec3& playerPos);
 

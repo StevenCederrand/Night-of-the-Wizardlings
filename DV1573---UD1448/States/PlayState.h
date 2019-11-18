@@ -7,6 +7,7 @@
 #include <GameObject/GameObject.h>
 #include <Player/Player.h>
 #include <GameObject/WorldObject.h>
+#include <GameObject/MapObject.h>
 #include <GameObject/AnimatedObject.h>
 #include <GameObject/DestructibleObject.h>
 #include <Spells/Spell.h>
@@ -41,6 +42,7 @@ private:
 	std::vector<GameObject*> m_objects;
 
 	DstrGenerator m_dstr;
+	AnimatedObject* m_firstPerson;
 	SpellHandler* m_spellHandler;
 	Player* m_player;
 	Camera* m_camera;

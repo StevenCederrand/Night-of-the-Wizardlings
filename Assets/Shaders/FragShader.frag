@@ -19,16 +19,17 @@ in vec4 f_position;
 out vec4 color;
 out vec4 brightColor;
 
-vec3 GLOBAL_lightDirection = vec3(0.2f, -0.7f, 0.0f);
-vec3 GLOBAL_lightColor = normalize(vec3(109, 196, 199));
-float ambientStr = 0.3f;
+vec3 GLOBAL_lightDirection = vec3(0.2f, -0.7f, 0.4f);
+//vec3 GLOBAL_lightColor = normalize(vec3(109, 196, 199));  // CHANGED
+vec3 GLOBAL_lightColor = normalize(vec3(1, 1, 1));  
+float ambientStr = 0.2f;
 
 uniform vec3 CameraPosition;
 
 uniform vec3 Ambient_Color;
 uniform vec3 Diffuse_Color;
 uniform vec3 Specular_Color;
-uniform bool HasTex;
+uniform vec2 TexAndRim = vec2(0, 0);
 
 uniform int LightCount;
 uniform sampler2D albedoTexture;
@@ -44,18 +45,22 @@ vec3 grayscaleColour(vec3 col);
 
 void main() {
 
-    vec3 ambientCol = (Ambient_Color + ambientStr);
-    if (HasTex) {
-        ambientCol = (Ambient_Color + ambientStr) * texture(albedoTexture, f_UV).rgb;
+    vec3 ambientCol = (Ambient_Color + ambientStr);   // CHANGED
+    ambientCol = (Diffuse_Color * ambientStr);
+    
+    if (TexAndRim.x == 1) {
+        ambientCol = ambientStr * texture(albedoTexture, f_UV).rgb * 0.5f;
     }
     //vec3 position = vec3(0);
     vec3 result = ambientCol;
     //Create the diffuse color once
     vec3 diffuse = Diffuse_Color;
-    if(HasTex) {
-        diffuse = (Diffuse_Color * texture(albedoTexture, f_UV).rgb);
+    if(TexAndRim.x == 1) {
+        diffuse = texture(albedoTexture, f_UV).rgb * 0.5;
     }
+
     result += calcDirLight(f_normal, diffuse);
+
     //This is a light accumilation over the point lights
     for(int i = 0; i < LightCount && lightIndexBuffer.index[i] != -1; i++) {
         uint lightIndex = lightIndexBuffer.index[i];
@@ -69,6 +74,7 @@ void main() {
             result += calcPointLights(pLights[lightIndex], f_normal, f_position.xyz, distance);
         }
     }
+
     if(grayscale == 1){
     	result = grayscaleColour(result);
     }
@@ -85,32 +91,57 @@ vec3 calcPointLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance)
     vec3 lightDir = normalize(pLight.position - position); //From the surface to the light
     float diff = max(dot(normal, lightDir), 0);
     vec3 ambient = vec3(0.1f) * pLight.color * ambientStr;
-    vec3 diffuse = Diffuse_Color * diff;
-    if(HasTex) {
-        diffuse = (Diffuse_Color * texture(albedoTexture, f_UV).rgb) * diff * normalize(pLight.color);
+    vec3 diffuse = Diffuse_Color * diff * normalize(pLight.color); 
+
+    if(TexAndRim.x == 1) {
+        diffuse = texture(albedoTexture, f_UV).rgb * diff * normalize(pLight.color);
     }
 
     return ( diffuse);// * attenuation;
-
 }
 vec3 calcDirLight(vec3 normal, vec3 diffuseColor) {
     /* --- DIFFUSE SHADING --- */
-    float lightStr = 0.5f;
+    float lightStr = 0.61f;
     vec3 lightDir = normalize(-GLOBAL_lightDirection);
+    float nDotL = dot(normal, lightDir);
+
     float diff = smoothstep(0.0, 0.01, (max(dot(normal, lightDir), 0.0)));
 
-    diffuseColor = (Diffuse_Color * texture(albedoTexture, f_UV).rgb) * diff * lightStr * GLOBAL_lightColor;
+    vec3 newDiffuse = diffuseColor;
+    //if(TexAndRim.x == 1) 
+    //    newDiffuse = texture(albedoTexture, f_UV).rgb;
+    
+    float f = 0.2; // desaturate by %
+    float L = 0.3 * newDiffuse.r + 0.6 * newDiffuse.g + 0.1 * newDiffuse.b;
+    float new_r = newDiffuse.r + f * (L - newDiffuse.r);
+    float new_g = newDiffuse.g + f * (L - newDiffuse.g);
+    float new_b = newDiffuse.b + f * (L - newDiffuse.b);
+    newDiffuse = vec3(new_r, new_g, new_b);
+
+    diffuseColor = newDiffuse * (max(dot(normal, lightDir), 0.0)) * lightStr * GLOBAL_lightColor;
     /* --- SPECULAR SHADING --- */
     float specularStr = 0.5f;
 
     vec3 viewDir = normalize(CameraPosition - f_position.xyz); //normalize(CameraPosition - f_position.xyz);
     vec3 reflectDir = reflect(-lightDir, f_normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 16);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64);
     //Lock specular
-    spec = smoothstep(0.001, 0.1, spec);
+    spec = smoothstep(0.005, 0.01, spec);
     vec3 specular = specularStr * spec * GLOBAL_lightColor;
 
-    return diffuseColor + specular;
+    if(TexAndRim.y == 1) {
+        vec3 rimColor = vec3(1.0);
+        float rimThreshold = 0.1;
+        float rimDot = 1 - dot(viewDir, f_normal); //Rim value
+        float rimIntensity = rimDot * pow(nDotL, rimThreshold);
+        rimIntensity = smoothstep(0.7 - 0.01, 0.7 - 0.01, rimIntensity);
+        rimColor = diffuseColor * rimIntensity;
+
+        return diffuseColor + specular + rimColor;
+    }
+    else {
+        return diffuseColor + specular;
+    }
 }
 
 vec3 grayscaleColour(vec3 col) {

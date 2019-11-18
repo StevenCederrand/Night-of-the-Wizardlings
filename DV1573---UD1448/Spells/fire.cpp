@@ -1,43 +1,70 @@
 #include "Pch/Pch.h"
 #include "fire.h"
 
+fire::fire(glm::vec3 pos, glm::vec3 direction, const FireSpellBase* spellBase)
+	: Spell(pos, direction)
+{
+	m_type = OBJECT_TYPE::FIRE;
+	m_spellBase = spellBase;
+	setTravelTime(spellBase->m_lifeTime);
+
+	Transform tempTransform;
+	tempTransform.scale = glm::vec3(8.0f, 8.0f, 8.0f);
+	setTransform(tempTransform);
+
+	setWorldPosition(pos);
+	setDirection(direction);
+}
+
 fire::fire(glm::vec3 pos)
-	: Spell(pos)
+	: Spell(pos, glm::vec3(0))
 {
+	m_type = OBJECT_TYPE::FIRE;
+	m_spellBase = nullptr;
 
+	Transform tempTransform;
+	tempTransform.scale = glm::vec3(8.0f, 8.0f, 8.0f);
+	setTransform(tempTransform);
+
+	setWorldPosition(pos);
 }
 
-fire::fire(std::string name, glm::vec3 pos, glm::vec3 direction, float speed, float travelTime, std::string meshName, float cooldown)
-	: Spell(name, pos, direction, speed, travelTime, meshName, cooldown)
-{
-
-}
 
 fire::~fire()
 {
 
 }
 
-void fire::updateActiveSpell(float deltaTime)
+const bool& fire::getHasCollided() const
 {
-}
-
-void fire::createSpell(float deltaTime, glm::vec3 spellPos, glm::vec3 directionVector)
-{
+	return true;
 
 }
 
-void fire::spellCooldownUpdate(float deltaTime)
+void fire::hasCollided()
 {
+}
 
+void fire::updateRigidbody(float deltaTime, btRigidBody* body)
+{
+	setDirection(glm::vec3(body->getLinearVelocity().getX(),
+		body->getLinearVelocity().getY(),
+		body->getLinearVelocity().getZ()));
+
+	btVector3 rigidBodyPos = body->getWorldTransform().getOrigin();
+	setWorldPosition(glm::vec3(rigidBodyPos.getX(), rigidBodyPos.getY(), rigidBodyPos.getZ()));
 }
 
 void fire::update(float dt)
 {
-
+	fireTimer = fireTimer - dt;
+	if (fireTimer <= 0)
+	{
+		setTravelTime(0);
+	}
 }
 
-bool fire::isAOE()
+const float fire::getDamage()
 {
-	return false;
+	return m_spellBase->m_damage;
 }

@@ -14,7 +14,7 @@ void logVec3(glm::vec3 vector) {
 
 PlayState::PlayState()
 {
-	m_bPhysics = new BulletPhysics(-20);
+	m_bPhysics = new BulletPhysics(-20.0f);
 	m_spellHandler = new SpellHandler(m_bPhysics);
 	m_spellHandler->setOnHitCallback(std::bind(&PlayState::onSpellHit_callback, this));
 
@@ -22,7 +22,7 @@ PlayState::PlayState()
 
 	m_camera = new Camera();
 
-	m_player = new Player(m_bPhysics, "Player", glm::vec3(10.40f, 14.5f, 8.0f), m_camera, m_spellHandler);
+	m_player = new Player(m_bPhysics, "Player", NetGlobals::PlayerFirstSpawnPoint, m_camera, m_spellHandler);
 
 	Renderer::getInstance()->setupCamera(m_player->getCamera());
 
@@ -31,17 +31,31 @@ PlayState::PlayState()
 	m_skybox->prepareBuffers();
 
 
-	m_player->setHealth(NetGlobals::maxPlayerHealth);
+	m_player->setHealth(NetGlobals::PlayerMaxHealth);
 
-	m_objects.push_back(new WorldObject("internalTestmap"));
-	m_objects[m_objects.size() - 1]->loadMesh("map1.mesh");
-	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 0.0f, -1.0f));
+
+	m_objects.push_back(new MapObject("Academy_Map"));
+	m_objects[m_objects.size() - 1]->loadMesh("Academy.mesh");
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 	
+	/*m_objects.push_back(new WorldObject("sphere"));
+	m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -20.0f));
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);*/
+
+	m_objects.push_back(new WorldObject("Character"));
+	m_objects[m_objects.size() - 1]->loadMesh("CharacterTest.mesh");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 1.8f, -24.0f));
+
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+
+
 	m_objects.push_back(new Deflect("playerShield"));
 	m_objects[m_objects.size() - 1]->loadMesh("ShieldMesh.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 4.0f, 0.0f));
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 13.0f, 6.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], SHIELD);
+
+
 	
 	MaterialMap::getInstance();
 
@@ -76,9 +90,8 @@ PlayState::PlayState()
 
 	m_objects.push_back(new DestructibleObject("Destructible4", &m_dstr));
 	static_cast<DestructibleObject*>(m_objects.back())->loadBasic("Dstr_4");
-	m_objects.back()->setWorldPosition(glm::vec3(8.0f, 15.0f, 3.0f), 0);
+	m_objects.back()->setWorldPosition(glm::vec3(0.0f, 17.0f, -3.0f), 0);
 	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	m_objects.back()->setBTWorldPosition(glm::vec3(0.0f, 15.0f, 3.0f), 0);
 
 	Renderer::getInstance()->submit(m_objects.back(), STATIC);
 	// DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP
@@ -122,6 +135,7 @@ void PlayState::update(float dt)
 	m_bPhysics->update(dt);
 	m_player->update(dt);
 	m_spellHandler->spellUpdate(dt);
+	Renderer::getInstance()->updateParticles(dt);
 
 	//m_hpBar->setYClip(m_player->getHealth() / 100);
 	auto* clientPtr = Client::getInstance();
@@ -135,7 +149,11 @@ void PlayState::update(float dt)
 				logWarning("[Event system] Died");
 				//Update the HP bar 
 				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(m_player->getHealth()) / 100);
-				m_lastPositionOfMyKiller = clientPtr->getLatestPlayerThatHitMe()->position;
+				const PlayerPacket* shooter = clientPtr->getLatestPlayerThatHitMe();
+				if (shooter != nullptr) {
+					m_lastPositionOfMyKiller = shooter->position;
+				}
+
 				m_camera->disableCameraMovement(true);
 				break;
 			}
@@ -145,7 +163,8 @@ void PlayState::update(float dt)
 				logWarning("[Event system] Respawned");
 				//Update the HP bar 
 				m_player->setPlayerPos(Client::getInstance()->getMyData().latestSpawnPosition);
-				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(m_player->getHealth()) / 100);
+				m_player->setHealth(NetGlobals::PlayerMaxHealth);
+				m_hudHandler.getHudObject(BAR_HP)->setYClip(1.0f);
 				m_camera->resetCamera();
 				m_camera->disableCameraMovement(false);
 				break;
@@ -164,13 +183,13 @@ void PlayState::update(float dt)
 					
 					glm::vec3 diffVec = shooterPosition - playerPosition;
 
-					float angle = (atan2f(diffVec.x, diffVec.z) * 180.00) / glm::pi<float>();
+					float angle = (atan2f(diffVec.x, diffVec.z) * 180.0f) / glm::pi<float>();
 					float playerAngle = glm::degrees(playerRotation.y);
 					float indicatorAngle = angle - playerAngle;
 
 					// Health 
-					float myNewHealth = Client::getInstance()->getMyData().health;
-					float clipPercentage = myNewHealth / 100.0f;
+					int myNewHealth = Client::getInstance()->getMyData().health;
+					float clipPercentage = static_cast<float>(myNewHealth) / 100.0f;
 
 					// Get all the involved hud objects
 					HudObject* DmgIndicator = m_hudHandler.getHudObject(DAMAGE_INDICATOR);
@@ -203,6 +222,17 @@ void PlayState::update(float dt)
 				m_hudHandler.getHudObject(POWERUP)->setAlpha(0.0f);
 				break;
 			}
+
+			case PlayerEvents::SessionOver:
+			{
+				logWarning("[Event system] Session is over");
+				HudObject* HpBar = m_hudHandler.getHudObject(BAR_HP);
+				int myNewHealth = Client::getInstance()->getMyData().health;
+				float clipPercentage = 1.0f;
+				HpBar->setYClip(clipPercentage);
+				m_player->setHealth(myNewHealth);
+				break;
+			}
 		}
 	}
 
@@ -223,73 +253,19 @@ void PlayState::update(float dt)
 	for (GameObject* object : m_objects)
 	{
 		object->update(dt);
+		Renderer::getInstance()->updateParticles(dt);
 	}
 	
 	GUIHandler();
 	if (!m_hideHUD) {
 		HUDHandler();
 	}
-
-	//if (Input::isKeyPressed(GLFW_KEY_K)) {
-	//	NotificationText t;
-	//	t.alphaColor = 1.0f;
-	//	t.width = 0;
-	//	t.scale = glm::vec3(0.35f);
-	//	t.useAlpha = false;
-	//	t.lifeTimeInSeconds = 5.0f;
-
-	//	glm::vec3 playerColor = glm::vec3(1.0f, 0.5f, 0.0f);
-
-	//	std::string killername = std::string("sdddddddddddddd");
-	//	t.width += Renderer::getInstance()->getTextWidth(killername, t.scale);
-	//	t.textParts.emplace_back(killername, playerColor);
-
-	//	std::string text = std::string(" killed ");
-	//	t.width += Renderer::getInstance()->getTextWidth(text, t.scale);
-	//	t.textParts.emplace_back(text, glm::vec3(1.0f, 1.0f, 1.0f));
-
-	//	std::string deadguyName = std::string("aqwsdergftyuiop");
-	//	t.width += Renderer::getInstance()->getTextWidth(deadguyName, t.scale);
-	//	t.textParts.emplace_back(deadguyName, playerColor);
-	//	
-	//	Renderer::getInstance()->addKillFeed(t);
-	//	
-	//}
-	//if (Input::isKeyPressed(GLFW_KEY_L)) {
-	//	NotificationText t;
-	//	t.alphaColor = 1.0f;
-	//	t.width = 0;
-	//	t.scale = glm::vec3(0.60f);
-	//	t.useAlpha = true;
-	//	t.lifeTimeInSeconds = 6.0f;
-
-	//	
-	//	std::string type = "Test notification ";
-	//	glm::vec3 color = glm::vec3(1.0f, 0.2f, 0.2f);
-	//	t.width += Renderer::getInstance()->getTextWidth(type, t.scale);
-	//	t.textParts.emplace_back(type, color);
-	//	
-	//	std::string text = "is being tested af!";
-	//	t.width += Renderer::getInstance()->getTextWidth(text, t.scale);
-	//	glm::vec3 locColor = glm::vec3(1.0f, 1.0f, 1.0f);
-	//	t.textParts.emplace_back(text, locColor);
-
-	//	Renderer::getInstance()->addBigNotification(t);
-	//	
-	//}
-
-
 	// DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP
 	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_J) == GLFW_PRESS)
 		m_dstr.Destroy(static_cast<DestructibleObject*>(m_objects[m_objects.size() - 1]), glm::vec3(0.0f));
 	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_K) == GLFW_PRESS)
 		m_dstr.Destroy(static_cast<DestructibleObject*>(m_objects[m_objects.size() - 2]), glm::vec3(0.0f));
-	// DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP  DESTRUCTION TEMP
-
-
-
-
-
+	// DESTRUCTION TEM
 }
 
 void PlayState::render()
@@ -308,10 +284,13 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 	DestructibleObject* dstrobj = nullptr;
 	Spell* spellobj = nullptr;
 
+	btVector3 hitpoint;
+
 	switch (sp1->getType())
 	{
 	case (DESTRUCTIBLE):
 		dstrobj = static_cast<DestructibleObject*>(sp1);
+		hitpoint = cp.m_localPointA;
 		break;
 
 	case (NORMALATTACK):
@@ -334,34 +313,52 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 	switch (sp2->getType())
 	{
 	case (DESTRUCTIBLE):
-		dstrobj = static_cast<DestructibleObject*>(sp1);
+		dstrobj = static_cast<DestructibleObject*>(sp2);
+		hitpoint = cp.m_localPointB;
 		break;
 
 	case (NORMALATTACK):
-		spellobj = static_cast<Spell*>(sp1);
+		spellobj = static_cast<Spell*>(sp2);
 		break;
 
 	case (ENHANCEATTACK):
-		spellobj = static_cast<Spell*>(sp1);
+		spellobj = static_cast<Spell*>(sp2);
 		break;
 
 	case (REFLECT):
-		spellobj = static_cast<Spell*>(sp1);
+		spellobj = static_cast<Spell*>(sp2);
 		break;
 
 	case (FLAMESTRIKE):
-		spellobj = static_cast<Spell*>(sp1);
+		spellobj = static_cast<Spell*>(sp2);
 		break;
 	}
 
+	if (spellobj) 
+	{
+		if (!spellobj->getHasCollided())
+			spellobj->hasCollided();
+	}
 
-	if (!dstrobj || !spellobj)
-		return false;
-
-	if (dstrobj->getType() == DESTRUCTIBLE && spellobj)
+	if (dstrobj && spellobj)
 	{
 		DstrGenerator* m_dstr = dstrobj->getDstr();
-		m_dstr->Destroy(dstrobj, glm::vec3(0.0f));
+
+		float test1 = cp.getAppliedImpulse();
+		btVector3 test2 = cp.m_localPointA;
+		btVector3 test3 = cp.m_localPointB;
+		float test4 = cp.getDistance();
+		float test5 = cp.m_contactMotion1;
+		float test6 = cp.m_contactMotion2;
+		float test7= cp.m_appliedImpulseLateral1;
+		float test8 = cp.m_appliedImpulseLateral2;
+		btVector3 test9 = cp.m_positionWorldOnA;
+		btVector3 test10 = cp.m_positionWorldOnB;
+
+		float test99 = 1;
+		
+		
+		m_dstr->Destroy(dstrobj, glm::vec2(hitpoint.getX(), hitpoint.getY()));
 	}
 
 
@@ -379,15 +376,16 @@ void PlayState::HUDHandler() {
 	m_hudHandler.getHudObject(BAR_MANA)->setYClip(m_player->getMana() / 100.0f);
 
 	if (m_player->getAttackCooldown() > 0) {
-		m_hudHandler.getHudObject(SPELL_ARCANE)->setGrayscale(1);
+		m_hudHandler.getHudObject(SPELL_ARCANE)->setGrayscale(m_player->getAttackCooldown() / m_player->getMaxAttackCooldown());
 	}
 	else {
 		m_hudHandler.getHudObject(SPELL_ARCANE)->setGrayscale(0);
 	}
 	
 	if (m_player->getSpecialCooldown() > 0) {
-		m_hudHandler.getHudObject(SPELL_SPECIAL)->setGrayscale(1);
-	}
+		//logTrace(std::to_string(m_player->getSpecialCooldown() / m_player->getMaxSpecialCooldown()));
+		m_hudHandler.getHudObject(SPELL_SPECIAL)->setGrayscale(m_player->getSpecialCooldown() / m_player->getMaxSpecialCooldown());
+	} 
 	else {
 		m_hudHandler.getHudObject(SPELL_SPECIAL)->setGrayscale(0);
 	}
@@ -455,7 +453,7 @@ void PlayState::GUIHandler()
 		}
 	}
 
-	if (Client::getInstance()->getServerState().currentState != NetGlobals::GAME_END_STATE && m_endGameBoardVisible) {
+	if (Client::getInstance()->getServerState().currentState != NetGlobals::GameFinished && m_endGameBoardVisible) {
 		GUIclear();
 		m_endGameBoardVisible = false;
 	}
@@ -463,7 +461,7 @@ void PlayState::GUIHandler()
 	if (Input::isKeyPressed(GLFW_KEY_TAB) && !m_endGameBoardVisible) {
 		GUILoadScoreboard();
 	}
-	else if (Client::getInstance()->getServerState().currentState == NetGlobals::GAME_END_STATE && !m_endGameBoardVisible) {
+	else if (Client::getInstance()->getServerState().currentState == NetGlobals::GameFinished && !m_endGameBoardVisible) {
 		GUILoadScoreboard();
 		m_endGameBoardVisible = true;
 	}
@@ -540,81 +538,3 @@ bool PlayState::onQuitClick(const CEGUI::EventArgs& e) {
 	glfwSetWindowShouldClose(glfwGetCurrentContext(), true);
 	return true;	
 }
-
-//This function is called everytime two collision objects collide
-bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
-	const btCollisionObjectWrapper* obj2, int id2, int index2)
-{
-	GameObject* sp1 = static_cast<GameObject*>(obj1->getCollisionObject()->getUserPointer());
-	GameObject* sp2 = static_cast<GameObject*>(obj2->getCollisionObject()->getUserPointer());
-	if (!sp1 || !sp2)
-		return false;
-
-	
-
-	DestructibleObject* dstrobj = nullptr;
-	Spell* spellobj = nullptr;
-
-	switch (sp1->getType())
-	{
-		case (DESTRUCTIBLE):
-			dstrobj = static_cast<DestructibleObject*>(sp1);
-			break;
-
-		case (NORMALATTACK):
-			spellobj = static_cast<Spell*>(sp1);
-			break;
-
-		case (ENHANCEATTACK):
-			spellobj = static_cast<Spell*>(sp1);
-			break;
-
-		case (REFLECT):
-			spellobj = static_cast<Spell*>(sp1);
-			break;
-
-		case (FLAMESTRIKE):
-			spellobj = static_cast<Spell*>(sp1);
-			break;
-	}
-
-	switch (sp2->getType())
-	{
-	case (DESTRUCTIBLE):
-		dstrobj = static_cast<DestructibleObject*>(sp1);
-		break;
-
-	case (NORMALATTACK):
-		spellobj = static_cast<Spell*>(sp1);
-		break;
-
-	case (ENHANCEATTACK):
-		spellobj = static_cast<Spell*>(sp1);
-		break;
-
-	case (REFLECT):
-		spellobj = static_cast<Spell*>(sp1);
-		break;
-
-	case (FLAMESTRIKE):
-		spellobj = static_cast<Spell*>(sp1);
-		break;
-	}
-
-
-	if (!dstrobj || !spellobj)
-		return false;
-	
-	if (dstrobj->getType() == DESTRUCTIBLE && spellobj)
-	{
-
-	}
-
-
-
-
-
-	return false;
-}
-
-

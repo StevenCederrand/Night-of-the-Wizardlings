@@ -14,6 +14,8 @@
 //#define BLOOM_BLUR "BloomBlur_Shader"
 #define HUD "Hud_Shader"
 
+#define PARTICLES "Particle_Shader"
+
 // Debug define
 #define DEBUG_WIREFRAME
 
@@ -30,6 +32,9 @@
 #include "NotificationStructure.h"
 #include <Text/FreeType.h>
 #include <Deflect/DeflectRender.h>
+
+#include <Particles/Particles.h>
+#include <Particles/ParticleBuffers.h>
 
 
 #define P_LIGHT_COUNT 64
@@ -52,7 +57,8 @@ enum ObjectType {
 	ANIMATEDDYNAMIC,
 	SPELL,
 	PICKUP,
-	SHIELD
+	SHIELD,
+	FIRESPELL
 };
 
 class Renderer
@@ -92,12 +98,52 @@ private:
 
 	//Storage Buffer for light indecies
 	unsigned int m_lightIndexSSBO;
-	glm::uvec2 workGroups;
-	
-	
+	glm::uvec2 workGroups;	
+	void renderAndAnimateNetworkingTexts();
+
+
+	//Particle variables
+	unsigned int m_matrixID;
+	unsigned int m_cameraID;
+	unsigned int m_sizeID;
+	unsigned int m_glowID;
+	unsigned int m_scaleDirection;
+	unsigned int m_fadeID;
+	unsigned int m_colorID;
+
+
+	int	thisActive = 0;
+	int	vertexCountDiff = 0;
+	float emissionDiff = 0.0f;
+
+	int	thisActive2 = 0;
+	int	vertexCountDiff2 = 0;
+	float emissionDiff2 = 0.0f;
+
+	int	thisActive3 = 0;
+	int	vertexCountDiff3 = 0;
+	float emissionDiff3 = 0.0f;
+
+	TextureInfo m_txtInfo;
+	PSinfo m_PSinfo;
+	PSinfo m_flameInfo;
+	PSinfo m_enhanceInfo;
+	PSinfo m_smoke;
+
+	std::vector<ParticleSystem> ps;
+	//1 for every spelltype
+	psBuffers attackBuffer;
+	psBuffers flameBuffer; //Do I need 1 for every spell?
+	psBuffers enhanceBuffer; // Yes, yes I do
+	psBuffers smokeBuffer;
+
+	ParticleBuffers* attackPS;
+	ParticleBuffers* flamestrikePS;
+	ParticleBuffers* enhancePS;
+	ParticleBuffers* smokePS;
+
 	void renderBigNotifications();
 	void renderKillFeed();
-
 	void createDepthMap();
 	void initShaders();
 	void bindMatrixes(const std::string& shaderName);
@@ -133,6 +179,8 @@ public:
 	void renderSpell(SpellHandler* spellHandler);
 	Camera* getMainCamera() const;
 
+	void initializeParticle();
+	void updateParticles(float dt);
 };
 
 #endif

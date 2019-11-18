@@ -21,7 +21,7 @@ void NetworkSpells::update(const float& dt)
 		
 			SpellEntity& e = m_entities[i];
 			
-			if (e.flag == NetGlobals::THREAD_FLAG::ADD) {
+			if (e.flag == NetGlobals::THREAD_FLAG::Add) {
 				if (e.gameobject == nullptr) {
 					
 					//e.gameobject = new WorldObject();
@@ -35,6 +35,12 @@ void NetworkSpells::update(const float& dt)
 					else if (e.spellData.SpellType == OBJECT_TYPE::REFLECT) {
 						e.gameobject = new ReflectSpell(e.spellData.Position);
 					}
+					else if (e.spellData.SpellType == OBJECT_TYPE::FLAMESTRIKE) {
+						e.gameobject = new AOEAttack(e.spellData.Position);
+					}
+					else if (e.spellData.SpellType == OBJECT_TYPE::FIRE) {
+						e.gameobject = new fire(e.spellData.Position);
+					}
 					else {
 						return;
 					}
@@ -44,11 +50,11 @@ void NetworkSpells::update(const float& dt)
 				
 					e.gameobject->setWorldPosition(e.spellData.Position);
 					Renderer::getInstance()->submit(e.gameobject, SPELL);
-					e.flag = NetGlobals::THREAD_FLAG::NONE;
+					e.flag = NetGlobals::THREAD_FLAG::None;
 
 				}
 			}
-			else if (e.flag == NetGlobals::THREAD_FLAG::REMOVE)
+			else if (e.flag == NetGlobals::THREAD_FLAG::Remove)
 			{
 				Renderer::getInstance()->removeDynamic(e.gameobject, SPELL);
 				delete e.gameobject;
