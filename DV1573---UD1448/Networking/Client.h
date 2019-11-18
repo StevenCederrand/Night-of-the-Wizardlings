@@ -38,15 +38,6 @@ public:
 	void assignSpellHandler(SpellHandler* spellHandler);
 	void setUsername(const std::string& userName);
 	
-	void updatePlayersMutexGuard();
-	void updateSpellsMutexGuard();
-	void updatePickupsMutexGuard();
-	void eventMutexGuard();
-	void cleanupMutexGuard();
-	void deflectSpellsMutexGuard();
-	void renderPickupNotificationsMutexGuard();
-	void renderKillFeedMutexGuard();
-
 	const std::vector<std::pair<unsigned int, ServerInfo>>& getServerList() const;
 	const std::vector<PlayerPacket>& getConnectedPlayers() const;
 	const std::vector<SpellPacket>& getNetworkSpells();
@@ -127,15 +118,6 @@ private:
 	std::vector<SpellPacket> m_removalOfClientSpellsQueue;
 	std::vector<PlayerEvents> m_playerEvents;
 	
-	std::mutex m_cleanupMutex;
-	std::mutex m_updatePickupsMutex;
-	std::mutex m_updatePlayersMutex;
-	std::mutex m_updateSpellsMutex;
-	std::mutex m_playerEventMutex;
-	std::mutex m_deflectSpellMutex;
-	std::mutex m_renderPickupNotificationMutex;
-	std::mutex m_renderKillFeedMutex;
-
 	TimedCallback m_routineCleanupTimer;
 
 };

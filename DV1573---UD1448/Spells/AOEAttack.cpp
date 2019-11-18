@@ -4,7 +4,7 @@
 AOEAttack::AOEAttack(glm::vec3 pos, glm::vec3 direction, const FlamestrikeSpellBase* spellBase)
 	: Spell(pos, direction)
 {
-	m_type = SPELL_TYPE::FLAMESTRIKE;
+	m_type = OBJECT_TYPE::FLAMESTRIKE;
 	m_spellBase = spellBase;
 	setTravelTime(spellBase->m_lifeTime);
 
@@ -19,7 +19,7 @@ AOEAttack::AOEAttack(glm::vec3 pos, glm::vec3 direction, const FlamestrikeSpellB
 AOEAttack::AOEAttack(glm::vec3 pos)
 	: Spell(pos, glm::vec3(0))
 {
-	m_type = SPELL_TYPE::FLAMESTRIKE;
+	m_type = OBJECT_TYPE::FLAMESTRIKE;
 	m_spellBase = nullptr;
 
 	//Transform tempTransform;
@@ -60,60 +60,53 @@ void AOEAttack::setSpellBool(bool state)
 void AOEAttack::updateActiveSpell(float deltaTime)
 {
 	
-	//if (m_updateSpellPos == true)
-	//{
-	//	setSpellPos(getDirection() * deltaTime * getSpellSpeed());
-	//	newVer += getSpellPos();
-	//	setSpellPos(newVer);
-	//}
-	//
-	////updateSpellPos(getSpellPos());
-
-	setDirection(getDirection() + deltaTime * gravityVector);
-	
-	
-	
-	//if (getSpellPos().y >= 0)
-	//{
-	//	translate(getDirection());
-	//}
-	//	
-	//std::cout << getSpellPos().x << " " << getSpellPos().y << " " << getSpellPos().z << std::endl;
-
-	//setTravelTime(getTravelTime() - 1 * deltaTime);
-
-	////AOE
-	//if (getSpellPos().y <= 0)
-	//{
-	//	m_updateSpellPos = false;
-
-	//	radiusVector = getSpellPos() + glm::vec3(5, 0, 0);
-
-	//	fireIsGone += 1 * deltaTime;
-	//	if (fireIsGone >= 5)
-	//		setTravelTime(0);
-
-	//}
 }
 
 void AOEAttack::updateRigidbody(float deltaTime, btRigidBody* body)
 {
+	m_bounceTime += deltaTime;
 	if (m_hasCollided)
 	{
-		m_fire = true;
-		setTravelTime(0);
+		m_hasCollided = false;
 
+		if (m_bounceTime > 0.02f)
+		{
+			if (m_bounceCounter > m_spellBase->m_maxBounces)
+			{
+				m_fire = true;
+				setTravelTime(0);
+			}
+
+			m_bounceTime = 0.0f;
+			m_bounceCounter++;
+		}
 	}
 
 	btVector3 pos2 = btVector3(
 		getDirection().x,
 		getDirection().y,
 		getDirection().z) * m_spellBase->m_speed;
-	body->setLinearVelocity(pos2);
+	//body->setLinearVelocity(pos2);
 
-	btVector3 pos = body->getWorldTransform().getOrigin();
-	setWorldPosition(glm::vec3(pos.getX(), pos.getY(), pos.getZ()));
-	m_pos = glm::vec3(pos.getX(), pos.getY(), pos.getZ());
+	btVector3 rigidBodyPos = body->getWorldTransform().getOrigin();
+
+	btTransform rigidBodyTransform = body->getWorldTransform();
+	Transform newTransform;
+	newTransform.position.x = rigidBodyTransform.getOrigin().getX();
+	newTransform.position.y = rigidBodyTransform.getOrigin().getY();
+	newTransform.position.z = rigidBodyTransform.getOrigin().getZ();
+
+	
+	
+	newTransform.rotation.x = rigidBodyTransform.getRotation().getX();
+	newTransform.rotation.y = rigidBodyTransform.getRotation().getY();
+	newTransform.rotation.z = rigidBodyTransform.getRotation().getZ();
+	newTransform.rotation.w = rigidBodyTransform.getRotation().getW();
+
+	newTransform.scale = getTransform().scale;
+
+	setTransform(newTransform);
+	m_pos = newTransform.position;
 }
 
 
@@ -121,11 +114,6 @@ void AOEAttack::update(float dt)
 {
 	setTravelTime(getTravelTime() - dt);
 
-	//transform1.rotation.x += 1 + dt;
-	//transform1.rotation.y += 1 + dt;
-	////transform.rotation.z *= dt;
-
-	//setTransform(transform1);
 }
 
 const float AOEAttack::getDamage()

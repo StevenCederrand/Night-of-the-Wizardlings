@@ -60,6 +60,16 @@ void GameObject::loadMesh(std::string fileName)
 				// Mesh with skeleton requires extra vertex data
 				tempMesh.setUpMesh(tempLoader.GetSkeleVertices(i), tempLoader.GetFaces(i));
 				tempMesh.setUpSkeleBuffers();
+
+				// Get skeleton
+				Skeleton tempSkeleton = tempLoader.GetSkeleton(i);
+				std::string skeletonName = tempSkeleton.name + "_" + m_objectName;
+				if (skeletonName != "" && !SkeletonMap::getInstance()->existsWithName(skeletonName))
+				{
+					SkeletonMap::getInstance()->createSkeleton(skeletonName, tempSkeleton);
+					logTrace("Skeleton created: {0}", skeletonName);
+				}
+				tempMesh.setSkeleton(skeletonName);
 			}
 			else
 			{
@@ -73,14 +83,6 @@ void GameObject::loadMesh(std::string fileName)
 			// Needs more testing, this value is per global mesh, the MeshBox value is per GameObject mesh
 			// tempMesh.setTransform(tempLoader.GetTransform(id));
 
-			// Get skeleton
-			Skeleton tempSkeleton = tempLoader.GetSkeleton(i);
-			std::string skeletonName = tempSkeleton.name + "_" + m_objectName;
-			if (skeletonName != "" && !SkeletonMap::getInstance()->existsWithName(skeletonName))
-			{
-				SkeletonMap::getInstance()->createSkeleton(skeletonName, tempSkeleton);
-				logTrace("Skeleton created: {0}", skeletonName);
-			}
 
 			// Get animation
 			for (size_t a = 0; a < tempLoader.GetAnimation(i).size(); a++)
@@ -95,7 +97,7 @@ void GameObject::loadMesh(std::string fileName)
 				tempMesh.addAnimation(animationName);
 			}
 
-			tempMesh.setSkeleton(skeletonName);
+			
 			tempMesh.setMaterial(tempLoader.GetMaterial(i).name);
 			MeshMap::getInstance()->createMesh(meshName, tempMesh);
 			logTrace("Mesh loaded: {0}, Expecting material: {1}", tempMesh.getName().c_str(), tempMesh.getMaterial());
@@ -124,6 +126,7 @@ void GameObject::loadMesh(std::string fileName)
 				{
 					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 					glGenerateMipmap(GL_TEXTURE_2D);
+
 					tempMaterial.texture = true;
 					tempMaterial.textureID.push_back(texture);
 				}
@@ -132,7 +135,6 @@ void GameObject::loadMesh(std::string fileName)
 					std::cout << "Failed to load texture" << std::endl;
 				}
 				stbi_image_free(data);
-
 			}
 			else
 			{
@@ -152,6 +154,46 @@ void GameObject::loadMesh(std::string fileName)
 	}
 
 	tempLoader.Unload();
+	updateModelMatrix();
+}
+
+void GameObject::initMesh(Mesh mesh)
+{
+	MeshBox tempMeshBox;											// Meshbox holds the mesh identity and local transform to GameObject
+	tempMeshBox.name = mesh.getName();
+	m_meshes.push_back(tempMeshBox);								// This effectively adds the mesh to the gameobject
+	if (!MeshMap::getInstance()->existsWithName(mesh.getName()))	// This creates the mesh if it does not exist (by name)
+	{
+		//Add mesh
+		MeshMap::getInstance()->createMesh(mesh.getName(), mesh);
+	}
+
+	//Allocate all of the model matrixes
+	m_modelMatrixes.resize(m_meshes.size());
+	updateModelMatrix();
+}
+
+void GameObject::initMesh(std::string name, std::vector<Vertex> vertices, std::vector<Face> faces)
+{
+	MeshBox tempMeshBox;									// Meshbox holds the mesh identity and local transform to GameObject
+	tempMeshBox.name = name;
+	m_meshes.push_back(tempMeshBox);						// This effectively adds the mesh to the gameobject
+	if (!MeshMap::getInstance()->existsWithName(name))		// This creates the mesh if it does not exist (by name)
+	{
+		Mesh tempMesh;
+		tempMesh.nameMesh(name);
+		
+		// Default mesh
+		tempMesh.setUpMesh(vertices, faces);
+		tempMesh.setUpBuffers();
+
+		//Add mesh
+		MeshMap::getInstance()->createMesh(name, tempMesh);
+
+	}
+
+	//Allocate all of the model matrixes
+	m_modelMatrixes.resize(m_meshes.size());
 	updateModelMatrix();
 }
 
@@ -186,9 +228,15 @@ void GameObject::setTransform(Transform transform)
 	updateModelMatrix();
 }
 
+void GameObject::setTransform(Transform transform, int meshIndex)
+{
+	m_meshes[meshIndex].transform = transform;
+	updateModelMatrix();
+}
+
 void GameObject::setTransform(glm::vec3 worldPosition = glm::vec3(.0f), glm::quat worldRot = glm::quat(), glm::vec3 worldScale = glm::vec3(1.0f))
 {
-	m_transform.position = worldPosition;
+	//m_transform.position = worldPosition;
 	m_transform.scale = worldScale;
 	m_transform.rotation = worldRot;
 	updateModelMatrix();
@@ -199,6 +247,49 @@ void GameObject::setWorldPosition(glm::vec3 worldPosition)
 	m_lastPosition = m_transform.position;
 	m_transform.position = worldPosition;
 	updateModelMatrix();
+}
+
+void GameObject::setWorldPosition(glm::vec3 worldPosition, int meshIndex)
+{
+	m_meshes[meshIndex].transform.position = worldPosition;
+	updateModelMatrix();
+}
+
+void GameObject::offsetMesh(glm::vec3 position, int meshIndex)
+{
+	Mesh* mesh = nullptr;
+	if (m_meshes.size() > 0)
+		mesh = MeshMap::getInstance()->getMesh(m_meshes[meshIndex].name);
+
+	mesh->setPos(position);
+	updateModelMatrix();
+}
+
+void GameObject::setBTWorldPosition(glm::vec3 worldPosition, int meshIndex)
+{
+	btTransform newTransform = m_bodies[meshIndex]->getWorldTransform();
+	newTransform.setOrigin(btVector3(worldPosition.x, worldPosition.y, worldPosition.z));
+	m_bodies[meshIndex]->setWorldTransform(newTransform);
+	updateBulletRigids();
+	updateModelMatrix();
+}
+
+void GameObject::setBTTransform(Transform transform, int meshIndex)
+{
+	btTransform newTransform = m_bodies[meshIndex]->getWorldTransform();
+	newTransform.setOrigin(btVector3(transform.position.x, transform.position.y, transform.position.z));
+	newTransform.setRotation(btQuaternion(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w));
+	m_bodies[meshIndex]->setWorldTransform(newTransform);
+	updateBulletRigids();
+	updateModelMatrix();
+}
+
+void GameObject::set_BtActive(bool state, int meshIndex)
+{
+	if (!state)
+		m_bodies[meshIndex]->setActivationState(false);
+	else if(state)
+		m_bodies[meshIndex]->setActivationState(true);
 }
 
 void GameObject::translate(const glm::vec3& translationVector)
@@ -212,29 +303,19 @@ void GameObject::setShouldRender(bool condition)
 	m_shouldRender = condition;
 }
 
-void GameObject::setRestitution(float restitution)
-{
-	m_restitution = restitution;
-}
-
-void GameObject::setMass(float mass)
-{
-	m_mass = mass;
-}
-
 const Transform GameObject::getTransform() const
 {
-	Mesh* mesh = nullptr;
-	if (m_meshes.size() > 0)
-		mesh = MeshMap::getInstance()->getMesh(m_meshes[0].name);
+	//Mesh* mesh = nullptr;
+	//if (m_meshes.size() > 0)
+	//	mesh = MeshMap::getInstance()->getMesh(m_meshes[0].name);
 	
 	// Adds the inherited transforms together to get the world position of a mesh
 	Transform world_transform;
-	if (mesh)
+	if (m_meshes.size() > 0)
 	{
-		world_transform.position = m_transform.position + m_meshes[0].transform.position + mesh->getTransform().position;
-		world_transform.rotation = m_transform.rotation * m_meshes[0].transform.rotation *  mesh->getTransform().rotation;
-		world_transform.scale = m_transform.scale * m_meshes[0].transform.scale * mesh->getTransform().scale;
+		world_transform.position = m_transform.position + m_meshes[0].transform.position;
+		world_transform.rotation = m_transform.rotation * m_meshes[0].transform.rotation;
+		world_transform.scale = m_transform.scale * m_meshes[0].transform.scale;
 	}
 	else
 	{
@@ -248,13 +329,13 @@ const Transform GameObject::getTransform() const
 
 const Transform GameObject::getTransform(int meshIndex) const
 {
-	Mesh* mesh = MeshMap::getInstance()->getMesh(m_meshes[meshIndex].name); //This costs a lot
+	//Mesh* mesh = MeshMap::getInstance()->getMesh(m_meshes[meshIndex].name); //This costs a lot //True we get rid off
 
 	// Adds the inherited transforms together to get the world position of a mesh
 	Transform world_transform;
-	world_transform.position = m_transform.position + m_meshes[meshIndex].transform.position + mesh->getTransform().position;
-	world_transform.rotation = m_transform.rotation * m_meshes[meshIndex].transform.rotation * mesh->getTransform().rotation;
-	world_transform.scale = m_transform.scale * m_meshes[meshIndex].transform.scale * mesh->getTransform().scale;
+	world_transform.position = m_transform.position + m_meshes[meshIndex].transform.position;
+	world_transform.rotation = m_transform.rotation * m_meshes[meshIndex].transform.rotation;
+	world_transform.scale = m_transform.scale * m_meshes[meshIndex].transform.scale;
 
 	return world_transform;
 }
@@ -268,6 +349,42 @@ const Transform& GameObject::getTransform(Mesh* mesh, const int& meshIndex) cons
 	world_transform.scale = m_transform.scale * m_meshes[meshIndex].transform.scale * mesh->getTransform().scale;
 
 	return world_transform;
+}
+
+const Transform GameObject::getTransformMesh(int meshIndex) const
+{
+	Mesh* mesh = MeshMap::getInstance()->getMesh(m_meshes[meshIndex].name);
+
+	// Adds the inherited transforms together to get the world position of a mesh
+	Transform world_transform;
+	world_transform.position = m_meshes[meshIndex].transform.position + mesh->getTransform().position;
+	world_transform.rotation = m_meshes[meshIndex].transform.rotation * mesh->getTransform().rotation;
+	world_transform.scale = m_meshes[meshIndex].transform.scale * mesh->getTransform().scale;
+
+	return world_transform;
+}
+
+const Transform GameObject::getTransformRigid(int meshIndex) const
+{
+	if (!m_bodies[meshIndex])
+		Transform newTransform;
+
+	btVector3 rigidBodyPos = m_bodies[meshIndex]->getWorldTransform().getOrigin();
+
+	btTransform rigidBodyTransform = m_bodies[meshIndex]->getWorldTransform();
+	Transform newTransform;
+	newTransform.position.x = rigidBodyTransform.getOrigin().getX();
+	newTransform.position.y = rigidBodyTransform.getOrigin().getY();
+	newTransform.position.z = rigidBodyTransform.getOrigin().getZ();
+
+	newTransform.rotation.x = rigidBodyTransform.getRotation().getX();
+	newTransform.rotation.y = rigidBodyTransform.getRotation().getY();
+	newTransform.rotation.z = rigidBodyTransform.getRotation().getZ();
+	newTransform.rotation.w = rigidBodyTransform.getRotation().getW();
+
+	newTransform.scale = getTransformMesh(meshIndex).scale;
+
+	return newTransform;
 }
 
 const std::string& GameObject::getMeshName(int meshIndex) const
@@ -316,6 +433,7 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 	if (!m_bPhysics)
 		m_bPhysics = bp;
 
+
 	for (size_t i = 0; i < m_meshes.size(); i++)
 	{
 		
@@ -342,8 +460,10 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 
 			glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(i).position;
 			glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale;
-			// TODO: ROTATE
-			m_bodies.emplace_back(m_bPhysics->createObject(shape, m_mass, center, halfSize));
+
+			m_bodies.emplace_back(m_bPhysics->createObject(shape, 0.0f, center, halfSize));
+			m_bodies.back()->setUserPointer(this);
+			//setTransformFromRigid(i);
 		}
 		else
 		{
@@ -363,11 +483,93 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 
 			glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(i).position;
 			glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale;
-			// TODO: ROTATE
 
-			m_bodies.emplace_back(m_bPhysics->createObject(shape, m_mass, center, halfSize, getTransform(i).rotation, m_restitution));
+			m_bodies.emplace_back(m_bPhysics->createObject(shape, 0.0f, center, halfSize, getTransform(i).rotation));
+			m_bodies.back()->setUserPointer(this);
+			//setTransformFromRigid(i);
+
 		}
 	}
+
+	m_transform.position = glm::vec3(0.0f);
+	m_transform.rotation = glm::quat();
+}
+
+void GameObject::createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp, float weight)
+{
+	if (!m_bPhysics)
+		m_bPhysics = bp;
+
+	m_bodies.clear();
+	m_bodies.shrink_to_fit();
+	for (size_t i = 0; i < m_meshes.size(); i++)
+	{
+		const std::vector<Vertex>& vertices = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getVertices();
+
+		
+		glm::vec3 min = vertices[0].position;
+		glm::vec3 max = vertices[0].position;
+
+		for (size_t i = 1; i < vertices.size(); i++)
+		{
+			min.x = fminf(vertices[i].position.x, min.x);
+			min.y = fminf(vertices[i].position.y, min.y);
+			min.z = fminf(vertices[i].position.z, min.z);
+
+			max.x = fmaxf(vertices[i].position.x, max.x);
+			max.y = fmaxf(vertices[i].position.y, max.y);
+			max.z = fmaxf(vertices[i].position.z, max.z);
+		}
+
+		glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(i).position;
+		glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale;
+
+		m_bodies.emplace_back(m_bPhysics->createObject(shape, weight, center, halfSize, getTransform(i).rotation,true, 0.0f, 1.0f));
+		m_bodies.back()->setUserPointer(this);
+		m_bodies.back()->setGravity(btVector3(0.0f, -20.0f, 0.0f));
+		setTransformFromRigid(i);
+	}
+
+	m_transform.position = glm::vec3(0.0f);
+	m_transform.rotation = glm::quat();
+}
+
+void GameObject::createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp, float weight, int meshIndex, bool recenter)
+{
+	if (!m_bPhysics)
+		m_bPhysics = bp;
+
+	const std::vector<Vertex>& vertices = MeshMap::getInstance()->getMesh(m_meshes[meshIndex].name)->getVertices();
+
+	glm::vec3 min = vertices[0].position;
+	glm::vec3 max = vertices[0].position;
+
+	for (size_t i = 1; i < vertices.size(); i++)
+	{
+		min.x = fminf(vertices[i].position.x, min.x);
+		min.y = fminf(vertices[i].position.y, min.y);
+		min.z = fminf(vertices[i].position.z, min.z);
+
+		max.x = fmaxf(vertices[i].position.x, max.x);
+		max.y = fmaxf(vertices[i].position.y, max.y);
+		max.z = fmaxf(vertices[i].position.z, max.z);
+	}
+
+	glm::vec3 center = getTransform(meshIndex).position;
+	if (!recenter)
+		glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(meshIndex).position;
+
+	glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(meshIndex).scale;
+
+	m_bodies.emplace_back(m_bPhysics->createObject(shape, weight, center, halfSize, getTransform(meshIndex).rotation,true, 0.0f, 1.0f));
+
+	m_bodies.back()->setUserPointer(this);
+	m_bodies.back()->setGravity(btVector3(0.0f, -20.0f, 0.0f));
+
+	m_transform.position = glm::vec3(0.0f);
+	m_transform.rotation = glm::quat();
+
+	setTransformFromRigid(meshIndex);
 }
 
 void GameObject::createDebugDrawer()
@@ -378,4 +580,36 @@ void GameObject::createDebugDrawer()
 		//m_debugDrawers.emplace_back(new DebugDrawer());
 		//m_debugDrawers[i]->setUpMesh(*m_bodies[i]);
 	}
+}
+
+void GameObject::updateBulletRigids()
+{
+	for (int i = 0; i < (int)m_bodies.size(); i++)
+	{
+		setTransformFromRigid(i);
+	}
+}
+
+void GameObject::setTransformFromRigid(int i)
+{
+	if (!m_bodies[i])
+		return;
+
+	btVector3& rigidBodyPos = m_bodies[i]->getWorldTransform().getOrigin();
+
+	const btTransform& rigidBodyTransform = m_bodies[i]->getWorldTransform();
+	const btVector3& btOrigin = rigidBodyTransform.getOrigin();
+	t_transform.position.x = btOrigin.getX();
+	t_transform.position.y = btOrigin.getY();
+	t_transform.position.z = btOrigin.getZ();
+
+	const btQuaternion& btRotation = rigidBodyTransform.getRotation();
+	t_transform.rotation.x = btRotation.getX();
+	t_transform.rotation.y = btRotation.getY();
+	t_transform.rotation.z = btRotation.getZ();
+	t_transform.rotation.w = btRotation.getW();
+
+	t_transform.scale = getTransformMesh(i).scale;
+
+	setTransform(t_transform, i);
 }

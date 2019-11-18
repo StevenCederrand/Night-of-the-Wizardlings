@@ -149,10 +149,11 @@ void Player::move(float deltaTime)
 		}
 		
 		// Jump
-		if (Input::isKeyHeldDown(GLFW_KEY_SPACE))
-			if (m_character->canJump())
-			{
+		if (Input::isKeyHeldDown(GLFW_KEY_SPACE))			
+				
+			if (m_character->canJump()) {
 				m_character->jump(btVector3(0.0f, 16.0f, 0.0f));
+				animState.jumping = true;
 				sh->playSound(JumpSound, m_client->getMyData().guid);
 			}
 

@@ -17,7 +17,7 @@ void NetworkSpells::update(const float& dt)
 
 	if (Client::getInstance()->isConnectedToSever()) {
 		
-		Client::getInstance()->updateSpellsMutexGuard();
+		std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateSpellsMutex);
 		
 		for (size_t i = 0; i < m_entities.size(); i++) {
 		
@@ -28,25 +28,24 @@ void NetworkSpells::update(const float& dt)
 					
 					//e.gameobject = new WorldObject();
 					
-					if (e.spellData.SpellType == SPELL_TYPE::NORMALATTACK || e.spellData.SpellType == SPELL_TYPE::UNKNOWN) {
+					if (e.spellData.SpellType == OBJECT_TYPE::NORMALATTACK || e.spellData.SpellType == OBJECT_TYPE::UNKNOWN) {
 						e.gameobject = new AttackSpell(e.spellData.Position);
 					}
-					else if (e.spellData.SpellType == SPELL_TYPE::ENHANCEATTACK) {
+					else if (e.spellData.SpellType == OBJECT_TYPE::ENHANCEATTACK) {
 						e.gameobject = new AttackSpell(e.spellData.Position);
 					}
-					else if (e.spellData.SpellType == SPELL_TYPE::REFLECT) {
+					else if (e.spellData.SpellType == OBJECT_TYPE::REFLECT) {
 						e.gameobject = new ReflectSpell(e.spellData.Position);
 					}
-					else if (e.spellData.SpellType == SPELL_TYPE::FLAMESTRIKE) {
-						e.gameobject = new AOEAttack(e.spellData.Position);							
+					else if (e.spellData.SpellType == OBJECT_TYPE::FLAMESTRIKE) {
+						e.gameobject = new AOEAttack(e.spellData.Position);						
 						e.spellData.SoundSlot = shPtr->playSound(FireSound, e.spellData.CreatorGUID);
 						shPtr->setSourcePosition(e.spellData.Position, FireSound, e.spellData.CreatorGUID, e.spellData.SoundSlot);
 					}
-					else if (e.spellData.SpellType == SPELL_TYPE::FIRE) {
+					else if (e.spellData.SpellType == OBJECT_TYPE::FIRE) {
 						e.gameobject = new fire(e.spellData.Position);		
 						shPtr->setSourcePosition(e.spellData.Position, GlassBreakSound, e.spellData.CreatorGUID);
-						shPtr->playSound(GlassBreakSound, e.spellData.CreatorGUID);
-					}
+						shPtr->playSound(GlassBreakSound, e.spellData.CreatorGUID);					
 					else {
 						return;
 					}									

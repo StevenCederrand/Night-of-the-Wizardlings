@@ -16,6 +16,9 @@
 
 #define PARTICLES "Particle_Shader"
 
+// Debug define
+#define DEBUG_WIREFRAME
+
 #include <Pch/Pch.h>
 #include <GameObject/GameObject.h>
 #include <GameObject/AnimatedObject.h>
