@@ -53,7 +53,7 @@ void LocalServer::startup(const std::string& serverName)
 
 		memcpy(&m_serverInfo.serverName, serverName.c_str(), serverName.length());
 		m_serverInfo.currentState = NetGlobals::SERVER_STATE::WaitingForPlayers;
-		m_serverInfo.maxPlayers = NetGlobals::MaximumConnections;
+		m_serverInfo.maxPlayers = NetGlobals::MaximumPlayingPlayersOnServer;
 		m_serverInfo.connectedPlayers = 0;
 		m_connectedPlayers.reserve(NetGlobals::MaximumConnections);
 
@@ -244,7 +244,7 @@ void LocalServer::processAndHandlePackets()
 		case PLAY_REQUEST:
 		{
 			logTrace("[Server] Got a play request.\n");
-			if (m_connectedPlayers.size() >= NetGlobals::MaximumConnections || m_serverInfo.currentState != NetGlobals::SERVER_STATE::WaitingForPlayers)
+			if (m_connectedPlayers.size() >= NetGlobals::MaximumPlayingPlayersOnServer || m_serverInfo.currentState != NetGlobals::SERVER_STATE::WaitingForPlayers)
 			{
 				logTrace("[Server] Denied play request.\n");
 				m_serverPeer->CloseConnection(packet->guid, true);
@@ -272,7 +272,14 @@ void LocalServer::processAndHandlePackets()
 			// Send info about all clients to the newly connected one
 			RakNet::BitStream stream_otherPlayers;
 			stream_otherPlayers.Write((RakNet::MessageID)INFO_ABOUT_OTHER_PLAYERS);
-			stream_otherPlayers.Write(m_connectedPlayers.size());
+			int numPlayersPlaying = 0; // Not counting spectators
+
+			for (int i = 0; i < m_connectedPlayers.size(); i++) {
+				if (m_connectedPlayers[i].Spectator == false)
+					numPlayersPlaying++;
+			}
+			
+			stream_otherPlayers.Write(numPlayersPlaying);
 
 			for (size_t i = 0; i < m_connectedPlayers.size(); i++)
 			{

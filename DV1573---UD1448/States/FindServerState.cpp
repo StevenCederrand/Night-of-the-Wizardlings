@@ -117,7 +117,7 @@ void FindServerState::usernameInput()
 	if (!m_inputTextOpen) {
 		m_serverList->hide();
 		m_refreshServerList->hide();
-
+		m_spectateServer->hide();
 		m_usernameBox->show();
 		m_backToList->show();
 
@@ -134,7 +134,7 @@ bool FindServerState::onBackToMenuClicked(const CEGUI::EventArgs& e)
 bool FindServerState::onJoinServerClicked(const CEGUI::EventArgs& e)
 {
 	CEGUI::ListboxItem* item = m_serverList->getFirstSelectedItem();
-	
+	Gui::getInstance()->setWidgetDestRect(m_joinServer, glm::vec4(0.35f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f));
 	if (item != NULL)
 	{
 		usernameInput();
@@ -157,7 +157,6 @@ bool FindServerState::onJoinServerClicked(const CEGUI::EventArgs& e)
 		{
 			if (Client::getInstance()->connectionFailed()) {
 				std::printf("Server is full or in session!\n");
-				m_serverList->removeRow(serverID);
 				return true;
 			}
 		}
@@ -198,7 +197,7 @@ bool FindServerState::onSpectateServerClicked(const CEGUI::EventArgs& e)
 			
 			if (Client::getInstance()->connectionFailed()) {
 
-				logTrace("Failed to connect as a spectator.. Don't know why this would happen but lets' hope that this never occurs :)");
+				logTrace("Failed to connect as a spectator.. Don't know why this would happen but lets' hope that this never occurs, maybe you have the wrong version of master? :)");
 				return true;
 			}
 		}
@@ -219,7 +218,10 @@ bool FindServerState::onBackToListClicked(const CEGUI::EventArgs& e)
 	//Open up the server list
 	m_serverList->show();
 	m_refreshServerList->show();
+	m_spectateServer->show();
 	m_inputTextOpen = false;
+	Gui::getInstance()->setWidgetDestRect(m_joinServer, glm::vec4(0.25f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f));
+
 
 	m_usernameBox->setText("Enter Username...");
 	m_inputTextSelected = false;
