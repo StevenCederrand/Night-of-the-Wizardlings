@@ -40,8 +40,10 @@ void NetworkPlayers::update(const float& dt)
 				if (animObj != nullptr)
 				{
 					animObj->initAnimations("RunAnimation", 1.0f, 21.0f);
-					animObj->initAnimations("IdleAnimation", 22.0f, 93.0f);
-					animObj->initAnimations("JumpAnimation", 0.0f, 1.0f);
+					animObj->initAnimations("IdleAnimation", 22.0f, 92.0f);
+					animObj->initAnimations("CastAnimation", 93.0f, 112.0f);
+					animObj->initAnimations("JumpAnimation", 1.0f, 21.0f);
+
 				}
 
 				//Submit the player object as a dynamic object
@@ -79,12 +81,23 @@ void NetworkPlayers::update(const float& dt)
 
 			animObj = dynamic_cast<AnimatedObject*>(p.gameobject);
 			if (animObj != nullptr) {
+				if (p.data.animStates.jumping == true)
+				{
+					animObj->playAnimation("JumpAnimation");
+				}
+				if (p.data.animStates.casting == true)
+				{
+					animObj->playAnimation("CastAnimation");
+				}
+				if (p.data.animStates.deflecting == true)
+				{
+					animObj->playAnimation("CastAnimation");
+				}
 				if (p.data.animStates.running == true)
 					animObj->playLoopAnimation("RunAnimation");
 				if (p.data.animStates.idle == true)
-				{
 					animObj->playLoopAnimation("IdleAnimation");
-				}
+
 
 			}
 			g->update(dt);
