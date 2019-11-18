@@ -49,8 +49,6 @@ public:
 	void set_BtActive(bool state = false, int meshIndex = 0);
 	void translate(const glm::vec3& translationVector);
 	void setShouldRender(bool condition);
-	void setRestitution(float restitution);
-	void setMass(float mass);
 
 	//Get functions
 	const Transform getTransform() const;

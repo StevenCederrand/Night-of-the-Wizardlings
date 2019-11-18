@@ -303,16 +303,6 @@ void GameObject::setShouldRender(bool condition)
 	m_shouldRender = condition;
 }
 
-void GameObject::setRestitution(float restitution)
-{
-	m_restitution = restitution;
-}
-
-void GameObject::setMass(float mass)
-{
-	m_mass = mass;
-}
-
 const Transform GameObject::getTransform() const
 {
 	//Mesh* mesh = nullptr;
