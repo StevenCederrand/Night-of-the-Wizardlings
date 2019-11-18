@@ -106,31 +106,31 @@ public:
 	void setListenerOrientation(glm::vec3 lookAt, glm::vec3 up);
 
 	void setSourcePitch(float pitch, SoundIndexClient whatSound);
-	void setSourcePitch(float pitch, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
+	void setSourcePitch(float pitch, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID, int slot = 0);
 
 	void setSourceGain(float gain, SoundIndexClient whatSound);
-	void setSourceGain(float gain, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
+	void setSourceGain(float gain, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID, int slot = 0);
 	
 	void setSourceMaxGain(float gain, SoundIndexClient whatSound);
-	void setSourceMaxGain(float gain, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
+	void setSourceMaxGain(float gain, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID, int slot = 0);
 	
 	void setSourceMaxDistance(float dist, SoundIndexClient whatSound);
-	void setSourceMaxDistance(float dist, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
+	void setSourceMaxDistance(float dist, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID, int slot = 0);
 	
 	void setSourcePosition(glm::vec3 pos, SoundIndexClient whatSound);
 	void setSourcePosition(glm::vec3 pos, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID, int slot = 0);
 	
 	void setSourceVelocity(glm::vec3 vel, SoundIndexClient whatSound);
-	void setSourceVelocity(glm::vec3 vel, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
+	void setSourceVelocity(glm::vec3 vel, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID, int slot = 0);
 
 	void setSourceDirection(glm::vec3 dir, SoundIndexClient whatSound);
-	void setSourceDirection(glm::vec3 dir, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
+	void setSourceDirection(glm::vec3 dir, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID, int slot = 0);
 
 	void setSourceType(ALenum type, SoundIndexClient whatSound); //AL_UNDETERMINED, AL_STATIC or AL_STREAMING
-	void setSourceType(ALenum type, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID); //AL_UNDETERMINED, AL_STATIC or AL_STREAMING
+	void setSourceType(ALenum type, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID, int slot = 0); //AL_UNDETERMINED, AL_STATIC or AL_STREAMING
 
 	void setSourceLooping(bool looping, SoundIndexClient whatSound);
-	void setSourceLooping(bool looping, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
+	void setSourceLooping(bool looping, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID, int slot = 0);
 	
 	void setPlayerGUIDs();
 	void addPlayer(RakNet::AddressOrGUID guid);
