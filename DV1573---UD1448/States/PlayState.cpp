@@ -245,10 +245,6 @@ void PlayState::update(float dt)
 
 			case PlayerEvents::WallGotDestroyed:
 			{
-				
-				for (size_t i = 0; i < m_dstr.getPackets().size(); i++) 
-					Client::getInstance()->sendDestructionPacket(m_dstr.getPackets()[i]);
-
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::ReadDestructableWallsMutex); // Thread safe
 
 				auto& vec = Client::getInstance()->getDestructedWalls();
@@ -377,6 +373,15 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 
 		if (spellobj->getType() != FLAMESTRIKE)
 			spellobj->setTravelTime(0.05f);
+
+		// Network packet
+		DestructionPacket newPack;
+		newPack.hitPoint = glm::vec2(hitpoint.getX(), hitpoint.getY());
+		newPack.hitDir = spellobj->getDirection();
+		newPack.index = dstrobj->getIndex();
+		newPack.randomSeed = seed;
+	
+		Client::getInstance()->sendDestructionPacket(newPack);
 	}
 
 
