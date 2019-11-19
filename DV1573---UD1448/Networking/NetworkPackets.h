@@ -33,7 +33,8 @@ enum {
 	DAMAGE_BUFF_ACTIVE,
 	DAMAGE_BUFF_INACTIVE,
 	KILL_FEED,
-	SERVER_TIME
+	SERVER_TIME,
+	DESTRUCTION
 };
 
 /* To make sure the compiler aligns the bits */
@@ -207,6 +208,22 @@ struct ServerTimePacket {
 	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
 		stream.Serialize(writeToStream, serverTimestamp);
 	}
+};
+
+
+struct DestructionPacket {
+
+	int randomSeed;
+	int index;
+	glm::vec3 hitPoint;
+
+	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
+		stream.Serialize(writeToStream, randomSeed);
+		stream.Serialize(writeToStream, index);
+		stream.Serialize(writeToStream, hitPoint);
+	}
+
+
 };
 
 

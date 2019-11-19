@@ -242,6 +242,37 @@ void PlayState::update(float dt)
 				m_player->setHealth(myNewHealth);
 				break;
 			}
+
+			case PlayerEvents::WallGotDestroyed:
+			{
+				
+				for (size_t i = 0; i < m_dstr.getPackets().size(); i++) 
+					Client::getInstance()->sendDestructionPacket(m_dstr.getPackets()[i]);
+				/*	Example:
+						DestructionPacket p;
+						p.index = 0;
+						p.hitPoint = glm::vec3(3.0f);
+						p.randomSeed = 345342;
+						Client::getInstance()->sendDestructionPacket(p);
+				*/
+
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::ReadDestructableWallsMutex); // Thread safe
+				auto& vec = Client::getInstance()->getDestructedWalls();
+
+				for (size_t i = 0; i < vec.size(); i++) {
+					// Do stuff here
+					const DestructionPacket& p = vec[i];
+					
+
+
+					//------------------
+				}
+
+				// Tells the client to clear the vector
+				Client::getInstance()->clearDestroyedWallsVector();
+
+				break;
+			}
 		}
 	}
 
@@ -353,6 +384,9 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 
 		if (spellobj->getType() != FLAMESTRIKE)
 			spellobj->setTravelTime(0.05f);
+
+		
+
 	}
 
 

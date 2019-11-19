@@ -107,7 +107,7 @@ private:
 	TimedCallback m_timedCountdownTimer;
 	TimedCallback m_timedGameInEndStateTimer;
 	TimedCallback m_timedPickupSpawner;
-	TimedCallback m_updateClientsWithServertimeTimer;;
+	TimedCallback m_updateClientsWithServertimeTimer;
 
 	
 	uint64_t m_pickupID;

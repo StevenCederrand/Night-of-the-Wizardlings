@@ -31,7 +31,7 @@ void DstrGenerator::initPoints(glm::vec2 position, int amount)
 	float offset = 0;
 	float angle = 0;
 
-	SeedRand(); // Important for the networking to get consistent breakage
+	seedRand(); // Important for the networking to get consistent breakage
 
 	if (m_breakAreaRadius < 0.1f)
 	{
@@ -242,7 +242,7 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 	object->set_destroyed(true);
 }
 
-const unsigned int DstrGenerator::SeedRand(unsigned int seed)
+const unsigned int DstrGenerator::seedRand(unsigned int seed)
 {
 	m_seed = unsigned int(time(NULL));
 	srand(m_seed);

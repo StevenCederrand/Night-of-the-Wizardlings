@@ -859,6 +859,27 @@ void Client::processAndHandlePackets()
 			break;
 		}
 
+		case DESTRUCTION:
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			DestructionPacket destpacket;
+			destpacket.Serialize(false, bsIn);
+			
+			// Add it to the destroyed walls vector
+			{
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::ReadDestructableWallsMutex); // Thread safe
+				m_destroyedWalls.push_back(destpacket);
+			}
+
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+				m_playerEvents.push_back(PlayerEvents::WallGotDestroyed);
+			}
+
+			break;
+		}
+
 		default:
 		{
 			
@@ -991,6 +1012,14 @@ void Client::sendHitRequest(Spell& spell, const PlayerPacket& playerThatWasHit)
 
 }
 
+void Client::sendDestructionPacket(const DestructionPacket& destructionPacket)
+{
+	if (!m_initialized || !m_isConnectedToAnServer) return;
+
+	m_destructionQueue.push_back(destructionPacket);
+
+}
+
 void Client::updateNetworkEntities(const float& dt)
 {
 	if (m_initialized && m_isConnectedToAnServer) {
@@ -1064,11 +1093,23 @@ void Client::updateDataOnServer()
 		m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_serverAddress, false);
 	}
 
+	// Empty out the destruction queue
+	for (size_t i = 0; i < m_destructionQueue.size(); i++) {
+
+		RakNet::BitStream bsOut;
+		bsOut.Write((RakNet::MessageID)DESTRUCTION);
+		m_destructionQueue[i].Serialize(true, bsOut);
+		m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_serverAddress, false);
+	}
+
+
+
 	// Empty all the queues
 	m_updateSpellQueue.clear();
 	m_spellsHitQueue.clear();
 	m_removeOrAddSpellQueue.clear();
 	m_removalOfClientSpellsQueue.clear();
+	m_destructionQueue.clear();
 
 }
 
@@ -1153,6 +1194,12 @@ const PlayerEvents Client::readNextEvent()
 	return evnt;
 }
 
+const std::vector<DestructionPacket>& Client::getDestructedWalls()
+{
+	return m_destroyedWalls;
+}
+
+
 const std::vector<SpellPacket>& Client::getNetworkSpells()
 {
 	return m_activeSpells;
@@ -1182,6 +1229,11 @@ void Client::setUsername(const std::string& userName)
 		std::memcpy(m_userName, userName.c_str(), 16);
 	}
 	std::memcpy(m_myPlayerDataPacket.userName, userName.c_str(), userName.size());
+}
+
+void Client::clearDestroyedWallsVector()
+{
+	m_destroyedWalls.clear();
 }
 
 const bool Client::doneRefreshingServerList() const
