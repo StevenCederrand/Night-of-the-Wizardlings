@@ -1,20 +1,13 @@
 #include <Pch/Pch.h>
 #include "DestructibleObject.h"
 
-DestructibleObject::DestructibleObject(DstrGenerator* dstr)
+DestructibleObject::DestructibleObject(DstrGenerator* dstr, int index)
 {
 	dstrRef = dstr;
 	m_type = DESTRUCTIBLE;
 	m_scale = 0;
 	m_polygonFace.reserve(4);
-}
-
-DestructibleObject::DestructibleObject(std::string name, DstrGenerator* dstr)
-{
-	dstrRef = dstr;
-	m_type = DESTRUCTIBLE;
-	m_scale = 0;
-	m_polygonFace.reserve(4);
+	m_index = index;
 }
 
 DestructibleObject::~DestructibleObject()
