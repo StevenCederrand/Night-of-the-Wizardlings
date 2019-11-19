@@ -240,10 +240,9 @@ void PlayState::update(float dt)
 
 			case PlayerEvents::WallGotDestroyed:
 			{
-				// How to send a destruction packet
-				// 1. Make one
-				// 2. Send it
-
+				
+				for (size_t i = 0; i < m_dstr.getPackets().size(); i++) 
+					Client::getInstance()->sendDestructionPacket(m_dstr.getPackets()[i]);
 				/*	Example:
 						DestructionPacket p;
 						p.index = 0;
@@ -251,7 +250,6 @@ void PlayState::update(float dt)
 						p.randomSeed = 345342;
 						Client::getInstance()->sendDestructionPacket(p);
 				*/
-
 
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::ReadDestructableWallsMutex); // Thread safe
 				auto& vec = Client::getInstance()->getDestructedWalls();
@@ -376,21 +374,10 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 	{
 		DstrGenerator* m_dstr = dstrobj->getDstr();
 
-		float test1 = cp.getAppliedImpulse();
-		btVector3 test2 = cp.m_localPointA;
-		btVector3 test3 = cp.m_localPointB;
-		float test4 = cp.getDistance();
-		float test5 = cp.m_contactMotion1;
-		float test6 = cp.m_contactMotion2;
-		float test7= cp.m_appliedImpulseLateral1;
-		float test8 = cp.m_appliedImpulseLateral2;
-		btVector3 test9 = cp.m_positionWorldOnA;
-		btVector3 test10 = cp.m_positionWorldOnB;
-
-		float test99 = 1;
-		
 		
 		m_dstr->Destroy(dstrobj, glm::vec2(hitpoint.getX(), hitpoint.getY()));
+
+
 	}
 
 

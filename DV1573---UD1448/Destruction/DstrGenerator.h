@@ -13,9 +13,12 @@ public:
 	void offsetPoints(glm::vec2 position = glm::vec2());
 
 	void Destroy(DestructibleObject* object, glm::vec2 hitPosition);
+	void pushPacket(glm::vec3 hitPoint, int index, int seed);
 
-	const unsigned int SeedRand(unsigned int seed = 0);
-	const unsigned int GetSeed(unsigned int seed) const { return m_seed; }
+	const unsigned int seedRand(unsigned int seed = 0);
+	const unsigned int getSeed(unsigned int seed) const { return m_seed; }
+	const std::vector<DestructionPacket>& getPackets() const { return m_packets; }
+
 	void Clear();
 
 private:
@@ -27,9 +30,10 @@ private:
 	std::vector<Vertex> m_newVertices;
 	std::vector<Face> m_newFace;
 
-
 	std::vector<Mesh> m_meshResults;
 
+
+	std::vector<DestructionPacket> m_packets;
 	unsigned int m_seed;
 	unsigned int m_breakPoints;
 	float m_breakAreaRadius;
