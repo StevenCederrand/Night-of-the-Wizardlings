@@ -91,7 +91,7 @@ void Renderer::renderHUD()
 
 void Renderer::renderAndAnimateNetworkingTexts()
 {
-	if (Client::getInstance()->isConnectedToSever()) {
+	if (Client::getInstance()->isConnectedToSever() && Client::getInstance()->isInitialized()) {
 
 		NetGlobals::SERVER_STATE state = Client::getInstance()->getServerState().currentState;
 
