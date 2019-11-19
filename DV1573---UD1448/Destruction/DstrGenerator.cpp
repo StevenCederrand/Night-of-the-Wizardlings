@@ -207,17 +207,13 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 
 			glm::vec3 center = glm::vec3((min + max) * 0.5f);
 
-			//for (int j = 0; j < m_newVertices.size(); j++)
-			//{
-			//	m_newVertices[j].position -= center;
-			//}
-
 			object->initMesh(object->getMeshName() + "_" + std::to_string(i), m_newVertices, m_newFace);
 
 			Transform newTransform = object->getTransform();
 			newTransform.position += center;
 			object->setTransform(newTransform, mi);
 
+			// DEBUG PLACEMENT
 			//Transform newTransform = object->getTransform(0);
 			//newTransform.position += glm::vec3(
 			//	m_diagram.sites[i].x * 0.2f,
@@ -226,7 +222,8 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			//object->setTransform(newTransform,  mi);
 
 			object->createDynamicRigidBody(CollisionObject::box, NULL, 20.0f, mi, false);
-			glm::vec3 force = hitDirection * (scale * 2) * 8;
+			glm::vec3 force = (hitDirection + (center * 100)) * (scale * 2) * 8;
+
 			object->getRigidBodies()[mi]->applyCentralImpulse(btVector3(force.x, force.y, force.z) * 3.0f);
 			mi++;
 
