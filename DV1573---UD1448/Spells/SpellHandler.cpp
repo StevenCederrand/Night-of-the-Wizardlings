@@ -112,7 +112,7 @@ void SpellHandler::initFlamestrikeSpell()
 
 	flamestrikeBase->m_damage = 10;
 	flamestrikeBase->m_speed = 55.0f;
-	flamestrikeBase->m_coolDown = 1;
+	flamestrikeBase->m_coolDown = 1.0f;
 	flamestrikeBase->m_lifeTime = 5;
 	flamestrikeBase->m_maxBounces = 2;
 }

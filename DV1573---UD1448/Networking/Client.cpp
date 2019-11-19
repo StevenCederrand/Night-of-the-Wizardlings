@@ -95,7 +95,7 @@ void Client::connectToMyServer()
 	m_shutdownThread = false;
 	m_isConnectedToAnServer = false;
 	m_serverOwner = false;
-
+	m_spectating = false;
 	bool status = m_clientPeer->Connect("localhost", NetGlobals::ServerPort, 0, 0, 0) == RakNet::CONNECTION_ATTEMPT_STARTED;
 	assert((status == true, "Client connecting to localhost failed!"));
 	
