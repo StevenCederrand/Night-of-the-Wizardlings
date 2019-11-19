@@ -65,6 +65,7 @@ void Client::destroy()
 		delete m_networkPickup;
 		resetPlayerData();
 		m_initialized = false;
+		m_serverOwner = false;
 		RakNet::RakPeerInterface::DestroyInstance(m_clientPeer);
 	}
 }
@@ -1057,7 +1058,7 @@ void Client::updateNetworkEntities(const float& dt)
 
 void Client::sendStartRequestToServer()
 {
-	if (m_serverOwner) {
+	if (m_serverOwner && m_initialized) {
 		RakNet::BitStream stream;
 		stream.Write((RakNet::MessageID)SERVER_CHANGE_STATE);
 		ServerStateChange stateChange;
