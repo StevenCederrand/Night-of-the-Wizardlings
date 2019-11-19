@@ -30,8 +30,8 @@ uniform vec3 CameraPosition;
 
 uniform vec3 Ambient_Color;             // Change to emmisive
 uniform vec3 Diffuse_Color;             // Material diffuse
-uniform vec3 Specular_Color;
-uniform vec2 TexAndRim = vec2(0, 0);    // Booleans
+uniform vec3 Specular_Color;            // Material specular
+uniform vec2 TexAndRim = vec2(0, 0);    // Booleans --- Textures & Rimlighting
 
 uniform int LightCount;
 uniform sampler2D albedoTexture;        // Texture diffuse
@@ -47,17 +47,17 @@ vec3 grayscaleColour(vec3 col);
 
 void main() {
     Ambient_Color; // To remove errors
-    
+
     // Ambient light
     vec3 ambientLight = Diffuse_Color * ambientStr;     // Material color
-    if (TexAndRim.x == 1) 
-        ambientLight = texture(albedoTexture, f_UV).rgb * ambientStr * brightnessMod; // Texture color    (If there is texture we disregard material color)                        
+    if (TexAndRim.x == 1)
+        ambientLight = texture(albedoTexture, f_UV).rgb * ambientStr * brightnessMod; // Texture color    (If there is texture we disregard material color)
 
     // Create the diffuse color once
     vec3 diffuseColor = Diffuse_Color;  // Material color
-    if(TexAndRim.x == 1) 
-        diffuseColor = texture(albedoTexture, f_UV).rgb * 0.5;   // Texture color     
-    
+    if(TexAndRim.x == 1)
+        diffuseColor = texture(albedoTexture, f_UV).rgb * 0.5;   // Texture color
+
 
     // Directional light
     vec3 directionalLight = calcDirLight(f_normal, diffuseColor);
@@ -97,7 +97,7 @@ void main() {
 vec3 calcPointLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance, vec3 diffuse) {
     vec3 lightDir = normalize(pLight.position - position); //From the surface to the light
     float diff = max(dot(normal, lightDir), 0);
-    vec3 diffuseLight = diffuse * diff * normalize(pLight.color); 
+    vec3 diffuseLight = diffuse * diff * normalize(pLight.color);
     //vec3 ambient = vec3(0.1f) * pLight.color * ambientStr; // Unused - remove when confirmed ok
 
     return (diffuseLight);// * attenuation;
@@ -112,7 +112,7 @@ vec3 calcDirLight(vec3 normal, vec3 diffuseColor) {
     float diff = smoothstep(0.0, 0.01, (max(dot(normal, lightDir), 0.0)));
 
     vec3 newDiffuse = diffuseColor;
-    
+
     float f = 0.2; // desaturate by %
     float L = 0.3 * newDiffuse.r + 0.6 * newDiffuse.g + 0.1 * newDiffuse.b;
     float new_r = newDiffuse.r + f * (L - newDiffuse.r);

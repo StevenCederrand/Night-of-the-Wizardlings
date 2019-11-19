@@ -29,7 +29,8 @@ public:
 	//Sets a standard material
 	void setMaterial(const std::string& materialName);
 	void setMaterial(Material* material);
-
+	void unbindMaterial(const std::string& materialName);
+	void unbindMaterial(Material* material);
 	bool getValid() const;
 	int getShaderID() const;
 	std::string getName() const;

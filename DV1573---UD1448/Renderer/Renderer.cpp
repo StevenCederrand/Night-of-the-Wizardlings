@@ -709,7 +709,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			glBindVertexArray(mesh->getBuffers().vao);
 
 			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
+			object->unbindMaterialFromShader(shader, mesh->getMaterial());
 			glBindVertexArray(0);
 		}
 	}
@@ -745,7 +745,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 				glBindVertexArray(mesh->getBuffers().vao);
 
 				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
+				object->unbindMaterialFromShader(shader, mesh->getMaterial());
 				glBindVertexArray(0);
 			}
 		}
@@ -782,7 +782,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			glBindVertexArray(mesh->getBuffers().vao);
 
 			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
+			object->unbindMaterialFromShader(shader, p->getRenderInformation().material);
 			glBindVertexArray(0);
 
 		}
@@ -834,7 +834,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			glBindVertexArray(mesh->getBuffers().vao);
 
 			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
+			object->unbindMaterialFromShader(shader, mesh->getMaterial());
 			glBindVertexArray(0);
 		}
 	}
@@ -900,7 +900,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 				glBindVertexArray(mesh->getBuffers().vao);
 
 				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
+				object->unbindMaterialFromShader(shader, mesh->getMaterial());
 				glBindVertexArray(0);
 			}
 		}
@@ -918,31 +918,24 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 #endif
 
 	//ShaderMap::getInstance()->useByName(BLUR);
-
 	//ShaderMap::getInstance()->getShader(BLUR)->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
 	//m_bloom->blurIteration(0);
-
-
-	/*for (unsigned int i = 0; i < m_bloom->getAmount() - 1; i++)
-	{
-
-		ShaderMap::getInstance()->getShader(BLUR)->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
-
-		m_bloom->blurIteration(1);
-	}
-	m_bloom->unbindTextures();
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	ShaderMap::getInstance()->useByName(BLOOM_BLUR);*/
+	//for (unsigned int i = 0; i < m_bloom->getAmount() - 1; i++)
+	//{
+	//	ShaderMap::getInstance()->getShader(BLUR)->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
+	//	m_bloom->blurIteration(1);
+	//}
+	//m_bloom->unbindTextures();
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//ShaderMap::getInstance()->useByName(BLOOM_BLUR);
 	//If the client is dead
-	
-	/*if (Client::getInstance()->getMyData().health <= 0) {
-		ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("grayscale", 1);
-	}
-	else {
-		ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("grayscale", 0);
-	}*/
-
-
+	//
+	//if (Client::getInstance()->getMyData().health <= 0) {
+	//	ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("grayscale", 1);
+	//}
+	//else {
+	//	ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("grayscale", 0);
+	//}
 	//m_bloom->sendTextureLastPass();
 	//m_bloom->renderQuad();
 	//m_bloom->unbindTextures();

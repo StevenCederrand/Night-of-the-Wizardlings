@@ -38,8 +38,7 @@ void HudHandler::loadPlayStateHUD() {
 	hudObject = new HudObject("Assets/Textures/hud/CrosshairDeflect.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(50.0f, 50.0f));
 	hudObject->setAlpha(0.0f);
 	insertHUDObject(hudObject, CROSSHAIR_DEFLECT);
-
-	
+		
 	hudObject = new HudObject("Assets/Textures/hud/DamageIndicator.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(64.0f, 64.0f));
 	hudObject->setAlpha(0.0f);	
 	insertHUDObject(hudObject, DAMAGE_INDICATOR);

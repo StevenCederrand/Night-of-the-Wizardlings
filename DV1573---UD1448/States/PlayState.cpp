@@ -15,6 +15,11 @@ void logVec3(glm::vec3 vector) {
 PlayState::PlayState()
 {
 	m_bPhysics = new BulletPhysics(-20.0f);
+	m_objects.push_back(new WorldObject("Character"));
+	m_objects[m_objects.size() - 1]->loadMesh("CharacterTest.mesh");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 1.8f, -24.0f));
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+
 	//to get the right character heigth
 	GameObject* AnimationMesh = new WorldObject("AnimationMesh");
 	AnimationMesh->loadMesh("ANIM.mesh");
@@ -44,10 +49,7 @@ PlayState::PlayState()
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 	
 
-	m_objects.push_back(new WorldObject("Character"));
-	m_objects[m_objects.size() - 1]->loadMesh("CharacterTest.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 1.8f, -24.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+	
 
 	m_objects.push_back(new Deflect("PlayerShield"));
 	m_objects[m_objects.size() - 1]->loadMesh("ShieldMesh.mesh");
