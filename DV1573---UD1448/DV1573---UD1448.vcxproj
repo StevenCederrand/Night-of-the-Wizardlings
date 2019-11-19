@@ -193,6 +193,7 @@
     </ClCompile>
     <ClCompile Include="GameObject\MapObject.cpp" />
     <ClCompile Include="GameObject\DestructibleObject.cpp" />
+    <ClCompile Include="GFX\Pointlight.cpp" />
     <ClCompile Include="Gui\GameGUI.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -305,6 +306,7 @@
     </ClInclude>
     <ClInclude Include="GameObject\DestructibleObject.h" />
     <ClInclude Include="GameObject\MapObject.h" />
+    <ClInclude Include="GFX\Pointlight.h" />
     <ClInclude Include="Gui\GameGUI.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

@@ -43,6 +43,7 @@ public:
 private:
 
 	std::string m_oldMaterial;
+	int m_totalBoundTextures; //Keep track of the largest set of textures bound at once. 
 
 	void shaderSetup(std::string shaderName, unsigned int& shader);
 	bool m_valid;

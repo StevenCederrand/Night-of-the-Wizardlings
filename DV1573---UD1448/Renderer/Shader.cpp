@@ -123,6 +123,11 @@ void Shader::unuse()
 void Shader::clearBinding()
 {
 	m_oldMaterial = "";
+	//Clear all texture bindings
+	for (size_t i = 0; i < m_totalBoundTextures; i++) {
+		glActiveTexture(GL_TEXTURE0 + i);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
 }
 
 //uniform mat3
@@ -270,8 +275,12 @@ void Shader::setMaterial(const std::string& materialName) {
 	}
 
 	Material* mat = MaterialMap::getInstance()->getMaterial(materialName);
+	
 	if (mat)
 	{
+		if (m_totalBoundTextures < mat->textureID.size()) {
+			m_totalBoundTextures = mat->textureID.size();
+		}
 		setVec3("Ambient_Color", mat->ambient);
 		setVec3("Diffuse_Color", mat->diffuse);
 		//setVec3("Specular_Color", mat->specular);
@@ -295,6 +304,11 @@ void Shader::setMaterial(Material* material)
 	if (m_oldMaterial == material->name) { 
 		return;
 	}
+
+	if (m_totalBoundTextures < material->textureID.size()) {
+		m_totalBoundTextures = material->textureID.size();
+	}
+
 	m_oldMaterial = material->name;
 
 	setVec3("Ambient_Color", material->ambient);

@@ -318,7 +318,7 @@ void Renderer::setupCamera(Camera* camera)
 	m_camera = camera;
 }
 
-void Renderer::submit(GameObject* gameObject, ObjectType objType)
+void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 {
 	TextureInfo rings;
 	rings.name = "Assets/Textures/Spell_1.png";
@@ -326,52 +326,69 @@ void Renderer::submit(GameObject* gameObject, ObjectType objType)
 	TextureInfo smoke;
 	smoke.name = "Assets/Textures/Spell_2.png";
 
-	if (objType == STATIC) {
+	if (objType == RENDER_TYPE::STATIC) {
 		m_staticObjects.emplace_back(gameObject);
 	}
-	else if (objType == SPELL) {
+	else if (objType == RENDER_TYPE::SPELL) {
+		/* Place the light in the lights list */
+		PLIGHT light;
+		light.position = gameObject->getTransform().position;
+		light.color = glm::vec3(1.0f);
+		light.index = m_spells.size();
+		
 		m_spells.emplace_back(gameObject);
+		m_lights.emplace_back(light);
 
-		if (static_cast<Spell*>(gameObject)->getType() == NORMALATTACK)
+		//light.color = 
+		if (static_cast<Spell*>(gameObject)->getType() == OBJECT_TYPE::NORMALATTACK)
 		{
-			ps.emplace_back(ParticleSystem(&m_PSinfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), attackBuffer,
+			m_particleSystems.emplace_back(ParticleSystem(&m_PSinfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), attackBuffer,
 				attackPS->getVertex(), attackPS->getDir(), attackPS->getParticle(), attackPS->getLifetime()));
 		}
 
-		if (static_cast<Spell*>(gameObject)->getType() == ENHANCEATTACK)
+		else if (static_cast<Spell*>(gameObject)->getType() == OBJECT_TYPE::ENHANCEATTACK)
 		{
-			ps.emplace_back(ParticleSystem(&m_enhanceInfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), enhanceBuffer,
+			m_particleSystems.emplace_back(ParticleSystem(&m_enhanceInfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), enhanceBuffer,
 				enhancePS->getVertex(), enhancePS->getDir(), enhancePS->getParticle(), enhancePS->getLifetime()));
 		}
 
-		if (static_cast<Spell*>(gameObject)->getType() == FIRE)
+		else if (static_cast<Spell*>(gameObject)->getType() == OBJECT_TYPE::FIRE)
 		{
-			ps.emplace_back(ParticleSystem(&m_flameInfo, &smoke, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
+			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &smoke, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
 				flamestrikePS->getVertex(), flamestrikePS->getDir(), flamestrikePS->getParticle(), flamestrikePS->getLifetime()));
 		}
 
-		if (static_cast<Spell*>(gameObject)->getType() == FLAMESTRIKE)
+		else if (static_cast<Spell*>(gameObject)->getType() == OBJECT_TYPE::FLAMESTRIKE)
 		{
-			ps.emplace_back(ParticleSystem(&m_flameInfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
+			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
 				flamestrikePS->getVertex(), flamestrikePS->getDir(), flamestrikePS->getParticle(), flamestrikePS->getLifetime()));
 		}
 	}
-	else if (objType == DYNAMIC) {
+	else if (objType == RENDER_TYPE::DYNAMIC) {
 		m_dynamicObjects.emplace_back(gameObject);
 	}
-	else if (objType == ANIMATEDSTATIC) {
+	else if (objType == RENDER_TYPE::ANIMATEDSTATIC) {
 		m_anistaticObjects.emplace_back(gameObject);
 	}
-	else if (objType == ANIMATEDDYNAMIC) {
+	else if (objType == RENDER_TYPE::ANIMATEDDYNAMIC) {
 		m_anidynamicObjects.emplace_back(gameObject);
 	}
-	else if (objType == PICKUP) {
+	else if (objType == RENDER_TYPE::PICKUP) {
 		m_pickups.emplace_back(gameObject);
 	}
-	else if (objType == SHIELD) {
+	else if (objType == RENDER_TYPE::SHIELD) {
 		m_shieldObject.emplace_back(gameObject);
 	}
-	
+	else if (objType == RENDER_TYPE::POINTLIGHT_SOURCE) {
+		/* Place the light in the lights list */
+		PLIGHT light;
+
+		light.position = gameObject->getTransform().position;
+		light.color = glm::vec3(1.0f);
+		light.index = -2;
+
+		m_lights.emplace_back(light);
+	}
 }
 
 void Renderer::submit2DHUD(HudObject* hud)
@@ -384,7 +401,8 @@ void Renderer::submit2DHUD(HudObject* hud)
 		vec.emplace_back(hud);
 		logTrace("Placed a hud object in an existing vector");
 		return;
-	} else
+	}
+	else
 	{
 		std::vector<HudObject*> newVec;
 		newVec.reserve(5);
@@ -395,7 +413,7 @@ void Renderer::submit2DHUD(HudObject* hud)
 }
 
 void Renderer::clear() {
-	
+
 	m_staticObjects.clear();
 	m_dynamicObjects.clear();
 	m_anistaticObjects.clear();
@@ -407,14 +425,13 @@ void Renderer::clear() {
 	m_2DHudMap.clear();
 	m_deflectObject.clear();
 	m_shieldObject.clear();
-
 }
 
-void Renderer::removeDynamic(GameObject* gameObject, ObjectType objType)
+void Renderer::removeDynamic(GameObject* gameObject, RENDER_TYPE objType)
 {
 	int index = -1;
 	
-	if (objType == DYNAMIC) { //Remove dynamic objet from the dynamic objet vector
+	if (objType == RENDER_TYPE::DYNAMIC) { //Remove dynamic objet from the dynamic objet vector
 		//Find the index of the object
 		for (size_t i = 0; i < m_dynamicObjects.size(); i++)
 		{
@@ -427,7 +444,8 @@ void Renderer::removeDynamic(GameObject* gameObject, ObjectType objType)
 			m_dynamicObjects.erase(m_dynamicObjects.begin() + index);
 		}
 	}
-	else if (objType == SPELL) { //remove spells from the spell vector!!
+	else if (objType == RENDER_TYPE::SPELL) { //remove spells from the spell vector!!
+		int lightIndex = -1;
 		//Find the index of the object
 		for (size_t i = 0; i < m_spells.size(); i++)
 		{
@@ -437,11 +455,29 @@ void Renderer::removeDynamic(GameObject* gameObject, ObjectType objType)
 			}
 		}
 		if (index > -1) {
+			for (size_t i = 0; i < m_lights.size(); i++) {
+				if (m_lights[i].index == index) {
+					lightIndex = i;
+					break;
+				}
+			}
+			m_lights.erase(m_lights.begin() + lightIndex);
 			m_spells.erase(m_spells.begin() + index);
-			ps.erase(ps.begin() + index);
+			m_particleSystems.erase(m_particleSystems.begin() + index);
+
+			int index = 0;
+			for (size_t i = 0; i < m_lights.size(); i++) {
+				if (m_lights[i].index != -2) { //If we are not looking at a static pointlight
+					if (m_spells[index] == nullptr) {
+						return;
+					}
+					m_lights[i].index = index;
+					index++;
+				}
+			}
 		}
 	}
-	else if (objType == PICKUP) { //remove spells from the spell vector!!
+	else if (objType == RENDER_TYPE::PICKUP) { //remove spells from the spell vector!!
 	   //Find the index of the object
 		for (size_t i = 0; i < m_pickups.size(); i++)
 		{
@@ -495,7 +531,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	ShaderMap* shaderMap = ShaderMap::getInstance();
 
 #pragma region Depth_Render & Light_Cull
-	if (m_spells.size() > 0) {
+	if (m_lights.size() > 0) {
 		shader = shaderMap->useByName(DEPTH_MAP);
 
 		//Bind and draw the objects to the depth-buffer
@@ -610,7 +646,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 
 		glm::vec2 screenSize = glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT);
 		shader->setVec2("screenSize", screenSize);
-		shader->setInt("lightCount", m_spells.size());//Set the number of active pointlights in the scene 
+		shader->setInt("lightCount", m_lights.size());//Set the number of active pointlights in the scene 
 
 		//Bind the depthmap	
 		glActiveTexture(GL_TEXTURE0);
@@ -618,8 +654,8 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 		glBindTexture(GL_TEXTURE_2D, m_depthMap);
 
 		//Send all of the light data into the compute shader	
-		for (size_t i = 0; i < m_spells.size(); i++) {
-			shader->setVec3("lights[" + std::to_string(i) + "].position", m_spells[i]->getTransform().position);
+		for (size_t i = 0; i < m_lights.size(); i++) {
+			shader->setVec3("lights[" + std::to_string(i) + "].position", m_lights[i].position);
 			shader->setFloat("lights[" + std::to_string(i) + "].radius", P_LIGHT_RADIUS);
 		}
 
@@ -659,23 +695,36 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
 	shader->setVec3("CameraPosition", m_camera->getCamPos());
 	//Add a step where we insert lights into the scene
-	shader->setInt("LightCount", m_spells.size());
+	shader->setInt("LightCount", m_lights.size());
 
-	if (m_spells.size() > 0) {
-		for (size_t i = 0; i < m_spells.size(); i++) {
-			shader->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[i]->getTransform().position);
-			if (m_spells[i]->getType() == NORMALATTACK) {
+	if (m_lights.size() > 0) {
+		for (size_t i = 0; i < m_lights.size(); i++) {
+
+			if (m_lights[i].index != -2) {
+				shader->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[m_lights[i].index]->getTransform().position);
+			}
+			else {
+				shader->setVec3("pLights[" + std::to_string(i) + "].position", m_lights[i].position);
+			}
+
+			shader->setVec3("pLights[" + std::to_string(i) + "].color", m_lights[i].color);
+			/*
+			if (m_lights[i]->getType() == NORMALATTACK) {
 				shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getAttackBase()->m_material->diffuse);
 			}
-			else if (m_spells[i]->getType() == ENHANCEATTACK) {
+			else if (m_lights[i]->getType() == ENHANCEATTACK) {
 				shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getEnhAttackBase()->m_material->diffuse);
 			}
-			else if (m_spells[i]->getType() == FLAMESTRIKE) {
+			else if (m_lights[i]->getType() == FLAMESTRIKE) {
 				shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getFlamestrikeBase()->m_material->diffuse);
 			}
-			else if (m_spells[i]->getType() == FIRE) {
+			else if (m_lights[i]->getType() == FIRE) {
 				shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getFireBase()->m_material->diffuse);
 			}
+			//If no type has been defined then assume that we are working with a basic pointlight
+			else {
+				shader->setVec3("pLights[" + std::to_string(i) + "].color", glm::vec3(1, 1, 1));
+			}*/
 			shader->setFloat("pLights[" + std::to_string(i) + "].radius", P_LIGHT_RADIUS);
 		}
 	}
@@ -709,7 +758,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			glBindVertexArray(mesh->getBuffers().vao);
 
 			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-			object->unbindMaterialFromShader(shader, mesh->getMaterial());
+			
 			glBindVertexArray(0);
 		}
 	}
@@ -745,7 +794,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 				glBindVertexArray(mesh->getBuffers().vao);
 
 				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-				object->unbindMaterialFromShader(shader, mesh->getMaterial());
+				
 				glBindVertexArray(0);
 			}
 		}
@@ -782,9 +831,8 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			glBindVertexArray(mesh->getBuffers().vao);
 
 			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-			object->unbindMaterialFromShader(shader, p->getRenderInformation().material);
+			
 			glBindVertexArray(0);
-
 		}
 	}
 	shader->clearBinding();
@@ -834,7 +882,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 			glBindVertexArray(mesh->getBuffers().vao);
 
 			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-			object->unbindMaterialFromShader(shader, mesh->getMaterial());
+			
 			glBindVertexArray(0);
 		}
 	}
@@ -961,9 +1009,13 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 	Shader* shader = ShaderMap::getInstance()->getShader(BASIC_FORWARD);
 	Transform meshTransform;
 	bindMatrixes(shader); //We only need to bind this once, seeing as though we are using only one shader
-
+	int psSelector = 0;
 	for (size_t i = 0; i < m_spells.size(); i++)
 	{
+		if (m_spells[i]->getType() == OBJECT_TYPE::POINTLIGHT) {
+			continue;
+		}
+
 		ShaderMap::getInstance()->useByName(BASIC_FORWARD);
 		meshTransform = m_spells[i]->getTransform();
 
@@ -972,21 +1024,20 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 		modelMatrix = glm::scale(modelMatrix, meshTransform.scale);
 		modelMatrix *= glm::mat4_cast(meshTransform.rotation);
 
-		shader->setMat4("modelMatrix", modelMatrix);
+		shader->setMat4("modelMatrix", modelMatrix);		
 
-
-		if (m_spells[i]->getType() == NORMALATTACK)
+		if (m_spells[i]->getType() == OBJECT_TYPE::NORMALATTACK)
 		{
 			meshRef = spellHandler->getAttackBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
 			shader->setMaterial(spellHandler->getAttackBase()->m_material);
-			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);	
+			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 			glBindVertexArray(0);
-			ps[i].SetPosition(meshTransform.position);
-			ps[i].Render(m_camera, &m_PSinfo);
+			m_particleSystems[i].SetPosition(meshTransform.position);
+			m_particleSystems[i].Render(m_camera, &m_PSinfo);
 		}
-		else if (m_spells[i]->getType() == ENHANCEATTACK)
+		else if (m_spells[i]->getType() == OBJECT_TYPE::ENHANCEATTACK)
 		{
 			meshRef = spellHandler->getEnhAttackBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
@@ -994,10 +1045,10 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 			glBindVertexArray(0);
-			ps[i].Render(m_camera, &m_enhanceInfo);
-			ps[i].SetPosition(meshTransform.position);
+			m_particleSystems[i].Render(m_camera, &m_enhanceInfo);
+			m_particleSystems[i].SetPosition(meshTransform.position);
 		}
-		else if (m_spells[i]->getType() == REFLECT) 
+		else if (m_spells[i]->getType() == OBJECT_TYPE::REFLECT)
 		{
 			meshRef = spellHandler->getReflectBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
@@ -1007,9 +1058,8 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 			glBindVertexArray(0);
 			//ps[i].SetPosition(meshTransform.position);
 		}
-		else if (m_spells[i]->getType() == FLAMESTRIKE)
+		else if (m_spells[i]->getType() == OBJECT_TYPE::FLAMESTRIKE)
 		{
-
 			meshRef = spellHandler->getFlamestrikeBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
 			shader->setMaterial(spellHandler->getFlamestrikeBase()->m_material);
@@ -1019,7 +1069,7 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 			//ps[i].SetPosition(meshTransform.position);
 		}
 
-		else if (m_spells[i]->getType() == FIRE)
+		else if (m_spells[i]->getType() == OBJECT_TYPE::FIRE)
 		{
 			meshRef = spellHandler->getFireBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
@@ -1027,8 +1077,8 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 			//glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 			glBindVertexArray(0);
 
-			ps[i].Render(m_camera, &m_flameInfo);
-			ps[i].SetPosition(glm::vec3(meshTransform.position.x, meshTransform.position.y -1, meshTransform.position.z));
+			m_particleSystems[i].Render(m_camera, &m_flameInfo);
+			m_particleSystems[i].SetPosition(glm::vec3(meshTransform.position.x, meshTransform.position.y - 1, meshTransform.position.z));
 		}
 
 	}
@@ -1039,13 +1089,13 @@ void Renderer::renderDebug()
 	glm::mat4 modelMatrix;
 	ShaderMap::getInstance()->useByName(DEBUG_SHADER);
 	//Bind view- and projection matrix
-	bindMatrixes(DEBUG_SHADER);	
-	
+	bindMatrixes(DEBUG_SHADER);
+
 	//Render Static objects
 	for (size_t i = 0; i < m_staticObjects.size(); i++)
-	{		
+	{
 		for (size_t j = 0; j < m_staticObjects.at(i)->getDebugDrawers().size(); j++)
-		{			
+		{
 			modelMatrix = glm::mat4(1.0f);
 			//Bind the modelmatrix
 			//modelMatrix = m_staticObjects.at(i)->getMatrix(j);
@@ -1193,18 +1243,18 @@ void Renderer::initializeParticle()
 void Renderer::updateParticles(float dt)
 {
 	//if (static_cast <Spell*>(m_spells[i])->getType() == NORMALATTACK)
-	for (int i = 0; i < ps.size(); i++)
+	for (int i = 0; i < m_particleSystems.size(); i++)
 	{
 		if (static_cast <Spell*>(m_spells[i])->getType() == NORMALATTACK)
 		{
 			if (m_PSinfo.emission != emissionDiff)
 			{
-				ps[i].Build(&m_PSinfo);
+				m_particleSystems[i].Build(&m_PSinfo);
 			}
 
 			if (m_PSinfo.maxParticles != vertexCountDiff)
 			{
-				ps[i].Build(&m_PSinfo);
+				m_particleSystems[i].Build(&m_PSinfo);
 			}
 
 			vertexCountDiff = m_PSinfo.maxParticles;
@@ -1215,20 +1265,20 @@ void Renderer::updateParticles(float dt)
 
 			//Update temp with new values
 
-			ps[i].Update(&m_PSinfo, m_camera->getCamPos(), dt);
-			thisActive = ps[i].GetNrOfParticles();
+			m_particleSystems[i].Update(&m_PSinfo, m_camera->getCamPos(), dt);
+			thisActive = m_particleSystems[i].GetNrOfParticles();
 		}
 
 		if (static_cast <Spell*>(m_spells[i])->getType() == ENHANCEATTACK)
 		{
 			if (m_enhanceInfo.emission != emissionDiff2)
 			{
-				ps[i].Build(&m_enhanceInfo);
+				m_particleSystems[i].Build(&m_enhanceInfo);
 			}
 
 			if (m_enhanceInfo.maxParticles != vertexCountDiff2)
 			{
-				ps[i].Build(&m_enhanceInfo);
+				m_particleSystems[i].Build(&m_enhanceInfo);
 			}
 
 			vertexCountDiff2 = m_enhanceInfo.maxParticles;
@@ -1239,20 +1289,20 @@ void Renderer::updateParticles(float dt)
 
 			//Update temp with new values
 
-			ps[i].Update(&m_enhanceInfo, m_camera->getCamPos(), dt);
-			thisActive2 = ps[i].GetNrOfParticles();
+			m_particleSystems[i].Update(&m_enhanceInfo, m_camera->getCamPos(), dt);
+			thisActive2 = m_particleSystems[i].GetNrOfParticles();
 		}
 
 		if (static_cast <Spell*>(m_spells[i])->getType() == FIRE)
 		{
 			if (m_flameInfo.emission != emissionDiff3)
 			{
-				ps[i].Build(&m_flameInfo);
+				m_particleSystems[i].Build(&m_flameInfo);
 			}
 
 			if (m_flameInfo.maxParticles != vertexCountDiff3)
 			{
-				ps[i].Build(&m_flameInfo);
+				m_particleSystems[i].Build(&m_flameInfo);
 			}
 
 			vertexCountDiff3 = m_flameInfo.maxParticles;
@@ -1263,8 +1313,8 @@ void Renderer::updateParticles(float dt)
 
 			//Update temp with new values
 
-			ps[i].Update(&m_flameInfo, m_camera->getCamPos(), dt);
-			thisActive3 = ps[i].GetNrOfParticles();
+			m_particleSystems[i].Update(&m_flameInfo, m_camera->getCamPos(), dt);
+			thisActive3 = m_particleSystems[i].GetNrOfParticles();
 		}
 	}
 }

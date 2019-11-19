@@ -15,10 +15,11 @@ void logVec3(glm::vec3 vector) {
 PlayState::PlayState()
 {
 	m_bPhysics = new BulletPhysics(-20.0f);
+	Renderer* renderer = Renderer::getInstance();
 	m_objects.push_back(new WorldObject("Character"));
 	m_objects[m_objects.size() - 1]->loadMesh("CharacterTest.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 1.8f, -24.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+	renderer->submit(m_objects[m_objects.size() - 1], STATIC);
 
 	//to get the right character heigth
 	GameObject* AnimationMesh = new WorldObject("AnimationMesh");
@@ -34,29 +35,33 @@ PlayState::PlayState()
 
 	m_player = new Player(m_bPhysics, "Player", NetGlobals::PlayerFirstSpawnPoint, m_camera, m_spellHandler);
 
-	Renderer::getInstance()->setupCamera(m_player->getCamera());
+	renderer->setupCamera(m_player->getCamera());
 
 	//TODO: organized loading system?
 	m_skybox = new SkyBox();
 	m_skybox->prepareBuffers();
 
-
 	m_player->setHealth(NetGlobals::PlayerMaxHealth);
-
 
 	m_objects.push_back(new MapObject("Academy_Map"));
 	m_objects[m_objects.size() - 1]->loadMesh("Academy.mesh");
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
-	
-
-	
+	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
 
 	m_objects.push_back(new Deflect("PlayerShield"));
 	m_objects[m_objects.size() - 1]->loadMesh("ShieldMesh.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 13.0f, 6.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], SHIELD);
+	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::SHIELD);
 
 
+	//Create a pointlight
+	Pointlight* pointLight = new Pointlight(glm::vec3(10.0f, 13.0f, 6.0f), glm::vec3(1));
+
+	m_pointlights.emplace_back(pointLight);
+
+	for (size_t i = 0; i < m_pointlights.size(); i++)
+	{
+		renderer->submit(m_pointlights.at(i), RENDER_TYPE::POINTLIGHT_SOURCE);
+	}
 	
 	MaterialMap::getInstance();
 
@@ -110,9 +115,12 @@ PlayState::~PlayState()
 {
 	for (GameObject* object : m_objects)
 		delete object;
-	
+	for (Pointlight* light : m_pointlights)
+		delete light;
+
 	GUIclear();
 
+	m_pointlights.clear();
 	m_objects.clear();
 	delete m_skybox;
 	delete m_player;
@@ -127,6 +135,7 @@ PlayState::~PlayState()
 	if (Client::getInstance()->isInitialized()) {
 		Client::getInstance()->destroy();
 	}
+
 }
 
 void PlayState::update(float dt)

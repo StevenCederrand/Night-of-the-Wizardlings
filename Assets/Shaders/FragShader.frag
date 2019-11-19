@@ -20,7 +20,6 @@ out vec4 color;
 out vec4 brightColor;
 
 vec3 GLOBAL_lightDirection = vec3(0.2f, -0.7f, 0.4f);       // 1 Directional light
-//vec3 GLOBAL_lightColor = normalize(vec3(109, 196, 199));  // CHANGED - remove when confirmed ok
 vec3 GLOBAL_lightColor = normalize(vec3(1, 1, 1));          // Directional light color (white)
 
 float ambientStr = 0.2f;                                    // Global light strength (ambient)
@@ -31,7 +30,7 @@ uniform vec3 CameraPosition;
 uniform vec3 Ambient_Color;             // Change to emmisive
 uniform vec3 Diffuse_Color;             // Material diffuse
 uniform vec3 Specular_Color;            // Material specular
-uniform vec2 TexAndRim = vec2(0, 0);    // Booleans --- Textures & Rimlighting
+uniform vec2 TexAndRim;                 // Booleans --- Textures & Rimlighting
 
 uniform int LightCount;
 uniform sampler2D albedoTexture;        // Texture diffuse
@@ -123,16 +122,16 @@ vec3 calcDirLight(vec3 normal, vec3 diffuseColor) {
     diffuseColor = newDiffuse * (max(dot(normal, lightDir), 0.0)) * lightStr * GLOBAL_lightColor;
 
     /* --- SPECULAR SHADING --- */
-    float specularStr = 0.5f;
-
-    vec3 viewDir = normalize(CameraPosition - f_position.xyz); //normalize(CameraPosition - f_position.xyz);
-    vec3 reflectDir = reflect(-lightDir, f_normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64);
-    //Lock specular
-    spec = smoothstep(0.005, 0.01, spec);
-    vec3 specular = specularStr * spec * GLOBAL_lightColor;
-
     if(TexAndRim.y == 1) {
+        float specularStr = 0.5f;
+
+        vec3 viewDir = normalize(CameraPosition - f_position.xyz); //normalize(CameraPosition - f_position.xyz);
+        vec3 reflectDir = reflect(-lightDir, f_normal);
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64);
+        //Lock specular
+        spec = smoothstep(0.005, 0.01, spec);
+        vec3 specular = specularStr * spec * GLOBAL_lightColor;
+
         vec3 rimColor = vec3(1.0);
         float rimThreshold = 0.1;
         float rimDot = 1 - dot(viewDir, f_normal); //Rim value
@@ -143,7 +142,7 @@ vec3 calcDirLight(vec3 normal, vec3 diffuseColor) {
         return diffuseColor + specular + rimColor;
     }
     else {
-        return diffuseColor + specular;
+        return diffuseColor;
     }
 }
 
