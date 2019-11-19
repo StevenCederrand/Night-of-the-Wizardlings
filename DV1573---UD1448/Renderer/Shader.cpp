@@ -273,16 +273,24 @@ void Shader::setMaterial(const std::string& materialName) {
 		m_oldMaterial = materialName;
 	}
 	Material* mat = MaterialMap::getInstance()->getMaterial(materialName);
-	setVec3("Ambient_Color", mat->ambient);
-	setVec3("Diffuse_Color", mat->diffuse);
-	//setVec3("Specular_Color", mat->specular);
+	if (mat)
+	{
+		setVec3("Ambient_Color", mat->ambient);
+		setVec3("Diffuse_Color", mat->diffuse);
+		//setVec3("Specular_Color", mat->specular);
+		setVec2("TexAndRim", glm::vec2(mat->texture, mat->rimLighting));
 
-	setVec2("TexAndRim", glm::vec2(mat->texture, mat->rimLighting));
-	
-	for (size_t i = 0; i < mat->textureID.size(); i++) {
-		glActiveTexture(GL_TEXTURE0 + i);
-		glBindTexture(GL_TEXTURE_2D, mat->textureID.at(i));
-	}	
+		for (size_t i = 0; i < mat->textureID.size(); i++) {
+			glActiveTexture(GL_TEXTURE0 + i);
+			glBindTexture(GL_TEXTURE_2D, mat->textureID.at(i));
+		}
+	}
+	else
+	{
+		setVec3("Ambient_Color", glm::vec3(0.5f));
+		setVec3("Diffuse_Color", glm::vec3(0.5f));
+		setVec2("TexAndRim", glm::vec2(false, false));
+	}
 }
 
 void Shader::setMaterial(Material* material)

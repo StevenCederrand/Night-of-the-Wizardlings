@@ -53,6 +53,12 @@
     <ClCompile Include="Texture\stb_image.cpp" />
     <ClCompile Include="Text\FreeType.cpp" />
     <ClCompile Include="Text\HUDShader.cpp" />
+    <ClCompile Include="Destruction\VoroniCalculator.cpp" />
+    <ClCompile Include="Destruction\DelaunayGenerator.cpp" />
+    <ClCompile Include="Destruction\PointCompare.cpp" />
+    <ClCompile Include="Destruction\VoroniClipper.cpp" />
+    <ClCompile Include="Destruction\DstrGenerator.cpp" />
+    <ClCompile Include="GameObject\DestructibleObject.cpp" />
     <ClCompile Include="Particles\Particles.cpp" />
     <ClCompile Include="Particles\ParticleBuffers.cpp" />
     <ClCompile Include="GameObject\MapObject.cpp" />
@@ -101,7 +107,6 @@
     <ClInclude Include="Renderer\SkyBox.h" />
     <ClInclude Include="Mesh\SkeletonMap.h" />
     <ClInclude Include="Spells\SpellHandler.h" />
-    <ClInclude Include="Spells\SpellTypes.h" />
     <ClInclude Include="Spells\Spells.h" />
     <ClInclude Include="States\FindServerState.h" />
     <ClInclude Include="States\LobbyState.h" />
@@ -121,6 +126,14 @@
     <ClInclude Include="Texture\stb_image.h" />
     <ClInclude Include="Text\FreeType.h" />
     <ClInclude Include="Text\HUDShader.h" />
+    <ClInclude Include="Destruction\TriangleNode.h" />
+    <ClInclude Include="Destruction\Geometry.h" />
+    <ClInclude Include="Destruction\VoroniCalculator.h" />
+    <ClInclude Include="Destruction\DelaunayGenerator.h" />
+    <ClInclude Include="Destruction\PointCompare.h" />
+    <ClInclude Include="Destruction\VoroniClipper.h" />
+    <ClInclude Include="Destruction\DstrGenerator.h" />
+    <ClInclude Include="GameObject\DestructibleObject.h" />
     <ClInclude Include="System\Helper.h" />
     <ClInclude Include="Particles\Particles.h" />
     <ClInclude Include="Particles\ParticleBuffers.h" />
@@ -140,6 +153,7 @@
     <ClInclude Include="GameObject\MapObject.h" />
     <ClInclude Include="Renderer\PickupNotificationStructure.h" />
     <ClInclude Include="GameObject\ShieldObject.h" />
+    <ClInclude Include="GameObject\ObjectTypes.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

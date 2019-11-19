@@ -4,7 +4,7 @@
 fire::fire(glm::vec3 pos, glm::vec3 direction, const FireSpellBase* spellBase)
 	: Spell(pos, direction)
 {
-	m_type = SPELL_TYPE::FIRE;
+	m_type = OBJECT_TYPE::FIRE;
 	m_spellBase = spellBase;
 	setTravelTime(spellBase->m_lifeTime);
 
@@ -19,7 +19,7 @@ fire::fire(glm::vec3 pos, glm::vec3 direction, const FireSpellBase* spellBase)
 fire::fire(glm::vec3 pos)
 	: Spell(pos, glm::vec3(0))
 {
-	m_type = SPELL_TYPE::FIRE;
+	m_type = OBJECT_TYPE::FIRE;
 	m_spellBase = nullptr;
 
 	Transform tempTransform;

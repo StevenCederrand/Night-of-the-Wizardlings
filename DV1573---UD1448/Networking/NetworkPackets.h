@@ -1,6 +1,7 @@
 #ifndef _NET_PACKETS_H
 #define _NET_PACKETS_H
-#include <Spells/SpellTypes.h>
+#include <GameObject/ObjectTypes.h>
+
 #include <Mesh/MeshFormat.h>
 enum {
 	INFO_ABOUT_OTHER_PLAYERS = ID_USER_PACKET_ENUM + 1,
@@ -32,7 +33,8 @@ enum {
 	DAMAGE_BUFF_ACTIVE,
 	DAMAGE_BUFF_INACTIVE,
 	KILL_FEED,
-	SERVER_TIME
+	SERVER_TIME,
+	DESTRUCTION
 };
 
 /* To make sure the compiler aligns the bits */
@@ -133,7 +135,7 @@ struct SpellPacket{
 	glm::vec3 Rotation = glm::vec3(0.0f);
 	glm::vec3 Scale = glm::vec3(1.0f);
 	glm::vec3 Direction = glm::vec3(0.0f);
-	SPELL_TYPE SpellType = SPELL_TYPE::UNKNOWN;
+	OBJECT_TYPE SpellType = OBJECT_TYPE::UNKNOWN;
 
 
 
@@ -163,7 +165,7 @@ struct HitPacket {
 	glm::vec3 SpellDirection = glm::vec3(0.0f);
 	glm::quat Rotation = glm::quat();
 	float damage = 0.0f;
-	SPELL_TYPE SpellType = SPELL_TYPE::UNKNOWN;
+	OBJECT_TYPE SpellType = OBJECT_TYPE::UNKNOWN;
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
 		stream.Serialize(writeToStream, SpellID);
@@ -208,6 +210,22 @@ struct ServerTimePacket {
 	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
 		stream.Serialize(writeToStream, serverTimestamp);
 	}
+};
+
+
+struct DestructionPacket {
+
+	int randomSeed;
+	int index;
+	glm::vec3 hitPoint;
+
+	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
+		stream.Serialize(writeToStream, randomSeed);
+		stream.Serialize(writeToStream, index);
+		stream.Serialize(writeToStream, hitPoint);
+	}
+
+
 };
 
 

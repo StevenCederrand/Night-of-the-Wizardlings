@@ -39,9 +39,8 @@ PlayState::PlayState()
 	m_player->setHealth(NetGlobals::PlayerMaxHealth);
 
 
-	m_objects.push_back(new MapObject("InternalTestmap"));
-	m_objects[m_objects.size() - 1]->loadMesh("map1.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+	m_objects.push_back(new MapObject("Academy_Map"));
+	m_objects[m_objects.size() - 1]->loadMesh("Academy.mesh");
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
 
@@ -51,14 +50,15 @@ PlayState::PlayState()
 
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);*/
 
-	m_objects.push_back(new WorldObject("Wall"));
-	m_objects[m_objects.size() - 1]->loadMesh("TestWall.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(-5.0f, 13.f, -8.0f));
+	//m_objects.push_back(new WorldObject("Wall"));
+	//m_objects[m_objects.size() - 1]->loadMesh("TestWall.mesh");
+	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(-5.0f, 13.f, -8.0f));
 
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
 
 	MaterialMap::getInstance();
+
 	gContactAddedCallback = callbackFunc;
 	// Geneterate bullet objects / hitboxes
 	for (size_t i = 0; i < m_objects.size(); i++)
@@ -66,6 +66,37 @@ PlayState::PlayState()
 		m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);
 		//m_objects.at(i)->createDebugDrawer();
 	}
+
+
+	// DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP
+	// Destruction test object
+	//m_objects.push_back(new DestructibleObject("Destructible", &m_dstr));
+	//static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall1.mesh");
+	////m_objects.back()->setWorldPosition(glm::vec3(0.0f, 15.0f, -3.0f));
+	//m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	//Renderer::getInstance()->submit(m_objects.back(), STATIC);
+	//
+	//m_objects.push_back(new DestructibleObject("Destructible2", &m_dstr));
+	//static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall2.mesh");
+	////m_objects.back()->setWorldPosition(glm::vec3(0.0f, 15.0f, 3.0f));
+	//m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	//Renderer::getInstance()->submit(m_objects.back(), STATIC);
+	//
+	//m_objects.push_back(new DestructibleObject("Destructible3", &m_dstr));
+	//static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTMazeWall.mesh");
+	////m_objects.back()->setWorldPosition(glm::vec3(0.0f, 15.0f, 3.0f), 0);
+	//m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	//Renderer::getInstance()->submit(m_objects.back(), STATIC);
+	//
+	//m_objects.push_back(new DestructibleObject("Destructible4", &m_dstr));
+	//static_cast<DestructibleObject*>(m_objects.back())->loadBasic("Dstr_4");
+	//m_objects.back()->setWorldPosition(glm::vec3(0.0f, 17.0f, -3.0f), 0);
+	//m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	//Renderer::getInstance()->submit(m_objects.back(), STATIC);
+
+	// DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP
+
+
 
 	if(Client::getInstance()->isInitialized())
 		Client::getInstance()->assignSpellHandler(m_spellHandler);
@@ -80,7 +111,7 @@ PlayState::~PlayState()
 		delete object;
 
 	GUIclear();
-	 
+
 	m_objects.clear();
 	delete m_skybox;
 	delete m_player;
@@ -113,7 +144,7 @@ void PlayState::update(float dt)
 			case PlayerEvents::Died:
 			{
 				logWarning("[Event system] Died");
-				//Update the HP bar 
+				//Update the HP bar
 				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				const PlayerPacket* shooter = clientPtr->getLatestPlayerThatHitMe();
 				if (shooter != nullptr) {
@@ -206,6 +237,39 @@ void PlayState::update(float dt)
 				m_player->setHealth(myNewHealth);
 				break;
 			}
+
+			case PlayerEvents::WallGotDestroyed:
+			{
+				// How to send a destruction packet
+				// 1. Make one
+				// 2. Send it
+
+				/*	Example:
+						DestructionPacket p;
+						p.index = 0;
+						p.hitPoint = glm::vec3(3.0f);
+						p.randomSeed = 345342;
+						Client::getInstance()->sendDestructionPacket(p);
+				*/
+
+
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::ReadDestructableWallsMutex); // Thread safe
+				auto& vec = Client::getInstance()->getDestructedWalls();
+
+				for (size_t i = 0; i < vec.size(); i++) {
+					// Do stuff here
+					const DestructionPacket& p = vec[i];
+
+
+
+					//------------------
+				}
+
+				// Tells the client to clear the vector
+				Client::getInstance()->clearDestroyedWallsVector();
+
+				break;
+			}
 		}
 	}
 
@@ -233,12 +297,104 @@ void PlayState::update(float dt)
 	if (!m_hideHUD) {
 		HUDHandler();
 	}
+
 }
 
 void PlayState::render()
 {
 	Renderer::getInstance()->render(m_skybox, m_spellHandler);
 	//Renderer::getInstance()->renderDebug();
+}
+
+bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1, const btCollisionObjectWrapper* obj2, int id2, int index2)
+{
+	GameObject* sp1 = static_cast<GameObject*>(obj1->getCollisionObject()->getUserPointer());
+	GameObject* sp2 = static_cast<GameObject*>(obj2->getCollisionObject()->getUserPointer());
+	if (!sp1 || !sp2)
+		return false;
+
+	DestructibleObject* dstrobj = nullptr;
+	Spell* spellobj = nullptr;
+
+	btVector3 hitpoint;
+
+	switch (sp1->getType())
+	{
+	case (DESTRUCTIBLE):
+		dstrobj = static_cast<DestructibleObject*>(sp1);
+		hitpoint = cp.m_localPointA;
+		break;
+
+	case (NORMALATTACK):
+		spellobj = static_cast<Spell*>(sp1);
+		break;
+
+	case (ENHANCEATTACK):
+		spellobj = static_cast<Spell*>(sp1);
+		break;
+
+	case (REFLECT):
+		spellobj = static_cast<Spell*>(sp1);
+		break;
+
+	case (FLAMESTRIKE):
+		spellobj = static_cast<Spell*>(sp1);
+		break;
+	}
+
+	switch (sp2->getType())
+	{
+	case (DESTRUCTIBLE):
+		dstrobj = static_cast<DestructibleObject*>(sp2);
+		hitpoint = cp.m_localPointB;
+		break;
+
+	case (NORMALATTACK):
+		spellobj = static_cast<Spell*>(sp2);
+		break;
+
+	case (ENHANCEATTACK):
+		spellobj = static_cast<Spell*>(sp2);
+		break;
+
+	case (REFLECT):
+		spellobj = static_cast<Spell*>(sp2);
+		break;
+
+	case (FLAMESTRIKE):
+		spellobj = static_cast<Spell*>(sp2);
+		break;
+	}
+
+	if (spellobj)
+	{
+		if (!spellobj->getHasCollided())
+			spellobj->hasCollided();
+	}
+
+	if (dstrobj && spellobj)
+	{
+		DstrGenerator* m_dstr = dstrobj->getDstr();
+
+		float test1 = cp.getAppliedImpulse();
+		btVector3 test2 = cp.m_localPointA;
+		btVector3 test3 = cp.m_localPointB;
+		float test4 = cp.getDistance();
+		float test5 = cp.m_contactMotion1;
+		float test6 = cp.m_contactMotion2;
+		float test7= cp.m_appliedImpulseLateral1;
+		float test8 = cp.m_appliedImpulseLateral2;
+		btVector3 test9 = cp.m_positionWorldOnA;
+		btVector3 test10 = cp.m_positionWorldOnB;
+
+		float test99 = 1;
+
+
+		m_dstr->Destroy(dstrobj, glm::vec2(hitpoint.getX(), hitpoint.getY()));
+	}
+
+
+	return false;
 }
 
 void PlayState::onSpellHit_callback()
@@ -412,27 +568,4 @@ bool PlayState::onMainMenuClick(const CEGUI::EventArgs& e)
 bool PlayState::onQuitClick(const CEGUI::EventArgs& e) {
 	glfwSetWindowShouldClose(glfwGetCurrentContext(), true);
 	return true;
-}
-
-//This function is called everytime two collision objects collide
-bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
-	const btCollisionObjectWrapper* obj2, int id2, int index2)
-{
-	Spell* sp1 = reinterpret_cast<Spell*>(obj1->getCollisionObject()->getUserPointer());
-	Spell* sp2 = reinterpret_cast<Spell*>(obj2->getCollisionObject()->getUserPointer());
-
-	 //Currently off, unknown error on reflect and AOE spell // JR
-	if (sp1 != nullptr && sp2 == nullptr) {
-		logTrace("sp1: Spell collided");
-
-		if (!sp1->getHasCollided())
-			sp1->hasCollided();
-	}
-
-	else if (sp2 != nullptr) {
-
-		if (!sp2->getHasCollided())
-			sp2->hasCollided();
-	}
-	return false;
 }

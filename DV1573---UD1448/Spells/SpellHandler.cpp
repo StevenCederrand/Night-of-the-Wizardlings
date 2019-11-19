@@ -42,11 +42,11 @@ void SpellHandler::initAttackSpell()
 	attackBase->m_material->specular = newMaterial.specular;
 	tempLoader.Unload();
 
-	attackBase->m_material->diffuse = glm::vec3(0.9f, 0.0f, 0.9f);
-	attackBase->m_material->ambient = glm::vec3(0.9f, 0.0f, 0.9f);
+	attackBase->m_material->diffuse = glm::vec3(0.65f, 1.0f, 1.0f);
+	attackBase->m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
 
 	attackBase->m_damage = 34.0f;
-	attackBase->m_speed = 100.0f;
+	attackBase->m_speed = 70.0f;
 	attackBase->m_radius = 0.25f;
 	attackBase->m_coolDown = 1.0f;
 	attackBase->m_lifeTime = 5.0f;
@@ -73,15 +73,17 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase->m_material->specular = newMaterial.specular;
 	tempLoader.Unload();
 
-	enhanceAtkBase->m_material->diffuse = glm::vec3(0.3f, 1.0f, 0.3f);
-	enhanceAtkBase->m_material->ambient = glm::vec3(0.3f, 1.0f, 0.3f);
+	//enhanceAtkBase->m_material->diffuse = glm::vec3(0.3f, 1.0f, 0.3f);
+	//enhanceAtkBase->m_material->ambient = glm::vec3(0.3f, 1.0f, 0.3f);
+	enhanceAtkBase->m_material->diffuse = glm::vec3(0.85f, 0.3f, 0.2f);
+	enhanceAtkBase->m_material->ambient = glm::vec3(0.85f, 0.3f, 0.2f);
 
 	enhanceAtkBase->m_damage = 34.0f;
-	enhanceAtkBase->m_speed = 100.0f;
+	enhanceAtkBase->m_speed = 150.0f;
 	enhanceAtkBase->m_radius = 0.5f;
 	enhanceAtkBase->m_coolDown = 3.0f;
 	enhanceAtkBase->m_lifeTime = 5.0f;
-	enhanceAtkBase->m_maxBounces = 3.0f;
+	enhanceAtkBase->m_maxBounces = 3;
 }
 
 void SpellHandler::initFlamestrikeSpell()
@@ -108,10 +110,10 @@ void SpellHandler::initFlamestrikeSpell()
 	flamestrikeBase->m_material->ambient = glm::vec3(1.0f, 0.5f, 0.0f);
 
 	flamestrikeBase->m_damage = 10;
-	flamestrikeBase->m_speed = 50;
-	flamestrikeBase->m_coolDown = 4.0;
+	flamestrikeBase->m_speed = 55.0f;
+	flamestrikeBase->m_coolDown = 1;
 	flamestrikeBase->m_lifeTime = 5;
-	flamestrikeBase->m_maxBounces = 3;
+	flamestrikeBase->m_maxBounces = 2;
 }
 
 void SpellHandler::initFireSpell()
@@ -141,7 +143,7 @@ void SpellHandler::initFireSpell()
 	fireBase->m_speed = 0.0f;
 	fireBase->m_coolDown = 4.0f;
 	fireBase->m_lifeTime = 5.0f;
-	fireBase->m_maxBounces = 0.0f;
+	fireBase->m_maxBounces = 0;
 }
 
 void SpellHandler::initReflectSpell()
@@ -198,7 +200,7 @@ SpellHandler::~SpellHandler()
 	fireSpells.clear();
 }
 
-float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SPELL_TYPE type)
+float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, OBJECT_TYPE type)
 {
 	float cooldown = 0.0f;
 	if (Client::getInstance()->getMyData().health <= 0)
@@ -218,7 +220,7 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 		//bullet create
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
 		m_BulletNormalSpell.emplace_back(
-			m_bp->createObject(sphere, 1.0f, spellPos+directionVector*2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
+			m_bp->createObject(sphere, 10.0f, spellPos+directionVector*2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
 			
 		int size = m_BulletNormalSpell.size();
 		m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
@@ -240,7 +242,7 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 		//bullet create
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
 		m_BulletNormalSpell.emplace_back(
-			m_bp->createObject(sphere, 1.0f, spellPos + directionVector * 2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
+			m_bp->createObject(sphere, 30.0f, spellPos + directionVector * 2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
 
 		int size = m_BulletNormalSpell.size();
 		m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
@@ -248,25 +250,25 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 		m_BulletNormalSpell.at(size - 1)->setLinearVelocity(direction * enhanceAtkBase->m_speed);
 	}
 
-	//if (type == REFLECT)
-	//{
-	//	auto spell = new ReflectSpell(spellPos, directionVector, reflectBase);
-	//	cooldown = reflectBase->m_coolDown;
-	//	spell->setUniqueID(getUniqueID());
-	//	Client::getInstance()->createSpellOnNetwork(*spell);
-	//	spells.emplace_back(spell);
-	//	Renderer::getInstance()->submit(spells.back(), SPELL);
-	//	logTrace("Created reflect spell");
+	if (type == REFLECT)
+	{
+		auto spell = new ReflectSpell(spellPos, directionVector, reflectBase);
+		cooldown = reflectBase->m_coolDown;
+		spell->setUniqueID(getUniqueID());
+		Client::getInstance()->createSpellOnNetwork(*spell);
+		spells.emplace_back(spell);
+		Renderer::getInstance()->submit(spells.back(), SPELL);
+		logTrace("Created reflect spell");
 
-	//	//bullet create
-	//	btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.x);
-	//	m_BulletNormalSpell.emplace_back(
-	//		m_bp->createObject(sphere, 1.0f, spellPos + directionVector * 2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
+		//bullet create
+		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.x);
+		m_BulletNormalSpell.emplace_back(
+			m_bp->createObject(sphere, 1.0f, spellPos + directionVector * 2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
 
-	//	int size = m_BulletNormalSpell.size();
-	//	m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
-	//	m_BulletNormalSpell.at(size - 1)->setUserPointer(m_BulletNormalSpell.at(size - 1));
-	//}
+		int size = m_BulletNormalSpell.size();
+		m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
+		m_BulletNormalSpell.at(size - 1)->setUserPointer(m_BulletNormalSpell.at(size - 1));
+	}
 
 	if (type == FLAMESTRIKE)
 	{
@@ -280,12 +282,25 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 
 		//bullet create
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
-		m_BulletFlamestrikeSpell.emplace_back(
-			m_bp->createObject(sphere, 1.0f, spellPos + directionVector * 2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
+		m_BulletFlamestrikeSpell.emplace_back(m_bp->createObject(
+			sphere,
+			1.0f,
+			spellPos + directionVector * 2,
+			glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f),
+			glm::quat(),
+			false,
+			0.15f,
+			1.0f
+		));
 
 		int size = m_BulletFlamestrikeSpell.size();
-		m_BulletFlamestrikeSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
-		m_BulletFlamestrikeSpell.at(size - 1)->setUserPointer(spell);
+		m_BulletFlamestrikeSpell.back()->setGravity(btVector3(0.0f, -60.0f, 0.0f));
+		float rndX = rand() % 1999 + 1 - 1000; rndX /= 100;
+		float rndY = rand() % 1999 + 1 - 1000; rndY /= 100;
+		float rndZ = rand() % 1999 + 1 - 1000; rndZ /= 100;
+		m_BulletFlamestrikeSpell.back()->setAngularVelocity(btVector3(rndX, rndY, rndZ));
+		m_BulletFlamestrikeSpell.back()->setLinearVelocity(btVector3(direction * flamestrikeBase->m_speed));
+		m_BulletFlamestrikeSpell.back()->setUserPointer(spell);
 	}
 
 	if (type == FIRE)
@@ -298,15 +313,6 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, S
 		fireSpells.emplace_back(fireSpell);
 		Renderer::getInstance()->submit(fireSpells.back(), SPELL);
 		
-		//bullet create
-		/*btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.x);
-		m_BulletNormalSpell.emplace_back(
-			m_bp->createObject(sphere, 1.0f, spellPos + directionVector * 2, glm::vec3(fireSpell->getTransform().scale.x, 0.0f, 0.0f)));*/
-
-			//int size = m_BulletNormalSpell.size();
-			//m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
-			//m_BulletNormalSpell.at(size - 1)->setUserPointer(fireSpell);
-			//m_BulletNormalSpell.at(size - 1)->setLinearVelocity(direction * fireBase->m_speed);
 	}
 
 	return cooldown;
@@ -381,10 +387,6 @@ void SpellHandler::spellUpdate(float deltaTime)
 	{
 		if (spells[i]->getTravelTime() > 0)
 		{
-			/*if (static_cast<Spell*>(spells[i])->getType() == FLAMESTRIKE)
-			{
-				flamestrikeUpdate(deltaTime, i);
-			}*/
 			
 			spells[i]->update(deltaTime);
 			spells[i]->updateRigidbody(deltaTime, m_BulletNormalSpell.at(i));
@@ -678,11 +680,11 @@ void SpellHandler::REFLECTupdate(float deltaTime, int i)
 	ReflectSpell* reflectSpell = static_cast<ReflectSpell*>(spells[i]);
 	reflectSpell->updateReflection(deltaTime, m_BulletNormalSpell.at(i), m_spawnerPos, m_spawnerDir);
 
-	auto& spellList = Client::getInstance()->getNetworkSpells();
+	auto spellList = Client::getInstance()->getNetworkSpells();
 	for (size_t i = 0; i < spellList.size(); i++)
 	{
 		float hitboxRadius = 0.0f;
-		SPELL_TYPE type = spellList[i].SpellType;
+		OBJECT_TYPE type = spellList[i].SpellType;
 		switch (type)
 		{
 		case NORMALATTACK:
