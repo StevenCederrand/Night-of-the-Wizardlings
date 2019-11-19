@@ -43,6 +43,7 @@ namespace NetGlobals {
 	static std::mutex UpdateDeflectSpellMutex;
 	static std::mutex UpdateKillFeedMutex;
 	static std::mutex PickupNotificationMutex;
+	static std::mutex ReadDestructableWallsMutex;
 
 }
 

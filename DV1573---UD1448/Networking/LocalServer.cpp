@@ -506,9 +506,22 @@ void LocalServer::processAndHandlePackets()
 			
 			handleCollisionWithSpells(&hitPacket, spell, shooter, target);
 			
+			break;
 		}
 
-		break;
+		case DESTRUCTION:
+		{
+			for (size_t i = 0; i < m_connectedPlayers.size(); i++)
+			{
+				// Don't send it back to the sender
+				if (packet->guid != m_connectedPlayers[i].guid.rakNetGuid) {
+					m_serverPeer->Send(&bsIn, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_connectedPlayers[i].guid, false);
+				}
+
+			}
+			break;
+		}
+
 
 		default:
 		{
