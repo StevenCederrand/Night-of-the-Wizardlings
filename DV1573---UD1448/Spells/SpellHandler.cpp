@@ -549,10 +549,10 @@ void SpellHandler::spellCollisionCheck()
 
 			//get the radius from the spelltype
 			float radius = 0.0;
-			if (static_cast<Spell*>(spells[i])->getType() == NORMALATTACK) {
+			if (static_cast<Spell*>(spells[j])->getType() == NORMALATTACK) {
 				radius = attackBase->m_radius;
 			}
-			if (static_cast<Spell*>(spells[i])->getType() == ENHANCEATTACK) {
+			if (static_cast<Spell*>(spells[j])->getType() == ENHANCEATTACK) {
 				radius = enhanceAtkBase->m_radius;
 			}
 
