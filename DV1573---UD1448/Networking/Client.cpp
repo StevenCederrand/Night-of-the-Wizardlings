@@ -423,15 +423,18 @@ void Client::processAndHandlePackets()
 					}
 
 					m_connectedPlayers[i] = pData;
-
-					if (m_networkPlayers.m_players[i].data.guid == pData.guid)
 					{
-						m_networkPlayers.m_players[i].data = pData;
-					}
-					else {
-						logWarning("[Client] Client skipped a update on a client due to sync problems. (Should resolve itself with time)");
-					}
+						std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayersMutex);
+						NetworkPlayers::PlayerEntity* pEntity = findPlayerEntityInNetworkPlayers(pData.guid);
 
+						if (pEntity != nullptr)
+						{
+							pEntity->data = pData;
+						}
+						else {
+							logWarning("[Client] Client skipped a update on a client due to sync problems. (Should resolve itself with time)");
+						}
+					}
 					break;
 				}
 			}
@@ -513,21 +516,21 @@ void Client::processAndHandlePackets()
 					activeSpell.Rotation = spellPacket.Rotation;
 				
 					/* Get the entity on the main thread */
-					NetworkSpells::SpellEntity& spellEntity = m_networkSpells.m_entities[i];
-
-					/* If it also matches then update the values of that entity. That entity is the same one that
-					   will later on get renderer by the main thread */
-					if (spellEntity.spellData.CreatorGUID == spellPacket.CreatorGUID &&
-						spellEntity.spellData.SpellID == spellPacket.SpellID)
 					{
-						spellEntity.spellData.Position = spellPacket.Position;
-						spellEntity.spellData.Rotation = spellPacket.Rotation;
-					}
-					else {
-						/* Just as the "PLAYER_UPDATE" this will resolve itself a couple of frames later */
-						//logWarning("[Client] Client skipped a update on a spell due to sync problems. (Should resolve itself with time)");
-					}
+						std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateSpellsMutex);
+						NetworkSpells::SpellEntity* spellEntity = findSpellEntityInNetworkSpells(spellPacket);
 
+						/* If it also matches then update the values of that entity. That entity is the same one that
+						   will later on get renderer by the main thread */
+						if (spellEntity != nullptr) {
+							spellEntity->spellData.Position = spellPacket.Position;
+							spellEntity->spellData.Rotation = spellPacket.Rotation;
+						}
+						else {
+							/* Just as the "PLAYER_UPDATE" this will resolve itself a couple of frames later */
+							logWarning("[Client] Client skipped a update on a spell due to sync problems. (Should resolve itself with time)");
+						}
+					}
 					break;
 				}
 			}
