@@ -43,8 +43,6 @@ private:
 	float m_nearPlane;
 	float m_farPlane;
 	float m_camSpeed;
-	float m_sensitivity;
-	
 
 	void updateMouseMovement();
 	void updateThirdPersonMouseMovement();

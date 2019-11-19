@@ -1218,18 +1218,14 @@ void Client::spectateNext()
 {
 	// The client thread may remove this the moment we look at it so let's be safe and lock it
 	std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayersMutex);
-	logTrace("[Client] Switching spectate target");
 	if (m_connectedPlayers.size() == 0) {
 		m_spectatedPlayer = nullptr;
-		logTrace("[Client] Player list was zero");
 		return;
 	}
 	if (m_spectateIndex >= m_connectedPlayers.size())
 		m_spectateIndex = 0;
-
 	
 	m_spectatedPlayer = &m_connectedPlayers[m_spectateIndex];
-	logTrace("[Client] Switched spectate target to a new target");
 	m_spectateIndex++;
 }
 

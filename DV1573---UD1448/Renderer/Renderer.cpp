@@ -124,8 +124,10 @@ void Renderer::renderAndAnimateNetworkingTexts()
 			m_text->RenderText(timeText, (SCREEN_WIDTH / 2) - 125.0f, (SCREEN_HEIGHT * 0.95f), scale.x, glm::vec3(1.0f, 1.0f, 1.0f));
 		}
 		else if (state == NetGlobals::SERVER_STATE::WaitingForPlayers) {
-			std::string timeText = std::to_string(Client::getInstance()->getCountdownPacket().timeLeft / 1000);
-			m_text->RenderText("Waiting for players", SCREEN_WIDTH / 2 - 80.0f, 680.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+
+			std::string Text = "Waiting for players ";
+			float width = m_text->getTotalWidth(Text, glm::vec3(0.5f));
+			m_text->RenderText(Text, SCREEN_WIDTH / 2 - width * 0.5f, 680.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
 
 			if (Client::getInstance()->isServerOwner()) {
 				m_text->RenderText("Press \"E\" to start the game", 10.0f, 620.0f, 0.35f, glm::vec3(1.0f, 1.0f, 1.0f));
@@ -179,8 +181,8 @@ void Renderer::renderAndAnimateNetworkingTexts()
 
 			float cameraModeWidth = m_text->getTotalWidth(cameraModeText, modeTextScale);
 			float totalModeTextWidth = modeTextWidth + cameraModeWidth;
-			m_text->RenderText(modeText, (SCREEN_WIDTH / 2) - totalModeTextWidth * 0.5f, (SCREEN_HEIGHT * 0.15f), modeTextScale.x, glm::vec3(1.0f, 1.0f, 1.0f));
-			m_text->RenderText(cameraModeText, (SCREEN_WIDTH / 2) - (totalModeTextWidth * 0.5f) + modeTextWidth, (SCREEN_HEIGHT * 0.15f), modeTextScale.x, glm::vec3(1.0f, 0.5f, 0.0f));
+			m_text->RenderText(modeText, (SCREEN_WIDTH / 2) - totalModeTextWidth * 0.5f, (SCREEN_HEIGHT * 0.075f), modeTextScale.x, glm::vec3(1.0f, 1.0f, 1.0f));
+			m_text->RenderText(cameraModeText, (SCREEN_WIDTH / 2) - (totalModeTextWidth * 0.5f) + modeTextWidth, (SCREEN_HEIGHT * 0.075f), modeTextScale.x, glm::vec3(1.0f, 0.5f, 0.0f));
 
 
 
@@ -190,9 +192,9 @@ void Renderer::renderAndAnimateNetworkingTexts()
 				if (spectatedPlayer == nullptr)
 					return;
 
-				glm::vec3 textScale = glm::vec3(0.8f);
+				glm::vec3 textScale = glm::vec3(0.45f);
 
-				std::string spectateText = "Spectating ";
+				std::string spectateText = "Spectating  ";
 				float spectateTextWidth = m_text->getTotalWidth(spectateText, textScale);
 				
 				std::string playerName = std::string(spectatedPlayer->userName);
@@ -200,8 +202,8 @@ void Renderer::renderAndAnimateNetworkingTexts()
 				
 				float totalWidth = spectateTextWidth + playerNameWidth;
 				
-				m_text->RenderText(spectateText, (SCREEN_WIDTH / 2) - totalWidth * 0.5f, (SCREEN_HEIGHT * 0.25f), textScale.x, glm::vec3(1.0f, 1.0f, 1.0f));
-				m_text->RenderText(playerName, (SCREEN_WIDTH / 2) - (totalWidth * 0.5f) + spectateTextWidth, (SCREEN_HEIGHT * 0.25f), textScale.x, glm::vec3(1.0f, 0.5f, 0.0f));
+				m_text->RenderText(spectateText, (SCREEN_WIDTH / 2) - totalWidth * 0.5f, (SCREEN_HEIGHT * 0.15f), textScale.x, glm::vec3(1.0f, 1.0f, 1.0f));
+				m_text->RenderText(playerName, (SCREEN_WIDTH / 2) - (totalWidth * 0.5f) + spectateTextWidth, (SCREEN_HEIGHT * 0.15f), textScale.x, glm::vec3(1.0f, 0.5f, 0.0f));
 
 			}
 

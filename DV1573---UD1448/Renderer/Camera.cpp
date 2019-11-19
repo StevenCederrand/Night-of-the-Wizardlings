@@ -3,6 +3,20 @@
 #include "Camera.h"
 #include <Networking/Client.h>
 
+static float m_sensitivity;
+static float m_distanceThirdPerson = 10.0f;
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+
+	m_distanceThirdPerson -= yoffset;
+
+	if (m_distanceThirdPerson <= 2.0f)
+		m_distanceThirdPerson = 2.0f;
+	else if (m_distanceThirdPerson >= 35.0f)
+		m_distanceThirdPerson = 35.0f;
+}
+
 void Camera::freeCameraMode()
 {
 	updateMouseMovement();
@@ -30,7 +44,7 @@ void Camera::thirdPersonCamera()
 	if (Input::isMousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
 		Client::getInstance()->spectateNext();
 	}
-	
+
 	m_spectatedPlayer = Client::getInstance()->getSpectatedPlayer();
 	
 	if (m_spectatedPlayer == nullptr) {
@@ -40,13 +54,12 @@ void Camera::thirdPersonCamera()
 
 	const glm::vec3& playerpos = m_spectatedPlayer->position;
 	const glm::vec3& meshHalfSize = m_spectatedPlayer->meshHalfSize;
-	float distance = 15.0f;     // Straight line distance between the camera and look at point
 
-	m_camPos.x = playerpos.x + (distance * cos(glm::radians(m_camYaw)) * cos(glm::radians(m_camPitch)));
-	m_camPos.y = meshHalfSize.y + playerpos.y + (distance * sin(glm::radians(m_camPitch)));
-	m_camPos.z = playerpos.z + (distance * sin(glm::radians(m_camYaw)) * cos(glm::radians(m_camPitch)));
+	m_camPos.x = playerpos.x + (m_distanceThirdPerson * cos(glm::radians(m_camYaw)) * cos(glm::radians(m_camPitch)));
+	m_camPos.y = meshHalfSize.y + playerpos.y + (m_distanceThirdPerson * sin(glm::radians(m_camPitch)));
+	m_camPos.z = playerpos.z + (m_distanceThirdPerson * sin(glm::radians(m_camYaw)) * cos(glm::radians(m_camPitch)));
 	
-	lookAt(playerpos + glm::vec3(0.0f, meshHalfSize.y, 0.0f));
+	lookAt(playerpos + glm::vec3(0.0f, meshHalfSize.y * 1.75f, 0.0f));
 
 	
 }
@@ -72,7 +85,7 @@ void Camera::lookForModeChange()
 
 		}else if (m_spectatorMode == SpectatorMode::ThirdPerson)
 		{
-			resetMouseToMiddle();
+			resetCamera();
 			m_spectatorMode = SpectatorMode::FreeCamera;
 		}
 
@@ -162,7 +175,12 @@ void Camera::updateThirdPersonMouseMovement()
 		yoffset *= m_sensitivity;
 
 		m_camYaw += xoffset;
-		m_camPitch += yoffset;
+		m_camPitch -= yoffset;
+
+		if (m_camPitch > 89.0f)
+			m_camPitch = 89.0f;
+		if (m_camPitch < -89.0f)
+			m_camPitch = -89.0f;
 
 		initialPos = currentMouse;
 	}
@@ -193,6 +211,8 @@ Camera::Camera()
 	m_viewMatrix = glm::lookAt(m_camPos, m_camPos + m_camFace, m_camUp);
 	m_fpEnabled = true;
 	m_activeCamera = true;
+
+	glfwSetScrollCallback(glfwGetCurrentContext(), scroll_callback);
 
 }
 
