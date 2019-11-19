@@ -242,6 +242,11 @@ void GameObject::setTransform(glm::vec3 worldPosition = glm::vec3(.0f), glm::qua
 	updateModelMatrix();
 }
 
+void GameObject::setBtOffset(glm::vec3 offset, int meshIndex)
+{
+	m_meshes[meshIndex].btoffset = offset;
+}
+
 void GameObject::setWorldPosition(glm::vec3 worldPosition)
 {
 	m_lastPosition = m_transform.position;
@@ -589,10 +594,10 @@ void GameObject::createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp
 
 	glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(meshIndex).scale;
 
-	m_bodies.emplace_back(m_bPhysics->createObject(shape, weight, center, halfSize, getTransform(meshIndex).rotation,true, 0.0f, 1.0f));
+	m_bodies.emplace_back(m_bPhysics->createObject(shape, weight, center, halfSize, getTransform(meshIndex).rotation, true, 0.0f, 1.0f));
 
 	m_bodies.back()->setUserPointer(this);
-	m_bodies.back()->setGravity(btVector3(0.0f, -20.0f, 0.0f));
+	m_bodies.back()->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 
 	m_transform.position = glm::vec3(0.0f);
 	m_transform.rotation = glm::quat();

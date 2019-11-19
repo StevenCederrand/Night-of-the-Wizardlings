@@ -99,6 +99,12 @@ PlayState::PlayState()
 	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
 	Renderer::getInstance()->submit(m_objects.back(), STATIC);
 
+	m_objects.push_back(new DestructibleObject(&m_dstr, m_objects.size()));
+	static_cast<DestructibleObject*>(m_objects.back())->loadBasic("Basic_DSTR");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 18.0f, -6.0f));
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+
 	// DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP
 
 
@@ -371,8 +377,8 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 		m_dstr->Destroy(dstrobj, glm::vec2(hitpoint.getX(), hitpoint.getY()), spellobj->getDirection());
 		m_dstr->pushPacket(glm::vec2(hitpoint.getX(), hitpoint.getY()), spellobj->getDirection(), dstrobj->getIndex(), seed);
 
-		if (spellobj->getType() != FLAMESTRIKE)
-			spellobj->setTravelTime(0.05f);
+		//if (spellobj->getType() != FLAMESTRIKE)
+		//	spellobj->setTravelTime(0.0f);
 
 		// Network packet
 		DestructionPacket dstrPacket;

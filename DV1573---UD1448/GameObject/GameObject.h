@@ -41,6 +41,7 @@ public:
 	void setTransform(Transform transform);
 	void setTransform(Transform transform, int meshIndex);
 	void setTransform(glm::vec3 worldPosition, glm::quat worldRot, glm::vec3 worldScale);
+	void setBtOffset(glm::vec3 offset, int meshIndex);
 	void setWorldPosition(glm::vec3 worldPosition);
 	void setWorldPosition(glm::vec3 worldPosition, int meshIndex);
 	void offsetMesh(glm::vec3 position, int meshIndex);
@@ -73,6 +74,7 @@ private:
 	{
 		std::string name;
 		Transform transform;
+		glm::vec3 btoffset = glm::vec3(0.0f);
 	};
 
 	std::string m_objectName;

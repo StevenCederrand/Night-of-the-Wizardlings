@@ -122,30 +122,17 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			ni = 0;
 			ti = 0;
 
-			glm::vec3 min = glm::vec3(m_clipped[0], 0.0f);
-			glm::vec3 max = glm::vec3(m_clipped[0], 0.0f);
 			
 			// Top
 			for (int i = 0; i < count; i++)
 			{
-				min.x = fminf(m_newVertices[vi].position.x, min.x);
-				min.y = fminf(m_newVertices[vi].position.y, min.y);
-				max.x = fmaxf(m_newVertices[vi].position.x, max.x);
-				max.y = fmaxf(m_newVertices[vi].position.y, max.y);
-
 				m_newVertices[vi++].position = glm::vec3(m_clipped[i].x, m_clipped[i].y, scale);
 				m_newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, -1.0f);
-
 			}
 
 			// Bottom
 			for (int i = 0; i < count; i++)
 			{
-				min.x = fminf(m_newVertices[vi].position.x, min.x);
-				min.y = fminf(m_newVertices[vi].position.y, min.y);
-				max.x = fmaxf(m_newVertices[vi].position.x, max.x);
-				max.y = fmaxf(m_newVertices[vi].position.y, max.y);
-
 				m_newVertices[vi++].position = glm::vec3(m_clipped[i].x, m_clipped[i].y, -scale);
 				m_newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, 1.0f);
 			}
@@ -154,11 +141,6 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			for (int i = 0; i < count; i++)
 			{
 				int iNext = i == count - 1 ? 0 : i + 1;
-
-				min.x = fminf(m_newVertices[vi].position.x, min.x);
-				min.y = fminf(m_newVertices[vi].position.y, min.y);
-				max.x = fmaxf(m_newVertices[vi].position.x, max.x);
-				max.y = fmaxf(m_newVertices[vi].position.y, max.y);
 
 				m_newVertices[vi++].position = glm::vec3(m_clipped[i].x, m_clipped[i].y, scale);
 				m_newVertices[vi++].position = glm::vec3(m_clipped[i].x, m_clipped[i].y, -scale);
@@ -205,12 +187,30 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 				ti++;
 			}
 
+
+			glm::vec3 min = m_newVertices[0].position;
+			glm::vec3 max = m_newVertices[0].position;
+			for (size_t i = 0; i < m_newVertices.size(); i++)
+			{
+				min.x = fminf(m_newVertices[i].position.x, min.x);
+				min.y = fminf(m_newVertices[i].position.y, min.y);
+				min.z = fminf(m_newVertices[i].position.z, min.z);
+
+				max.x = fmaxf(m_newVertices[i].position.x, max.x);
+				max.y = fmaxf(m_newVertices[i].position.y, max.y);
+				max.z = fmaxf(m_newVertices[i].position.z, max.z);
+			}
 			glm::vec3 center = glm::vec3((min + max) * 0.5f);
+
+			for (size_t i = 0; i < m_newVertices.size(); i++)
+			{
+				m_newVertices[i].position -= center;
+			}
 
 			object->initMesh(object->getMeshName() + "_" + std::to_string(i), m_newVertices, m_newFace);
 
 			Transform newTransform = object->getTransform();
-			newTransform.position += center;
+			newTransform.position += center * glm::inverse(newTransform.rotation);;
 			object->setTransform(newTransform, mi);
 
 			// DEBUG PLACEMENT
@@ -221,12 +221,14 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			//	0.0f);
 			//object->setTransform(newTransform,  mi);
 
-			object->createDynamicRigidBody(CollisionObject::box, NULL, 20.0f, mi, false);
-			glm::vec3 force = (hitDirection + (center * 100)) * (scale * 2) * 8;
+			object->createDynamicRigidBody(CollisionObject::box, NULL, 14.0f, mi, true);
+			
+			glm::vec3 forceDir = glm::vec3((m_diagram.sites[i] - hitPosition), 0.0f) * newTransform.rotation;
+			glm::vec3 force = ((forceDir * 130)) * (scale * 2) + hitDirection * 1.4;
 
-			object->getRigidBodies()[mi]->applyCentralImpulse(btVector3(force.x, force.y, force.z) * 3.0f);
+			object->getRigidBodies()[mi]->applyCentralImpulse(btVector3(force.x, force.y, force.z) * 2);
+			object->getRigidBodies()[mi]->applyTorque(btVector3(force.x, force.y, force.z) * 70);
 			mi++;
-
 		}
 	}
 
@@ -237,6 +239,7 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 	//object->createDynamicRigidBody(CollisionObject::box, NULL, 200.0f, 1);
 	//object->set_BtActive(false, 0);
 	object->set_destroyed(true);
+
 }
 
 void DstrGenerator::pushPacket(glm::vec2 hitPoint, glm::vec3 hitDir, int index, int seed)
