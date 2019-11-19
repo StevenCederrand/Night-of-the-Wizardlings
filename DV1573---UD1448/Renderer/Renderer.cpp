@@ -147,17 +147,66 @@ void Renderer::renderAndAnimateNetworkingTexts()
 			m_text->RenderText("End of round: " + timeText, SCREEN_WIDTH / 2 - 135.0f, 680.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
 		}
 
+		if (Client::getInstance()->isSpectating() == false) {
 
-		if (Client::getInstance()->getMyData().health == 0) {
-			std::string timeText = std::to_string(Client::getInstance()->getRespawnTime().timeLeft / 1000);
-			m_text->RenderText("Respawn in " + timeText + " seconds", (SCREEN_WIDTH / 2) - 200.0f, 480.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
+			if (Client::getInstance()->getMyData().health == 0) {
+				std::string timeText = std::to_string(Client::getInstance()->getRespawnTime().timeLeft / 1000);
+				m_text->RenderText("Respawn in " + timeText + " seconds", (SCREEN_WIDTH / 2) - 200.0f, 480.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
+			}
+
+
+			if (state == NetGlobals::SERVER_STATE::GameInSession)
+				m_text->RenderText("Kills: " + std::to_string(Client::getInstance()->getMyData().numberOfKills), 10.0f, 620.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+
 		}
+		else {
+			
+			if (m_camera == nullptr) return;
 
-		m_text->RenderText("Health: " + std::to_string(Client::getInstance()->getMyData().health), 10.0f, 680.0f, 0.45f, glm::vec3(1.0f, 1.0f, 1.0f));
+			glm::vec3 modeTextScale = glm::vec3(0.35f);
 
-		if (state == NetGlobals::SERVER_STATE::GameInSession)
-			m_text->RenderText("Kills: " + std::to_string(Client::getInstance()->getMyData().numberOfKills), 10.0f, 620.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+			std::string modeText = "Mode ";
+			float modeTextWidth = m_text->getTotalWidth(modeText, modeTextScale);
 
+			std::string cameraModeText = "";
+
+			if (m_camera->getSpectatorMode() == SpectatorMode::FreeCamera) {
+				cameraModeText = "Free camera";
+			}
+			else if (m_camera->getSpectatorMode() == SpectatorMode::ThirdPerson) {
+				cameraModeText = "Third person";
+			}
+
+			float cameraModeWidth = m_text->getTotalWidth(cameraModeText, modeTextScale);
+			float totalModeTextWidth = modeTextWidth + cameraModeWidth;
+			m_text->RenderText(modeText, (SCREEN_WIDTH / 2) - totalModeTextWidth * 0.5f, (SCREEN_HEIGHT * 0.15f), modeTextScale.x, glm::vec3(1.0f, 1.0f, 1.0f));
+			m_text->RenderText(cameraModeText, (SCREEN_WIDTH / 2) - (totalModeTextWidth * 0.5f) + modeTextWidth, (SCREEN_HEIGHT * 0.15f), modeTextScale.x, glm::vec3(1.0f, 0.5f, 0.0f));
+
+
+
+			if (m_camera->getSpectatorMode() == SpectatorMode::ThirdPerson) {
+				const PlayerPacket* spectatedPlayer = Client::getInstance()->getSpectatedPlayer();
+				
+				if (spectatedPlayer == nullptr)
+					return;
+
+				glm::vec3 textScale = glm::vec3(0.8f);
+
+				std::string spectateText = "Spectating ";
+				float spectateTextWidth = m_text->getTotalWidth(spectateText, textScale);
+				
+				std::string playerName = std::string(spectatedPlayer->userName);
+				float playerNameWidth = m_text->getTotalWidth(playerName, textScale);
+				
+				float totalWidth = spectateTextWidth + playerNameWidth;
+				
+				m_text->RenderText(spectateText, (SCREEN_WIDTH / 2) - totalWidth * 0.5f, (SCREEN_HEIGHT * 0.25f), textScale.x, glm::vec3(1.0f, 1.0f, 1.0f));
+				m_text->RenderText(playerName, (SCREEN_WIDTH / 2) - (totalWidth * 0.5f) + spectateTextWidth, (SCREEN_HEIGHT * 0.25f), textScale.x, glm::vec3(1.0f, 0.5f, 0.0f));
+
+			}
+
+			
+		}
 
 	}
 

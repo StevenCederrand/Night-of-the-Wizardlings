@@ -525,7 +525,7 @@ void PlayState::GUIHandler()
 	if (Input::isKeyPressed(GLFW_KEY_TAB) && !m_endGameBoardVisible) {
 		GUILoadScoreboard();
 	}
-	else if (Client::getInstance()->getServerState().currentState == NetGlobals::GameFinished && !m_endGameBoardVisible) {
+	else if (Client::getInstance()->getServerState().currentState == NetGlobals::GameFinished && !m_endGameBoardVisible && !Client::getInstance()->isSpectating()) {
 		GUILoadScoreboard();
 		m_endGameBoardVisible = true;
 	}

@@ -901,6 +901,7 @@ void Client::updatePlayerData(Player* player)
 	m_myPlayerDataPacket.position = player->getPlayerPos();
 	m_myPlayerDataPacket.inDeflectState = player->isDeflecting();
 	m_myPlayerDataPacket.lookDirection = player->getCamera()->getCamFace();
+	m_myPlayerDataPacket.meshHalfSize = player->getMeshHalfSize();
 	m_myPlayerDataPacket.timestamp = RakNet::GetTimeMS();
 	m_myPlayerDataPacket.rotation = glm::vec3(
 		0.0f,
@@ -1182,6 +1183,11 @@ const std::vector<SpellPacket>& Client::getNetworkSpells()
 	return m_activeSpells;
 }
 
+const PlayerPacket* Client::getSpectatedPlayer() const
+{
+	return m_spectatedPlayer;
+}
+
 void Client::refreshServerList()
 {
 	logTrace("[Client] Fetching server list...");
@@ -1206,6 +1212,25 @@ void Client::setUsername(const std::string& userName)
 		std::memcpy(m_userName, userName.c_str(), 16);
 	}
 	std::memcpy(m_myPlayerDataPacket.userName, userName.c_str(), userName.size());
+}
+
+void Client::spectateNext()
+{
+	// The client thread may remove this the moment we look at it so let's be safe and lock it
+	std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayersMutex);
+	logTrace("[Client] Switching spectate target");
+	if (m_connectedPlayers.size() == 0) {
+		m_spectatedPlayer = nullptr;
+		logTrace("[Client] Player list was zero");
+		return;
+	}
+	if (m_spectateIndex >= m_connectedPlayers.size())
+		m_spectateIndex = 0;
+
+	
+	m_spectatedPlayer = &m_connectedPlayers[m_spectateIndex];
+	logTrace("[Client] Switched spectate target to a new target");
+	m_spectateIndex++;
 }
 
 const bool Client::doneRefreshingServerList() const
@@ -1374,10 +1399,15 @@ void Client::removeActiveSpell(const SpellPacket& packet)
 
 void Client::removeConnectedPlayer(const RakNet::AddressOrGUID& guid)
 {
+
 	for (size_t i = 0; i < m_connectedPlayers.size(); i++) {
 		PlayerPacket& p = m_connectedPlayers[i];
 
 		if (p.guid == guid) {
+
+			if (&p == m_spectatedPlayer)
+				m_spectatedPlayer = nullptr;
+
 			m_connectedPlayers.erase(m_connectedPlayers.begin() + i);
 			return;
 		}

@@ -351,6 +351,11 @@ const float& Player::getMaxSpecialCooldown() const
 	return m_maxSpecialCooldown;
 }
 
+const glm::vec3 Player::getMeshHalfSize() const
+{
+	return glm::vec3(m_bp->getCharacterSize().getX(), m_bp->getCharacterSize().getY(), m_bp->getCharacterSize().getZ());
+}
+
 const float& Player::getMana() const
 {
 	return m_mana;

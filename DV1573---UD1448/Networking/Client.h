@@ -37,10 +37,12 @@ public:
 	void startSendingUpdatePackages();
 	void assignSpellHandler(SpellHandler* spellHandler);
 	void setUsername(const std::string& userName);
-	
+	void spectateNext(); /* Only works if you're a spectator */
+
 	const std::vector<std::pair<unsigned int, ServerInfo>>& getServerList() const;
 	const std::vector<PlayerPacket>& getConnectedPlayers() const;
 	const std::vector<SpellPacket>& getNetworkSpells();
+	const PlayerPacket* getSpectatedPlayer() const;
 	const ServerInfo& getServerByID(const unsigned int& ID) const;
 	
 	NetworkPlayers& getNetworkPlayersREF();
@@ -94,8 +96,11 @@ private:
 	bool m_sendUpdatePackages;
 	bool m_spectating;
 
+	size_t m_spectateIndex;
+
 	PlayerPacket m_myPlayerDataPacket;
 	PlayerPacket* m_latestPlayerThatHitMe;
+	PlayerPacket* m_spectatedPlayer;
 	ServerStateChange m_serverState;
 	CountdownPacket m_countDownPacket;
 	CountdownPacket m_respawnTime;

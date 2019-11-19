@@ -15,9 +15,13 @@ private:
 	void thirdPersonCamera();
 	void firstPersonCamera();
 
+	void lookForModeChange();
+	void resetMouseToMiddle();
+
 	float m_spectatorMoveSpeed;
 
 	void calcVectors();
+	const PlayerPacket* m_spectatedPlayer;
 	SpectatorMode m_spectatorMode;
 	bool m_firstMouse = true;
 	double m_xpos, m_ypos;
@@ -40,8 +44,10 @@ private:
 	float m_farPlane;
 	float m_camSpeed;
 	float m_sensitivity;
+	
 
 	void updateMouseMovement();
+	void updateThirdPersonMouseMovement();
 	bool m_fpEnabled;
 	bool m_activeCamera;
 	glm::vec2 oldPosition;
@@ -59,6 +65,8 @@ public:
 	void disableCameraMovement(const bool condition);
 	void setSpectatorMode(SpectatorMode mode);
 	void resetCamera();
+
+	void spectatePlayer(const PlayerPacket* playerPacket);
 
 	const glm::mat4 getViewMat() const;
 	const glm::mat4& getProjMat() const;

@@ -25,15 +25,72 @@ void Camera::freeCameraMode()
 
 void Camera::thirdPersonCamera()
 {
+	updateThirdPersonMouseMovement();
+
+	if (Input::isMousePressed(GLFW_MOUSE_BUTTON_LEFT)) {
+		Client::getInstance()->spectateNext();
+	}
+	
+	m_spectatedPlayer = Client::getInstance()->getSpectatedPlayer();
+	
+	if (m_spectatedPlayer == nullptr) {
+		m_spectatorMode = SpectatorMode::FreeCamera;
+		return;
+	}
+
+	const glm::vec3& playerpos = m_spectatedPlayer->position;
+	const glm::vec3& meshHalfSize = m_spectatedPlayer->meshHalfSize;
+	float distance = 15.0f;     // Straight line distance between the camera and look at point
+
+	m_camPos.x = playerpos.x + (distance * cos(glm::radians(m_camYaw)) * cos(glm::radians(m_camPitch)));
+	m_camPos.y = meshHalfSize.y + playerpos.y + (distance * sin(glm::radians(m_camPitch)));
+	m_camPos.z = playerpos.z + (distance * sin(glm::radians(m_camYaw)) * cos(glm::radians(m_camPitch)));
+	
+	lookAt(playerpos + glm::vec3(0.0f, meshHalfSize.y, 0.0f));
+
+	
 }
 
 void Camera::firstPersonCamera()
 {
 }
 
+void Camera::lookForModeChange()
+{
+	if (Input::isKeyPressed(GLFW_KEY_E)) {
+	
+		if (m_spectatorMode == SpectatorMode::FreeCamera)
+		{
+			// Before changing look the current player that is spectated
+			// see if it's null and if it is then go to next
+
+			if (Client::getInstance()->getSpectatedPlayer() == nullptr)
+				Client::getInstance()->spectateNext();
+
+			
+			m_spectatorMode = SpectatorMode::ThirdPerson;
+
+		}else if (m_spectatorMode == SpectatorMode::ThirdPerson)
+		{
+			resetMouseToMiddle();
+			m_spectatorMode = SpectatorMode::FreeCamera;
+		}
+
+	}
+
+}
+
+void Camera::resetMouseToMiddle()
+{
+	int wSizeX, wSizeY;
+	glfwGetWindowSize(glfwGetCurrentContext(), &wSizeX, &wSizeY);
+	m_lastX = static_cast<float>(wSizeX / 2);
+	m_lastY = static_cast<float>(wSizeY / 2);
+	glfwSetCursorPos(glfwGetCurrentContext(), m_lastX, m_lastY);
+}
+
 void Camera::calcVectors()
 {
-	
 	m_camFace.x = cos(glm::radians(m_camYaw)) * cos(glm::radians(m_camPitch));
 	m_camFace.y = sin(glm::radians(m_camPitch));
 	m_camFace.z = sin(glm::radians(m_camYaw)) * cos(glm::radians(m_camPitch));
@@ -45,16 +102,16 @@ void Camera::calcVectors()
 
 void Camera::resetCamera()
 {
-
-	int wSizeX, wSizeY;
-	glfwGetWindowSize(glfwGetCurrentContext(), &wSizeX, &wSizeY);
-	m_lastX = static_cast<float>(wSizeX / 2);
-	m_lastY = static_cast<float>(wSizeY / 2);
-	glfwSetCursorPos(glfwGetCurrentContext(), m_lastX, m_lastY);
+	resetMouseToMiddle();
 	m_camYaw = -90.0f;
 	m_camPitch = 0;
 	m_camFace = glm::vec3(0.0f, 0.0f, -1.0f);
 	calcVectors();
+}
+
+void Camera::spectatePlayer(const PlayerPacket* playerPacket)
+{
+	m_spectatedPlayer = playerPacket;
 }
 
 void Camera::updateMouseMovement()
@@ -82,6 +139,34 @@ void Camera::updateMouseMovement()
 	mouseControls(xoffset, yoffset, true);
 
 	m_viewMatrix = glm::lookAt(m_camPos, m_camPos + m_camFace, m_camUp);
+}
+
+void Camera::updateThirdPersonMouseMovement()
+{
+	static glm::dvec2 initialPos = glm::dvec2(0.0);
+	
+	if (Input::isMousePressed(GLFW_MOUSE_BUTTON_RIGHT)) {
+		glfwGetCursorPos(glfwGetCurrentContext(), &initialPos.x, &initialPos.y);
+
+	}
+
+	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_RIGHT))
+	{
+		glm::dvec2 currentMouse = glm::dvec2(0.0);
+		glfwGetCursorPos(glfwGetCurrentContext(), &currentMouse.x, &currentMouse.y);
+
+		float xoffset = static_cast<float>(currentMouse.x) - initialPos.x;
+		float yoffset = initialPos.y - static_cast<float>(currentMouse.y);
+
+		xoffset *= m_sensitivity;
+		yoffset *= m_sensitivity;
+
+		m_camYaw += xoffset;
+		m_camPitch += yoffset;
+
+		initialPos = currentMouse;
+	}
+
 }
 
 Camera::Camera()
@@ -234,6 +319,8 @@ void Camera::update()
 
 		if (Client::getInstance()->isSpectating()) {
 
+			lookForModeChange();
+
 			if (m_spectatorMode == SpectatorMode::FreeCamera) {
 				freeCameraMode();
 			}
@@ -251,7 +338,8 @@ void Camera::update()
 		}
 
 	}
-	m_viewMatrix = glm::lookAt(m_camPos, m_camPos + m_camFace, m_camUp);
+	if(!Client::getInstance()->isSpectating())
+		m_viewMatrix = glm::lookAt(m_camPos, m_camPos + m_camFace, m_camUp);
 
 }
 
@@ -259,11 +347,7 @@ void Camera::enableFP(const bool& fpEnable) {
 	m_fpEnabled = fpEnable;
 	//when enabling the fps camera
 	if (m_fpEnabled) {
-		int wSizeX, wSizeY;
-		glfwGetWindowSize(glfwGetCurrentContext(), &wSizeX, &wSizeY);
-		m_lastX = static_cast<float>(wSizeX / 2);
-		m_lastY = static_cast<float>(wSizeY / 2);
-		glfwSetCursorPos(glfwGetCurrentContext(), m_lastX, m_lastY);
+		resetMouseToMiddle();
 	}
 }
 
