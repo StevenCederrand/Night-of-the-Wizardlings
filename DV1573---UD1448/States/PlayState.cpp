@@ -248,24 +248,16 @@ void PlayState::update(float dt)
 				
 				for (size_t i = 0; i < m_dstr.getPackets().size(); i++) 
 					Client::getInstance()->sendDestructionPacket(m_dstr.getPackets()[i]);
-				/*	Example:
-						DestructionPacket p;
-						p.index = 0;
-						p.hitPoint = glm::vec3(3.0f);
-						p.randomSeed = 345342;
-						Client::getInstance()->sendDestructionPacket(p);
-				*/
 
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::ReadDestructableWallsMutex); // Thread safe
+
 				auto& vec = Client::getInstance()->getDestructedWalls();
-
 				for (size_t i = 0; i < vec.size(); i++) {
-					// Do stuff here
 					const DestructionPacket& p = vec[i];
-					
 
-
-					//------------------
+					// Destroy
+					m_dstr.seedRand(p.randomSeed);
+					m_dstr.Destroy(static_cast<DestructibleObject*>(m_objects[p.index]), p.hitPoint, p.hitDir);
 				}
 
 				// Tells the client to clear the vector
@@ -378,15 +370,13 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 	if (dstrobj && spellobj)
 	{
 		DstrGenerator* m_dstr = dstrobj->getDstr();
-		unsigned int seed = m_dstr->SeedRand();
+		unsigned int seed = m_dstr->seedRand();
 		
 		m_dstr->Destroy(dstrobj, glm::vec2(hitpoint.getX(), hitpoint.getY()), spellobj->getDirection());
+		m_dstr->pushPacket(glm::vec2(hitpoint.getX(), hitpoint.getY()), spellobj->getDirection(), dstrobj->getIndex(), seed);
 
 		if (spellobj->getType() != FLAMESTRIKE)
 			spellobj->setTravelTime(0.05f);
-
-		
-
 	}
 
 

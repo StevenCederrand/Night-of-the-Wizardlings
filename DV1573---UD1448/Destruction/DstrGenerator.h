@@ -13,7 +13,7 @@ public:
 	void offsetPoints(glm::vec2 position = glm::vec2());
 
 	void Destroy(DestructibleObject* object, glm::vec2 hitPosition = glm::vec3(0.0f), glm::vec3 hitDirection = glm::vec3(0.0f));
-	void pushPacket(glm::vec3 hitPoint, int index, int seed);
+	void pushPacket(glm::vec2 hitPoint, glm::vec3 hitDir, int index, int seed);
 
 	const unsigned int seedRand(unsigned int seed = 0);
 	const unsigned int getSeed(unsigned int seed) const { return m_seed; }

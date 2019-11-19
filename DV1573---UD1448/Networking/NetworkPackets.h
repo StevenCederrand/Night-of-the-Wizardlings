@@ -215,12 +215,14 @@ struct DestructionPacket {
 
 	int randomSeed;
 	int index;
-	glm::vec3 hitPoint;
+	glm::vec2 hitPoint;
+	glm::vec3 hitDir;
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
 		stream.Serialize(writeToStream, randomSeed);
 		stream.Serialize(writeToStream, index);
 		stream.Serialize(writeToStream, hitPoint);
+		stream.Serialize(writeToStream, hitDir);
 	}
 
 

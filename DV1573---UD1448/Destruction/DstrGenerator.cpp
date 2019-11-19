@@ -242,6 +242,15 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 	object->set_destroyed(true);
 }
 
+void DstrGenerator::pushPacket(glm::vec2 hitPoint, glm::vec3 hitDir, int index, int seed)
+{
+	DestructionPacket newPack;
+	newPack.hitPoint = hitPoint;
+	newPack.index = index;
+	newPack.randomSeed = seed;
+	m_packets.push_back(newPack);
+}
+
 const unsigned int DstrGenerator::seedRand(unsigned int seed)
 {
 	m_seed = unsigned int(time(NULL));
