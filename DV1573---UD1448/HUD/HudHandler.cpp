@@ -27,13 +27,13 @@ void HudHandler::loadPlayStateHUD() {
 	hudObject->setAlpha(1.0f);
 	insertHUDObject(hudObject, CROSSHAIR_MANA); 
 	
-	hudObject = new HudObject("Assets/Textures/HUD/Crosshair_hit.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(50.0f, 50.0f));
-	hudObject->setAlpha(0.0f);
-	insertHUDObject(hudObject, CROSSHAIR_HIT);
-
 	hudObject = new HudObject("Assets/Textures/hud/Crosshair.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(50.0f, 50.0f));
 	hudObject->setAlpha(1.0f);
 	insertHUDObject(hudObject, CROSSHAIR);
+	
+	hudObject = new HudObject("Assets/Textures/HUD/Crosshair_hit.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(50.0f, 50.0f));
+	hudObject->setAlpha(0.0f);
+	insertHUDObject(hudObject, CROSSHAIR_HIT);
 
 	hudObject = new HudObject("Assets/Textures/hud/CrosshairDeflect.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(50.0f, 50.0f));
 	hudObject->setAlpha(0.0f);
