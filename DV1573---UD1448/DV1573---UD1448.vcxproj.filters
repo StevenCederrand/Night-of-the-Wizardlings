@@ -56,7 +56,7 @@
     <ClCompile Include="Particles\Particles.cpp" />
     <ClCompile Include="Particles\ParticleBuffers.cpp" />
     <ClCompile Include="GameObject\MapObject.cpp" />
-    <ClCompile Include="GameObject\DeflectObject.cpp" />
+    <ClCompile Include="GameObject\ShieldObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
@@ -124,7 +124,6 @@
     <ClInclude Include="System\Helper.h" />
     <ClInclude Include="Particles\Particles.h" />
     <ClInclude Include="Particles\ParticleBuffers.h" />
-    <ClInclude Include="Deflect\Deflect.h" />
     <ClInclude Include="System\Helper.h" />
     <ClInclude Include="HUD\HudObject.h" />
     <ClInclude Include="HUD\HudTextureMap.h" />
@@ -140,7 +139,7 @@
     <ClInclude Include="Renderer\NotificationStructure.h" />
     <ClInclude Include="GameObject\MapObject.h" />
     <ClInclude Include="Renderer\PickupNotificationStructure.h" />
-    <ClInclude Include="GameObject\DeflectObject.h" />
+    <ClInclude Include="GameObject\ShieldObject.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

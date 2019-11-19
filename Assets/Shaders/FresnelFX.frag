@@ -44,7 +44,7 @@ vec2 rotate(float magnitude, vec2 p);
 void main() {
     vec3 pivot = vec3(0.5, -0.5, 1.);
     vec2 p = f_UV - pivot.xy;
-    p = rotate(3.14 * time * 0.2, p); 
+    p = rotate(3.14 * time * 0.2, p);
     float a = atan(p.y, p.x) * 1.0;
     float r = sqrt(dot(p,p));
     vec2 finalUV;
@@ -73,7 +73,7 @@ void main() {
     vec3 viewDir = normalize(cameraHolder - f_position.xyz);
     float fresnel = 1 - dot(viewDir,  f_normal);
     result += fresnel;
-    color = vec4(result, alphaTexture.a);
+    color = vec4(result, alphaTexture.a * 1.8);
 }
 
 vec2 rotate(float magnitude, vec2 p)

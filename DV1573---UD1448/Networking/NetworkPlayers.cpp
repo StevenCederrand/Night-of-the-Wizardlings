@@ -66,7 +66,7 @@ void NetworkPlayers::update(const float& dt)
 		GameObject* g = p.gameobject;
 		if (p.data.inDeflectState)
 		{
-			GameObject* shieldObject = new DeflectObject("playerShield");
+			GameObject* shieldObject = new ShieldObject("playerShield");
 			logTrace("The deflect");
 			shieldObject->loadMesh("ShieldMesh.mesh");
 			

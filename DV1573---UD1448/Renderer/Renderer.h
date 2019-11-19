@@ -28,7 +28,7 @@
 #include <HUD/HudObject.h>
 #include "NotificationStructure.h"
 #include <Text/FreeType.h>
-#include <GameObject/DeflectObject.h>
+#include <GameObject/ShieldObject.h>
 
 
 #include <Particles/Particles.h>

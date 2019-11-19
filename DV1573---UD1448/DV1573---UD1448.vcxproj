@@ -183,7 +183,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DebugDrawer\DebugDrawer.cpp" />
-    <ClCompile Include="GameObject\DeflectObject.cpp" />
+    <ClCompile Include="GameObject\ShieldObject.cpp" />
     <ClCompile Include="GameObject\AnimatedObject.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
@@ -286,7 +286,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
-    <ClInclude Include="GameObject\DeflectObject.h" />
+    <ClInclude Include="GameObject\ShieldObject.h" />
     <ClInclude Include="GameObject\AnimatedObject.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
