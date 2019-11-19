@@ -164,7 +164,7 @@ void Renderer::renderAndAnimateNetworkingTexts()
 
 void Renderer::renderBigNotifications()
 {
-	Client::getInstance()->renderPickupNotificationsMutexGuard();
+	std::lock_guard<std::mutex> lockGuard(NetGlobals::PickupNotificationMutex);
 	for (size_t i = 0; i < m_bigNotifications.size(); i++) {
 
 		NotificationText& notification = m_bigNotifications[i];
@@ -189,7 +189,7 @@ void Renderer::renderBigNotifications()
 
 void Renderer::renderKillFeed()
 {
-	Client::getInstance()->renderKillFeedMutexGuard();
+	std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateKillFeedMutex);
 	for (size_t i = 0; i < m_killFeed.size(); i++) {
 		
 		NotificationText& notification = m_killFeed[i];
@@ -635,6 +635,14 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	renderSkybox(m_skybox);
 	renderDeflectBox(m_deflectBox);
 
+#ifdef DEBUG_WIREFRAME
+	// DEBUG (MOSTLY FOR DSTR)
+	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_M) == GLFW_PRESS)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_N) == GLFW_PRESS)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
+
 #pragma region Color_Render
 	shader = shaderMap->useByName(BASIC_FORWARD);
 	shader->clearBinding();
@@ -900,7 +908,15 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	
 	shader->clearBinding();
 #pragma endregion
+
+	// Spell Rendering
 	m_spellHandler->renderSpell();
+
+#ifdef DEBUG_WIREFRAME
+	// DEBUG (MOSTLY FOR DSTR)
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
+
 	//ShaderMap::getInstance()->useByName(BLUR);
 
 	//ShaderMap::getInstance()->getShader(BLUR)->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
@@ -1102,8 +1118,12 @@ void Renderer::initializeParticle()
 	m_PSinfo.scaleDirection = 0;
 	m_PSinfo.swirl = 0;
 	m_PSinfo.fade = 1;
+
 	m_PSinfo.color = glm::vec3(1.0f, 0.0f, 1.0f);
-	m_PSinfo.blendColor = glm::vec3(0.8f, 0.8f, 1.0f);
+	m_PSinfo.blendColor = glm::vec3(1.0f, 1.0f, 1.0f);
+
+	m_PSinfo.color = glm::vec3(0.65f, 1.0f, 1.0f); //jerrys färg
+
 	m_PSinfo.direction = glm::vec3(1.0f, 0.0f, 0.0f);
 	vertexCountDiff = m_PSinfo.maxParticles;
 	emissionDiff = m_PSinfo.emission;
@@ -1136,8 +1156,11 @@ void Renderer::initializeParticle()
 	m_enhanceInfo.scaleDirection = 0;
 	m_enhanceInfo.swirl = 0;
 	m_enhanceInfo.fade = 1;
+
 	m_enhanceInfo.color = glm::vec3(0.5f, 1.0f, 0.0f);
 	m_enhanceInfo.blendColor = glm::vec3(0.5f, 1.0f, 0.0f);
+
+	m_enhanceInfo.color = glm::vec3(0.85f, 0.3f, 0.2f); //jerrys färg
 	m_enhanceInfo.direction = glm::vec3(1.0f, 0.0f, 0.0f);
 	vertexCountDiff2 = m_enhanceInfo.maxParticles;
 	emissionDiff2 = m_enhanceInfo.emission;
@@ -1193,6 +1216,7 @@ void Renderer::initializeParticle()
 	m_flameInfo.blendColor = glm::vec3(1.0f, 1.0f, 0.1f);
 	m_flameInfo.direction = glm::vec3(0.0f, 1.0f, 0.0f);     
 	vertexCountDiff3 = m_flameInfo.maxParticles;     
+
 	emissionDiff3 = m_flameInfo.emission;
 
 	//ps = new ParticleSystem(&m_PSinfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());

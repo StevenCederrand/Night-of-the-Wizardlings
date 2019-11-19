@@ -43,7 +43,7 @@ public:
 	void setScale(glm::vec3 scale);
 	void setTransform(Transform transform);
 
-	std::string getMaterial();
+	const std::string& getMaterial() const;
 
 	// Returns mesh local position
 	Buffers getBuffers() const;
