@@ -19,7 +19,7 @@ HudHandler::~HudHandler()
 
 void HudHandler::loadPlayStateHUD() {
 	// HUD
-	HudObject* hudObject = hudObject = new HudObject("Assets/Textures/HUD/CrosshairHP.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(50.0f, 50.0f));
+	HudObject* hudObject = new HudObject("Assets/Textures/HUD/CrosshairHP.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(50.0f, 50.0f));
 	hudObject->setAlpha(1.0f);
 	insertHUDObject(hudObject, CROSSHAIR_HP);
 
@@ -42,11 +42,7 @@ void HudHandler::loadPlayStateHUD() {
 	hudObject = new HudObject("Assets/Textures/hud/DamageIndicator.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(64.0f, 64.0f));
 	hudObject->setAlpha(0.0f);	
 	insertHUDObject(hudObject, DAMAGE_INDICATOR);
-
-	hudObject = new HudObject("Assets/Textures/hud/DamageIndicator.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(64.0f, 64.0f));
-	hudObject->setAlpha(0.0f);
-	insertHUDObject(hudObject, DAMAGE_INDICATOR);
-
+	
 	hudObject = new HudObject("Assets/Textures/hud/deflect_hit.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(70.0f, 70.0f));
 	hudObject->setAlpha(0.0f);
 	insertHUDObject(hudObject, CROSSHAIR_DEFLECT_INDICATOR);

@@ -124,8 +124,10 @@ void Renderer::renderAndAnimateNetworkingTexts()
 			m_text->RenderText(timeText, (SCREEN_WIDTH / 2) - 125.0f, (SCREEN_HEIGHT * 0.95f), scale.x, glm::vec3(1.0f, 1.0f, 1.0f));
 		}
 		else if (state == NetGlobals::SERVER_STATE::WaitingForPlayers) {
-			std::string timeText = std::to_string(Client::getInstance()->getCountdownPacket().timeLeft / 1000);
-			m_text->RenderText("Waiting for players", SCREEN_WIDTH / 2 - 80.0f, 680.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+
+			std::string Text = "Waiting for players ";
+			float width = m_text->getTotalWidth(Text, glm::vec3(0.5f));
+			m_text->RenderText(Text, SCREEN_WIDTH / 2 - width * 0.5f, 680.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
 
 			if (Client::getInstance()->isServerOwner()) {
 				m_text->RenderText("Press \"E\" to start the game", 10.0f, 620.0f, 0.35f, glm::vec3(1.0f, 1.0f, 1.0f));
@@ -147,19 +149,70 @@ void Renderer::renderAndAnimateNetworkingTexts()
 			m_text->RenderText("End of round: " + timeText, SCREEN_WIDTH / 2 - 135.0f, 680.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
 		}
 
+		if (Client::getInstance()->isSpectating() == false) {
 
-		if (Client::getInstance()->getMyData().health == 0) {
-			std::string timeText = std::to_string(Client::getInstance()->getRespawnTime().timeLeft / 1000);
-			m_text->RenderText("Respawn in " + timeText + " seconds", (SCREEN_WIDTH / 2) - 200.0f, 480.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
+			if (Client::getInstance()->getMyData().health == 0) {
+				std::string timeText = std::to_string(Client::getInstance()->getRespawnTime().timeLeft / 1000);
+				m_text->RenderText("Respawn in " + timeText + " seconds", (SCREEN_WIDTH / 2) - 200.0f, 480.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
+			}
+
+
+			if (state == NetGlobals::SERVER_STATE::GameInSession)
+				m_text->RenderText("Kills: " + std::to_string(Client::getInstance()->getMyData().numberOfKills), 10.0f, 620.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+
+		}
+		else {
+			
+			if (m_camera == nullptr) return;
+
+			glm::vec3 modeTextScale = glm::vec3(0.35f);
+
+			std::string modeText = "Mode  ";
+			float modeTextWidth = m_text->getTotalWidth(modeText, modeTextScale);
+
+			std::string cameraModeText = "";
+
+			if (m_camera->getSpectatorMode() == SpectatorMode::FreeCamera) {
+				cameraModeText = "Free camera";
+			}
+			else if (m_camera->getSpectatorMode() == SpectatorMode::ThirdPerson) {
+				cameraModeText = "Third person";
+			}
+
+			float cameraModeWidth = m_text->getTotalWidth(cameraModeText, modeTextScale);
+			float totalModeTextWidth = modeTextWidth + cameraModeWidth;
+			m_text->RenderText(modeText, (SCREEN_WIDTH / 2) - totalModeTextWidth * 0.5f, (SCREEN_HEIGHT * 0.075f), modeTextScale.x, glm::vec3(1.0f, 1.0f, 1.0f));
+			m_text->RenderText(cameraModeText, (SCREEN_WIDTH / 2) - (totalModeTextWidth * 0.5f) + modeTextWidth, (SCREEN_HEIGHT * 0.075f), modeTextScale.x, glm::vec3(1.0f, 0.5f, 0.0f));
+
+
+
+			if (m_camera->getSpectatorMode() == SpectatorMode::ThirdPerson) {
+				const PlayerPacket* spectatedPlayer = Client::getInstance()->getSpectatedPlayer();
+				
+				if (spectatedPlayer == nullptr)
+					return;
+
+				glm::vec3 textScale = glm::vec3(0.45f);
+
+				std::string spectateText = "Spectating  ";
+				float spectateTextWidth = m_text->getTotalWidth(spectateText, textScale);
+				
+				std::string playerName = std::string(spectatedPlayer->userName);
+				float playerNameWidth = m_text->getTotalWidth(playerName, textScale);
+				
+				float totalWidth = spectateTextWidth + playerNameWidth;
+				
+				m_text->RenderText(spectateText, (SCREEN_WIDTH / 2) - totalWidth * 0.5f, (SCREEN_HEIGHT * 0.15f), textScale.x, glm::vec3(1.0f, 1.0f, 1.0f));
+				m_text->RenderText(playerName, (SCREEN_WIDTH / 2) - (totalWidth * 0.5f) + spectateTextWidth, (SCREEN_HEIGHT * 0.15f), textScale.x, glm::vec3(1.0f, 0.5f, 0.0f));
+
+			}
+
+			
 		}
 
-		m_text->RenderText("Health: " + std::to_string(Client::getInstance()->getMyData().health), 10.0f, 680.0f, 0.45f, glm::vec3(1.0f, 1.0f, 1.0f));
-
-		if (state == NetGlobals::SERVER_STATE::GameInSession)
-			m_text->RenderText("Kills: " + std::to_string(Client::getInstance()->getMyData().numberOfKills), 10.0f, 620.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
-
-
 	}
+
+
 }
 
 void Renderer::renderBigNotifications()
@@ -412,6 +465,13 @@ void Renderer::submit2DHUD(HudObject* hud)
 	}
 }
 
+void Renderer::submitSkybox(SkyBox* skybox)
+{
+	if (m_skyBox == nullptr) {
+		m_skyBox = skybox;
+	}
+}
+
 void Renderer::clear() {
 
 	m_staticObjects.clear();
@@ -504,18 +564,18 @@ void Renderer::renderDeflectBox(DeflectRender* m_deflectBox)
 	//REMOVE
 }
 
-void Renderer::renderSkybox(SkyBox* m_skybox)
+void Renderer::renderSkybox()
 {
 	glDisable(GL_CULL_FACE);
 	glDepthMask(GL_FALSE);
 	auto* shader = ShaderMap::getInstance()->useByName("Skybox_Shader");
-	shader->setMat4("modelMatrix", m_skybox->getModelMatrix());
+	shader->setMat4("modelMatrix", m_skyBox->getModelMatrix());
 	shader->setMat4("viewMatrix", glm::mat4(glm::mat3(m_camera->getViewMat())));
 	shader->setMat4("projMatrix", m_camera->getProjMat());
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, m_skybox->getCubeMapTexture());
-	glBindVertexArray(m_skybox->getVAO());
+	glBindTexture(GL_TEXTURE_CUBE_MAP, m_skyBox->getCubeMapTexture());
+	glBindVertexArray(m_skyBox->getVAO());
 	glDrawArrays(GL_TRIANGLES, 0, 36); //Maybe index the skybox?
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, NULL);
@@ -523,13 +583,14 @@ void Renderer::renderSkybox(SkyBox* m_skybox)
 	glEnable(GL_CULL_FACE);
 }
 
-void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandler* m_spellHandler) {
+void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler) {
 	Mesh* mesh;
 	Transform transform;
 	glm::mat4 modelMatrix;
 	Shader* shader;
 	MeshMap* meshMap = MeshMap::getInstance();
 	ShaderMap* shaderMap = ShaderMap::getInstance();
+	
 
 #pragma region Depth_Render & Light_Cull
 	if (m_lights.size() > 0) {
@@ -669,7 +730,7 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 
 	//BLOOMBLUR MISSION STEP 1: SAMPLE
 	//m_bloom->bindHdrFBO();
-	renderSkybox(m_skybox);
+	renderSkybox();
 	renderDeflectBox(m_deflectBox);
 
 #ifdef DEBUG_WIREFRAME
