@@ -375,13 +375,13 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 			spellobj->setTravelTime(0.05f);
 
 		// Network packet
-		DestructionPacket newPack;
-		newPack.hitPoint = glm::vec2(hitpoint.getX(), hitpoint.getY());
-		newPack.hitDir = spellobj->getDirection();
-		newPack.index = dstrobj->getIndex();
-		newPack.randomSeed = seed;
+		DestructionPacket dstrPacket;
+		dstrPacket.hitPoint = glm::vec2(hitpoint.getX(), hitpoint.getY());
+		dstrPacket.hitDir = spellobj->getDirection();
+		dstrPacket.index = dstrobj->getIndex();
+		dstrPacket.randomSeed = seed;
 	
-		Client::getInstance()->sendDestructionPacket(newPack);
+		Client::getInstance()->sendDestructionPacket(dstrPacket);
 	}
 
 
