@@ -58,7 +58,7 @@ void Camera::thirdPersonCamera()
 	m_camPos.x = playerpos.x + (m_distanceThirdPerson * cos(glm::radians(m_camYaw)) * cos(glm::radians(m_camPitch)));
 	m_camPos.y = meshHalfSize.y + playerpos.y + (m_distanceThirdPerson * sin(glm::radians(m_camPitch)));
 	m_camPos.z = playerpos.z + (m_distanceThirdPerson * sin(glm::radians(m_camYaw)) * cos(glm::radians(m_camPitch)));
-	
+
 	lookAt(playerpos + glm::vec3(0.0f, meshHalfSize.y * 1.75f, 0.0f));
 
 	
@@ -80,12 +80,18 @@ void Camera::lookForModeChange()
 			if (Client::getInstance()->getSpectatedPlayer() == nullptr)
 				Client::getInstance()->spectateNext();
 
-			
+			resetMouseToMiddle();
+			m_camPitch *= -1.0f;
+			m_camYaw -= 180.0f;
 			m_spectatorMode = SpectatorMode::ThirdPerson;
 
 		}else if (m_spectatorMode == SpectatorMode::ThirdPerson)
 		{
-			resetCamera();
+			resetMouseToMiddle();
+			m_camPitch *= -1.0f;
+			m_camYaw -= 180.0f;
+			calcVectors();
+			//resetCamera();
 			m_spectatorMode = SpectatorMode::FreeCamera;
 		}
 
