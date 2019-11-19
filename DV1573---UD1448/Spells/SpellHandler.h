@@ -46,7 +46,6 @@ public:
 
 private:
 	const uint64_t getUniqueID();
-	bool m_newHit = false;
 	bool m_setcharacter = false;
 	float m_nrSubSteps = 6;
 

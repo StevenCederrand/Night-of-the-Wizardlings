@@ -45,7 +45,7 @@ void NetworkPlayers::update(const float& dt)
 					animObj->initAnimations("JumpAnimation", 1.0f, 21.0f);
 
 				}
-
+				std::cout << "NetworkPlayer @memAddr: " << p.gameobject << "\n";
 				//Submit the player object as a dynamic object
 				Renderer::getInstance()->submit(p.gameobject, ANIMATEDSTATIC);
 			}

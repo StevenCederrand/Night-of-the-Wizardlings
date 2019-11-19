@@ -34,7 +34,10 @@ enum {
 	DAMAGE_BUFF_INACTIVE,
 	KILL_FEED,
 	SERVER_TIME,
+	SPECTATE_REQUEST,
+	PLAY_REQUEST,
 	DESTRUCTION
+
 };
 
 /* To make sure the compiler aligns the bits */
@@ -52,10 +55,12 @@ struct newPlayerInfo {
 	RakNet::AddressOrGUID guid;
 };
 
+
 struct PlayerPacket {
 	RakNet::AddressOrGUID guid;
 	RakNet::AddressOrGUID lastHitByGuid;
 	uint32_t timestamp = 0;
+	bool Spectator = false;
 	int health = NetGlobals::PlayerMaxHealth;
 	glm::vec3 position = glm::vec3(0.0f);
 	glm::vec3 rotation = glm::vec3(0.0f);
