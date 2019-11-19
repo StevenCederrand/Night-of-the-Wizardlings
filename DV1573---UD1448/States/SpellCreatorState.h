@@ -34,6 +34,7 @@ private:
     Player* m_player;
     SpellHandler* m_spellHandler;
     BulletPhysics* m_bPhysics;
+    DeflectRender* m_deflectBox;
     SkyBox* m_skybox;
     Camera* m_camera;
     std::vector<GameObject*> m_objects;

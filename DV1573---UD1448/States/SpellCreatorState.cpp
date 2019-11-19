@@ -92,8 +92,16 @@ SpellCreatorState::~SpellCreatorState()
 
 void SpellCreatorState::update(float dt)
 {
+    m_bPhysics->update(dt);
+    m_player->update(dt);
+    m_spellHandler->spellUpdate(dt);
+    Renderer::getInstance()->updateParticles(dt);
+
+    //m_hpBar->setYClip(m_player->getHealth() / 100);
+    auto* clientPtr = Client::getInstance();
 }
 
 void SpellCreatorState::render()
 {
+    Renderer::getInstance()->render(m_skybox, m_deflectBox, m_spellHandler);
 }
