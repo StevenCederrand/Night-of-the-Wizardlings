@@ -138,8 +138,8 @@ void Player::move(float deltaTime)
 	btVector3 playerPos = m_character->getGhostObject()->getWorldTransform().getOrigin();
 	float characterHalfSize = m_bp->getCharacterSize().getY();
 
-	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY()-1.0f, playerPos.getZ());
-	//m_playerPosition.y -= characterHalfSize;
+	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY(), playerPos.getZ());
+	m_playerPosition.y -= characterHalfSize;
 
 	//set cameraPos and spellSpawnPos 
 	m_cameraPosition = m_playerPosition;

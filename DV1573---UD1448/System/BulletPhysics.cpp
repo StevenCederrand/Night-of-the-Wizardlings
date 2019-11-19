@@ -126,22 +126,21 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	body->setRestitution(restitution);	
 	body->setFriction(friction);
 	body->setSpinningFriction(1.0f);
-	int myGoup = 1;
+
+	//groups and mask is for collision, same mask and group to collide with that
+	int myGoup = NormalObjects;
 	int mask = NormalObjects | DestructableObjects | btBroadphaseProxy::CharacterFilter;
 
 	if (destruction)
 	{
-		myGoup = 2;
+		myGoup = DestructableObjects;
 		mask = NormalObjects | btBroadphaseProxy::CharacterFilter;
 
 		destructionobj(body);	
 	}
-	//mask |= body->getCollisionFlags();
 	body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
-	
 
 	m_dynamicsWorld->addRigidBody(body,myGoup, mask);
-
 	return body;
 }
 
@@ -163,14 +162,16 @@ btVector3 BulletPhysics::getCharacterSize() const
 btKinematicCharacterController* BulletPhysics::createCharacter(const glm::vec3& position, float& height)
 {
 	//create the character and add him to the dynamicsWorld
-	//m_playerShape = new btCapsuleShape(1.0, height +2 * 1.0);
-
-	//m_boxSize
 
 	//m_boxSize = btVector3(0.5, height / 2, 0.5);
-	btScalar capsule1 = m_boxSize.getX();
-	btScalar capsule2 = m_boxSize.getY()*0.5f;
-	m_playerShape = new btCapsuleShapeZ(0.6f, height);
+	btScalar capsule1 = m_boxSize.getX()*0.5;
+	btScalar capsule2 = m_boxSize.getY();
+	btScalar capsule3 = m_boxSize.getZ();
+	btScalar realY = (m_boxSize.getY() - capsule1 *2.0f );
+	//m_playerShape = new btCapsuleShapeZ(0.6f, height);
+	m_playerShape = new btCapsuleShapeZ(capsule1, realY);
+	//m_playerShape = new btBoxShape(btVector3(capsule1, capsule2, capsule3));
+	//m_playerShape = new btCylinderShape(btVector3(capsule1, capsule2, capsule1));
 
 	m_ghostObject = new btPairCachingGhostObject();
 	btTransform startTransform;
