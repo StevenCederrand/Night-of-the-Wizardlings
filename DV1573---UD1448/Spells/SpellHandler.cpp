@@ -529,11 +529,11 @@ void SpellHandler::spellCollisionCheck()
 			glm::vec3 spellPos = spells.at(j)->getTransform().position;
 
 			//get the radius from the spelltype
-			float radius = 0.0;
-			if (static_cast<Spell*>(spells[i])->getType() == NORMALATTACK) {
+			float radius = 0.0f;
+			if (static_cast<Spell*>(spells[j])->getType() == NORMALATTACK) {
 				radius = attackBase->m_radius;
 			}
-			if (static_cast<Spell*>(spells[i])->getType() == ENHANCEATTACK) {
+			if (static_cast<Spell*>(spells[j])->getType() == ENHANCEATTACK) {
 				radius = enhanceAtkBase->m_radius;
 			}
 

@@ -163,15 +163,12 @@ btKinematicCharacterController* BulletPhysics::createCharacter(const glm::vec3& 
 {
 	//create the character and add him to the dynamicsWorld
 
-	//m_boxSize = btVector3(0.5, height / 2, 0.5);
-	btScalar capsule1 = m_boxSize.getX()*0.5;
-	btScalar capsule2 = m_boxSize.getY();
-	btScalar capsule3 = m_boxSize.getZ();
-	btScalar realY = (m_boxSize.getY()*2.0f) - (capsule3 * 2.0f);
-	//m_playerShape = new btCapsuleShapeZ(0.6f, height);
-	m_playerShape = new btCapsuleShapeZ(capsule3, realY);
-	//m_playerShape = new btBoxShape(btVector3(capsule1, capsule2, capsule3));
-	//m_playerShape = new btCylinderShape(btVector3(capsule1, capsule2, capsule1));
+	btScalar capsuleX = m_boxSize.getX();
+	btScalar capsuleY = m_boxSize.getY() * 2.0f;
+	btScalar capsuleZ = m_boxSize.getZ() + 0.3f;
+	//height of capsule is realheight = height + radius * 2
+	btScalar realY = (capsuleY) - (capsuleZ * 2.0f);
+	m_playerShape = new btCapsuleShapeZ(capsuleZ, realY);
 
 	m_ghostObject = new btPairCachingGhostObject();
 	btTransform startTransform;
