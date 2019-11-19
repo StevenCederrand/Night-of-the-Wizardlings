@@ -14,8 +14,8 @@
 #include <HUD/HudObject.h>
 #include <HUD/HudHandler.h>
 
-bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
-	const btCollisionObjectWrapper* obj2, int id2, int index2);
+//bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
+//	const btCollisionObjectWrapper* obj2, int id2, int index2);
 
 class PlayState : public State {
 

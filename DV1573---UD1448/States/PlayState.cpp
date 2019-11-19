@@ -8,9 +8,9 @@
 #define PLAYSECTION "PLAYSTATE"
 
 
-void logVec3(glm::vec3 vector) {
-	logTrace("Vector: ({0}, {1}, {2})", std::to_string(vector.x), std::to_string(vector.y), std::to_string(vector.z));
-}
+//void logVec3(glm::vec3 vector) {
+//	logTrace("Vector: ({0}, {1}, {2})", std::to_string(vector.x), std::to_string(vector.y), std::to_string(vector.z));
+//}
 
 PlayState::PlayState()
 {
@@ -59,7 +59,7 @@ PlayState::PlayState()
 
 	
 	MaterialMap::getInstance();
-	gContactAddedCallback = callbackFunc;
+	//gContactAddedCallback = callbackFunc;
 	// Geneterate bullet objects / hitboxes
 	for (size_t i = 0; i < m_objects.size(); i++)
 	{
