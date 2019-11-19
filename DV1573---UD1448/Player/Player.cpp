@@ -103,6 +103,7 @@ void Player::updateListenerProperties()
 		m_playerCamera->getCamUp());
 	shPtr->setListenerPos(m_playerPosition);	
 	shPtr->setSourcePosition(m_playerPosition, BasicAttackSound, m_client->getMyData().guid);
+	shPtr->setSourcePosition(m_playerPosition, BasicAttackSound, m_client->getMyData().guid, 1);
 	shPtr->setSourcePosition(m_playerPosition, DeflectSound, m_client->getMyData().guid);
 	shPtr->setSourcePosition(m_playerPosition, EnhanceAttackSound, m_client->getMyData().guid);
 	shPtr->setSourcePosition(m_playerPosition, StepsSound, m_client->getMyData().guid);

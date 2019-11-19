@@ -472,6 +472,7 @@ void Client::processAndHandlePackets()
 			{
 			case OBJECT_TYPE::NORMALATTACK:
 				shPtr->setSourcePosition(se.spellData.Position, BasicAttackSound, se.spellData.CreatorGUID);
+				shPtr->setSourcePosition(se.spellData.Position, BasicAttackSound, se.spellData.CreatorGUID, 1);
 				shPtr->playSound(BasicAttackSound, se.spellData.CreatorGUID);
 				break;			
 			case OBJECT_TYPE::ENHANCEATTACK:
