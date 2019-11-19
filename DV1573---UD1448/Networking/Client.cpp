@@ -1269,11 +1269,34 @@ void Client::spectateNext()
 		m_spectatedPlayer = nullptr;
 		return;
 	}
+
 	if (m_spectateIndex >= m_connectedPlayers.size())
 		m_spectateIndex = 0;
 
-	m_spectatedPlayer = &m_connectedPlayers[m_spectateIndex];
-	m_spectateIndex++;
+	int count = 0;
+	bool foundValidPlayer = false;
+
+	while (count < m_connectedPlayers.size() && !foundValidPlayer)
+	{
+		m_spectatedPlayer = &m_connectedPlayers[m_spectateIndex];
+
+		if (m_spectatedPlayer->health != 0)
+			foundValidPlayer = true;
+
+		m_spectateIndex++;
+
+		if (m_spectateIndex >= m_connectedPlayers.size())
+			m_spectateIndex = 0;
+
+		count++;
+	}
+	
+	if (foundValidPlayer == false)
+	{
+		m_spectatedPlayer = nullptr;
+		return;
+	}
+
 }
 
 void Client::clearDestroyedWallsVector()
@@ -1358,8 +1381,7 @@ void Client::findAllServerAddresses()
 					info = *(ServerInfo*)bsIn.GetData();
 
 					// If the pinged server is full or in session then don't add it to the server list
-					if (info.connectedPlayers >= info.maxPlayers) continue;
-					if (info.currentState == NetGlobals::SERVER_STATE::GameInSession) continue;
+					if (info.connectedPlayers >= NetGlobals::MaximumConnections) continue;
 
 					info.serverAddress = packet->systemAddress;
 					m_serverList.emplace_back(std::make_pair(ID++, info));

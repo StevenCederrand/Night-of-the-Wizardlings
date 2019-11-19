@@ -343,6 +343,7 @@ void LocalServer::processAndHandlePackets()
 			bool returnAfterHandlingLostPlayer = false;
 			if (pp != nullptr && pp->Spectator) {
 				returnAfterHandlingLostPlayer = true;
+				logTrace("[Server] Player that left was a spectator");
 			}
 
 			bool playerWasAccepted = handleLostPlayer(*packet, bsIn);
@@ -368,11 +369,11 @@ void LocalServer::processAndHandlePackets()
 				m_activeSpells.erase(item);
 			}
 
-		
-			logTrace("[Server] Player disconnected with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
-			m_serverInfo.connectedPlayers--;
-			m_serverPeer->SetOfflinePingResponse((const char*)&m_serverInfo, sizeof(ServerInfo));
-			
+			if (playerWasAccepted) {
+				logTrace("[Server] Player disconnected with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
+				m_serverInfo.connectedPlayers--;
+				m_serverPeer->SetOfflinePingResponse((const char*)&m_serverInfo, sizeof(ServerInfo));
+			}
 		}
 		
 		break;
