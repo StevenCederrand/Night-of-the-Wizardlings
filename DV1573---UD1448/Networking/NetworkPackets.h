@@ -211,6 +211,4 @@ struct ServerTimePacket {
 	}
 };
 
-
-
 #endif

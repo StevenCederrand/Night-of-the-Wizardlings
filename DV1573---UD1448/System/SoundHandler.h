@@ -99,7 +99,7 @@ public:
 	void pauseSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
 
 	void stopSound(SoundIndexClient whatSound);
-	void stopSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
+	void stopSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID, int slot = 0);
 
 	void setListenerPos(glm::vec3 pos);
 	void setListenerVelocity(glm::vec3 vel);

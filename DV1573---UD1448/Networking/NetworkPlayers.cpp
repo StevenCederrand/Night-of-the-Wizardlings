@@ -110,7 +110,22 @@ void NetworkPlayers::update(const float& dt)
 				if (p.data.animStates.jumping == true)
 				{
 					animObj->playAnimation("JumpAnimation");
-				}
+					
+					shPtr->setSourcePosition(p.data.position, JumpSound, p.data.guid, 0);
+					//Just in case two sounds are playing at once, set the position of the second sound aswell
+					//We could check which sources are playing but we know there are not going
+					//to be playing more than two jump sounds at once
+					shPtr->setSourcePosition(p.data.position, JumpSound, p.data.guid, 1);
+
+					//Specifically check so we don't play more than two jump sounds at once
+					//Only temporary solution
+					if ((shPtr->getSourceState(JumpSound, p.data.guid, 0)) != AL_PLAYING &&
+						(shPtr->getSourceState(JumpSound, p.data.guid, 1)) != AL_PLAYING)
+					{
+						shPtr->playSound(JumpSound, p.data.guid);
+					}
+									
+				}				
 				if (p.data.animStates.casting == true)
 				{
 					animObj->playAnimation("CastAnimation");
@@ -120,9 +135,31 @@ void NetworkPlayers::update(const float& dt)
 					animObj->playAnimation("CastAnimation");
 				}
 				if (p.data.animStates.running == true)
+				{
 					animObj->playLoopAnimation("RunAnimation");
+					
+					if (!p.wasRunning)
+					{						
+						shPtr->setSourcePosition(p.data.position, StepsSound, p.data.guid);
+						shPtr->playSound(StepsSound, p.data.guid);	
+						shPtr->setSourceLooping(true, StepsSound, p.data.guid);
+						p.wasRunning = true;
+					}
+				}				
 				if (p.data.animStates.idle == true)
+				{
+					if (p.wasRunning == true)
+					{						
+						shPtr->stopSound(StepsSound, p.data.guid);
+						p.wasRunning = false;
+					}
 					animObj->playLoopAnimation("IdleAnimation");
+				}
+				if (p.wasRunning == true)
+				{					
+					shPtr->setSourcePosition(p.data.position, StepsSound, p.data.guid);
+				}
+					
 
 
 			}

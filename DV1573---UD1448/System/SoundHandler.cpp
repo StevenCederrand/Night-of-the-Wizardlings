@@ -417,7 +417,7 @@ void SoundHandler::setPlayerSourceGains(RakNet::AddressOrGUID guid)
 			setSourceGain(0.2, DeflectSound, m_playerSoundInfo.at(i).guid);
 			setSourceGain(0.2, EnhanceAttackSound, m_playerSoundInfo.at(i).guid);
 			setSourceGain(0.3, JumpSound, m_playerSoundInfo.at(i).guid);
-			setSourceGain(0.3, StepsSound, m_playerSoundInfo.at(i).guid);
+			setSourceGain(0.4, StepsSound, m_playerSoundInfo.at(i).guid);
 			setSourceGain(0.3, FireSound, m_playerSoundInfo.at(i).guid);
 			found = true;
 		}
@@ -546,6 +546,7 @@ int SoundHandler::playSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID pl
 				{
 					logTrace("Error playing sound");
 				}
+				slot = 0;
 			}
 			found = true;
 		}
@@ -609,7 +610,7 @@ void SoundHandler::stopSound(SoundIndexClient whatSound)
 	}	
 }
 
-void SoundHandler::stopSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID)
+void SoundHandler::stopSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID, int slot)
 {
 	bool found = false;
 	for (int i = 0; i < m_nrOfPlayers && !found; i++)
@@ -619,9 +620,8 @@ void SoundHandler::stopSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID p
 			m_error = alGetError();
 
 			if (getSourceState(whatSound, playerID) == AL_PLAYING)
-			{
-				//Assume it's source one. If necessary, loop through every source slot instead.
-				alSourceStop(m_playerSoundInfo.at(i).sources.at(whatSound).at(0)); 
+			{				
+				alSourceStop(m_playerSoundInfo.at(i).sources.at(whatSound).at(slot)); 
 			}
 
 			if ((m_error = alGetError()) != AL_NO_ERROR)
@@ -838,9 +838,8 @@ void SoundHandler::setSourcePosition(glm::vec3 pos, SoundIndexCommon whatSound, 
 			{
 				logTrace("Error setting position to source");
 			}
-		}
-		
-		found = true;		
+			found = true;
+		}				
 	}
 }
 
@@ -1005,7 +1004,7 @@ void SoundHandler::setPlayerGUIDs()
 		if (m_playerSoundInfo.size() < i + 1)
 		{
 			m_playerSoundInfo.resize(m_playerSoundInfo.size() + 1);
-			m_playerSoundInfo.at(m_playerSoundInfo.size() - 1).sources.resize(NR_OF_SUBSEQUENT_SOUNDS);
+			//m_playerSoundInfo.at(m_playerSoundInfo.size() - 1).sources.resize(NR_OF_SUBSEQUENT_SOUNDS);
 		}
 		
 		m_playerSoundInfo[i].guid = list[i].guid;
@@ -1024,7 +1023,7 @@ void SoundHandler::setPlayerGUIDs()
 void SoundHandler::addPlayer(RakNet::AddressOrGUID guid)
 {
 	m_playerSoundInfo.resize(m_playerSoundInfo.size() + 1);
-	m_playerSoundInfo.at(m_playerSoundInfo.size() - 1).sources.resize(NR_OF_SUBSEQUENT_SOUNDS);
+	//m_playerSoundInfo.at(m_playerSoundInfo.size() - 1).sources.resize(NR_OF_SUBSEQUENT_SOUNDS);
 	m_playerSoundInfo.at(m_playerSoundInfo.size() - 1).guid = guid;
 	m_nrOfPlayers++;
 	attachBuffersToPlayerSources(guid);
