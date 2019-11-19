@@ -45,8 +45,14 @@ PlayState::PlayState()
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
 
-	m_objects.push_back(new WorldObject("Character"));
+	/*m_objects.push_back(new WorldObject("Character"));
 	m_objects[m_objects.size() - 1]->loadMesh("CharacterTest.mesh");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(-5.0f, 13.f, -8.0f));
+
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);*/
+
+	m_objects.push_back(new WorldObject("Wall"));
+	m_objects[m_objects.size() - 1]->loadMesh("TestWall.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(-5.0f, 13.f, -8.0f));
 
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
