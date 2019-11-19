@@ -31,6 +31,7 @@ public:
 	void requestToDestroyClientSpell(const SpellPacket& packet);
 	void sendHitRequest(Spell& spell, NetworkPlayers::PlayerEntity& playerThatWasHit);
 	void sendHitRequest(Spell& spell, const PlayerPacket& playerThatWasHit);
+	void sendDestructionPacket(const DestructionPacket& destructionPacket);
 	void updateNetworkEntities(const float& dt);
 	void sendStartRequestToServer();
 	void refreshServerList();
@@ -38,6 +39,8 @@ public:
 	void assignSpellHandler(SpellHandler* spellHandler);
 	void setUsername(const std::string& userName);
 	void spectateNext(); /* Only works if you're a spectator */
+	void clearDestroyedWallsVector();
+
 
 	const std::vector<std::pair<unsigned int, ServerInfo>>& getServerList() const;
 	const std::vector<PlayerPacket>& getConnectedPlayers() const;
@@ -56,6 +59,8 @@ public:
 	const CountdownPacket& getRespawnTime() const;
 	const RoundTimePacket& getRoundTimePacket() const;
 	const PlayerEvents readNextEvent();
+	const std::vector<DestructionPacket>& getDestructedWalls();
+
 
 	const bool doneRefreshingServerList() const;
 	const bool doesServerExist(const unsigned int& ID) const;
@@ -123,8 +128,11 @@ private:
 	std::vector<SpellPacket> m_updateSpellQueue;
 	std::vector<SpellPacket> m_removeOrAddSpellQueue;
 	std::vector<SpellPacket> m_removalOfClientSpellsQueue;
+	std::vector<DestructionPacket> m_destructionQueue;
+
 	std::vector<PlayerEvents> m_playerEvents;
-	
+	std::vector<DestructionPacket> m_destroyedWalls;
+
 	TimedCallback m_routineCleanupTimer;
 
 };

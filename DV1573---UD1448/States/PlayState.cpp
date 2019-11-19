@@ -274,6 +274,39 @@ void PlayState::update_isPlaying(const float& dt)
 				break;
 			}
 
+			case PlayerEvents::WallGotDestroyed:
+			{
+				// How to send a destruction packet
+				// 1. Make one
+				// 2. Send it
+
+				/*	Example:
+						DestructionPacket p;
+						p.index = 0;
+						p.hitPoint = glm::vec3(3.0f);
+						p.randomSeed = 345342;
+						Client::getInstance()->sendDestructionPacket(p);
+				*/
+
+
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::ReadDestructableWallsMutex); // Thread safe
+				auto& vec = Client::getInstance()->getDestructedWalls();
+
+				for (size_t i = 0; i < vec.size(); i++) {
+					// Do stuff here
+					const DestructionPacket& p = vec[i];
+					
+
+
+					//------------------
+				}
+
+				// Tells the client to clear the vector
+				Client::getInstance()->clearDestroyedWallsVector();
+
+				break;
+			}
+
 		}
 	
 	}

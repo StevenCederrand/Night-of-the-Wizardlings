@@ -167,7 +167,7 @@ void Renderer::renderAndAnimateNetworkingTexts()
 
 			glm::vec3 modeTextScale = glm::vec3(0.35f);
 
-			std::string modeText = "Mode ";
+			std::string modeText = "Mode  ";
 			float modeTextWidth = m_text->getTotalWidth(modeText, modeTextScale);
 
 			std::string cameraModeText = "";
