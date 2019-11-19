@@ -372,11 +372,6 @@ const float& Player::getMana() const
 	return m_mana;
 }
 
-const glm::vec3 Player::getMeshHalfSize() const
-{
-	return glm::vec3(m_bp->getCharacterSize().getX(), m_bp->getCharacterSize().getY(), m_bp->getCharacterSize().getZ());
-}
-
 const glm::vec3& Player::getPlayerPos() const
 {
 	return m_playerPosition;
