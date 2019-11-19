@@ -44,8 +44,8 @@ vec2 rotate(float magnitude, vec2 p);
 void main() {
     vec3 pivot = vec3(0.5, -0.5, 1.);
     vec2 p = f_UV - pivot.xy;
-    p = rotate(3.14 * time * 0.2, p);
-    float a = atan(p.y, p.x) * 1.0;
+    p = rotate(3.14 * time * 0.1, p);
+    float a = atan(p.y, p.x) * 2;
     float r = sqrt(dot(p,p));
     vec2 finalUV;
     finalUV.x = (time * -.5) - 1/(r + 1.7);

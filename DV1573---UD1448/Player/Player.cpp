@@ -46,10 +46,10 @@ Player::~Player()
 void Player::update(float deltaTime)
 {																		
 	if (m_playerCamera->isCameraActive()) {									// IMPORTANT; DOING THESE WRONG WILL CAUSE INPUT LAG
+		move(deltaTime);
 		m_playerCamera->update();											// Update this first so that subsequent uses are synced
 		m_directionVector = glm::normalize(m_playerCamera->getCamFace());	// Update this first so that subsequent uses are synced
 
-		move(deltaTime);
 		
 		if (!m_logicStop) {
 			attack();
@@ -198,6 +198,17 @@ void Player::attack()
 
 	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_RIGHT))
 	{
+		//Render the shield mesh
+		GameObject* shieldObject = new ShieldObject("playerShield");
+		shieldObject->loadMesh("ShieldMeshFPS.mesh");
+
+		Transform m_fpsTrans;
+		m_fpsTrans.position = m_playerCamera->getCamPos();
+		m_fpsTrans.rotation = glm::quat(glm::vec3(glm::radians(m_playerCamera->getPitch()),
+			-glm::radians(m_playerCamera->getYaw() + 90.0), 0.0));
+		
+		shieldObject->setTransform(m_fpsTrans);
+		Renderer::getInstance()->submit(shieldObject, SHIELD);
 
 		//Actually deflecting
 		if (m_mana > 10) {

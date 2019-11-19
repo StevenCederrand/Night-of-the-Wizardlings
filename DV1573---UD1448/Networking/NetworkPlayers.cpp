@@ -47,7 +47,7 @@ void NetworkPlayers::update(const float& dt)
 				}
 
 				//Submit the player object as a dynamic object
-				Renderer::getInstance()->submit(p.gameobject, ANIMATEDSTATIC); 
+				Renderer::getInstance()->submit(p.gameobject, ANIMATEDSTATIC);
 			}
 			p.gameobject->setWorldPosition(p.data.position);
 			p.flag = NetGlobals::THREAD_FLAG::None;
@@ -62,32 +62,32 @@ void NetworkPlayers::update(const float& dt)
 			continue;
 		}
 
-		
+
 		GameObject* g = p.gameobject;
 		if (p.data.inDeflectState)
 		{
-			GameObject* shieldObject = new ShieldObject("playerShield");
+			GameObject* shieldObject = new ShieldObject("enemyShield");
 			logTrace("The deflect");
 			shieldObject->loadMesh("ShieldMesh.mesh");
-			
+
 			glm::vec3 spawnpos = p.data.position + glm::vec3(0.0f, p.data.meshHalfSize.y * 1.2, 0.0f);
 			glm::vec3 newShieldpos = g->getTransform().position + glm::vec3(0.0f, p.data.meshHalfSize.y * 1.2, 0.0f);
 			glm::vec3 shieldLerp = CustomLerp(newShieldpos, spawnpos, m_lerpSpeed * dt);
 			shieldObject->setTransform(shieldLerp, p.data.rotation, glm::vec3(1.0));
 			Renderer::getInstance()->submit(shieldObject, SHIELD);
 		}
-		
+
 		if (g != nullptr) {
-			
+
 			/* Don't render the player if he's dead */
 			if (p.data.health <= 0.0f || p.data.hasBeenUpdatedOnce == false)
 				g->setShouldRender(false);
 			else {
 				g->setShouldRender(true);
 			}
-			
+
 			glm::vec3 pos = CustomLerp(g->getTransform().position, p.data.position, m_lerpSpeed * dt);
-			
+
 			g->setWorldPosition(pos);
 			g->setTransform(pos, glm::quat(p.data.rotation), glm::vec3(1.0f));
 
