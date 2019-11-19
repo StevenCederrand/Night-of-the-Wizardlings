@@ -54,14 +54,13 @@ PlayState::PlayState()
 
 
 	//Create a pointlight
-	Pointlight* pointLight = new Pointlight(glm::vec3(10.0f, 13.0f, 6.0f), glm::vec3(1));
+	/*Pointlight* pointLight = new Pointlight(glm::vec3(10.0f, 13.0f, 6.0f), glm::vec3(1));
 
 	m_pointlights.emplace_back(pointLight);
-
 	for (size_t i = 0; i < m_pointlights.size(); i++)
 	{
 		renderer->submit(m_pointlights.at(i), RENDER_TYPE::POINTLIGHT_SOURCE);
-	}
+	}*/
 	
 	MaterialMap::getInstance();
 
@@ -115,6 +114,7 @@ PlayState::~PlayState()
 {
 	for (GameObject* object : m_objects)
 		delete object;
+
 	for (Pointlight* light : m_pointlights)
 		delete light;
 

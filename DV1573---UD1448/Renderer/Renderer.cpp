@@ -422,6 +422,7 @@ void Renderer::clear() {
 	m_killFeed.clear();
 	m_bigNotifications.clear();
 	m_spells.clear();
+	m_lights.clear();
 	m_2DHudMap.clear();
 	m_deflectObject.clear();
 	m_shieldObject.clear();
@@ -449,7 +450,7 @@ void Renderer::removeDynamic(GameObject* gameObject, RENDER_TYPE objType)
 		//Find the index of the object
 		for (size_t i = 0; i < m_spells.size(); i++)
 		{
-			if (m_spells[i] == gameObject) {
+			if (m_spells[i] == gameObject) {	
 				index = i;
 				break;
 			}
