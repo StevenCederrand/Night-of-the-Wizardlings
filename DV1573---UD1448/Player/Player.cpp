@@ -107,6 +107,7 @@ void Player::updateListenerProperties()
 	shPtr->setSourcePosition(m_playerPosition, EnhanceAttackSound, m_client->getMyData().guid);
 	shPtr->setSourcePosition(m_playerPosition, StepsSound, m_client->getMyData().guid);
 	shPtr->setSourcePosition(m_playerPosition, JumpSound, m_client->getMyData().guid);
+	shPtr->setSourcePosition(m_playerPosition, JumpSound, m_client->getMyData().guid, 1);
 	shPtr->setSourcePosition(m_playerPosition, PickupGraveyardSound);
 	shPtr->setSourceLooping(true, StepsSound, m_client->getMyData().guid);
 }
