@@ -142,6 +142,95 @@ void SpellHandler::initFireSpell()
 	fireBase->m_coolDown = 4.0f;
 	fireBase->m_lifeTime = 5.0f;
 	fireBase->m_maxBounces = 0.0f;
+
+	//TODO
+	//Particle code here
+	//Let's just spam out the fking effects now
+	//So I need to hardcopy this for every particle effect in every spell as it is now.
+	//Is this even possible???
+
+	TextureInfo tempTxt;
+	tempTxt.name = "Assets/Textures/Spell_2.png";
+	PSinfo temp;
+
+	temp.width = 0.3f;
+	temp.heigth = 0.3f;
+	temp.lifetime = 1.0f;
+	temp.maxParticles = 5000; //350
+	temp.emission = 0.0001f; //0.00001f;
+	temp.force = -1.0f; //5
+	temp.drag = -1.0f;
+	temp.gravity = 0.0f; //Standard is 1
+	temp.seed = -1;
+	temp.cont = true;
+	temp.omnious = true;
+	temp.spread = 10.0f;
+	temp.glow = false;
+	temp.scaleDirection = 0;
+	temp.fade = 1;
+	temp.color = glm::vec3(1.0f, 0.5f, 0.0f);
+	temp.direction = glm::vec3(0.0f, 10.0f, 0.0f);
+	int tempCount = temp.maxParticles;
+	float tempDiff = temp.emission;
+
+	fireBase->vertexCountDiff.push_back(tempCount); //vertexCountDiff
+	fireBase->emissionDiff.push_back(tempDiff); //emissionDiff
+	fireBase->m_PSinfo.push_back(temp); //m_PSinfo
+
+	ParticleBuffers tempBuffer(temp);
+
+	tempBuffer.setTexture(tempTxt);
+	tempBuffer.setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
+	tempBuffer.bindBuffers();
+
+	psBuffers tempPS;
+
+	tempPS = tempBuffer.getBuffer();
+
+	fireBase->m_partBuffers.push_back(tempBuffer); //m_partBuffers
+	fireBase->m_psBuffers.push_back(tempPS); //m_psBuffers
+	fireBase->m_txtInfo.push_back(tempTxt); //m_txtInfo
+
+	//TODO
+	//Another one!
+
+	tempTxt.name = "Assets/Textures/Spell_2.png";
+
+	temp.width = 0.3f;
+	temp.heigth = 0.3f;
+	temp.lifetime = 1.0f;
+	temp.maxParticles = 5000; //350
+	temp.emission = 0.0001f; //0.00001f;
+	temp.force = -1.0f; //5
+	temp.drag = -1.0f;
+	temp.gravity = 0.0f; //Standard is 1
+	temp.seed = -1;
+	temp.cont = true;
+	temp.omnious = true;
+	temp.spread = 10.0f;
+	temp.glow = false;
+	temp.scaleDirection = 0;
+	temp.fade = 1;
+	temp.color = glm::vec3(1.0f, 0.5f, 0.0f);
+	temp.direction = glm::vec3(0.0f, 10.0f, 0.0f);
+	tempCount = temp.maxParticles;
+	tempDiff = temp.emission;
+
+	fireBase->vertexCountDiff.push_back(tempCount); //vertexCountDiff
+	fireBase->emissionDiff.push_back(tempDiff); //emissionDiff
+	fireBase->m_PSinfo.push_back(temp); //m_PSinfo
+
+	ParticleBuffers tempBuffer2(temp);
+
+	tempBuffer2.setTexture(tempTxt);
+	tempBuffer2.setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
+	tempBuffer2.bindBuffers();
+
+	tempPS = tempBuffer2.getBuffer();
+
+	fireBase->m_partBuffers.push_back(tempBuffer2); //m_partBuffers
+	fireBase->m_psBuffers.push_back(tempPS); //m_psBuffers
+	fireBase->m_txtInfo.push_back(tempTxt); //m_txtInfo
 }
 
 void SpellHandler::initReflectSpell()

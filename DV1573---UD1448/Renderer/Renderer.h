@@ -105,8 +105,10 @@ private:
 	unsigned int m_sizeID;
 	unsigned int m_glowID;
 	unsigned int m_scaleDirection;
+	unsigned int m_swirl;
 	unsigned int m_fadeID;
 	unsigned int m_colorID;
+	unsigned int m_blendColorID;
 
 
 	int	thisActive = 0;

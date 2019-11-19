@@ -176,6 +176,13 @@ struct FireSpellBase
 {
 	Mesh* m_mesh;
 	Material* m_material;
+	
+	std::vector<ParticleBuffers> m_partBuffers;
+	std::vector<psBuffers> m_psBuffers;
+	std::vector<PSinfo> m_PSinfo;
+	std::vector<TextureInfo> m_txtInfo;
+	std::vector<int> vertexCountDiff;
+	std::vector<float> emissionDiff;
 
 	float m_damage;
 	float m_speed;

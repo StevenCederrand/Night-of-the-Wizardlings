@@ -33,6 +33,7 @@ struct PSinfo //All the fun particle information values
 {
 	glm::vec3 direction;
 	glm::vec3 color;
+	glm::vec3 blendColor;
 
 	int maxParticles;
 	int cont;
@@ -41,6 +42,7 @@ struct PSinfo //All the fun particle information values
 	int fade;
 	int scaleDirection;
 	int glow;
+	int swirl;
 
 	float width;
 	float heigth;

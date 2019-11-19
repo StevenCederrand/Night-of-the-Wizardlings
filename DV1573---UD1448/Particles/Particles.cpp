@@ -167,6 +167,20 @@ bool ParticleSystem::Initialize()
 	////////////unbind vao
 	//////////glBindVertexArray(0);
 
+	//TODO
+	//Here I can implement the code for randomizing the position in the flamestrike's circle
+
+	auto rnd = rand() % 999 + 1; // random distance
+	rnd /= 1000;
+	auto offset = rnd * 10 * glm::sqrt(rnd); //circleRadius = 2?
+
+	rnd = rand() % 999 + 1;
+	rnd /= 1000;
+	auto angle = 2.0f * glm::pi<float>() * rnd; // Random angle
+
+	m_position.x += offset * glm::cos(angle);
+	m_position.y += offset * glm::sin(angle);
+
 	return true;
 }
 
@@ -261,6 +275,21 @@ void ParticleSystem::Update(PSinfo* psInfo, glm::vec3 cameraPos, float time)
 					particles.position.z = particles.position.z - (particles.velocity.z * m_psInfo->force);
 				}
 
+				//---
+
+				auto rnd = rand() % 999 + 1; // random distance
+				rnd /= 1000;
+				auto offset = (rnd * 10 * glm::sqrt(rnd)); //circleRadius = 2?
+
+				rnd = rand() % 999 + 1;
+				rnd /= 1000;
+				auto angle = 10.0f * glm::pi<float>() * rnd; // Random angle
+
+				particles.position.x += offset * glm::cos(angle);
+				particles.position.z += offset * glm::sin(angle);
+
+				//---
+
 				particles.direction = otherPosition - particles.position;
 				particles.distance = glm::length(particles.position - cameraPos);
 				m_vertex.at(i) = particles.position;
@@ -279,6 +308,22 @@ void ParticleSystem::Update(PSinfo* psInfo, glm::vec3 cameraPos, float time)
 				particles.distance = -1.0f;
 				particles.velocity = glm::vec3(0.0f, 0.0f, 0.0f);
 				particles.position = m_position;
+
+				//---
+
+				auto rnd = rand() % 999 + 1; // random distance
+				rnd /= 1000;
+				auto offset = (rnd * 10 * glm::sqrt(rnd)); //circleRadius = 2?
+
+				rnd = rand() % 999 + 1;
+				rnd /= 1000;
+				auto angle = 10.0f * glm::pi<float>() * rnd; // Random angle
+
+				particles.position.x += offset * glm::cos(angle);
+				particles.position.z += offset * glm::sin(angle);
+
+				//---
+
 				particles.direction = m_psInfo->direction;
 				m_vertex.at(i) = particles.position;
 				m_directionVector.at(i) = particles.direction;
@@ -296,6 +341,22 @@ void ParticleSystem::Update(PSinfo* psInfo, glm::vec3 cameraPos, float time)
 					particles.distance = -1.0f;
 					particles.velocity = glm::vec3(0.0f, 0.0f, 0.0f);
 					particles.isAlive = true;
+
+					//---
+
+					auto rnd = rand() % 999 + 1; // random distance
+					rnd /= 1000;
+					auto offset = (rnd * 1000 * glm::sqrt(rnd)); //circleRadius = 2?
+
+					rnd = rand() % 999 + 1;
+					rnd /= 1000;
+					auto angle = 10.0f * glm::pi<float>() * rnd; // Random angle
+
+					particles.position.x += offset * glm::cos(angle);
+					particles.position.z += offset * glm::sin(angle);
+
+					//---
+
 					m_current += m_psInfo->emission * 2;
 					m_vertex.at(i) = particles.position;
 				}
@@ -308,6 +369,22 @@ void ParticleSystem::Update(PSinfo* psInfo, glm::vec3 cameraPos, float time)
 						particles.time = m_psInfo->lifetime;
 						m_lifetime.at(i) = particles.time / m_psInfo->lifetime;
 						particles.position = m_position;
+
+						//---
+
+						auto rnd = rand() % 999 + 1; // random distance
+						rnd /= 1000;
+						auto offset = (rnd * 1000 * glm::sqrt(rnd)); //circleRadius = 2?
+
+						rnd = rand() % 999 + 1;
+						rnd /= 1000;
+						auto angle = 10.0f * glm::pi<float>() * rnd; // Random angle
+
+						particles.position.x += offset * glm::cos(angle);
+						particles.position.z += offset * glm::sin(angle);
+
+						//---
+
 						particles.distance = -1.0f;
 						particles.velocity = glm::vec3(0.0f, 0.0f, 0.0f);
 						particles.isAlive = true;
@@ -327,6 +404,7 @@ void ParticleSystem::Update(PSinfo* psInfo, glm::vec3 cameraPos, float time)
 				m_vertex.at(i) = particles.position;
 				m_lifetime.at(i) = 0.0f;
 			}
+			//particles.velocity *= 2;
 		}
 	}
 }
@@ -355,9 +433,11 @@ void ParticleSystem::Render(const Camera* camera, const PSinfo* psInfo)
 	ShaderMap::getInstance()->getShader(PARTICLES)->setVec3("cam", camera->getCamPos());
 	ShaderMap::getInstance()->getShader(PARTICLES)->setVec2("size", (glm::vec2(psInfo->width, psInfo->heigth)));
 	ShaderMap::getInstance()->getShader(PARTICLES)->setInt("scaleDirection", psInfo->scaleDirection);
+	ShaderMap::getInstance()->getShader(PARTICLES)->setInt("swirl", psInfo->swirl);
 	ShaderMap::getInstance()->getShader(PARTICLES)->setInt("glow", psInfo->glow);
 	ShaderMap::getInstance()->getShader(PARTICLES)->setInt("fade", psInfo->fade);
 	ShaderMap::getInstance()->getShader(PARTICLES)->setVec3("color", psInfo->color);
+	ShaderMap::getInstance()->getShader(PARTICLES)->setVec3("blendColor", psInfo->blendColor);
 
 
 
