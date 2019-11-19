@@ -49,6 +49,7 @@ SoundHandler::SoundHandler()
 	setSourceGain(0.3, FireSound, myGuid);
 	setSourceGain(0.3, TakingDamageSound);
 	setSourceGain(0.3, HitmarkSound);	
+	setSourceGain(0.4, PickupGraveyardSound);
 }
 
 SoundHandler::~SoundHandler()
@@ -166,6 +167,12 @@ void SoundHandler::loadAllSound()
 	{
 		logTrace(GLASS_BREAK_SOUND + " failed to be loaded");
 	}
+
+	success = loadSound(PickupGraveyardSound);
+	if (success == -1)
+	{
+		logTrace(PICKUP_GRAVEYARD_SPAWN_SOUND + " failed to be loaded");
+	}
 }
 
 int SoundHandler::loadSound(SoundIndexClient whatSound)
@@ -180,7 +187,8 @@ int SoundHandler::loadSound(SoundIndexClient whatSound)
 	case TakingDamageSound:
 		fileName += TAKING_DAMAGE_SOUND;
 		break;		
-	case PickupSpawnSound:
+	case PickupGraveyardSound:
+		fileName += PICKUP_GRAVEYARD_SPAWN_SOUND;
 		break;
 	case HitmarkSound:
 		fileName += HITMARK_SOUND;
@@ -1003,8 +1011,7 @@ void SoundHandler::setPlayerGUIDs()
 	{
 		if (m_playerSoundInfo.size() < i + 1)
 		{
-			m_playerSoundInfo.resize(m_playerSoundInfo.size() + 1);
-			//m_playerSoundInfo.at(m_playerSoundInfo.size() - 1).sources.resize(NR_OF_SUBSEQUENT_SOUNDS);
+			m_playerSoundInfo.resize(m_playerSoundInfo.size() + 1);			
 		}
 		
 		m_playerSoundInfo[i].guid = list[i].guid;
@@ -1022,8 +1029,7 @@ void SoundHandler::setPlayerGUIDs()
 
 void SoundHandler::addPlayer(RakNet::AddressOrGUID guid)
 {
-	m_playerSoundInfo.resize(m_playerSoundInfo.size() + 1);
-	//m_playerSoundInfo.at(m_playerSoundInfo.size() - 1).sources.resize(NR_OF_SUBSEQUENT_SOUNDS);
+	m_playerSoundInfo.resize(m_playerSoundInfo.size() + 1);	
 	m_playerSoundInfo.at(m_playerSoundInfo.size() - 1).guid = guid;
 	m_nrOfPlayers++;
 	attachBuffersToPlayerSources(guid);
@@ -1080,8 +1086,7 @@ const ALint& SoundHandler::getSourceState(SoundIndexCommon whatSound, RakNet::Ad
 	for (int i = 0; i < m_playerSoundInfo.size() && !found; i++)
 	{
 		if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
-		{
-			//Assume source one, change if necessary
+		{		
 			alGetSourcei(m_playerSoundInfo.at(i).sources.at(whatSound).at(slot), AL_SOURCE_STATE, &value);
 			found = true;
 		}

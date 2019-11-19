@@ -1036,7 +1036,7 @@ void LocalServer::notifyPickup()
 	RakNet::BitStream stream;
 	stream.Write((RakNet::MessageID)PICKUP_NOTIFICATION);
 	pickupPacket.Serialize(true, stream);
-	sendStreamToAllClients(stream, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
+	sendStreamToAllClients(stream, RELIABLE_ORDERED_WITH_ACK_RECEIPT); 
 }
 
 bool LocalServer::gameAlmostFinished()

@@ -39,8 +39,8 @@ void NetworkSpells::update(const float& dt)
 					}
 					else if (e.spellData.SpellType == OBJECT_TYPE::FLAMESTRIKE) {
 						e.gameobject = new AOEAttack(e.spellData.Position);						
-						if((e.spellData.SoundSlot = shPtr->playSound(FireSound, e.spellData.CreatorGUID)) != -1);
-						shPtr->setSourcePosition(e.spellData.Position, FireSound, e.spellData.CreatorGUID, e.spellData.SoundSlot);
+						if((e.spellData.SoundSlot = shPtr->playSound(FireSound, e.spellData.CreatorGUID)) != -1)
+							shPtr->setSourcePosition(e.spellData.Position, FireSound, e.spellData.CreatorGUID, e.spellData.SoundSlot);
 					}
 					else if (e.spellData.SpellType == OBJECT_TYPE::FIRE) {
 						e.gameobject = new fire(e.spellData.Position);

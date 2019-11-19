@@ -754,7 +754,9 @@ void Client::processAndHandlePackets()
 				t.width += Renderer::getInstance()->getTextWidth(type, t.scale);
 				t.textParts.emplace_back(type, color);
 			}
-		
+			
+			SoundHandler::getInstance()->playSound(PickupGraveyardSound);
+
 			std::string text = "will spawn soon at " + std::string(pickupPacket.locationName) + "!";
 			t.width += Renderer::getInstance()->getTextWidth(text, t.scale);
 			glm::vec3 locColor = glm::vec3(1.0f, 1.0f, 1.0f);

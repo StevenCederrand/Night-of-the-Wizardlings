@@ -16,6 +16,7 @@ const std::string JUMP_SOUND = "Jump1.ogg";
 const std::string HITMARK_SOUND = "Hitmark.ogg";
 const std::string FIRE_SOUND = "Fire.ogg";
 const std::string GLASS_BREAK_SOUND = "GlassBreak.ogg";
+const std::string PICKUP_GRAVEYARD_SPAWN_SOUND = "PickupGraveyard.ogg";
 
 //Nr of sounds every player has in common.
 const int NR_OF_COMMON_SOUNDS = 7;
@@ -45,10 +46,10 @@ enum SoundIndexCommon {
 
 //Sounds only for client here:
 enum SoundIndexClient {	
-	ThemeSong0,
-	PickupSpawnSound,
+	ThemeSong0,	
 	HitmarkSound,
-	TakingDamageSound
+	TakingDamageSound,
+	PickupGraveyardSound
 };
 
 struct PlayerSoundInfo
