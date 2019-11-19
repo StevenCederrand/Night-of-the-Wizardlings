@@ -346,11 +346,11 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 
 	if (dstrobj && spellobj)
 	{
-
 		DstrGenerator* m_dstr = dstrobj->getDstr();
 		unsigned int seed = m_dstr->SeedRand();
 		
 		m_dstr->Destroy(dstrobj, glm::vec2(hitpoint.getX(), hitpoint.getY()), spellobj->getDirection());
+
 		if (spellobj->getType() != FLAMESTRIKE)
 			spellobj->setTravelTime(0.05f);
 	}

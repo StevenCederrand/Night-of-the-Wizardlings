@@ -44,8 +44,8 @@ void DstrGenerator::initPoints(glm::vec2 position, int amount)
 	{
 		rnd = rand() % 999 + 1;
 		rnd /= 1000;
-		offset = 1.5f;
-		offset += (0.05f * m_breakAreaRadius * glm::sqrt(rnd));
+		offset = m_breakAreaRadius;
+		//offset += (0.05f * m_breakAreaRadius * glm::sqrt(rnd));
 
 		rnd = rand() % 999 + 1;
 		rnd /= 1000;
@@ -56,21 +56,21 @@ void DstrGenerator::initPoints(glm::vec2 position, int amount)
 		m_randomPoints[i].y += offset * glm::sin(angle);
 	}
 
-	//for (int i = m_randomPoints.size() / 2; i < m_randomPoints.size(); i++)
-	//{
-	//	rnd = rand() % 999 + 1;
-	//	rnd /= 1000;
-	//	offset = 0.6f;
-	//	//offset += (0.01f * m_breakAreaRadius * glm::sqrt(rnd));
-	//
-	//	rnd = rand() % 999 + 1;
-	//	rnd /= 1000;
-	//	angle = 2.0f * glm::pi<float>() * rnd;
-	//
-	//	m_randomPoints[i] = position;
-	//	m_randomPoints[i].x += offset * glm::cos(angle);
-	//	m_randomPoints[i].y += offset * glm::sin(angle);
-	//}
+	for (int i = m_randomPoints.size() / 2; i < m_randomPoints.size(); i++)
+	{
+		rnd = rand() % 999 + 1;
+		rnd /= 1000;
+		offset = m_breakAreaRadius * 1.5;
+		offset += (0.05f * m_breakAreaRadius * glm::sqrt(rnd));
+	
+		rnd = rand() % 999 + 1;
+		rnd /= 1000;
+		angle = 2.0f * glm::pi<float>() * rnd;
+	
+		m_randomPoints[i] = position;
+		m_randomPoints[i].x += offset * glm::cos(angle);
+		m_randomPoints[i].y += offset * glm::sin(angle);
+	}
 }
 
 void DstrGenerator::offsetPoints(glm::vec2 position)
