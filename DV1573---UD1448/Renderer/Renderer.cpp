@@ -1119,10 +1119,10 @@ void Renderer::initializeParticle()
 	m_PSinfo.swirl = 0;
 	m_PSinfo.fade = 1;
 
-	m_PSinfo.color = glm::vec3(1.0f, 0.0f, 1.0f);
+	m_PSinfo.color = glm::vec3(0.0f, 0.5f, 0.9f);
 	m_PSinfo.blendColor = glm::vec3(1.0f, 1.0f, 1.0f);
 
-	m_PSinfo.color = glm::vec3(0.65f, 1.0f, 1.0f); //jerrys färg
+	//m_PSinfo.color = glm::vec3(0.65f, 1.0f, 1.0f); //jerrys färg
 
 	m_PSinfo.direction = glm::vec3(1.0f, 0.0f, 0.0f);
 	vertexCountDiff = m_PSinfo.maxParticles;
@@ -1200,8 +1200,8 @@ void Renderer::initializeParticle()
 	m_flameInfo.width = 1.2f;     
 	m_flameInfo.heigth = 1.2f;     
 	m_flameInfo.lifetime = 10.0f;     
-	m_flameInfo.maxParticles = 1000; //350     
-	m_flameInfo.emission = 0.01f; //0.00001f;     
+	m_flameInfo.maxParticles = 500; //350     
+	m_flameInfo.emission = 0.015f; //0.00001f;     
 	m_flameInfo.force = -0.04f; //5     m_flameInfo.drag = 0.0f;     
 	m_flameInfo.gravity = 0.0f; //Standard is 1     
 	m_flameInfo.seed = 1;     
