@@ -26,7 +26,7 @@ void DestructibleObject::update(float dt)
 	updateBulletRigids();
 }
 
-void DestructibleObject::loadDestructible(std::string fileName)
+void DestructibleObject::loadDestructible(std::string fileName, float size)
 {
 	BGLoader meshLoader;	// The file loader
 	meshLoader.LoadMesh(MESHPATH + fileName);
@@ -38,13 +38,13 @@ void DestructibleObject::loadDestructible(std::string fileName)
 
 	std::vector<Vertex> vertices;
 	vertices.resize(4);
-	vertices[0] = meshLoader.GetVertices()[4];
+	vertices[0] = meshLoader.GetVertices()[0];
 	vertices[0].position.z = 0.0f;
-	vertices[1] = meshLoader.GetVertices()[2];
+	vertices[1] = meshLoader.GetVertices()[1];
 	vertices[1].position.z = 0.0f;
-	vertices[2] = meshLoader.GetVertices()[1];
+	vertices[2] = meshLoader.GetVertices()[3];
 	vertices[2].position.z = 0.0f;
-	vertices[3] = meshLoader.GetVertices()[0];
+	vertices[3] = meshLoader.GetVertices()[2];
 	vertices[3].position.z = 0.0f;
 
 	m_polygonFace.resize(4);
@@ -52,13 +52,14 @@ void DestructibleObject::loadDestructible(std::string fileName)
 	m_polygonFace[1] = vertices[1].position;
 	m_polygonFace[2] = vertices[2].position;
 	m_polygonFace[3] = vertices[3].position;
-	m_scale = meshLoader.GetScale().z; 
+	m_scale = size;
 
 	meshFromPolygon(meshLoader.GetMeshName());
 	
 	// Load material
 	Material newMaterial = meshLoader.GetMaterial();
 	std::string materialName = newMaterial.name;
+	setMaterial(materialName);
 	if (!MaterialMap::getInstance()->existsWithName(materialName)) 	// This creates the material if it does not exist (by name)
 	{
 		if (meshLoader.GetAlbedo() != "-1")
@@ -229,7 +230,6 @@ void DestructibleObject::meshFromPolygon(std::string name)
 	int ni = 0;
 	int ti = 0;
 
-	m_scale = 0.05f;
 	float scale = m_scale;
 
 	// Top

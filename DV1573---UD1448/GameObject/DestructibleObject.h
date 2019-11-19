@@ -13,7 +13,7 @@ public:
 
 	void update(float dt);
 
-	void loadDestructible(std::string fileName);
+	void loadDestructible(std::string fileName, float size);
 	void loadBasic(std::string name);
 	void loadDefined(std::string name, std::vector<glm::vec2> polygon);
 	void meshFromPolygon(std::string name);

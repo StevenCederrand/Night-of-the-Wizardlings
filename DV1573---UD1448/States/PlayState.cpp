@@ -35,27 +35,22 @@ PlayState::PlayState()
 	m_skybox = new SkyBox();
 	m_skybox->prepareBuffers();
 
-
 	m_player->setHealth(NetGlobals::PlayerMaxHealth);
-
 
 	m_objects.push_back(new MapObject("Academy_Map"));
 	m_objects[m_objects.size() - 1]->loadMesh("Academy.mesh");
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+
+	//m_objects.push_back(new WorldObject("Character"));
+	//m_objects[m_objects.size() - 1]->loadMesh("CharacterTest.mesh");
+	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 1.8f, -24.0f));
+	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 	
+	//m_objects.push_back(new Deflect("PlayerShield"));
+	//m_objects[m_objects.size() - 1]->loadMesh("ShieldMesh.mesh");
+	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 13.0f, 6.0f));
+	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], SHIELD);
 
-	m_objects.push_back(new WorldObject("Character"));
-	m_objects[m_objects.size() - 1]->loadMesh("CharacterTest.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 1.8f, -24.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
-
-	m_objects.push_back(new Deflect("PlayerShield"));
-	m_objects[m_objects.size() - 1]->loadMesh("ShieldMesh.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 13.0f, 6.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], SHIELD);
-
-
-	
 	MaterialMap::getInstance();
 
 	gContactAddedCallback = callbackFunc;
@@ -68,33 +63,43 @@ PlayState::PlayState()
 
 
 	// DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP
-	// Destruction test object
-	//m_objects.push_back(new DestructibleObject("Destructible", &m_dstr));
-	//static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall1.mesh");
-	////m_objects.back()->setWorldPosition(glm::vec3(0.0f, 15.0f, -3.0f));
-	//m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	//Renderer::getInstance()->submit(m_objects.back(), STATIC);
-	//
-	//m_objects.push_back(new DestructibleObject("Destructible2", &m_dstr));
-	//static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall2.mesh");
-	////m_objects.back()->setWorldPosition(glm::vec3(0.0f, 15.0f, 3.0f));
-	//m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	//Renderer::getInstance()->submit(m_objects.back(), STATIC);
-	//
-	//m_objects.push_back(new DestructibleObject("Destructible3", &m_dstr));
-	//static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTMazeWall.mesh");
-	////m_objects.back()->setWorldPosition(glm::vec3(0.0f, 15.0f, 3.0f), 0);
-	//m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	//Renderer::getInstance()->submit(m_objects.back(), STATIC);
-	//
-	//m_objects.push_back(new DestructibleObject("Destructible4", &m_dstr));
-	//static_cast<DestructibleObject*>(m_objects.back())->loadBasic("Dstr_4");
-	//m_objects.back()->setWorldPosition(glm::vec3(0.0f, 17.0f, -3.0f), 0);
-	//m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	//Renderer::getInstance()->submit(m_objects.back(), STATIC);
+
+	m_objects.push_back(new DestructibleObject("Destructible", &m_dstr));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall1.mesh", 0.05);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+	
+	m_objects.push_back(new DestructibleObject("Destructible2", &m_dstr));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall2.mesh", 0.05);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+
+	m_objects.push_back(new DestructibleObject("Destructible3", &m_dstr));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall3.mesh", 0.05);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+	
+	m_objects.push_back(new DestructibleObject("Destructible4", &m_dstr));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTMazeWall1.mesh", 0.25);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+	
+	m_objects.push_back(new DestructibleObject("Destructible5", &m_dstr));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTMazeWall2.mesh", 0.25);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+
+	m_objects.push_back(new DestructibleObject("Destructible6", &m_dstr));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTMazeWall3.mesh", 0.25);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+
+	m_objects.push_back(new DestructibleObject("Destructible7", &m_dstr));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTMazeWall4.mesh", 0.25);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
 
 	// DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP
-
 
 
 	if(Client::getInstance()->isInitialized())
@@ -342,22 +347,10 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 	if (dstrobj && spellobj)
 	{
 		DstrGenerator* m_dstr = dstrobj->getDstr();
-
-		float test1 = cp.getAppliedImpulse();
-		btVector3 test2 = cp.m_localPointA;
-		btVector3 test3 = cp.m_localPointB;
-		float test4 = cp.getDistance();
-		float test5 = cp.m_contactMotion1;
-		float test6 = cp.m_contactMotion2;
-		float test7= cp.m_appliedImpulseLateral1;
-		float test8 = cp.m_appliedImpulseLateral2;
-		btVector3 test9 = cp.m_positionWorldOnA;
-		btVector3 test10 = cp.m_positionWorldOnB;
-
-		float test99 = 1;
 		
-		
-		m_dstr->Destroy(dstrobj, glm::vec2(hitpoint.getX(), hitpoint.getY()));
+		m_dstr->Destroy(dstrobj, glm::vec2(hitpoint.getX(), hitpoint.getY()), spellobj->getDirection());
+		if (spellobj->getType() != FLAMESTRIKE)
+			spellobj->setTravelTime(0.05f);
 	}
 
 

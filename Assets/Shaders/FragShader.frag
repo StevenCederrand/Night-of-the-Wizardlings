@@ -23,8 +23,8 @@ vec3 GLOBAL_lightDirection = vec3(0.2f, -0.7f, 0.4f);       // 1 Directional lig
 //vec3 GLOBAL_lightColor = normalize(vec3(109, 196, 199));  // CHANGED - remove when confirmed ok
 vec3 GLOBAL_lightColor = normalize(vec3(1, 1, 1));          // Directional light color (white)
 
-float ambientStr = 0.2f;                                    // Global light strength (ambient)
-float brightnessMod = 0.5f;                                 // Modifier for brightness (textures)
+float ambientStr = 0.35f;                                    // Global light strength (ambient)
+float brightnessMod = 0.7f;                                 // Modifier for brightness (textures)
 
 uniform vec3 CameraPosition;
 
@@ -56,7 +56,7 @@ void main() {
     // Create the diffuse color once
     vec3 diffuseColor = Diffuse_Color;  // Material color
     if(TexAndRim.x == 1) 
-        diffuseColor = texture(albedoTexture, f_UV).rgb * 0.5;   // Texture color     
+        diffuseColor = texture(albedoTexture, f_UV).rgb * brightnessMod;   // Texture color     
     
 
     // Directional light
@@ -105,7 +105,7 @@ vec3 calcPointLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance,
 
 vec3 calcDirLight(vec3 normal, vec3 diffuseColor) {
     /* --- DIFFUSE SHADING --- */
-    float lightStr = 0.61f;
+    float lightStr = 0.71f;
     vec3 lightDir = normalize(-GLOBAL_lightDirection);
     float nDotL = dot(normal, lightDir);
 
