@@ -8,6 +8,9 @@
 
 FindServerState::FindServerState()
 {
+	HudObject* hudObject = new HudObject("Assets/Textures/title.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(1280, 720));
+	m_hudHandler.insertHUDObject(hudObject, HUDID::TITLE);
+
 	Client::getInstance()->startup();
 	loadGui();
 	
@@ -40,7 +43,7 @@ void FindServerState::update(float dt)
 
 void FindServerState::render()
 {
-
+	Renderer::getInstance()->renderHUD();
 }
 
 void FindServerState::loadGui()
@@ -131,6 +134,7 @@ void FindServerState::usernameInput()
 
 bool FindServerState::onBackToMenuClicked(const CEGUI::EventArgs& e)
 {
+	Renderer::getInstance()->clear();
 	m_stateManager->clearAllAndSetState(new MenuState());
 	return true;
 }

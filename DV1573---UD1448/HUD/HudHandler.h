@@ -24,7 +24,8 @@ enum HUDID {
 	SPELL_DEFLECT, 
 	POWERUP,
 	TITLE, 
-	BACKGROUND
+	BACKGROUND,
+	ICON_FRAME,
 };
 
 class HudHandler {

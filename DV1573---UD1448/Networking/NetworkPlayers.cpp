@@ -35,16 +35,16 @@ void NetworkPlayers::update(const float& dt)
 			if (p.gameobject == nullptr) {
 
 				p.gameobject = new AnimatedObject("asd");
-				p.gameobject->loadMesh("ANIM.mesh");
+				p.gameobject->loadMesh("NyCharacter.mesh");
 				p.gameobject->setWorldPosition(glm::vec3(0, 0, 0));
 				animObj = dynamic_cast<AnimatedObject*>(p.gameobject);
 
 				if (animObj != nullptr)
 				{
-					animObj->initAnimations("RunAnimation", 1.0f, 21.0f);
-					animObj->initAnimations("IdleAnimation", 22.0f, 92.0f);
-					animObj->initAnimations("CastAnimation", 93.0f, 112.0f);
-					animObj->initAnimations("JumpAnimation", 1.0f, 21.0f);
+					animObj->initAnimations("RunAnimation", 2.0f, 22.0f);
+					animObj->initAnimations("IdleAnimation", 25.0f, 93.0f);
+					animObj->initAnimations("CastAnimation", 95.0f, 109.0f);
+					//animObj->initAnimations("JumpAnimation", 1.0f, 21.0f);
 
 				}
 				std::cout << "NetworkPlayer @memAddr: " << p.gameobject << "\n";
@@ -58,8 +58,8 @@ void NetworkPlayers::update(const float& dt)
 		}
 		else if (p.flag == NetGlobals::THREAD_FLAG::Remove)
 		{
+			Renderer::getInstance()->removeRenderObject(p.gameobject, ANIMATEDSTATIC);
 
-			Renderer::getInstance()->removeDynamic(p.gameobject, DYNAMIC);
 			delete p.gameobject;
 			m_players.erase(m_players.begin() + i);
 			shPtr->removePlayer(p.data.guid);
@@ -108,7 +108,7 @@ void NetworkPlayers::update(const float& dt)
 			if (animObj != nullptr) {
 				if (p.data.animStates.jumping == true)
 				{
-					animObj->playAnimation("JumpAnimation");
+					//animObj->playAnimation("JumpAnimation");
 					
 					shPtr->setSourcePosition(p.data.position, JumpSound, p.data.guid, 0);
 					//Just in case two sounds are playing at once, set the position of the second sound aswell
@@ -129,10 +129,10 @@ void NetworkPlayers::update(const float& dt)
 				{
 					animObj->playAnimation("CastAnimation");
 				}
-				if (p.data.animStates.deflecting == true)
-				{
-					animObj->playAnimation("CastAnimation");
-				}
+				//if (p.data.animStates.deflecting == true)
+				//{
+				//	animObj->playAnimation("CastAnimation");
+				//}
 				if (p.data.animStates.running == true)
 				{
 					animObj->playLoopAnimation("RunAnimation");

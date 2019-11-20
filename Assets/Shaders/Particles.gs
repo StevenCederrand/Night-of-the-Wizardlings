@@ -10,14 +10,20 @@ uniform mat4 WVP;
 uniform vec3 cam;
 uniform vec2 size;
 uniform int scaleDirection;
+uniform int swirl;
 
 out vec2 UV_ps;
 out float life_ps;
 
 void main()
 {
-	vec3 pos = gl_in[0].gl_Position.xyz;
-	vec3 up = geometryDirection[0];
+	vec3 pos = gl_in[0].gl_Position.xyz; //+= geometryDirection[0] * 5;
+
+	if(swirl == 1)
+	{
+		//pos += geometryDirection[0] * 5;
+	}
+	vec3 up = geometryDirection[0] * 2;
 	vec3 cam_normal = normalize(cam - pos);
 	vec3 right = cross(cam_normal, up);
 
@@ -41,6 +47,13 @@ void main()
 	life_ps = geometryLife[0];
 	vec3 cPos = pos;
 
+	if(swirl == 1)
+	{
+		pos.x += cos(2 * 3.14 * geometryLife[0]); //check this
+		pos.z += sin(2 * 3.14 * geometryLife[0]); //check this
+		//pos.y += geometryLife[0];// * -5; //these are mainly for the fire effect
+	}
+
 	cPos = pos - right - up;
 	gl_Position = WVP * vec4(cPos, 1.0f);
 	UV_ps = vec2(0.0f, 0.0f);
@@ -60,6 +73,10 @@ void main()
 	gl_Position = WVP * vec4(cPos, 1.0f);
 	UV_ps = vec2(1.0f, 1.0f);
 	EmitVertex();
+
+	//pos.x += 2 * cos(2 * 3.14 * geometryLife[0]); //check this
+	//pos.z += 2 * sin(2 * 3.14 * geometryLife[0]); //check this
+	//pos.y += geometryLife[0];// * -5; //these are mainly for the fire effect
 	
 	EndPrimitive();
 }

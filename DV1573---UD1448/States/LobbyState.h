@@ -3,6 +3,7 @@
 #include <Pch/Pch.h>
 #include "System/State.h"
 #include <Gui/Gui.h>
+#include <HUD/HudHandler.h>
 
 enum GUIInputID {
 	USERNAME, 
@@ -37,7 +38,7 @@ private:
 	CEGUI::PushButton* m_startServerBtn;
 	CEGUI::PushButton* m_backToMenuBtn;
 	CEGUI::Combobox* m_serverNameBox;
-
+	HudHandler m_hudHandler; //Basic HUD objects
 	std::vector<InputBox> m_inputBoxes;
 	int activeText;
 };

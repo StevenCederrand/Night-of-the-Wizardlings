@@ -7,6 +7,7 @@ uniform sampler2D ps_texture;
 uniform int glow;
 uniform int fade;
 uniform vec3 color;
+uniform vec3 blendColor;
 
 out vec4 fragment_color;
 void main() 
@@ -28,8 +29,11 @@ void main()
 	{
 		fragment_color.w *= life_ps;
 	}
-
-	fragment_color.xyz *= color;
+//----------	
+	float mixValue = distance(UV_ps,vec2(0,1));
+  	vec3 finalColor = mix(blendColor,color,mixValue);
+//----------
+	fragment_color.xyz *= finalColor;// * -life_ps; //color
 
 	//fragment_color = vec4(0.0f, 0.5f, 1.0f, 1.0f);
 

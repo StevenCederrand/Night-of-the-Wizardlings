@@ -112,7 +112,7 @@ void SpellHandler::initFlamestrikeSpell()
 
 	flamestrikeBase->m_damage = 10;
 	flamestrikeBase->m_speed = 55.0f;
-	flamestrikeBase->m_coolDown = 1.0f;
+	flamestrikeBase->m_coolDown = 5.0f;
 	flamestrikeBase->m_lifeTime = 5;
 	flamestrikeBase->m_maxBounces = 2;
 }
@@ -140,11 +140,101 @@ void SpellHandler::initFireSpell()
 	fireBase->m_material->diffuse = glm::vec3(1.0f, 0.5f, 0.0f);
 	fireBase->m_material->ambient = glm::vec3(1.0f, 0.5f, 0.0f);
 
-	fireBase->m_damage = 10.0f;
+	fireBase->m_damage = 20.0f;
 	fireBase->m_speed = 0.0f;
 	fireBase->m_coolDown = 4.0f;
 	fireBase->m_lifeTime = 5.0f;
-	fireBase->m_maxBounces = 0;
+
+	fireBase->m_maxBounces = 0.0f;
+
+	//TODO
+	//Particle code here
+	//Let's just spam out the fking effects now
+	//So I need to hardcopy this for every particle effect in every spell as it is now.
+	//Is this even possible???
+
+	//TextureInfo tempTxt;
+	//tempTxt.name = "Assets/Textures/Spell_2.png";
+	//PSinfo temp;
+
+	//temp.width = 0.3f;
+	//temp.heigth = 0.3f;
+	//temp.lifetime = 1.0f;
+	//temp.maxParticles = 5000; //350
+	//temp.emission = 0.0001f; //0.00001f;
+	//temp.force = -1.0f; //5
+	//temp.drag = -1.0f;
+	//temp.gravity = 0.0f; //Standard is 1
+	//temp.seed = -1;
+	//temp.cont = true;
+	//temp.omnious = true;
+	//temp.spread = 10.0f;
+	//temp.glow = false;
+	//temp.scaleDirection = 0;
+	//temp.fade = 1;
+	//temp.color = glm::vec3(1.0f, 0.5f, 0.0f);
+	//temp.direction = glm::vec3(0.0f, 10.0f, 0.0f);
+	//int tempCount = temp.maxParticles;
+	//float tempDiff = temp.emission;
+
+	//fireBase->vertexCountDiff.push_back(tempCount); //vertexCountDiff
+	//fireBase->emissionDiff.push_back(tempDiff); //emissionDiff
+	//fireBase->m_PSinfo.push_back(temp); //m_PSinfo
+
+	//ParticleBuffers tempBuffer(temp);
+
+	//tempBuffer.setTexture(tempTxt);
+	//tempBuffer.setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
+	//tempBuffer.bindBuffers();
+
+	//psBuffers tempPS;
+
+	//tempPS = tempBuffer.getBuffer();
+
+	//fireBase->m_partBuffers.push_back(tempBuffer); //m_partBuffers
+	//fireBase->m_psBuffers.push_back(tempPS); //m_psBuffers
+	//fireBase->m_txtInfo.push_back(tempTxt); //m_txtInfo
+
+	////TODO
+	////Another one!
+
+	//tempTxt.name = "Assets/Textures/Spell_2.png";
+
+	//temp.width = 0.3f;
+	//temp.heigth = 0.3f;
+	//temp.lifetime = 1.0f;
+	//temp.maxParticles = 5000; //350
+	//temp.emission = 0.0001f; //0.00001f;
+	//temp.force = -1.0f; //5
+	//temp.drag = -1.0f;
+	//temp.gravity = 0.0f; //Standard is 1
+	//temp.seed = -1;
+	//temp.cont = true;
+	//temp.omnious = true;
+	//temp.spread = 10.0f;
+	//temp.glow = false;
+	//temp.scaleDirection = 0;
+	//temp.fade = 1;
+	//temp.color = glm::vec3(1.0f, 0.5f, 0.0f);
+	//temp.direction = glm::vec3(0.0f, 10.0f, 0.0f);
+	//tempCount = temp.maxParticles;
+	//tempDiff = temp.emission;
+
+	//fireBase->vertexCountDiff.push_back(tempCount); //vertexCountDiff
+	//fireBase->emissionDiff.push_back(tempDiff); //emissionDiff
+	//fireBase->m_PSinfo.push_back(temp); //m_PSinfo
+
+	//ParticleBuffers tempBuffer2(temp);
+
+	//tempBuffer2.setTexture(tempTxt);
+	//tempBuffer2.setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
+	//tempBuffer2.bindBuffers();
+
+	//tempPS = tempBuffer2.getBuffer();
+
+	//fireBase->m_partBuffers.push_back(tempBuffer2); //m_partBuffers
+	//fireBase->m_psBuffers.push_back(tempPS); //m_psBuffers
+	//fireBase->m_txtInfo.push_back(tempTxt); //m_txtInfo
 }
 
 void SpellHandler::initReflectSpell()
@@ -366,8 +456,8 @@ void SpellHandler::spellUpdate(float deltaTime)
 			Client::getInstance()->updateSpellOnNetwork(*flamestrikeSpells[i]);
 		}
 		if (flamestrikeSpells[i]->getTravelTime() <= 0)
-		{			
-			Renderer::getInstance()->removeDynamic(flamestrikeSpells[i], SPELL);
+		{
+			Renderer::getInstance()->removeRenderObject(flamestrikeSpells[i], SPELL);
 
 			Client::getInstance()->destroySpellOnNetwork(*flamestrikeSpells[i]);
 			delete flamestrikeSpells[i];
@@ -390,7 +480,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 
 		if (fireSpells[i]->getTravelTime() <= 0)
 		{
-			Renderer::getInstance()->removeDynamic(fireSpells[i], SPELL);
+			Renderer::getInstance()->removeRenderObject(fireSpells[i], SPELL);
 
 			Client::getInstance()->destroySpellOnNetwork(*fireSpells[i]);
 			delete fireSpells[i];
@@ -411,7 +501,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 
 		if (spells[i]->getTravelTime() <= 0)
 		{
-			Renderer::getInstance()->removeDynamic(spells[i], SPELL);
+			Renderer::getInstance()->removeRenderObject(spells[i], SPELL);
 
 			Client::getInstance()->destroySpellOnNetwork(*spells[i]);
 			delete spells[i];
@@ -702,7 +792,8 @@ void SpellHandler::setCharacter(std::string meshName)
 			max.z = fmaxf(vertices[i].position.z, max.z);
 		}
 	}
-	glm::vec3 halfSize = glm::vec3((max - min) * 0.5f);
+	glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * 0.7f;
+	halfSize.x *= 0.4f;
 
 	m_bp->setCharacterSize(halfSize);
 	m_setcharacter = true;

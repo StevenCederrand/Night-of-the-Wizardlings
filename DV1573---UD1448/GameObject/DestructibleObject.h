@@ -7,13 +7,12 @@ class DstrGenerator;
 class DestructibleObject : public GameObject
 {
 public:
-	DestructibleObject(DstrGenerator* dstr);
-	DestructibleObject(std::string name, DstrGenerator* dstr);
+	DestructibleObject(DstrGenerator* dstr, int index);
 	~DestructibleObject();
 
 	void update(float dt);
 
-	void loadDestructible(std::string fileName);
+	void loadDestructible(std::string fileName, float size);
 	void loadBasic(std::string name);
 	void loadDefined(std::string name, std::vector<glm::vec2> polygon);
 	void meshFromPolygon(std::string name);
@@ -21,6 +20,7 @@ public:
 
 	const std::vector<glm::vec2>& getPolygon() const { return m_polygonFace; }
 	const float& getScale() const { return m_scale; }
+	const int& getIndex() const { return m_index; }
 	const bool& is_destroyed() const { return m_destroyed; }
 	DstrGenerator* getDstr() { return dstrRef; }
 
@@ -29,6 +29,7 @@ private:
 
 	float m_scale = 0.0f;
 	bool m_destroyed = false;
+	int m_index = -1;
 
 	DstrGenerator* dstrRef;
 };

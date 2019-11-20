@@ -60,7 +60,7 @@ void NetworkPickups::update(const float& dt)
 			}
 			else if (e.flag == NetGlobals::THREAD_FLAG::Remove)
 			{
-				Renderer::getInstance()->removeDynamic(e.pickup, PICKUP);
+				Renderer::getInstance()->removeRenderObject(e.pickup, PICKUP);
 				delete e.pickup;
 				m_pickupProps.erase(m_pickupProps.begin() + i);
 				i--;
@@ -122,7 +122,7 @@ void NetworkPickups::setupDamagePickupRenderInformation(BGLoader* loader)
 	mat->specular = newMaterial.specular;
 	loader->Unload();
 
-	mat->diffuse = glm::vec3(1.0f, 0.0f, 0.0f);
+	mat->diffuse = glm::vec3(1.0f, 1.0f, 0.0f);
 	mat->ambient = glm::vec3(1.f, 1.0f, 0.0f);
 
 	mesh->setMaterial(mat->name);

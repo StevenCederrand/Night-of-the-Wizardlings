@@ -81,7 +81,7 @@ void DstrGenerator::offsetPoints(glm::vec2 position)
 	}
 }
 
-void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition)
+void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, glm::vec3 hitDirection)
 {
 	if (object->is_destroyed())
 		return;
@@ -226,11 +226,14 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition)
 			//object->setTransform(newTransform,  mi);
 
 			object->createDynamicRigidBody(CollisionObject::box, NULL, 20.0f, mi, false);
+			glm::vec3 force = hitDirection * (scale * 2) * 8;
+			object->getRigidBodies()[mi]->applyCentralImpulse(btVector3(force.x, force.y, force.z) * 3.0f);
 			mi++;
 
 		}
 	}
 
+	object->setMaterial("", -2);
 	object->setBTWorldPosition(glm::vec3(-99.0f), 0);
 	object->setWorldPosition(glm::vec3(-99.0f), 0);
 	object->set_BtActive(false, 0);

@@ -4,6 +4,7 @@
 #include "System/State.h"
 #include <Gui/Gui.h>
 #include <Networking/Client.h>
+#include <HUD/HudHandler.h>
 
 
 class FindServerState : public State {
@@ -31,7 +32,7 @@ private:
 	bool m_serverListRefreshing;
 	bool m_inputTextOpen;
 	bool m_inputTextSelected;
-
+	HudHandler m_hudHandler; //Basic HUD objects
 
 private:
 	bool onBackToMenuClicked(const CEGUI::EventArgs& e);
