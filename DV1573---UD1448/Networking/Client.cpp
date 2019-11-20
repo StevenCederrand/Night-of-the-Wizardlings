@@ -1089,7 +1089,7 @@ void Client::updateNetworkEntities(const float& dt)
 
 void Client::sendReadyRequestToServer()
 {
-	if (!m_myPlayerDataPacket.isReady && m_initialized && m_isConnectedToAnServer) {
+	if (!m_myPlayerDataPacket.isReady && m_initialized && m_isConnectedToAnServer && m_spectating == false) {
 		RakNet::BitStream stream;
 		m_myPlayerDataPacket.isReady = true;
 		stream.Write((RakNet::MessageID)READY_PACKET);
