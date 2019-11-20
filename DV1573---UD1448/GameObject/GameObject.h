@@ -48,6 +48,7 @@ public:
 	void setBTWorldPosition(glm::vec3 worldPosition, int meshIndex);
 	void setBTTransform(Transform transform, int meshIndex);
 	void set_BtActive(bool state = false, int meshIndex = 0);
+	void removeBody(int meshIndex);
 	void translate(const glm::vec3& translationVector);
 	void setShouldRender(bool condition);
 	void setMaterial(std::string matName, int meshIndex = -1);

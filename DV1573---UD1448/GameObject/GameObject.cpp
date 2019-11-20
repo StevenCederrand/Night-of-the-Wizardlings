@@ -297,6 +297,12 @@ void GameObject::set_BtActive(bool state, int meshIndex)
 		m_bodies[meshIndex]->setActivationState(true);
 }
 
+void GameObject::removeBody(int meshIndex)
+{
+	if (m_bodies[meshIndex])
+		m_bPhysics->removeObject(m_bodies[meshIndex]);
+}
+
 void GameObject::translate(const glm::vec3& translationVector)
 {
 	m_transform.position += translationVector;
@@ -597,7 +603,7 @@ void GameObject::createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp
 	m_bodies.emplace_back(m_bPhysics->createObject(shape, weight, center, halfSize, getTransform(meshIndex).rotation, true, 0.0f, 1.0f));
 
 	m_bodies.back()->setUserPointer(this);
-	m_bodies.back()->setGravity(btVector3(0.0f, 0.0f, 0.0f));
+	m_bodies.back()->setGravity(btVector3(0.0f, -25.0f, 0.0f));
 
 	m_transform.position = glm::vec3(0.0f);
 	m_transform.rotation = glm::quat();

@@ -220,9 +220,10 @@ void BulletPhysics::update(float dt)
 
 void BulletPhysics::destructionobj(btRigidBody* body)
 {
-	body->setRestitution(0.2f);
+	body->setRestitution(0.0f);
 	body->setFriction(1.0f);
 	body->setSpinningFriction(1.0f);
 	body->setAngularFactor(btVector3(1.0f, 1.0f, 1.0f));
-	body->setDamping(0.7f, 0.7f);
+	body->setDamping(0.8f, 0.8f);
+
 }

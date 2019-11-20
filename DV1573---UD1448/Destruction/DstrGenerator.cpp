@@ -221,14 +221,21 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			//	0.0f);
 			//object->setTransform(newTransform,  mi);
 
-			object->createDynamicRigidBody(CollisionObject::box, NULL, 14.0f, mi, true);
+			object->createDynamicRigidBody(CollisionObject::box, NULL, 100.0f * scale, mi, true);
 			
+			// Values for destroyed object
+			// TODO: Move thiss
 			glm::vec3 forceDir = glm::vec3((m_diagram.sites[i] - hitPosition), 0.0f) * newTransform.rotation;
-			glm::vec3 force = ((forceDir * 130)) * (scale * 2) + hitDirection * 1.4;
+			glm::vec3 force = (forceDir * 100) + hitDirection;
 
-			object->getRigidBodies()[mi]->applyCentralImpulse(btVector3(force.x, force.y, force.z) * 2);
-			object->getRigidBodies()[mi]->applyTorque(btVector3(forceDir.x, forceDir.y, forceDir.z) * 170);
+			btRigidBody* body = object->getRigidBodies()[mi];
+			body->applyCentralImpulse(btVector3(force.x, force.y, force.z) * 1.4);
+			body->applyTorque(btVector3(force.x, force.y, force.z) * 40);
+			body->setGravity(btVector3(0.0f, 0.0f, 0.0f));
+
 			object->setLifetime(0.0f);
+			object->setFallTime(1.3f);
+
 			mi++;
 		}
 	}
