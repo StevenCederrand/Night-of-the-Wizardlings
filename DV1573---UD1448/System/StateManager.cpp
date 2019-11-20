@@ -4,9 +4,6 @@
 
 StateManager::StateManager()
 {	
-	/*m_soundHandler->loadSound("Assets/SoundEffects/HarryPotterThemeSong.ogg");
-	m_soundHandler->setSourceType(AL_STREAMING);
-	m_soundHandler->playSound();*/
 }
 
 
