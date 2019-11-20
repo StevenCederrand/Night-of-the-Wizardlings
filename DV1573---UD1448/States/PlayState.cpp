@@ -84,7 +84,7 @@ PlayState::PlayState(bool spectator)
 
 	}
 
-
+	startY = SCREEN_HEIGHT / 2;
 	// DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP
 	// Destruction test object
 	//m_objects.push_back(new DestructibleObject("Destructible", &m_dstr));
@@ -172,6 +172,7 @@ void PlayState::update_isPlaying(const float& dt)
 
 	Renderer::getInstance()->updateParticles(dt);
 
+
 	for (PlayerEvents evnt = clientPtr->readNextEvent(); evnt != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
 
 		switch (evnt) {
@@ -245,7 +246,7 @@ void PlayState::update_isPlaying(const float& dt)
 			{
 				logWarning("[Event system] Took a powerup");
 				m_hudHandler.getHudObject(POWERUP)->setAlpha(1.0f);
-				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				m_hudHandler.getHudObject(CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				break;
 			}
@@ -253,7 +254,7 @@ void PlayState::update_isPlaying(const float& dt)
 			case PlayerEvents::TookHeal:
 			{
 				logWarning("[Event system] Took a heal");
-				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				m_hudHandler.getHudObject(CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				break;
 			}
@@ -271,7 +272,7 @@ void PlayState::update_isPlaying(const float& dt)
 				HudObject* HpBar = m_hudHandler.getHudObject(BAR_HP);
 				int myNewHealth = clientPtr->getMyData().health;
 				float clipPercentage = 1.0f;
-				HpBar->setYClip(clipPercentage);
+				HpBar->setXClip(clipPercentage);
 				m_player->setHealth(myNewHealth);
 				break;
 			}
@@ -473,7 +474,7 @@ void PlayState::HUDHandler() {
 		return;
 
 	//Mana bar
-	m_hudHandler.getHudObject(BAR_MANA)->setYClip(m_player->getMana() / 100.0f);
+	m_hudHandler.getHudObject(BAR_MANA)->setXClip(m_player->getMana() / 100.0f);
 	m_hudHandler.getHudObject(CROSSHAIR_MANA)->setYClip(m_player->getMana() / 100.0f);
 
 
