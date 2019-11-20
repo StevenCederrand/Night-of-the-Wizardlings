@@ -122,7 +122,7 @@ void NetworkPickups::setupDamagePickupRenderInformation(BGLoader* loader)
 	mat->specular = newMaterial.specular;
 	loader->Unload();
 
-	mat->diffuse = glm::vec3(1.0f, 0.0f, 0.0f);
+	mat->diffuse = glm::vec3(1.0f, 1.0f, 0.0f);
 	mat->ambient = glm::vec3(1.f, 1.0f, 0.0f);
 
 	mesh->setMaterial(mat->name);

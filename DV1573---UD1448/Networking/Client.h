@@ -29,11 +29,13 @@ public:
 	void updateSpellOnNetwork(const Spell& spell);
 	void destroySpellOnNetwork(const Spell& spell);
 	void requestToDestroyClientSpell(const SpellPacket& packet);
+	
 	void sendHitRequest(Spell& spell, NetworkPlayers::PlayerEntity& playerThatWasHit);
 	void sendHitRequest(Spell& spell, const PlayerPacket& playerThatWasHit);
 	void sendDestructionPacket(const DestructionPacket& destructionPacket);
+	void sendReadyRequestToServer();
+	
 	void updateNetworkEntities(const float& dt);
-	void sendStartRequestToServer();
 	void refreshServerList();
 	void startSendingUpdatePackages();
 	void assignSpellHandler(SpellHandler* spellHandler);
@@ -61,6 +63,8 @@ public:
 	const PlayerEvents readNextEvent();
 	const std::vector<DestructionPacket>& getDestructedWalls();
 
+	const int& getNumberOfReadyPlayers() const;
+	const int getNumberOfPlayers() const;
 
 	const bool doneRefreshingServerList() const;
 	const bool doesServerExist(const unsigned int& ID) const;
@@ -100,6 +104,8 @@ private:
 	bool m_initialized = false;
 	bool m_sendUpdatePackages;
 	bool m_spectating;
+
+	int m_numberOfReadyPlayers;
 
 	size_t m_spectateIndex;
 
