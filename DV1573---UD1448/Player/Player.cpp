@@ -25,6 +25,8 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_specialCooldown = 0;
 	m_directionVector = glm::vec3(0, 0, 0);
 	m_moveDir = glm::vec3(0.0f);
+	m_isWalking = false;
+	m_isJumping = false;
 
 	m_spellhandler = spellHandler;
 	m_mana = 10000.0f; //A  players mana pool
@@ -44,13 +46,13 @@ Player::~Player()
 }
 
 void Player::update(float deltaTime)
-{																		
+{
 	if (m_playerCamera->isCameraActive()) {									// IMPORTANT; DOING THESE WRONG WILL CAUSE INPUT LAG
 		move(deltaTime);
 		m_playerCamera->update();											// Update this first so that subsequent uses are synced
 		m_directionVector = glm::normalize(m_playerCamera->getCamFace());	// Update this first so that subsequent uses are synced
 
-		
+
 		if (m_playerCamera->isFPEnabled()) {
 			attack();
 		}
@@ -60,15 +62,15 @@ void Player::update(float deltaTime)
 
 	if (m_client->isConnectedToSever()) {
 		m_client->updatePlayerData(this);
-	}
-	if (Input::isKeyReleased(GLFW_KEY_E)) {
-		m_client->sendStartRequestToServer();
-	}
 
+		if (Input::isKeyReleased(GLFW_KEY_F1)) {
+			m_client->sendReadyRequestToServer();
+		}
+	}
 	// ENHANCE ATTACK
 	if (!m_enhanceAttack.isComplete())
 	{
-		m_enhanceAttack.update(deltaTime);	
+		m_enhanceAttack.update(deltaTime);
 		if (m_enhanceAttack.canAttack()) //CAN ATTACK
 		{
 			m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, ENHANCEATTACK);
@@ -76,11 +78,13 @@ void Player::update(float deltaTime)
 		}
 	}
 
+	updateListenerProperties();
+
 	m_attackCooldown -= deltaTime; // Cooldown reduces with time
 	m_deflectCooldown -= deltaTime; // Cooldown reduces with time
 	m_specialCooldown -= deltaTime; // Cooldown reduces with time
 	m_special3Cooldown -= deltaTime; // Cooldown reduces with time
-	
+
 	//Regenerate mana when we are not deflecting
 	if (!m_rMouse && m_mana <= 100 && m_deflectCooldown <= 0) {
 		m_mana += 0.25f;
@@ -88,9 +92,9 @@ void Player::update(float deltaTime)
 	else if (m_deflectCooldown > 0 && !m_rMouse) {
 		m_deflectCooldown -= DeltaTime;
 	}
-	
-	
-	
+
+
+
 	if (m_health <= 0) {
 		if (m_firstPersonMesh->getShouldRender() == true) {
 			m_firstPersonMesh->setShouldRender(false);
@@ -104,12 +108,32 @@ void Player::update(float deltaTime)
 
 }
 
+void Player::updateListenerProperties()
+{
+	SoundHandler* shPtr = SoundHandler::getInstance();
+
+	shPtr->setListenerOrientation(m_playerCamera->getCamFace(),
+		m_playerCamera->getCamUp());
+	shPtr->setListenerPos(m_playerPosition);
+	shPtr->setSourcePosition(m_playerPosition, BasicAttackSound, m_client->getMyData().guid);
+	shPtr->setSourcePosition(m_playerPosition, BasicAttackSound, m_client->getMyData().guid, 1);
+	shPtr->setSourcePosition(m_playerPosition, DeflectSound, m_client->getMyData().guid);
+	shPtr->setSourcePosition(m_playerPosition, EnhanceAttackSound, m_client->getMyData().guid);
+	shPtr->setSourcePosition(m_playerPosition, StepsSound, m_client->getMyData().guid);
+	shPtr->setSourcePosition(m_playerPosition, JumpSound, m_client->getMyData().guid);
+	shPtr->setSourcePosition(m_playerPosition, LandingSound, m_client->getMyData().guid);
+	shPtr->setSourcePosition(m_playerPosition, PickupGraveyardSound);
+	shPtr->setSourceLooping(true, StepsSound, m_client->getMyData().guid);
+}
+
 void Player::move(float deltaTime)
 {
+	SoundHandler* sh = SoundHandler::getInstance();
+
 	m_frameCount++;
 	if (m_frameCount < 5)
 		return;
-	
+
 	m_moveDir = glm::vec3(0.0f);
 
 	if (m_playerCamera->isFPEnabled()) {
@@ -120,26 +144,57 @@ void Player::move(float deltaTime)
 
 		// Move
 		if (Input::isKeyHeldDown(GLFW_KEY_A))
+		{
 			m_moveDir -= lookRightVector;
+			m_isWalking = true;
+		}
 		if (Input::isKeyHeldDown(GLFW_KEY_D))
+		{
 			m_moveDir += lookRightVector;
+			m_isWalking = true;
+		}
 		if (Input::isKeyHeldDown(GLFW_KEY_W))
+		{
 			m_moveDir += lookDirection;
+			m_isWalking = true;
+		}
 		if (Input::isKeyHeldDown(GLFW_KEY_S))
+		{
 			m_moveDir -= lookDirection;
+			m_isWalking = true;
+		}
 
 		// Jump
 		if (Input::isKeyHeldDown(GLFW_KEY_SPACE)) {
 			if (m_character->canJump()) {
 				m_character->jump(btVector3(0.0f, 16.0f, 0.0f));
 				animState.jumping = true;
+				sh->playSound(JumpSound, m_client->getMyData().guid);
+				m_isJumping = true;
 			}
 		}
+
+		if (m_isJumping && m_character->onGround())
+		{
+			sh->playSound(LandingSound, m_client->getMyData().guid);
+			m_isJumping = false;
+		}
+
+		if (!m_isWalking || !m_character->onGround())
+		{
+			sh->stopSound(StepsSound, m_client->getMyData().guid);
+		}
+		else if(m_character->onGround())
+		{
+			sh->playSound(StepsSound, m_client->getMyData().guid);
+		}
+		m_isWalking = false;
 	}
+
 	// Make sure moving is a constant speed
 	if (glm::length(m_moveDir) >= 0.0001f)
 		m_moveDir = glm::normalize(m_moveDir);
-	
+
 	//update player position
 	btScalar yValue = std::ceil(m_character->getLinearVelocity().getY() * 100) / 100;	//Round to two decimals
 	btVector3 bulletVec = btVector3(m_moveDir.x * m_speed, -0.01f, m_moveDir.z * m_speed);
@@ -150,12 +205,12 @@ void Player::move(float deltaTime)
 	btVector3 playerPos = m_character->getGhostObject()->getWorldTransform().getOrigin();
 	float characterHalfSize = m_bp->getCharacterSize().getY();
 
-	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY()-1.0f, playerPos.getZ());
-	//m_playerPosition.y -= characterHalfSize;
+	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY(), playerPos.getZ());
+	m_playerPosition.y -= characterHalfSize;
 
-	//set cameraPos and spellSpawnPos 
+	//set cameraPos and spellSpawnPos
 	m_cameraPosition = m_playerPosition;
-	m_cameraPosition.y += characterHalfSize + characterHalfSize*0.85f;
+	m_cameraPosition.y += characterHalfSize + characterHalfSize * 0.85f;
 	m_spellSpawnPosition = m_playerPosition;
 	m_spellSpawnPosition.y += (2 * characterHalfSize) * 0.85f;
 
@@ -166,7 +221,7 @@ void Player::move(float deltaTime)
 
 void Player::PlayAnimation(float deltaTime)
 {
-	
+
 
 	if (animState.running){
 		m_firstPersonMesh->playLoopAnimation("RunAnimation");
@@ -198,10 +253,14 @@ void Player::PlayAnimation(float deltaTime)
 
 void Player::attack()
 {
+	SoundHandler* shPtr = SoundHandler::getInstance();
+
 	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_LEFT))
 	{
 		if (m_attackCooldown <= 0)
 		{
+
+			shPtr->playSound(BasicAttackSound, m_client->getMyData().guid);
 			m_attackCooldown = m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, NORMALATTACK); // Put attack on cooldown
 			animState.casting = true;
 
@@ -218,7 +277,7 @@ void Player::attack()
 		m_fpsTrans.position = m_playerCamera->getCamPos();
 		m_fpsTrans.rotation = glm::quat(glm::vec3(glm::radians(m_playerCamera->getPitch()),
 			-glm::radians(m_playerCamera->getYaw() + 90.0), 0.0));
-		
+
 		shieldObject->setTransform(m_fpsTrans);
 		Renderer::getInstance()->submit(shieldObject, SHIELD);
 
@@ -227,10 +286,11 @@ void Player::attack()
 			if (!m_deflecting) {
 				animState.deflecting = true; //Play the animation once
 				m_mana -= 10; //This is the initial manacost for the deflect
+				shPtr->playSound(DeflectSound, m_client->getMyData().guid);
 			}
 			m_mana -= 0.5f;
 			m_deflecting = true;
-			m_deflectCooldown = 0.5f; 			
+			m_deflectCooldown = 0.5f;
 		}
 		else { //Player is holding down RM without any mana
 			m_deflecting = false;
@@ -239,6 +299,7 @@ void Player::attack()
 	}
 	if (Input::isMouseReleased(GLFW_MOUSE_BUTTON_RIGHT)) {
 		m_deflecting = false;
+		shPtr->stopSound(DeflectSound, m_client->getMyData().guid);
 		m_rMouse = false;
 	}
 
@@ -246,6 +307,7 @@ void Player::attack()
 	{
 		if (m_specialCooldown <= 0)
 		{
+			shPtr->playSound(EnhanceAttackSound, m_client->getMyData().guid);
 			m_specialCooldown = m_spellhandler->getEnhAttackBase()->m_coolDown;
 			// Start loop
 			m_enhanceAttack.start();

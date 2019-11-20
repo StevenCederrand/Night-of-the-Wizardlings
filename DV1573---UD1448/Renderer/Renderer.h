@@ -32,8 +32,7 @@
 #include "NotificationStructure.h"
 #include <Text/FreeType.h>
 #include <GameObject/ShieldObject.h>
-
-
+#include <GFX/Pointlight.h>
 #include <Particles/Particles.h>
 #include <Particles/ParticleBuffers.h>
 
@@ -50,8 +49,13 @@ struct LightIndex {
 	int index[P_LIGHT_COUNT];
 };
 
+struct PLIGHT {
+	glm::vec3 position;
+	glm::vec3 color;
+	int index;
+};
 
-enum ObjectType {
+enum RENDER_TYPE {
 	STATIC,
 	DYNAMIC,
 	ANIMATEDSTATIC,
@@ -59,7 +63,8 @@ enum ObjectType {
 	SPELL,
 	PICKUP,
 	SHIELD,
-	FIRESPELL
+	FIRESPELL,
+	POINTLIGHT_SOURCE,
 };
 
 class Renderer
@@ -81,8 +86,8 @@ private:
 	std::vector<GameObject*> m_dynamicObjects;
 	std::vector<GameObject*> m_anistaticObjects;
 	std::vector<GameObject*> m_anidynamicObjects;
-	std::vector<GameObject*> m_spells; 
-
+	std::vector<GameObject*> m_spells;
+	std::vector<PLIGHT> m_lights;
 	std::vector<GameObject*> m_pickups;
 	std::vector<GameObject*> m_shieldObject;
 	std::vector<GameObject*> m_deflectObject;
@@ -98,7 +103,7 @@ private:
 
 	//Storage Buffer for light indecies
 	unsigned int m_lightIndexSSBO;
-	glm::uvec2 workGroups;	
+	glm::uvec2 workGroups;
 	void renderAndAnimateNetworkingTexts();
 
 
@@ -108,8 +113,10 @@ private:
 	unsigned int m_sizeID;
 	unsigned int m_glowID;
 	unsigned int m_scaleDirection;
+	unsigned int m_swirl;
 	unsigned int m_fadeID;
 	unsigned int m_colorID;
+	unsigned int m_blendColorID;
 
 
 	int	thisActive = 0;
@@ -130,7 +137,7 @@ private:
 	PSinfo m_enhanceInfo;
 	PSinfo m_smoke;
 
-	std::vector<ParticleSystem> ps;
+	std::vector<ParticleSystem> m_particleSystems;
 	//1 for every spelltype
 	psBuffers attackBuffer;
 	psBuffers flameBuffer; //Do I need 1 for every spell?
@@ -154,20 +161,20 @@ private:
 	Renderer();
 	~Renderer();
 public:
-
-
 	static Renderer* getInstance();
-	
+
 	void init(GLFWwindow* window);
 	void setupCamera(Camera* camera);
 
 	void destroy();
 	void clear();
-	void submit(GameObject* gameObject, ObjectType objType);
+	//SUBMIT POINTLIGHTS BY IN THEM HERE
+	void submit(GameObject* gameObject, RENDER_TYPE objType);
 	void submit2DHUD(HudObject* hud);
-	void removeDynamic(GameObject* gameObject, ObjectType objType); //Remove an object from the dynamic array
-	void renderSkybox(SkyBox* skybox);
-	void render(SkyBox* m_skybox, SpellHandler* m_spellHandler);
+	void submitSkybox(SkyBox* skybox);
+	void removeRenderObject(GameObject* gameObject, RENDER_TYPE objType); //Remove an object from the dynamic array
+	void renderSkybox();
+	void render(SpellHandler* m_spellHandler);
 	//void renderSpell();
 	void renderHUD();
 	void renderDebug();

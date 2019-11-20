@@ -17,6 +17,7 @@ public:
 	virtual void update(float deltaTime);
 	virtual void updateRigidbody(float deltaTime, btRigidBody* body);
 	virtual const float getDamage();
+	virtual const glm::vec3& getPos() const;
 
 	void updateReflection(float deltaTime, btRigidBody* body, glm::vec3 position, glm::vec3 direction);
 	bool checkReflectCollision(glm::vec3 position, glm::vec3 direction, float radius);

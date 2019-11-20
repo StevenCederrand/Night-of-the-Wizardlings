@@ -123,6 +123,11 @@ void Shader::unuse()
 void Shader::clearBinding()
 {
 	m_oldMaterial = "";
+	//Clear all texture bindings
+	for (size_t i = 0; i < m_totalBoundTextures; i++) {
+		glActiveTexture(GL_TEXTURE0 + i);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
 }
 
 //uniform mat3
@@ -265,16 +270,17 @@ void Shader::setInt(std::string name, int num)
 void Shader::setMaterial(const std::string& materialName) {
 
 	//If material pointers are the same
-	/*if (m_oldMaterial == materialName) { 
+	if (m_oldMaterial == materialName) { 
 		return;
-	}*/
-
-	if (materialName == "lambert2") {
-		m_oldMaterial = materialName;
 	}
+
 	Material* mat = MaterialMap::getInstance()->getMaterial(materialName);
+	
 	if (mat)
 	{
+		if (m_totalBoundTextures < mat->textureID.size()) {
+			m_totalBoundTextures = mat->textureID.size();
+		}
 		setVec3("Ambient_Color", mat->ambient);
 		setVec3("Diffuse_Color", mat->diffuse);
 		//setVec3("Specular_Color", mat->specular);
@@ -295,19 +301,50 @@ void Shader::setMaterial(const std::string& materialName) {
 
 void Shader::setMaterial(Material* material)
 {
-	/*if (m_oldMaterial == material->name) { 
+	if (m_oldMaterial == material->name) { 
 		return;
-	}*/
+	}
+
+	if (m_totalBoundTextures < material->textureID.size()) {
+		m_totalBoundTextures = material->textureID.size();
+	}
+
 	m_oldMaterial = material->name;
 
 	setVec3("Ambient_Color", material->ambient);
 	setVec3("Diffuse_Color", material->diffuse);
-	setVec2("TexAndRim", glm::vec2(material->texture, 1));
+	setVec2("TexAndRim", glm::vec2(material->texture, material->rimLighting));
 	//setVec3("Specular_Color", mat->specular);
 
 	for (size_t i = 0; i < material->textureID.size(); i++) {
 		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D, material->textureID.at(i));
+	}
+}
+
+void Shader::unbindMaterial(const std::string& materialName)
+{
+	Material* mat = MaterialMap::getInstance()->getMaterial(materialName);
+
+	setVec3("Ambient_Color", glm::vec3(0));
+	setVec3("Diffuse_Color", glm::vec3(0));
+	setVec2("TexAndRim", glm::vec2(0));
+
+	for (size_t i = 0; i < mat->textureID.size(); i++) {
+		glActiveTexture(GL_TEXTURE0 + i);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+}
+
+void Shader::unbindMaterial(Material* material)
+{
+	setVec3("Ambient_Color", glm::vec3(0));
+	setVec3("Diffuse_Color", glm::vec3(0));
+	setVec2("TexAndRim", glm::vec2(0));
+
+	for (size_t i = 0; i < material->textureID.size(); i++) {
+		glActiveTexture(GL_TEXTURE0 + i);
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 }
 

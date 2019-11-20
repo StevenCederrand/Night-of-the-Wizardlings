@@ -16,6 +16,7 @@ public:
 	virtual void update(float deltaTime);
 	virtual void updateRigidbody(float deltaTime, btRigidBody* body);
 	virtual const float getDamage();
+	virtual const glm::vec3& getPos() const;
 
 	const AttackSpellBase* getBase() { return m_spellBase; }
 

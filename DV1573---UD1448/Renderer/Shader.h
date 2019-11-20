@@ -29,7 +29,8 @@ public:
 	//Sets a standard material
 	void setMaterial(const std::string& materialName);
 	void setMaterial(Material* material);
-
+	void unbindMaterial(const std::string& materialName);
+	void unbindMaterial(Material* material);
 	bool getValid() const;
 	int getShaderID() const;
 	std::string getName() const;
@@ -42,6 +43,7 @@ public:
 private:
 
 	std::string m_oldMaterial;
+	int m_totalBoundTextures; //Keep track of the largest set of textures bound at once. 
 
 	void shaderSetup(std::string shaderName, unsigned int& shader);
 	bool m_valid;

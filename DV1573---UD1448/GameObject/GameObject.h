@@ -24,7 +24,10 @@ public:
 	void bindMaterialToShader(std::string shaderName, int meshIndex);
 	void bindMaterialToShader(Shader* shader, const int& meshIndex);
 	void bindMaterialToShader(Shader* shader, const std::string& materialName);
-	void bindMaterialToShader(Shader* shader, Material* materialName);
+	void bindMaterialToShader(Shader* shader, Material* material);
+	void unbindMaterialFromShader(Shader* shader, const std::string& materialName);
+	void unbindMaterialFromShader(Shader* shader, Material* material);
+	
 	//Create a rigid body of the shape of your choice and add it to the collision world
 	void createRigidBody(CollisionObject shape, BulletPhysics* bp);
 	void createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp, float weight);
@@ -41,14 +44,17 @@ public:
 	void setTransform(Transform transform);
 	void setTransform(Transform transform, int meshIndex);
 	void setTransform(glm::vec3 worldPosition, glm::quat worldRot, glm::vec3 worldScale);
+	void setBtOffset(glm::vec3 offset, int meshIndex);
 	void setWorldPosition(glm::vec3 worldPosition);
 	void setWorldPosition(glm::vec3 worldPosition, int meshIndex);
 	void offsetMesh(glm::vec3 position, int meshIndex);
 	void setBTWorldPosition(glm::vec3 worldPosition, int meshIndex);
 	void setBTTransform(Transform transform, int meshIndex);
 	void set_BtActive(bool state = false, int meshIndex = 0);
+	void removeBody(int meshIndex);
 	void translate(const glm::vec3& translationVector);
 	void setShouldRender(bool condition);
+	void setMaterial(std::string matName, int meshIndex = -1);
 
 	//Get functions
 	const Transform getTransform() const;
@@ -72,6 +78,7 @@ private:
 	{
 		std::string name;
 		Transform transform;
+		glm::vec3 btoffset = glm::vec3(0.0f);
 	};
 
 	std::string m_objectName;

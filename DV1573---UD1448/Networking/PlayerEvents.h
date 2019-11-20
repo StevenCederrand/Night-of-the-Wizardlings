@@ -11,6 +11,7 @@ enum PlayerEvents {
 	SessionOver,
 	Deflected,
 	WallGotDestroyed,
+	PlayerReady,
 	None
 
 };

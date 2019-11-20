@@ -2,6 +2,7 @@
 #define _STATEMANAGER_H
 #include <Pch/Pch.h>
 #include "State.h"
+#include <System/SoundHandler.h>
 
 
 class StateManager
@@ -23,7 +24,7 @@ private:
 
 private:
 	std::vector<State*> m_states;
-	std::vector<State*> m_killList;
+	std::vector<State*> m_killList;	
 };
 
 #endif
