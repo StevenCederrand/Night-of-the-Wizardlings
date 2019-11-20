@@ -56,7 +56,8 @@ public:
 
 	//Get functions
 	const Transform getTransform() const;
-	//Returns mesh worldposition
+	Material* getMaterial(const int& meshIndex); //Get a material from the meshbox
+	Mesh* getMesh(const int& meshIndex); //Get a mesh from the meshbox
 	const Transform getTransform(int meshIndex) const;
 	const Transform& getTransform(Mesh* mesh, const int& meshIndex) const;
 	const Transform getTransformMesh(int meshIndex) const;
@@ -74,8 +75,10 @@ private:
 	void updateModelMatrix();
 	struct MeshBox //Handles seperate transforms for same mesh
 	{
-		std::string name;
+		std::string name; //This is kinda useless 
 		Transform transform;
+		Material* material;
+		Mesh* mesh;
 	};
 
 	std::string m_objectName;

@@ -613,7 +613,7 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 	Shader* shader;
 	MeshMap* meshMap = MeshMap::getInstance();
 	ShaderMap* shaderMap = ShaderMap::getInstance();
-	
+	Material* material;
 
 #pragma region Depth_Render & Light_Cull
 	if (m_lights.size() > 0) {
@@ -639,7 +639,12 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 			{
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
-				mesh = meshMap->getMesh(object->getMeshName(j));
+				if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
+					mesh = meshMap->getMesh(object->getMeshName(j));
+				}
+				else {
+					mesh = object->getMesh(j);
+				}
 				transform = object->getTransform(mesh, j);
 
 				modelMatrix = object->getMatrix(j);
@@ -672,7 +677,13 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 			{
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
-				mesh = meshMap->getMesh(object->getMeshName(j));
+				if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
+					mesh = meshMap->getMesh(object->getMeshName(j));
+				}
+				else {
+					mesh = object->getMesh(j);
+				}
+
 				transform = object->getTransform(mesh, j);
 
 				modelMatrix = object->getMatrix(j);
@@ -829,10 +840,20 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 		for (int j = 0; j < object->getMeshesCount(); j++)
 		{
 			//Fetch the current mesh and its transform
-			mesh = meshMap->getMesh(object->getMeshName(j));
-
+			if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
+				mesh = meshMap->getMesh(object->getMeshName(j));
+			}
+			else {
+				mesh = object->getMesh(j); 
+			}
 			//Bind the material   
-			object->bindMaterialToShader(shader, mesh->getMaterial());
+			if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
+				object->bindMaterialToShader(shader, mesh->getMaterial());
+			}
+			else {
+				material = object->getMaterial(j);
+				object->bindMaterialToShader(shader, material);
+			}
 
 			modelMatrix = glm::mat4(1.0f);
 
@@ -864,10 +885,20 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 			//Then through all of the meshes
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
-				//Fetch the current mesh and its transform
-				mesh = meshMap->getMesh(object->getMeshName(j));
-				//Bind the material
-				object->bindMaterialToShader(shader, mesh->getMaterial());
+				if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
+					mesh = meshMap->getMesh(object->getMeshName(j));
+				}
+				else {
+					mesh = object->getMesh(j);
+				}
+				//Bind the material   
+				if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
+					object->bindMaterialToShader(shader, mesh->getMaterial());
+				}
+				else {
+					material = object->getMaterial(j);
+					object->bindMaterialToShader(shader, material);
+				}
 
 				modelMatrix = glm::mat4(1.0f);
 				//Apply the transform to the matrix. This should actually be done automatically in the mesh!
