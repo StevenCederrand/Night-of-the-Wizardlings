@@ -162,7 +162,7 @@ void Renderer::renderAndAnimateNetworkingTexts()
 		}
 		else if (state == NetGlobals::SERVER_STATE::GameFinished) {
 			uint32_t minutes = Client::getInstance()->getRoundTimePacket().minutes;
-			uint32_t seconds = Client::getInstance()->getRoundTimePacket().seconds;
+			uint32_t seconds = Client::getInstance()->getRoundTimePacket().seconds; 
 			std::string timeText = std::to_string(minutes) + ":";
 
 			if (seconds >= 10) {
