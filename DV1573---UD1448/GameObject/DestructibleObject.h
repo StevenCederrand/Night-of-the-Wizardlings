@@ -22,7 +22,7 @@ public:
 
 	const std::vector<glm::vec2>& getPolygon() const { return m_polygonFace; }
 	const float& getScale() const { return m_scale; }
-	const float& getLifetime(float time) const { return m_lifetime; }
+	const float& getLifetime() const { return m_lifetime; }
 	const int& getIndex() const { return m_index; }
 	const bool& is_destroyed() const { return m_destroyed; }
 	DstrGenerator* getDstr() { return dstrRef; }
