@@ -166,7 +166,8 @@ btKinematicCharacterController* BulletPhysics::createCharacter(const glm::vec3& 
 	btScalar capsuleX = m_boxSize.getX();
 	btScalar capsuleY = m_boxSize.getY() * 2.0f;
 	btScalar capsuleZ = m_boxSize.getZ() + 0.3f;
-	//height of capsule is realheight = height + radius * 2
+	//height of capsule is	totalHeight = height + radius * 2
+	//						height = totalHeight - radius * 2
 	btScalar realY = (capsuleY) - (capsuleZ * 2.0f);
 	m_playerShape = new btCapsuleShapeZ(capsuleZ, realY);
 
