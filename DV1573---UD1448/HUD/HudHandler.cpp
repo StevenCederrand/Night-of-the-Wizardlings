@@ -18,6 +18,9 @@ HudHandler::~HudHandler()
 }
 
 void HudHandler::loadPlayStateHUD() {
+	
+	if (Client::getInstance()->isSpectating()) return;
+	
 	// HUD
 	HudObject* hudObject = new HudObject("Assets/Textures/HUD/CrosshairHP.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(50.0f, 50.0f));
 	hudObject->setAlpha(1.0f);

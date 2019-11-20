@@ -1303,7 +1303,12 @@ const int& Client::getNumberOfReadyPlayers() const
 
 const int Client::getNumberOfPlayers() const
 {
-	return static_cast<int>(m_connectedPlayers.size()) + 1;
+	if(m_spectating == true)
+		return static_cast<int>(m_connectedPlayers.size());
+	else
+		return static_cast<int>(m_connectedPlayers.size()) + 1;
+
+	
 }
 
 
