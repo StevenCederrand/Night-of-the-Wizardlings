@@ -23,28 +23,42 @@ AnimatedObject::~AnimatedObject()
 void AnimatedObject::update(float dt)
 {
 
+	currentTime += dt;
 
 	// Update animation time
 	if (isLooping)
 	{
-		if (currentTime <= m_stopTime)
-		{
-			currentTime += dt;
-		}
-		else
+		if (currentTime >= m_stopTime)
 		{
 			currentTime = m_startTime;
+		}
+		for (size_t i = 0; i < m_meshes.size(); i++)
+		{
+			size_t animSize = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations().size();
+			for (size_t a = 0; a < animSize; a++)
+			{
+				std::string animName = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations()[a];
+				ComputeMatrix((int)i, m_meshes[i].name, animName);
+			}
 		}
 	}
 	else
 	{
-		if (currentTime <= m_stopTime)
-		{
-			currentTime += dt;
-		}
 		if (currentTime >= m_stopTime)
 		{
 			isDone = true;
+		}
+		else
+		{
+			for (size_t i = 0; i < m_meshes.size(); i++)
+			{
+				size_t animSize = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations().size();
+				for (size_t a = 0; a < animSize; a++)
+				{
+					std::string animName = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations()[a];
+					ComputeMatrix((int)i, m_meshes[i].name, animName);
+				}
+			}
 		}
 	}
 
@@ -55,15 +69,8 @@ void AnimatedObject::update(float dt)
 	
 	// (DEBUG) This loop temporarily updates all the animations for all the meshes based on time,
 	// looping with the shortest animation and always replacing the pallete.
-	for (size_t i = 0; i < m_meshes.size(); i++)
-	{
-		size_t animSize = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations().size();
-		for (size_t a = 0; a < animSize; a++)
-		{
-			std::string animName = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations()[a];
-			ComputeMatrix((int)i, m_meshes[i].name, animName);
-		}
-	}
+
+
 
 }
 

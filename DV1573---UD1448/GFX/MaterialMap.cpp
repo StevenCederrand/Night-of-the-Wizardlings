@@ -27,7 +27,6 @@ void MaterialMap::cleanUp()
 bool MaterialMap::existsWithName(std::string name)
 {
 	if (m_Material.find(name) != m_Material.end()) {
-		
 		return true;
 	}
 	return false;

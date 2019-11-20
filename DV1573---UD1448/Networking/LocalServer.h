@@ -35,6 +35,10 @@ private:
 	};
 
 private:
+	
+	int getNumberOfReadyPlayers() const;
+	int getNumberOfPlayingPlayers() const;
+
 	unsigned char getPacketID(RakNet::Packet* p);
 	bool handleLostPlayer(const RakNet::Packet& packet, const RakNet::BitStream& bsIn);
 	void stateChange(NetGlobals::SERVER_STATE newState);
@@ -85,6 +89,11 @@ private:
 	void copyStringToCharArray(char Dest[16], std::string Src);
 	void copyCharArrayOver(char Dest[16], char Src[16]);
 	void destroyAllPickups();
+
+	void sendReadyInfoToPlayer(const PlayerPacket* player);
+	void sendReadyInfoToAllPlayers();
+	void unreadyEveryPlayer();
+
 	PickupType getRandomPickupType();
 	PickupSpawnLocation* getRandomPickupSpawnLocation();
 	const glm::vec3& getRandomSpawnLocation();
@@ -109,7 +118,6 @@ private:
 	TimedCallback m_timedPickupSpawner;
 	TimedCallback m_updateClientsWithServertimeTimer;
 
-	
 	uint64_t m_pickupID;
 	bool m_pickupNotified;
 	std::vector<PickupSpawnLocation> m_pickupSpawnLocations;

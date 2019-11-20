@@ -28,7 +28,7 @@ public:
 	*/
 
 protected:
-	StateManager* m_stateManager;
+	StateManager* m_stateManager;	
 };
 
 

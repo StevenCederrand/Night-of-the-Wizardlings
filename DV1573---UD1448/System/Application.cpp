@@ -29,6 +29,7 @@ Application::~Application() {
 		LocalServer::getInstance()->destroy();
 
 	Gui::getInstance()->destroy();
+	SoundHandler::getInstance()->destroy();
 
 	glfwTerminate();
 
@@ -81,13 +82,19 @@ bool Application::init() {
 	m_input = new Input();
 
 	initGraphics();
+	initSound();
 
 	Gui::getInstance()->init();
 	Gui::getInstance()->loadScheme(CEGUI_TYPE + ".scheme");
 	Gui::getInstance()->setFont("DejaVuSans-10");
 
 	m_stateManager = new StateManager();
-	m_stateManager->pushState(new MenuState());
+	m_stateManager->pushState(new MenuState());	
+
+	SoundHandler* shPtr = SoundHandler::getInstance();
+	//shPtr->setSourceType(AL_STREAMING, ThemeSong0);
+	shPtr->playSound(ThemeSong0);
+	shPtr->setSourceLooping(true, ThemeSong0);
 
 	unsigned int _time = unsigned int(time(NULL));
 	srand(_time);
@@ -118,7 +125,7 @@ void Application::run()
 			glfwSetWindowShouldClose(m_window, true);
 		}
 
-		if (Input::isKeyPressed(GLFW_KEY_F1)) {
+		if (Input::isKeyPressed(GLFW_KEY_F4)) {
 			ShaderMap::getInstance()->reload();
 		}
 
@@ -166,7 +173,15 @@ void Application::initGraphics()
 	m_renderer->init(m_window);
 
 	ShaderMap::getInstance();
+}
 
+void Application::initSound()
+{
+	SoundHandler* m_soundHandler = SoundHandler::getInstance();
+	if (!m_soundHandler)
+	{
+		logError("SoundHandler failed to initialize");
+	}
 }
 
 void Application::centerWindowOnMonitor()

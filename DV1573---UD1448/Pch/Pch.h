@@ -66,6 +66,7 @@
 #include <Renderer/Camera.h>
 #include <Renderer/Renderer.h>
 #include <System/Input.h>
+#include <System/SoundHandler.h>
 #include <GameObject/ObjectTypes.h>
 
 // DSTR
@@ -81,6 +82,7 @@ const std::string CEGUI_TYPE = "OgreTray";
 const std::string SHADERPATH = "Assets/Shaders/";
 const std::string TEXTUREPATH = "Assets/Textures/";
 const std::string MESHPATH = "Assets/Meshes/";
+const std::string SOUNDEFFECTPATH = "Assets/SoundEffects/";
 const std::string CHARACTER = "pCharacter";
 
 const unsigned int SCREEN_WIDTH = 1280;

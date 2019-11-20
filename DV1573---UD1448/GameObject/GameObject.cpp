@@ -463,15 +463,27 @@ void GameObject::bindMaterialToShader(Shader* shader, const std::string& materia
 	//logWarning("Material: {0}", materialName);
 	shader->setMaterial(materialName);
 }
+
+
 void GameObject::bindMaterialToShader(Shader* shader, Material* material)
 {
 	shader->setMaterial(material);
+}
+void GameObject::unbindMaterialFromShader(Shader* shader, const std::string& materialName)
+{
+	shader->unbindMaterial(materialName);
+}
+void GameObject::unbindMaterialFromShader(Shader* shader, Material* material)
+{
+	shader->unbindMaterial(material);
 }
 void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 {
 	if (!m_bPhysics)
 		m_bPhysics = bp;
 
+	if (m_bPhysics == nullptr && bp == nullptr)
+		return;
 
 	for (size_t i = 0; i < m_meshes.size(); i++)
 	{

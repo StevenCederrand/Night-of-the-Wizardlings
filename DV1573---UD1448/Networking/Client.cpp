@@ -65,22 +65,25 @@ void Client::destroy()
 		delete m_networkPickup;
 		resetPlayerData();
 		m_initialized = false;
+		m_serverOwner = false;
+		m_numberOfReadyPlayers = 0;
 		RakNet::RakPeerInterface::DestroyInstance(m_clientPeer);
 	}
 }
 
-void Client::connectToAnotherServer(const ServerInfo& server)
+void Client::connectToAnotherServer(const ServerInfo& server, bool spectatorMode)
 {
 	m_failedToConnect = false;
 	m_shutdownThread = false;
 	m_isConnectedToAnServer = false;
 	m_serverOwner = false;
+	m_spectating = spectatorMode;
 
 	bool status = m_clientPeer->Connect(server.serverAddress.ToString(false), server.serverAddress.GetPort(), 0, 0, 0) == RakNet::CONNECTION_ATTEMPT_STARTED;
 	assert((status == true, "[Client] Client connecting to {0} failed!", server.serverName));
 
 	if (m_processThread.joinable()) {
-		m_processThread.join();
+		m_processThread.join();		
 	}
 
 	m_clientPeer->SetTimeoutTime(NetGlobals::PlayerTimeoutTimeMS, server.serverAddress);
@@ -94,15 +97,15 @@ void Client::connectToMyServer()
 	m_shutdownThread = false;
 	m_isConnectedToAnServer = false;
 	m_serverOwner = false;
-
+	m_spectating = false;
 	bool status = m_clientPeer->Connect("localhost", NetGlobals::ServerPort, 0, 0, 0) == RakNet::CONNECTION_ATTEMPT_STARTED;
 	assert((status == true, "Client connecting to localhost failed!"));
 	
 	if (m_processThread.joinable()) {
-		m_processThread.join();
+		m_processThread.join();		
 	}
 	
-	m_processThread = std::thread(&Client::ThreadedUpdate, this);
+	m_processThread = std::thread(&Client::ThreadedUpdate, this);	
 }
 
 void Client::ThreadedUpdate()
@@ -168,6 +171,20 @@ void Client::processAndHandlePackets()
 		case ID_CONNECTION_REQUEST_ACCEPTED:
 		{
 			logTrace("[Client] Connected to server but not sure if actually accepted to the server.\n");
+			RakNet::BitStream stream;
+			if (m_spectating)
+			{	
+				logTrace("[Client] Sending spectator request to server.\n");
+				stream.Write((RakNet::MessageID)SPECTATE_REQUEST);
+				m_clientPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, packet->guid, false);
+			}
+			else
+			{
+				logTrace("[Client] Sending Play request to server.\n");
+				stream.Write((RakNet::MessageID)PLAY_REQUEST);
+				m_clientPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, packet->guid, false);
+			}
+
 		}
 		break;
 
@@ -221,7 +238,9 @@ void Client::processAndHandlePackets()
 			logTrace("[Client] Connected and accepted by server! Welcome!.\n");
 			m_serverAddress = packet->systemAddress;
 			m_isConnectedToAnServer = true;
+			m_myPlayerDataPacket.isReady = false;
 			m_myPlayerDataPacket.guid = m_clientPeer->GetMyGUID();
+			SoundHandler::getInstance()->setPlayerGUIDs();
 		}
 		break;
 
@@ -331,6 +350,9 @@ void Client::processAndHandlePackets()
 				if (pE != nullptr) {
 					playerName = std::string(pE->data.userName);
 					pE->flag = NetGlobals::THREAD_FLAG::Remove;
+
+					if (m_serverOwner && m_connectedPlayers.size() == 0)
+						m_myPlayerDataPacket.isReady = false;
 				}
 			}
 
@@ -408,15 +430,18 @@ void Client::processAndHandlePackets()
 					}
 
 					m_connectedPlayers[i] = pData;
-
-					if (m_networkPlayers.m_players[i].data.guid == pData.guid)
 					{
-						m_networkPlayers.m_players[i].data = pData;
-					}
-					else {
-						logWarning("[Client] Client skipped a update on a client due to sync problems. (Should resolve itself with time)");
-					}
+						std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayersMutex);
+						NetworkPlayers::PlayerEntity* pEntity = findPlayerEntityInNetworkPlayers(pData.guid);
 
+						if (pEntity != nullptr)
+						{
+							pEntity->data = pData;
+						}
+						else {
+							logWarning("[Client] Client skipped a update on a client due to sync problems. (Should resolve itself with time)");
+						}
+					}
 					break;
 				}
 			}
@@ -437,18 +462,21 @@ void Client::processAndHandlePackets()
 			   (for example changing the state from "Waiting for other players" to "Starting the actual game") this package is received
 			   so every client is aware of the server state change */
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			m_myPlayerDataPacket.isReady = false;
 
 			m_serverState.Serialize(false, bsIn);
 			if (m_serverState.currentState == NetGlobals::SERVER_STATE::WaitingForPlayers) {
 				logTrace("[Client]******** WARMUP ********");
 			}
 			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GameIsStarting) {
+				
 				logTrace("[Client]******** GAME IS STARTING ********");
 			}
 			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GameInSession) {
 				logTrace("[Client]******** GAME HAS STARTED ********");
 			}
 			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GameFinished) {
+			
 				logTrace("[Client]******** GAME HAS ENDED ********");
 
 			}
@@ -464,7 +492,22 @@ void Client::processAndHandlePackets()
 			spellPacket.Serialize(false, bsIn);
 			NetworkSpells::SpellEntity se;
 
-			se.spellData = spellPacket;
+			se.spellData = spellPacket;							
+					
+			SoundHandler* shPtr = SoundHandler::getInstance();
+			switch (se.spellData.SpellType)
+			{
+			case OBJECT_TYPE::NORMALATTACK:
+				shPtr->setSourcePosition(se.spellData.Position, BasicAttackSound, se.spellData.CreatorGUID);
+				shPtr->setSourcePosition(se.spellData.Position, BasicAttackSound, se.spellData.CreatorGUID, 1);
+				shPtr->playSound(BasicAttackSound, se.spellData.CreatorGUID);
+				break;			
+			case OBJECT_TYPE::ENHANCEATTACK:
+				shPtr->setSourcePosition(se.spellData.Position, EnhanceAttackSound, se.spellData.CreatorGUID);
+				shPtr->playSound(EnhanceAttackSound, se.spellData.CreatorGUID);
+				break;					
+			}
+			
 			se.flag = NetGlobals::THREAD_FLAG::Add;
 			se.gameobject = nullptr;
 			
@@ -496,23 +539,23 @@ void Client::processAndHandlePackets()
 					/* Update the internal information about the spell */
 					activeSpell.Position = spellPacket.Position;
 					activeSpell.Rotation = spellPacket.Rotation;
-
+				
 					/* Get the entity on the main thread */
-					NetworkSpells::SpellEntity& spellEntity = m_networkSpells.m_entities[i];
-
-					/* If it also matches then update the values of that entity. That entity is the same one that
-					   will later on get renderer by the main thread */
-					if (spellEntity.spellData.CreatorGUID == spellPacket.CreatorGUID &&
-						spellEntity.spellData.SpellID == spellPacket.SpellID)
 					{
-						spellEntity.spellData.Position = spellPacket.Position;
-						spellEntity.spellData.Rotation = spellPacket.Rotation;
-					}
-					else {
-						/* Just as the "PLAYER_UPDATE" this will resolve itself a couple of frames later */
-						//logWarning("[Client] Client skipped a update on a spell due to sync problems. (Should resolve itself with time)");
-					}
+						std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateSpellsMutex);
+						NetworkSpells::SpellEntity* spellEntity = findSpellEntityInNetworkSpells(spellPacket);
 
+						/* If it also matches then update the values of that entity. That entity is the same one that
+						   will later on get renderer by the main thread */
+						if (spellEntity != nullptr) {
+							spellEntity->spellData.Position = spellPacket.Position;
+							spellEntity->spellData.Rotation = spellPacket.Rotation;
+						}
+						else {
+							/* Just as the "PLAYER_UPDATE" this will resolve itself a couple of frames later */
+							logWarning("[Client] Client skipped a update on a spell due to sync problems. (Should resolve itself with time)");
+						}
+					}
 					break;
 				}
 			}
@@ -667,6 +710,12 @@ void Client::processAndHandlePackets()
 			data.direction = m_myPlayerDataPacket.lookDirection;
 			data.type = spellPacket.SpellType;
 			
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+				m_playerEvents.push_back(PlayerEvents::Deflected);
+			}
+
 			// scope
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateDeflectSpellMutex);
@@ -730,7 +779,28 @@ void Client::processAndHandlePackets()
 				std::string type = "Health potion ";
 				glm::vec3 color = glm::vec3(1.0f, 0.2f, 0.2f);
 				t.width += Renderer::getInstance()->getTextWidth(type, t.scale);
-				t.textParts.emplace_back(type, color);
+				t.textParts.emplace_back(type, color);		
+
+				//Gotta put in some better sounds 
+
+				/*std::string locationNameTemp = pickupPacket.locationName;
+
+				if (locationNameTemp == "Graveyard ")
+				{
+					SoundHandler::getInstance()->playSound(PickupGraveyardSound);
+				}	
+				else if (locationNameTemp == "Maze ")
+				{
+					SoundHandler::getInstance()->playSound(PickupMazeSound);
+				}
+				else if (locationNameTemp == "Tunnels ")
+				{
+					SoundHandler::getInstance()->playSound(PickupTunnelsSound);
+				}
+				else if (locationNameTemp == "Top ")
+				{
+					SoundHandler::getInstance()->playSound(PickupTopSound);
+				}*/
 			}
 			else if (pickupPacket.type == PickupType::DamageBuff)
 			{
@@ -739,7 +809,9 @@ void Client::processAndHandlePackets()
 				t.width += Renderer::getInstance()->getTextWidth(type, t.scale);
 				t.textParts.emplace_back(type, color);
 			}
-		
+			
+			
+
 			std::string text = "will spawn soon at " + std::string(pickupPacket.locationName) + "!";
 			t.width += Renderer::getInstance()->getTextWidth(text, t.scale);
 			glm::vec3 locColor = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -879,6 +951,29 @@ void Client::processAndHandlePackets()
 
 			break;
 		}
+		case NUMBER_OF_READY_PLAYERS:
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			ReadyPlayersCount readyPlayersCount;
+			readyPlayersCount.Serialize(false, bsIn);
+
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+				m_playerEvents.push_back(PlayerEvents::PlayerReady);
+			}
+
+			m_numberOfReadyPlayers = readyPlayersCount.numberOfReadyPlayers;
+
+			break;
+		}
+		
+		case UNREADY_PACKET_FROM_SERVER:
+		{
+			m_myPlayerDataPacket.isReady = false;
+			m_numberOfReadyPlayers = 0;
+			break;
+		}
 
 		default:
 		{
@@ -898,6 +993,7 @@ void Client::updatePlayerData(Player* player)
 	m_myPlayerDataPacket.position = player->getPlayerPos();
 	m_myPlayerDataPacket.inDeflectState = player->isDeflecting();
 	m_myPlayerDataPacket.lookDirection = player->getCamera()->getCamFace();
+	m_myPlayerDataPacket.meshHalfSize = player->getMeshHalfSize();
 	m_myPlayerDataPacket.timestamp = RakNet::GetTimeMS();
 	m_myPlayerDataPacket.rotation = glm::vec3(
 		0.0f,
@@ -1030,15 +1126,16 @@ void Client::updateNetworkEntities(const float& dt)
 
 }
 
-void Client::sendStartRequestToServer()
+void Client::sendReadyRequestToServer()
 {
-	if (m_serverOwner) {
+	if (!m_myPlayerDataPacket.isReady && m_initialized && m_isConnectedToAnServer && m_spectating == false) {
 		RakNet::BitStream stream;
-		stream.Write((RakNet::MessageID)SERVER_CHANGE_STATE);
-		ServerStateChange stateChange;
-		stateChange.currentState = NetGlobals::SERVER_STATE::GameIsStarting;
-		stateChange.Serialize(true, stream);
-		m_clientPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
+		m_myPlayerDataPacket.isReady = true;
+		stream.Write((RakNet::MessageID)READY_PACKET);
+		ReadyPacket packet;
+		packet.guid = m_myPlayerDataPacket.guid.rakNetGuid;
+		packet.Serialize(true, stream);
+		m_clientPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_serverAddress, false);
 	}
 }
 
@@ -1199,10 +1296,30 @@ const std::vector<DestructionPacket>& Client::getDestructedWalls()
 	return m_destroyedWalls;
 }
 
+const int& Client::getNumberOfReadyPlayers() const
+{
+	return m_numberOfReadyPlayers;
+}
+
+const int Client::getNumberOfPlayers() const
+{
+	if(m_spectating == true)
+		return static_cast<int>(m_connectedPlayers.size());
+	else
+		return static_cast<int>(m_connectedPlayers.size()) + 1;
+
+	
+}
+
 
 const std::vector<SpellPacket>& Client::getNetworkSpells()
 {
 	return m_activeSpells;
+}
+
+const PlayerPacket* Client::getSpectatedPlayer() const
+{
+	return m_spectatedPlayer;
 }
 
 void Client::refreshServerList()
@@ -1231,9 +1348,48 @@ void Client::setUsername(const std::string& userName)
 	std::memcpy(m_myPlayerDataPacket.userName, userName.c_str(), userName.size());
 }
 
+void Client::spectateNext()
+{
+	// The client thread may remove this the moment we look at it so let's be safe and lock it
+	std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayersMutex);
+	if (m_connectedPlayers.size() == 0) {
+		m_spectatedPlayer = nullptr;
+		return;
+	}
+
+	if (m_spectateIndex >= m_connectedPlayers.size())
+		m_spectateIndex = 0;
+
+	int count = 0;
+	bool foundValidPlayer = false;
+
+	while (count < m_connectedPlayers.size() && !foundValidPlayer)
+	{
+		m_spectatedPlayer = &m_connectedPlayers[m_spectateIndex];
+
+		if (m_spectatedPlayer->health != 0)
+			foundValidPlayer = true;
+
+		m_spectateIndex++;
+
+		if (m_spectateIndex >= m_connectedPlayers.size())
+			m_spectateIndex = 0;
+
+		count++;
+	}
+	
+	if (foundValidPlayer == false)
+	{
+		m_spectatedPlayer = nullptr;
+		return;
+	}
+
+}
+
 void Client::clearDestroyedWallsVector()
 {
 	m_destroyedWalls.clear();
+
 }
 
 const bool Client::doneRefreshingServerList() const
@@ -1284,6 +1440,11 @@ const bool& Client::isServerOwner() const
 	return m_serverOwner;
 }
 
+const bool& Client::isSpectating() const
+{
+	return m_spectating;
+}
+
 void Client::findAllServerAddresses()
 {
 	m_clientPeer->Ping("255.255.255.255", NetGlobals::ServerPort, false);
@@ -1307,8 +1468,7 @@ void Client::findAllServerAddresses()
 					info = *(ServerInfo*)bsIn.GetData();
 
 					// If the pinged server is full or in session then don't add it to the server list
-					if (info.connectedPlayers >= info.maxPlayers) continue;
-					if (info.currentState == NetGlobals::SERVER_STATE::GameInSession) continue;
+					if (info.connectedPlayers >= NetGlobals::MaximumConnections) continue;
 
 					info.serverAddress = packet->systemAddress;
 					m_serverList.emplace_back(std::make_pair(ID++, info));
@@ -1397,10 +1557,15 @@ void Client::removeActiveSpell(const SpellPacket& packet)
 
 void Client::removeConnectedPlayer(const RakNet::AddressOrGUID& guid)
 {
+
 	for (size_t i = 0; i < m_connectedPlayers.size(); i++) {
 		PlayerPacket& p = m_connectedPlayers[i];
 
 		if (p.guid == guid) {
+
+			if (&p == m_spectatedPlayer)
+				m_spectatedPlayer = nullptr;
+
 			m_connectedPlayers.erase(m_connectedPlayers.begin() + i);
 			return;
 		}

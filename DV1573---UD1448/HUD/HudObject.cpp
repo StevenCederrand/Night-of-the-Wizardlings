@@ -52,7 +52,6 @@ void HudObject::setGrayscale(const float& grayscale)
 void HudObject::setPosition(const glm::vec2& position)
 {
 	m_position = position;
-	//setCenter();
 	updateModelMatrix();
 }
 

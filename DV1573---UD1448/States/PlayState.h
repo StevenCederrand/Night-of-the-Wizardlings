@@ -14,6 +14,7 @@
 #include <System/BulletPhysics.h>
 #include <HUD/HudObject.h>
 #include <HUD/HudHandler.h>
+#include <GFX/Pointlight.h>
 
 //bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
 //	const btCollisionObjectWrapper* obj2, int id2, int index2);
@@ -21,7 +22,8 @@
 class PlayState : public State {
 
 public:
-	PlayState();
+	//PlayState(){}
+	PlayState(bool spectator);
 	virtual ~PlayState() override;
 	virtual void update(float dt) override;
 	virtual void render() override;
@@ -33,6 +35,10 @@ private:
 	/* Callbacks */
 	void onSpellHit_callback();
 
+	/* Helper */
+	void update_isPlaying(const float& dt);
+	void update_isSpectating(const float& dt);
+
 private:
 	int key = 1;
 	float m_rotVal;
@@ -40,6 +46,7 @@ private:
 	
 	//Any inherited GameObject class added to this vector will support basic rendering
 	std::vector<GameObject*> m_objects;
+	std::vector<Pointlight*> m_pointlights;
 
 	DstrGenerator m_dstr;
 	AnimatedObject* m_firstPerson;
@@ -61,6 +68,7 @@ private:
 
 	glm::vec3 m_lastPositionOfMyKiller;
 
+	float startY;
 private: 
 
 	bool onMainMenuClick(const CEGUI::EventArgs& e);

@@ -20,7 +20,7 @@ public:
 
 	void startup();
 	void destroy();
-	void connectToAnotherServer(const ServerInfo& server);
+	void connectToAnotherServer(const ServerInfo& server, bool spectatorMode);
 	void connectToMyServer();
 	void ThreadedUpdate();
 	void processAndHandlePackets();
@@ -29,20 +29,25 @@ public:
 	void updateSpellOnNetwork(const Spell& spell);
 	void destroySpellOnNetwork(const Spell& spell);
 	void requestToDestroyClientSpell(const SpellPacket& packet);
+	
 	void sendHitRequest(Spell& spell, NetworkPlayers::PlayerEntity& playerThatWasHit);
 	void sendHitRequest(Spell& spell, const PlayerPacket& playerThatWasHit);
 	void sendDestructionPacket(const DestructionPacket& destructionPacket);
+	void sendReadyRequestToServer();
+	
 	void updateNetworkEntities(const float& dt);
-	void sendStartRequestToServer();
 	void refreshServerList();
 	void startSendingUpdatePackages();
 	void assignSpellHandler(SpellHandler* spellHandler);
 	void setUsername(const std::string& userName);
+	void spectateNext(); /* Only works if you're a spectator */
 	void clearDestroyedWallsVector();
+
 
 	const std::vector<std::pair<unsigned int, ServerInfo>>& getServerList() const;
 	const std::vector<PlayerPacket>& getConnectedPlayers() const;
 	const std::vector<SpellPacket>& getNetworkSpells();
+	const PlayerPacket* getSpectatedPlayer() const;
 	const ServerInfo& getServerByID(const unsigned int& ID) const;
 	
 	NetworkPlayers& getNetworkPlayersREF();
@@ -58,6 +63,8 @@ public:
 	const PlayerEvents readNextEvent();
 	const std::vector<DestructionPacket>& getDestructedWalls();
 
+	const int& getNumberOfReadyPlayers() const;
+	const int getNumberOfPlayers() const;
 
 	const bool doneRefreshingServerList() const;
 	const bool doesServerExist(const unsigned int& ID) const;
@@ -65,6 +72,7 @@ public:
 	const bool& isConnectedToSever() const;
 	const bool& connectionFailed() const;
 	const bool& isServerOwner() const;
+	const bool& isSpectating() const;
 private:
 
 	unsigned char getPacketID(RakNet::Packet* p);
@@ -95,9 +103,15 @@ private:
 	bool m_shutdownThread;
 	bool m_initialized = false;
 	bool m_sendUpdatePackages;
+	bool m_spectating;
+
+	int m_numberOfReadyPlayers;
+
+	size_t m_spectateIndex;
 
 	PlayerPacket m_myPlayerDataPacket;
 	PlayerPacket* m_latestPlayerThatHitMe;
+	PlayerPacket* m_spectatedPlayer;
 	ServerStateChange m_serverState;
 	CountdownPacket m_countDownPacket;
 	CountdownPacket m_respawnTime;
