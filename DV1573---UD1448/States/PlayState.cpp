@@ -94,7 +94,7 @@ PlayState::PlayState(bool spectator)
 	if(Client::getInstance()->isInitialized())
 		Client::getInstance()->assignSpellHandler(m_spellHandler);
 
-	m_hudHandler.loadPlayStateHUD();
+	//m_hudHandler.loadPlayStateHUD();
 	m_hideHUD = false;
 }
 
@@ -230,12 +230,14 @@ PlayState::~PlayState()
 
 	m_pointlights.clear();
 	m_objects.clear();
+	
 	delete m_skybox;
 	delete m_player;
 	delete m_bPhysics;
 	delete m_spellHandler;
 	delete m_camera;
 	delete m_deflectBox;
+
 	if (LocalServer::getInstance()->isInitialized()) {
 		LocalServer::getInstance()->destroy();
 	}
@@ -263,7 +265,7 @@ void PlayState::update(float dt)
 
 void PlayState::onSpellHit_callback()
 {
-	m_hudHandler.getHudObject(CROSSHAIR_HIT)->setAlpha(1.0f);
+	m_hudHandler.getHudObject(HUDID::CROSSHAIR_HIT)->setAlpha(1.0f);
 	SoundHandler::getInstance()->playSound(HitmarkSound);
 }
 
@@ -277,10 +279,10 @@ void PlayState::update_isPlaying(const float& dt)
 	m_player->update(dt);
 	m_spellHandler->spellUpdate(dt);
 
-	Renderer::getInstance()->updateParticles(dt);	
+	Renderer::getInstance()->updateParticles(dt);
 
 	shPtr->setSourcePosition(m_player->getPlayerPos(), HitmarkSound);
-	
+
 	for (PlayerEvents evnt = clientPtr->readNextEvent(); evnt != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
 
 		switch (evnt) {
@@ -289,8 +291,8 @@ void PlayState::update_isPlaying(const float& dt)
 			{
 				logWarning("[Event system] Died");
 				//Update the HP bar 
-				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
-				m_hudHandler.getHudObject(CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				const PlayerPacket* shooter = clientPtr->getLatestPlayerThatHitMe();
 				if (shooter != nullptr) {
 					m_lastPositionOfMyKiller = shooter->position;
@@ -306,8 +308,8 @@ void PlayState::update_isPlaying(const float& dt)
 				//Update the HP bar 
 				m_player->setPlayerPos(Client::getInstance()->getMyData().latestSpawnPosition);
 				m_player->setHealth(NetGlobals::PlayerMaxHealth);
-				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
-				m_hudHandler.getHudObject(CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				m_camera->resetCamera();
 				m_camera->disableCameraMovement(false);
 				break;
@@ -338,15 +340,15 @@ void PlayState::update_isPlaying(const float& dt)
 					float clipPercentage = static_cast<float>(myNewHealth) / 100.0f;
 
 					// Get all the involved hud objects
-					HudObject* DmgIndicator = m_hudHandler.getHudObject(DAMAGE_INDICATOR);
-					HudObject* DmgOverlay = m_hudHandler.getHudObject(DAMAGE_OVERLAY);
-					HudObject* HpBar = m_hudHandler.getHudObject(BAR_HP);
+					HudObject* DmgIndicator = m_hudHandler.getHudObject(HUDID::DAMAGE_INDICATOR);
+					HudObject* DmgOverlay = m_hudHandler.getHudObject(HUDID::DAMAGE_OVERLAY);
+					HudObject* HpBar = m_hudHandler.getHudObject(HUDID::BAR_HP);
 
 					DmgIndicator->setRotation(glm::quat(glm::vec3(0, 0, glm::radians(indicatorAngle))));
 					DmgIndicator->setAlpha(1.0f);
 					DmgOverlay->setAlpha(1.0f);
 
-					HpBar->setYClip(clipPercentage);
+					HpBar->setXClip(clipPercentage);
 					m_player->setHealth(myNewHealth);
 				}
 
@@ -356,23 +358,23 @@ void PlayState::update_isPlaying(const float& dt)
 			case PlayerEvents::TookPowerup:
 			{
 				logWarning("[Event system] Took a powerup");
-				m_hudHandler.getHudObject(POWERUP)->setAlpha(1.0f);
-				m_hudHandler.getHudObject(BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
-				m_hudHandler.getHudObject(CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(HUDID::POWERUP)->setAlpha(1.0f);
+				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				break;
 			}
 
 			case PlayerEvents::TookHeal:
 			{
 				logWarning("[Event system] Took a heal");
-				m_hudHandler.getHudObject(BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
-				m_hudHandler.getHudObject(CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				break;
 			}
 			case PlayerEvents::PowerupRemoved:
 			{
 				logWarning("[Event system] Powerup was removed");
-				m_hudHandler.getHudObject(POWERUP)->setAlpha(0.0f);
+				m_hudHandler.getHudObject(HUDID::POWERUP)->setAlpha(0.0f);
 				break;
 			}
 
@@ -380,7 +382,7 @@ void PlayState::update_isPlaying(const float& dt)
 			case PlayerEvents::SessionOver:
 			{
 				logWarning("[Event system] Session is over");
-				HudObject* HpBar = m_hudHandler.getHudObject(BAR_HP);
+				HudObject* HpBar = m_hudHandler.getHudObject(HUDID::BAR_HP);
 				int myNewHealth = clientPtr->getMyData().health;
 				float clipPercentage = 1.0f;
 				HpBar->setXClip(clipPercentage);
@@ -391,7 +393,7 @@ void PlayState::update_isPlaying(const float& dt)
 
 			case PlayerEvents::Deflected:
 			{
-				m_hudHandler.getHudObject(CROSSHAIR_DEFLECT_INDICATOR)->setAlpha(1.0f);
+				m_hudHandler.getHudObject(HUDID::CROSSHAIR_DEFLECT_INDICATOR)->setAlpha(1.0f);
 				break;
 			}
 
@@ -759,6 +761,7 @@ bool PlayState::onMainMenuClick(const CEGUI::EventArgs& e)
 }
 
 bool PlayState::onQuitClick(const CEGUI::EventArgs& e) {
+	Renderer::getInstance()->clear();
 	glfwSetWindowShouldClose(glfwGetCurrentContext(), true);
 	return true;	
 }
