@@ -1365,11 +1365,16 @@ void Renderer::initializeParticle()
 }
 
 void Renderer::updateParticles(float dt)
-{
-	//if (static_cast <Spell*>(m_spells[i])->getType() == NORMALATTACK)
+{ 
 	for (int i = 0; i < m_particleSystems.size(); i++)
 	{
-		if (static_cast <Spell*>(m_spells[i])->getType() == NORMALATTACK)
+		if (i >= m_spells.size()) continue;
+
+		Spell* spell = dynamic_cast <Spell*>(m_spells[i]);
+		
+		if (spell == nullptr) continue;
+
+		if (spell->getType() == NORMALATTACK)
 		{
 			if (m_PSinfo.emission != emissionDiff)
 			{
@@ -1393,7 +1398,7 @@ void Renderer::updateParticles(float dt)
 			thisActive = m_particleSystems[i].GetNrOfParticles();
 		}
 
-		if (static_cast <Spell*>(m_spells[i])->getType() == ENHANCEATTACK)
+		if (spell->getType() == ENHANCEATTACK)
 		{
 			if (m_enhanceInfo.emission != emissionDiff2)
 			{
@@ -1417,7 +1422,7 @@ void Renderer::updateParticles(float dt)
 			thisActive2 = m_particleSystems[i].GetNrOfParticles();
 		}
 
-		if (static_cast <Spell*>(m_spells[i])->getType() == FIRE)
+		if (spell->getType() == FIRE)
 		{
 			if (m_flameInfo.emission != emissionDiff3)
 			{
