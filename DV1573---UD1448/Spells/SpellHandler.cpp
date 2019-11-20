@@ -203,6 +203,8 @@ SpellHandler::~SpellHandler()
 
 float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, OBJECT_TYPE type)
 {
+	SoundHandler* shPtr = SoundHandler::getInstance();
+	auto* clientPtr = Client::getInstance();
 	float cooldown = 0.0f;
 	if (Client::getInstance()->getMyData().health <= 0)
 		return cooldown;
@@ -295,6 +297,7 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 		));
 
 		int size = m_BulletFlamestrikeSpell.size();
+		
 		m_BulletFlamestrikeSpell.back()->setGravity(btVector3(0.0f, -60.0f, 0.0f));
 		float rndX = rand() % 1999 + 1 - 1000; rndX /= 100;
 		float rndY = rand() % 1999 + 1 - 1000; rndY /= 100;
@@ -302,6 +305,13 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 		m_BulletFlamestrikeSpell.back()->setAngularVelocity(btVector3(rndX, rndY, rndZ));
 		m_BulletFlamestrikeSpell.back()->setLinearVelocity(btVector3(direction * flamestrikeBase->m_speed));
 		m_BulletFlamestrikeSpell.back()->setUserPointer(spell);
+
+		spell->setSoundSlot(shPtr->playSound(FireSound, clientPtr->getMyData().guid));
+
+		if (spell->getSoundSlot() != -1) //out of slots
+		{
+			shPtr->setSourcePosition(spell->getPos(), FireSound, clientPtr->getMyData().guid, spell->getSoundSlot());
+		}		
 	}
 
 	if (type == FIRE)
@@ -312,27 +322,38 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 		fireSpell->setUniqueID(getUniqueID());
 		Client::getInstance()->createSpellOnNetwork(*fireSpell);
 		fireSpells.emplace_back(fireSpell);
-		Renderer::getInstance()->submit(fireSpells.back(), SPELL);
-		
+		Renderer::getInstance()->submit(fireSpells.back(), SPELL);	
+
+		shPtr->setSourcePosition(spellPos, GlassBreakSound, clientPtr->getMyData().guid);
+		shPtr->playSound(GlassBreakSound, clientPtr->getMyData().guid);		
 	}
 
+	
 	return cooldown;
 }
 
 void SpellHandler::spellUpdate(float deltaTime)
 {
 	for (size_t i = 0; i < flamestrikeSpells.size(); i++)
-	{
+	{		
 		if (flamestrikeSpells[i]->getTravelTime() > 0)
-		{
+		{			
 			flamestrikeSpells[i]->update(deltaTime);
 			flamestrikeSpells[i]->updateRigidbody(deltaTime, m_BulletFlamestrikeSpell.at(i));
 			
 			if (static_cast<Spell*>(flamestrikeSpells[i])->getType() == FLAMESTRIKE)
-			{
+			{				
 				flamestrikeUpdate(deltaTime, i);
 				AOEAttack* flamestrike = static_cast<AOEAttack*>(flamestrikeSpells[i]);
 				//flamestrike->updateActiveSpell(deltaTime);
+				
+				if (flamestrikeSpells[i]->getSoundSlot() != -1)
+				{
+					SoundHandler::getInstance()->setSourcePosition(flamestrike->getPos(),
+						FireSound, Client::getInstance()->getMyData().guid,
+						flamestrikeSpells[i]->getSoundSlot());	
+				}
+
 				if (flamestrike->spellOnGround())
 				{
 					createSpell(flamestrike->getTransform().position, glm::vec3(0, 0, 0), FIRE);
@@ -345,7 +366,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 			Client::getInstance()->updateSpellOnNetwork(*flamestrikeSpells[i]);
 		}
 		if (flamestrikeSpells[i]->getTravelTime() <= 0)
-		{
+		{			
 			Renderer::getInstance()->removeDynamic(flamestrikeSpells[i], SPELL);
 
 			Client::getInstance()->destroySpellOnNetwork(*flamestrikeSpells[i]);
@@ -364,9 +385,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 		{
 			fireSpells[i]->update(deltaTime);
 
-			Client::getInstance()->updateSpellOnNetwork(*fireSpells[i]);
-
-
+			Client::getInstance()->updateSpellOnNetwork(*fireSpells[i]);			
 		}
 
 		if (fireSpells[i]->getTravelTime() <= 0)
@@ -524,7 +543,8 @@ void SpellHandler::spellCollisionCheck()
 			glm::vec3 spellPos = spells.at(j)->getTransform().position;
 
 			//get the radius from the spelltype
-			float radius = 0.0;
+			float radius = 0.0f;
+
 			if (static_cast<Spell*>(spells[j])->getType() == NORMALATTACK) {
 				radius = attackBase->m_radius;
 			}

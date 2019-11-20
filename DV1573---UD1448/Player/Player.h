@@ -6,6 +6,8 @@
 #include <Spells/SpellHandler.h>
 
 #include "System/BulletPhysics.h"
+#include <System/SoundHandler.h>
+
 class Client;
 
 class Player
@@ -16,6 +18,7 @@ public:
 	~Player();
 
 	void update(float deltaTime);
+	void updateListenerProperties();
 	void attack();
 	void createRay(); //create ray for spells
 	void spawnPlayer(glm::vec3 pos);
@@ -76,7 +79,8 @@ private:
 	int m_frameCount;
 	
 	bool m_deflecting;
-
+	bool m_isWalking;
+	
 	AnimationState animState;
 	void PlayAnimation(float deltaTime);
 	//removed in bulletPhysics.cpp
