@@ -27,7 +27,6 @@ private:
 	bool onStartServerClicked(const CEGUI::EventArgs& e);
 	bool onStartClientClicked(const CEGUI::EventArgs& e);
 	bool onExitClicked(const CEGUI::EventArgs& e);
-
 };
 
 

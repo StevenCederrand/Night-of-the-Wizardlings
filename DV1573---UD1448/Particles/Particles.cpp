@@ -63,7 +63,6 @@ ParticleSystem::ParticleSystem(PSinfo* psInfo, TextureInfo* txtInfo, glm::vec3 p
 
 ParticleSystem::~ParticleSystem()
 {
-	logTrace("Destruct");
 	m_psInfo = NULL;
 	m_txtInfo = NULL;
 	//For GPU leaks

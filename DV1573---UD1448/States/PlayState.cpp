@@ -12,53 +12,71 @@ void logVec3(glm::vec3 vector) {
 	logTrace("Vector: ({0}, {1}, {2})", std::to_string(vector.x), std::to_string(vector.y), std::to_string(vector.z));
 }
 
-PlayState::PlayState()
+PlayState::PlayState(bool spectator)
 {
-	m_bPhysics = new BulletPhysics(-20.0f);
-	//to get the right character heigth
-	GameObject* AnimationMesh = new WorldObject("AnimationMesh");
-	AnimationMesh->loadMesh("ANIM.mesh");
-	delete AnimationMesh;
-
-	m_spellHandler = new SpellHandler(m_bPhysics);
-	m_spellHandler->setOnHitCallback(std::bind(&PlayState::onSpellHit_callback, this));
 
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
 
 	m_camera = new Camera();
 
-	m_player = new Player(m_bPhysics, "Player", NetGlobals::PlayerFirstSpawnPoint, m_camera, m_spellHandler);
+	if (spectator == false) {
+		m_bPhysics = new BulletPhysics(-20.0f);
+		
+		// To get the height of the character at start due to bounding box calculations.
+		GameObject* AnimationMesh = new WorldObject("AnimationMesh");
+		AnimationMesh->loadMesh("ANIM.mesh");
+		delete AnimationMesh;
 
-	Renderer::getInstance()->setupCamera(m_player->getCamera());
+		m_spellHandler = new SpellHandler(m_bPhysics);
+		m_spellHandler->setOnHitCallback(std::bind(&PlayState::onSpellHit_callback, this));
+		
+		m_player = new Player(m_bPhysics, "Player", NetGlobals::PlayerFirstSpawnPoint, m_camera, m_spellHandler);
+		m_player->setHealth(NetGlobals::PlayerMaxHealth);
 
-	//TODO: organized loading system?
+		if (Client::getInstance()->isInitialized())
+			Client::getInstance()->assignSpellHandler(m_spellHandler);
+
+		m_hudHandler.loadPlayStateHUD();
+	}
+	else {
+		m_spellHandler = new SpellHandler(nullptr);
+		m_spellHandler->setOnHitCallback(std::bind(&PlayState::onSpellHit_callback, this));
+		m_camera->setSpectatorMode(SpectatorMode::FreeCamera);
+	}
+
+	
+
+	Renderer::getInstance()->setupCamera(m_camera);
+	
 	m_skybox = new SkyBox();
 	m_skybox->prepareBuffers();
-
-	m_player->setHealth(NetGlobals::PlayerMaxHealth);
 
 	m_objects.push_back(new MapObject("Academy_Map"));
 	m_objects[m_objects.size() - 1]->loadMesh("Academy.mesh");
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
-
-	//m_objects.push_back(new WorldObject("Character"));
-	//m_objects[m_objects.size() - 1]->loadMesh("CharacterTest.mesh");
-	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 1.8f, -24.0f));
-	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 	
-	//m_objects.push_back(new Deflect("PlayerShield"));
-	//m_objects[m_objects.size() - 1]->loadMesh("ShieldMesh.mesh");
-	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 13.0f, 6.0f));
-	//Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], SHIELD);
 
-	MaterialMap::getInstance();
+	m_objects.push_back(new WorldObject("Character"));
+	m_objects[m_objects.size() - 1]->loadMesh("CharacterTest.mesh");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 1.8f, -24.0f));
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+
+	m_objects.push_back(new Deflect("PlayerShield"));
+	m_objects[m_objects.size() - 1]->loadMesh("ShieldMesh.mesh");
+	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 13.0f, 6.0f));
+	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], SHIELD);
 
 	gContactAddedCallback = callbackFunc;
 	// Geneterate bullet objects / hitboxes
-	for (size_t i = 0; i < m_objects.size(); i++)
-	{
-		m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);	
-		//m_objects.at(i)->createDebugDrawer();
+	
+	if (spectator == false) {
+		for (size_t i = 0; i < m_objects.size(); i++)
+		{
+			m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);
+			//m_objects.at(i)->createDebugDrawer();
+		}
+
+
 	}
 
 
@@ -107,6 +125,8 @@ PlayState::PlayState()
 
 	m_hudHandler.loadPlayStateHUD();
 	m_hideHUD = false;
+	
+
 }
 
 PlayState::~PlayState()
@@ -134,23 +154,46 @@ PlayState::~PlayState()
 
 void PlayState::update(float dt)
 {	
-	Client::getInstance()->updateNetworkEntities(dt);
+	auto* clientPtr = Client::getInstance();
+	if (clientPtr->isSpectating()) {
+		update_isSpectating(dt);
+	}
+	else{
+		update_isPlaying(dt);
+	}
+
+}
+
+void PlayState::onSpellHit_callback()
+{
+	m_hudHandler.getHudObject(CROSSHAIR_HIT)->setAlpha(1.0f);
+	SoundHandler::getInstance()->playSound(HitmarkSound);
+}
+
+void PlayState::update_isPlaying(const float& dt)
+{
+	SoundHandler* shPtr = SoundHandler::getInstance();
+	auto* clientPtr = Client::getInstance();
+	clientPtr->updateNetworkEntities(dt);
+
 	m_bPhysics->update(dt);
 	m_player->update(dt);
 	m_spellHandler->spellUpdate(dt);
-	Renderer::getInstance()->updateParticles(dt);
 
-	//m_hpBar->setYClip(m_player->getHealth() / 100);
-	auto* clientPtr = Client::getInstance();
+	Renderer::getInstance()->updateParticles(dt);	
+
+	shPtr->setSourcePosition(m_player->getPlayerPos(), HitmarkSound);
+	
 	for (PlayerEvents evnt = clientPtr->readNextEvent(); evnt != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
 
 		switch (evnt) {
 
-			case PlayerEvents::Died: 
+			case PlayerEvents::Died:
 			{
 				logWarning("[Event system] Died");
 				//Update the HP bar 
 				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				const PlayerPacket* shooter = clientPtr->getLatestPlayerThatHitMe();
 				if (shooter != nullptr) {
 					m_lastPositionOfMyKiller = shooter->position;
@@ -167,6 +210,7 @@ void PlayState::update(float dt)
 				m_player->setPlayerPos(Client::getInstance()->getMyData().latestSpawnPosition);
 				m_player->setHealth(NetGlobals::PlayerMaxHealth);
 				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				m_camera->resetCamera();
 				m_camera->disableCameraMovement(false);
 				break;
@@ -175,14 +219,17 @@ void PlayState::update(float dt)
 			case PlayerEvents::TookDamage:
 			{
 				logWarning("[Event system] Took damage");
+				
+				shPtr->setSourcePosition(m_player->getPlayerPos(), TakingDamageSound);
+				shPtr->playSound(TakingDamageSound);
 			
 				const PlayerPacket* shooter = clientPtr->getLatestPlayerThatHitMe();
 
 				if (shooter != nullptr) {
 					const glm::vec3& playerPosition = m_player->getPlayerPos();
 					const glm::vec3& shooterPosition = shooter->position;
-					const glm::vec3& playerRotation = Client::getInstance()->getMyData().rotation; // cause i don't want quaternions..
-					
+					const glm::vec3& playerRotation = clientPtr->getMyData().rotation; // cause i don't want quaternions..
+
 					glm::vec3 diffVec = shooterPosition - playerPosition;
 
 					float angle = (atan2f(diffVec.x, diffVec.z) * 180.0f) / glm::pi<float>();
@@ -204,10 +251,8 @@ void PlayState::update(float dt)
 
 					HpBar->setYClip(clipPercentage);
 					m_player->setHealth(myNewHealth);
-					
 				}
 
-				
 				break;
 			}
 
@@ -216,6 +261,7 @@ void PlayState::update(float dt)
 				logWarning("[Event system] Took a powerup");
 				m_hudHandler.getHudObject(POWERUP)->setAlpha(1.0f);
 				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				break;
 			}
 
@@ -223,6 +269,7 @@ void PlayState::update(float dt)
 			{
 				logWarning("[Event system] Took a heal");
 				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				break;
 			}
 			case PlayerEvents::PowerupRemoved:
@@ -232,26 +279,67 @@ void PlayState::update(float dt)
 				break;
 			}
 
+
 			case PlayerEvents::SessionOver:
 			{
 				logWarning("[Event system] Session is over");
 				HudObject* HpBar = m_hudHandler.getHudObject(BAR_HP);
-				int myNewHealth = Client::getInstance()->getMyData().health;
+				int myNewHealth = clientPtr->getMyData().health;
 				float clipPercentage = 1.0f;
 				HpBar->setYClip(clipPercentage);
 				m_player->setHealth(myNewHealth);
 				break;
 			}
-		}
-	}
 
+			case PlayerEvents::Deflected:
+			{
+				m_hudHandler.getHudObject(CROSSHAIR_DEFLECT_INDICATOR)->setAlpha(1.0f);
+				break;
+			}
+
+			case PlayerEvents::WallGotDestroyed:
+			{
+				// How to send a destruction packet
+				// 1. Make one
+				// 2. Send it
+
+				/*	Example:
+						DestructionPacket p;
+						p.index = 0;
+						p.hitPoint = glm::vec3(3.0f);
+						p.randomSeed = 345342;
+						Client::getInstance()->sendDestructionPacket(p);
+				*/
+
+
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::ReadDestructableWallsMutex); // Thread safe
+				auto& vec = Client::getInstance()->getDestructedWalls();
+
+				for (size_t i = 0; i < vec.size(); i++) {
+					// Do stuff here
+					const DestructionPacket& p = vec[i];
+					
+
+
+					//------------------
+				}
+
+				// Tells the client to clear the vector
+				Client::getInstance()->clearDestroyedWallsVector();
+
+				break;
+			}
+
+		}
+	
+	}
 	// Look at the killer when dead ( If he exist )
 	if (!m_camera->isCameraActive() && clientPtr->getMyData().health <= 0)
-	{	
+	{
 		const PlayerPacket* myKiller = clientPtr->getLatestPlayerThatHitMe();
 
 		if (myKiller != nullptr) {
-			glm::vec3 lookPos =  CustomLerp(m_lastPositionOfMyKiller, myKiller->position, DeltaTime);
+			glm::vec3 lookPos = CustomLerp(m_lastPositionOfMyKiller, myKiller->position, DeltaTime);
 			m_camera->lookAt(lookPos);
 
 			m_lastPositionOfMyKiller = lookPos;
@@ -264,12 +352,37 @@ void PlayState::update(float dt)
 		object->update(dt);
 		Renderer::getInstance()->updateParticles(dt);
 	}
-	
+
 	GUIHandler();
 	if (!m_hideHUD) {
 		HUDHandler();
 	}
 
+}
+
+
+void PlayState::update_isSpectating(const float& dt)
+{
+	auto* clientPtr = Client::getInstance();
+	clientPtr->updateNetworkEntities(dt);
+
+	m_camera->update();
+	m_spellHandler->spellUpdate(dt);
+
+	Renderer::getInstance()->updateParticles(dt);
+	// Update game objects
+	for (GameObject* object : m_objects)
+	{
+		object->update(dt);
+	}
+
+	GUIHandler();
+
+	if (Client::getInstance()->isSpectating() == false) {
+		if (!m_hideHUD) {
+			HUDHandler();
+		}
+	}
 }
 
 void PlayState::render()
@@ -359,15 +472,15 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 	return false;
 }
 
-void PlayState::onSpellHit_callback()
-{
-	m_hudHandler.getHudObject(CROSSHAIR_HIT)->setAlpha(1.0f);
-}
-
 void PlayState::HUDHandler() {
 	
+	if (m_player == nullptr)
+		return;
+
 	//Mana bar
 	m_hudHandler.getHudObject(BAR_MANA)->setYClip(m_player->getMana() / 100.0f);
+	m_hudHandler.getHudObject(CROSSHAIR_MANA)->setYClip(m_player->getMana() / 100.0f);
+
 
 	if (m_player->getAttackCooldown() > 0) {
 		m_hudHandler.getHudObject(SPELL_ARCANE)->setGrayscale(m_player->getAttackCooldown() / m_player->getMaxAttackCooldown());
@@ -401,13 +514,17 @@ void PlayState::HUDHandler() {
 		m_hudHandler.getHudObject(CROSSHAIR)->setAlpha(1.0f);
 		m_hudHandler.getHudObject(CROSSHAIR_DEFLECT)->setAlpha(0.0f);
 	}
+
 	//Damage Overlay
-	
 	if (m_hudHandler.getHudObject(DAMAGE_OVERLAY)->getAlpha() != 0)
 	{
 		m_hudHandler.getHudObject(DAMAGE_OVERLAY)->setAlpha(m_hudHandler.getHudObject(DAMAGE_OVERLAY)->getAlpha() - DeltaTime);
 	}
-	
+
+	if (m_hudHandler.getHudObject(CROSSHAIR_DEFLECT_INDICATOR)->getAlpha() != 0)
+	{
+		m_hudHandler.getHudObject(CROSSHAIR_DEFLECT_INDICATOR)->setAlpha(m_hudHandler.getHudObject(CROSSHAIR_DEFLECT_INDICATOR)->getAlpha() - DeltaTime);
+	}
 	//Hitmarker
 	if (m_hudHandler.getHudObject(CROSSHAIR_HIT)->getAlpha() > 0.0f) {
 		m_hudHandler.getHudObject(CROSSHAIR_HIT)->setAlpha(m_hudHandler.getHudObject(CROSSHAIR_HIT)->getAlpha() - DeltaTime);
@@ -435,13 +552,13 @@ void PlayState::GUIHandler()
 		if (m_GUIOpen) {
 			glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_NORMAL); 
 			m_camera->enableFP(false);
-			m_player->logicStop(true);
+			//m_player->logicStop(true);
 			GUILoadButtons();
 		}
 		else {
 			glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 			m_camera->enableFP(true); //Resets the mouse position as well
-			m_player->logicStop(false);
+			//m_player->logicStop(false);
 			GUIclear();
 		}
 	}
@@ -454,7 +571,7 @@ void PlayState::GUIHandler()
 	if (Input::isKeyPressed(GLFW_KEY_TAB) && !m_endGameBoardVisible) {
 		GUILoadScoreboard();
 	}
-	else if (Client::getInstance()->getServerState().currentState == NetGlobals::GameFinished && !m_endGameBoardVisible) {
+	else if (Client::getInstance()->getServerState().currentState == NetGlobals::GameFinished && !m_endGameBoardVisible && !Client::getInstance()->isSpectating()) {
 		GUILoadScoreboard();
 		m_endGameBoardVisible = true;
 	}
@@ -468,21 +585,29 @@ void PlayState::GUILoadScoreboard() {
 	if (!m_scoreboardExists) {
 		//Create the scoreboard
 		m_scoreBoard = static_cast<CEGUI::MultiColumnList*>(Gui::getInstance()->createWidget(PLAYSECTION, CEGUI_TYPE + "/MultiColumnList", glm::vec4(0.20f, 0.25f, 0.60f, 0.40f), glm::vec4(0.0f), "Scoreboard"));
-		m_scoreBoard->addColumn("PLAYER: ", 0, CEGUI::UDim(0.33f, 0));
-		m_scoreBoard->addColumn("KILLS: ", 1, CEGUI::UDim(0.33f, 0));
-		m_scoreBoard->addColumn("DEATHS: ", 2, CEGUI::UDim(0.34f, 0));
 
-		//Add the client
-		m_scoreBoard->addRow();
-		CEGUI::ListboxTextItem* itemMultiColumnList;
+		m_scoreBoard->addColumn("Players: ", 0, CEGUI::UDim(0.33f, 0));
+		m_scoreBoard->addColumn("Kills: ", 1, CEGUI::UDim(0.33f, 0));
+		m_scoreBoard->addColumn("Deaths: ", 2, CEGUI::UDim(0.34f, 0));
 
-		itemMultiColumnList = new CEGUI::ListboxTextItem(Client::getInstance()->getMyData().userName);
-		itemMultiColumnList->setSelectionBrushImage(CEGUI_TYPE + "Images" + "/GenericBrush");
-		m_scoreBoard->setItem(itemMultiColumnList, 0, static_cast<CEGUI::uint>(0)); // ColumnID, RowID
-		itemMultiColumnList = new CEGUI::ListboxTextItem(std::to_string(Client::getInstance()->getMyData().numberOfKills));
-		m_scoreBoard->setItem(itemMultiColumnList, 1, static_cast<CEGUI::uint>(0)); // ColumnID, RowID
-		itemMultiColumnList = new CEGUI::ListboxTextItem(std::to_string(Client::getInstance()->getMyData().numberOfDeaths));
-		m_scoreBoard->setItem(itemMultiColumnList, 2, static_cast<CEGUI::uint>(0)); // ColumnID, RowID
+		int index = 0;
+
+		//Add the client if he's not a spectator
+		if (Client::getInstance()->isSpectating() == false) {
+			m_scoreBoard->addRow();
+			CEGUI::ListboxTextItem* itemMultiColumnList;
+
+			itemMultiColumnList = new CEGUI::ListboxTextItem(Client::getInstance()->getMyData().userName);
+			itemMultiColumnList->setSelectionBrushImage(CEGUI_TYPE + "Images" + "/GenericBrush");
+			m_scoreBoard->setItem(itemMultiColumnList, 0, static_cast<CEGUI::uint>(index)); // ColumnID, RowID
+			itemMultiColumnList = new CEGUI::ListboxTextItem(std::to_string(Client::getInstance()->getMyData().numberOfKills));
+			m_scoreBoard->setItem(itemMultiColumnList, 1, static_cast<CEGUI::uint>(index)); // ColumnID, RowID
+			itemMultiColumnList = new CEGUI::ListboxTextItem(std::to_string(Client::getInstance()->getMyData().numberOfDeaths));
+			m_scoreBoard->setItem(itemMultiColumnList, 2, static_cast<CEGUI::uint>(index)); // ColumnID, RowID
+			index++;
+		}
+		
+
 		//Add other players
 		auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
 
@@ -492,14 +617,17 @@ void PlayState::GUILoadScoreboard() {
 			CEGUI::ListboxTextItem* itemMultiColumnList;
 			itemMultiColumnList = new CEGUI::ListboxTextItem(list.at(i).data.userName);
 			itemMultiColumnList->setSelectionBrushImage(CEGUI_TYPE + "Images" + "/GenericBrush");
-			m_scoreBoard->setItem(itemMultiColumnList, 0, static_cast<CEGUI::uint>(i + 1)); // ColumnID, RowID
+			m_scoreBoard->setItem(itemMultiColumnList, 0, static_cast<CEGUI::uint>(index)); // ColumnID, RowID
 
 			itemMultiColumnList = new CEGUI::ListboxTextItem(std::to_string(list.at(i).data.numberOfKills));
-			m_scoreBoard->setItem(itemMultiColumnList, 1, static_cast<CEGUI::uint>(i + 1)); // ColumnID, RowID,
+			m_scoreBoard->setItem(itemMultiColumnList, 1, static_cast<CEGUI::uint>(index)); // ColumnID, RowID,
 			itemMultiColumnList = new CEGUI::ListboxTextItem(std::to_string(list.at(i).data.numberOfDeaths));
-			m_scoreBoard->setItem(itemMultiColumnList, 2, static_cast<CEGUI::uint>(i + 1)); // ColumnID, RowID
+			m_scoreBoard->setItem(itemMultiColumnList, 2, static_cast<CEGUI::uint>(index)); // ColumnID, RowID
+			index++;
 		}
 		m_scoreboardExists = true;
+		m_scoreBoard->setSortColumnByID(1);
+		m_scoreBoard->setSortDirection(CEGUI::ListHeaderSegment::SortDirection::Descending);
 	}
 }
 
@@ -524,6 +652,7 @@ bool PlayState::onMainMenuClick(const CEGUI::EventArgs& e)
 {
 	Renderer::getInstance()->clear();
 	m_stateManager->clearAllAndSetState(new MenuState());
+	SoundHandler::getInstance()->playSound(ThemeSong0);
 	return true;
 }
 

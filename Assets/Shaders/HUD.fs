@@ -5,7 +5,6 @@ uniform vec2 clip;
 uniform vec3 fillColor;
 uniform float alphaValue;
 uniform float grayscale;
-
 in vec2 texCoords;
 out vec4 pixelColor;
 

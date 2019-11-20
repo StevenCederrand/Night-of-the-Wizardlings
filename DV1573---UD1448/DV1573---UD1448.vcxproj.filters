@@ -53,6 +53,7 @@
     <ClCompile Include="Texture\stb_image.cpp" />
     <ClCompile Include="Text\FreeType.cpp" />
     <ClCompile Include="Text\HUDShader.cpp" />
+    <ClCompile Include="System\SoundHandler.cpp" />
     <ClCompile Include="Destruction\VoroniCalculator.cpp" />
     <ClCompile Include="Destruction\DelaunayGenerator.cpp" />
     <ClCompile Include="Destruction\PointCompare.cpp" />
@@ -127,6 +128,7 @@
     <ClInclude Include="Texture\stb_image.h" />
     <ClInclude Include="Text\FreeType.h" />
     <ClInclude Include="Text\HUDShader.h" />
+    <ClInclude Include="System\SoundHandler.h" />   
     <ClInclude Include="Destruction\TriangleNode.h" />
     <ClInclude Include="Destruction\Geometry.h" />
     <ClInclude Include="Destruction\VoroniCalculator.h" />
