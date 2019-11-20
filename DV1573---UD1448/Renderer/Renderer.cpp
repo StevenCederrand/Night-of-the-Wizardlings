@@ -488,7 +488,7 @@ void Renderer::clear() {
 	m_shieldObject.clear();
 }
 
-void Renderer::removeDynamic(GameObject* gameObject, RENDER_TYPE objType)
+void Renderer::removeRenderObject(GameObject* gameObject, RENDER_TYPE objType)
 {
 	int index = -1;
 	

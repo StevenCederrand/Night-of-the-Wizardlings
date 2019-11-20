@@ -171,7 +171,7 @@ public:
 	void submit(GameObject* gameObject, RENDER_TYPE objType);
 	void submit2DHUD(HudObject* hud);
 	void submitSkybox(SkyBox* skybox);
-	void removeDynamic(GameObject* gameObject, RENDER_TYPE objType); //Remove an object from the dynamic array
+	void removeRenderObject(GameObject* gameObject, RENDER_TYPE objType); //Remove an object from the dynamic array
 	void renderDeflectBox(DeflectRender* deflectBox);
 	void renderSkybox();
 	void render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler);

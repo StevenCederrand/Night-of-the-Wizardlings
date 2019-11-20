@@ -78,7 +78,7 @@ void HudHandler::loadPlayStateHUD() {
 	hudObject->setAlpha(0.0f);
 	insertHUDObject(hudObject, HUDID::DAMAGE_OVERLAY);
 
-	hudObject = new HudObject("Assets/Textures/hud/MainFrame.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(454 / 6)), glm::vec2(static_cast<float>(1643 / 3), static_cast<float>(454 / 3)));
+	hudObject = new HudObject("Assets/Textures/hud/MainFrame.png", glm::vec2(static_cast<float>((SCREEN_WIDTH / 2) - 14 ), static_cast<float>(454 / 6)), glm::vec2(static_cast<float>(1643 / 3), static_cast<float>(454 / 3)));
 	insertHUDObject(hudObject, HUDID::ICON_FRAME);
 
 }

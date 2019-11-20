@@ -52,7 +52,7 @@ void NetworkSpells::update(const float& dt)
 			}
 			else if (e.flag == NetGlobals::THREAD_FLAG::Remove)
 			{
-				Renderer::getInstance()->removeDynamic(e.gameobject, SPELL);
+				Renderer::getInstance()->removeRenderObject(e.gameobject, SPELL);
 				delete e.gameobject;
 				m_entities.erase(m_entities.begin() + i);
 				i--;

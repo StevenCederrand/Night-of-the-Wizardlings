@@ -346,7 +346,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 		}
 		if (flamestrikeSpells[i]->getTravelTime() <= 0)
 		{
-			Renderer::getInstance()->removeDynamic(flamestrikeSpells[i], SPELL);
+			Renderer::getInstance()->removeRenderObject(flamestrikeSpells[i], SPELL);
 
 			Client::getInstance()->destroySpellOnNetwork(*flamestrikeSpells[i]);
 			delete flamestrikeSpells[i];
@@ -371,7 +371,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 
 		if (fireSpells[i]->getTravelTime() <= 0)
 		{
-			Renderer::getInstance()->removeDynamic(fireSpells[i], SPELL);
+			Renderer::getInstance()->removeRenderObject(fireSpells[i], SPELL);
 
 			Client::getInstance()->destroySpellOnNetwork(*fireSpells[i]);
 			delete fireSpells[i];
@@ -392,7 +392,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 
 		if (spells[i]->getTravelTime() <= 0)
 		{
-			Renderer::getInstance()->removeDynamic(spells[i], SPELL);
+			Renderer::getInstance()->removeRenderObject(spells[i], SPELL);
 
 			Client::getInstance()->destroySpellOnNetwork(*spells[i]);
 			delete spells[i];
