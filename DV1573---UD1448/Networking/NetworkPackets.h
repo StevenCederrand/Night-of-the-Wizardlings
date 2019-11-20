@@ -239,8 +239,8 @@ struct DestructionPacket {
 		stream.Serialize(writeToStream, *this);
 		/*stream.Serialize(writeToStream, randomSeed);
 		stream.Serialize(writeToStream, index);
-		stream.Serialize(writeToStream, hitPoint);
-		stream.Serialize(writeToStream, hitDir);
+		stream.Serialize(writeToStream, hitPoint); 
+		stream.Serialize(writeToStream, hitDir);*/
 	}
 
 
