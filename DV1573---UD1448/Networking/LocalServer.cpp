@@ -645,7 +645,7 @@ void LocalServer::processAndHandlePackets()
 
 				if (m_serverInfo.currentState == NetGlobals::SERVER_STATE::WaitingForPlayers) {
 
-					if (getNumberOfReadyPlayers() >= m_connectedPlayers.size()) {
+					if (getNumberOfReadyPlayers() >= getNumberOfPlayingPlayers()) {
 						stateChange(NetGlobals::SERVER_STATE::GameIsStarting);
 					}
 
@@ -1416,6 +1416,17 @@ int LocalServer::getNumberOfReadyPlayers() const
 	int count = 0;
 	for (size_t i = 0; i < m_connectedPlayers.size(); i++) {
 		if (m_connectedPlayers[i].isReady)
+			count++;
+	}
+
+	return count;
+}
+
+int LocalServer::getNumberOfPlayingPlayers() const
+{
+	int count = 0;
+	for (size_t i = 0; i < m_connectedPlayers.size(); i++) {
+		if (!m_connectedPlayers[i].Spectator)
 			count++;
 	}
 

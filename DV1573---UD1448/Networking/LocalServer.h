@@ -37,6 +37,7 @@ private:
 private:
 	
 	int getNumberOfReadyPlayers() const;
+	int getNumberOfPlayingPlayers() const;
 
 	unsigned char getPacketID(RakNet::Packet* p);
 	bool handleLostPlayer(const RakNet::Packet& packet, const RakNet::BitStream& bsIn);
