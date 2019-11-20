@@ -44,12 +44,14 @@ public:
 	void setTransform(Transform transform);
 	void setTransform(Transform transform, int meshIndex);
 	void setTransform(glm::vec3 worldPosition, glm::quat worldRot, glm::vec3 worldScale);
+	void setBtOffset(glm::vec3 offset, int meshIndex);
 	void setWorldPosition(glm::vec3 worldPosition);
 	void setWorldPosition(glm::vec3 worldPosition, int meshIndex);
 	void offsetMesh(glm::vec3 position, int meshIndex);
 	void setBTWorldPosition(glm::vec3 worldPosition, int meshIndex);
 	void setBTTransform(Transform transform, int meshIndex);
 	void set_BtActive(bool state = false, int meshIndex = 0);
+	void removeBody(int meshIndex);
 	void translate(const glm::vec3& translationVector);
 	void setShouldRender(bool condition);
 	void setMaterial(std::string matName, int meshIndex = -1);
@@ -76,6 +78,7 @@ private:
 	{
 		std::string name;
 		Transform transform;
+		glm::vec3 btoffset = glm::vec3(0.0f);
 	};
 
 	std::string m_objectName;
