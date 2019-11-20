@@ -227,7 +227,8 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			glm::vec3 force = ((forceDir * 130)) * (scale * 2) + hitDirection * 1.4;
 
 			object->getRigidBodies()[mi]->applyCentralImpulse(btVector3(force.x, force.y, force.z) * 2);
-			object->getRigidBodies()[mi]->applyTorque(btVector3(force.x, force.y, force.z) * 70);
+			object->getRigidBodies()[mi]->applyTorque(btVector3(forceDir.x, forceDir.y, forceDir.z) * 170);
+			object->setLifetime(0.0f);
 			mi++;
 		}
 	}

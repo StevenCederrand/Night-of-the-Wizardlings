@@ -17,6 +17,14 @@ DestructibleObject::~DestructibleObject()
 void DestructibleObject::update(float dt)
 {
 	updateBulletRigids();
+	m_lifetime += dt;
+
+	if (m_destroyed)
+		if (m_lifetime >= 2.0f)
+			for (int i = 0; i < (int)getRigidBodies().size(); i++)
+				getRigidBodies()[i]->setGravity(btVector3(0.0f, -45.0f, 0.0f));
+			
+
 }
 
 void DestructibleObject::loadDestructible(std::string fileName, float size)
