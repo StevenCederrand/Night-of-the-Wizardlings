@@ -12,7 +12,8 @@ const std::string DEFLECT_SOUND = "LookAtMyShield2.ogg";
 const std::string ENHANCE_ATTACK_SOUND = "Magic sound effect.ogg";
 const std::string TAKING_DAMAGE_SOUND = "TakingDamage.ogg";
 const std::string STEPS_SOUND = "FootSteps.ogg";
-const std::string JUMP_SOUND = "Jump.ogg";
+const std::string JUMP_SOUND = "Jump2.ogg";
+const std::string LANDING_SOUND = "Landing.ogg";
 const std::string HITMARK_SOUND = "Hitmark.ogg";
 const std::string FIRE_SOUND = "Fire.ogg";
 const std::string GLASS_BREAK_SOUND = "GlassBreak.ogg";
@@ -22,11 +23,11 @@ const std::string PICKUP_TUNNELS_SPAWN_SOUND = "HealthPotionTunnels.ogg";
 const std::string PICKUP_TOP_SPAWN_SOUND = "HealthPotionTop.ogg";
 
 //Nr of sounds every player has in common.
-const int NR_OF_COMMON_SOUNDS = 7;
+const int NR_OF_COMMON_SOUNDS = 8;
 //Nr of sounds only the client will hear.
 const int NR_OF_CLIENT_SOUNDS = 7;
 //Nr of sounds in total
-const int NR_OF_SOUNDS = 14;
+const int NR_OF_SOUNDS = 15;
 //Nr of sounds from the same source that can be played subsequently
 const int NR_OF_SUBSEQUENT_SOUNDS = 4;
 
@@ -43,6 +44,7 @@ enum SoundIndexCommon {
 	EnhanceAttackSound,	
 	StepsSound,
 	JumpSound,
+	LandingSound,
 	FireSound,
 	GlassBreakSound
 };

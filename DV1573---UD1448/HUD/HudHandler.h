@@ -33,6 +33,7 @@ public:
 	HudHandler();
 	~HudHandler();
 
+	void clearAll();
 	void loadPlayStateHUD();
 	void insertHUDObject(HudObject* object, const HUDID& hudID);
 	void fadeOut();
