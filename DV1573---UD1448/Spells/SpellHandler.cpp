@@ -112,7 +112,7 @@ void SpellHandler::initFlamestrikeSpell()
 
 	flamestrikeBase->m_damage = 10;
 	flamestrikeBase->m_speed = 55.0f;
-	flamestrikeBase->m_coolDown = 1.0f;
+	flamestrikeBase->m_coolDown = 5.0f;
 	flamestrikeBase->m_lifeTime = 5;
 	flamestrikeBase->m_maxBounces = 2;
 }
@@ -140,7 +140,7 @@ void SpellHandler::initFireSpell()
 	fireBase->m_material->diffuse = glm::vec3(1.0f, 0.5f, 0.0f);
 	fireBase->m_material->ambient = glm::vec3(1.0f, 0.5f, 0.0f);
 
-	fireBase->m_damage = 10.0f;
+	fireBase->m_damage = 20.0f;
 	fireBase->m_speed = 0.0f;
 	fireBase->m_coolDown = 4.0f;
 	fireBase->m_lifeTime = 5.0f;

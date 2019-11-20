@@ -23,6 +23,6 @@ public:
 
 private:
 	const FireSpellBase* m_spellBase;
-	float fireTimer = 10;
+	float fireTimer = 8;
 
 };
