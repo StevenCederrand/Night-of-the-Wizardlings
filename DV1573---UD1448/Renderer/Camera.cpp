@@ -209,7 +209,7 @@ Camera::Camera()
 	m_height = SCREEN_HEIGHT;
 
 	m_nearPlane = 0.1f;
-	m_farPlane = 200.0f;
+	m_farPlane = 1500.0f;
 
 	m_spectatorMoveSpeed = 20.0f;
 	setWindowSize(m_width, m_height);
