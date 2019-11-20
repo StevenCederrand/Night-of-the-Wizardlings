@@ -234,7 +234,7 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			body->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 
 			object->setLifetime(0.0f);
-			object->setFallTime(1.3f);
+			object->setFallTime(1.6f);
 
 			mi++;
 		}
@@ -243,9 +243,7 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 	object->setMaterial("", -2);
 	object->setBTWorldPosition(glm::vec3(-99.0f), 0);
 	object->setWorldPosition(glm::vec3(-99.0f), 0);
-	object->set_BtActive(false, 0);
-	//object->createDynamicRigidBody(CollisionObject::box, NULL, 200.0f, 1);
-	//object->set_BtActive(false, 0);
+	object->set_BtActive(false);
 	object->set_destroyed(true);
 
 }

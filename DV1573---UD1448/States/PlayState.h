@@ -24,6 +24,7 @@ class PlayState : public State {
 public:
 	//PlayState(){}
 	PlayState(bool spectator);
+	void loadDestructables();
 	virtual ~PlayState() override;
 	virtual void update(float dt) override;
 	virtual void render() override;

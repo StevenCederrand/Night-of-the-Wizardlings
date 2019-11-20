@@ -561,7 +561,7 @@ void Renderer::removeRenderObject(GameObject* gameObject, RENDER_TYPE objType)
 			}
 		}
 	}
-	else if (objType == RENDER_TYPE::PICKUP) { //remove spells from the spell vector!!
+	else if (objType == RENDER_TYPE::PICKUP) { //remove PICKUP from the spell PICKUP!!
 	   //Find the index of the object
 		for (size_t i = 0; i < m_pickups.size(); i++)
 		{
@@ -572,6 +572,19 @@ void Renderer::removeRenderObject(GameObject* gameObject, RENDER_TYPE objType)
 		}
 		if (index > -1) {
 			m_pickups.erase(m_pickups.begin() + index);
+		}
+	}
+	else if (objType == STATIC) {
+	   //Find the index of the object
+		for (size_t i = 0; i < m_staticObjects.size(); i++)
+		{
+			if (m_staticObjects[i] == gameObject) {
+				index = i;
+				break;
+			}
+		}
+		if (index > -1) {
+			m_staticObjects.erase(m_staticObjects.begin() + index);
 		}
 	}
 }

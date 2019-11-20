@@ -23,7 +23,7 @@ void DestructibleObject::update(float dt)
 	{
 		m_lifetime += dt;
 
-		if (m_lifetime >= m_fallTime * 0.8 && m_dstrState == 0)
+		if (m_lifetime >= m_fallTime * 0.65f && m_dstrState == 0)
 		{
 			for (int i = 0; i < (int)getRigidBodies().size(); i++)
 				getRigidBodies()[i]->setDamping(1.0f, 1.0f);
