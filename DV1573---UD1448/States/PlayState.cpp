@@ -73,7 +73,6 @@ PlayState::PlayState(bool spectator)
 	//Renderer::getInstance()->submit(m_firstPerson, ANIMATEDSTATIC);
 	//m_firstPerson->playAnimation("Test");
 
-	MaterialMap::getInstance();
 	gContactAddedCallback = callbackFunc;
 	// Geneterate bullet objects / hitboxes
 	
@@ -579,7 +578,7 @@ void PlayState::HUDHandler() {
 	
 	if (m_player == nullptr)
 		return;
-
+	
 	//Mana bar
 	m_hudHandler.getHudObject(BAR_MANA)->setXClip(m_player->getMana() / 100.0f);
 	m_hudHandler.getHudObject(CROSSHAIR_MANA)->setYClip(m_player->getMana() / 100.0f);

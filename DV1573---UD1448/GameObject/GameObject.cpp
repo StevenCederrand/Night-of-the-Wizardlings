@@ -52,7 +52,7 @@ void GameObject::loadMesh(std::string fileName)
 		std::string meshName = tempLoader.GetMeshName(i);
 		tempMeshBox.name = meshName;
 		tempMeshBox.transform = tempLoader.GetTransform(i);		// One way of getting the meshes transform
-		m_meshes.push_back(tempMeshBox);						// This effectively adds the mesh to the gameobject
+
 		if (!MeshMap::getInstance()->existsWithName(meshName))	// This creates the mesh if it does not exist (by name)
 		{
 			Mesh tempMesh;
@@ -102,7 +102,8 @@ void GameObject::loadMesh(std::string fileName)
 
 			
 			tempMesh.setMaterial(tempLoader.GetMaterial(i).name);
-			MeshMap::getInstance()->createMesh(meshName, tempMesh);
+			//Get the mesh pointer so that we don't have to always search through the MeshMap, when rendering
+			tempMeshBox.mesh = MeshMap::getInstance()->createMesh(meshName, tempMesh); 
 			logTrace("Mesh loaded: {0}, Expecting material: {1}", tempMesh.getName().c_str(), tempMesh.getMaterial());
 		}
 
@@ -143,10 +144,15 @@ void GameObject::loadMesh(std::string fileName)
 			{
 				tempMaterial.texture = false;
 			}
-
-			MaterialMap::getInstance()->createMaterial(materialName, tempMaterial);
+			//Get the material pointer so that we don't have to always search through the MatMap, when rendering
+			tempMeshBox.material = MaterialMap::getInstance()->createMaterial(materialName, tempMaterial);
  			logTrace("Material created: {0}", materialName);
 		}
+		else {
+			tempMeshBox.material = MaterialMap::getInstance()->getMaterial(materialName);
+		}
+
+		m_meshes.push_back(tempMeshBox);						// This effectively adds the mesh to the gameobject
 	}
 
 	//Allocate all of the model matrixes
@@ -375,6 +381,16 @@ const Transform GameObject::getTransform() const
 	}
 
 	return world_transform;
+}
+
+Material* GameObject::getMaterial(const int& meshIndex)
+{
+	return m_meshes[meshIndex].material;
+}
+
+Mesh* GameObject::getMesh(const int& meshIndex)
+{
+	return m_meshes[meshIndex].mesh;
 }
 
 const Transform GameObject::getTransform(int meshIndex) const
