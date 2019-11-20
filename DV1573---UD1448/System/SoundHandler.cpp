@@ -43,7 +43,7 @@ SoundHandler::SoundHandler()
 	RakNet::AddressOrGUID myGuid = Client::getInstance()->getMyData().guid;	
 	//setSourceGain(0.8, BasicAttackSound, myGuid);
 	//setSourceGain(0.2, DeflectSound, myGuid);
-	setSourceGain(0.2, EnhanceAttackSound, myGuid);
+	
 	setSourceGain(0.5, JumpSound, myGuid);
 	setSourceGain(0.5, LandingSound, myGuid);
 	setSourceGain(0.3, StepsSound, myGuid);
@@ -54,6 +54,9 @@ SoundHandler::SoundHandler()
 	setSourceGain(0.4, PickupMazeSound);
 	setSourceGain(0.4, PickupTunnelsSound);
 	setSourceGain(0.4, PickupTopSound);
+
+	for(int i = 0; i < NR_OF_SUBSEQUENT_SOUNDS; i++)
+		setSourceGain(0.3, EnhanceAttackSound, myGuid, i);
 }
 
 SoundHandler::~SoundHandler()
@@ -462,11 +465,15 @@ void SoundHandler::setPlayerSourceGains(RakNet::AddressOrGUID guid)
 		if (m_playerSoundInfo.at(i).guid.rakNetGuid == guid.rakNetGuid)
 		{
 			setSourceGain(0.8, BasicAttackSound, m_playerSoundInfo.at(i).guid);
-			setSourceGain(0.2, DeflectSound, m_playerSoundInfo.at(i).guid);
-			setSourceGain(0.2, EnhanceAttackSound, m_playerSoundInfo.at(i).guid);
+			setSourceGain(0.2, DeflectSound, m_playerSoundInfo.at(i).guid);			
 			setSourceGain(0.3, JumpSound, m_playerSoundInfo.at(i).guid);
 			setSourceGain(0.4, StepsSound, m_playerSoundInfo.at(i).guid);
 			setSourceGain(0.3, FireSound, m_playerSoundInfo.at(i).guid);
+
+			for (int j = 0; j < NR_OF_SUBSEQUENT_SOUNDS; j++)
+			{
+				setSourceGain(0.3, EnhanceAttackSound, m_playerSoundInfo.at(i).guid, j);
+			}
 			found = true;
 		}
 	}	

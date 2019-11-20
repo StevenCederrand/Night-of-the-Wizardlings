@@ -502,9 +502,11 @@ void Client::processAndHandlePackets()
 				shPtr->setSourcePosition(se.spellData.Position, BasicAttackSound, se.spellData.CreatorGUID, 1);
 				shPtr->playSound(BasicAttackSound, se.spellData.CreatorGUID);
 				break;			
-			case OBJECT_TYPE::ENHANCEATTACK:
-				shPtr->setSourcePosition(se.spellData.Position, EnhanceAttackSound, se.spellData.CreatorGUID);
-				shPtr->playSound(EnhanceAttackSound, se.spellData.CreatorGUID);
+			case OBJECT_TYPE::ENHANCEATTACK:				
+				
+				int slot = shPtr->playSound(EnhanceAttackSound, se.spellData.CreatorGUID);
+				if(slot != -1)
+					shPtr->setSourcePosition(se.spellData.Position, EnhanceAttackSound, se.spellData.CreatorGUID, slot);					
 				break;					
 			}
 			

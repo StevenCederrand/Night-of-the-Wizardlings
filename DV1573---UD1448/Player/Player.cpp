@@ -117,13 +117,17 @@ void Player::updateListenerProperties()
 	shPtr->setListenerPos(m_playerPosition);	
 	shPtr->setSourcePosition(m_playerPosition, BasicAttackSound, m_client->getMyData().guid);
 	shPtr->setSourcePosition(m_playerPosition, BasicAttackSound, m_client->getMyData().guid, 1);
-	shPtr->setSourcePosition(m_playerPosition, DeflectSound, m_client->getMyData().guid);
-	shPtr->setSourcePosition(m_playerPosition, EnhanceAttackSound, m_client->getMyData().guid);
+	shPtr->setSourcePosition(m_playerPosition, DeflectSound, m_client->getMyData().guid);	
 	shPtr->setSourcePosition(m_playerPosition, StepsSound, m_client->getMyData().guid);
 	shPtr->setSourcePosition(m_playerPosition, JumpSound, m_client->getMyData().guid);
 	shPtr->setSourcePosition(m_playerPosition, LandingSound, m_client->getMyData().guid);
 	shPtr->setSourcePosition(m_playerPosition, PickupGraveyardSound);
 	shPtr->setSourceLooping(true, StepsSound, m_client->getMyData().guid);
+
+	for (int i = 0; i < NR_OF_SUBSEQUENT_SOUNDS; i++)
+	{
+		shPtr->setSourcePosition(m_playerPosition, EnhanceAttackSound, m_client->getMyData().guid, i);
+	}
 }
 
 void Player::move(float deltaTime)
