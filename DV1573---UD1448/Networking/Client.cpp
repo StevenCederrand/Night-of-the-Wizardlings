@@ -553,7 +553,7 @@ void Client::processAndHandlePackets()
 						}
 						else {
 							/* Just as the "PLAYER_UPDATE" this will resolve itself a couple of frames later */
-							logWarning("[Client] Client skipped a update on a spell due to sync problems. (Should resolve itself with time)");
+							//logWarning("[Client] Client skipped a update on a spell due to sync problems. (Should resolve itself with time)");
 						}
 					}
 					break;

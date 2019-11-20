@@ -45,6 +45,7 @@ void LobbyState::inputHandling() {
 	}
 
 	if (Input::isKeyPressed(GLFW_KEY_ENTER)) {
+		SoundHandler::getInstance()->stopSound(ThemeSong0);
 		bool start = true;
 		for (size_t i = 0; i < m_inputBoxes.size(); i++)
 		{
