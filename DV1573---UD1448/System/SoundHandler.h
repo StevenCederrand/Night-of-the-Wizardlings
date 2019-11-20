@@ -8,7 +8,7 @@
 //Set custom names for easier reference to soundFile names
 const std::string THEME_SONG0 = "HarryPotterThemeSong.ogg";
 const std::string BASIC_ATTACK_SOUND = "BasicAttack.ogg";
-const std::string DEFLECT_SOUND = "YouShallNotHitMe.ogg";
+const std::string DEFLECT_SOUND = "LookAtMyShield2.ogg";
 const std::string ENHANCE_ATTACK_SOUND = "Magic sound effect.ogg";
 const std::string TAKING_DAMAGE_SOUND = "TakingDamage.ogg";
 const std::string STEPS_SOUND = "FootSteps.ogg";
@@ -16,16 +16,19 @@ const std::string JUMP_SOUND = "Jump.ogg";
 const std::string HITMARK_SOUND = "Hitmark.ogg";
 const std::string FIRE_SOUND = "Fire.ogg";
 const std::string GLASS_BREAK_SOUND = "GlassBreak.ogg";
-const std::string PICKUP_GRAVEYARD_SPAWN_SOUND = "PickupGraveyard.ogg";
+const std::string PICKUP_GRAVEYARD_SPAWN_SOUND = "HealthPotionGraveyard.ogg";
+const std::string PICKUP_MAZE_SPAWN_SOUND = "HealthPotionMaze.ogg";
+const std::string PICKUP_TUNNELS_SPAWN_SOUND = "HealthPotionTunnels.ogg";
+const std::string PICKUP_TOP_SPAWN_SOUND = "HealthPotionTop.ogg";
 
 //Nr of sounds every player has in common.
 const int NR_OF_COMMON_SOUNDS = 7;
 //Nr of sounds only the client will hear.
-const int NR_OF_CLIENT_SOUNDS = 4;
+const int NR_OF_CLIENT_SOUNDS = 7;
 //Nr of sounds in total
-const int NR_OF_SOUNDS = 11;
+const int NR_OF_SOUNDS = 14;
 //Nr of sounds from the same source that can be played subsequently
-const int NR_OF_SUBSEQUENT_SOUNDS = 3;
+const int NR_OF_SUBSEQUENT_SOUNDS = 4;
 
 //Put sounds that you will hear from yourself and other players as a SoundIndexCommon enum.
 //For example, you can hear other players' spells.
@@ -49,7 +52,10 @@ enum SoundIndexClient {
 	ThemeSong0,	
 	HitmarkSound,
 	TakingDamageSound,
-	PickupGraveyardSound
+	PickupGraveyardSound,
+	PickupMazeSound,
+	PickupTunnelsSound,
+	PickupTopSound
 };
 
 struct PlayerSoundInfo

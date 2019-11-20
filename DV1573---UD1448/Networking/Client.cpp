@@ -746,7 +746,28 @@ void Client::processAndHandlePackets()
 				std::string type = "Health potion ";
 				glm::vec3 color = glm::vec3(1.0f, 0.2f, 0.2f);
 				t.width += Renderer::getInstance()->getTextWidth(type, t.scale);
-				t.textParts.emplace_back(type, color);
+				t.textParts.emplace_back(type, color);		
+
+				//Gotta put in some better sounds 
+
+				/*std::string locationNameTemp = pickupPacket.locationName;
+
+				if (locationNameTemp == "Graveyard ")
+				{
+					SoundHandler::getInstance()->playSound(PickupGraveyardSound);
+				}	
+				else if (locationNameTemp == "Maze ")
+				{
+					SoundHandler::getInstance()->playSound(PickupMazeSound);
+				}
+				else if (locationNameTemp == "Tunnels ")
+				{
+					SoundHandler::getInstance()->playSound(PickupTunnelsSound);
+				}
+				else if (locationNameTemp == "Top ")
+				{
+					SoundHandler::getInstance()->playSound(PickupTopSound);
+				}*/
 			}
 			else if (pickupPacket.type == PickupType::DamageBuff)
 			{
@@ -756,7 +777,7 @@ void Client::processAndHandlePackets()
 				t.textParts.emplace_back(type, color);
 			}
 			
-			SoundHandler::getInstance()->playSound(PickupGraveyardSound);
+			
 
 			std::string text = "will spawn soon at " + std::string(pickupPacket.locationName) + "!";
 			t.width += Renderer::getInstance()->getTextWidth(text, t.scale);
