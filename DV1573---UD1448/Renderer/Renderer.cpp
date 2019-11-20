@@ -1239,8 +1239,8 @@ void Renderer::initializeParticle()
 	m_PSinfo.width = 0.3f;
 	m_PSinfo.heigth = 0.1f;
 	m_PSinfo.lifetime = 1.0f;
-	m_PSinfo.maxParticles = 5000; //350
-	m_PSinfo.emission = 0.005f; //0.00001f;
+	m_PSinfo.maxParticles = 500; //350
+	m_PSinfo.emission = 0.01f; //0.00001f;
 	m_PSinfo.force = -1.0f; //5
 	m_PSinfo.drag = 0.0f;
 	m_PSinfo.gravity = 0.0f; //Standard is 1
@@ -1277,8 +1277,8 @@ void Renderer::initializeParticle()
 	m_enhanceInfo.width = 0.2f;
 	m_enhanceInfo.heigth = 0.2f;
 	m_enhanceInfo.lifetime = 0.3f;
-	m_enhanceInfo.maxParticles = 5000; //350
-	m_enhanceInfo.emission = 0.001f; //0.00001f;
+	m_enhanceInfo.maxParticles = 500; //350
+	m_enhanceInfo.emission = 0.01f; //0.00001f;
 	m_enhanceInfo.force = -1.0f; //5
 	m_enhanceInfo.drag = 0.0f;
 	m_enhanceInfo.gravity = 0.0f; //Standard is 1
@@ -1331,17 +1331,17 @@ void Renderer::initializeParticle()
 	//m_flameInfo.direction = glm::vec3(0.0f, 10.0f, 0.0f);
 	//vertexCountDiff3 = m_flameInfo.maxParticles;
 	//emissionDiff3 = m_flameInfo.emission;
-	m_flameInfo.width = 1.0f;     
+	m_flameInfo.width = 1.2f;     
 	m_flameInfo.heigth = 1.0f;     
-	m_flameInfo.lifetime = 10.0f;     
+	m_flameInfo.lifetime = 12.0f;     
 	m_flameInfo.maxParticles = 500; //350     
-	m_flameInfo.emission = 0.015f; //0.00001f;     
+	m_flameInfo.emission = 0.02f; //0.00001f;     
 	m_flameInfo.force = -0.04f; //5     m_flameInfo.drag = 0.0f;     
 	m_flameInfo.gravity = 0.0f; //Standard is 1     
 	m_flameInfo.seed = 1;     
 	m_flameInfo.cont = true;     
 	m_flameInfo.omnious = true;     
-	m_flameInfo.spread = 15.0f;     
+	m_flameInfo.spread = 20.0f;     
 	m_flameInfo.glow = false;     
 	m_flameInfo.scaleDirection = 0; 
 	m_flameInfo.swirl = 1;
