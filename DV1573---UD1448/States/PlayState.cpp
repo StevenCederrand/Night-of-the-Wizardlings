@@ -324,7 +324,7 @@ void PlayState::update_isPlaying(const float& dt)
 		const PlayerPacket* myKiller = clientPtr->getLatestPlayerThatHitMe();
 
 		if (myKiller != nullptr) {
-			glm::vec3 lookPos = CustomLerp(m_lastPositionOfMyKiller, myKiller->position, DeltaTime);
+			glm::vec3 lookPos = CustomLerp(m_lastPositionOfMyKiller, myKiller->position + myKiller->meshHalfSize * 1.75f, DeltaTime);
 			m_camera->lookAt(lookPos);
 
 			m_lastPositionOfMyKiller = lookPos;

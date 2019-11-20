@@ -1486,6 +1486,7 @@ void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 	sendStreamToAllClients(stream, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
 
 	if (newState == NetGlobals::SERVER_STATE::WaitingForPlayers) {
+		unreadyEveryPlayer();
 		respawnPlayers();
 		resetScores();
 		destroyAllPickups();
@@ -1516,6 +1517,7 @@ void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 		respawnPlayers();
 		resetPlayerBuffs();
 		destroyAllPickups();
+		unreadyEveryPlayer();
 		m_queuedPickups.clear();
 		m_timedGameInEndStateTimer.restart();
 		m_timedGameInEndStateTimer.start();
