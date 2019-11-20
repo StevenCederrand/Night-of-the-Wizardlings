@@ -315,12 +315,6 @@ void GameObject::removeBody(int bodyIndex)
 	}
 }
 
-void GameObject::removeBody(int meshIndex)
-{
-	if (m_bodies[meshIndex])
-		m_bPhysics->removeObject(m_bodies[meshIndex]);
-}
-
 void GameObject::translate(const glm::vec3& translationVector)
 {
 	m_transform.position += translationVector;
