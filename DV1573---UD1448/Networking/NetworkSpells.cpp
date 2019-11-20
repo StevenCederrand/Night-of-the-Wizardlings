@@ -15,39 +15,35 @@ void NetworkSpells::update(const float& dt)
 {
 	if (Client::getInstance()->isConnectedToSever()) {
 		
-		Client::getInstance()->updateSpellsMutexGuard();
+		std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateSpellsMutex);
 		
 		for (size_t i = 0; i < m_entities.size(); i++) {
 		
 			SpellEntity& e = m_entities[i];
 			
 			if (e.flag == NetGlobals::THREAD_FLAG::Add) {
+		
 				if (e.gameobject == nullptr) {
 					
-					//e.gameobject = new WorldObject();
-					
-					if (e.spellData.SpellType == SPELL_TYPE::NORMALATTACK || e.spellData.SpellType == SPELL_TYPE::UNKNOWN) {
+					if (e.spellData.SpellType == OBJECT_TYPE::NORMALATTACK || e.spellData.SpellType == OBJECT_TYPE::UNKNOWN) {
 						e.gameobject = new AttackSpell(e.spellData.Position);
 					}
-					else if (e.spellData.SpellType == SPELL_TYPE::ENHANCEATTACK) {
+					else if (e.spellData.SpellType == OBJECT_TYPE::ENHANCEATTACK) {
 						e.gameobject = new AttackSpell(e.spellData.Position);
 					}
-					else if (e.spellData.SpellType == SPELL_TYPE::REFLECT) {
+					else if (e.spellData.SpellType == OBJECT_TYPE::REFLECT) {
 						e.gameobject = new ReflectSpell(e.spellData.Position);
 					}
-					else if (e.spellData.SpellType == SPELL_TYPE::FLAMESTRIKE) {
+					else if (e.spellData.SpellType == OBJECT_TYPE::FLAMESTRIKE) {
 						e.gameobject = new AOEAttack(e.spellData.Position);
 					}
-					else if (e.spellData.SpellType == SPELL_TYPE::FIRE) {
+					else if (e.spellData.SpellType == OBJECT_TYPE::FIRE) {
 						e.gameobject = new fire(e.spellData.Position);
 					}
 					else {
 						return;
 					}
 					
-
-				
-				
 					e.gameobject->setWorldPosition(e.spellData.Position);
 					Renderer::getInstance()->submit(e.gameobject, SPELL);
 					e.flag = NetGlobals::THREAD_FLAG::None;
@@ -66,9 +62,9 @@ void NetworkSpells::update(const float& dt)
 			GameObject* g = e.gameobject;
 
 			if (g != nullptr) {
+				
 				glm::vec3 pos = CustomLerp(g->getTransform().position, e.spellData.Position, m_lerpSpeed * dt);
 				g->setWorldPosition(pos);
-				//g->setTransform(pos, glm::quat(p->data.rotation));
 
 			}
 		}

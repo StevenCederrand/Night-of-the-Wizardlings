@@ -44,7 +44,7 @@ void Client::destroy()
 		
 		// In it's own scope
 		{
-			cleanupMutexGuard();
+			std::lock_guard<std::mutex> lockGuard(NetGlobals::ClientCleanupMutex);
 			m_shutdownThread = true;
 		}
 
@@ -65,16 +65,18 @@ void Client::destroy()
 		delete m_networkPickup;
 		resetPlayerData();
 		m_initialized = false;
+		m_serverOwner = false;
 		RakNet::RakPeerInterface::DestroyInstance(m_clientPeer);
 	}
 }
 
-void Client::connectToAnotherServer(const ServerInfo& server)
+void Client::connectToAnotherServer(const ServerInfo& server, bool spectatorMode)
 {
 	m_failedToConnect = false;
 	m_shutdownThread = false;
 	m_isConnectedToAnServer = false;
 	m_serverOwner = false;
+	m_spectating = spectatorMode;
 
 	bool status = m_clientPeer->Connect(server.serverAddress.ToString(false), server.serverAddress.GetPort(), 0, 0, 0) == RakNet::CONNECTION_ATTEMPT_STARTED;
 	assert((status == true, "[Client] Client connecting to {0} failed!", server.serverName));
@@ -94,7 +96,7 @@ void Client::connectToMyServer()
 	m_shutdownThread = false;
 	m_isConnectedToAnServer = false;
 	m_serverOwner = false;
-
+	m_spectating = false;
 	bool status = m_clientPeer->Connect("localhost", NetGlobals::ServerPort, 0, 0, 0) == RakNet::CONNECTION_ATTEMPT_STARTED;
 	assert((status == true, "Client connecting to localhost failed!"));
 	
@@ -130,7 +132,7 @@ void Client::ThreadedUpdate()
 		/* Checking for cleanups, it's in its own scope due to the lock guard
 		   releases the mutex upon destruction. */ 
 		{
-			cleanupMutexGuard();
+			std::lock_guard<std::mutex> lockGuard(NetGlobals::ClientCleanupMutex);
 			if (m_shutdownThread == true)
 				clientRunning = false;
 		}
@@ -168,6 +170,20 @@ void Client::processAndHandlePackets()
 		case ID_CONNECTION_REQUEST_ACCEPTED:
 		{
 			logTrace("[Client] Connected to server but not sure if actually accepted to the server.\n");
+			RakNet::BitStream stream;
+			if (m_spectating)
+			{	
+				logTrace("[Client] Sending spectator request to server.\n");
+				stream.Write((RakNet::MessageID)SPECTATE_REQUEST);
+				m_clientPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, packet->guid, false);
+			}
+			else
+			{
+				logTrace("[Client] Sending Play request to server.\n");
+				stream.Write((RakNet::MessageID)PLAY_REQUEST);
+				m_clientPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, packet->guid, false);
+			}
+
 		}
 		break;
 
@@ -253,7 +269,7 @@ void Client::processAndHandlePackets()
 				   (whenever the lock guard goes out of scope.). This will make it synced &
 				   avoid deadlocks. */
 				{
-					updatePlayersMutexGuard();
+					std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayersMutex);
 					m_networkPlayers.m_players.emplace_back(pE);
 				}
 			}
@@ -277,7 +293,7 @@ void Client::processAndHandlePackets()
 				se.gameobject = nullptr;
 
 				{
-					updateSpellsMutexGuard();
+					std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayersMutex);
 					m_networkSpells.m_entities.emplace_back(se);
 				}
 
@@ -306,7 +322,7 @@ void Client::processAndHandlePackets()
 			pE.gameobject = nullptr;
 			
 			{
-				updatePlayersMutexGuard();
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayersMutex);
 				m_networkPlayers.m_players.emplace_back(pE);
 			}
 
@@ -326,7 +342,7 @@ void Client::processAndHandlePackets()
 			std::string playerName;
 
 			{
-				updatePlayersMutexGuard();
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayersMutex);
 				NetworkPlayers::PlayerEntity* pE = findPlayerEntityInNetworkPlayers(guidOfDisconnectedPlayer);
 				if (pE != nullptr) {
 					playerName = std::string(pE->data.userName);
@@ -353,7 +369,7 @@ void Client::processAndHandlePackets()
 			t.textParts.emplace_back(Information, color);
 
 			{
-				renderPickupNotificationsMutexGuard();
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::PickupNotificationMutex);
 				Renderer::getInstance()->addBigNotification(t);
 			}
 
@@ -401,22 +417,25 @@ void Client::processAndHandlePackets()
 						t.textParts.emplace_back(Information, color);
 
 						{
-							renderPickupNotificationsMutexGuard();
+							std::lock_guard<std::mutex> lockGuard(NetGlobals::PickupNotificationMutex);
 							Renderer::getInstance()->addBigNotification(t);
 						}
 
 					}
 
 					m_connectedPlayers[i] = pData;
-
-					if (m_networkPlayers.m_players[i].data.guid == pData.guid)
 					{
-						m_networkPlayers.m_players[i].data = pData;
-					}
-					else {
-						logWarning("[Client] Client skipped a update on a client due to sync problems. (Should resolve itself with time)");
-					}
+						std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayersMutex);
+						NetworkPlayers::PlayerEntity* pEntity = findPlayerEntityInNetworkPlayers(pData.guid);
 
+						if (pEntity != nullptr)
+						{
+							pEntity->data = pData;
+						}
+						else {
+							logWarning("[Client] Client skipped a update on a client due to sync problems. (Should resolve itself with time)");
+						}
+					}
 					break;
 				}
 			}
@@ -469,7 +488,7 @@ void Client::processAndHandlePackets()
 			se.gameobject = nullptr;
 			
 			{
-				updateSpellsMutexGuard();
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateSpellsMutex);
 				m_networkSpells.m_entities.emplace_back(se);
 			}
 
@@ -496,23 +515,23 @@ void Client::processAndHandlePackets()
 					/* Update the internal information about the spell */
 					activeSpell.Position = spellPacket.Position;
 					activeSpell.Rotation = spellPacket.Rotation;
-
+				
 					/* Get the entity on the main thread */
-					NetworkSpells::SpellEntity& spellEntity = m_networkSpells.m_entities[i];
-
-					/* If it also matches then update the values of that entity. That entity is the same one that
-					   will later on get renderer by the main thread */
-					if (spellEntity.spellData.CreatorGUID == spellPacket.CreatorGUID &&
-						spellEntity.spellData.SpellID == spellPacket.SpellID)
 					{
-						spellEntity.spellData.Position = spellPacket.Position;
-						spellEntity.spellData.Rotation = spellPacket.Rotation;
-					}
-					else {
-						/* Just as the "PLAYER_UPDATE" this will resolve itself a couple of frames later */
-						//logWarning("[Client] Client skipped a update on a spell due to sync problems. (Should resolve itself with time)");
-					}
+						std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateSpellsMutex);
+						NetworkSpells::SpellEntity* spellEntity = findSpellEntityInNetworkSpells(spellPacket);
 
+						/* If it also matches then update the values of that entity. That entity is the same one that
+						   will later on get renderer by the main thread */
+						if (spellEntity != nullptr) {
+							spellEntity->spellData.Position = spellPacket.Position;
+							spellEntity->spellData.Rotation = spellPacket.Rotation;
+						}
+						else {
+							/* Just as the "PLAYER_UPDATE" this will resolve itself a couple of frames later */
+							logWarning("[Client] Client skipped a update on a spell due to sync problems. (Should resolve itself with time)");
+						}
+					}
 					break;
 				}
 			}
@@ -532,7 +551,7 @@ void Client::processAndHandlePackets()
 
 			// The scope
 			{
-				updateSpellsMutexGuard();
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateSpellsMutex);
 				NetworkSpells::SpellEntity* ne = findSpellEntityInNetworkSpells(spellPacket);
 				if (ne != nullptr) {
 					ne->flag = NetGlobals::THREAD_FLAG::Remove;
@@ -565,7 +584,7 @@ void Client::processAndHandlePackets()
 			
 			// Add this to the event list
 			{
-				eventMutexGuard(); // Thread safe
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
 				m_playerEvents.push_back(PlayerEvents::TookDamage);
 
 				if (m_myPlayerDataPacket.health <= 0) {
@@ -609,7 +628,7 @@ void Client::processAndHandlePackets()
 
 			// Add this to the event list
 			{
-				eventMutexGuard(); // Thread safe
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
 				m_playerEvents.push_back(PlayerEvents::Respawned);
 			}
 
@@ -623,7 +642,7 @@ void Client::processAndHandlePackets()
 
 			// Add this to the event list
 			{
-				eventMutexGuard(); // Thread safe
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
 				m_playerEvents.push_back(PlayerEvents::Respawned);
 			}
 			break;
@@ -634,7 +653,7 @@ void Client::processAndHandlePackets()
 			m_myPlayerDataPacket.health = NetGlobals::PlayerMaxHealth;
 			// Add this to the event list
 			{
-				eventMutexGuard(); // Thread safe
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
 				m_playerEvents.push_back(PlayerEvents::SessionOver);
 			}
 			break;
@@ -667,9 +686,15 @@ void Client::processAndHandlePackets()
 			data.direction = m_myPlayerDataPacket.lookDirection;
 			data.type = spellPacket.SpellType;
 			
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+				m_playerEvents.push_back(PlayerEvents::Deflected);
+			}
+
 			// scope
 			{
-				deflectSpellsMutexGuard();
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateDeflectSpellMutex);
 				m_spellHandler->m_deflectedSpells.emplace_back(data);
 			}
 		}
@@ -687,7 +712,7 @@ void Client::processAndHandlePackets()
 			pp.pickup = nullptr;
 			
 			{
-				updatePickupsMutexGuard();
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePickupsMutex);
 				m_networkPickup->m_pickupProps.emplace_back(pp);
 			}
 
@@ -705,7 +730,7 @@ void Client::processAndHandlePackets()
 				auto& prop = m_networkPickup->m_pickupProps[i];
 				
 				if (prop.packet.uniqueID == pickupPacket.uniqueID) {
-					updatePickupsMutexGuard();
+					std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePickupsMutex);
 					prop.flag = NetGlobals::THREAD_FLAG::Remove;
 					found = true;
 				}
@@ -746,7 +771,7 @@ void Client::processAndHandlePackets()
 			t.textParts.emplace_back(text, locColor);
 
 			{
-				renderPickupNotificationsMutexGuard();
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::PickupNotificationMutex);
 				Renderer::getInstance()->addBigNotification(t);
 			}
 
@@ -762,7 +787,7 @@ void Client::processAndHandlePackets()
 
 			// Add this to the event list
 			{
-				eventMutexGuard(); // Thread safe
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
 				m_playerEvents.push_back(PlayerEvents::TookHeal);
 			}
 
@@ -778,7 +803,7 @@ void Client::processAndHandlePackets()
 
 			// Add this to the event list
 			{
-				eventMutexGuard(); // Thread safe
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
 				m_playerEvents.push_back(PlayerEvents::TookPowerup);
 			}
 
@@ -792,7 +817,7 @@ void Client::processAndHandlePackets()
 		{	
 			// Add this to the event list
 			{
-				eventMutexGuard(); // Thread safe
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
 				m_playerEvents.push_back(PlayerEvents::PowerupRemoved);
 			}
 
@@ -845,7 +870,7 @@ void Client::processAndHandlePackets()
 			t.textParts.emplace_back(deadguyName, playerColor);
 
 			{
-				renderKillFeedMutexGuard();
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateKillFeedMutex);
 				Renderer::getInstance()->addKillFeed(t);
 			}
 
@@ -856,6 +881,27 @@ void Client::processAndHandlePackets()
 		{
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			m_serverTimePacket.Serialize(false, bsIn);
+			break;
+		}
+
+		case DESTRUCTION:
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			DestructionPacket destpacket;
+			destpacket.Serialize(false, bsIn);
+			
+			// Add it to the destroyed walls vector
+			{
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::ReadDestructableWallsMutex); // Thread safe
+				m_destroyedWalls.push_back(destpacket);
+			}
+
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+				m_playerEvents.push_back(PlayerEvents::WallGotDestroyed);
+			}
+
 			break;
 		}
 
@@ -877,6 +923,7 @@ void Client::updatePlayerData(Player* player)
 	m_myPlayerDataPacket.position = player->getPlayerPos();
 	m_myPlayerDataPacket.inDeflectState = player->isDeflecting();
 	m_myPlayerDataPacket.lookDirection = player->getCamera()->getCamFace();
+	m_myPlayerDataPacket.meshHalfSize = player->getMeshHalfSize();
 	m_myPlayerDataPacket.timestamp = RakNet::GetTimeMS();
 	m_myPlayerDataPacket.rotation = glm::vec3(
 		0.0f,
@@ -908,7 +955,7 @@ void Client::createSpellOnNetwork(const Spell& spell)
 	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Rotation = glm::vec3(0.0f);
 	spellPacket.Scale = spell.getTransform().scale;
-	spellPacket.SpellType = (SPELL_TYPE)spell.getType();
+	spellPacket.SpellType = (OBJECT_TYPE)spell.getType();
 
 	m_removeOrAddSpellQueue.emplace_back(spellPacket);
 }
@@ -927,7 +974,7 @@ void Client::updateSpellOnNetwork(const Spell& spell)
 	spellPacket.Direction = spell.getDirection();
 	spellPacket.Rotation = glm::vec3(0.0f);
 	spellPacket.Scale = spell.getTransform().scale;
-	spellPacket.SpellType = (SPELL_TYPE)spell.getType(); 
+	spellPacket.SpellType = (OBJECT_TYPE)spell.getType(); 
 
 	m_updateSpellQueue.emplace_back(spellPacket);
 }
@@ -946,7 +993,7 @@ void Client::destroySpellOnNetwork(const Spell& spell)
 	spellPacket.Direction = spell.getDirection();
 	spellPacket.Rotation = glm::vec3(0.0f);
 	spellPacket.Scale = spell.getTransform().scale;
-	spellPacket.SpellType = (SPELL_TYPE)spell.getType();
+	spellPacket.SpellType = (OBJECT_TYPE)spell.getType();
 
 	m_removeOrAddSpellQueue.emplace_back(spellPacket);
 }
@@ -991,6 +1038,14 @@ void Client::sendHitRequest(Spell& spell, const PlayerPacket& playerThatWasHit)
 
 }
 
+void Client::sendDestructionPacket(const DestructionPacket& destructionPacket)
+{
+	if (!m_initialized || !m_isConnectedToAnServer) return;
+
+	m_destructionQueue.push_back(destructionPacket);
+
+}
+
 void Client::updateNetworkEntities(const float& dt)
 {
 	if (m_initialized && m_isConnectedToAnServer) {
@@ -1003,7 +1058,7 @@ void Client::updateNetworkEntities(const float& dt)
 
 void Client::sendStartRequestToServer()
 {
-	if (m_serverOwner) {
+	if (m_serverOwner && m_initialized) {
 		RakNet::BitStream stream;
 		stream.Write((RakNet::MessageID)SERVER_CHANGE_STATE);
 		ServerStateChange stateChange;
@@ -1064,11 +1119,23 @@ void Client::updateDataOnServer()
 		m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_serverAddress, false);
 	}
 
+	// Empty out the destruction queue
+	for (size_t i = 0; i < m_destructionQueue.size(); i++) {
+
+		RakNet::BitStream bsOut;
+		bsOut.Write((RakNet::MessageID)DESTRUCTION);
+		m_destructionQueue[i].Serialize(true, bsOut);
+		m_clientPeer->Send(&bsOut, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_serverAddress, false);
+	}
+
+
+
 	// Empty all the queues
 	m_updateSpellQueue.clear();
 	m_spellsHitQueue.clear();
 	m_removeOrAddSpellQueue.clear();
 	m_removalOfClientSpellsQueue.clear();
+	m_destructionQueue.clear();
 
 }
 
@@ -1146,16 +1213,27 @@ const PlayerEvents Client::readNextEvent()
 
 	// Remove it so that the next time this function is called the next event will be shown
 	{
-		eventMutexGuard(); // Thread safe
+		std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
 		m_playerEvents.erase(m_playerEvents.begin());
 	}
 	// Return the event
 	return evnt;
 }
 
+const std::vector<DestructionPacket>& Client::getDestructedWalls()
+{
+	return m_destroyedWalls;
+}
+
+
 const std::vector<SpellPacket>& Client::getNetworkSpells()
 {
 	return m_activeSpells;
+}
+
+const PlayerPacket* Client::getSpectatedPlayer() const
+{
+	return m_spectatedPlayer;
 }
 
 void Client::refreshServerList()
@@ -1184,44 +1262,48 @@ void Client::setUsername(const std::string& userName)
 	std::memcpy(m_myPlayerDataPacket.userName, userName.c_str(), userName.size());
 }
 
-void Client::updatePlayersMutexGuard()
+void Client::spectateNext()
 {
-	std::lock_guard<std::mutex> lockGuard(m_updatePlayersMutex);
+	// The client thread may remove this the moment we look at it so let's be safe and lock it
+	std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayersMutex);
+	if (m_connectedPlayers.size() == 0) {
+		m_spectatedPlayer = nullptr;
+		return;
+	}
+
+	if (m_spectateIndex >= m_connectedPlayers.size())
+		m_spectateIndex = 0;
+
+	int count = 0;
+	bool foundValidPlayer = false;
+
+	while (count < m_connectedPlayers.size() && !foundValidPlayer)
+	{
+		m_spectatedPlayer = &m_connectedPlayers[m_spectateIndex];
+
+		if (m_spectatedPlayer->health != 0)
+			foundValidPlayer = true;
+
+		m_spectateIndex++;
+
+		if (m_spectateIndex >= m_connectedPlayers.size())
+			m_spectateIndex = 0;
+
+		count++;
+	}
+	
+	if (foundValidPlayer == false)
+	{
+		m_spectatedPlayer = nullptr;
+		return;
+	}
+
 }
 
-void Client::updateSpellsMutexGuard()
+void Client::clearDestroyedWallsVector()
 {
-	std::lock_guard<std::mutex> lockGuard(m_updateSpellsMutex);
-}
+	m_destroyedWalls.clear();
 
-void Client::updatePickupsMutexGuard()
-{
-	std::lock_guard<std::mutex> lockGuard(m_updatePickupsMutex);
-}
-
-void Client::eventMutexGuard()
-{
-	std::lock_guard<std::mutex> lockGuard(m_playerEventMutex);
-}
-
-void Client::cleanupMutexGuard()
-{
-	std::lock_guard<std::mutex> lockGuard(m_cleanupMutex);
-}
-
-void Client::deflectSpellsMutexGuard()
-{
-	std::lock_guard<std::mutex> lockGuard(m_deflectSpellMutex);
-}
-
-void Client::renderPickupNotificationsMutexGuard()
-{
-	std::lock_guard<std::mutex> lockGuard(m_renderPickupNotificationMutex);
-}
-
-void Client::renderKillFeedMutexGuard()
-{
-	std::lock_guard<std::mutex> lockGuard(m_renderKillFeedMutex);
 }
 
 const bool Client::doneRefreshingServerList() const
@@ -1272,6 +1354,11 @@ const bool& Client::isServerOwner() const
 	return m_serverOwner;
 }
 
+const bool& Client::isSpectating() const
+{
+	return m_spectating;
+}
+
 void Client::findAllServerAddresses()
 {
 	m_clientPeer->Ping("255.255.255.255", NetGlobals::ServerPort, false);
@@ -1295,8 +1382,7 @@ void Client::findAllServerAddresses()
 					info = *(ServerInfo*)bsIn.GetData();
 
 					// If the pinged server is full or in session then don't add it to the server list
-					if (info.connectedPlayers >= info.maxPlayers) continue;
-					if (info.currentState == NetGlobals::SERVER_STATE::GameInSession) continue;
+					if (info.connectedPlayers >= NetGlobals::MaximumConnections) continue;
 
 					info.serverAddress = packet->systemAddress;
 					m_serverList.emplace_back(std::make_pair(ID++, info));
@@ -1385,10 +1471,15 @@ void Client::removeActiveSpell(const SpellPacket& packet)
 
 void Client::removeConnectedPlayer(const RakNet::AddressOrGUID& guid)
 {
+
 	for (size_t i = 0; i < m_connectedPlayers.size(); i++) {
 		PlayerPacket& p = m_connectedPlayers[i];
 
 		if (p.guid == guid) {
+
+			if (&p == m_spectatedPlayer)
+				m_spectatedPlayer = nullptr;
+
 			m_connectedPlayers.erase(m_connectedPlayers.begin() + i);
 			return;
 		}
@@ -1413,7 +1504,7 @@ void Client::routineCleanup()
 	// Scope
 	{
 		logInfo("[Client-Routine] Running Dead spell cleanup routine");
-		updateSpellsMutexGuard();
+		std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateSpellsMutex);
 		auto& spellVec = m_networkSpells.getSpellEntitiesREF();
 
 		for (size_t i = 0; i < spellVec.size(); i++) {
@@ -1445,7 +1536,7 @@ void Client::routineCleanup()
 				logWarning("[Client-Routine] Marking lost player for removal..");
 				// Scope
 				{
-					updatePlayersMutexGuard();
+					std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayersMutex);
 					NetworkPlayers::PlayerEntity* pE = findPlayerEntityInNetworkPlayers(player.guid);
 					if (pE != nullptr) {
 						pE->flag = NetGlobals::THREAD_FLAG::Remove;

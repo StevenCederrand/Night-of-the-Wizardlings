@@ -5,8 +5,9 @@ namespace NetGlobals {
 
 	static glm::vec3 PlayerFirstSpawnPoint = glm::vec3(0.0f, 14.5f, 7.0f);
 
-	constexpr unsigned int MaximumConnections = 6;
-	constexpr unsigned short MaximumIncomingConnections = 6;
+	constexpr unsigned int MaximumConnections = 12;
+	constexpr unsigned int MaximumPlayingPlayersOnServer = 6;
+	constexpr unsigned short MaximumIncomingConnections = 12;
 	constexpr unsigned short ServerPort = 42405;
 	constexpr int TickRate = 128;
 	constexpr unsigned int NetThreadSleepTime = static_cast<unsigned int>((1.0f / static_cast<float>(TickRate)) * 1000u);
@@ -34,6 +35,17 @@ namespace NetGlobals {
 		GameInSession,
 		GameFinished
 	};
+
+	static std::mutex ClientCleanupMutex;
+	static std::mutex UpdatePickupsMutex;
+	static std::mutex UpdatePlayersMutex;
+	static std::mutex UpdateSpellsMutex;
+	static std::mutex UpdatePlayerEventMutex;
+	static std::mutex UpdateDeflectSpellMutex;
+	static std::mutex UpdateKillFeedMutex;
+	static std::mutex PickupNotificationMutex;
+	static std::mutex ReadDestructableWallsMutex;
+
 }
 
 #endif

@@ -51,7 +51,7 @@ void Player::update(float deltaTime)
 
 		move(deltaTime);
 		
-		if (!m_logicStop) {
+		if (m_playerCamera->isFPEnabled()) {
 			attack();
 		}
 	}
@@ -83,12 +83,24 @@ void Player::update(float deltaTime)
 	
 	//Regenerate mana when we are not deflecting
 	if (!m_rMouse && m_mana <= 100 && m_deflectCooldown <= 0) {
-		m_mana += 0.1f;
+		m_mana += 0.25f;
 	}
 	else if (m_deflectCooldown > 0 && !m_rMouse) {
 		m_deflectCooldown -= DeltaTime;
 	}
-	PlayAnimation(deltaTime);
+	
+	
+	
+	if (m_health <= 0) {
+		if (m_firstPersonMesh->getShouldRender() == true) {
+			m_firstPersonMesh->setShouldRender(false);
+		}
+	}else{
+		if (m_firstPersonMesh->getShouldRender() == false) {
+			m_firstPersonMesh->setShouldRender(true);
+		}
+		PlayAnimation(deltaTime);
+	}
 
 }
 
@@ -100,7 +112,7 @@ void Player::move(float deltaTime)
 	
 	m_moveDir = glm::vec3(0.0f);
 
-	if (!m_logicStop) {
+	if (m_playerCamera->isFPEnabled()) {
 
 		glm::vec3 lookDirection = m_directionVector;
 		lookDirection.y = 0.0f;
@@ -117,12 +129,12 @@ void Player::move(float deltaTime)
 			m_moveDir -= lookDirection;
 
 		// Jump
-		if (Input::isKeyHeldDown(GLFW_KEY_SPACE))
+		if (Input::isKeyHeldDown(GLFW_KEY_SPACE)) {
 			if (m_character->canJump()) {
 				m_character->jump(btVector3(0.0f, 16.0f, 0.0f));
 				animState.jumping = true;
 			}
-
+		}
 	}
 	// Make sure moving is a constant speed
 	if (glm::length(m_moveDir) >= 0.0001f)
@@ -138,12 +150,12 @@ void Player::move(float deltaTime)
 	btVector3 playerPos = m_character->getGhostObject()->getWorldTransform().getOrigin();
 	float characterHalfSize = m_bp->getCharacterSize().getY();
 
-	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY()-1.0f, playerPos.getZ());
-	//m_playerPosition.y -= characterHalfSize;
+	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY(), playerPos.getZ());
+	m_playerPosition.y -= characterHalfSize;
 
 	//set cameraPos and spellSpawnPos 
 	m_cameraPosition = m_playerPosition;
-	m_cameraPosition.y += characterHalfSize + characterHalfSize*0.85f;
+	m_cameraPosition.y += characterHalfSize + characterHalfSize * 0.85f;
 	m_spellSpawnPosition = m_playerPosition;
 	m_spellSpawnPosition.y += (2 * characterHalfSize) * 0.85f;
 
@@ -205,7 +217,7 @@ void Player::attack()
 				animState.deflecting = true; //Play the animation once
 				m_mana -= 10; //This is the initial manacost for the deflect
 			}
-			m_mana -= 1;
+			m_mana -= 0.5f;
 			m_deflecting = true;
 			m_deflectCooldown = 0.5f; 			
 		}
@@ -337,6 +349,11 @@ const float& Player::getMaxAttackCooldown() const
 const float& Player::getMaxSpecialCooldown() const
 {
 	return m_maxSpecialCooldown;
+}
+
+const glm::vec3 Player::getMeshHalfSize() const
+{
+	return glm::vec3(m_bp->getCharacterSize().getX(), m_bp->getCharacterSize().getY(), m_bp->getCharacterSize().getZ());
 }
 
 const float& Player::getMana() const

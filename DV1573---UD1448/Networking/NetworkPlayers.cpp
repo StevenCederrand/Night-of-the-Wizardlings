@@ -23,7 +23,7 @@ void NetworkPlayers::cleanUp()
 
 void NetworkPlayers::update(const float& dt)
 {
-	Client::getInstance()->updatePlayersMutexGuard();
+	std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayersMutex);
 	for (size_t i = 0; i < m_players.size(); i++)
 	{
 		PlayerEntity& p = m_players[i];
@@ -45,7 +45,7 @@ void NetworkPlayers::update(const float& dt)
 					//animObj->initAnimations("JumpAnimation", 1.0f, 21.0f);
 
 				}
-
+				std::cout << "NetworkPlayer @memAddr: " << p.gameobject << "\n";
 				//Submit the player object as a dynamic object
 				Renderer::getInstance()->submit(p.gameobject, ANIMATEDSTATIC); 
 			}
@@ -63,7 +63,6 @@ void NetworkPlayers::update(const float& dt)
 		}
 
 		GameObject* g = p.gameobject;
-		
 		
 		if (g != nullptr) {
 			

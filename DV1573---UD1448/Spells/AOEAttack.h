@@ -42,5 +42,6 @@ private:
 	//new---
 	bool m_hasCollided = false;
 	int m_bounceCounter = 0;
+	float m_bounceTime = 0.0f;
 	const FlamestrikeSpellBase* m_spellBase;
 };

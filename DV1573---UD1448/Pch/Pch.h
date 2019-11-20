@@ -65,6 +65,16 @@
 #include <Renderer/Camera.h>
 #include <Renderer/Renderer.h>
 #include <System/Input.h>
+#include <GameObject/ObjectTypes.h>
+
+// DSTR
+#include <Destruction/TriangleNode.h>
+#include <Destruction/Geometry.h>
+#include <Destruction/DelaunayGenerator.h>
+#include <Destruction/VoroniCalculator.h>
+#include <Destruction/VoroniClipper.h>
+#include <Destruction/DstrGenerator.h>
+
 
 const std::string CEGUI_TYPE = "OgreTray";
 const std::string SHADERPATH = "Assets/Shaders/";
@@ -75,5 +85,8 @@ const std::string CHARACTER = "pCharacter";
 const unsigned int SCREEN_WIDTH = 1280;
 const unsigned int SCREEN_HEIGHT = 720;
 const int MAX_BONES = 64;
+
+
+
 
 #endif

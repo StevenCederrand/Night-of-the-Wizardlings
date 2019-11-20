@@ -1,6 +1,11 @@
 #include "Pch/Pch.h"
 #include "BulletPhysics.h"
 
+enum {
+	NormalObjects = 1,
+	DestructableObjects
+};
+
 BulletPhysics::BulletPhysics(float gravity)
 {
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -61,7 +66,7 @@ BulletPhysics::~BulletPhysics()
 	m_collisionShapes.clear();
 }
 
-btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, glm::vec3 position, glm::vec3 extend, glm::quat rotation, float restitution, float friction)
+btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, glm::vec3 position, glm::vec3 extend, glm::quat rotation, bool destruction, float restitution, float friction)
 {
 	btCollisionShape* objectShape;
 	switch (object)
@@ -105,7 +110,7 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	//rigidbody is dynamic if and only if mass is non zero, otherwise static
 	bool isDynamic = (mass != 0.f);
 
-	btVector3 localInertia(0.0f, 0.0f, 0.0f);
+	btVector3 localInertia(1.0f, 1.0f, 1.0f);
 	//btVector3 localInertia(inLocalInertia.x, inLocalInertia.y, inLocalInertia.z);
 	if (isDynamic)
 		objectShape->calculateLocalInertia(mass, localInertia);
@@ -116,22 +121,26 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, objectShape, localInertia);
 	btRigidBody* body = new btRigidBody(rbInfo);
 
-	body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
-
-
-	//how much bounce and friction a object should have
 	
+	//how much bounce and friction a object should have
 	body->setRestitution(restitution);	
 	body->setFriction(friction);
-	body->setSpinningFriction(0.5f);
+	body->setSpinningFriction(1.0f);
 
-	if (restitution == 0.0f)
+	//groups and mask is for collision, same mask and group to collide with that
+	int myGoup = NormalObjects;
+	int mask = NormalObjects | DestructableObjects | btBroadphaseProxy::CharacterFilter;
+
+	if (destruction)
 	{
-		body->setFriction(0.8f);
-		body->setSpinningFriction(0.2f);
-	}
-	m_dynamicsWorld->addRigidBody(body);
+		myGoup = DestructableObjects;
+		mask = NormalObjects | btBroadphaseProxy::CharacterFilter;
 
+		destructionobj(body);	
+	}
+	body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+
+	m_dynamicsWorld->addRigidBody(body,myGoup, mask);
 	return body;
 }
 
@@ -153,14 +162,14 @@ btVector3 BulletPhysics::getCharacterSize() const
 btKinematicCharacterController* BulletPhysics::createCharacter(const glm::vec3& position, float& height)
 {
 	//create the character and add him to the dynamicsWorld
-	//m_playerShape = new btCapsuleShape(1.0, height +2 * 1.0);
 
-	//m_boxSize
-
-	//m_boxSize = btVector3(0.5, height / 2, 0.5);
-	btScalar capsule1 = m_boxSize.getX();
-	btScalar capsule2 = m_boxSize.getY()*0.5f;
-	m_playerShape = new btCapsuleShapeZ(0.6f, height);
+	btScalar capsuleX = m_boxSize.getX();
+	btScalar capsuleY = m_boxSize.getY() * 2.0f;
+	btScalar capsuleZ = m_boxSize.getZ() + 0.3f;
+	//height of capsule is	totalHeight = height + radius * 2
+	//						height = totalHeight - radius * 2
+	btScalar realY = (capsuleY) - (capsuleZ * 2.0f);
+	m_playerShape = new btCapsuleShapeZ(capsuleZ, realY);
 
 	m_ghostObject = new btPairCachingGhostObject();
 	btTransform startTransform;
@@ -173,7 +182,7 @@ btKinematicCharacterController* BulletPhysics::createCharacter(const glm::vec3& 
 	m_ghostObject->setCollisionShape(m_playerShape);
 	m_ghostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
 	m_character = new btKinematicCharacterController(m_ghostObject, m_playerShape, 0.5f, btVector3(0.0f, 1.0f, 0.0f));
-	m_dynamicsWorld->addCollisionObject(m_ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter);
+	m_dynamicsWorld->addCollisionObject(m_ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter | NormalObjects | DestructableObjects);
 
 	m_collisionShapes.push_back(m_playerShape);
 	m_dynamicsWorld->addAction(m_character);
@@ -204,6 +213,15 @@ void BulletPhysics::update(float dt)
 	if (!m_setGravity)
 		m_counter++;
 
-	// Testing deltatime based updates // JR
+	// If it crashes here it's probably the callback function in playstate
 	m_dynamicsWorld->stepSimulation(dt, 10, 1.0f/ 240.0f);
+}
+
+void BulletPhysics::destructionobj(btRigidBody* body)
+{
+	body->setRestitution(0.0f);
+	body->setFriction(1.0f);
+	body->setSpinningFriction(1.0f);
+	body->setAngularFactor(btVector3(1.0f, 1.0f, 1.0f));
+	body->setDamping(0.6f, 0.6f);
 }

@@ -91,7 +91,7 @@ void Renderer::renderHUD()
 
 void Renderer::renderAndAnimateNetworkingTexts()
 {
-	if (Client::getInstance()->isConnectedToSever()) {
+	if (Client::getInstance()->isConnectedToSever() && Client::getInstance()->isInitialized()) {
 
 		NetGlobals::SERVER_STATE state = Client::getInstance()->getServerState().currentState;
 
@@ -124,8 +124,10 @@ void Renderer::renderAndAnimateNetworkingTexts()
 			m_text->RenderText(timeText, (SCREEN_WIDTH / 2) - 125.0f, (SCREEN_HEIGHT * 0.95f), scale.x, glm::vec3(1.0f, 1.0f, 1.0f));
 		}
 		else if (state == NetGlobals::SERVER_STATE::WaitingForPlayers) {
-			std::string timeText = std::to_string(Client::getInstance()->getCountdownPacket().timeLeft / 1000);
-			m_text->RenderText("Waiting for players", SCREEN_WIDTH / 2 - 80.0f, 680.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+
+			std::string Text = "Waiting for players ";
+			float width = m_text->getTotalWidth(Text, glm::vec3(0.5f));
+			m_text->RenderText(Text, SCREEN_WIDTH / 2 - width * 0.5f, 680.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
 
 			if (Client::getInstance()->isServerOwner()) {
 				m_text->RenderText("Press \"E\" to start the game", 10.0f, 620.0f, 0.35f, glm::vec3(1.0f, 1.0f, 1.0f));
@@ -147,24 +149,75 @@ void Renderer::renderAndAnimateNetworkingTexts()
 			m_text->RenderText("End of round: " + timeText, SCREEN_WIDTH / 2 - 135.0f, 680.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
 		}
 
+		if (Client::getInstance()->isSpectating() == false) {
 
-		if (Client::getInstance()->getMyData().health == 0) {
-			std::string timeText = std::to_string(Client::getInstance()->getRespawnTime().timeLeft / 1000);
-			m_text->RenderText("Respawn in " + timeText + " seconds", (SCREEN_WIDTH / 2) - 200.0f, 480.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
+			if (Client::getInstance()->getMyData().health == 0) {
+				std::string timeText = std::to_string(Client::getInstance()->getRespawnTime().timeLeft / 1000);
+				m_text->RenderText("Respawn in " + timeText + " seconds", (SCREEN_WIDTH / 2) - 200.0f, 480.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
+			}
+
+
+			if (state == NetGlobals::SERVER_STATE::GameInSession)
+				m_text->RenderText("Kills: " + std::to_string(Client::getInstance()->getMyData().numberOfKills), 10.0f, 620.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+
+		}
+		else {
+			
+			if (m_camera == nullptr) return;
+
+			glm::vec3 modeTextScale = glm::vec3(0.35f);
+
+			std::string modeText = "Mode  ";
+			float modeTextWidth = m_text->getTotalWidth(modeText, modeTextScale);
+
+			std::string cameraModeText = "";
+
+			if (m_camera->getSpectatorMode() == SpectatorMode::FreeCamera) {
+				cameraModeText = "Free camera";
+			}
+			else if (m_camera->getSpectatorMode() == SpectatorMode::ThirdPerson) {
+				cameraModeText = "Third person";
+			}
+
+			float cameraModeWidth = m_text->getTotalWidth(cameraModeText, modeTextScale);
+			float totalModeTextWidth = modeTextWidth + cameraModeWidth;
+			m_text->RenderText(modeText, (SCREEN_WIDTH / 2) - totalModeTextWidth * 0.5f, (SCREEN_HEIGHT * 0.075f), modeTextScale.x, glm::vec3(1.0f, 1.0f, 1.0f));
+			m_text->RenderText(cameraModeText, (SCREEN_WIDTH / 2) - (totalModeTextWidth * 0.5f) + modeTextWidth, (SCREEN_HEIGHT * 0.075f), modeTextScale.x, glm::vec3(1.0f, 0.5f, 0.0f));
+
+
+
+			if (m_camera->getSpectatorMode() == SpectatorMode::ThirdPerson) {
+				const PlayerPacket* spectatedPlayer = Client::getInstance()->getSpectatedPlayer();
+				
+				if (spectatedPlayer == nullptr)
+					return;
+
+				glm::vec3 textScale = glm::vec3(0.45f);
+
+				std::string spectateText = "Spectating  ";
+				float spectateTextWidth = m_text->getTotalWidth(spectateText, textScale);
+				
+				std::string playerName = std::string(spectatedPlayer->userName);
+				float playerNameWidth = m_text->getTotalWidth(playerName, textScale);
+				
+				float totalWidth = spectateTextWidth + playerNameWidth;
+				
+				m_text->RenderText(spectateText, (SCREEN_WIDTH / 2) - totalWidth * 0.5f, (SCREEN_HEIGHT * 0.15f), textScale.x, glm::vec3(1.0f, 1.0f, 1.0f));
+				m_text->RenderText(playerName, (SCREEN_WIDTH / 2) - (totalWidth * 0.5f) + spectateTextWidth, (SCREEN_HEIGHT * 0.15f), textScale.x, glm::vec3(1.0f, 0.5f, 0.0f));
+
+			}
+
+			
 		}
 
-		m_text->RenderText("Health: " + std::to_string(Client::getInstance()->getMyData().health), 10.0f, 680.0f, 0.45f, glm::vec3(1.0f, 1.0f, 1.0f));
-
-		if (state == NetGlobals::SERVER_STATE::GameInSession)
-			m_text->RenderText("Kills: " + std::to_string(Client::getInstance()->getMyData().numberOfKills), 10.0f, 620.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
-
-
 	}
+
+
 }
 
 void Renderer::renderBigNotifications()
 {
-	Client::getInstance()->renderPickupNotificationsMutexGuard();
+	std::lock_guard<std::mutex> lockGuard(NetGlobals::PickupNotificationMutex);
 	for (size_t i = 0; i < m_bigNotifications.size(); i++) {
 
 		NotificationText& notification = m_bigNotifications[i];
@@ -189,7 +242,7 @@ void Renderer::renderBigNotifications()
 
 void Renderer::renderKillFeed()
 {
-	Client::getInstance()->renderKillFeedMutexGuard();
+	std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateKillFeedMutex);
 	for (size_t i = 0; i < m_killFeed.size(); i++) {
 		
 		NotificationText& notification = m_killFeed[i];
@@ -635,6 +688,14 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	renderSkybox(m_skybox);
 	renderDeflectBox(m_deflectBox);
 
+#ifdef DEBUG_WIREFRAME
+	// DEBUG (MOSTLY FOR DSTR)
+	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_M) == GLFW_PRESS)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_N) == GLFW_PRESS)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
+
 #pragma region Color_Render
 	shader = shaderMap->useByName(BASIC_FORWARD);
 	shader->clearBinding();
@@ -900,7 +961,15 @@ void Renderer::render(SkyBox* m_skybox, DeflectRender* m_deflectBox, SpellHandle
 	
 	shader->clearBinding();
 #pragma endregion
+
+	// Spell Rendering
 	m_spellHandler->renderSpell();
+
+#ifdef DEBUG_WIREFRAME
+	// DEBUG (MOSTLY FOR DSTR)
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
+
 	//ShaderMap::getInstance()->useByName(BLUR);
 
 	//ShaderMap::getInstance()->getShader(BLUR)->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
@@ -1101,7 +1170,7 @@ void Renderer::initializeParticle()
 	m_PSinfo.glow = false;
 	m_PSinfo.scaleDirection = 0;
 	m_PSinfo.fade = 1;
-	m_PSinfo.color = glm::vec3(1.0f, 0.0f, 1.0f);
+	m_PSinfo.color = glm::vec3(0.65f, 1.0f, 1.0f);
 	m_PSinfo.direction = glm::vec3(1.0f, 0.0f, 0.0f);
 	vertexCountDiff = m_PSinfo.maxParticles;
 	emissionDiff = m_PSinfo.emission;
@@ -1133,7 +1202,7 @@ void Renderer::initializeParticle()
 	m_enhanceInfo.glow = false;
 	m_enhanceInfo.scaleDirection = 0;
 	m_enhanceInfo.fade = 1;
-	m_enhanceInfo.color = glm::vec3(0.5f, 1.0f, 0.0f);
+	m_enhanceInfo.color = glm::vec3(0.85f, 0.3f, 0.2f);
 	m_enhanceInfo.direction = glm::vec3(1.0f, 0.0f, 0.0f);
 	vertexCountDiff2 = m_enhanceInfo.maxParticles;
 	emissionDiff2 = m_enhanceInfo.emission;
@@ -1151,23 +1220,23 @@ void Renderer::initializeParticle()
 
 	m_txtInfo.name = "Assets/Textures/Spell_2.png";
 
-	m_flameInfo.width = 0.3f;
-	m_flameInfo.heigth = 0.3f;
-	m_flameInfo.lifetime = 1.0f;
-	m_flameInfo.maxParticles = 5000; //350
-	m_flameInfo.emission = 0.0001f; //0.00001f;
-	m_flameInfo.force = -1.0f; //5
-	m_flameInfo.drag = -1.0f;
+	m_flameInfo.width = 1.2f;
+	m_flameInfo.heigth = 1.2f;
+	m_flameInfo.lifetime = 8.0f;
+	m_flameInfo.maxParticles = 1000; //350
+	m_flameInfo.emission = 0.005f; //0.00001f;
+	m_flameInfo.force = -0.04f; //5
+	m_flameInfo.drag = 0.0f;
 	m_flameInfo.gravity = 0.0f; //Standard is 1
 	m_flameInfo.seed = -1;
 	m_flameInfo.cont = true;
 	m_flameInfo.omnious = true;
-	m_flameInfo.spread = 10.0f;
+	m_flameInfo.spread = 15.0f;
 	m_flameInfo.glow = false;
 	m_flameInfo.scaleDirection = 0;
 	m_flameInfo.fade = 1;
-	m_flameInfo.color = glm::vec3(1.0f, 0.5f, 0.0f);
-	m_flameInfo.direction = glm::vec3(0.0f, 10.0f, 0.0f);
+	m_flameInfo.color = glm::vec3(1.0f, 0.6f, 0.2f);
+	m_flameInfo.direction = glm::vec3(0.0f, 1.0f, 0.0f);
 	vertexCountDiff3 = m_flameInfo.maxParticles;
 	emissionDiff3 = m_flameInfo.emission;
 	//ps = new ParticleSystem(&m_PSinfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());

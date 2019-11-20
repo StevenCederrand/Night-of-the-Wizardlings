@@ -71,7 +71,7 @@ bool MenuState::onStartOfflineClicked(const CEGUI::EventArgs& e)
 {
 	glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	Renderer::getInstance()->clear();
-	m_stateManager->clearAllAndSetState(new PlayState());
+	m_stateManager->clearAllAndSetState(new PlayState(false));
 	return true;
 }
 

@@ -9,25 +9,34 @@
 #include <GameObject/WorldObject.h>
 #include <GameObject/MapObject.h>
 #include <GameObject/AnimatedObject.h>
+#include <GameObject/DestructibleObject.h>
 #include <Spells/Spell.h>
 #include <System/BulletPhysics.h>
 #include <HUD/HudObject.h>
 #include <HUD/HudHandler.h>
 
-bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
-	const btCollisionObjectWrapper* obj2, int id2, int index2);
+//bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
+//	const btCollisionObjectWrapper* obj2, int id2, int index2);
 
 class PlayState : public State {
 
 public:
-	PlayState();
+	//PlayState(){}
+	PlayState(bool spectator);
 	virtual ~PlayState() override;
 	virtual void update(float dt) override;
 	virtual void render() override;
 
+	static bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
+		const btCollisionObjectWrapper* obj2, int id2, int index2);
+
 private:
 	/* Callbacks */
 	void onSpellHit_callback();
+
+	/* Helper */
+	void update_isPlaying(const float& dt);
+	void update_isSpectating(const float& dt);
 
 private:
 	int key = 1;
@@ -36,6 +45,8 @@ private:
 	
 	//Any inherited GameObject class added to this vector will support basic rendering
 	std::vector<GameObject*> m_objects;
+
+	DstrGenerator m_dstr;
 	AnimatedObject* m_firstPerson;
 	SpellHandler* m_spellHandler;
 	Player* m_player;
