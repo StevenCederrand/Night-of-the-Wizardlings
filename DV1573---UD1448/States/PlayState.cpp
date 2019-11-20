@@ -151,6 +151,7 @@ void PlayState::update(float dt)
 void PlayState::onSpellHit_callback()
 {
 	m_hudHandler.getHudObject(CROSSHAIR_HIT)->setAlpha(1.0f);
+	SoundHandler::getInstance()->playSound(HitmarkSound);
 }
 
 void PlayState::update_isPlaying(const float& dt)
