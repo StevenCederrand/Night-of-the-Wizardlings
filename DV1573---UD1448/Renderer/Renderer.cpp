@@ -416,25 +416,29 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 		m_lights.emplace_back(light);
 
 		//light.color = 
-		if (static_cast<Spell*>(gameObject)->getType() == OBJECT_TYPE::NORMALATTACK)
+		Spell* spell = dynamic_cast<Spell*>(gameObject);
+		if (spell == nullptr) return;
+
+		
+		if (spell->getType() == OBJECT_TYPE::NORMALATTACK)
 		{
 			m_particleSystems.emplace_back(ParticleSystem(&m_PSinfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), attackBuffer,
 				attackPS->getVertex(), attackPS->getDir(), attackPS->getParticle(), attackPS->getLifetime()));
 		}
 
-		else if (static_cast<Spell*>(gameObject)->getType() == OBJECT_TYPE::ENHANCEATTACK)
+		else if (spell->getType() == OBJECT_TYPE::ENHANCEATTACK)
 		{
 			m_particleSystems.emplace_back(ParticleSystem(&m_enhanceInfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), enhanceBuffer,
 				enhancePS->getVertex(), enhancePS->getDir(), enhancePS->getParticle(), enhancePS->getLifetime()));
 		}
 
-		else if (static_cast<Spell*>(gameObject)->getType() == OBJECT_TYPE::FIRE)
+		else if (spell->getType() == OBJECT_TYPE::FIRE)
 		{
 			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &smoke, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
 				flamestrikePS->getVertex(), flamestrikePS->getDir(), flamestrikePS->getParticle(), flamestrikePS->getLifetime()));
 		}
 
-		else if (static_cast<Spell*>(gameObject)->getType() == OBJECT_TYPE::FLAMESTRIKE)
+		else if (spell->getType() == OBJECT_TYPE::FLAMESTRIKE)
 		{
 			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
 				flamestrikePS->getVertex(), flamestrikePS->getDir(), flamestrikePS->getParticle(), flamestrikePS->getLifetime()));
@@ -1018,13 +1022,18 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 			}
 
 			//Then through all of the meshes
+			AnimatedObject* animObj = dynamic_cast<AnimatedObject*>(object);
+
+			if (animObj == nullptr) continue;
+
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
 				//Fetch the current mesh and its transform
 				mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
 				
 				//Bind calculated bone matrices
-				static_cast<AnimatedObject*>(object)->BindAnimation(j);
+				animObj->BindAnimation(j);
+
 				transform = object->getTransform(mesh, j);
 
 				//Bind the material
