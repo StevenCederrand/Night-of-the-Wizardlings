@@ -71,6 +71,14 @@ PlayState::PlayState(bool spectator)
 	}
 	
 
+	m_firstPerson = new AnimatedObject("NyCharacter");
+	m_firstPerson->loadMesh("NyCharacter.mesh");
+	m_firstPerson->setWorldPosition(glm::vec3(0.0f, 13.0f, 0.0f));
+	m_firstPerson->initAnimations("Test", 2.0f, 109.0f);
+	Renderer::getInstance()->submit(m_firstPerson, ANIMATEDSTATIC);
+	//m_firstPerson->playAnimation("Test");
+
+	MaterialMap::getInstance();
 	gContactAddedCallback = callbackFunc;
 	// Geneterate bullet objects / hitboxes
 	
@@ -162,6 +170,9 @@ PlayState::~PlayState()
 
 void PlayState::update(float dt)
 {	
+	m_firstPerson->playLoopAnimation("Test");
+	m_firstPerson->update(dt);
+	Client::getInstance()->updateNetworkEntities(dt);
 	auto* clientPtr = Client::getInstance();
 	if (clientPtr->isSpectating()) {
 		update_isSpectating(dt);
