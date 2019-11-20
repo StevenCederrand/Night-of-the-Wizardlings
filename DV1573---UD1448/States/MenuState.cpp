@@ -9,13 +9,13 @@
 
 MenuState::MenuState()
 {
-	loadGui();
+	loadGui();	
 }
 
 MenuState::~MenuState()
 {
 	logTrace("Deleting Menu State..");
-	Gui::getInstance()->clearWidgetsInSection(GUI_SECTION);
+	Gui::getInstance()->clearWidgetsInSection(GUI_SECTION);	
 }
 
 void MenuState::update(float dt)
@@ -56,6 +56,7 @@ void MenuState::loadGui()
 
 bool MenuState::onStartOfflineClicked(const CEGUI::EventArgs& e)
 {
+	SoundHandler::getInstance()->stopSound(ThemeSong0);	
 	Renderer::getInstance()->clear();
 	glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	m_stateManager->clearAllAndSetState(new PlayState(false));
@@ -78,6 +79,7 @@ bool MenuState::onStartClientClicked(const CEGUI::EventArgs& e)
 
 bool MenuState::onExitClicked(const CEGUI::EventArgs& e)
 {
-	glfwSetWindowShouldClose(glfwGetCurrentContext(), true);
+	SoundHandler::getInstance()->stopSound(ThemeSong0);
+	glfwSetWindowShouldClose(glfwGetCurrentContext(), true);	
 	return true;
 }

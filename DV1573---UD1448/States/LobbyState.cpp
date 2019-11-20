@@ -97,6 +97,7 @@ void LobbyState::loadGui()
 
 bool LobbyState::onStartSeverClicked(const CEGUI::EventArgs& e)
 {
+	SoundHandler::getInstance()->stopSound(ThemeSong0);
 	startServer();
 	return true;
 }

@@ -11,7 +11,7 @@ public:
 	struct SpellEntity {
 		SpellPacket spellData;
 		GameObject* gameobject = nullptr;
-		NetGlobals::THREAD_FLAG flag = NetGlobals::THREAD_FLAG::None;
+		NetGlobals::THREAD_FLAG flag = NetGlobals::THREAD_FLAG::None;		
 	};
 
 public:

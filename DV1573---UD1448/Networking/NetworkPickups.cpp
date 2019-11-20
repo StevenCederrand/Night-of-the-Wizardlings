@@ -51,8 +51,7 @@ void NetworkPickups::update(const float& dt)
 					}
 					else if (e.packet.type == PickupType::DamageBuff) {
 						e.pickup = new HealthPickup(m_damagaRenderInformation, e.packet.type, e.packet.position, e.packet.uniqueID);
-					}
-					
+					}					
 					
 					Renderer::getInstance()->submit(e.pickup, PICKUP); 
 					e.flag = NetGlobals::THREAD_FLAG::None;

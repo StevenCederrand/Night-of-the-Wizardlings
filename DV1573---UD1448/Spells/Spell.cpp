@@ -18,6 +18,11 @@ const uint64_t& Spell::getUniqueID() const
 	return m_uniqueID;
 }
 
+const int& Spell::getSoundSlot() const
+{
+	return m_soundSlot;
+}
+
 void Spell::setTravelTime(float travelTime)
 {
 	m_travelTime = travelTime;
@@ -36,6 +41,11 @@ void Spell::setDirection(glm::vec3 direction)
 void Spell::setType(int type)
 {
 	m_type = type;
+}
+
+void Spell::setSoundSlot(int slot)
+{
+	m_soundSlot = slot;
 }
 
 const glm::vec3& Spell::getDirection() const {

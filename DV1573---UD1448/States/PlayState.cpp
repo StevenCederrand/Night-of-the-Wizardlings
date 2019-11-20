@@ -159,10 +159,12 @@ void PlayState::update(float dt)
 void PlayState::onSpellHit_callback()
 {
 	m_hudHandler.getHudObject(CROSSHAIR_HIT)->setAlpha(1.0f);
+	SoundHandler::getInstance()->playSound(HitmarkSound);
 }
 
 void PlayState::update_isPlaying(const float& dt)
 {
+	SoundHandler* shPtr = SoundHandler::getInstance();
 	auto* clientPtr = Client::getInstance();
 	clientPtr->updateNetworkEntities(dt);
 
@@ -170,9 +172,10 @@ void PlayState::update_isPlaying(const float& dt)
 	m_player->update(dt);
 	m_spellHandler->spellUpdate(dt);
 
-	Renderer::getInstance()->updateParticles(dt);
+	Renderer::getInstance()->updateParticles(dt);	
 
-
+	shPtr->setSourcePosition(m_player->getPlayerPos(), HitmarkSound);
+	
 	for (PlayerEvents evnt = clientPtr->readNextEvent(); evnt != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
 
 		switch (evnt) {
@@ -208,7 +211,10 @@ void PlayState::update_isPlaying(const float& dt)
 			case PlayerEvents::TookDamage:
 			{
 				logWarning("[Event system] Took damage");
-
+				
+				shPtr->setSourcePosition(m_player->getPlayerPos(), TakingDamageSound);
+				shPtr->playSound(TakingDamageSound);
+			
 				const PlayerPacket* shooter = clientPtr->getLatestPlayerThatHitMe();
 
 				if (shooter != nullptr) {
@@ -648,6 +654,7 @@ bool PlayState::onMainMenuClick(const CEGUI::EventArgs& e)
 {
 	Renderer::getInstance()->clear();
 	m_stateManager->clearAllAndSetState(new MenuState());
+	SoundHandler::getInstance()->playSound(ThemeSong0);
 	return true;
 }
 
