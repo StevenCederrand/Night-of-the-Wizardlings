@@ -24,9 +24,8 @@ void NetworkSpells::update(const float& dt)
 			SpellEntity& e = m_entities[i];			
 			
 			if (e.flag == NetGlobals::THREAD_FLAG::Add) {
+		
 				if (e.gameobject == nullptr) {
-					
-					//e.gameobject = new WorldObject();
 					
 					if (e.spellData.SpellType == OBJECT_TYPE::NORMALATTACK || e.spellData.SpellType == OBJECT_TYPE::UNKNOWN) {
 						e.gameobject = new AttackSpell(e.spellData.Position);
@@ -49,8 +48,8 @@ void NetworkSpells::update(const float& dt)
 					}
 					else {
 						return;
-					}									
-
+					}
+					
 					e.gameobject->setWorldPosition(e.spellData.Position);
 					Renderer::getInstance()->submit(e.gameobject, SPELL);
 					e.flag = NetGlobals::THREAD_FLAG::None;
@@ -78,9 +77,9 @@ void NetworkSpells::update(const float& dt)
 			GameObject* g = e.gameobject;
 
 			if (g != nullptr) {
+				
 				glm::vec3 pos = CustomLerp(g->getTransform().position, e.spellData.Position, m_lerpSpeed * dt);
 				g->setWorldPosition(pos);
-				//g->setTransform(pos, glm::quat(p->data.rotation));
 
 			}
 		}

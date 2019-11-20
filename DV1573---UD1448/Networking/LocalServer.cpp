@@ -53,7 +53,7 @@ void LocalServer::startup(const std::string& serverName)
 
 		memcpy(&m_serverInfo.serverName, serverName.c_str(), serverName.length());
 		m_serverInfo.currentState = NetGlobals::SERVER_STATE::WaitingForPlayers;
-		m_serverInfo.maxPlayers = NetGlobals::MaximumConnections;
+		m_serverInfo.maxPlayers = NetGlobals::MaximumPlayingPlayersOnServer;
 		m_serverInfo.connectedPlayers = 0;
 		m_connectedPlayers.reserve(NetGlobals::MaximumConnections);
 
@@ -178,8 +178,75 @@ void LocalServer::processAndHandlePackets()
 		{
 			logTrace("[Server] New connection from {0}\nAssigned GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
 			
-			if (m_connectedPlayers.size() >= NetGlobals::MaximumConnections || m_serverInfo.currentState != NetGlobals::SERVER_STATE::WaitingForPlayers)
+		}
+		break;
+
+		case SPECTATE_REQUEST:
+		{
+			logTrace("[Server] Got a spectator request.\n");
+
+			RakNet::BitStream acceptStream;
+			acceptStream.Write((RakNet::MessageID)PLAYER_ACCEPTED_TO_SERVER);
+			m_serverPeer->Send(&acceptStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, packet->guid, false);
+
+			// Send info about all clients to the newly connected one
+			RakNet::BitStream stream_otherPlayers;
+			stream_otherPlayers.Write((RakNet::MessageID)INFO_ABOUT_OTHER_PLAYERS);
+			stream_otherPlayers.Write(m_connectedPlayers.size());
+
+			for (size_t i = 0; i < m_connectedPlayers.size(); i++)
 			{
+				m_connectedPlayers[i].Serialize(true, stream_otherPlayers);
+			}
+			m_serverPeer->Send(&stream_otherPlayers, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, packet->systemAddress, false);
+
+			// Send info about all existing spells to the new player
+			RakNet::BitStream stream_existingSpells;
+			stream_existingSpells.Write((RakNet::MessageID)SPELL_ALL_EXISTING_SPELLS);
+
+			size_t totalNumSpells = 0;
+			for (auto const& item : m_activeSpells)
+			{
+				totalNumSpells += item.second.size();
+			}
+			stream_existingSpells.Write(totalNumSpells);
+
+			for (auto& item : m_activeSpells)
+			{
+				auto& vec = item.second;
+
+				for (size_t i = 0; i < vec.size(); i++) {
+					vec[i].Serialize(true, stream_existingSpells);
+				}
+			}
+			m_serverPeer->Send(&stream_existingSpells, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, packet->systemAddress, false);
+
+			// Create the new player and assign it the correct GUID
+			PlayerPacket player;
+			player.guid = packet->guid;
+			player.Spectator = true;
+			player.timestamp = RakNet::GetTimeMS();
+			
+			// Lastly, add the new player to the local list of connected players
+			m_connectedPlayers.emplace_back(player);
+
+			// Send server state to the new player
+			RakNet::BitStream stateStream;
+			stateStream.Write((RakNet::MessageID)SERVER_CURRENT_STATE);
+			ServerStateChange statePacket;
+			statePacket.currentState = m_serverInfo.currentState;
+			statePacket.Serialize(true, stateStream);
+			m_serverPeer->Send(&stateStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, packet->systemAddress, false);
+
+			break;
+		}
+
+		case PLAY_REQUEST:
+		{
+			logTrace("[Server] Got a play request.\n");
+			if (m_connectedPlayers.size() >= NetGlobals::MaximumPlayingPlayersOnServer || m_serverInfo.currentState != NetGlobals::SERVER_STATE::WaitingForPlayers)
+			{
+				logTrace("[Server] Denied play request.\n");
 				m_serverPeer->CloseConnection(packet->guid, true);
 				m_serverPeer->DeallocatePacket(packet);
 				return;
@@ -201,15 +268,23 @@ void LocalServer::processAndHandlePackets()
 
 			}
 
-			RakNet::BitStream stream_otherPlayers;
 
 			// Send info about all clients to the newly connected one
+			RakNet::BitStream stream_otherPlayers;
 			stream_otherPlayers.Write((RakNet::MessageID)INFO_ABOUT_OTHER_PLAYERS);
-			stream_otherPlayers.Write(m_connectedPlayers.size());
+			int numPlayersPlaying = 0; // Not counting spectators
+
+			for (int i = 0; i < m_connectedPlayers.size(); i++) {
+				if (m_connectedPlayers[i].Spectator == false)
+					numPlayersPlaying++;
+			}
+			
+			stream_otherPlayers.Write(numPlayersPlaying);
 
 			for (size_t i = 0; i < m_connectedPlayers.size(); i++)
 			{
-				m_connectedPlayers[i].Serialize(true, stream_otherPlayers);
+				if(!m_connectedPlayers[i].Spectator)
+					m_connectedPlayers[i].Serialize(true, stream_otherPlayers);
 			}
 			m_serverPeer->Send(&stream_otherPlayers, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, packet->systemAddress, false);
 
@@ -247,10 +322,10 @@ void LocalServer::processAndHandlePackets()
 
 			// Lastly, add the new player to the local list of connected players
 			m_connectedPlayers.emplace_back(player);
-			
+
 			// Update the general server information.
 			m_serverInfo.connectedPlayers++;
-			m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
+			m_serverPeer->SetOfflinePingResponse((const char*)&m_serverInfo, sizeof(ServerInfo));
 
 			// Send server state to the new player
 			RakNet::BitStream stateStream;
@@ -259,42 +334,64 @@ void LocalServer::processAndHandlePackets()
 			statePacket.currentState = m_serverInfo.currentState;
 			statePacket.Serialize(true, stateStream);
 			m_serverPeer->Send(&stateStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, packet->systemAddress, false);
-
+			break;
 		}
-		break;
-
 		case ID_DISCONNECTION_NOTIFICATION:
 		{
+			PlayerPacket* pp = getSpecificPlayer(packet->guid);
+			
+			bool returnAfterHandlingLostPlayer = false;
+			if (pp != nullptr && pp->Spectator) {
+				returnAfterHandlingLostPlayer = true;
+				logTrace("[Server] Player that left was a spectator");
+			}
+
 			bool playerWasAccepted = handleLostPlayer(*packet, bsIn);
-			if (playerWasAccepted) {
-				auto item = m_activeSpells.find(packet->guid.g);
+			
+			if (returnAfterHandlingLostPlayer)
+				continue;
 
-				if (item != m_activeSpells.end()) {
-					//logTrace("Going to delete spell: {0}", spellPacket.toString());
-					auto& spellVec = item._Ptr->_Myval.second;
+			auto item = m_activeSpells.find(packet->guid.g);
 
-					for (size_t i = 0; i < spellVec.size(); i++) {
-						RakNet::BitStream stream;
-						stream.Write((RakNet::MessageID)SPELL_DESTROY);
+			if (item != m_activeSpells.end()) {
+				//logTrace("Going to delete spell: {0}", spellPacket.toString());
+				auto& spellVec = item._Ptr->_Myval.second;
+
+				for (size_t i = 0; i < spellVec.size(); i++) {
+					RakNet::BitStream stream;
+					stream.Write((RakNet::MessageID)SPELL_DESTROY);
 						
-						spellVec[i].Serialize(true, stream);
+					spellVec[i].Serialize(true, stream);
 
-						sendStreamToAllClients(stream, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
-					}
-
-					m_activeSpells.erase(item);
+					sendStreamToAllClients(stream, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
 				}
 
+				m_activeSpells.erase(item);
+			}
+
+			if (playerWasAccepted) {
 				logTrace("[Server] Player disconnected with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
 				m_serverInfo.connectedPlayers--;
-				m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
+				m_serverPeer->SetOfflinePingResponse((const char*)&m_serverInfo, sizeof(ServerInfo));
 			}
 		}
+		
 		break;
 
 		case ID_CONNECTION_LOST:
 		{
+			PlayerPacket* pp = getSpecificPlayer(packet->guid);
+
+			bool returnAfterHandlingLostPlayer = false;
+			if (pp != nullptr && pp->Spectator) {
+				returnAfterHandlingLostPlayer = true;
+			}
+
 			bool playerWasAccepted = handleLostPlayer(*packet, bsIn);
+
+			if (returnAfterHandlingLostPlayer)
+				continue;
+
 			if (playerWasAccepted) {
 				logTrace("[Server] Lost connection with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
 				m_serverInfo.connectedPlayers--;
@@ -315,6 +412,9 @@ void LocalServer::processAndHandlePackets()
 			{
 				if (packet->guid == m_connectedPlayers[i].guid.rakNetGuid) {
 					
+					if (m_connectedPlayers[i].Spectator)
+						continue;
+
 					// HasBeenUpdatedOnce will go false always because the client won't update that variable & same goes for latest spawn pos
 					bool hasBeenUpdatedOnce = m_connectedPlayers[i].hasBeenUpdatedOnce;
 					glm::vec3 latestSpawnPos = m_connectedPlayers[i].latestSpawnPosition;
@@ -497,7 +597,7 @@ void LocalServer::processAndHandlePackets()
 			PlayerPacket* shooter = getSpecificPlayer(hitPacket.CreatorGUID);
 			SpellPacket* spell = getSpecificSpell(hitPacket.CreatorGUID.g, hitPacket.SpellID);
 			
-			if (target == nullptr || spell == nullptr || shooter == nullptr) 
+			if (target == nullptr || spell == nullptr || shooter == nullptr || target->Spectator || shooter->Spectator)
 				continue;
 			
 			if (target->health == 0.0f)
@@ -506,9 +606,22 @@ void LocalServer::processAndHandlePackets()
 			
 			handleCollisionWithSpells(&hitPacket, spell, shooter, target);
 			
+			break;
 		}
 
-		break;
+		case DESTRUCTION:
+		{
+			for (size_t i = 0; i < m_connectedPlayers.size(); i++)
+			{
+				// Don't send it back to the sender
+				if (packet->guid != m_connectedPlayers[i].guid.rakNetGuid) {
+					m_serverPeer->Send(&bsIn, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_connectedPlayers[i].guid, false);
+				}
+
+			}
+			break;
+		}
+
 
 		default:
 		{
@@ -716,7 +829,7 @@ void LocalServer::checkCollisionBetweenPlayersAndPickups()
 		for (size_t j = 0; j < m_connectedPlayers.size(); j++) {
 			auto& player = m_connectedPlayers[j];
 			
-			if (!player.hasBeenUpdatedOnce || player.health <= 0) 
+			if (!player.hasBeenUpdatedOnce || player.health <= 0 || player.Spectator) 
 				continue;
 
 			if (isCollidingWithPickup(player, pickup)) {
@@ -832,7 +945,6 @@ void LocalServer::handleRespawns(const uint32_t& diff)
 
 void LocalServer::hardRespawnPlayer(PlayerPacket& player)
 {
-
 	RakNet::BitStream stream;
 	stream.Write((RakNet::MessageID)RESPAWN_PLAYER_NOT_IN_SESSION);
 	m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, player.guid, false);
@@ -841,7 +953,11 @@ void LocalServer::hardRespawnPlayer(PlayerPacket& player)
 void LocalServer::respawnPlayers()
 {
 	for (size_t i = 0; i < m_connectedPlayers.size(); i++)
-	{	
+	{
+		if(m_connectedPlayers[i].Spectator)
+		{
+			continue;
+		}
 		// Two cases:
 		/*
 			1. Player is dead then respawn him at the regular spawnpoint
@@ -1248,10 +1364,15 @@ bool LocalServer::handleLostPlayer(const RakNet::Packet& packet, const RakNet::B
 
 	// Remove the disconnected player from the local list of clients
 	if (indexOfDisconnectedPlayer != -1) {
+		bool wasSpectator = m_connectedPlayers[indexOfDisconnectedPlayer].Spectator;
 		m_connectedPlayers.erase(m_connectedPlayers.begin() + indexOfDisconnectedPlayer);
 		
 		// Only send them if the player that left/disconnected was accepted otherwise
-		// the clients have no track record of them so they don't need to know anything
+		// the clients have no track record of them so they don't need to know anything.
+		// Same if the disconnected player was a spectator.
+		if (wasSpectator)
+			return true;
+
 		for (size_t i = 0; i < m_connectedPlayers.size(); i++) {
 			logTrace("[Server] Sending disconnection packets to guid: {0}", m_connectedPlayers[i].guid.ToString());
 			m_serverPeer->Send(&stream_disconnectedPlayer, IMMEDIATE_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_connectedPlayers[i].guid, false);

@@ -20,7 +20,7 @@ public:
 
 	void startup();
 	void destroy();
-	void connectToAnotherServer(const ServerInfo& server);
+	void connectToAnotherServer(const ServerInfo& server, bool spectatorMode);
 	void connectToMyServer();
 	void ThreadedUpdate();
 	void processAndHandlePackets();
@@ -31,16 +31,21 @@ public:
 	void requestToDestroyClientSpell(const SpellPacket& packet);
 	void sendHitRequest(Spell& spell, NetworkPlayers::PlayerEntity& playerThatWasHit);
 	void sendHitRequest(Spell& spell, const PlayerPacket& playerThatWasHit);
+	void sendDestructionPacket(const DestructionPacket& destructionPacket);
 	void updateNetworkEntities(const float& dt);
 	void sendStartRequestToServer();
 	void refreshServerList();
 	void startSendingUpdatePackages();
 	void assignSpellHandler(SpellHandler* spellHandler);
 	void setUsername(const std::string& userName);
-	
+	void spectateNext(); /* Only works if you're a spectator */
+	void clearDestroyedWallsVector();
+
+
 	const std::vector<std::pair<unsigned int, ServerInfo>>& getServerList() const;
 	const std::vector<PlayerPacket>& getConnectedPlayers() const;
 	const std::vector<SpellPacket>& getNetworkSpells();
+	const PlayerPacket* getSpectatedPlayer() const;
 	const ServerInfo& getServerByID(const unsigned int& ID) const;
 	
 	NetworkPlayers& getNetworkPlayersREF();
@@ -54,6 +59,8 @@ public:
 	const CountdownPacket& getRespawnTime() const;
 	const RoundTimePacket& getRoundTimePacket() const;
 	const PlayerEvents readNextEvent();
+	const std::vector<DestructionPacket>& getDestructedWalls();
+
 
 	const bool doneRefreshingServerList() const;
 	const bool doesServerExist(const unsigned int& ID) const;
@@ -61,6 +68,7 @@ public:
 	const bool& isConnectedToSever() const;
 	const bool& connectionFailed() const;
 	const bool& isServerOwner() const;
+	const bool& isSpectating() const;
 private:
 
 	unsigned char getPacketID(RakNet::Packet* p);
@@ -91,9 +99,13 @@ private:
 	bool m_shutdownThread;
 	bool m_initialized = false;
 	bool m_sendUpdatePackages;
+	bool m_spectating;
+
+	size_t m_spectateIndex;
 
 	PlayerPacket m_myPlayerDataPacket;
 	PlayerPacket* m_latestPlayerThatHitMe;
+	PlayerPacket* m_spectatedPlayer;
 	ServerStateChange m_serverState;
 	CountdownPacket m_countDownPacket;
 	CountdownPacket m_respawnTime;
@@ -116,8 +128,11 @@ private:
 	std::vector<SpellPacket> m_updateSpellQueue;
 	std::vector<SpellPacket> m_removeOrAddSpellQueue;
 	std::vector<SpellPacket> m_removalOfClientSpellsQueue;
+	std::vector<DestructionPacket> m_destructionQueue;
+
 	std::vector<PlayerEvents> m_playerEvents;
-	
+	std::vector<DestructionPacket> m_destroyedWalls;
+
 	TimedCallback m_routineCleanupTimer;
 
 };

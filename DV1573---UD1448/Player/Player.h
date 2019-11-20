@@ -39,6 +39,7 @@ public:
 	const float& getDeflectCooldown() const;
 	const float& getMaxAttackCooldown() const;
 	const float& getMaxSpecialCooldown() const;
+	const glm::vec3 getMeshHalfSize() const;
 	const float& getMana() const;
 
 	//-----Set-----//

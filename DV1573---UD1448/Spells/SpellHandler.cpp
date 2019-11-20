@@ -19,7 +19,8 @@ SpellHandler::SpellHandler(BulletPhysics * bp)
 	initReflectSpell();
 	initFireSpell();
 	
-	setCharacter(CHARACTER);
+	if(bp != nullptr && Client::getInstance()->isSpectating() == false)
+		setCharacter(CHARACTER);
 }
 
 void SpellHandler::initAttackSpell()
@@ -111,7 +112,7 @@ void SpellHandler::initFlamestrikeSpell()
 
 	flamestrikeBase->m_damage = 10;
 	flamestrikeBase->m_speed = 55.0f;
-	flamestrikeBase->m_coolDown = 1;
+	flamestrikeBase->m_coolDown = 1.0f;
 	flamestrikeBase->m_lifeTime = 5;
 	flamestrikeBase->m_maxBounces = 2;
 }
@@ -397,10 +398,6 @@ void SpellHandler::spellUpdate(float deltaTime)
 		}
 	}
 
-	if (Input::isKeyReleased(GLFW_KEY_L))
-	{
-		m_newHit = !m_newHit;
-	}
 
 	for (size_t i = 0; i < spells.size(); i++)
 	{
@@ -498,28 +495,26 @@ void SpellHandler::spellCollisionCheck()
 		axis1.emplace_back(yAxis1);
 		axis1.emplace_back(zAxis1);
 
-		if (!m_newHit)
+		
+		//Me and fire spell
+		for (size_t j = 0; j < fireSpells.size(); j++)
 		{
-			//Me and fire spell
-			for (size_t j = 0; j < fireSpells.size(); j++)
-			{
-				glm::vec3 spellPos = fireSpells.at(j)->getTransform().position;
+			glm::vec3 spellPos = fireSpells.at(j)->getTransform().position;
 
-				float scale = fireSpells.at(j)->getTransform().scale.x;
+			float scale = fireSpells.at(j)->getTransform().scale.x;
 			
-				if (specificSpellCollision(spellPos, ownPlayerPos, axis1, scale))
+			if (specificSpellCollision(spellPos, ownPlayerPos, axis1, scale))
+			{
+				if (ownfireDamageCounter <= 0)
 				{
-					if (ownfireDamageCounter <= 0)
-					{
-						Client::getInstance()->sendHitRequest(*fireSpells[j], ownPlayer);
-						ownfireDamageCounter = 1.0f;
-					}
+					Client::getInstance()->sendHitRequest(*fireSpells[j], ownPlayer);
+					ownfireDamageCounter = 1.0f;
 				}
 			}
-		}
+		}	
 	}
 	//move camera and spell collision
-	for (size_t i = 0; i < list.size() && 1 <= spells.size() ; i++)
+	for (size_t i = 0; i < list.size() && (1 <= spells.size() || 1<= fireSpells.size()); i++)
 	{
 		if (list[i].data.health <= 0)
 			continue;
@@ -548,7 +543,8 @@ void SpellHandler::spellCollisionCheck()
 			glm::vec3 spellPos = spells.at(j)->getTransform().position;
 
 			//get the radius from the spelltype
-			float radius = 0.0;
+			float radius = 0.0f;
+
 			if (static_cast<Spell*>(spells[j])->getType() == NORMALATTACK) {
 				radius = attackBase->m_radius;
 			}
@@ -577,33 +573,51 @@ void SpellHandler::spellCollisionCheck()
 			}
 		}
 
-		for (size_t k = 0; k < fireSpells.size(); k++)
+		for (size_t j = 0; j < fireSpells.size(); j++)
 		{
-			glm::vec3 lastSpellPos = fireSpells.at(k)->getLastPosition();
-			glm::vec3 spellPos = fireSpells.at(k)->getTransform().position;
+			glm::vec3 spellPos = fireSpells.at(j)->getTransform().position;
 
-			//get the radius from the spelltype
-			float radius = fireBase->m_radius;
+			float scale = fireSpells.at(j)->getTransform().scale.x;
 
-			//line is the walking we will do.
-			glm::vec3 line = (spellPos - lastSpellPos) / m_nrSubSteps;
-			glm::vec3 interpolationPos = lastSpellPos;
-
-			//walk from last pos to new pos with substeps
-			for (size_t l = 0; l < m_nrSubSteps; l++)
+			if (specificSpellCollision(spellPos, playerPos, axis, scale))
 			{
-				interpolationPos += line;
-				if (specificSpellCollision(interpolationPos, playerPos, axis, radius))
+				if (fireDamageCounter <= 0)
 				{
-					Client::getInstance()->sendHitRequest(*spells[k], list[i]);
-
-					if (m_onHitCallback != nullptr) {
-						m_onHitCallback();
-					}
-					k = m_nrSubSteps;
+					Client::getInstance()->sendHitRequest(*fireSpells[j], list[i]);
+					fireDamageCounter = 1.0f;
+					
 				}
 			}
 		}
+
+
+		//for (size_t k = 0; k < fireSpells.size(); k++)
+		//{
+		//	glm::vec3 lastSpellPos = fireSpells.at(k)->getLastPosition();
+		//	glm::vec3 spellPos = fireSpells.at(k)->getTransform().position;
+
+		//	//get the radius from the spelltype
+		//	float radius = fireBase->m_radius;
+
+		//	//line is the walking we will do.
+		//	glm::vec3 line = (spellPos - lastSpellPos) / m_nrSubSteps;
+		//	glm::vec3 interpolationPos = lastSpellPos;
+
+		//	//walk from last pos to new pos with substeps
+		//	for (size_t l = 0; l < m_nrSubSteps; l++)
+		//	{
+		//		interpolationPos += line;
+		//		if (specificSpellCollision(interpolationPos, playerPos, axis, radius))
+		//		{
+		//			Client::getInstance()->sendHitRequest(*fireSpells[k], list[i]);
+
+		//			if (m_onHitCallback != nullptr) {
+		//				m_onHitCallback();
+		//			}
+		//			k = m_nrSubSteps;
+		//		}
+		//	}
+		//}
 	}
 }
 
