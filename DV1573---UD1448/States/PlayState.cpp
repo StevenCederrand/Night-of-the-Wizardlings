@@ -45,26 +45,31 @@ PlayState::PlayState(bool spectator)
 	}
 
 	
+	Renderer* renderer = Renderer::getInstance();
+	renderer->setupCamera(m_camera);
 
-	Renderer::getInstance()->setupCamera(m_camera);
-	
 	m_skybox = new SkyBox();
 	m_skybox->prepareBuffers();
+	renderer->submitSkybox(m_skybox);
 
 	m_objects.push_back(new MapObject("Academy_Map"));
 	m_objects[m_objects.size() - 1]->loadMesh("Academy.mesh");
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
-	
-
-	m_objects.push_back(new WorldObject("Character"));
-	m_objects[m_objects.size() - 1]->loadMesh("CharacterTest.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 1.8f, -24.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
 
 	m_objects.push_back(new Deflect("PlayerShield"));
 	m_objects[m_objects.size() - 1]->loadMesh("ShieldMesh.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 13.0f, 6.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], SHIELD);
+	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::SHIELD);
+
+	//Create a pointlight
+	Pointlight* pointLight = new Pointlight(glm::vec3(10.0f, 13.0f, 6.0f), glm::vec3(1));
+
+	m_pointlights.emplace_back(pointLight);
+	for (size_t i = 0; i < m_pointlights.size(); i++)
+	{
+		renderer->submit(m_pointlights.at(i), RENDER_TYPE::POINTLIGHT_SOURCE);
+	}
+	
 
 	gContactAddedCallback = callbackFunc;
 	// Geneterate bullet objects / hitboxes
@@ -79,7 +84,7 @@ PlayState::PlayState(bool spectator)
 
 	}
 
-
+	startY = SCREEN_HEIGHT / 2;
 	// DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP
 
 	m_objects.push_back(new DestructibleObject(&m_dstr, m_objects.size()));
@@ -125,17 +130,19 @@ PlayState::PlayState(bool spectator)
 
 	m_hudHandler.loadPlayStateHUD();
 	m_hideHUD = false;
-	
-
 }
 
 PlayState::~PlayState()
 {
 	for (GameObject* object : m_objects)
 		delete object;
-	
+
+	for (Pointlight* light : m_pointlights)
+		delete light;
+
 	GUIclear();
 
+	m_pointlights.clear();
 	m_objects.clear();
 	delete m_skybox;
 	delete m_player;
@@ -150,6 +157,7 @@ PlayState::~PlayState()
 	if (Client::getInstance()->isInitialized()) {
 		Client::getInstance()->destroy();
 	}
+
 }
 
 void PlayState::update(float dt)
@@ -260,7 +268,7 @@ void PlayState::update_isPlaying(const float& dt)
 			{
 				logWarning("[Event system] Took a powerup");
 				m_hudHandler.getHudObject(POWERUP)->setAlpha(1.0f);
-				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				m_hudHandler.getHudObject(CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				break;
 			}
@@ -268,7 +276,7 @@ void PlayState::update_isPlaying(const float& dt)
 			case PlayerEvents::TookHeal:
 			{
 				logWarning("[Event system] Took a heal");
-				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				m_hudHandler.getHudObject(CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				break;
 			}
@@ -286,7 +294,7 @@ void PlayState::update_isPlaying(const float& dt)
 				HudObject* HpBar = m_hudHandler.getHudObject(BAR_HP);
 				int myNewHealth = clientPtr->getMyData().health;
 				float clipPercentage = 1.0f;
-				HpBar->setYClip(clipPercentage);
+				HpBar->setXClip(clipPercentage);
 				m_player->setHealth(myNewHealth);
 				break;
 			}
@@ -387,7 +395,7 @@ void PlayState::update_isSpectating(const float& dt)
 
 void PlayState::render()
 {	
-	Renderer::getInstance()->render(m_skybox, m_deflectBox, m_spellHandler);
+	Renderer::getInstance()->render(m_deflectBox, m_spellHandler);
 	//Renderer::getInstance()->renderDebug();
 }
 
@@ -478,7 +486,7 @@ void PlayState::HUDHandler() {
 		return;
 
 	//Mana bar
-	m_hudHandler.getHudObject(BAR_MANA)->setYClip(m_player->getMana() / 100.0f);
+	m_hudHandler.getHudObject(BAR_MANA)->setXClip(m_player->getMana() / 100.0f);
 	m_hudHandler.getHudObject(CROSSHAIR_MANA)->setYClip(m_player->getMana() / 100.0f);
 
 

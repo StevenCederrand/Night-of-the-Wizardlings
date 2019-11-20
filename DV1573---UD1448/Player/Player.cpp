@@ -261,7 +261,6 @@ void Player::attack()
 
 	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_RIGHT))
 	{
-
 		//Actually deflecting
 		if (m_mana > 10) {
 			if (!m_deflecting) {
@@ -271,7 +270,7 @@ void Player::attack()
 			}
 			m_mana -= 0.5f;
 			m_deflecting = true;
-			m_deflectCooldown = 0.5f; 			
+			m_deflectCooldown = 0.5f;
 		}
 		else { //Player is holding down RM without any mana
 			m_deflecting = false;
