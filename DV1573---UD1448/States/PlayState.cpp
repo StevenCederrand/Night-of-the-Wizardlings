@@ -45,17 +45,16 @@ PlayState::PlayState()
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 	
 
-	m_objects.push_back(new WorldObject("Character"));
-	m_objects[m_objects.size() - 1]->loadMesh("CharacterTest.mesh");
-	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 1.8f, -24.0f));
-	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
-
 	m_objects.push_back(new Deflect("PlayerShield"));
 	m_objects[m_objects.size() - 1]->loadMesh("ShieldMesh.mesh");
 	m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 13.0f, 6.0f));
 	Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], SHIELD);
 
-
+	m_firstPerson = new AnimatedObject("NyCharacter");
+	m_firstPerson->loadMesh("NyCharacter.mesh");
+	m_firstPerson->setWorldPosition(glm::vec3(0.0f, 13.0f, 0.0f));
+	m_firstPerson->initAnimations("Test", 2.0f, 22.0f);
+	Renderer::getInstance()->submit(m_firstPerson, ANIMATEDSTATIC);
 	
 	MaterialMap::getInstance();
 	gContactAddedCallback = callbackFunc;
@@ -98,6 +97,8 @@ PlayState::~PlayState()
 
 void PlayState::update(float dt)
 {	
+	m_firstPerson->playLoopAnimation("Test");
+	m_firstPerson->update(dt);
 	Client::getInstance()->updateNetworkEntities(dt);
 	m_bPhysics->update(dt);
 	m_player->update(dt);
@@ -208,7 +209,6 @@ void PlayState::update(float dt)
 			}
 		}
 	}
-
 	// Look at the killer when dead ( If he exist )
 	if (!m_camera->isCameraActive() && clientPtr->getMyData().health <= 0)
 	{	
