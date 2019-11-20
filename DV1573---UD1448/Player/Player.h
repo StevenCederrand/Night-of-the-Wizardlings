@@ -80,6 +80,7 @@ private:
 	
 	bool m_deflecting;
 	bool m_isWalking;
+	bool m_isJumping;
 	
 	AnimationState animState;
 	void PlayAnimation(float deltaTime);
