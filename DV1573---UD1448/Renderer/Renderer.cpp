@@ -125,13 +125,43 @@ void Renderer::renderAndAnimateNetworkingTexts()
 		}
 		else if (state == NetGlobals::SERVER_STATE::WaitingForPlayers) {
 
-			std::string Text = "Waiting for players ";
+			/*std::string Text = "Waiting for players ";
 			float width = m_text->getTotalWidth(Text, glm::vec3(0.5f));
 			m_text->RenderText(Text, SCREEN_WIDTH / 2 - width * 0.5f, 680.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
 
 			if (Client::getInstance()->isServerOwner()) {
 				m_text->RenderText("Press \"E\" to start the game", 10.0f, 620.0f, 0.35f, glm::vec3(1.0f, 1.0f, 1.0f));
+			}*/
+
+			int numberOfPlayersReady = Client::getInstance()->getNumberOfReadyPlayers();
+			int numberOfPlayers = Client::getInstance()->getNumberOfPlayers();
+			bool meReady = Client::getInstance()->getMyData().isReady;
+			glm::vec3 scale = glm::vec3(0.65f);
+
+			glm::vec3 baseColor = glm::vec3(1.0f);
+			std::string numberOfReadyPlayersText = std::to_string(numberOfPlayersReady) + "/" + std::to_string(numberOfPlayers) + " players ready";
+			std::string readyBase = "You are ";
+			std::string readyText = meReady ? "Ready" : "Not Ready";
+			glm::vec3 readyColor = meReady ? glm::vec3(0.0f, 1.0f, 0.0f) : glm::vec3(1.0f, 0.0f, 0.0f);
+			
+
+			unsigned int readyBaseWidth = m_text->getTotalWidth(readyBase, scale);
+			unsigned int readyWidth = m_text->getTotalWidth(readyText, scale);
+			unsigned int totalWidth = readyBaseWidth + readyWidth;
+			unsigned int playersThatAreReadyWidth = m_text->getTotalWidth(numberOfReadyPlayersText, scale);
+			
+			m_text->RenderText(numberOfReadyPlayersText, (SCREEN_WIDTH / 2) - playersThatAreReadyWidth * 0.5f, SCREEN_HEIGHT * 0.85f, scale.x, baseColor);
+			m_text->RenderText(readyBase, (SCREEN_WIDTH / 2) - totalWidth * 0.5f, SCREEN_HEIGHT * 0.35f, scale.x, baseColor);
+			m_text->RenderText(readyText, (SCREEN_WIDTH / 2) - totalWidth * 0.5f + readyBaseWidth, SCREEN_HEIGHT * 0.35f, scale.x, readyColor);
+
+			if (meReady == false) {
+				glm::vec3 howtoScale = glm::vec3(0.30f);
+				std::string howToReadyText = "Press F1 to ready";
+				unsigned int width = m_text->getTotalWidth(howToReadyText, howtoScale);
+
+				m_text->RenderText(howToReadyText, (SCREEN_WIDTH / 2) - width * 0.5f, SCREEN_HEIGHT * 0.30f, howtoScale.x, baseColor);
 			}
+
 
 		}
 		else if (state == NetGlobals::SERVER_STATE::GameFinished) {
@@ -155,10 +185,6 @@ void Renderer::renderAndAnimateNetworkingTexts()
 				std::string timeText = std::to_string(Client::getInstance()->getRespawnTime().timeLeft / 1000);
 				m_text->RenderText("Respawn in " + timeText + " seconds", (SCREEN_WIDTH / 2) - 200.0f, 480.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
 			}
-
-
-			if (state == NetGlobals::SERVER_STATE::GameInSession)
-				m_text->RenderText("Kills: " + std::to_string(Client::getInstance()->getMyData().numberOfKills), 10.0f, 620.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
 
 		}
 		else {

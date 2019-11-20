@@ -36,7 +36,10 @@ enum {
 	SERVER_TIME,
 	SPECTATE_REQUEST,
 	PLAY_REQUEST,
-	DESTRUCTION
+	DESTRUCTION,
+	READY_PACKET,
+	NUMBER_OF_READY_PLAYERS,
+	UNREADY_PACKET_FROM_SERVER
 
 };
 
@@ -60,6 +63,7 @@ struct PlayerPacket {
 	RakNet::AddressOrGUID guid;
 	RakNet::AddressOrGUID lastHitByGuid;
 	uint32_t timestamp = 0;
+
 	bool Spectator = false;
 	int health = NetGlobals::PlayerMaxHealth;
 	glm::vec3 position = glm::vec3(0.0f);
@@ -71,6 +75,7 @@ struct PlayerPacket {
 	int numberOfKills = 0;
 	int numberOfDeaths = 0;
 	bool inDeflectState = false;
+	bool isReady = false;
 	bool hasBeenUpdatedOnce = false;
 
 	AnimationState animStates;
@@ -78,7 +83,8 @@ struct PlayerPacket {
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream)
 	{
-		stream.Serialize(writeToStream, guid);
+		stream.Serialize(writeToStream, *this);
+		/*stream.Serialize(writeToStream, guid);
 		stream.Serialize(writeToStream, lastHitByGuid);
 		stream.Serialize(writeToStream, timestamp);
 		stream.Serialize(writeToStream, health);
@@ -93,7 +99,7 @@ struct PlayerPacket {
 		stream.Serialize(writeToStream, inDeflectState);
 		stream.Serialize(writeToStream, hasBeenUpdatedOnce);
 		stream.Serialize(writeToStream, animStates);
-		stream.Serialize(writeToStream, hasDamageBuff);
+		stream.Serialize(writeToStream, hasDamageBuff);*/
 	}
 };
 
@@ -102,7 +108,7 @@ struct CountdownPacket {
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream)
 	{
-		stream.Serialize(writeToStream, timeLeft);
+		stream.Serialize(writeToStream, *this);
 	}
 };
 
@@ -113,8 +119,7 @@ struct RoundTimePacket {
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream)
 	{
-		stream.Serialize(writeToStream, minutes);
-		stream.Serialize(writeToStream, seconds);
+		stream.Serialize(writeToStream, *this);
 	}
 
 };
@@ -125,8 +130,7 @@ struct KillFeedPacket {
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream)
 	{
-		stream.Serialize(writeToStream, killerGuid);
-		stream.Serialize(writeToStream, deadGuid);
+		stream.Serialize(writeToStream, *this);
 	}
 };
 
@@ -145,7 +149,8 @@ struct SpellPacket{
 
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
-		stream.Serialize(writeToStream, packetType);
+		stream.Serialize(writeToStream, *this);
+		/*stream.Serialize(writeToStream, packetType);
 		stream.Serialize(writeToStream, SpellID);
 		stream.Serialize(writeToStream, timestamp);
 		stream.Serialize(writeToStream, CreatorGUID);
@@ -154,7 +159,7 @@ struct SpellPacket{
 		stream.Serialize(writeToStream, Rotation);
 		stream.Serialize(writeToStream, Scale);
 		stream.Serialize(writeToStream, Direction);
-		stream.Serialize(writeToStream, SpellType);
+		stream.Serialize(writeToStream, SpellType);*/
 	}
 
 
@@ -173,7 +178,8 @@ struct HitPacket {
 	OBJECT_TYPE SpellType = OBJECT_TYPE::UNKNOWN;
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
-		stream.Serialize(writeToStream, SpellID);
+		stream.Serialize(writeToStream, *this);
+		/*stream.Serialize(writeToStream, SpellID);
 		stream.Serialize(writeToStream, CreatorGUID);
 		stream.Serialize(writeToStream, playerHitGUID);
 		stream.Serialize(writeToStream, Position);
@@ -181,7 +187,7 @@ struct HitPacket {
 		stream.Serialize(writeToStream, SpellDirection);
 		stream.Serialize(writeToStream, Rotation);
 		stream.Serialize(writeToStream, damage);
-		stream.Serialize(writeToStream, SpellType);
+		stream.Serialize(writeToStream, SpellType);*/
 	}
 
 
@@ -194,10 +200,11 @@ struct PickupPacket {
 	PickupType type;
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
-		stream.Serialize(writeToStream, locationName);
+		stream.Serialize(writeToStream, *this);
+		/*stream.Serialize(writeToStream, locationName);
 		stream.Serialize(writeToStream, uniqueID);
 		stream.Serialize(writeToStream, position);
-		stream.Serialize(writeToStream, type);
+		stream.Serialize(writeToStream, type);*/
 	}
 };
 
@@ -205,7 +212,8 @@ struct ServerStateChange {
 	NetGlobals::SERVER_STATE currentState;
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
-		stream.Serialize(writeToStream, currentState);
+		stream.Serialize(writeToStream, *this);
+		/*stream.Serialize(writeToStream, currentState);*/
 	}
 };
 
@@ -213,7 +221,7 @@ struct ServerTimePacket {
 	uint32_t serverTimestamp;
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
-		stream.Serialize(writeToStream, serverTimestamp);
+		stream.Serialize(writeToStream, *this);
 	}
 };
 
@@ -225,14 +233,30 @@ struct DestructionPacket {
 	glm::vec3 hitPoint;
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
-		stream.Serialize(writeToStream, randomSeed);
+		stream.Serialize(writeToStream, *this);
+		/*stream.Serialize(writeToStream, randomSeed);
 		stream.Serialize(writeToStream, index);
-		stream.Serialize(writeToStream, hitPoint);
+		stream.Serialize(writeToStream, hitPoint);*/
 	}
 
 
 };
 
+struct ReadyPacket {
+	RakNet::RakNetGUID guid = RakNet::UNASSIGNED_RAKNET_GUID;
+	
+	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
+		stream.Serialize(writeToStream, *this);
+	}
+};
+
+struct ReadyPlayersCount {
+	int numberOfReadyPlayers = 0;
+
+	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
+		stream.Serialize(writeToStream, *this);
+	}
+};
 
 
 #endif

@@ -118,7 +118,7 @@ void Application::run()
 			glfwSetWindowShouldClose(m_window, true);
 		}
 
-		if (Input::isKeyPressed(GLFW_KEY_F1)) {
+		if (Input::isKeyPressed(GLFW_KEY_F4)) {
 			ShaderMap::getInstance()->reload();
 		}
 

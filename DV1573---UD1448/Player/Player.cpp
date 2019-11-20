@@ -60,11 +60,11 @@ void Player::update(float deltaTime)
 
 	if (m_client->isConnectedToSever()) {
 		m_client->updatePlayerData(this);
+	
+		if (Input::isKeyReleased(GLFW_KEY_F1)) {
+			m_client->sendReadyRequestToServer();
+		}
 	}
-	if (Input::isKeyReleased(GLFW_KEY_E)) {
-		m_client->sendStartRequestToServer();
-	}
-
 	// ENHANCE ATTACK
 	if (!m_enhanceAttack.isComplete())
 	{

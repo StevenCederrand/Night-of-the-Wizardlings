@@ -307,6 +307,14 @@ void PlayState::update_isPlaying(const float& dt)
 				break;
 			}
 
+			case PlayerEvents::PlayerReady:
+			{
+				// Play sound?
+				logTrace("Player ready");
+
+				break;
+			}
+
 		}
 	
 	}
