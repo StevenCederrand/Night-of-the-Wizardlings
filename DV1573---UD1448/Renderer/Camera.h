@@ -79,6 +79,7 @@ public:
 
 	const glm::vec3& getCamFace();
 	const glm::vec3& getCamRight();
+	const glm::vec3& getCamUp();	
 	const SpectatorMode& getSpectatorMode() const;
 
 	void update();

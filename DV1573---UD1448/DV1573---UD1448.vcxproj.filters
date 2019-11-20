@@ -53,6 +53,7 @@
     <ClCompile Include="Texture\stb_image.cpp" />
     <ClCompile Include="Text\FreeType.cpp" />
     <ClCompile Include="Text\HUDShader.cpp" />
+    <ClCompile Include="System\SoundHandler.cpp" />
     <ClCompile Include="Destruction\VoroniCalculator.cpp" />
     <ClCompile Include="Destruction\DelaunayGenerator.cpp" />
     <ClCompile Include="Destruction\PointCompare.cpp" />
@@ -64,6 +65,7 @@
     <ClCompile Include="Particles\Particles.cpp" />
     <ClCompile Include="Particles\ParticleBuffers.cpp" />
     <ClCompile Include="GameObject\MapObject.cpp" />
+    <ClCompile Include="GFX\Pointlight.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
@@ -127,6 +129,7 @@
     <ClInclude Include="Texture\stb_image.h" />
     <ClInclude Include="Text\FreeType.h" />
     <ClInclude Include="Text\HUDShader.h" />
+    <ClInclude Include="System\SoundHandler.h" />   
     <ClInclude Include="Destruction\TriangleNode.h" />
     <ClInclude Include="Destruction\Geometry.h" />
     <ClInclude Include="Destruction\VoroniCalculator.h" />
@@ -155,6 +158,9 @@
     <ClInclude Include="Renderer\NotificationStructure.h" />
     <ClInclude Include="GameObject\MapObject.h" />
     <ClInclude Include="GameObject\ObjectTypes.h" />
+    <ClInclude Include="Renderer\PickupNotificationStructure.h" />
+    <ClInclude Include="Deflect\DeflectRender.h" />
+    <ClInclude Include="GFX\Pointlight.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

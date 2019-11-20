@@ -82,7 +82,7 @@ void Client::connectToAnotherServer(const ServerInfo& server, bool spectatorMode
 	assert((status == true, "[Client] Client connecting to {0} failed!", server.serverName));
 
 	if (m_processThread.joinable()) {
-		m_processThread.join();
+		m_processThread.join();		
 	}
 
 	m_clientPeer->SetTimeoutTime(NetGlobals::PlayerTimeoutTimeMS, server.serverAddress);
@@ -101,10 +101,10 @@ void Client::connectToMyServer()
 	assert((status == true, "Client connecting to localhost failed!"));
 	
 	if (m_processThread.joinable()) {
-		m_processThread.join();
+		m_processThread.join();		
 	}
 	
-	m_processThread = std::thread(&Client::ThreadedUpdate, this);
+	m_processThread = std::thread(&Client::ThreadedUpdate, this);	
 }
 
 void Client::ThreadedUpdate()
@@ -238,6 +238,7 @@ void Client::processAndHandlePackets()
 			m_serverAddress = packet->systemAddress;
 			m_isConnectedToAnServer = true;
 			m_myPlayerDataPacket.guid = m_clientPeer->GetMyGUID();
+			SoundHandler::getInstance()->setPlayerGUIDs();
 		}
 		break;
 
@@ -483,7 +484,22 @@ void Client::processAndHandlePackets()
 			spellPacket.Serialize(false, bsIn);
 			NetworkSpells::SpellEntity se;
 
-			se.spellData = spellPacket;
+			se.spellData = spellPacket;							
+					
+			SoundHandler* shPtr = SoundHandler::getInstance();
+			switch (se.spellData.SpellType)
+			{
+			case OBJECT_TYPE::NORMALATTACK:
+				shPtr->setSourcePosition(se.spellData.Position, BasicAttackSound, se.spellData.CreatorGUID);
+				shPtr->setSourcePosition(se.spellData.Position, BasicAttackSound, se.spellData.CreatorGUID, 1);
+				shPtr->playSound(BasicAttackSound, se.spellData.CreatorGUID);
+				break;			
+			case OBJECT_TYPE::ENHANCEATTACK:
+				shPtr->setSourcePosition(se.spellData.Position, EnhanceAttackSound, se.spellData.CreatorGUID);
+				shPtr->playSound(EnhanceAttackSound, se.spellData.CreatorGUID);
+				break;					
+			}
+			
 			se.flag = NetGlobals::THREAD_FLAG::Add;
 			se.gameobject = nullptr;
 			
@@ -755,7 +771,28 @@ void Client::processAndHandlePackets()
 				std::string type = "Health potion ";
 				glm::vec3 color = glm::vec3(1.0f, 0.2f, 0.2f);
 				t.width += Renderer::getInstance()->getTextWidth(type, t.scale);
-				t.textParts.emplace_back(type, color);
+				t.textParts.emplace_back(type, color);		
+
+				//Gotta put in some better sounds 
+
+				/*std::string locationNameTemp = pickupPacket.locationName;
+
+				if (locationNameTemp == "Graveyard ")
+				{
+					SoundHandler::getInstance()->playSound(PickupGraveyardSound);
+				}	
+				else if (locationNameTemp == "Maze ")
+				{
+					SoundHandler::getInstance()->playSound(PickupMazeSound);
+				}
+				else if (locationNameTemp == "Tunnels ")
+				{
+					SoundHandler::getInstance()->playSound(PickupTunnelsSound);
+				}
+				else if (locationNameTemp == "Top ")
+				{
+					SoundHandler::getInstance()->playSound(PickupTopSound);
+				}*/
 			}
 			else if (pickupPacket.type == PickupType::DamageBuff)
 			{
@@ -764,7 +801,9 @@ void Client::processAndHandlePackets()
 				t.width += Renderer::getInstance()->getTextWidth(type, t.scale);
 				t.textParts.emplace_back(type, color);
 			}
-		
+			
+			
+
 			std::string text = "will spawn soon at " + std::string(pickupPacket.locationName) + "!";
 			t.width += Renderer::getInstance()->getTextWidth(text, t.scale);
 			glm::vec3 locColor = glm::vec3(1.0f, 1.0f, 1.0f);

@@ -51,7 +51,7 @@ const GLuint& SkyBox::getVAO() const
 
 unsigned int SkyBox::getCubeMapTexture() const
 {
-	return m_buffer.CubemapTextureID;
+ 	return m_buffer.CubemapTextureID;
 }
 
 void SkyBox::prepareBuffers()

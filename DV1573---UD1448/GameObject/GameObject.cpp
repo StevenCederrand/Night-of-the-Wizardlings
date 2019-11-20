@@ -303,6 +303,34 @@ void GameObject::setShouldRender(bool condition)
 	m_shouldRender = condition;
 }
 
+void GameObject::setMaterial(std::string matName, int meshIndex)
+{
+	if (meshIndex == -1)
+	{
+		for (int i = 0; i < (int)m_meshes.size(); i++)
+		{
+			Mesh* mesh = MeshMap::getInstance()->getMesh(m_meshes[i].name);
+			mesh->setMaterial(matName);
+		}
+	}
+	else if (meshIndex == -2)
+	{
+		Mesh* mesh = MeshMap::getInstance()->getMesh(m_meshes[0].name);
+		std::string mat = mesh->getMaterial();
+		for (int i = 1; i < (int)m_meshes.size(); i++)
+		{
+			Mesh* mesh = MeshMap::getInstance()->getMesh(m_meshes[i].name);
+			mesh->setMaterial(mat);
+		}
+	}
+	else
+	{
+		Mesh* mesh = MeshMap::getInstance()->getMesh(m_meshes[meshIndex].name);
+		mesh->setMaterial(matName);
+	}
+
+}
+
 const Transform GameObject::getTransform() const
 {
 	//Mesh* mesh = nullptr;
@@ -424,9 +452,19 @@ void GameObject::bindMaterialToShader(Shader* shader, const std::string& materia
 	//logWarning("Material: {0}", materialName);
 	shader->setMaterial(materialName);
 }
+
+
 void GameObject::bindMaterialToShader(Shader* shader, Material* material)
 {
 	shader->setMaterial(material);
+}
+void GameObject::unbindMaterialFromShader(Shader* shader, const std::string& materialName)
+{
+	shader->unbindMaterial(materialName);
+}
+void GameObject::unbindMaterialFromShader(Shader* shader, Material* material)
+{
+	shader->unbindMaterial(material);
 }
 void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 {
@@ -526,9 +564,9 @@ void GameObject::createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp
 		glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(i).position;
 		glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale;
 
-		m_bodies.emplace_back(m_bPhysics->createObject(shape, weight, center, halfSize, getTransform(i).rotation,true, 0.0f, 1.0f));
+		m_bodies.emplace_back(m_bPhysics->createObject(shape, weight, center, halfSize, getTransform(i).rotation, true, 0.1f, 8.0f));
 		m_bodies.back()->setUserPointer(this);
-		m_bodies.back()->setGravity(btVector3(0.0f, -20.0f, 0.0f));
+		m_bodies.back()->setGravity(btVector3(0.0f, -25.0f, 0.0f));
 		setTransformFromRigid(i);
 	}
 

@@ -317,6 +317,11 @@ const glm::vec3& Camera::getCamFace()
 }
 
 
+const glm::vec3& Camera::getCamUp()
+{
+	return m_camUp;
+}
+
 void Camera::setCameraPos(const glm::vec3& pos)
 {
 	m_camPos = pos;

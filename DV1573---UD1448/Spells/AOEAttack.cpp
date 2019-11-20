@@ -96,6 +96,8 @@ void AOEAttack::updateRigidbody(float deltaTime, btRigidBody* body)
 	newTransform.position.y = rigidBodyTransform.getOrigin().getY();
 	newTransform.position.z = rigidBodyTransform.getOrigin().getZ();
 
+	
+	
 	newTransform.rotation.x = rigidBodyTransform.getRotation().getX();
 	newTransform.rotation.y = rigidBodyTransform.getRotation().getY();
 	newTransform.rotation.z = rigidBodyTransform.getRotation().getZ();
@@ -104,6 +106,7 @@ void AOEAttack::updateRigidbody(float deltaTime, btRigidBody* body)
 	newTransform.scale = getTransform().scale;
 
 	setTransform(newTransform);
+	m_pos = newTransform.position;
 }
 
 
@@ -116,4 +119,9 @@ void AOEAttack::update(float dt)
 const float AOEAttack::getDamage()
 {
 	return m_spellBase->m_damage;
+}
+
+const glm::vec3& AOEAttack::getPos() const
+{
+	return m_pos;
 }

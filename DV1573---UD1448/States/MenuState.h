@@ -16,6 +16,7 @@ private:
 	void loadGui();
 
 private:
+	float startY;
 	float m_rotVal;
 	CEGUI::PushButton* m_quitBtn; 
 	CEGUI::PushButton* m_joinServerBtn; 
@@ -27,7 +28,6 @@ private:
 	bool onStartServerClicked(const CEGUI::EventArgs& e);
 	bool onStartClientClicked(const CEGUI::EventArgs& e);
 	bool onExitClicked(const CEGUI::EventArgs& e);
-
 };
 
 
