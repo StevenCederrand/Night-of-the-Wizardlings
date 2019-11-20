@@ -11,7 +11,7 @@ HudHandler::~HudHandler()
 	std::map<HUDID, HudObject*>::iterator it;
 
 	for (it = m_hudObjects.begin(); it != m_hudObjects.end(); it++) {
-		delete it->second;
+ 		delete it->second;
 	}
 
 	m_hudObjects.clear();
@@ -105,12 +105,12 @@ void HudHandler::fadeIn() {
 void HudHandler::insertHUDObject(HudObject* object, const HUDID& hudID)
 {
 	auto item = m_hudObjects.find(hudID);
-
+	//If the object doesn't exist
 	if (item == m_hudObjects.end()) {
-		m_hudObjects[hudID] = object;
+ 		m_hudObjects[hudID] = object;
 	}
 
-	Renderer::getInstance()->submit2DHUD(object);
+	Renderer::getInstance()->submit2DHUD(m_hudObjects[hudID]);
 }
 
 HudObject* HudHandler::getHudObject(const HUDID& hudID)
