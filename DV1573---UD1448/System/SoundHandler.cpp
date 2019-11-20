@@ -44,7 +44,8 @@ SoundHandler::SoundHandler()
 	//setSourceGain(0.8, BasicAttackSound, myGuid);
 	//setSourceGain(0.2, DeflectSound, myGuid);
 	setSourceGain(0.2, EnhanceAttackSound, myGuid);
-	setSourceGain(0.3, JumpSound, myGuid);
+	setSourceGain(0.5, JumpSound, myGuid);
+	setSourceGain(0.5, LandingSound, myGuid);
 	setSourceGain(0.3, StepsSound, myGuid);
 	setSourceGain(0.3, FireSound, myGuid);
 	setSourceGain(0.3, TakingDamageSound);
@@ -151,6 +152,12 @@ void SoundHandler::loadAllSound()
 	if (success == -1)
 	{
 		logTrace(JUMP_SOUND + " failed to be loaded");
+	}
+
+	success = loadSound(LandingSound);
+	if (success == -1)
+	{
+		logTrace(LANDING_SOUND + " failed to be loaded");
 	}
 
 	success = loadSound(HitmarkSound);
@@ -341,6 +348,9 @@ int SoundHandler::loadSound(SoundIndexCommon whatSound)
 	case JumpSound:
 		fileName += JUMP_SOUND;
 		break;	
+	case LandingSound:
+		fileName += LANDING_SOUND;
+		break;
 	case FireSound:
 		fileName += FIRE_SOUND;
 		break;
