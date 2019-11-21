@@ -682,35 +682,6 @@ void SpellHandler::spellCollisionCheck()
 				}
 			}
 		}
-
-
-		//for (size_t k = 0; k < fireSpells.size(); k++)
-		//{
-		//	glm::vec3 lastSpellPos = fireSpells.at(k)->getLastPosition();
-		//	glm::vec3 spellPos = fireSpells.at(k)->getTransform().position;
-
-		//	//get the radius from the spelltype
-		//	float radius = fireBase->m_radius;
-
-		//	//line is the walking we will do.
-		//	glm::vec3 line = (spellPos - lastSpellPos) / m_nrSubSteps;
-		//	glm::vec3 interpolationPos = lastSpellPos;
-
-		//	//walk from last pos to new pos with substeps
-		//	for (size_t l = 0; l < m_nrSubSteps; l++)
-		//	{
-		//		interpolationPos += line;
-		//		if (specificSpellCollision(interpolationPos, playerPos, axis, radius))
-		//		{
-		//			Client::getInstance()->sendHitRequest(*fireSpells[k], list[i]);
-
-		//			if (m_onHitCallback != nullptr) {
-		//				m_onHitCallback();
-		//			}
-		//			k = m_nrSubSteps;
-		//		}
-		//	}
-		//}
 	}
 }
 

@@ -1001,6 +1001,7 @@ void Client::updatePlayerData(Player* player)
 		0.0f);
 
 	m_myPlayerDataPacket.animStates = *player->getAnimState();
+	m_myPlayerDataPacket.onGround = player->onGround();
 
 	
 	if (m_sendUpdatePackages == false)

@@ -426,6 +426,11 @@ const float& Player::getMana() const
 	return m_mana;
 }
 
+const bool& Player::onGround() const
+{
+	return m_character->onGround();
+}
+
 const glm::vec3& Player::getPlayerPos() const
 {
 	return m_playerPosition;

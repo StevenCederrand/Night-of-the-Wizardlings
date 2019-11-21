@@ -493,14 +493,12 @@ void Renderer::submit2DHUD(HudObject* hud)
 }
 
 void Renderer::submitSkybox(SkyBox* skybox)
-{
-	if (m_skyBox == nullptr) {
-		m_skyBox = skybox;
-	}
+{	
+	m_skyBox = skybox;
 }
 
 void Renderer::clear() {
-
+	
 	m_staticObjects.clear();
 	m_dynamicObjects.clear();
 	m_anistaticObjects.clear();
@@ -643,9 +641,8 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 			{
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
-				mesh = meshMap->getMesh(object->getMeshName(j));
-				transform = object->getTransform(mesh, j);
-
+				mesh = object->getMesh(j);
+				
 				modelMatrix = object->getMatrix(j);
 
 				glBindVertexArray(mesh->getBuffers().vao);
@@ -676,9 +673,9 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 			{
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
-				mesh = meshMap->getMesh(object->getMeshName(j));
-				transform = object->getTransform(mesh, j);
 
+				mesh = object->getMesh(j);
+				
 				modelMatrix = object->getMatrix(j);
 
 				glBindVertexArray(mesh->getBuffers().vao);
@@ -711,7 +708,6 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 				//Fetch the current mesh and its transform
 				
 				mesh = p->getRenderInformation().mesh;
-				transform = object->getTransform(mesh, j);
 
 				modelMatrix = object->getMatrix(j);
 
