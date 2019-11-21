@@ -474,10 +474,24 @@ void Client::processAndHandlePackets()
 			}
 			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GameInSession) {
 				logTrace("[Client]******** GAME HAS STARTED ********");
+
+				// Add this to the event list
+				{
+					std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+					m_playerEvents.push_back(PlayerEvents::GameStarted);
+				}
+
 			}
 			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GameFinished) {
 			
 				logTrace("[Client]******** GAME HAS ENDED ********");
+
+				// Add this to the event list
+				{
+					std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+					m_playerEvents.push_back(PlayerEvents::GameEnded);
+				}
+
 
 			}
 		}

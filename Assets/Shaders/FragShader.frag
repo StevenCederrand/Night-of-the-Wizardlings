@@ -27,7 +27,7 @@ float brightnessMod = 0.7f;                                 // Modifier for brig
 
 uniform vec3 CameraPosition;
 
-uniform vec3 Ambient_Color;             // Change to emmisive
+//uniform vec3 Ambient_Color;             // Change to emmisive
 uniform vec3 Diffuse_Color;             // Material diffuse
 uniform vec3 Specular_Color;            // Material specular
 uniform vec2 TexAndRim;                 // Booleans --- Textures & Rimlighting
@@ -45,7 +45,7 @@ vec3 calcDirLight(vec3 normal, vec3 diffuseColor);
 vec3 grayscaleColour(vec3 col);
 
 void main() {
-    Ambient_Color; // To remove errors
+    //Ambient_Color; // To remove errors
 
     // Ambient light
     vec3 ambientLight = Diffuse_Color * ambientStr;     // Material color

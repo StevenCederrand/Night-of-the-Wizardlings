@@ -43,8 +43,10 @@ void SpellHandler::initAttackSpell()
 	attackBase->m_material->specular = newMaterial.specular;
 	tempLoader.Unload();
 
-	attackBase->m_material->diffuse = glm::vec3(0.65f, 1.0f, 1.0f);
-	attackBase->m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
+	//attackBase->m_material->diffuse = glm::vec3(0.65f, 1.0f, 1.0f); // Light blue
+	attackBase->m_material->diffuse = glm::vec3(0.5f, 0.0f, 0.9f);	// Purple
+	//attackBase->m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
+	attackBase->m_material->ambient = glm::vec3(0.5f, 0.0f, 0.9f);
 
 	attackBase->m_damage = 34.0f;
 	attackBase->m_speed = 70.0f;

@@ -107,7 +107,6 @@ Shader::Shader(std::string vertex, std::string geometry, std::string fragment)
 Shader::~Shader()
 {
 	glDeleteProgram(m_shaderProg);
-	clearIDs();
 }
 
 void Shader::use()
@@ -133,18 +132,12 @@ void Shader::clearBinding()
 //uniform mat3
 void Shader::setMat3(std::string name, glm::mat3 mat)
 {
-	GLint uniformLoc = getUniformLocation(name);
+	GLint uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
+
 	if (uniformLoc == -1)
 	{
-		uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
-
-		if (uniformLoc == -1)
-		{
-			logError("Could not find uniform {0}", name);
-			return;
-		}
-
-		m_IDMap[name] = uniformLoc; //Save the ID to the hashmap
+		logError("Could not find uniform {0}", name);
+		return;
 	}
 
 	glUniformMatrix3fv(uniformLoc, 1, GL_FALSE, &mat[0][0]);
@@ -152,56 +145,36 @@ void Shader::setMat3(std::string name, glm::mat3 mat)
 //uniform mat4
 void Shader::setMat4(std::string name, glm::mat4 mat)
 {
-	GLint uniformLoc = getUniformLocation(name);
+	GLint uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
+
 	if (uniformLoc == -1)
 	{
-		uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
-
-		if (uniformLoc == -1)
-		{
-			logError("Could not find uniform {0}", name);
-			return;
-		}
-
-		m_IDMap[name] = uniformLoc; //Save the ID to the hashmap
+		logError("Could not find uniform {0}", name);
+		return;
 	}
-
 	glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &mat[0][0]);
 }
 void Shader::setVec2(std::string name, glm::vec2 vec)
 {
-	GLint uniformLoc = getUniformLocation(name);
+	GLint uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
+
 	if (uniformLoc == -1)
 	{
-		uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
+		logError("Could not find uniform {0} in shader {1}", name, m_name);
 
-		if (uniformLoc == -1)
-		{
-			logError("Could not find uniform {0} in shader {1}", name, m_name);
-
-			return;
-		}
-
-		m_IDMap[name] = uniformLoc; //Save the ID to the hashmap
-	}
-
+		return;
+	} 
 	glUniform2fv(uniformLoc, 1, &vec[0]);
 }
 //uniform vec3
 void Shader::setVec3(std::string name, glm::vec3 vec)
 {
-	GLint uniformLoc = getUniformLocation(name);
+	GLint uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
+
 	if (uniformLoc == -1)
 	{
-		uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
-
-		if (uniformLoc == -1)
-		{
-			logError("Could not find uniform {0}", name);
-			return;
-		}
-
-		m_IDMap[name] = uniformLoc; //Save the ID to the hashmap
+		logError("Could not find uniform {0}", name);
+		return;
 	}
 
 	glUniform3fv(uniformLoc, 1, &vec[0]);
@@ -209,58 +182,38 @@ void Shader::setVec3(std::string name, glm::vec3 vec)
 //uniform vec4
 void Shader::setVec4(std::string name, glm::vec4 vec)
 {
-	GLint uniformLoc = getUniformLocation(name);
+	GLint uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
+
 	if (uniformLoc == -1)
 	{
-		uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
-
-		if (uniformLoc == -1)
-		{
-			logError("Could not find uniform {0}", name);
-			return;
-		}
-
-		m_IDMap[name] = uniformLoc; //Save the ID to the hashmap
+		logError("Could not find uniform {0}", name);
+		return;
 	}
 
 	glUniform3fv(uniformLoc, 1, &vec[0]);
-
 }
 //uniform float
 void Shader::setFloat(std::string name, float num)
 {
-	GLint uniformLoc = getUniformLocation(name);
-	if (uniformLoc == -1)
+	GLint uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
+		
+	if (uniformLoc == -1) 
 	{
-		uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
-		
-		if (uniformLoc == -1) 
-		{
-			logError("Could not find uniform {0}", name);
-			return;
-		}
-		
-		m_IDMap[name] = uniformLoc; //Save the ID to the hashmap
-	}
-
+		logError("Could not find uniform {0}", name);
+		return;
+	} 
 	glUniform1f(uniformLoc, num);
 
 }
 //uniform int
 void Shader::setInt(std::string name, int num)
 {
-	GLint uniformLoc = getUniformLocation(name);
+	GLint uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
+
 	if (uniformLoc == -1)
 	{
-		uniformLoc = glGetUniformLocation(this->getShaderID(), name.c_str());
-
-		if (uniformLoc == -1)
-		{
-			logError("Could not find uniform {0}", name);
-			return;
-		}
-
-		m_IDMap[name] = uniformLoc; //Save the ID to the hashmap
+		logError("Could not find uniform {0}", name);
+		return;
 	}
 
 	glUniform1i(uniformLoc, num);
@@ -281,7 +234,7 @@ void Shader::setMaterial(const std::string& materialName) {
 		if (m_totalBoundTextures < mat->textureID.size()) {
 			m_totalBoundTextures = mat->textureID.size();
 		}
-		setVec3("Ambient_Color", mat->ambient);
+		//setVec3("Ambient_Color", mat->ambient);e
 		setVec3("Diffuse_Color", mat->diffuse);
 		//setVec3("Specular_Color", mat->specular);
 		setVec2("TexAndRim", glm::vec2(mat->texture, mat->rimLighting));
@@ -293,7 +246,7 @@ void Shader::setMaterial(const std::string& materialName) {
 	}
 	else
 	{
-		setVec3("Ambient_Color", glm::vec3(0.5f));
+		//setVec3("Ambient_Color", glm::vec3(0.5f));
 		setVec3("Diffuse_Color", glm::vec3(0.5f));
 		setVec2("TexAndRim", glm::vec2(false, false));
 	}
@@ -311,7 +264,7 @@ void Shader::setMaterial(Material* material)
 
 	m_oldMaterial = material->name;
 
-	setVec3("Ambient_Color", material->ambient);
+	//setVec3("Ambient_Color", material->ambient);
 	setVec3("Diffuse_Color", material->diffuse);
 	setVec2("TexAndRim", glm::vec2(material->texture, material->rimLighting));
 	//setVec3("Specular_Color", mat->specular);
@@ -326,7 +279,7 @@ void Shader::unbindMaterial(const std::string& materialName)
 {
 	Material* mat = MaterialMap::getInstance()->getMaterial(materialName);
 
-	setVec3("Ambient_Color", glm::vec3(0));
+	//setVec3("Ambient_Color", glm::vec3(0));
 	setVec3("Diffuse_Color", glm::vec3(0));
 	setVec2("TexAndRim", glm::vec2(0));
 
@@ -338,7 +291,7 @@ void Shader::unbindMaterial(const std::string& materialName)
 
 void Shader::unbindMaterial(Material* material)
 {
-	setVec3("Ambient_Color", glm::vec3(0));
+	//setVec3("Ambient_Color", glm::vec3(0));
 	setVec3("Diffuse_Color", glm::vec3(0));
 	setVec2("TexAndRim", glm::vec2(0));
 
@@ -348,10 +301,6 @@ void Shader::unbindMaterial(Material* material)
 	}
 }
 
-
-void Shader::clearIDs() {
-	m_IDMap.clear();
-}
 
 bool Shader::getValid() const
 {
@@ -378,16 +327,6 @@ std::vector<std::string> Shader::getShaderNames() const
 	return m_shaderNames;
 }
 
-GLint Shader::getUniformLocation(std::string locationName)
-{
-	GLint location = -1;
-
-	if (m_IDMap.find(locationName) != m_IDMap.end()) {
-		location = m_IDMap[locationName];
-	}
-
-	return location;
-}
 
 //one function for all the shaders instead of one for each
 void Shader::shaderSetup(std::string shaderName, unsigned int& shader)
@@ -435,10 +374,8 @@ Shader& Shader::operator=(const Shader& other) {
 	else {
 		//Clear and remove the shader program
 		glDeleteProgram(m_shaderProg);
-		clearIDs();
 
 		m_shaderProg = other.m_shaderProg;
-		m_IDMap = other.m_IDMap;
 		m_name = other.m_name;
 		m_shaderNames = other.m_shaderNames;
 		return *this;
