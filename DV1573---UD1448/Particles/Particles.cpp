@@ -169,16 +169,16 @@ bool ParticleSystem::Initialize()
 	//TODO
 	//Here I can implement the code for randomizing the position in the flamestrike's circle
 
-	auto rnd = rand() % 999 + 1; // random distance
-	rnd /= 1000;
-	auto offset = rnd * 10 * glm::sqrt(rnd); //circleRadius = 2?
+	//auto rnd = rand() % 999 + 1; // random distance
+	//rnd /= 1000;
+	//auto offset = rnd * 10 * glm::sqrt(rnd); //circleRadius = 2?
 
-	rnd = rand() % 999 + 1;
-	rnd /= 1000;
-	auto angle = 2.0f * glm::pi<float>() * rnd; // Random angle
+	//rnd = rand() % 999 + 1;
+	//rnd /= 1000;
+	//auto angle = 2.0f * glm::pi<float>() * rnd; // Random angle
 
-	m_position.x += offset * glm::cos(angle);
-	m_position.y += offset * glm::sin(angle);
+	//m_position.x += offset * glm::cos(angle);
+	//m_position.y += offset * glm::sin(angle);
 
 	return true;
 }
