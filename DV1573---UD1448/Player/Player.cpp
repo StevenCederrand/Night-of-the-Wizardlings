@@ -78,6 +78,9 @@ void Player::update(float deltaTime)
 		}
 	}
 
+	if (m_mana > 100) {
+		m_mana = 100;
+	}
 	updateListenerProperties();
 	
 	m_attackCooldown -= deltaTime; // Cooldown reduces with time
@@ -86,8 +89,8 @@ void Player::update(float deltaTime)
 	m_special3Cooldown -= deltaTime; // Cooldown reduces with time
 	
 	//Regenerate mana when we are not deflecting
-	if (!m_rMouse && m_mana <= 100 && m_deflectCooldown <= 0) {
-		m_mana += 0.25f;
+	if (!m_rMouse && m_mana < 100 && m_deflectCooldown <= 0) {
+		m_mana += 7.5f * DeltaTime;
 	}
 	else if (m_deflectCooldown > 0 && !m_rMouse) {
 		m_deflectCooldown -= DeltaTime;
@@ -280,7 +283,7 @@ void Player::attack()
 				m_mana -= 10; //This is the initial manacost for the deflect
 				shPtr->playSound(DeflectSound, m_client->getMyData().guid);
 			}
-			m_mana -= 0.5f;
+			m_mana -= 10.f * DeltaTime;
 			m_deflecting = true;
 			m_deflectCooldown = 0.5f;
 		}
