@@ -298,9 +298,9 @@ void PlayState::removeDeadObjects()
 			DestructibleObject* obj = static_cast<DestructibleObject*>(m_objects[i]);
 			if (obj->is_destroyed() && obj->getLifetime() >= 20.0 )
 			{
-				//renderer->removeRenderObject(m_objects[i], STATIC);
-				//delete m_objects[i];
-				//m_objects.erase(m_objects.begin() + i);
+				renderer->removeRenderObject(m_objects[i], STATIC);
+				delete m_objects[i];
+				m_objects.erase(m_objects.begin() + i);
 			}
 		}
 	}
