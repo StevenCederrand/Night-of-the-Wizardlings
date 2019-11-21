@@ -10,8 +10,9 @@ public:
 		PlayerPacket data;
 		GameObject* gameobject = nullptr;
 		NetGlobals::THREAD_FLAG flag = NetGlobals::THREAD_FLAG::None;
-		bool correctPositionOnFirstUpdate = false;		
-		bool wasRunning = false;
+		bool correctPositionOnFirstUpdate = false;	
+		bool wasRunning = false;		
+		bool isJumping = false;
 	};
 
 	NetworkPlayers();

@@ -106,6 +106,9 @@ void GameObject::loadMesh(std::string fileName)
 			tempMeshBox.mesh = MeshMap::getInstance()->createMesh(meshName, tempMesh); 
 			logTrace("Mesh loaded: {0}, Expecting material: {1}", tempMesh.getName().c_str(), tempMesh.getMaterial());
 		}
+		else {
+			tempMeshBox.mesh = MeshMap::getInstance()->getMesh(meshName);
+		}
 
 		// Get material
 		Material tempMaterial = tempLoader.GetMaterial(i);
@@ -186,7 +189,7 @@ void GameObject::initMesh(std::string name, std::vector<Vertex> vertices, std::v
 {
 	MeshBox tempMeshBox;									// Meshbox holds the mesh identity and local transform to GameObject
 	tempMeshBox.name = name;
-	m_meshes.push_back(tempMeshBox);						// This effectively adds the mesh to the gameobject
+							// This effectively adds the mesh to the gameobject
 	if (!MeshMap::getInstance()->existsWithName(name))		// This creates the mesh if it does not exist (by name)
 	{
 		Mesh tempMesh;
@@ -197,10 +200,13 @@ void GameObject::initMesh(std::string name, std::vector<Vertex> vertices, std::v
 		tempMesh.setUpBuffers();
 
 		//Add mesh
-		MeshMap::getInstance()->createMesh(name, tempMesh);
+		tempMeshBox.mesh = MeshMap::getInstance()->createMesh(name, tempMesh);
 
 	}
-
+	else {
+		tempMeshBox.mesh = MeshMap::getInstance()->getMesh(name);
+	}
+	m_meshes.push_back(tempMeshBox);
 	//Allocate all of the model matrixes
 	m_modelMatrixes.resize(m_meshes.size());
 	updateModelMatrix();

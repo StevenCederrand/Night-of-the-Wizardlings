@@ -343,6 +343,7 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 		m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 		m_BulletNormalSpell.at(size - 1)->setUserPointer(spell);
 		m_BulletNormalSpell.at(size - 1)->setLinearVelocity(direction * enhanceAtkBase->m_speed);
+		int slot = shPtr->playSound(EnhanceAttackSound, clientPtr->getMyData().guid);		
 	}
 
 	if (type == REFLECT)
@@ -608,7 +609,7 @@ void SpellHandler::spellCollisionCheck()
 	//move camera and spell collision
 	for (size_t i = 0; i < list.size() && (1 <= spells.size() || 1<= fireSpells.size()); i++)
 	{
-		if (list[i].data.health <= 0)
+		if (list[i].data.health <= 0 || list[i].data.invulnerabilityTime > 0.0f)
 			continue;
 
 		glm::vec3 playerPos = list[i].data.position;

@@ -113,16 +113,17 @@ void NetworkPlayers::update(const float& dt)
 					//We could check which sources are playing but we know there are not going
 					//to be playing more than two jump sounds at once
 					shPtr->setSourcePosition(p.data.position, JumpSound, p.data.guid, 1);
-
-					//Specifically check so we don't play more than two jump sounds at once
-					//Only temporary solution
-					if ((shPtr->getSourceState(JumpSound, p.data.guid, 0)) != AL_PLAYING &&
-						(shPtr->getSourceState(JumpSound, p.data.guid, 1)) != AL_PLAYING)
-					{
-						shPtr->playSound(JumpSound, p.data.guid);
-					}
-
+					shPtr->playSound(JumpSound, p.data.guid);
+					p.isJumping = true;
 				}
+				if (p.isJumping && p.data.onGround)
+				{
+					shPtr->setSourcePosition(p.data.position, LandingSound, p.data.guid, 0);
+					shPtr->setSourcePosition(p.data.position, LandingSound, p.data.guid, 1);
+					shPtr->playSound(LandingSound, p.data.guid);
+					p.isJumping = false;
+				}
+
 				if (p.data.animStates.casting == true)
 				{
 					animObj->playAnimation("CastAnimation");
