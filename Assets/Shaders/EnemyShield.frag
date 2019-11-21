@@ -51,10 +51,9 @@ void main() {
     finalUV.x = (time * -.5) - 1/(r + 1.7);
     finalUV.y = pivot.z * a/3.1416;
 
-    vec3 position = vec3(0);
     //Create the diffuse color once
     vec3 diffuse = Diffuse_Color;
-    vec4 alphaTexture = texture(shieldTexture, f_UV);
+    vec4 alphaTexture = texture(shieldTexture, finalUV);
 
     //vec3 ambientCol = (Ambient_Color + ambientStr);
     if (TexAndRim.x == 1) {
