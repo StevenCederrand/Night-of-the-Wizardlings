@@ -766,9 +766,10 @@ void SpellHandler::setCharacter(std::string meshName)
 			max.z = fmaxf(vertices[i].position.z, max.z);
 		}
 	}
-	//glm::vec3 halfSize = glm::vec3((max - min) * 0.5f);
-	glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * 0.7f;
-	//halfSize.x *= 0.4f;
+	glm::vec3 halfSize = glm::vec3((max - min) * 0.5f);
+	//glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * 0.7f;
+	halfSize.x *= 0.6f;
+	halfSize.z *= 0.6f;
 
 	m_bp->setCharacterSize(halfSize);
 	m_setcharacter = true;
