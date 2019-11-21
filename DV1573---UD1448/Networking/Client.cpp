@@ -506,21 +506,7 @@ void Client::processAndHandlePackets()
 			spellPacket.Serialize(false, bsIn);
 			NetworkSpells::SpellEntity se;
 
-			se.spellData = spellPacket;							
-					
-			SoundHandler* shPtr = SoundHandler::getInstance();
-			switch (se.spellData.SpellType)
-			{
-			case OBJECT_TYPE::NORMALATTACK:
-				shPtr->setSourcePosition(se.spellData.Position, BasicAttackSound, se.spellData.CreatorGUID);
-				shPtr->setSourcePosition(se.spellData.Position, BasicAttackSound, se.spellData.CreatorGUID, 1);
-				shPtr->playSound(BasicAttackSound, se.spellData.CreatorGUID);
-				break;			
-			case OBJECT_TYPE::ENHANCEATTACK:
-				shPtr->setSourcePosition(se.spellData.Position, EnhanceAttackSound, se.spellData.CreatorGUID);
-				shPtr->playSound(EnhanceAttackSound, se.spellData.CreatorGUID);
-				break;					
-			}
+			se.spellData = spellPacket;					
 			
 			se.flag = NetGlobals::THREAD_FLAG::Add;
 			se.gameobject = nullptr;
