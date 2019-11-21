@@ -43,6 +43,7 @@ struct PSinfo //All the fun particle information values
 	int scaleDirection;
 	int glow;
 	int swirl;
+	bool randomSpawn;
 
 	float width;
 	float heigth;

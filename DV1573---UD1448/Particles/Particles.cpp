@@ -313,23 +313,27 @@ void ParticleSystem::Update(PSinfo* psInfo, glm::vec3 cameraPos, float time)
 					m_lifetime.at(i) = particles.time / m_psInfo->lifetime;
 					particles.position = m_position;
 
-					float offsetX;
-					float offsetY;
-					float offsetZ;
-					//particles.position.x += static_cast<float>(rand()) / static_cast <float> (RAND_MAX) * 1 - 0.2;
-					offsetX = rand() % 1999 + 1 -1000;
-					offsetX /= 1000;
-					offsetX *= 4;
-					particles.position.x += offsetX;
-					//particles.position.y += static_cast<float>(rand()) / static_cast <float> (RAND_MAX) * 1 - 0.2;
-					offsetY = rand() % 1999 + 1 - 1000;
-					offsetY /= 2000;
-					particles.position.y += offsetY;
-					//particles.position.z += static_cast<float>(rand()) / static_cast <float> (RAND_MAX) * 1 - 0.2;
-					offsetZ = rand() % 1999 + 1 - 1000;
-					offsetZ /= 1000;
-					offsetZ *= 4;
-					particles.position.z += offsetZ;
+					if (m_psInfo->randomSpawn == true)
+					{
+						float offsetX;
+						float offsetY;
+						float offsetZ;
+						//particles.position.x += static_cast<float>(rand()) / static_cast <float> (RAND_MAX) * 1 - 0.2;
+						offsetX = rand() % 1999 + 1 - 1000;
+						offsetX /= 1000;
+						offsetX *= 4;
+						particles.position.x += offsetX;
+						//particles.position.y += static_cast<float>(rand()) / static_cast <float> (RAND_MAX) * 1 - 0.2;
+						offsetY = rand() % 1999 + 1 - 1000;
+						offsetY /= 2000;
+						particles.position.y += offsetY;
+						//particles.position.z += static_cast<float>(rand()) / static_cast <float> (RAND_MAX) * 1 - 0.2;
+						offsetZ = rand() % 1999 + 1 - 1000;
+						offsetZ /= 1000;
+						offsetZ *= 4;
+						particles.position.z += offsetZ;
+					}
+
 
 				
 					particles.distance = -1.0f;
