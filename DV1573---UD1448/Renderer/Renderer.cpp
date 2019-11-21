@@ -493,14 +493,12 @@ void Renderer::submit2DHUD(HudObject* hud)
 }
 
 void Renderer::submitSkybox(SkyBox* skybox)
-{
-	if (m_skyBox == nullptr) {
-		m_skyBox = skybox;
-	}
+{	
+	m_skyBox = skybox;
 }
 
 void Renderer::clear() {
-
+	
 	m_staticObjects.clear();
 	m_dynamicObjects.clear();
 	m_anistaticObjects.clear();
