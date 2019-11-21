@@ -299,7 +299,7 @@ void Player::attack()
 	{
 		if (m_specialCooldown <= 0)
 		{					
-					
+			//Sound for enhance spell is handled in spellhandler 		
 			m_specialCooldown = m_spellhandler->getEnhAttackBase()->m_coolDown;
 			// Start loop
 			m_enhanceAttack.start();
