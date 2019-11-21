@@ -565,7 +565,7 @@ void Renderer::removeRenderObject(GameObject* gameObject, RENDER_TYPE objType)
 			}
 		}
 	}
-	else if (objType == RENDER_TYPE::PICKUP) { //remove PICKUP from the spell PICKUP!!
+	else if (objType == RENDER_TYPE::PICKUP) { //remove spells from the spell vector!!
 	   //Find the index of the object
 		for (size_t i = 0; i < m_pickups.size(); i++)
 		{
@@ -576,32 +576,6 @@ void Renderer::removeRenderObject(GameObject* gameObject, RENDER_TYPE objType)
 		}
 		if (index > -1) {
 			m_pickups.erase(m_pickups.begin() + index);
-		}
-	}
-	else if (objType == STATIC) {
-	   //Find the index of the object
-		for (size_t i = 0; i < m_staticObjects.size(); i++)
-		{
-			if (m_staticObjects[i] == gameObject) {
-				index = i;
-				break;
-			}
-		}
-		if (index > -1) {
-			m_staticObjects.erase(m_staticObjects.begin() + index);
-		}
-	}
-	else if (objType == RENDER_TYPE::ANIMATEDSTATIC) { //remove PICKUP from the spell PICKUP!!
-	   //Find the index of the object
-		for (size_t i = 0; i < m_anistaticObjects.size(); i++)
-		{
-			if (m_anistaticObjects[i] == gameObject) {
-				index = i;
-				break;
-			}
-		}
-		if (index > -1) {
-			m_anistaticObjects.erase(m_anistaticObjects.begin() + index);
 		}
 	}
 }
@@ -643,7 +617,7 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 	Shader* shader;
 	MeshMap* meshMap = MeshMap::getInstance();
 	ShaderMap* shaderMap = ShaderMap::getInstance();
-	Material* material;
+	
 
 #pragma region Depth_Render & Light_Cull
 	if (m_lights.size() > 0) {
@@ -669,8 +643,7 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 			{
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
-				mesh = object->getMesh(j);
-
+				mesh = meshMap->getMesh(object->getMeshName(j));
 				transform = object->getTransform(mesh, j);
 
 				modelMatrix = object->getMatrix(j);
@@ -703,9 +676,7 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 			{
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
-				mesh = object->getMesh(j);
-				if (mesh == nullptr) continue;
-
+				mesh = meshMap->getMesh(object->getMeshName(j));
 				transform = object->getTransform(mesh, j);
 
 				modelMatrix = object->getMatrix(j);
@@ -862,17 +833,10 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 		for (int j = 0; j < object->getMeshesCount(); j++)
 		{
 			//Fetch the current mesh and its transform
-
-			mesh = object->getMesh(j); 
+			mesh = meshMap->getMesh(object->getMeshName(j));
 
 			//Bind the material   
-			if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
-				object->bindMaterialToShader(shader, mesh->getMaterial());
-			}
-			else {
-				material = object->getMaterial(j);
-				object->bindMaterialToShader(shader, material);
-			}
+			object->bindMaterialToShader(shader, mesh->getMaterial());
 
 			modelMatrix = glm::mat4(1.0f);
 
@@ -904,16 +868,10 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 			//Then through all of the meshes
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
-
-				mesh = object->getMesh(j);
-				//Bind the material   
-				if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
-					object->bindMaterialToShader(shader, mesh->getMaterial());
-				}
-				else {
-					material = object->getMaterial(j);
-					object->bindMaterialToShader(shader, material);
-				}
+				//Fetch the current mesh and its transform
+				mesh = meshMap->getMesh(object->getMeshName(j));
+				//Bind the material
+				object->bindMaterialToShader(shader, mesh->getMaterial());
 
 				modelMatrix = glm::mat4(1.0f);
 				//Apply the transform to the matrix. This should actually be done automatically in the mesh!
@@ -999,11 +957,10 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 		for (int j = 0; j < object->getMeshesCount(); j++)
 		{
 			//Fetch the current mesh and its transform
-			mesh = object->getMesh(j);
+			mesh = meshMap->getMesh(object->getMeshName(j));
 
 			//Bind the material
-			material = object->getMaterial(j);
-			object->bindMaterialToShader(shader, material);
+			object->bindMaterialToShader(shader, mesh->getMaterial());
 
 			modelMatrix = glm::mat4(1.0f);
 
@@ -1022,6 +979,7 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 	shader->clearBinding();
 	glEnable(GL_CULL_FACE);
 #pragma endregion
+
 
 #pragma region Animation_Render
 	//TODO: Evaluate this implementation, should be an easier way to bind values to shaders as they're changed
@@ -1071,15 +1029,15 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
 				//Fetch the current mesh and its transform
-				mesh = object->getMesh(j);
-				transform = object->getTransform(mesh, j);
+				mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
 				
 				//Bind calculated bone matrices
 				animObj->BindAnimation(j);
-				
+
+				transform = object->getTransform(mesh, j);
+
 				//Bind the material
-				material = object->getMaterial(j);
-				object->bindMaterialToShader(shader, material);
+				object->bindMaterialToShader(ANIMATION, j);
 
 				modelMatrix = glm::mat4(1.0f);
 				modelMatrix = object->getMatrix(j);
