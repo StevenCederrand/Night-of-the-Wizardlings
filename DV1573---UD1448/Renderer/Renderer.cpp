@@ -670,9 +670,7 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
 				mesh = object->getMesh(j);
-
-				transform = object->getTransform(mesh, j);
-
+				
 				modelMatrix = object->getMatrix(j);
 
 				glBindVertexArray(mesh->getBuffers().vao);
@@ -704,9 +702,7 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
 				mesh = object->getMesh(j);
-
-				transform = object->getTransform(mesh, j);
-
+				
 				modelMatrix = object->getMatrix(j);
 
 				glBindVertexArray(mesh->getBuffers().vao);
@@ -739,7 +735,6 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 				//Fetch the current mesh and its transform
 				
 				mesh = p->getRenderInformation().mesh;
-				transform = object->getTransform(mesh, j);
 
 				modelMatrix = object->getMatrix(j);
 
