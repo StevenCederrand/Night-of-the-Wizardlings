@@ -299,7 +299,7 @@ void Player::attack()
 	{
 		if (m_specialCooldown <= 0)
 		{					
-			shPtr->playSound(EnhanceAttackSound, m_client->getMyData().guid);			
+					
 			m_specialCooldown = m_spellhandler->getEnhAttackBase()->m_coolDown;
 			// Start loop
 			m_enhanceAttack.start();
