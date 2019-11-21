@@ -465,6 +465,20 @@ void PlayState::update_isPlaying(const float& dt)
 				break;
 			}
 
+			case PlayerEvents::GameStarted:
+			{
+				loadDestructables();
+				break;
+			}
+
+			case PlayerEvents::GameEnded:
+			{
+				
+				break;
+			}
+
+
+
 		}
 	
 	}
