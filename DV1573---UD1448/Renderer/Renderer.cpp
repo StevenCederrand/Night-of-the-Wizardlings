@@ -591,6 +591,19 @@ void Renderer::removeRenderObject(GameObject* gameObject, RENDER_TYPE objType)
 			m_staticObjects.erase(m_staticObjects.begin() + index);
 		}
 	}
+	else if (objType == RENDER_TYPE::ANIMATEDSTATIC) { //remove PICKUP from the spell PICKUP!!
+	   //Find the index of the object
+		for (size_t i = 0; i < m_anistaticObjects.size(); i++)
+		{
+			if (m_anistaticObjects[i] == gameObject) {
+				index = i;
+				break;
+			}
+		}
+		if (index > -1) {
+			m_anistaticObjects.erase(m_anistaticObjects.begin() + index);
+		}
+	}
 }
 
 
@@ -656,12 +669,8 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 			{
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
-				if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
-					mesh = meshMap->getMesh(object->getMeshName(j));
-				}
-				else {
-					mesh = object->getMesh(j);
-				}
+				mesh = object->getMesh(j);
+
 				transform = object->getTransform(mesh, j);
 
 				modelMatrix = object->getMatrix(j);
@@ -694,12 +703,7 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 			{
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
-				if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
-					mesh = meshMap->getMesh(object->getMeshName(j));
-				}
-				else {
-					mesh = object->getMesh(j);
-				}
+				mesh = object->getMesh(j);
 
 				transform = object->getTransform(mesh, j);
 
@@ -857,12 +861,9 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 		for (int j = 0; j < object->getMeshesCount(); j++)
 		{
 			//Fetch the current mesh and its transform
-			if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
-				mesh = meshMap->getMesh(object->getMeshName(j));
-			}
-			else {
-				mesh = object->getMesh(j); 
-			}
+
+			mesh = object->getMesh(j); 
+
 			//Bind the material   
 			if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
 				object->bindMaterialToShader(shader, mesh->getMaterial());
@@ -902,12 +903,8 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 			//Then through all of the meshes
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
-				if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
-					mesh = meshMap->getMesh(object->getMeshName(j));
-				}
-				else {
-					mesh = object->getMesh(j);
-				}
+
+				mesh = object->getMesh(j);
 				//Bind the material   
 				if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
 					object->bindMaterialToShader(shader, mesh->getMaterial());
@@ -1001,10 +998,11 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 		for (int j = 0; j < object->getMeshesCount(); j++)
 		{
 			//Fetch the current mesh and its transform
-			mesh = meshMap->getMesh(object->getMeshName(j));
+			mesh = object->getMesh(j);
 
 			//Bind the material
-			object->bindMaterialToShader(shader, mesh->getMaterial());
+			material = object->getMaterial(j);
+			object->bindMaterialToShader(shader, material);
 
 			modelMatrix = glm::mat4(1.0f);
 
@@ -1023,7 +1021,6 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 	shader->clearBinding();
 	glEnable(GL_CULL_FACE);
 #pragma endregion
-
 
 #pragma region Animation_Render
 	//TODO: Evaluate this implementation, should be an easier way to bind values to shaders as they're changed
@@ -1073,15 +1070,15 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
 				//Fetch the current mesh and its transform
-				mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
+				mesh = object->getMesh(j);
+				transform = object->getTransform(mesh, j);
 				
 				//Bind calculated bone matrices
 				animObj->BindAnimation(j);
-
-				transform = object->getTransform(mesh, j);
-
+				
 				//Bind the material
-				object->bindMaterialToShader(ANIMATION, j);
+				material = object->getMaterial(j);
+				object->bindMaterialToShader(shader, material);
 
 				modelMatrix = glm::mat4(1.0f);
 				modelMatrix = object->getMatrix(j);
