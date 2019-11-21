@@ -90,6 +90,7 @@ private:
 	void copyCharArrayOver(char Dest[16], char Src[16]);
 	void destroyAllPickups();
 
+
 	void sendReadyInfoToPlayer(const PlayerPacket* player);
 	void sendReadyInfoToAllPlayers();
 	void unreadyEveryPlayer();

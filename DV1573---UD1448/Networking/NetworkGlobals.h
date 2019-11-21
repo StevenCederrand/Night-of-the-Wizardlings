@@ -21,6 +21,7 @@ namespace NetGlobals {
 	constexpr uint32_t PickupNotificationBeforeSpawnMS = 8 * 1000;
 	constexpr uint32_t RoutineCleanupTimeIntervalMS = 20 * 1000;
 	constexpr uint32_t UpdateClientsWithServerTimeIntervalMS = 250;
+	constexpr float InvulnerabilityTime = 10.25f;
 	constexpr int PlayerMaxHealth = 100;
 
 	enum THREAD_FLAG {
