@@ -413,7 +413,7 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 		light.index = m_spells.size();
 		
 		m_spells.emplace_back(gameObject);
-		m_lights.emplace_back(light);
+		
 
 		//light.color = 
 		Spell* spell = dynamic_cast<Spell*>(gameObject);
@@ -422,27 +422,32 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 		
 		if (spell->getType() == OBJECT_TYPE::NORMALATTACK)
 		{
+			light.color = m_spellHandler->getAttackBase()->m_material->diffuse;
 			m_particleSystems.emplace_back(ParticleSystem(&m_PSinfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), attackBuffer,
 				attackPS->getVertex(), attackPS->getDir(), attackPS->getParticle(), attackPS->getLifetime()));
 		}
 
 		else if (spell->getType() == OBJECT_TYPE::ENHANCEATTACK)
 		{
+			light.color = m_spellHandler->getEnhAttackBase()->m_material->diffuse;
 			m_particleSystems.emplace_back(ParticleSystem(&m_enhanceInfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), enhanceBuffer,
 				enhancePS->getVertex(), enhancePS->getDir(), enhancePS->getParticle(), enhancePS->getLifetime()));
 		}
 
 		else if (spell->getType() == OBJECT_TYPE::FIRE)
 		{
+			light.color = m_spellHandler->getFireBase()->m_material->diffuse;
 			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &smoke, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
 				flamestrikePS->getVertex(), flamestrikePS->getDir(), flamestrikePS->getParticle(), flamestrikePS->getLifetime()));
 		}
 
 		else if (spell->getType() == OBJECT_TYPE::FLAMESTRIKE)
 		{
+			light.color = m_spellHandler->getFlamestrikeBase()->m_material->diffuse;
 			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
 				flamestrikePS->getVertex(), flamestrikePS->getDir(), flamestrikePS->getParticle(), flamestrikePS->getLifetime()));
 		}
+		m_lights.emplace_back(light);
 	}
 	else if (objType == RENDER_TYPE::DYNAMIC) {
 		m_dynamicObjects.emplace_back(gameObject);
@@ -493,14 +498,17 @@ void Renderer::submit2DHUD(HudObject* hud)
 }
 
 void Renderer::submitSkybox(SkyBox* skybox)
+{	
+	m_skyBox = skybox;
+}
+
+void Renderer::submitSpellhandler(SpellHandler* spellhandler)
 {
-	if (m_skyBox == nullptr) {
-		m_skyBox = skybox;
-	}
+	m_spellHandler = spellhandler;
 }
 
 void Renderer::clear() {
-
+	
 	m_staticObjects.clear();
 	m_dynamicObjects.clear();
 	m_anistaticObjects.clear();
@@ -636,7 +644,7 @@ void Renderer::renderSkybox()
 	glEnable(GL_CULL_FACE);
 }
 
-void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler) {
+void Renderer::render(DeflectRender* m_deflectBox) {
 	Mesh* mesh;
 	Transform transform;
 	glm::mat4 modelMatrix;
@@ -670,9 +678,7 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
 				mesh = object->getMesh(j);
-
-				transform = object->getTransform(mesh, j);
-
+				
 				modelMatrix = object->getMatrix(j);
 
 				glBindVertexArray(mesh->getBuffers().vao);
@@ -704,9 +710,7 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
 				mesh = object->getMesh(j);
-
-				transform = object->getTransform(mesh, j);
-
+				
 				modelMatrix = object->getMatrix(j);
 
 				glBindVertexArray(mesh->getBuffers().vao);
@@ -739,7 +743,6 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 				//Fetch the current mesh and its transform
 				
 				mesh = p->getRenderInformation().mesh;
-				transform = object->getTransform(mesh, j);
 
 				modelMatrix = object->getMatrix(j);
 
