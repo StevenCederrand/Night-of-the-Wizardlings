@@ -41,6 +41,7 @@ public:
 	const float& getMaxSpecialCooldown() const;
 	const glm::vec3 getMeshHalfSize() const;
 	const float& getMana() const;
+	const bool& onGround() const;
 
 	//-----Set-----//
 	void setPlayerPos(glm::vec3 pos);

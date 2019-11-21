@@ -11,7 +11,7 @@ public:
 	struct SpellEntity {
 		SpellPacket spellData;
 		GameObject* gameobject = nullptr;
-		NetGlobals::THREAD_FLAG flag = NetGlobals::THREAD_FLAG::None;		
+		NetGlobals::THREAD_FLAG flag = NetGlobals::THREAD_FLAG::None;			
 	};
 
 public:
@@ -24,7 +24,7 @@ public:
 private:
 	friend class Client;
 	std::vector<SpellEntity> m_entities;
-	float m_lerpSpeed = 15.0f;
+	float m_lerpSpeed = 15.0f;	
 };
 
 

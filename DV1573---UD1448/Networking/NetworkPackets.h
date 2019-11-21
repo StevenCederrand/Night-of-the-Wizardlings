@@ -77,6 +77,8 @@ struct PlayerPacket {
 	bool inDeflectState = false;
 	bool isReady = false;
 	bool hasBeenUpdatedOnce = false;
+	bool onGround = true;
+	float invulnerabilityTime = 0.0f;
 
 	AnimationState animStates;
 	bool hasDamageBuff = false;
