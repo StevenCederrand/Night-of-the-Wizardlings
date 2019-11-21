@@ -18,9 +18,9 @@ PlayState::PlayState(bool spectator)
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
 
 	m_camera = new Camera();
+	m_bPhysics = new BulletPhysics(-20.0f);
 
 	if (spectator == false) {
-		m_bPhysics = new BulletPhysics(-20.0f);
 		
 		// To get the height of the character at start due to bounding box calculations.
 		GameObject* AnimationMesh = new WorldObject("AnimationMesh");
@@ -76,13 +76,13 @@ PlayState::PlayState(bool spectator)
 	gContactAddedCallback = callbackFunc;
 	// Geneterate bullet objects / hitboxes
 	
-	if (spectator == false) {
+	//if (spectator == false) {
 		for (size_t i = 0; i < m_objects.size(); i++)
 		{
 			m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);
 			//m_objects.at(i)->createDebugDrawer();
 		}
-	}
+	//}
 
 	// Non dynamic mesh (no rigidbody)
 	// Very big mesh hope not overload gpu XD
@@ -514,6 +514,63 @@ void PlayState::update_isSpectating(const float& dt)
 {
 	auto* clientPtr = Client::getInstance();
 	clientPtr->updateNetworkEntities(dt);
+	m_bPhysics->update(dt);
+
+	for (GameObject* object : m_objects)
+	{
+		if(object != nullptr)
+			object->update(dt);
+	}
+
+	for (PlayerEvents evnt = clientPtr->readNextEvent(); evnt != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
+
+		switch (evnt) {
+
+		case PlayerEvents::WallGotDestroyed:
+		{
+			std::lock_guard<std::mutex> lockGuard(NetGlobals::ReadDestructableWallsMutex); // Thread safe
+			
+			auto& vec = Client::getInstance()->getDestructedWalls();
+			for (size_t i = 0; i < vec.size(); i++) {
+				const DestructionPacket& p = vec[i];
+
+				// Destroy
+				m_dstr.seedRand(p.randomSeed);
+				m_dstr.Destroy(static_cast<DestructibleObject*>(m_objects[p.index]), p.hitPoint, p.hitDir);
+			}
+
+			// Tells the client to clear the vector
+			Client::getInstance()->clearDestroyedWallsVector();
+
+			break;
+		}
+
+		case PlayerEvents::PlayerReady:
+		{
+			// Play sound?
+			logTrace("Player ready");
+
+			break;
+		}
+
+		case PlayerEvents::GameStarted:
+		{
+			loadDestructables();
+			break;
+		}
+
+		case PlayerEvents::GameEnded:
+		{
+
+			break;
+		}
+
+
+
+		}
+
+	}
+
 
 	m_camera->update();
 	m_spellHandler->spellUpdate(dt);
