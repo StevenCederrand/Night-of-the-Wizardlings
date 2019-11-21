@@ -704,6 +704,7 @@ void Renderer::render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler)
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
 				mesh = object->getMesh(j);
+				if (mesh == nullptr) continue;
 
 				transform = object->getTransform(mesh, j);
 

@@ -433,7 +433,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 			flamestrikeSpells[i]->update(deltaTime);
 			flamestrikeSpells[i]->updateRigidbody(deltaTime, m_BulletFlamestrikeSpell.at(i));
 			
-			if (static_cast<Spell*>(flamestrikeSpells[i])->getType() == FLAMESTRIKE)
+			if (flamestrikeSpells[i]->getType() == FLAMESTRIKE)
 			{				
 				flamestrikeUpdate(deltaTime, i);
 				AOEAttack* flamestrike = static_cast<AOEAttack*>(flamestrikeSpells[i]);
@@ -637,10 +637,10 @@ void SpellHandler::spellCollisionCheck()
 			//get the radius from the spelltype
 			float radius = 0.0f;
 
-			if (static_cast<Spell*>(spells[j])->getType() == NORMALATTACK) {
+			if (spells[j]->getType() == NORMALATTACK) {
 				radius = attackBase->m_radius;
 			}
-			if (static_cast<Spell*>(spells[j])->getType() == ENHANCEATTACK) {
+			if (spells[j]->getType() == ENHANCEATTACK) {
 				radius = enhanceAtkBase->m_radius;
 			}
 
