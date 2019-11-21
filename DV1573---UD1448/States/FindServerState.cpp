@@ -21,6 +21,7 @@ FindServerState::FindServerState()
 FindServerState::~FindServerState()
 {
 	removeAllRows();
+	
 	Gui::getInstance()->clearWidgetsInSection(GUI_SECTION);
 }
 
@@ -170,6 +171,7 @@ bool FindServerState::onJoinServerClicked(const CEGUI::EventArgs& e)
 		}
 		SoundHandler::getInstance()->stopSound(ThemeSong0);
 		glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		Renderer::getInstance()->clear();
 		m_stateManager->clearAllAndSetState(new PlayState(false));
 	}
 
@@ -212,6 +214,7 @@ bool FindServerState::onSpectateServerClicked(const CEGUI::EventArgs& e)
 		}
 
 		glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		Renderer::getInstance()->clear();
 		m_stateManager->clearAllAndSetState(new PlayState(true));
 	}
 

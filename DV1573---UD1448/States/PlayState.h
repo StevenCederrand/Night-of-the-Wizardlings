@@ -24,8 +24,10 @@ class PlayState : public State {
 public:
 	//PlayState(){}
 	PlayState(bool spectator);
+	void loadDestructables();
 	virtual ~PlayState() override;
 	virtual void update(float dt) override;
+	void removeDeadObjects();
 	virtual void render() override;
 
 	static bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,

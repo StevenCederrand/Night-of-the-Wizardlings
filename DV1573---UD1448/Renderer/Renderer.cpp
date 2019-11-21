@@ -415,26 +415,35 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 		m_spells.emplace_back(gameObject);
 		m_lights.emplace_back(light);
 
+<<<<<<< HEAD
 		//light.color =
 		if (static_cast<Spell*>(gameObject)->getType() == OBJECT_TYPE::NORMALATTACK)
+=======
+		//light.color = 
+		Spell* spell = dynamic_cast<Spell*>(gameObject);
+		if (spell == nullptr) return;
+
+		
+		if (spell->getType() == OBJECT_TYPE::NORMALATTACK)
+>>>>>>> 9bc9ac3b4c466291d2bc65724ff163c949135c4c
 		{
 			m_particleSystems.emplace_back(ParticleSystem(&m_PSinfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), attackBuffer,
 				attackPS->getVertex(), attackPS->getDir(), attackPS->getParticle(), attackPS->getLifetime()));
 		}
 
-		else if (static_cast<Spell*>(gameObject)->getType() == OBJECT_TYPE::ENHANCEATTACK)
+		else if (spell->getType() == OBJECT_TYPE::ENHANCEATTACK)
 		{
 			m_particleSystems.emplace_back(ParticleSystem(&m_enhanceInfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), enhanceBuffer,
 				enhancePS->getVertex(), enhancePS->getDir(), enhancePS->getParticle(), enhancePS->getLifetime()));
 		}
 
-		else if (static_cast<Spell*>(gameObject)->getType() == OBJECT_TYPE::FIRE)
+		else if (spell->getType() == OBJECT_TYPE::FIRE)
 		{
 			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &smoke, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
 				flamestrikePS->getVertex(), flamestrikePS->getDir(), flamestrikePS->getParticle(), flamestrikePS->getLifetime()));
 		}
 
-		else if (static_cast<Spell*>(gameObject)->getType() == OBJECT_TYPE::FLAMESTRIKE)
+		else if (spell->getType() == OBJECT_TYPE::FLAMESTRIKE)
 		{
 			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
 				flamestrikePS->getVertex(), flamestrikePS->getDir(), flamestrikePS->getParticle(), flamestrikePS->getLifetime()));
@@ -561,7 +570,7 @@ void Renderer::removeRenderObject(GameObject* gameObject, RENDER_TYPE objType)
 			}
 		}
 	}
-	else if (objType == RENDER_TYPE::PICKUP) { //remove spells from the spell vector!!
+	else if (objType == RENDER_TYPE::PICKUP) { //remove PICKUP from the spell PICKUP!!
 	   //Find the index of the object
 		for (size_t i = 0; i < m_pickups.size(); i++)
 		{
@@ -572,6 +581,19 @@ void Renderer::removeRenderObject(GameObject* gameObject, RENDER_TYPE objType)
 		}
 		if (index > -1) {
 			m_pickups.erase(m_pickups.begin() + index);
+		}
+	}
+	else if (objType == STATIC) {
+	   //Find the index of the object
+		for (size_t i = 0; i < m_staticObjects.size(); i++)
+		{
+			if (m_staticObjects[i] == gameObject) {
+				index = i;
+				break;
+			}
+		}
+		if (index > -1) {
+			m_staticObjects.erase(m_staticObjects.begin() + index);
 		}
 	}
 }
@@ -609,7 +631,11 @@ void Renderer::render(SpellHandler* m_spellHandler) {
 	Shader* shader;
 	MeshMap* meshMap = MeshMap::getInstance();
 	ShaderMap* shaderMap = ShaderMap::getInstance();
+<<<<<<< HEAD
 
+=======
+	Material* material;
+>>>>>>> 9bc9ac3b4c466291d2bc65724ff163c949135c4c
 
 #pragma region Depth_Render & Light_Cull
 	if (m_lights.size() > 0) {
@@ -635,7 +661,12 @@ void Renderer::render(SpellHandler* m_spellHandler) {
 			{
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
-				mesh = meshMap->getMesh(object->getMeshName(j));
+				if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
+					mesh = meshMap->getMesh(object->getMeshName(j));
+				}
+				else {
+					mesh = object->getMesh(j);
+				}
 				transform = object->getTransform(mesh, j);
 
 				modelMatrix = object->getMatrix(j);
@@ -668,7 +699,13 @@ void Renderer::render(SpellHandler* m_spellHandler) {
 			{
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
-				mesh = meshMap->getMesh(object->getMeshName(j));
+				if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
+					mesh = meshMap->getMesh(object->getMeshName(j));
+				}
+				else {
+					mesh = object->getMesh(j);
+				}
+
 				transform = object->getTransform(mesh, j);
 
 				modelMatrix = object->getMatrix(j);
@@ -825,10 +862,27 @@ void Renderer::render(SpellHandler* m_spellHandler) {
 		for (int j = 0; j < object->getMeshesCount(); j++)
 		{
 			//Fetch the current mesh and its transform
+<<<<<<< HEAD
 			mesh = meshMap->getMesh(object->getMeshName(j));
 
 			//Bind the material
 			object->bindMaterialToShader(shader, mesh->getMaterial());
+=======
+			if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
+				mesh = meshMap->getMesh(object->getMeshName(j));
+			}
+			else {
+				mesh = object->getMesh(j); 
+			}
+			//Bind the material   
+			if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
+				object->bindMaterialToShader(shader, mesh->getMaterial());
+			}
+			else {
+				material = object->getMaterial(j);
+				object->bindMaterialToShader(shader, material);
+			}
+>>>>>>> 9bc9ac3b4c466291d2bc65724ff163c949135c4c
 
 			modelMatrix = glm::mat4(1.0f);
 
@@ -860,10 +914,20 @@ void Renderer::render(SpellHandler* m_spellHandler) {
 			//Then through all of the meshes
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
-				//Fetch the current mesh and its transform
-				mesh = meshMap->getMesh(object->getMeshName(j));
-				//Bind the material
-				object->bindMaterialToShader(shader, mesh->getMaterial());
+				if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
+					mesh = meshMap->getMesh(object->getMeshName(j));
+				}
+				else {
+					mesh = object->getMesh(j);
+				}
+				//Bind the material   
+				if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
+					object->bindMaterialToShader(shader, mesh->getMaterial());
+				}
+				else {
+					material = object->getMaterial(j);
+					object->bindMaterialToShader(shader, material);
+				}
 
 				modelMatrix = glm::mat4(1.0f);
 				//Apply the transform to the matrix. This should actually be done automatically in the mesh!
@@ -960,13 +1024,18 @@ void Renderer::render(SpellHandler* m_spellHandler) {
 			}
 
 			//Then through all of the meshes
+			AnimatedObject* animObj = dynamic_cast<AnimatedObject*>(object);
+
+			if (animObj == nullptr) continue;
+
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
 				//Fetch the current mesh and its transform
 				mesh = MeshMap::getInstance()->getMesh(object->getMeshName(j));
 
 				//Bind calculated bone matrices
-				static_cast<AnimatedObject*>(object)->BindAnimation(j);
+				animObj->BindAnimation(j);
+
 				transform = object->getTransform(mesh, j);
 
 				//Bind the material
@@ -1232,8 +1301,8 @@ void Renderer::initializeParticle()
 	m_PSinfo.width = 0.3f;
 	m_PSinfo.heigth = 0.1f;
 	m_PSinfo.lifetime = 1.0f;
-	m_PSinfo.maxParticles = 5000; //350
-	m_PSinfo.emission = 0.005f; //0.00001f;
+	m_PSinfo.maxParticles = 500; //350
+	m_PSinfo.emission = 0.01f; //0.00001f;
 	m_PSinfo.force = -1.0f; //5
 	m_PSinfo.drag = 0.0f;
 	m_PSinfo.gravity = 0.0f; //Standard is 1
@@ -1270,8 +1339,8 @@ void Renderer::initializeParticle()
 	m_enhanceInfo.width = 0.2f;
 	m_enhanceInfo.heigth = 0.2f;
 	m_enhanceInfo.lifetime = 0.3f;
-	m_enhanceInfo.maxParticles = 5000; //350
-	m_enhanceInfo.emission = 0.001f; //0.00001f;
+	m_enhanceInfo.maxParticles = 500; //350
+	m_enhanceInfo.emission = 0.01f; //0.00001f;
 	m_enhanceInfo.force = -1.0f; //5
 	m_enhanceInfo.drag = 0.0f;
 	m_enhanceInfo.gravity = 0.0f; //Standard is 1
@@ -1324,6 +1393,7 @@ void Renderer::initializeParticle()
 	//m_flameInfo.direction = glm::vec3(0.0f, 10.0f, 0.0f);
 	//vertexCountDiff3 = m_flameInfo.maxParticles;
 	//emissionDiff3 = m_flameInfo.emission;
+<<<<<<< HEAD
 	m_flameInfo.width = 1.0f;
 	m_flameInfo.heigth = 1.0f;
 	m_flameInfo.lifetime = 10.0f;
@@ -1337,6 +1407,21 @@ void Renderer::initializeParticle()
 	m_flameInfo.spread = 15.0f;
 	m_flameInfo.glow = false;
 	m_flameInfo.scaleDirection = 0;
+=======
+	m_flameInfo.width = 1.2f;     
+	m_flameInfo.heigth = 1.0f;     
+	m_flameInfo.lifetime = 12.0f;     
+	m_flameInfo.maxParticles = 500; //350     
+	m_flameInfo.emission = 0.02f; //0.00001f;     
+	m_flameInfo.force = -0.04f; //5     m_flameInfo.drag = 0.0f;     
+	m_flameInfo.gravity = 0.0f; //Standard is 1     
+	m_flameInfo.seed = 1;     
+	m_flameInfo.cont = true;     
+	m_flameInfo.omnious = true;     
+	m_flameInfo.spread = 20.0f;     
+	m_flameInfo.glow = false;     
+	m_flameInfo.scaleDirection = 0; 
+>>>>>>> 9bc9ac3b4c466291d2bc65724ff163c949135c4c
 	m_flameInfo.swirl = 1;
 	m_flameInfo.fade = 1;
 	m_flameInfo.color = glm::vec3(1.0f, 0.2f, 0.0f);
@@ -1358,11 +1443,16 @@ void Renderer::initializeParticle()
 }
 
 void Renderer::updateParticles(float dt)
-{
-	//if (static_cast <Spell*>(m_spells[i])->getType() == NORMALATTACK)
+{ 
 	for (int i = 0; i < m_particleSystems.size(); i++)
 	{
-		if (static_cast <Spell*>(m_spells[i])->getType() == NORMALATTACK)
+		if (i >= m_spells.size()) continue;
+
+		Spell* spell = dynamic_cast <Spell*>(m_spells[i]);
+		
+		if (spell == nullptr) continue;
+
+		if (spell->getType() == NORMALATTACK)
 		{
 			if (m_PSinfo.emission != emissionDiff)
 			{
@@ -1386,7 +1476,7 @@ void Renderer::updateParticles(float dt)
 			thisActive = m_particleSystems[i].GetNrOfParticles();
 		}
 
-		if (static_cast <Spell*>(m_spells[i])->getType() == ENHANCEATTACK)
+		if (spell->getType() == ENHANCEATTACK)
 		{
 			if (m_enhanceInfo.emission != emissionDiff2)
 			{
@@ -1410,7 +1500,7 @@ void Renderer::updateParticles(float dt)
 			thisActive2 = m_particleSystems[i].GetNrOfParticles();
 		}
 
-		if (static_cast <Spell*>(m_spells[i])->getType() == FIRE)
+		if (spell->getType() == FIRE)
 		{
 			if (m_flameInfo.emission != emissionDiff3)
 			{

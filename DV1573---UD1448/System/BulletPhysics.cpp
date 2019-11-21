@@ -194,12 +194,19 @@ btKinematicCharacterController* BulletPhysics::createCharacter(const glm::vec3& 
 
 void BulletPhysics::removeObject(btRigidBody* body)
 {
-	delete body->getMotionState();
-	m_collisionShapes.remove(body->getCollisionShape());
-	delete body->getCollisionShape();
-	m_dynamicsWorld->removeRigidBody(body);
+	if (body)
+	{
+		if (body->getMotionState())
+			delete body->getMotionState();
+		m_collisionShapes.remove(body->getCollisionShape());
 
-	delete body;
+		if (body->getCollisionShape())
+			delete body->getCollisionShape();
+		m_dynamicsWorld->removeRigidBody(body);
+
+		delete body;
+		body = nullptr;
+	}
 }
 
 void BulletPhysics::update(float dt)
