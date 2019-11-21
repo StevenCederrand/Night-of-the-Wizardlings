@@ -82,7 +82,7 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase->m_material->ambient = glm::vec3(0.85f, 0.3f, 0.2f);
 
 	enhanceAtkBase->m_damage = 34.0f;
-	enhanceAtkBase->m_speed = 150.0f;
+	enhanceAtkBase->m_speed = 110.0f;
 	enhanceAtkBase->m_radius = 0.5f;
 	enhanceAtkBase->m_coolDown = 3.0f;
 	enhanceAtkBase->m_lifeTime = 5.0f;
@@ -316,6 +316,7 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
 		m_BulletNormalSpell.emplace_back(
 			m_bp->createObject(sphere, 10.0f, spellPos+directionVector*2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
+		spell->setBodyReference(m_BulletNormalSpell.back());
 			
 		int size = m_BulletNormalSpell.size();
 		m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
@@ -338,6 +339,7 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
 		m_BulletNormalSpell.emplace_back(
 			m_bp->createObject(sphere, 30.0f, spellPos + directionVector * 2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
+		spell->setBodyReference(m_BulletNormalSpell.back());
 
 		int size = m_BulletNormalSpell.size();
 		m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
@@ -360,6 +362,7 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.x);
 		m_BulletNormalSpell.emplace_back(
 			m_bp->createObject(sphere, 1.0f, spellPos + directionVector * 2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
+		spell->setBodyReference(m_BulletNormalSpell.back());
 
 		int size = m_BulletNormalSpell.size();
 		m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
@@ -388,9 +391,9 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 			0.15f,
 			1.0f
 		));
+		spell->setBodyReference(m_BulletFlamestrikeSpell.back());
 
 		int size = m_BulletFlamestrikeSpell.size();
-		
 		m_BulletFlamestrikeSpell.back()->setGravity(btVector3(0.0f, -60.0f, 0.0f));
 		float rndX = rand() % 1999 + 1 - 1000; rndX /= 100;
 		float rndY = rand() % 1999 + 1 - 1000; rndY /= 100;

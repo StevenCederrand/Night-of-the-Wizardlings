@@ -82,11 +82,48 @@ void NetworkPlayers::update(const float& dt)
 			glm::vec3 shieldLerp = CustomLerp(newShieldpos, spawnpos, m_lerpSpeed * dt);
 			shieldObject->setTransform(shieldLerp, p.data.rotation, glm::vec3(1.0));
 			Renderer::getInstance()->submit(shieldObject, ENEMY_SHIELD);
+			if (p.data.hasDeflectMana)
+			{
+				if (!p.wasDeflecting)
+				{
+					//kolla position uppdatering
+					shPtr->setSourcePosition(p.data.position, DeflectSound, p.data.guid);
+					shPtr->playSound(DeflectSound, p.data.guid);
+					p.wasDeflecting = true;
+				}
+			}
+			//No mana
+			else
+			{
+				if (p.deflectSoundGain > 0.0f)
+				{
+					p.deflectSoundGain -= 0.3 * dt;
+					shPtr->setSourceGain(p.deflectSoundGain, DeflectSound, p.data.guid);
+				}
+				else
+				{
+					shPtr->stopSound(DeflectSound, p.data.guid);
+				}
+			}
 		}
-		else
+		else if (p.wasDeflecting)
 		{
 			shPtr->stopSound(DeflectSound, p.data.guid);
 		}
+
+			if (p.deflectSoundGain > 0.0f)
+			{
+				p.deflectSoundGain -= 0.3 * dt;
+				shPtr->setSourceGain(p.deflectSoundGain, DeflectSound, p.data.guid);
+			}
+			else
+			{
+				shPtr->stopSound(DeflectSound, p.data.guid);
+				p.deflectSoundGain = 1.0f;
+				shPtr->setSourceGain(p.deflectSoundGain, DeflectSound, p.data.guid);
+				p.wasDeflecting = false;
+			}
+		
 
 		if (g != nullptr) {
 

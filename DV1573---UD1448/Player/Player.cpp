@@ -269,8 +269,7 @@ void Player::attack()
 			animState.casting = true;
 
 		}
-	}
-
+	}	
 	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_RIGHT))
 	{
 		//Render the shield mesh
@@ -290,22 +289,46 @@ void Player::attack()
 			if (!m_deflecting) {
 				animState.deflecting = true; //Play the animation once
 				m_mana -= 10; //This is the initial manacost for the deflect
+				
 				shPtr->playSound(DeflectSound, m_client->getMyData().guid);
+				m_deflecting = true;
 			}
-			m_mana -= 0.5f;
-			m_deflecting = true;
-			m_deflectCooldown = 0.5f;
+			m_mana -= 0.5f;			
+			m_deflectCooldown = 0.5f;		
 		}
 		else { //Player is holding down RM without any mana
-			m_deflecting = false;
+			
+			if (m_deflectSoundGain > 0.0f)
+			{
+				m_deflectSoundGain -= 0.05f;
+				shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
+			}
+			else
+			{
+				shPtr->stopSound(DeflectSound, m_client->getMyData().guid);				
+			}
 		}
 		m_rMouse = true;
 	}
-	if (Input::isMouseReleased(GLFW_MOUSE_BUTTON_RIGHT)) {
-		m_deflecting = false;
-		shPtr->stopSound(DeflectSound, m_client->getMyData().guid);
-		m_rMouse = false;
+	else if(m_deflecting)
+	{		
+		if (m_deflectSoundGain > 0.0f)
+		{
+			m_deflectSoundGain -= 0.05f;
+			shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
+		}
+		else
+		{
+			shPtr->stopSound(DeflectSound, m_client->getMyData().guid);
+			m_deflectSoundGain = 1.0f;
+			shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
+			m_deflecting = false;
+		}		
 	}
+
+	if (Input::isMouseReleased(GLFW_MOUSE_BUTTON_RIGHT)) {				
+		m_rMouse = false;	
+	}	
 
 	if (Input::isKeyHeldDown(GLFW_KEY_Q))
 	{

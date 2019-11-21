@@ -73,6 +73,7 @@ private:
 	float m_maxAttackCooldown, m_maxSpecialCooldown;
 	float m_spellSpeed = 1;
 	float m_speed;
+	float m_deflectSoundGain = 1.0f;
 	
 	bool m_rMouse; //Right Mouse
 	float m_mana;
