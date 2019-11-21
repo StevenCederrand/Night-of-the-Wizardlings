@@ -114,17 +114,18 @@ void NetworkPlayers::update(const float& dt)
 					//Just in case two sounds are playing at once, set the position of the second sound aswell
 					//We could check which sources are playing but we know there are not going
 					//to be playing more than two jump sounds at once
-					shPtr->setSourcePosition(p.data.position, JumpSound, p.data.guid, 1);
+					shPtr->setSourcePosition(p.data.position, JumpSound, p.data.guid, 1);					
+					shPtr->playSound(JumpSound, p.data.guid);	
+					p.isJumping = true;
+				}	
+				if (p.isJumping && p.data.onGround)
+				{
+					shPtr->setSourcePosition(p.data.position, LandingSound, p.data.guid, 0);
+					shPtr->setSourcePosition(p.data.position, LandingSound, p.data.guid, 1);
+					shPtr->playSound(LandingSound, p.data.guid);
+					p.isJumping = false;
+				}
 
-					//Specifically check so we don't play more than two jump sounds at once
-					//Only temporary solution
-					if ((shPtr->getSourceState(JumpSound, p.data.guid, 0)) != AL_PLAYING &&
-						(shPtr->getSourceState(JumpSound, p.data.guid, 1)) != AL_PLAYING)
-					{
-						shPtr->playSound(JumpSound, p.data.guid);
-					}
-									
-				}				
 				if (p.data.animStates.casting == true)
 				{
 					animObj->playAnimation("CastAnimation");
@@ -138,7 +139,7 @@ void NetworkPlayers::update(const float& dt)
 					animObj->playLoopAnimation("RunAnimation");
 					
 					if (!p.wasRunning)
-					{						
+					{							
 						shPtr->setSourcePosition(p.data.position, StepsSound, p.data.guid);
 						shPtr->playSound(StepsSound, p.data.guid);	
 						shPtr->setSourceLooping(true, StepsSound, p.data.guid);
@@ -146,7 +147,7 @@ void NetworkPlayers::update(const float& dt)
 					}
 				}				
 				if (p.data.animStates.idle == true)
-				{
+				{					
 					if (p.wasRunning == true)
 					{						
 						shPtr->stopSound(StepsSound, p.data.guid);
