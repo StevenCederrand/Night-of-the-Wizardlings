@@ -17,6 +17,45 @@ DestructibleObject::~DestructibleObject()
 void DestructibleObject::update(float dt)
 {
 	updateBulletRigids();
+	
+
+	if (m_destroyed && m_dstrState != 3)
+	{
+		m_lifetime += dt;
+
+		if (m_lifetime >= m_fallTime * 0.65f && m_dstrState == 0)
+		{
+			for (int i = 0; i < (int)getRigidBodies().size(); i++)
+				getRigidBodies()[i]->setDamping(1.0f, 1.0f);
+
+			m_dstrState = 1;
+		}
+
+		if (m_lifetime >= m_fallTime && m_dstrState == 1)
+		{
+			for (int i = 0; i < (int)getRigidBodies().size(); i++)
+			{
+				getRigidBodies()[i]->setGravity(btVector3(0.0f, -50.0f, 0.0f));
+				getRigidBodies()[i]->setDamping(0.5f, 0.5f);
+			}
+
+			m_dstrState = 2;
+		}
+
+		if (m_lifetime >= 10.0f && m_dstrState == 2)
+		{
+			for (int i = 0; i < (int)getRigidBodies().size(); i++)
+			{
+				//removeBody(i);
+				//setWorldPosition(glm::vec3(-999));
+				m_dstrState = 3;
+				getRigidBodies()[i]->setActivationState(false);
+				getRigidBodies()[i]->forceActivationState(false);
+			}
+		}
+	}
+
+
 }
 
 void DestructibleObject::loadDestructible(std::string fileName, float size)
@@ -101,10 +140,10 @@ void DestructibleObject::loadDestructible(std::string fileName, float size)
 void DestructibleObject::loadBasic(std::string name)
 {
 	m_polygonFace.resize(4);
-	m_polygonFace[0] = glm::vec2(-5.0f, -4.0f);
-	m_polygonFace[1] = glm::vec2(4.0f, -4.0f);
-	m_polygonFace[2] = glm::vec2(4.0f, 2.0f);
-	m_polygonFace[3] = glm::vec2(-5.0f, 2.0f);
+	m_polygonFace[0] = glm::vec2(-1.0f, -2.0f);
+	m_polygonFace[1] = glm::vec2(1.0f, -2.0f);
+	m_polygonFace[2] = glm::vec2(1.0f, 8.0f);
+	m_polygonFace[3] = glm::vec2(-1.0f, 8.0f);
 	m_scale = 0.05f;
 
 	int count = 0;
@@ -121,6 +160,7 @@ void DestructibleObject::loadBasic(std::string name)
 	int vi = 0;
 	int ni = 0;
 	int ti = 0;
+	m_scale = 1.0f;
 	float scale = m_scale;
 
 	// Top

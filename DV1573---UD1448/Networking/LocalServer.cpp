@@ -238,6 +238,9 @@ void LocalServer::processAndHandlePackets()
 			statePacket.Serialize(true, stateStream);
 			m_serverPeer->Send(&stateStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, packet->systemAddress, false);
 
+
+			sendReadyInfoToPlayer(&player);
+
 			break;
 		}
 
@@ -334,6 +337,9 @@ void LocalServer::processAndHandlePackets()
 			statePacket.currentState = m_serverInfo.currentState;
 			statePacket.Serialize(true, stateStream);
 			m_serverPeer->Send(&stateStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, packet->systemAddress, false);
+
+			sendReadyInfoToPlayer(&player);
+
 			break;
 		}
 		case ID_DISCONNECTION_NOTIFICATION:
@@ -370,6 +376,7 @@ void LocalServer::processAndHandlePackets()
 			}
 
 			if (playerWasAccepted) {
+				unreadyEveryPlayer();
 				logTrace("[Server] Player disconnected with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
 				m_serverInfo.connectedPlayers--;
 				m_serverPeer->SetOfflinePingResponse((const char*)&m_serverInfo, sizeof(ServerInfo));
@@ -393,6 +400,7 @@ void LocalServer::processAndHandlePackets()
 				continue;
 
 			if (playerWasAccepted) {
+				unreadyEveryPlayer();
 				logTrace("[Server] Lost connection with {0}\nWith GUID: {1}", packet->systemAddress.ToString(), packet->guid.ToString());
 				m_serverInfo.connectedPlayers--;
 				m_serverPeer->SetOfflinePingResponse((const char*)& m_serverInfo, sizeof(ServerInfo));
@@ -622,6 +630,36 @@ void LocalServer::processAndHandlePackets()
 			break;
 		}
 
+		case READY_PACKET:
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			ReadyPacket readyPacket;
+			readyPacket.Serialize(false, bsIn);
+
+			auto* player = getSpecificPlayer(readyPacket.guid);
+
+			if (player != nullptr) {
+				player->isReady = true;
+
+				sendReadyInfoToAllPlayers();
+
+				if (m_serverInfo.currentState == NetGlobals::SERVER_STATE::WaitingForPlayers) {
+
+					if (getNumberOfReadyPlayers() >= getNumberOfPlayingPlayers()) {
+						stateChange(NetGlobals::SERVER_STATE::GameIsStarting);
+					}
+
+				}
+
+
+			}
+			else
+			{
+				logError("[Server] Someone that is not registered on the server is apparently ready?");
+			}
+
+			break;
+		}
 
 		default:
 		{
@@ -1252,6 +1290,43 @@ void LocalServer::destroyAllPickups()
 	m_activePickups.clear();
 }
 
+void LocalServer::sendReadyInfoToPlayer(const PlayerPacket* player)
+{
+	ReadyPlayersCount rdyPlayersPacket;
+	rdyPlayersPacket.numberOfReadyPlayers = getNumberOfReadyPlayers();
+
+
+	RakNet::BitStream playerCountStream;
+	playerCountStream.Write((RakNet::MessageID)NUMBER_OF_READY_PLAYERS);
+	rdyPlayersPacket.Serialize(true, playerCountStream);
+	m_serverPeer->Send(&playerCountStream, IMMEDIATE_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, player->guid, false);
+	
+}
+
+void LocalServer::sendReadyInfoToAllPlayers()
+{
+	ReadyPlayersCount rdyPlayersPacket;
+	rdyPlayersPacket.numberOfReadyPlayers = getNumberOfReadyPlayers();
+
+	RakNet::BitStream playerCountStream;
+	playerCountStream.Write((RakNet::MessageID)NUMBER_OF_READY_PLAYERS);
+	rdyPlayersPacket.Serialize(true, playerCountStream);
+	sendStreamToAllClients(playerCountStream, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
+}
+
+void LocalServer::unreadyEveryPlayer()
+{
+	for(size_t i = 0; i < m_connectedPlayers.size(); i++){
+		PlayerPacket* player = &m_connectedPlayers[i];
+		player->isReady = false;
+	}
+
+	RakNet::BitStream stream;
+	stream.Write((RakNet::MessageID)UNREADY_PACKET_FROM_SERVER);
+	sendStreamToAllClients(stream, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
+
+}
+
 PickupType LocalServer::getRandomPickupType()
 {
 
@@ -1336,6 +1411,28 @@ const ServerInfo& LocalServer::getMySeverInfo() const
 	return m_serverInfo;
 }
 
+int LocalServer::getNumberOfReadyPlayers() const
+{
+	int count = 0;
+	for (size_t i = 0; i < m_connectedPlayers.size(); i++) {
+		if (m_connectedPlayers[i].isReady)
+			count++;
+	}
+
+	return count;
+}
+
+int LocalServer::getNumberOfPlayingPlayers() const
+{
+	int count = 0;
+	for (size_t i = 0; i < m_connectedPlayers.size(); i++) {
+		if (!m_connectedPlayers[i].Spectator)
+			count++;
+	}
+
+	return count;
+}
+
 unsigned char LocalServer::getPacketID(RakNet::Packet* p)
 {
 	if ((unsigned char)p->data[0] == ID_TIMESTAMP)
@@ -1400,6 +1497,7 @@ void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 	sendStreamToAllClients(stream, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
 
 	if (newState == NetGlobals::SERVER_STATE::WaitingForPlayers) {
+		unreadyEveryPlayer();
 		respawnPlayers();
 		resetScores();
 		destroyAllPickups();
@@ -1430,6 +1528,7 @@ void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 		respawnPlayers();
 		resetPlayerBuffs();
 		destroyAllPickups();
+		unreadyEveryPlayer();
 		m_queuedPickups.clear();
 		m_timedGameInEndStateTimer.restart();
 		m_timedGameInEndStateTimer.start();

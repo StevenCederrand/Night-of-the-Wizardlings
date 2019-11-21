@@ -11,6 +11,10 @@ enum PlayerEvents {
 	SessionOver,
 	Deflected,
 	WallGotDestroyed,
+	PlayerReady,
+	GameStarted,
+	GameEnded,
+	Warmup,
 	None
 
 };

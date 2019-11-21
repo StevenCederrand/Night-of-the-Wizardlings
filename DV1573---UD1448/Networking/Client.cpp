@@ -66,6 +66,7 @@ void Client::destroy()
 		resetPlayerData();
 		m_initialized = false;
 		m_serverOwner = false;
+		m_numberOfReadyPlayers = 0;
 		RakNet::RakPeerInterface::DestroyInstance(m_clientPeer);
 	}
 }
@@ -237,6 +238,7 @@ void Client::processAndHandlePackets()
 			logTrace("[Client] Connected and accepted by server! Welcome!.\n");
 			m_serverAddress = packet->systemAddress;
 			m_isConnectedToAnServer = true;
+			m_myPlayerDataPacket.isReady = false;
 			m_myPlayerDataPacket.guid = m_clientPeer->GetMyGUID();
 			SoundHandler::getInstance()->setPlayerGUIDs();
 		}
@@ -348,6 +350,9 @@ void Client::processAndHandlePackets()
 				if (pE != nullptr) {
 					playerName = std::string(pE->data.userName);
 					pE->flag = NetGlobals::THREAD_FLAG::Remove;
+
+					if (m_serverOwner && m_connectedPlayers.size() == 0)
+						m_myPlayerDataPacket.isReady = false;
 				}
 			}
 
@@ -457,19 +462,36 @@ void Client::processAndHandlePackets()
 			   (for example changing the state from "Waiting for other players" to "Starting the actual game") this package is received
 			   so every client is aware of the server state change */
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			m_myPlayerDataPacket.isReady = false;
 
 			m_serverState.Serialize(false, bsIn);
 			if (m_serverState.currentState == NetGlobals::SERVER_STATE::WaitingForPlayers) {
 				logTrace("[Client]******** WARMUP ********");
 			}
 			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GameIsStarting) {
+				
 				logTrace("[Client]******** GAME IS STARTING ********");
 			}
 			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GameInSession) {
 				logTrace("[Client]******** GAME HAS STARTED ********");
+
+				// Add this to the event list
+				{
+					std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+					m_playerEvents.push_back(PlayerEvents::GameStarted);
+				}
+
 			}
 			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GameFinished) {
+			
 				logTrace("[Client]******** GAME HAS ENDED ********");
+
+				// Add this to the event list
+				{
+					std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+					m_playerEvents.push_back(PlayerEvents::GameEnded);
+				}
+
 
 			}
 		}
@@ -545,7 +567,7 @@ void Client::processAndHandlePackets()
 						}
 						else {
 							/* Just as the "PLAYER_UPDATE" this will resolve itself a couple of frames later */
-							logWarning("[Client] Client skipped a update on a spell due to sync problems. (Should resolve itself with time)");
+							//logWarning("[Client] Client skipped a update on a spell due to sync problems. (Should resolve itself with time)");
 						}
 					}
 					break;
@@ -943,6 +965,29 @@ void Client::processAndHandlePackets()
 
 			break;
 		}
+		case NUMBER_OF_READY_PLAYERS:
+		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			ReadyPlayersCount readyPlayersCount;
+			readyPlayersCount.Serialize(false, bsIn);
+
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+				m_playerEvents.push_back(PlayerEvents::PlayerReady);
+			}
+
+			m_numberOfReadyPlayers = readyPlayersCount.numberOfReadyPlayers;
+
+			break;
+		}
+		
+		case UNREADY_PACKET_FROM_SERVER:
+		{
+			m_myPlayerDataPacket.isReady = false;
+			m_numberOfReadyPlayers = 0;
+			break;
+		}
 
 		default:
 		{
@@ -1095,15 +1140,16 @@ void Client::updateNetworkEntities(const float& dt)
 
 }
 
-void Client::sendStartRequestToServer()
+void Client::sendReadyRequestToServer()
 {
-	if (m_serverOwner && m_initialized) {
+	if (!m_myPlayerDataPacket.isReady && m_initialized && m_isConnectedToAnServer && m_spectating == false) {
 		RakNet::BitStream stream;
-		stream.Write((RakNet::MessageID)SERVER_CHANGE_STATE);
-		ServerStateChange stateChange;
-		stateChange.currentState = NetGlobals::SERVER_STATE::GameIsStarting;
-		stateChange.Serialize(true, stream);
-		m_clientPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED, 0, m_serverAddress, false);
+		m_myPlayerDataPacket.isReady = true;
+		stream.Write((RakNet::MessageID)READY_PACKET);
+		ReadyPacket packet;
+		packet.guid = m_myPlayerDataPacket.guid.rakNetGuid;
+		packet.Serialize(true, stream);
+		m_clientPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, m_serverAddress, false);
 	}
 }
 
@@ -1262,6 +1308,21 @@ const PlayerEvents Client::readNextEvent()
 const std::vector<DestructionPacket>& Client::getDestructedWalls()
 {
 	return m_destroyedWalls;
+}
+
+const int& Client::getNumberOfReadyPlayers() const
+{
+	return m_numberOfReadyPlayers;
+}
+
+const int Client::getNumberOfPlayers() const
+{
+	if(m_spectating == true)
+		return static_cast<int>(m_connectedPlayers.size());
+	else
+		return static_cast<int>(m_connectedPlayers.size()) + 1;
+
+	
 }
 
 

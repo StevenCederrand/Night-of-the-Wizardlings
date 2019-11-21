@@ -26,6 +26,7 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_directionVector = glm::vec3(0, 0, 0);
 	m_moveDir = glm::vec3(0.0f);
 	m_isWalking = false;
+	m_isJumping = false;
 
 	m_spellhandler = spellHandler;
 	m_mana = 100.0f; //A  players mana pool
@@ -61,11 +62,11 @@ void Player::update(float deltaTime)
 
 	if (m_client->isConnectedToSever()) {
 		m_client->updatePlayerData(this);
+	
+		if (Input::isKeyReleased(GLFW_KEY_F1)) {
+			m_client->sendReadyRequestToServer();
+		}
 	}
-	if (Input::isKeyReleased(GLFW_KEY_E)) {
-		m_client->sendStartRequestToServer();
-	}
-
 	// ENHANCE ATTACK
 	if (!m_enhanceAttack.isComplete())
 	{
@@ -120,7 +121,7 @@ void Player::updateListenerProperties()
 	shPtr->setSourcePosition(m_playerPosition, EnhanceAttackSound, m_client->getMyData().guid);
 	shPtr->setSourcePosition(m_playerPosition, StepsSound, m_client->getMyData().guid);
 	shPtr->setSourcePosition(m_playerPosition, JumpSound, m_client->getMyData().guid);
-	shPtr->setSourcePosition(m_playerPosition, JumpSound, m_client->getMyData().guid, 1);
+	shPtr->setSourcePosition(m_playerPosition, LandingSound, m_client->getMyData().guid);
 	shPtr->setSourcePosition(m_playerPosition, PickupGraveyardSound);
 	shPtr->setSourceLooping(true, StepsSound, m_client->getMyData().guid);
 }
@@ -169,18 +170,25 @@ void Player::move(float deltaTime)
 				m_character->jump(btVector3(0.0f, 16.0f, 0.0f));
 				animState.jumping = true;
 				sh->playSound(JumpSound, m_client->getMyData().guid);
-			}
-
-			if (!m_isWalking || !m_character->onGround())
-			{
-				sh->stopSound(StepsSound, m_client->getMyData().guid);
-			}
-			else if(m_character->onGround())
-			{
-				sh->playSound(StepsSound, m_client->getMyData().guid);
-			}
-			m_isWalking = false;	
+				m_isJumping = true;
+			}			
 		}
+
+		if (m_isJumping && m_character->onGround())
+		{
+			sh->playSound(LandingSound, m_client->getMyData().guid);
+			m_isJumping = false;
+		}
+
+		if (!m_isWalking || !m_character->onGround())
+		{
+			sh->stopSound(StepsSound, m_client->getMyData().guid);
+		}
+		else if(m_character->onGround())
+		{
+			sh->playSound(StepsSound, m_client->getMyData().guid);
+		}
+		m_isWalking = false;			
 	}
 	
 	// Make sure moving is a constant speed
