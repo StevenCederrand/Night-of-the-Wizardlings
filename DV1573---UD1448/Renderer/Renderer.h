@@ -81,6 +81,7 @@ private:
 	SkyBox* m_skyBox;
 	DeflectRender* m_deflectBox;
 	Timer m_timer;
+	SpellHandler* m_spellHandler;
 
 	//Store gameobjects directly to the renderer
 	std::vector<GameObject*> m_staticObjects;
@@ -173,10 +174,11 @@ public:
 	void submit(GameObject* gameObject, RENDER_TYPE objType);
 	void submit2DHUD(HudObject* hud);
 	void submitSkybox(SkyBox* skybox);
+	void submitSpellhandler(SpellHandler* spellhandler);
 	void removeRenderObject(GameObject* gameObject, RENDER_TYPE objType); //Remove an object from the dynamic array
 	void renderDeflectBox(DeflectRender* deflectBox);
 	void renderSkybox();
-	void render(DeflectRender* m_deflectBox, SpellHandler* m_spellHandler);
+	void render(DeflectRender* m_deflectBox);
 	//void renderSpell();
 	void renderHUD();
 	void renderDebug();
