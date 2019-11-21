@@ -27,6 +27,14 @@ PlayState::PlayState(bool spectator)
 		AnimationMesh->loadMesh("ANIM.mesh");
 		delete AnimationMesh;
 
+		GameObject* fpsShield = new ShieldObject("PlayerShield");
+		fpsShield->loadMesh("ShieldMeshFPS.mesh");
+		delete fpsShield;
+
+		GameObject* enemyShield = new EnemyShieldObject("enemyShield");
+		enemyShield->loadMesh("EnemyShieldMesh.mesh");
+		delete enemyShield;
+
 		m_spellHandler = new SpellHandler(m_bPhysics);
 		m_spellHandler->setOnHitCallback(std::bind(&PlayState::onSpellHit_callback, this));
 
@@ -56,14 +64,6 @@ PlayState::PlayState(bool spectator)
 	m_objects[m_objects.size() - 1]->loadMesh("Academy.mesh");
 	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
 
-<<<<<<< HEAD
-	//m_objects.push_back(new Deflec("PlayerShield"));
-	//m_objects[m_objects.size() - 1]->loadMesh("ShieldMesh.mesh");
-	//m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 13.0f, 6.0f));
-	//renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::SHIELD);
-
-=======
->>>>>>> 9bc9ac3b4c466291d2bc65724ff163c949135c4c
 	//Create a pointlight
 	Pointlight* pointLight = new Pointlight(glm::vec3(10.0f, 13.0f, 6.0f), glm::vec3(1));
 
@@ -99,12 +99,6 @@ PlayState::PlayState(bool spectator)
 	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
 
 	startY = SCREEN_HEIGHT / 2;
-<<<<<<< HEAD
-	// DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP - DESTRUCTION TEMP
-
-	// TODO: loader function for this XDa
-=======
->>>>>>> 9bc9ac3b4c466291d2bc65724ff163c949135c4c
 
 	// Destuction
 	loadDestructables();
@@ -135,13 +129,8 @@ void PlayState::loadDestructables()
 	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
 	Renderer::getInstance()->submit(m_objects.back(), STATIC);
 
-<<<<<<< HEAD
-	m_objects.push_back(new DestructibleObject(&m_dstr, m_objects.size()));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall2.mesh", 0.15);
-=======
 	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
 	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall2.mesh", 0.15f);
->>>>>>> 9bc9ac3b4c466291d2bc65724ff163c949135c4c
 	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
 	Renderer::getInstance()->submit(m_objects.back(), STATIC);
 
@@ -214,13 +203,8 @@ void PlayState::loadDestructables()
 	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
 	Renderer::getInstance()->submit(m_objects.back(), STATIC);
 
-<<<<<<< HEAD
-	m_objects.push_back(new DestructibleObject(&m_dstr, m_objects.size()));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTMazeWall2.mesh", 0.25);
-=======
 	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
 	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTMazeWall2.mesh", 0.25f);
->>>>>>> 9bc9ac3b4c466291d2bc65724ff163c949135c4c
 	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
 	Renderer::getInstance()->submit(m_objects.back(), STATIC);
 
@@ -259,7 +243,7 @@ void PlayState::loadDestructables()
 	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
 	Renderer::getInstance()->submit(m_objects.back(), STATIC);
 
-	
+
 }
 
 PlayState::~PlayState()
@@ -274,17 +258,12 @@ PlayState::~PlayState()
 
 	m_pointlights.clear();
 	m_objects.clear();
-	
+
 	delete m_skybox;
 	delete m_player;
 	delete m_bPhysics;
 	delete m_spellHandler;
 	delete m_camera;
-<<<<<<< HEAD
-=======
-	delete m_deflectBox;
-
->>>>>>> 9bc9ac3b4c466291d2bc65724ff163c949135c4c
 	if (LocalServer::getInstance()->isInitialized()) {
 		LocalServer::getInstance()->destroy();
 	}
@@ -358,15 +337,9 @@ void PlayState::update_isPlaying(const float& dt)
 			case PlayerEvents::Died:
 			{
 				logWarning("[Event system] Died");
-<<<<<<< HEAD
 				//Update the HP bar
-				m_hudHandler.getHudObject(BAR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
-				m_hudHandler.getHudObject(CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
-=======
-				//Update the HP bar 
 				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
->>>>>>> 9bc9ac3b4c466291d2bc65724ff163c949135c4c
 				const PlayerPacket* shooter = clientPtr->getLatestPlayerThatHitMe();
 				if (shooter != nullptr) {
 					m_lastPositionOfMyKiller = shooter->position;
@@ -656,7 +629,7 @@ void PlayState::HUDHandler() {
 
 	if (m_player == nullptr)
 		return;
-	
+
 	//Mana bar
 	m_hudHandler.getHudObject(BAR_MANA)->setXClip(m_player->getMana() / 100.0f);
 	m_hudHandler.getHudObject(CROSSHAIR_MANA)->setYClip(m_player->getMana() / 100.0f);

@@ -9,6 +9,7 @@
 #define ANIMATION "Basic_Animation"
 #define DEBUG_SHADER "Debug_Forward"
 #define FRESNEL "Fresnel_Shader"
+#define ENEMYSHIELD "Enemy_Shield"
 //#define BLOOM "Bloom_Shader"
 //#define BLUR "Blur_Shader"
 //#define BLOOM_BLUR "BloomBlur_Shader"
@@ -32,6 +33,7 @@
 #include "NotificationStructure.h"
 #include <Text/FreeType.h>
 #include <GameObject/ShieldObject.h>
+#include <GameObject/EnemyShieldObject.h>
 #include <GFX/Pointlight.h>
 #include <Particles/Particles.h>
 #include <Particles/ParticleBuffers.h>
@@ -65,6 +67,7 @@ enum RENDER_TYPE {
 	SHIELD,
 	FIRESPELL,
 	POINTLIGHT_SOURCE,
+	ENEMY_SHIELD
 };
 
 class Renderer
@@ -90,7 +93,7 @@ private:
 	std::vector<PLIGHT> m_lights;
 	std::vector<GameObject*> m_pickups;
 	std::vector<GameObject*> m_shieldObject;
-	std::vector<GameObject*> m_deflectObject;
+	std::vector<GameObject*> m_enemyShieldObject;
 
 	std::unordered_map<GLuint, std::vector<HudObject*>> m_2DHudMap;
 

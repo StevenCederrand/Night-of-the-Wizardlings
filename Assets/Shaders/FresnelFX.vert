@@ -27,4 +27,3 @@ void main() {
     f_UV.y = -uv.y;
     f_normal = normalize(mat3(transpose(inverse(modelMatrix))) * normal);
 }
-

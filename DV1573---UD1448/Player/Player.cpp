@@ -29,7 +29,7 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_isJumping = false;
 
 	m_spellhandler = spellHandler;
-	m_mana = 10000.0f; //A  players mana pool
+	m_mana = 100.0f; //A  players mana pool
 
 	m_maxAttackCooldown = m_spellhandler->getAttackBase()->m_coolDown;
 	m_maxSpecialCooldown = m_spellhandler->getEnhAttackBase()->m_coolDown;
@@ -270,19 +270,19 @@ void Player::attack()
 	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_RIGHT))
 	{
 		//Render the shield mesh
-		GameObject* shieldObject = new ShieldObject("playerShield");
-		shieldObject->loadMesh("ShieldMeshFPS.mesh");
-
-		Transform m_fpsTrans;
-		m_fpsTrans.position = m_playerCamera->getCamPos();
-		m_fpsTrans.rotation = glm::quat(glm::vec3(glm::radians(m_playerCamera->getPitch()),
-			-glm::radians(m_playerCamera->getYaw() + 90.0), 0.0));
-
-		shieldObject->setTransform(m_fpsTrans);
-		Renderer::getInstance()->submit(shieldObject, SHIELD);
 
 		//Actually deflecting
 		if (m_mana > 10) {
+			GameObject* shieldObject = new ShieldObject("playerShield");
+			shieldObject->loadMesh("ShieldMeshFPS.mesh");
+
+			Transform m_fpsTrans;
+			m_fpsTrans.position = m_playerCamera->getCamPos();
+			m_fpsTrans.rotation = glm::quat(glm::vec3(glm::radians(m_playerCamera->getPitch()),
+				-glm::radians(m_playerCamera->getYaw() + 90.0), 0.0));
+
+			shieldObject->setTransform(m_fpsTrans);
+			Renderer::getInstance()->submit(shieldObject, SHIELD);
 			if (!m_deflecting) {
 				animState.deflecting = true; //Play the animation once
 				m_mana -= 10; //This is the initial manacost for the deflect

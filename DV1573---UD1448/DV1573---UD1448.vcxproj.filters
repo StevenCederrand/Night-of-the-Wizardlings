@@ -65,6 +65,7 @@
     <ClCompile Include="GameObject\MapObject.cpp" />
     <ClCompile Include="GameObject\ShieldObject.cpp" />
     <ClCompile Include="GFX\Pointlight.cpp" />
+    <ClCompile Include="GameObject\EnemyShieldObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
@@ -150,7 +151,6 @@
     <ClInclude Include="Pickups\PickupTypes.h" />
     <ClInclude Include="System\Randomizer.h" />
     <ClInclude Include="System\DeltaTime.h" />
-    <ClInclude Include="Renderer\DeflectRender.h" />
     <ClInclude Include="Networking\PlayerEvents.h" />
     <ClInclude Include="Renderer\NotificationStructure.h" />
     <ClInclude Include="GameObject\MapObject.h" />
@@ -158,8 +158,8 @@
     <ClInclude Include="GameObject\ShieldObject.h" />
     <ClInclude Include="GameObject\ObjectTypes.h" />
     <ClInclude Include="Renderer\PickupNotificationStructure.h" />
-    <ClInclude Include="Deflect\DeflectRender.h" />
     <ClInclude Include="GFX\Pointlight.h" />
+    <ClInclude Include="GameObject\EnemyShieldObject.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

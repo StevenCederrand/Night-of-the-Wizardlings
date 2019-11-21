@@ -183,6 +183,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DebugDrawer\DebugDrawer.cpp" />
+    <ClCompile Include="GameObject\EnemyShieldObject.cpp" />
     <ClCompile Include="GameObject\ShieldObject.cpp" />
     <ClCompile Include="Destruction\DelaunayGenerator.cpp" />
     <ClCompile Include="Destruction\DstrGenerator.cpp" />
@@ -299,6 +300,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
+    <ClInclude Include="GameObject\EnemyShieldObject.h" />
     <ClInclude Include="GameObject\ShieldObject.h" />
     <ClInclude Include="Destruction\DelaunayGenerator.h" />
     <ClInclude Include="Destruction\DstrGenerator.h" />
