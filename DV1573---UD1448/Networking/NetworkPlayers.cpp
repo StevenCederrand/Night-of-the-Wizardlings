@@ -80,27 +80,29 @@ void NetworkPlayers::update(const float& dt)
 
 		if (p.data.inDeflectState)
 		{
-			if (!p.wasDeflecting)
+			if (p.data.hasDeflectMana)
 			{
-				//kolla position uppdatering
-				shPtr->setSourcePosition(p.data.position, DeflectSound, p.data.guid);
-				shPtr->playSound(DeflectSound, p.data.guid);
-				p.wasDeflecting = true;
+				if (!p.wasDeflecting)
+				{
+					//kolla position uppdatering
+					shPtr->setSourcePosition(p.data.position, DeflectSound, p.data.guid);
+					shPtr->playSound(DeflectSound, p.data.guid);
+					p.wasDeflecting = true;
+				}
 			}
-			
-			//Just fading out until we know we are out of mana on the network
-			if (p.wasDeflecting)
-			{
+			//No mana
+			else 
+			{				
 				if (p.deflectSoundGain > 0.0f)
 				{
-					p.deflectSoundGain -= 0.2 * dt;
+					p.deflectSoundGain -= 0.3 * dt;
 					shPtr->setSourceGain(p.deflectSoundGain, DeflectSound, p.data.guid);
 				}
 				else
 				{
 					shPtr->stopSound(DeflectSound, p.data.guid);					
-				}
-			}
+				}				
+			}	
 		}
 		else if (p.wasDeflecting)
 		{

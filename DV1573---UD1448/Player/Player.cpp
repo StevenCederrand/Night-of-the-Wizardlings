@@ -269,8 +269,7 @@ void Player::attack()
 			animState.casting = true;
 
 		}
-	}
-
+	}	
 	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_RIGHT))
 	{
 		//Actually deflecting
