@@ -50,7 +50,9 @@ PlayState::PlayState(bool spectator)
 
 	m_skybox = new SkyBox();
 	m_skybox->prepareBuffers();
+
 	renderer->submitSkybox(m_skybox);
+	renderer->submitSpellhandler(m_spellHandler);
 
 	m_objects.push_back(new MapObject("Academy_Map"));
 	m_objects[m_objects.size() - 1]->loadMesh("Academy.mesh");
@@ -593,7 +595,7 @@ void PlayState::update_isSpectating(const float& dt)
 
 void PlayState::render()
 {	
-	Renderer::getInstance()->render(m_deflectBox, m_spellHandler);
+	Renderer::getInstance()->render(m_deflectBox);
 	//Renderer::getInstance()->renderDebug();
 }
 
