@@ -598,8 +598,16 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 		unsigned int seed = m_dstr->seedRand();
 		
 		m_dstr->Destroy(dstrobj, glm::vec2(hitpoint.getX(), hitpoint.getY()), spellobj->getDirection());
-		m_dstr->pushPacket(glm::vec2(hitpoint.getX(), hitpoint.getY()), spellobj->getDirection(), dstrobj->getIndex(), seed);
-
+		
+		if (spellobj->getBodyReference() != nullptr)
+		{
+			float rndX = rand() % 1999 + 1 - 1000; rndX /= 1000;
+			float rndY = rand() % 1999 + 1 - 1000; rndY /= 1000;
+			float rndZ = rand() % 1999 + 1 - 1000; rndZ /= 1000;
+			spellobj->getBodyReference()->setLinearVelocity(btVector3(rndX, rndY, rndZ) * 35);
+		}
+		
+	
 		//if (spellobj->getType() != FLAMESTRIKE)
 		//	spellobj->setTravelTime(0.0f);
 
