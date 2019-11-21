@@ -22,8 +22,9 @@ out vec4 brightColor;
 vec3 GLOBAL_lightDirection = vec3(0.2f, -0.7f, 0.4f);       // 1 Directional light
 vec3 GLOBAL_lightColor = normalize(vec3(1, 1, 1));          // Directional light color (white)
 
-float ambientStr = 0.35f;                                    // Global light strength (ambient)
-float brightnessMod = 0.7f;                                 // Modifier for brightness (textures)
+float ambientStr = 0.35f;      // Global light strength (ambient)
+float brightnessMod = 0.7f;    // Modifier for brightness (textures)
+float pointLightMod = 2.2f;    // Modifier for brightness (point light), hardcoded temp needs fix
 
 uniform vec3 CameraPosition;
 
@@ -45,7 +46,8 @@ vec3 calcDirLight(vec3 normal, vec3 diffuseColor);
 vec3 grayscaleColour(vec3 col);
 
 void main() {
-    vec3 emissive = Ambient_Color; // To remove errors
+    vec3 emissive = Ambient_Color; // Temp used as emmisve, should rename all ambient names to emmisive. 
+    //Makes the material full solid color (basically fully lit). Needs bloom for best effect.
 
     // Ambient light
     vec3 ambientLight = Diffuse_Color * ambientStr;     // Material color
@@ -72,9 +74,10 @@ void main() {
             continue;
         }
         else {
-            pointLights += calcPointLights(pLights[lightIndex], f_normal, f_position.xyz, distance, diffuseColor);
+            pointLights += calcPointLights(pLights[lightIndex], f_normal, f_position.xyz, distance, diffuseColor) * pointLightMod;
         }
     }
+    
 
     // Resulting light
     vec3 result = ambientLight + directionalLight + pointLights + emissive; // We see light, so add only and all the lights together to get color

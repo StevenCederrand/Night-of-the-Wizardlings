@@ -104,7 +104,7 @@ PlayState::PlayState(bool spectator)
 	m_hideHUD = false;
 }
 
-// TODO: loader function for this XD
+// Might change these Pepega constructors later if feeling cute
 void PlayState::loadDestructables()
 {
 	Renderer* renderer = Renderer::getInstance();
@@ -118,126 +118,67 @@ void PlayState::loadDestructables()
 		}
 	}
 
-	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall1.mesh", 0.15f);
-	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	Renderer::getInstance()->submit(m_objects.back(), STATIC);
 
-	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall2.mesh", 0.15f);
-	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+	BGLoader meshLoader; // The file loader
+	// Wall desctructibles
+	meshLoader.LoadMesh(MESHPATH + "DSTRWalls.mesh");
+	for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
+	{
+		m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
 
-	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall3.mesh", 0.15f);
-	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+		static_cast<DestructibleObject*>(m_objects.back())->loadDestructible(
+			meshLoader.GetVertices(i),
+			meshLoader.GetMeshName(i),
+			meshLoader.GetMaterial(i),
+			meshLoader.GetAlbedo(i),
+			meshLoader.GetTransform(i),
+			0.15f
+		);
 
-	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall4.mesh", 0.15f);
-	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+		m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+		Renderer::getInstance()->submit(m_objects.back(), STATIC);
+	}
+	meshLoader.Unload();
 
-	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall5.mesh", 0.15f);
-	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+	// Maze desctructibles
+	meshLoader.LoadMesh(MESHPATH + "DSTRMaze.mesh");
+	for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
+	{
+		m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
 
-	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall6.mesh", 0.15f);
-	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+		static_cast<DestructibleObject*>(m_objects.back())->loadDestructible(
+			meshLoader.GetVertices(i),
+			meshLoader.GetMeshName(i),
+			meshLoader.GetMaterial(i),
+			meshLoader.GetAlbedo(i),
+			meshLoader.GetTransform(i),
+			0.25f
+		);
 
-	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall7.mesh", 0.15f);
-	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+		m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+		Renderer::getInstance()->submit(m_objects.back(), STATIC);
+	}
+	meshLoader.Unload();
 
-	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall8.mesh", 0.15f);
-	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+	// Pillar destructibles
+	meshLoader.LoadMesh(MESHPATH + "DSTRPillars.mesh");
+	for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
+	{
+		m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
 
-	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall9.mesh", 0.15f);
-	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+		static_cast<DestructibleObject*>(m_objects.back())->loadDestructible(
+			meshLoader.GetVertices(i),
+			meshLoader.GetMeshName(i),
+			meshLoader.GetMaterial(i),
+			meshLoader.GetAlbedo(i),
+			meshLoader.GetTransform(i),
+			1.0f
+		);
 
-	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall10.mesh", 0.15f);
-	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	Renderer::getInstance()->submit(m_objects.back(), STATIC);
-
-	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall11.mesh", 0.15f);
-	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	Renderer::getInstance()->submit(m_objects.back(), STATIC);
-
-	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall12.mesh", 0.15f);
-	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	Renderer::getInstance()->submit(m_objects.back(), STATIC);
-
-	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall13.mesh", 0.15f);
-	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	Renderer::getInstance()->submit(m_objects.back(), STATIC);
-
-	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall14.mesh", 0.15f);
-	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	Renderer::getInstance()->submit(m_objects.back(), STATIC);
-
-	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall15.mesh", 0.15f);
-	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	Renderer::getInstance()->submit(m_objects.back(), STATIC);
-
-	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTMazeWall1.mesh", 0.25f);
-	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	Renderer::getInstance()->submit(m_objects.back(), STATIC);
-
-	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTMazeWall2.mesh", 0.25f);
-	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	Renderer::getInstance()->submit(m_objects.back(), STATIC);
-
-	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTMazeWall3.mesh", 0.25f);
-	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	Renderer::getInstance()->submit(m_objects.back(), STATIC);
-
-	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTMazeWall4.mesh", 0.25f);
-	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	Renderer::getInstance()->submit(m_objects.back(), STATIC);
-
-	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTMazeWall5.mesh", 0.25f);
-	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	Renderer::getInstance()->submit(m_objects.back(), STATIC);
-
-	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTPillar1.mesh", 1.00f);
-	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	Renderer::getInstance()->submit(m_objects.back(), STATIC);
-
-	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTPillar2.mesh", 1.00f);
-	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	Renderer::getInstance()->submit(m_objects.back(), STATIC);
-
-	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTPillar3.mesh", 1.00f);
-	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	Renderer::getInstance()->submit(m_objects.back(), STATIC);
-
-	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
-	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTPillar4.mesh", 1.00f);
-	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	Renderer::getInstance()->submit(m_objects.back(), STATIC);
-
-	
+		m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+		Renderer::getInstance()->submit(m_objects.back(), STATIC);
+	}
+	meshLoader.Unload();
 }
 
 PlayState::~PlayState()

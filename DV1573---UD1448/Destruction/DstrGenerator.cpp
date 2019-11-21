@@ -4,8 +4,8 @@
 DstrGenerator::DstrGenerator()
 {
 	m_seed = 0;
-	m_breakPoints = 15;
-	m_breakAreaRadius = 1.6f;
+	m_breakPoints = 16;
+	m_breakAreaRadius = 1.8f;
 	m_randomPoints.resize(m_breakPoints);
 	initPoints();
 }
@@ -227,8 +227,8 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			// TODO: Move thiss
 			glm::vec3 forceDir = glm::vec3((m_diagram.sites[i] - hitPosition), 0.0f) * newTransform.rotation;
 			glm::vec3 force = (forceDir * 100) + hitDirection;
-			if (scale > 0.5)
-				force = (forceDir * 220) + hitDirection * 15;	//Hardcoded for pillar, to fix later pls dont worrying
+			if (scale > 0.6)
+				force = (forceDir * 230) + hitDirection * 20;	//Hardcoded for pillar, to fix later pls dont worrying
 
 			btRigidBody* body = object->getRigidBodies()[mi];
 			body->applyCentralImpulse(btVector3(force.x, force.y, force.z) * 1.4);

@@ -13,6 +13,8 @@ public:
 	void update(float dt);
 
 	void loadDestructible(std::string fileName, float size);
+	void loadDestructible(std::vector<Vertex> vertices_in, std::string name_in,
+		Material newMaterial_in, std::string albedo_in, Transform transform, float size);
 	void loadBasic(std::string name);
 	void loadDefined(std::string name, std::vector<glm::vec2> polygon);
 	void meshFromPolygon(std::string name);

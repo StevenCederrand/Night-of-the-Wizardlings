@@ -19,9 +19,9 @@ AttackSpell::AttackSpell(glm::vec3 pos, glm::vec3 direction, const AttackSpellBa
 	setDirection(direction);
 }
 
-AttackSpell::AttackSpell(glm::vec3 pos) : Spell(pos, glm::vec3(0))
+AttackSpell::AttackSpell(glm::vec3 pos, OBJECT_TYPE type) : Spell(pos, glm::vec3(0))
 {
-	m_type = OBJECT_TYPE::NORMALATTACK;
+	m_type = type;
 	m_spellBase = nullptr;
 
 	Transform tempTransform;
