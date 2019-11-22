@@ -28,6 +28,15 @@ private:
 private:
 	friend class Client;
 
+	struct MeshBox //Handles seperate transforms for same mesh
+	{
+		std::string name; //This is kinda useless 
+		Transform transform;
+		Material* material;
+		Mesh* mesh;
+		glm::vec3 btoffset = glm::vec3(0.0f);
+	};
+
 	PickupRenderInformation m_healthRenderInformation;
 	PickupRenderInformation m_damagaRenderInformation;
 	std::vector<PickupProp> m_pickupProps;
