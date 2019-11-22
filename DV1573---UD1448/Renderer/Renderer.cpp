@@ -1378,16 +1378,16 @@ void Renderer::initializeParticle()
 
 	m_enhanceInfo.width = 0.6f;
 	m_enhanceInfo.heigth = 0.8f;
-	m_enhanceInfo.lifetime = 0.1f;
+	m_enhanceInfo.lifetime = 1.3f;
 	m_enhanceInfo.maxParticles = 500; //350
-	m_enhanceInfo.emission = 0.0005f; //0.00001f;
-	m_enhanceInfo.force = -1.0f; //5
+	m_enhanceInfo.emission = 0.005f; //0.00001f;
+	m_enhanceInfo.force = -0.2f; //5
 	m_enhanceInfo.drag = 0.0f;
 	m_enhanceInfo.gravity = 0.0f; //Standard is 1
 	m_enhanceInfo.seed = 0;
 	m_enhanceInfo.cont = true;
 	m_enhanceInfo.omnious = false;
-	m_enhanceInfo.spread = -10.0f;
+	m_enhanceInfo.spread = 0.0f;
 	m_enhanceInfo.glow = 1.3;
 	m_enhanceInfo.scaleDirection = 0;
 	m_enhanceInfo.swirl = 0;
