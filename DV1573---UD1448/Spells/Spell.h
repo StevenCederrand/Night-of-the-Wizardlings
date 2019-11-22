@@ -20,10 +20,10 @@ public:
 	void setTravelTime(float m_travelTime);
 	void setDirection(glm::vec3 m_direction);
 	void setType(int type);
+	void setBodyReference(btRigidBody* body);
 	void setSoundSlot(int slot);
-	void setAttenuationRadius(const glm::vec4& attenuationRadius);
-	
 
+	btRigidBody* getBodyReference() { return m_bodyRef; }
 	// Virtual functions
 	virtual const bool& getHasCollided() const = 0;
 	virtual void hasCollided() = 0;
@@ -31,13 +31,12 @@ public:
 	virtual void updateRigidbody(float deltaTime, btRigidBody* body) = 0;
 	virtual const float getDamage() = 0;
 	virtual const glm::vec3& getPos() const = 0;
-
-	const glm::vec4& getAttenuationRadius() const;
-	
+		
 private:
 	uint64_t m_uniqueID = 0;
 	float m_travelTime;
 	glm::vec3 m_direction;
 	int m_soundSlot = 0;
-	glm::vec4 m_attenuationRadius; //First 3 dims are for the attenuation, final 4th is for radius
+
+	btRigidBody* m_bodyRef;
 };

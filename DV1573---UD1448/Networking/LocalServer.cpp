@@ -153,6 +153,18 @@ void LocalServer::ThreadedUpdate()
 
 		//m_timedUnusedObjectRemoval.update(static_cast<float>(timeDiff));
 
+		for (size_t i = 0; i < m_connectedPlayers.size(); i++) {
+			PlayerPacket& p = m_connectedPlayers[i];
+			if (p.invulnerabilityTime > 0.0f) {
+				p.invulnerabilityTime -= static_cast<float>(timeDiff) / 1000.0f;
+
+				if (p.invulnerabilityTime <= 0.0f) {
+					p.invulnerabilityTime = 0.0f;
+				}
+			}
+			
+		}
+
 		RakSleep(NetGlobals::NetThreadSleepTime);
 	}
 }
@@ -423,15 +435,17 @@ void LocalServer::processAndHandlePackets()
 					if (m_connectedPlayers[i].Spectator)
 						continue;
 
-					// HasBeenUpdatedOnce will go false always because the client won't update that variable & same goes for latest spawn pos
+					// HasBeenUpdatedOnce will go false always because the client won't update that variable & same goes for latest spawn pos & invulnerabilityTime
 					bool hasBeenUpdatedOnce = m_connectedPlayers[i].hasBeenUpdatedOnce;
 					glm::vec3 latestSpawnPos = m_connectedPlayers[i].latestSpawnPosition;
+					float invulnerabilityTime = m_connectedPlayers[i].invulnerabilityTime;
 
 					m_connectedPlayers[i] = playerPacket;
+					
 					m_connectedPlayers[i].hasBeenUpdatedOnce = hasBeenUpdatedOnce;
 					m_connectedPlayers[i].latestSpawnPosition = latestSpawnPos;
 					m_connectedPlayers[i].timestamp = RakNet::GetTimeMS();
-
+					m_connectedPlayers[i].invulnerabilityTime = invulnerabilityTime;
 
 					if (m_connectedPlayers[i].hasBeenUpdatedOnce == false) {
 						m_connectedPlayers[i].hasBeenUpdatedOnce = true;
@@ -969,7 +983,7 @@ void LocalServer::handleRespawns(const uint32_t& diff)
 		else {
 			rs.currentTime = 0;
 			rs.player->health = NetGlobals::PlayerMaxHealth;
-
+			rs.player->invulnerabilityTime = NetGlobals::InvulnerabilityTime;
 			RakNet::BitStream stream;
 			stream.Write((RakNet::MessageID)RESPAWN_PLAYER_DURING_SESSION);
 			rs.player->Serialize(true, stream);
@@ -1006,7 +1020,7 @@ void LocalServer::respawnPlayers()
 		if (m_connectedPlayers[i].health <= 0)
 		{
 			m_connectedPlayers[i].health = NetGlobals::PlayerMaxHealth;
-
+			m_connectedPlayers[i].invulnerabilityTime = NetGlobals::InvulnerabilityTime;
 			RakNet::BitStream stream;
 			stream.Write((RakNet::MessageID)RESPAWN_PLAYER_NOT_IN_SESSION);
 			m_connectedPlayers[i].Serialize(true, stream);
@@ -1016,7 +1030,7 @@ void LocalServer::respawnPlayers()
 		else
 		{
 			m_connectedPlayers[i].health = NetGlobals::PlayerMaxHealth;
-
+			m_connectedPlayers[i].invulnerabilityTime = NetGlobals::InvulnerabilityTime;
 			RakNet::BitStream stream;
 			stream.Write((RakNet::MessageID)GIVE_PLAYER_FULL_HEALTH);
 			m_connectedPlayers[i].Serialize(true, stream);

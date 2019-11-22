@@ -14,7 +14,6 @@ AttackSpell::AttackSpell(glm::vec3 pos, glm::vec3 direction, const AttackSpellBa
 
 	tempTransform.scale = glm::vec3(spellBase->m_radius, spellBase->m_radius, spellBase->m_radius);
 	setTransform(tempTransform);
-	setAttenuationRadius(glm::vec4(1.0, 0.14, 0.07, 12.0));
 	setWorldPosition(pos);
 	setDirection(direction);
 }
@@ -27,7 +26,6 @@ AttackSpell::AttackSpell(glm::vec3 pos) : Spell(pos, glm::vec3(0))
 	Transform tempTransform;
 	tempTransform.scale = glm::vec3(0.2f, 0.2f, 0.2f);
 	setTransform(tempTransform);
-	setAttenuationRadius(glm::vec4(1.0, 0.14, 0.07, 12.0));
 	setWorldPosition(pos);
 }
 
@@ -59,7 +57,7 @@ void AttackSpell::updateRigidbody(float deltaTime, btRigidBody* body)
 		m_shouldAddBounce = false;
 		m_hasCollided = false;
 		
-		if (m_bounceCounter == m_spellBase->m_maxBounces + 1)
+		if (m_bounceCounter > m_spellBase->m_maxBounces)
 		{
 			//logTrace("BOUNCE");
 			setTravelTime(0);

@@ -46,11 +46,11 @@ void DestructibleObject::update(float dt)
 		{
 			for (int i = 0; i < (int)getRigidBodies().size(); i++)
 			{
-				//removeBody(i);
-				//setWorldPosition(glm::vec3(-999));
+				removeBody(i);
+				setWorldPosition(glm::vec3(-999));
 				m_dstrState = 3;
-				getRigidBodies()[i]->setActivationState(false);
-				getRigidBodies()[i]->forceActivationState(false);
+				//getRigidBodies()[i]->setActivationState(false);
+				//getRigidBodies()[i]->forceActivationState(false);
 			}
 		}
 	}

@@ -995,6 +995,7 @@ void Client::updatePlayerData(Player* player)
 	m_myPlayerDataPacket.lookDirection = player->getCamera()->getCamFace();
 	m_myPlayerDataPacket.meshHalfSize = player->getMeshHalfSize();
 	m_myPlayerDataPacket.timestamp = RakNet::GetTimeMS();
+	m_myPlayerDataPacket.meshHalfSize = player->getMeshHalfSize();
 	m_myPlayerDataPacket.rotation = glm::vec3(
 		0.0f,
 		-glm::radians(player->getCamera()->getYaw() - 90.0f),
@@ -1002,6 +1003,11 @@ void Client::updatePlayerData(Player* player)
 
 	m_myPlayerDataPacket.animStates = *player->getAnimState();
 	m_myPlayerDataPacket.onGround = player->onGround();
+	
+	if (player->getMana() > 10 && !m_myPlayerDataPacket.hasDeflectMana)
+		m_myPlayerDataPacket.hasDeflectMana = true;
+	else if(m_myPlayerDataPacket.hasDeflectMana == true)
+		m_myPlayerDataPacket.hasDeflectMana = false;
 
 	
 	if (m_sendUpdatePackages == false)

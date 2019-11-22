@@ -23,7 +23,7 @@ struct AttackSpellBase
 	{
 		m_mesh = nullptr;
 		m_material = nullptr;
-		m_attenAndRadius = glm::vec4(1.0, 0.14, 0.07, 12.0);
+		m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 12.0f);
 		m_damage = 0;
 		m_speed = 0;
 		m_radius = 0;
@@ -64,7 +64,7 @@ struct EnhanceAtkSpellBase
 	{
 		m_mesh = nullptr;
 		m_material = nullptr;
-		m_attenAndRadius = glm::vec4(1.0, 0.14, 0.07, 12.0);
+		m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 12.0f);
 		m_damage = 0;
 		m_speed = 0;
 		m_radius = 0;
@@ -103,7 +103,7 @@ struct ReflectSpellBase
 	{
 		m_mesh = nullptr;
 		m_material = nullptr;
-		m_attenAndRadius = glm::vec4(1.0, 0.14, 0.07, 12.0);
+		m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 12.0f);
 		m_radius = 0;
 		m_coolDown = 0;
 		m_lifeTime = 0;
@@ -145,7 +145,7 @@ struct FlamestrikeSpellBase
 	{
 		m_mesh = nullptr;
 		m_material = nullptr;
-		m_attenAndRadius = glm::vec4(1.0, 0.14, 0.07, 12.0);
+		m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 12.0f);
 		m_damage = 0;
 		m_speed = 0;
 		m_radius = 0;
@@ -197,7 +197,7 @@ struct FireSpellBase
 	{
 		m_mesh = nullptr;
 		m_material = nullptr;
-		m_attenAndRadius = glm::vec4(1.0, 0.14, 0.07, 12.0);
+		m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 12.0f);
 		m_damage = 0;
 		m_speed = 0;
 		m_radius = 0;
