@@ -7,7 +7,7 @@ class DstrGenerator;
 class DestructibleObject : public GameObject
 {
 public:
-	DestructibleObject(DstrGenerator* dstr, int index);
+	DestructibleObject(DstrGenerator* dstr, int index, float fallTime, float fallGravity);
 	~DestructibleObject();
 
 	void update(float dt);
@@ -31,9 +31,11 @@ public:
 
 private:
 	std::vector<glm::vec2> m_polygonFace;
-	float m_lifetime = 0.0f;
-	float m_fallTime = 0.0f;
 
+	float m_fallTime;
+	btVector3 m_fallGravity;
+
+	float m_lifetime = 0.0f;
 	float m_scale = 0.0f;
 	bool m_destroyed = false;
 	int m_dstrState = 0;
