@@ -53,8 +53,8 @@ void main()
 		//pos.z += sin(2 * 3.14 * geometryLife[0]); //check this
 		//pos.y += geometryLife[0];// * -5; //these are mainly for the fire effect
 
-		pos.x += 3.0f * cos(20 * 3.14 * geometryLife[0]);
-		pos.z += 3.0f * sin(20 * 3.14 * geometryLife[0]);
+		pos.x += 3.0f * cos(15 * 3.14 * geometryLife[0]);
+		pos.z += 3.0f * sin(15 * 3.14 * geometryLife[0]);
 
 	}
 
