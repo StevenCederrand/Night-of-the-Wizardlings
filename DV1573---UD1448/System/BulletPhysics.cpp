@@ -134,7 +134,8 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	if (destruction)
 	{
 		myGoup = DestructableObjects;
-		mask = NormalObjects | btBroadphaseProxy::CharacterFilter;
+		//mask = NormalObjects | btBroadphaseProxy::CharacterFilter;
+		mask = NormalObjects;
 
 		destructionobj(body);	
 	}
@@ -214,7 +215,8 @@ void BulletPhysics::update(float dt)
 	//counter to make sure that the gravity starts after 60 frames
 	if (m_counter > 15 && !m_setGravity)
 	{
-		m_character->setGravity(btVector3(0.0f, -35.0f, 0.0f));
+		if(m_character != nullptr)
+			m_character->setGravity(btVector3(0.0f, -35.0f, 0.0f));
 		m_setGravity = true;
 	}
 	if (!m_setGravity)

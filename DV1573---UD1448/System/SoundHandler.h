@@ -7,12 +7,12 @@
 
 //Set custom names for easier reference to soundFile names
 const std::string THEME_SONG0 = "HarryPotterThemeSong.ogg";
-const std::string BASIC_ATTACK_SOUND = "BasicAttack.ogg";
-const std::string DEFLECT_SOUND = "LookAtMyShield2.ogg";
-const std::string ENHANCE_ATTACK_SOUND = "Magic sound effect.ogg";
+const std::string BASIC_ATTACK_SOUND = "NewBasicAttack.ogg";
+const std::string DEFLECT_SOUND = "DeflectNew.ogg";
+const std::string ENHANCE_ATTACK_SOUND = "NewBasicAttack.ogg";
 const std::string TAKING_DAMAGE_SOUND = "TakingDamage.ogg";
 const std::string STEPS_SOUND = "FootSteps.ogg";
-const std::string JUMP_SOUND = "Jump2.ogg";
+const std::string JUMP_SOUND = "JumpMono.ogg";
 const std::string LANDING_SOUND = "Landing.ogg";
 const std::string HITMARK_SOUND = "Hitmark.ogg";
 const std::string FIRE_SOUND = "Fire.ogg";
@@ -105,7 +105,7 @@ public:
 	int playSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
 
 	void pauseSound(SoundIndexClient whatSound);
-	void pauseSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
+	void pauseSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID, int slot);
 
 	void stopSound(SoundIndexClient whatSound);
 	void stopSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID, int slot = 0);

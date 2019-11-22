@@ -35,9 +35,7 @@ public:
 	int getShaderID() const;
 	std::string getName() const;
 	std::vector<std::string> getShaderNames() const;
-	GLint getUniformLocation(std::string locationName);
 
-	void clearIDs();
 	Shader& operator=(const Shader& other);
 
 private:
@@ -49,7 +47,6 @@ private:
 	bool m_valid;
 	std::string m_name;
 	int m_shaderProg;
-	std::map<std::string, GLint> m_IDMap;
 	std::vector<std::string> m_shaderNames; //We need to save the name of the shaders. 
 };
 

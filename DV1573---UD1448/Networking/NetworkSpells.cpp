@@ -13,7 +13,7 @@ NetworkSpells::~NetworkSpells()
 
 void NetworkSpells::update(const float& dt)
 {
-	SoundHandler* shPtr = SoundHandler::getInstance();
+	SoundHandler* shPtr = SoundHandler::getInstance();	
 
 	if (Client::getInstance()->isConnectedToSever()) {
 		
@@ -28,21 +28,29 @@ void NetworkSpells::update(const float& dt)
 				if (e.gameobject == nullptr) {
 					
 					if (e.spellData.SpellType == OBJECT_TYPE::NORMALATTACK || e.spellData.SpellType == OBJECT_TYPE::UNKNOWN) {
-						e.gameobject = new AttackSpell(e.spellData.Position);
+						e.gameobject = new AttackSpell(e.spellData.Position, NORMALATTACK);
+
+						int slot = shPtr->playSound(BasicAttackSound, e.spellData.CreatorGUID);							
+						shPtr->setSourcePosition(e.spellData.Position, BasicAttackSound, e.spellData.CreatorGUID, slot);
 					}
 					else if (e.spellData.SpellType == OBJECT_TYPE::ENHANCEATTACK) {
-						e.gameobject = new AttackSpell(e.spellData.Position);
+						e.gameobject = new AttackSpell(e.spellData.Position, ENHANCEATTACK);
+						
+						int slot = shPtr->playSound(EnhanceAttackSound, e.spellData.CreatorGUID);
+						shPtr->setSourcePosition(e.spellData.Position, EnhanceAttackSound, e.spellData.CreatorGUID, slot);						
 					}
 					else if (e.spellData.SpellType == OBJECT_TYPE::REFLECT) {
 						e.gameobject = new ReflectSpell(e.spellData.Position);
 					}
 					else if (e.spellData.SpellType == OBJECT_TYPE::FLAMESTRIKE) {
 						e.gameobject = new AOEAttack(e.spellData.Position);						
-						if((e.spellData.SoundSlot = shPtr->playSound(FireSound, e.spellData.CreatorGUID)) != -1)
-							shPtr->setSourcePosition(e.spellData.Position, FireSound, e.spellData.CreatorGUID, e.spellData.SoundSlot);
+						
+						e.spellData.SoundSlot = shPtr->playSound(FireSound, e.spellData.CreatorGUID);
+						shPtr->setSourcePosition(e.spellData.Position, FireSound, e.spellData.CreatorGUID, e.spellData.SoundSlot);
 					}
 					else if (e.spellData.SpellType == OBJECT_TYPE::FIRE) {
 						e.gameobject = new fire(e.spellData.Position);
+						
 						shPtr->setSourcePosition(e.spellData.Position, GlassBreakSound, e.spellData.CreatorGUID);
 						shPtr->playSound(GlassBreakSound, e.spellData.CreatorGUID);
 					}
@@ -67,9 +75,8 @@ void NetworkSpells::update(const float& dt)
 			else if (e.flag == NetGlobals::THREAD_FLAG::None)
 			{			
 				if (e.spellData.SpellType == OBJECT_TYPE::FLAMESTRIKE)
-				{
-					if(e.spellData.SoundSlot != -1)
-						shPtr->setSourcePosition(e.spellData.Position, FireSound, e.spellData.CreatorGUID, e.spellData.SoundSlot);
+				{				
+					shPtr->setSourcePosition(e.spellData.Position, FireSound, e.spellData.CreatorGUID, e.spellData.SoundSlot);
 				}
 				
 			}

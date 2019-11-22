@@ -153,6 +153,18 @@ void LocalServer::ThreadedUpdate()
 
 		//m_timedUnusedObjectRemoval.update(static_cast<float>(timeDiff));
 
+		for (size_t i = 0; i < m_connectedPlayers.size(); i++) {
+			PlayerPacket& p = m_connectedPlayers[i];
+			if (p.invulnerabilityTime > 0.0f) {
+				p.invulnerabilityTime -= static_cast<float>(timeDiff) / 1000.0f;
+
+				if (p.invulnerabilityTime <= 0.0f) {
+					p.invulnerabilityTime = 0.0f;
+				}
+			}
+			
+		}
+
 		RakSleep(NetGlobals::NetThreadSleepTime);
 	}
 }
@@ -423,15 +435,17 @@ void LocalServer::processAndHandlePackets()
 					if (m_connectedPlayers[i].Spectator)
 						continue;
 
-					// HasBeenUpdatedOnce will go false always because the client won't update that variable & same goes for latest spawn pos
+					// HasBeenUpdatedOnce will go false always because the client won't update that variable & same goes for latest spawn pos & invulnerabilityTime
 					bool hasBeenUpdatedOnce = m_connectedPlayers[i].hasBeenUpdatedOnce;
 					glm::vec3 latestSpawnPos = m_connectedPlayers[i].latestSpawnPosition;
+					float invulnerabilityTime = m_connectedPlayers[i].invulnerabilityTime;
 
 					m_connectedPlayers[i] = playerPacket;
+					
 					m_connectedPlayers[i].hasBeenUpdatedOnce = hasBeenUpdatedOnce;
 					m_connectedPlayers[i].latestSpawnPosition = latestSpawnPos;
 					m_connectedPlayers[i].timestamp = RakNet::GetTimeMS();
-
+					m_connectedPlayers[i].invulnerabilityTime = invulnerabilityTime;
 
 					if (m_connectedPlayers[i].hasBeenUpdatedOnce == false) {
 						m_connectedPlayers[i].hasBeenUpdatedOnce = true;
@@ -688,7 +702,7 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 	axis.emplace_back(yAxis);
 	axis.emplace_back(zAxis);
 
-	if (specificSpellCollision(*spell, target->position, axis))
+	if (specificSpellCollision(*spell, target, axis))
 	{
 
 		// It collided with a player, now check if the player is in deflect state. If the player is deflect state
@@ -777,7 +791,7 @@ bool LocalServer::validDeflect(SpellPacket* spell, PlayerPacket* target)
 	return false;
 }
 
-bool LocalServer::specificSpellCollision(const SpellPacket& spellPacket, const glm::vec3& playerPos, const std::vector<glm::vec3>& axis) {
+bool LocalServer::specificSpellCollision(const SpellPacket& spellPacket, PlayerPacket* target, const std::vector<glm::vec3>& axis) {
 
 	bool collision = false;
 	//float sphereRadius = 2.0f * spellPacket.Scale.x * 2;
@@ -793,7 +807,7 @@ bool LocalServer::specificSpellCollision(const SpellPacket& spellPacket, const g
 	{
 		interpolationPos += line;
 
-		float distx2 = OBBsqDist(interpolationPos, axis, playerPos);
+		float distx2 = OBBsqDist(interpolationPos, target, axis);
 
 		if (distx2 <= sphereRadius * sphereRadius)
 		{
@@ -804,15 +818,16 @@ bool LocalServer::specificSpellCollision(const SpellPacket& spellPacket, const g
 	return collision;
 }
 
-float LocalServer::OBBsqDist(const glm::vec3& spellPosition, const std::vector<glm::vec3>& axis, const glm::vec3& playerPos) {
+float LocalServer::OBBsqDist(const glm::vec3& spellPosition, PlayerPacket* target, const std::vector<glm::vec3>& axis) {
 
 	float dist = 0.0f;
-	glm::vec3 halfSize = glm::vec3(2.7f, 6.0f, 0.5f); // change this when real character is in
+	//glm::vec3 halfSize = glm::vec3(2.7f, 6.0f, 0.5f); // change this when real character is in
+	glm::vec3 halfSize = target->meshHalfSize;
 
 	//closest point on obb
-	glm::vec3 boxPoint = playerPos;
+	glm::vec3 boxPoint = target->position;
 	boxPoint.y += halfSize.y;
-	glm::vec3 ray = glm::vec3(spellPosition - playerPos);
+	glm::vec3 ray = glm::vec3(spellPosition - boxPoint);
 
 	for (int j = 0; j < 3; j++) {
 		float distance = glm::dot(ray, axis.at(j));
@@ -969,7 +984,7 @@ void LocalServer::handleRespawns(const uint32_t& diff)
 		else {
 			rs.currentTime = 0;
 			rs.player->health = NetGlobals::PlayerMaxHealth;
-
+			rs.player->invulnerabilityTime = NetGlobals::InvulnerabilityTime;
 			RakNet::BitStream stream;
 			stream.Write((RakNet::MessageID)RESPAWN_PLAYER_DURING_SESSION);
 			rs.player->Serialize(true, stream);
@@ -1006,7 +1021,7 @@ void LocalServer::respawnPlayers()
 		if (m_connectedPlayers[i].health <= 0)
 		{
 			m_connectedPlayers[i].health = NetGlobals::PlayerMaxHealth;
-
+			m_connectedPlayers[i].invulnerabilityTime = NetGlobals::InvulnerabilityTime;
 			RakNet::BitStream stream;
 			stream.Write((RakNet::MessageID)RESPAWN_PLAYER_NOT_IN_SESSION);
 			m_connectedPlayers[i].Serialize(true, stream);
@@ -1016,7 +1031,7 @@ void LocalServer::respawnPlayers()
 		else
 		{
 			m_connectedPlayers[i].health = NetGlobals::PlayerMaxHealth;
-
+			m_connectedPlayers[i].invulnerabilityTime = NetGlobals::InvulnerabilityTime;
 			RakNet::BitStream stream;
 			stream.Write((RakNet::MessageID)GIVE_PLAYER_FULL_HEALTH);
 			m_connectedPlayers[i].Serialize(true, stream);

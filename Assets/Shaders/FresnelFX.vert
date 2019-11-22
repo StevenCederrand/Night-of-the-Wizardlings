@@ -9,10 +9,18 @@ uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projMatrix;
 
+//uniform float firespeed;
+//uniform float pulseHeight;
+//uniform float displacementHeight;
+//uniform float turbulenceDetail;
+
 out vec2 f_UV;
 out vec3 f_normal;
 out vec4 f_position;
+
+
 void main() {
+
     f_position = modelMatrix * vec4(position, 1.0f);
     gl_Position = projMatrix * viewMatrix * modelMatrix * vec4(position, 1.0f);
     f_UV.x = uv.x;
