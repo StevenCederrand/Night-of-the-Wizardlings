@@ -1330,7 +1330,7 @@ void Renderer::initializeParticle()
 	m_PSinfo.heigth = 0.6f;
 	m_PSinfo.lifetime = 2.0f;
 	m_PSinfo.maxParticles = 500; //350
-	m_PSinfo.emission = 0.0075f; //0.00001f;
+	m_PSinfo.emission = 0.01f; //0.00001f;
 	m_PSinfo.force = -0.2f; //5
 	m_PSinfo.drag = 0.0f;
 	m_PSinfo.gravity = 0.0f; //Standard is 1
