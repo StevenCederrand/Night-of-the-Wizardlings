@@ -821,10 +821,8 @@ bool LocalServer::specificSpellCollision(const SpellPacket& spellPacket, PlayerP
 float LocalServer::OBBsqDist(const glm::vec3& spellPosition, PlayerPacket* target, const std::vector<glm::vec3>& axis) {
 
 	float dist = 0.0f;
-	glm::vec3 halfSize = glm::vec3(2.7f, 6.0f, 0.5f); // change this when real character is in
-	//glm::vec3 halfSize = target->meshHalfSize;
-
-	logTrace("Vector on Server: ({0}, {1}, {2})", std::to_string(halfSize.x), std::to_string(halfSize.y), std::to_string(halfSize.z));
+	//glm::vec3 halfSize = glm::vec3(2.7f, 6.0f, 0.5f); // change this when real character is in
+	glm::vec3 halfSize = target->meshHalfSize;
 
 	//closest point on obb
 	glm::vec3 boxPoint = target->position;
