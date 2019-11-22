@@ -1287,13 +1287,13 @@ void Renderer::initializeParticle()
 
 	//
 	//rings.name = "Assets/Textures/Spell_1.png";
-	m_txtInfo.name = "Assets/Textures/Spell_1.png";
+	m_txtInfo.name = "Assets/Textures/dots.png";
 
-	m_PSinfo.width = 0.3f;
-	m_PSinfo.heigth = 0.1f;
-	m_PSinfo.lifetime = 1.0f;
+	m_PSinfo.width = 0.5f;
+	m_PSinfo.heigth = 0.8f;
+	m_PSinfo.lifetime = 0.7f;
 	m_PSinfo.maxParticles = 500; //350
-	m_PSinfo.emission = 0.01f; //0.00001f;
+	m_PSinfo.emission = 0.005f; //0.00001f;
 	m_PSinfo.force = -1.0f; //5
 	m_PSinfo.drag = 0.0f;
 	m_PSinfo.gravity = 0.0f; //Standard is 1
@@ -1326,6 +1326,7 @@ void Renderer::initializeParticle()
 
 
 	//------------------------------------------
+	m_txtInfo.name = "Assets/Textures/Spell_1.png";
 
 	m_enhanceInfo.width = 0.2f;
 	m_enhanceInfo.heigth = 0.2f;
