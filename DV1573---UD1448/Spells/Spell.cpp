@@ -48,7 +48,16 @@ void Spell::setSoundSlot(int slot)
 	m_soundSlot = slot;
 }
 
+void Spell::setAttenuationRadius(const glm::vec4& attenuationRadius) {
+	m_attenuationRadius = attenuationRadius;
+}
+
+
 const glm::vec3& Spell::getDirection() const {
 	return m_direction;
 }
 
+const glm::vec4& Spell::getAttenuationRadius() const
+{
+	return m_attenuationRadius;
+}

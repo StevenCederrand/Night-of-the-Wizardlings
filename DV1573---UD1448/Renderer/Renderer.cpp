@@ -411,17 +411,15 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 		light.position = gameObject->getTransform().position;
 		light.color = glm::vec3(1.0f);
 		light.index = m_spells.size();
-		
 		m_spells.emplace_back(gameObject);
 		
-
-		//light.color = 
 		Spell* spell = dynamic_cast<Spell*>(gameObject);
+		light.attenAndRadius = spell->getAttenuationRadius(); //Set the attenuation and radius
 		if (spell == nullptr) return;
 
-		
 		if (spell->getType() == OBJECT_TYPE::NORMALATTACK)
 		{
+			light.attenAndRadius = m_spellHandler->getAttackBase()->m_attenAndRadius;
 			light.color = m_spellHandler->getAttackBase()->m_material->diffuse;
 			m_particleSystems.emplace_back(ParticleSystem(&m_PSinfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), attackBuffer,
 				attackPS->getVertex(), attackPS->getDir(), attackPS->getParticle(), attackPS->getLifetime()));
@@ -429,6 +427,7 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 
 		else if (spell->getType() == OBJECT_TYPE::ENHANCEATTACK)
 		{
+			light.attenAndRadius = m_spellHandler->getEnhAttackBase()->m_attenAndRadius;
 			light.color = m_spellHandler->getEnhAttackBase()->m_material->diffuse;
 			m_particleSystems.emplace_back(ParticleSystem(&m_enhanceInfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), enhanceBuffer,
 				enhancePS->getVertex(), enhancePS->getDir(), enhancePS->getParticle(), enhancePS->getLifetime()));
@@ -436,6 +435,7 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 
 		else if (spell->getType() == OBJECT_TYPE::FIRE)
 		{
+			light.attenAndRadius = m_spellHandler->getFireBase()->m_attenAndRadius;
 			light.color = m_spellHandler->getFireBase()->m_material->diffuse;
 			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &smoke, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
 				flamestrikePS->getVertex(), flamestrikePS->getDir(), flamestrikePS->getParticle(), flamestrikePS->getLifetime()));
@@ -443,10 +443,12 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 
 		else if (spell->getType() == OBJECT_TYPE::FLAMESTRIKE)
 		{
+			light.attenAndRadius = m_spellHandler->getFlamestrikeBase()->m_attenAndRadius;
 			light.color = m_spellHandler->getFlamestrikeBase()->m_material->diffuse;
 			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
 				flamestrikePS->getVertex(), flamestrikePS->getDir(), flamestrikePS->getParticle(), flamestrikePS->getLifetime()));
 		}
+		
 		m_lights.emplace_back(light);
 	}
 	else if (objType == RENDER_TYPE::DYNAMIC) {
@@ -470,8 +472,9 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 
 		light.position = gameObject->getTransform().position;
 		light.color = glm::vec3(1.0f);
+		light.attenAndRadius = glm::vec4(1.0f, 0.09f, 0.034f, 5.0f); //First 3 dims are for the attenuation, final 4th is for radius
 		light.index = -2;
-
+		
 		m_lights.emplace_back(light);
 	}
 }
@@ -776,7 +779,7 @@ void Renderer::render(DeflectRender* m_deflectBox) {
 		//Send all of the light data into the compute shader	
 		for (size_t i = 0; i < m_lights.size(); i++) {
 			shader->setVec3("lights[" + std::to_string(i) + "].position", m_lights[i].position);
-			shader->setFloat("lights[" + std::to_string(i) + "].radius", P_LIGHT_RADIUS);
+			shader->setFloat("lights[" + std::to_string(i) + "].radius", m_lights[i].attenAndRadius.w);
 		}
 
 		glDispatchCompute(workGroups.x, workGroups.y, 1);
@@ -826,6 +829,7 @@ void Renderer::render(DeflectRender* m_deflectBox) {
 			else {
 				shader->setVec3("pLights[" + std::to_string(i) + "].position", m_lights[i].position);
 			}
+			//shader->setVec4("pLights" + std::to_string(i) + "].attenRadius", m_lights[i].attenAndRadius);
 
 			shader->setVec3("pLights[" + std::to_string(i) + "].color", m_lights[i].color);
 			/*
@@ -845,7 +849,7 @@ void Renderer::render(DeflectRender* m_deflectBox) {
 			else {
 				shader->setVec3("pLights[" + std::to_string(i) + "].color", glm::vec3(1, 1, 1));
 			}*/
-			shader->setFloat("pLights[" + std::to_string(i) + "].radius", P_LIGHT_RADIUS);
+			shader->setFloat("pLights[" + std::to_string(i) + "].radius", m_lights[i].attenAndRadius.w);
 		}
 	}
 

@@ -14,6 +14,7 @@ fire::fire(glm::vec3 pos, glm::vec3 direction, const FireSpellBase* spellBase)
 
 	setWorldPosition(pos);
 	setDirection(direction);
+	setAttenuationRadius(glm::vec4(1.0, 0.14, 0.07, 12.0));
 }
 
 fire::fire(glm::vec3 pos)
@@ -27,6 +28,7 @@ fire::fire(glm::vec3 pos)
 	setTransform(tempTransform);
 
 	setWorldPosition(pos);
+	setAttenuationRadius(glm::vec4(1.0, 0.14, 0.07, 12.0));
 }
 
 

@@ -14,6 +14,7 @@ AOEAttack::AOEAttack(glm::vec3 pos, glm::vec3 direction, const FlamestrikeSpellB
 
 	setWorldPosition(pos);
 	setDirection(direction);
+	setAttenuationRadius(glm::vec4(1.0, 0.14, 0.07, 12.0));
 }
 
 AOEAttack::AOEAttack(glm::vec3 pos)
@@ -25,7 +26,7 @@ AOEAttack::AOEAttack(glm::vec3 pos)
 	//Transform tempTransform;
 	//tempTransform.scale = glm::vec3(0.2f, 0.2f, 0.2f);
 	//setTransform(tempTransform);
-
+	setAttenuationRadius(glm::vec4(1.0, 0.14, 0.07, 12.0));
 	setWorldPosition(pos);
 }
 

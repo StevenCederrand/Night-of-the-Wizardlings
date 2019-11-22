@@ -21,6 +21,8 @@ public:
 	void setDirection(glm::vec3 m_direction);
 	void setType(int type);
 	void setSoundSlot(int slot);
+	void setAttenuationRadius(const glm::vec4& attenuationRadius);
+	
 
 	// Virtual functions
 	virtual const bool& getHasCollided() const = 0;
@@ -30,10 +32,12 @@ public:
 	virtual const float getDamage() = 0;
 	virtual const glm::vec3& getPos() const = 0;
 
+	const glm::vec4& getAttenuationRadius() const;
+	
 private:
 	uint64_t m_uniqueID = 0;
 	float m_travelTime;
 	glm::vec3 m_direction;
 	int m_soundSlot = 0;
-
+	glm::vec4 m_attenuationRadius; //First 3 dims are for the attenuation, final 4th is for radius
 };
