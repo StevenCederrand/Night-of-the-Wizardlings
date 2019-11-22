@@ -21,15 +21,23 @@ PlayState::PlayState(bool spectator)
 	m_bPhysics = new BulletPhysics(-20.0f);
 
 	if (spectator == false) {
-		
+
 		// To get the height of the character at start due to bounding box calculations.
 		GameObject* AnimationMesh = new WorldObject("AnimationMesh");
 		AnimationMesh->loadMesh("ANIM.mesh");
 		delete AnimationMesh;
 
+		GameObject* fpsShield = new ShieldObject("PlayerShield");
+		fpsShield->loadMesh("ShieldMeshFPS.mesh");
+		delete fpsShield;
+
+		GameObject* enemyShield = new EnemyShieldObject("enemyShield");
+		enemyShield->loadMesh("EnemyShieldMesh.mesh");
+		delete enemyShield;
+
 		m_spellHandler = new SpellHandler(m_bPhysics);
 		m_spellHandler->setOnHitCallback(std::bind(&PlayState::onSpellHit_callback, this));
-		
+
 		m_player = new Player(m_bPhysics, "Player", NetGlobals::PlayerFirstSpawnPoint, m_camera, m_spellHandler);
 		m_player->setHealth(NetGlobals::PlayerMaxHealth);
 
@@ -44,7 +52,7 @@ PlayState::PlayState(bool spectator)
 		m_camera->setSpectatorMode(SpectatorMode::FreeCamera);
 	}
 
-	
+
 	Renderer* renderer = Renderer::getInstance();
 	renderer->setupCamera(m_camera);
 
@@ -66,7 +74,7 @@ PlayState::PlayState(bool spectator)
 	{
 		renderer->submit(m_pointlights.at(i), RENDER_TYPE::POINTLIGHT_SOURCE);
 	}
-	
+
 
 	//m_firstPerson = new AnimatedObject("NyCharacter");
 	//m_firstPerson->loadMesh("NyCharacter.mesh");
@@ -77,7 +85,7 @@ PlayState::PlayState(bool spectator)
 
 	gContactAddedCallback = callbackFunc;
 	// Geneterate bullet objects / hitboxes
-	
+
 	//if (spectator == false) {
 		for (size_t i = 0; i < m_objects.size(); i++)
 		{
@@ -237,7 +245,7 @@ void PlayState::loadDestructables()
 	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
 	Renderer::getInstance()->submit(m_objects.back(), STATIC);
 
-	
+
 }
 
 PlayState::~PlayState()
@@ -252,14 +260,12 @@ PlayState::~PlayState()
 
 	m_pointlights.clear();
 	m_objects.clear();
-	
+
 	delete m_skybox;
 	delete m_player;
 	delete m_bPhysics;
 	delete m_spellHandler;
 	delete m_camera;
-	delete m_deflectBox;
-
 	if (LocalServer::getInstance()->isInitialized()) {
 		LocalServer::getInstance()->destroy();
 	}
@@ -271,7 +277,7 @@ PlayState::~PlayState()
 }
 
 void PlayState::update(float dt)
-{	
+{
 	//m_firstPerson->playLoopAnimation("Test");
 	//m_firstPerson->update(dt);
 	Client::getInstance()->updateNetworkEntities(dt);
@@ -333,7 +339,7 @@ void PlayState::update_isPlaying(const float& dt)
 			case PlayerEvents::Died:
 			{
 				logWarning("[Event system] Died");
-				//Update the HP bar 
+				//Update the HP bar
 				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				const PlayerPacket* shooter = clientPtr->getLatestPlayerThatHitMe();
@@ -348,7 +354,7 @@ void PlayState::update_isPlaying(const float& dt)
 			case PlayerEvents::Respawned:
 			{
 				logWarning("[Event system] Respawned");
-				//Update the HP bar 
+				//Update the HP bar
 				m_player->setPlayerPos(Client::getInstance()->getMyData().latestSpawnPosition);
 				m_player->setHealth(NetGlobals::PlayerMaxHealth);
 				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
@@ -361,10 +367,10 @@ void PlayState::update_isPlaying(const float& dt)
 			case PlayerEvents::TookDamage:
 			{
 				logWarning("[Event system] Took damage");
-				
+
 				shPtr->setSourcePosition(m_player->getPlayerPos(), TakingDamageSound);
 				shPtr->playSound(TakingDamageSound);
-			
+
 				const PlayerPacket* shooter = clientPtr->getLatestPlayerThatHitMe();
 
 				if (shooter != nullptr) {
@@ -378,7 +384,7 @@ void PlayState::update_isPlaying(const float& dt)
 					float playerAngle = glm::degrees(playerRotation.y);
 					float indicatorAngle = angle - playerAngle;
 
-					// Health 
+					// Health
 					int myNewHealth = Client::getInstance()->getMyData().health;
 					float clipPercentage = static_cast<float>(myNewHealth) / 100.0f;
 
@@ -475,14 +481,14 @@ void PlayState::update_isPlaying(const float& dt)
 
 			case PlayerEvents::GameEnded:
 			{
-				
+
 				break;
 			}
 
 
 
 		}
-	
+
 	}
 	// Look at the killer when dead ( If he exist )
 	if (!m_camera->isCameraActive() && clientPtr->getMyData().health <= 0)
@@ -531,7 +537,7 @@ void PlayState::update_isSpectating(const float& dt)
 		case PlayerEvents::WallGotDestroyed:
 		{
 			std::lock_guard<std::mutex> lockGuard(NetGlobals::ReadDestructableWallsMutex); // Thread safe
-			
+
 			auto& vec = Client::getInstance()->getDestructedWalls();
 			for (size_t i = 0; i < vec.size(); i++) {
 				const DestructionPacket& p = vec[i];
@@ -594,8 +600,10 @@ void PlayState::update_isSpectating(const float& dt)
 }
 
 void PlayState::render()
-{	
-	Renderer::getInstance()->render(m_deflectBox);
+{
+
+	Renderer::getInstance()->render(m_spellHandler);
+
 	//Renderer::getInstance()->renderDebug();
 }
 
@@ -659,7 +667,7 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 		break;
 	}
 
-	if (spellobj) 
+	if (spellobj)
 	{
 		if (!spellobj->getHasCollided())
 			spellobj->hasCollided();
@@ -669,10 +677,18 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 	{
 		DstrGenerator* m_dstr = dstrobj->getDstr();
 		unsigned int seed = m_dstr->seedRand();
-		
-		m_dstr->Destroy(dstrobj, glm::vec2(hitpoint.getX(), hitpoint.getY()), spellobj->getDirection());
-		m_dstr->pushPacket(glm::vec2(hitpoint.getX(), hitpoint.getY()), spellobj->getDirection(), dstrobj->getIndex(), seed);
 
+		m_dstr->Destroy(dstrobj, glm::vec2(hitpoint.getX(), hitpoint.getY()), spellobj->getDirection());
+		
+		if (spellobj->getBodyReference() != nullptr)
+		{
+			float rndX = rand() % 1999 + 1 - 1000; rndX /= 1000;
+			float rndY = rand() % 1999 + 1 - 1000; rndY /= 1000;
+			float rndZ = rand() % 1999 + 1 - 1000; rndZ /= 1000;
+			spellobj->getBodyReference()->setLinearVelocity(btVector3(rndX, rndY, rndZ) * 35);
+		}
+		
+	
 		//if (spellobj->getType() != FLAMESTRIKE)
 		//	spellobj->setTravelTime(0.0f);
 
@@ -682,7 +698,7 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 		dstrPacket.hitDir = spellobj->getDirection();
 		dstrPacket.index = dstrobj->getIndex();
 		dstrPacket.randomSeed = seed;
-	
+
 		Client::getInstance()->sendDestructionPacket(dstrPacket);
 	}
 
@@ -691,10 +707,10 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 }
 
 void PlayState::HUDHandler() {
-	
+
 	if (m_player == nullptr)
 		return;
-	
+
 	//Mana bar
 	m_hudHandler.getHudObject(BAR_MANA)->setXClip(m_player->getMana() / 100.0f);
 	m_hudHandler.getHudObject(CROSSHAIR_MANA)->setYClip(m_player->getMana() / 100.0f);
@@ -706,11 +722,11 @@ void PlayState::HUDHandler() {
 	else {
 		m_hudHandler.getHudObject(SPELL_ARCANE)->setGrayscale(0);
 	}
-	
+
 	if (m_player->getSpecialCooldown() > 0) {
 		//logTrace(std::to_string(m_player->getSpecialCooldown() / m_player->getMaxSpecialCooldown()));
 		m_hudHandler.getHudObject(SPELL_SPECIAL)->setGrayscale(m_player->getSpecialCooldown() / m_player->getMaxSpecialCooldown());
-	} 
+	}
 	else {
 		m_hudHandler.getHudObject(SPELL_SPECIAL)->setGrayscale(0);
 	}
@@ -721,7 +737,7 @@ void PlayState::HUDHandler() {
 	else {
 		m_hudHandler.getHudObject(SPELL_DEFLECT)->setGrayscale(0);
 	}
-		
+
 	//Deflect
 	if (m_player->isDeflecting()) {
 		m_hudHandler.getHudObject(CROSSHAIR)->setAlpha(0.0f);
@@ -768,7 +784,7 @@ void PlayState::GUIHandler()
 	if (Input::isKeyPressed(GLFW_KEY_ESCAPE)) {
 		m_GUIOpen = !m_GUIOpen;
 		if (m_GUIOpen) {
-			glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_NORMAL); 
+			glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 			m_camera->enableFP(false);
 			//m_player->logicStop(true);
 			GUILoadButtons();
@@ -785,7 +801,7 @@ void PlayState::GUIHandler()
 		GUIclear();
 		m_endGameBoardVisible = false;
 	}
-	
+
 	if (Input::isKeyPressed(GLFW_KEY_TAB) && !m_endGameBoardVisible) {
 		GUILoadScoreboard();
 	}
@@ -793,7 +809,7 @@ void PlayState::GUIHandler()
 		GUILoadScoreboard();
 		m_endGameBoardVisible = true;
 	}
-	
+
 	if (Input::isKeyReleased(GLFW_KEY_TAB) && !m_endGameBoardVisible) {
 		GUIclear();
 	}
@@ -824,7 +840,7 @@ void PlayState::GUILoadScoreboard() {
 			m_scoreBoard->setItem(itemMultiColumnList, 2, static_cast<CEGUI::uint>(index)); // ColumnID, RowID
 			index++;
 		}
-		
+
 
 		//Add other players
 		auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
@@ -877,5 +893,5 @@ bool PlayState::onMainMenuClick(const CEGUI::EventArgs& e)
 bool PlayState::onQuitClick(const CEGUI::EventArgs& e) {
 	Renderer::getInstance()->clear();
 	glfwSetWindowShouldClose(glfwGetCurrentContext(), true);
-	return true;	
+	return true;
 }

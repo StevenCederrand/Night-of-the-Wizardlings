@@ -9,6 +9,7 @@
 #define ANIMATION "Basic_Animation"
 #define DEBUG_SHADER "Debug_Forward"
 #define FRESNEL "Fresnel_Shader"
+#define ENEMYSHIELD "Enemy_Shield"
 //#define BLOOM "Bloom_Shader"
 //#define BLUR "Blur_Shader"
 //#define BLOOM_BLUR "BloomBlur_Shader"
@@ -31,7 +32,8 @@
 #include <HUD/HudObject.h>
 #include "NotificationStructure.h"
 #include <Text/FreeType.h>
-#include <Deflect/DeflectRender.h>
+#include <GameObject/ShieldObject.h>
+#include <GameObject/EnemyShieldObject.h>
 #include <GFX/Pointlight.h>
 #include <Particles/Particles.h>
 #include <Particles/ParticleBuffers.h>
@@ -63,8 +65,9 @@ enum RENDER_TYPE {
 	SPELL,
 	PICKUP,
 	SHIELD,
-	FIRESPELL, 
+	FIRESPELL,
 	POINTLIGHT_SOURCE,
+	ENEMY_SHIELD
 };
 
 class Renderer
@@ -79,7 +82,6 @@ private:
 	Camera* m_camera;
 	FreeType* m_text;
 	SkyBox* m_skyBox;
-	DeflectRender* m_deflectBox;
 	Timer m_timer;
 	SpellHandler* m_spellHandler;
 
@@ -88,11 +90,11 @@ private:
 	std::vector<GameObject*> m_dynamicObjects;
 	std::vector<GameObject*> m_anistaticObjects;
 	std::vector<GameObject*> m_anidynamicObjects;
-	std::vector<GameObject*> m_spells; 
+	std::vector<GameObject*> m_spells;
 	std::vector<PLIGHT> m_lights;
 	std::vector<GameObject*> m_pickups;
 	std::vector<GameObject*> m_shieldObject;
-	std::vector<GameObject*> m_deflectObject;
+	std::vector<GameObject*> m_enemyShieldObject;
 
 	std::unordered_map<GLuint, std::vector<HudObject*>> m_2DHudMap;
 
@@ -105,7 +107,7 @@ private:
 
 	//Storage Buffer for light indecies
 	unsigned int m_lightIndexSSBO;
-	glm::uvec2 workGroups;	
+	glm::uvec2 workGroups;
 	void renderAndAnimateNetworkingTexts();
 
 
@@ -164,7 +166,7 @@ private:
 	~Renderer();
 public:
 	static Renderer* getInstance();
-	
+
 	void init(GLFWwindow* window);
 	void setupCamera(Camera* camera);
 
@@ -176,9 +178,8 @@ public:
 	void submitSkybox(SkyBox* skybox);
 	void submitSpellhandler(SpellHandler* spellhandler);
 	void removeRenderObject(GameObject* gameObject, RENDER_TYPE objType); //Remove an object from the dynamic array
-	void renderDeflectBox(DeflectRender* deflectBox);
 	void renderSkybox();
-	void render(DeflectRender* m_deflectBox);
+	void render(SpellHandler* m_spellHandler);
 	//void renderSpell();
 	void renderHUD();
 	void renderDebug();
