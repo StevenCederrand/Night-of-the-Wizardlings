@@ -87,9 +87,6 @@ private:
 		OBJECT_TYPE type;
 	};
 
-	std::vector<deflectSpellData> m_deflectedSpells;
-	std::function<void()> m_onHitCallback;
-
 	struct MeshBox //Handles seperate transforms for same mesh
 	{
 		std::string name; //This is kinda useless 
@@ -98,4 +95,7 @@ private:
 		Mesh* mesh;
 		glm::vec3 btoffset = glm::vec3(0.0f);
 	};
+
+	std::vector<deflectSpellData> m_deflectedSpells;
+	std::function<void()> m_onHitCallback;
 };

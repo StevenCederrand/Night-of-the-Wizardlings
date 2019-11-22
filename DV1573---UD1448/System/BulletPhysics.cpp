@@ -134,8 +134,8 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	if (destruction)
 	{
 		myGoup = DestructableObjects;
-		//mask = NormalObjects | btBroadphaseProxy::CharacterFilter;
-		mask = NormalObjects;
+		mask = NormalObjects | btBroadphaseProxy::CharacterFilter;
+		//mask = NormalObjects;
 
 		destructionobj(body);	
 	}

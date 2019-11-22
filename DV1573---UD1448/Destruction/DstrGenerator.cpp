@@ -310,6 +310,7 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 	object->setWorldPosition(glm::vec3(-999.0f), 0);
 	object->set_BtActive(false);
 	object->set_destroyed(true);
+	object->setLifetime(0.0f);
 }
 
 const unsigned int DstrGenerator::seedRand(unsigned int seed)

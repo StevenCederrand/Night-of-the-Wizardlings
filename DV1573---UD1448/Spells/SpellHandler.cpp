@@ -116,8 +116,6 @@ void SpellHandler::initFlamestrikeSpell()
 
 	flamestrikeBase->m_material->name = newMaterial.name;
 	flamestrikeBase->m_material->specular = newMaterial.specular;
-	flamestrikeBase->m_material->texture = newMaterial.texture;
-	flamestrikeBase->m_material->textureID = newMaterial.textureID;
 
 	MeshBox tempMeshBox;									// Meshbox holds the mesh identity and local transform to GameObject
 	std::string meshName = tempLoader.GetMeshName();
@@ -167,8 +165,6 @@ void SpellHandler::initFlamestrikeSpell()
 	}
 	flamestrikeBase->m_mesh->setMaterial(flamestrikeBase->m_material->name);
 	tempLoader.Unload();
-	//flamestrikeBase->m_material->diffuse = glm::vec3(1.0f, 0.5f, 0.0f);
-	//flamestrikeBase->m_material->ambient = glm::vec3(1.0f, 0.5f, 0.0f);
 
 	flamestrikeBase->m_damage = 10;
 	flamestrikeBase->m_speed = 55.0f;
