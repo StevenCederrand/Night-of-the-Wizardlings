@@ -9,7 +9,7 @@ layout(std430, binding = 0) readonly buffer LightIndexBuffer {
 struct P_LIGHT {
     vec3 position;
     vec3 color; //Light that is sent out from the light
-    float radius;
+    vec4 attenAndRadius;
 };
 
 in vec2 f_UV;
@@ -70,7 +70,7 @@ void main() {
         //position += pLights[lightIndex].position;
         float distance = length(f_position.xyz - pLights[lightIndex].position);
         //if we are within the light position
-        if(distance > pLights[lightIndex].radius) {
+        if(distance > pLights[lightIndex].attenAndRadius.w) {
             continue;
         }
         else {
@@ -85,24 +85,16 @@ void main() {
     	result = grayscaleColour(result);
     }
     color = vec4(result, 1);
-
-/* BLOOM STUFF
-    float brightness = dot(result, vec3(0.2126, 0.7152, 0.0722));
-
-    if(brightness > 1.0)
-        brightColor = vec4(ambientCol + result, 1.0);
-    else
-        brightColor = vec4(0.0, 0.0, 0.0, 1.0);*/
-
 }
 
 vec3 calcPointLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance, vec3 diffuse) {
     vec3 lightDir = normalize(pLight.position - position); //From the surface to the light
     float diff = max(dot(normal, lightDir), 0);
-    vec3 diffuseLight = diffuse * diff * normalize(pLight.color);
-    //vec3 ambient = vec3(0.1f) * pLight.color * ambientStr; // Unused - remove when confirmed ok
+    vec3 diffuseLight = diffuse * diff * normalize(pLight.color) * 5.0f;
+    float attenuation = 1.0 / (pLight.attenAndRadius.x + pLight.attenAndRadius.y * distance +
+  			     pLight.attenAndRadius.z * (distance * distance));
 
-    return (diffuseLight);// * attenuation;
+    return (diffuseLight) * attenuation;
 }
 
 vec3 calcDirLight(vec3 normal, vec3 diffuseColor) {

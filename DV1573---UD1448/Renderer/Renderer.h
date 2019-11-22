@@ -54,6 +54,7 @@ struct LightIndex {
 struct PLIGHT {
 	glm::vec3 position;
 	glm::vec3 color;
+	glm::vec4 attenAndRadius;
 	int index;
 };
 
@@ -179,7 +180,7 @@ public:
 	void submitSpellhandler(SpellHandler* spellhandler);
 	void removeRenderObject(GameObject* gameObject, RENDER_TYPE objType); //Remove an object from the dynamic array
 	void renderSkybox();
-	void render(SpellHandler* m_spellHandler);
+	void render();
 	//void renderSpell();
 	void renderHUD();
 	void renderDebug();
