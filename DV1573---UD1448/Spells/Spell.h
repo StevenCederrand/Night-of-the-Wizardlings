@@ -31,7 +31,7 @@ public:
 	virtual void updateRigidbody(float deltaTime, btRigidBody* body) = 0;
 	virtual const float getDamage() = 0;
 	virtual const glm::vec3& getPos() const = 0;
-
+		
 private:
 	uint64_t m_uniqueID = 0;
 	float m_travelTime;
@@ -39,5 +39,4 @@ private:
 	int m_soundSlot = 0;
 
 	btRigidBody* m_bodyRef;
-
 };
