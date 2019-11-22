@@ -82,7 +82,7 @@ void NetworkPickups::setupHealthPickupRenderInformation(BGLoader* loader)
 	auto* mesh = m_healthRenderInformation.mesh;
 	auto* mat = m_healthRenderInformation.material;
 
-	loader->LoadMesh(MESHPATH + "HealthPickup.mesh");
+	loader->LoadMesh(MESHPATH + "DamagePickup.mesh");
 	
 	mesh->saveFilePath(loader->GetFileName(), 0);
 	mesh->nameMesh(loader->GetMeshName());
