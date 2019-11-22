@@ -5,12 +5,12 @@
 Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Camera *camera, SpellHandler* spellHandler)
 {
 	m_firstPersonMesh = new AnimatedObject("fpsMesh");
-	m_firstPersonMesh->loadMesh("Fps2Arm.mesh");
-	m_firstPersonMesh->initAnimations("CastAnimation", 1.0f, 20.0f);
-	m_firstPersonMesh->initAnimations("JumpAnimation", 21.0f, 35.0f);
-	m_firstPersonMesh->initAnimations("RunAnimation", 36.0f, 55.0f);
-	m_firstPersonMesh->initAnimations("IdleAnimation", 56.0f, 125.0f);
-	m_firstPersonMesh->initAnimations("DeflectAnimation", 126.0f, 175.0f);
+	m_firstPersonMesh->loadMesh("FPSTESTIGEN.mesh");
+	m_firstPersonMesh->initAnimations("CastAnimation", 1.0f, 17.0f);
+	m_firstPersonMesh->initAnimations("JumpAnimation", 1.0f, 1.0f);
+	m_firstPersonMesh->initAnimations("RunAnimation", 1.0f, 1.0f);
+	m_firstPersonMesh->initAnimations("IdleAnimation", 19.0f, 87.0f);
+	m_firstPersonMesh->initAnimations("DeflectAnimation", 1.0f, 1.0f);
 
 
 
@@ -51,7 +51,6 @@ void Player::update(float deltaTime)
 		move(deltaTime);
 		m_playerCamera->update();											// Update this first so that subsequent uses are synced
 		m_directionVector = glm::normalize(m_playerCamera->getCamFace());	// Update this first so that subsequent uses are synced
-
 
 		if (m_playerCamera->isFPEnabled()) {
 			attack();
