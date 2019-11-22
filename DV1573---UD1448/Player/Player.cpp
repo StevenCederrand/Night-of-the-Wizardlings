@@ -6,11 +6,11 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 {
 	m_firstPersonMesh = new AnimatedObject("fpsMesh");
 	m_firstPersonMesh->loadMesh("FPSTESTIGEN.mesh");
-	m_firstPersonMesh->initAnimations("CastAnimation", 2.0f, 19.0f);
-	m_firstPersonMesh->initAnimations("JumpAnimation", 2.0f, 19.0f);
-	m_firstPersonMesh->initAnimations("RunAnimation", 2.0f, 19.0f);
-	m_firstPersonMesh->initAnimations("IdleAnimation", 2.0f, 19.0f);
-	m_firstPersonMesh->initAnimations("DeflectAnimation", 2.0f, 19.0f);
+	m_firstPersonMesh->initAnimations("CastAnimation", 1.0f, 17.0f);
+	m_firstPersonMesh->initAnimations("JumpAnimation", 1.0f, 1.0f);
+	m_firstPersonMesh->initAnimations("RunAnimation", 1.0f, 1.0f);
+	m_firstPersonMesh->initAnimations("IdleAnimation", 19.0f, 87.0f);
+	m_firstPersonMesh->initAnimations("DeflectAnimation", 1.0f, 1.0f);
 
 
 
