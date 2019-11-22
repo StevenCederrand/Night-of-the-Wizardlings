@@ -42,7 +42,7 @@ void DestructibleObject::update(float dt)
 		{
 			for (int i = 0; i < (int)getRigidBodies().size(); i++)
 			{
-				getRigidBodies()[i]->setGravity(m_fallGravity / 8);
+				getRigidBodies()[i]->setGravity(m_fallGravity);
 				getRigidBodies()[i]->setDamping(0.0f, 0.0f);
 			}
 
@@ -246,14 +246,14 @@ void DestructibleObject::loadBasic(std::string name)
 	for (int i = 0; i < count; i++)
 	{
 		newVertices[vi++].position = glm::vec3(m_polygonFace[i].x, m_polygonFace[i].y, scale);
-		newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, -1.0f);
+		newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, 1.0f);
 	}
 
 	// Bottom
 	for (int i = 0; i < count; i++)
 	{
 		newVertices[vi++].position = glm::vec3(m_polygonFace[i].x, m_polygonFace[i].y, -scale);
-		newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, 1.0f);
+		newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, -1.0f);
 	}
 
 	// Sides
@@ -266,7 +266,7 @@ void DestructibleObject::loadBasic(std::string name)
 		newVertices[vi++].position = glm::vec3(m_polygonFace[iNext].x, m_polygonFace[iNext].y, -scale);
 		newVertices[vi++].position = glm::vec3(m_polygonFace[iNext].x, m_polygonFace[iNext].y, scale);
 
-		normal = glm::normalize(glm::cross(glm::vec3(m_polygonFace[iNext] - m_polygonFace[i], 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
+		normal = glm::normalize(glm::cross(glm::vec3(m_polygonFace[iNext] - m_polygonFace[i], 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
 
 		newVertices[ni++].Normals = normal;
 		newVertices[ni++].Normals = normal;
@@ -348,14 +348,14 @@ void DestructibleObject::meshFromPolygon(std::string name)
 	for (int i = 0; i < count; i++)
 	{
 		newVertices[vi++].position = glm::vec3(m_polygonFace[i].x, m_polygonFace[i].y, scale);
-		newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, -1.0f);
+		newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, 1.0f);
 	}
 
 	// Bottom
 	for (int i = 0; i < count; i++)
 	{
 		newVertices[vi++].position = glm::vec3(m_polygonFace[i].x, m_polygonFace[i].y, -scale);
-		newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, 1.0f);
+		newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, -1.0f);
 	}
 
 	// Sides
@@ -368,7 +368,7 @@ void DestructibleObject::meshFromPolygon(std::string name)
 		newVertices[vi++].position = glm::vec3(m_polygonFace[iNext].x, m_polygonFace[iNext].y, -scale);
 		newVertices[vi++].position = glm::vec3(m_polygonFace[iNext].x, m_polygonFace[iNext].y, scale);
 
-		normal = glm::normalize(glm::cross(glm::vec3(m_polygonFace[iNext] - m_polygonFace[i], 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
+		normal = glm::normalize(glm::cross(glm::vec3(m_polygonFace[iNext] - m_polygonFace[i], 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
 
 		newVertices[ni++].Normals = normal;
 		newVertices[ni++].Normals = normal;

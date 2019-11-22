@@ -28,7 +28,7 @@ public:
 
 	void Destroy(DestructibleObject* object, glm::vec2 hitPosition = glm::vec3(0.0f), glm::vec3 hitDirection = glm::vec3(0.0f));
 
-	const unsigned int seedRand(unsigned int seed = 0);
+	const unsigned int seedRand(unsigned int seed = -1);
 	const unsigned int getSeed(unsigned int seed) const { return m_seed; }
 	const std::vector<DestructionPacket>& getPackets() const { return m_packets; }
 

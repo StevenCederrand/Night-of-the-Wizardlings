@@ -190,14 +190,14 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			for (int i = 0; i < count; i++)
 			{
 				m_newVertices[vi++].position = glm::vec3(m_clipped[i].x, m_clipped[i].y, scale);
-				m_newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, -1.0f);
+				m_newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, 1.0f);
 			}
 
 			// Bottom
 			for (int i = 0; i < count; i++)
 			{
 				m_newVertices[vi++].position = glm::vec3(m_clipped[i].x, m_clipped[i].y, -scale);
-				m_newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, 1.0f);
+				m_newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, -1.0f);
 			}
 
 			// Sides
@@ -210,7 +210,7 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 				m_newVertices[vi++].position = glm::vec3(m_clipped[iNext].x, m_clipped[iNext].y, -scale);
 				m_newVertices[vi++].position = glm::vec3(m_clipped[iNext].x, m_clipped[iNext].y, scale);
 
-				normal = glm::normalize(glm::cross(glm::vec3(m_clipped[iNext] - m_clipped[i], 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
+				normal = glm::normalize(glm::cross(glm::vec3(m_clipped[iNext] - m_clipped[i], 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
 
 				m_newVertices[ni++].Normals = normal;
 				m_newVertices[ni++].Normals = normal;
@@ -296,9 +296,17 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			if (scale > 1.5)
 				force = (forceDir * 600) + hitDirection * 80;	//Hardcoded for big walls, to fix later pls dont worrying
 
+			float forceRand = rand() % 300 + 900;
+			forceRand /= 1000;
+			force *= forceRand;
+
+			float dirRndX = rand() % 2 + -1;
+			float dirRndY = rand() % 2 + -1;
+			float dirRndZ = rand() % 2 + -1;
+
 			btRigidBody* body = object->getRigidBodies()[mi];
-			body->applyCentralImpulse(btVector3(force.x, force.y, force.z) * 1.4);
-			body->applyTorque(btVector3(force.x, force.y, force.z) * 20);
+			body->applyCentralImpulse(btVector3(force.x, force.y, force.z) * 1.6 );
+			body->applyTorque(btVector3(force.x * dirRndX, force.y * dirRndY, force.z * dirRndZ) * 23);
 			body->setGravity(m_initGravity);
 
 			mi++;
@@ -315,7 +323,8 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 
 const unsigned int DstrGenerator::seedRand(unsigned int seed)
 {
-	m_seed = unsigned int(time(NULL));
+	if (m_seed = -1)
+		m_seed = unsigned int(time(NULL));
 	srand(m_seed);
 	return m_seed;
 }

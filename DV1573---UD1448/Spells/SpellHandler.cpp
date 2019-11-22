@@ -55,6 +55,9 @@ void SpellHandler::initAttackSpell()
 	attackBase->m_coolDown = 1.0f;
 	attackBase->m_lifeTime = 5.0f;
 	attackBase->m_maxBounces = 3.0f;
+
+	attackBase->m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f);// OLD
+	attackBase->m_attenAndRadius = glm::vec4(1.0f, 2.15f, 4.5f, 22.0f);
 }
 
 void SpellHandler::initEnhanceSpell()
@@ -88,6 +91,9 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase->m_coolDown = 3.0f;
 	enhanceAtkBase->m_lifeTime = 5.0f;
 	enhanceAtkBase->m_maxBounces = 3;
+
+	enhanceAtkBase->m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // OLD
+	enhanceAtkBase->m_attenAndRadius = glm::vec4(1.0f, 1.55f, 3.7f, 22.0f);
 }
 
 void SpellHandler::initFlamestrikeSpell()
@@ -106,6 +112,9 @@ void SpellHandler::initFlamestrikeSpell()
 	const Material & newMaterial = tempLoader.GetMaterial();
 	flamestrikeBase->m_material->ambient = newMaterial.ambient;
 	flamestrikeBase->m_material->diffuse = newMaterial.diffuse;
+	flamestrikeBase->m_material->diffuse = glm::vec3(1.0f, 0.5f, 0.0f);
+	flamestrikeBase->m_material->ambient = glm::vec3(1.0f, 0.5f, 0.0f);
+
 	flamestrikeBase->m_material->name = newMaterial.name;
 	flamestrikeBase->m_material->specular = newMaterial.specular;
 
@@ -163,6 +172,9 @@ void SpellHandler::initFlamestrikeSpell()
 	flamestrikeBase->m_coolDown = 5.0f;
 	flamestrikeBase->m_lifeTime = 5;
 	flamestrikeBase->m_maxBounces = 2;
+
+	flamestrikeBase->m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // Old
+	flamestrikeBase->m_attenAndRadius = glm::vec4(1.0f, 0.61f, 0.74f, 22.0f);
 }
 
 void SpellHandler::initFireSpell()
@@ -194,6 +206,9 @@ void SpellHandler::initFireSpell()
 	fireBase->m_lifeTime = 5.0f;
 
 	fireBase->m_maxBounces = 0.0f;
+
+	fireBase->m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // Old
+	fireBase->m_attenAndRadius = glm::vec4(1.0f, 0.61f, 0.74f, 22.0f);
 
 	//TODO
 	//Particle code here

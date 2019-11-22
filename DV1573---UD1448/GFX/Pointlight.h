@@ -15,6 +15,7 @@ public:
 	void update(float dt);
 
 	const glm::vec4& getAttenuationAndRadius() const;
+	const glm::vec3& getColor() const;
 private: 
 	glm::vec3 m_color;
 	
