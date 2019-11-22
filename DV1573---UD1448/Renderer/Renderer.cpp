@@ -1328,9 +1328,9 @@ void Renderer::initializeParticle()
 
 	m_PSinfo.width = 0.4f;
 	m_PSinfo.heigth = 0.6f;
-	m_PSinfo.lifetime = 2.0f;
+	m_PSinfo.lifetime = 1.5f;
 	m_PSinfo.maxParticles = 100; //350
-	m_PSinfo.emission = 0.01f; //0.00001f;
+	m_PSinfo.emission = 0.02f; //0.00001f;
 	m_PSinfo.force = -0.2f; //5
 	m_PSinfo.drag = 0.0f;
 	m_PSinfo.gravity = 0.0f; //Standard is 1
@@ -1425,8 +1425,8 @@ void Renderer::initializeParticle()
 	m_flameInfo.width = 1.2f;     
 	m_flameInfo.heigth = 1.0f;     
 	m_flameInfo.lifetime = 10.0f;     
-	m_flameInfo.maxParticles = 500; //350     
-	m_flameInfo.emission = 0.01f; //0.00001f;     
+	m_flameInfo.maxParticles = 300; //350     
+	m_flameInfo.emission = 0.02f; //0.00001f;     
 	m_flameInfo.force = -0.04f; //5     
 	m_flameInfo.drag = 0.0f;     
 	m_flameInfo.gravity = -0.2f; //Standard is 1     
