@@ -437,7 +437,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 			flamestrikeSpells[i]->update(deltaTime);
 			flamestrikeSpells[i]->updateRigidbody(deltaTime, m_BulletFlamestrikeSpell.at(i));
 			
-			if (static_cast<Spell*>(flamestrikeSpells[i])->getType() == FLAMESTRIKE)
+			if (flamestrikeSpells[i]->getType() == FLAMESTRIKE)
 			{				
 				flamestrikeUpdate(deltaTime, i);
 				AOEAttack* flamestrike = static_cast<AOEAttack*>(flamestrikeSpells[i]);
@@ -641,10 +641,10 @@ void SpellHandler::spellCollisionCheck()
 			//get the radius from the spelltype
 			float radius = 0.0f;
 
-			if (static_cast<Spell*>(spells[j])->getType() == NORMALATTACK) {
+			if (spells[j]->getType() == NORMALATTACK) {
 				radius = attackBase->m_radius;
 			}
-			if (static_cast<Spell*>(spells[j])->getType() == ENHANCEATTACK) {
+			if (spells[j]->getType() == ENHANCEATTACK) {
 				radius = enhanceAtkBase->m_radius;
 			}
 
@@ -685,35 +685,6 @@ void SpellHandler::spellCollisionCheck()
 				}
 			}
 		}
-
-
-		//for (size_t k = 0; k < fireSpells.size(); k++)
-		//{
-		//	glm::vec3 lastSpellPos = fireSpells.at(k)->getLastPosition();
-		//	glm::vec3 spellPos = fireSpells.at(k)->getTransform().position;
-
-		//	//get the radius from the spelltype
-		//	float radius = fireBase->m_radius;
-
-		//	//line is the walking we will do.
-		//	glm::vec3 line = (spellPos - lastSpellPos) / m_nrSubSteps;
-		//	glm::vec3 interpolationPos = lastSpellPos;
-
-		//	//walk from last pos to new pos with substeps
-		//	for (size_t l = 0; l < m_nrSubSteps; l++)
-		//	{
-		//		interpolationPos += line;
-		//		if (specificSpellCollision(interpolationPos, playerPos, axis, radius))
-		//		{
-		//			Client::getInstance()->sendHitRequest(*fireSpells[k], list[i]);
-
-		//			if (m_onHitCallback != nullptr) {
-		//				m_onHitCallback();
-		//			}
-		//			k = m_nrSubSteps;
-		//		}
-		//	}
-		//}
 	}
 }
 
@@ -798,8 +769,10 @@ void SpellHandler::setCharacter(std::string meshName)
 			max.z = fmaxf(vertices[i].position.z, max.z);
 		}
 	}
-	glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * 0.7f;
-	halfSize.x *= 0.4f;
+	glm::vec3 halfSize = glm::vec3((max - min) * 0.5f);
+	//glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * 0.7f;
+	halfSize.x *= 0.6f;
+	halfSize.z *= 0.6f;
 
 	m_bp->setCharacterSize(halfSize);
 	m_setcharacter = true;

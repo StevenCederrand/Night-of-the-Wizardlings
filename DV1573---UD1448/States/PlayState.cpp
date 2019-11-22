@@ -24,7 +24,7 @@ PlayState::PlayState(bool spectator)
 
 		// To get the height of the character at start due to bounding box calculations.
 		GameObject* AnimationMesh = new WorldObject("AnimationMesh");
-		AnimationMesh->loadMesh("ANIM.mesh");
+		AnimationMesh->loadMesh("NyCharacter.mesh");
 		delete AnimationMesh;
 
 		GameObject* fpsShield = new ShieldObject("PlayerShield");
@@ -68,8 +68,10 @@ PlayState::PlayState(bool spectator)
 
 	//Create a pointlight
 	Pointlight* pointLight = new Pointlight(glm::vec3(10.0f, 13.0f, 6.0f), glm::vec3(1));
+	pointLight->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 10));
 
 	m_pointlights.emplace_back(pointLight);
+
 	for (size_t i = 0; i < m_pointlights.size(); i++)
 	{
 		renderer->submit(m_pointlights.at(i), RENDER_TYPE::POINTLIGHT_SOURCE);
@@ -216,7 +218,7 @@ PlayState::~PlayState()
 	}
 
 }
-
+	
 void PlayState::update(float dt)
 {
 	//m_firstPerson->playLoopAnimation("Test");
@@ -543,7 +545,7 @@ void PlayState::update_isSpectating(const float& dt)
 void PlayState::render()
 {
 
-	Renderer::getInstance()->render(m_spellHandler);
+	Renderer::getInstance()->render();
 
 	//Renderer::getInstance()->renderDebug();
 }

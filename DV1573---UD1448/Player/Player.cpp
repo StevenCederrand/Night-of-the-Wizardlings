@@ -78,6 +78,9 @@ void Player::update(float deltaTime)
 		}
 	}
 
+	if (m_mana > 100) {
+		m_mana = 100;
+	}
 	updateListenerProperties();
 
 	m_attackCooldown -= deltaTime; // Cooldown reduces with time
@@ -86,8 +89,8 @@ void Player::update(float deltaTime)
 	m_special3Cooldown -= deltaTime; // Cooldown reduces with time
 
 	//Regenerate mana when we are not deflecting
-	if (!m_rMouse && m_mana <= 100 && m_deflectCooldown <= 0) {
-		m_mana += 0.25f;
+	if (!m_rMouse && m_mana < 100 && m_deflectCooldown <= 0) {
+		m_mana += 7.5f * DeltaTime;
 	}
 	else if (m_deflectCooldown > 0 && !m_rMouse) {
 		m_deflectCooldown -= DeltaTime;
@@ -170,7 +173,7 @@ void Player::move(float deltaTime)
 
 		// Jump
 		if (Input::isKeyHeldDown(GLFW_KEY_SPACE)) {
-			if (m_character->canJump()) {
+			if (m_character->canJump() && !m_isJumping) {
 				m_character->jump(btVector3(0.0f, 16.0f, 0.0f));
 				animState.jumping = true;
 				sh->playSound(JumpSound, m_client->getMyData().guid);
@@ -214,9 +217,9 @@ void Player::move(float deltaTime)
 
 	//set cameraPos and spellSpawnPos
 	m_cameraPosition = m_playerPosition;
-	m_cameraPosition.y += characterHalfSize + characterHalfSize * 0.85f;
+	m_cameraPosition.y += characterHalfSize + characterHalfSize * 0.60f;
 	m_spellSpawnPosition = m_playerPosition;
-	m_spellSpawnPosition.y += (2 * characterHalfSize) * 0.85f;
+	m_spellSpawnPosition.y += characterHalfSize + characterHalfSize * 0.55f;
 
 
 	m_playerCamera->setCameraPos(m_cameraPosition);
@@ -293,8 +296,9 @@ void Player::attack()
 				shPtr->playSound(DeflectSound, m_client->getMyData().guid);
 				m_deflecting = true;
 			}
-			m_mana -= 0.5f;			
-			m_deflectCooldown = 0.5f;		
+			m_mana -= 10.f * DeltaTime;
+			m_deflecting = true;
+			m_deflectCooldown = 0.5f;
 		}
 		else { //Player is holding down RM without any mana
 			
