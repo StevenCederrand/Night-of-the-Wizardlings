@@ -214,9 +214,9 @@ void Player::move(float deltaTime)
 
 	//set cameraPos and spellSpawnPos
 	m_cameraPosition = m_playerPosition;
-	m_cameraPosition.y += characterHalfSize + characterHalfSize * 0.85f;
+	m_cameraPosition.y += characterHalfSize + characterHalfSize * 0.60f;
 	m_spellSpawnPosition = m_playerPosition;
-	m_spellSpawnPosition.y += (2 * characterHalfSize) * 0.85f;
+	m_spellSpawnPosition.y += characterHalfSize + characterHalfSize * 0.55f;
 
 
 	m_playerCamera->setCameraPos(m_cameraPosition);
