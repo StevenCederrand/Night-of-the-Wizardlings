@@ -707,6 +707,8 @@ float SpellHandler::OBBsqDist(glm::vec3& spherePos, std::vector<glm::vec3>& axis
 	btVector3 box = m_bp->getCharacterSize();
 	glm::vec3 halfSize = glm::vec3(box.getX(), box.getY(), box.getZ());
 	
+	logTrace("Vector On local: ({0}, {1}, {2})", std::to_string(halfSize.x), std::to_string(halfSize.y), std::to_string(halfSize.z));
+
 	float dist = 0.0f;
 	//closest point on obb
 	glm::vec3 boxPoint = playerPos;
