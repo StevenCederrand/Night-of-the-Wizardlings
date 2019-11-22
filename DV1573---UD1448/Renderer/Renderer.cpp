@@ -412,17 +412,14 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 		light.position = gameObject->getTransform().position;
 		light.color = glm::vec3(1.0f);
 		light.index = m_spells.size();
-
 		m_spells.emplace_back(gameObject);
-
-
-		//light.color =
+	
 		Spell* spell = dynamic_cast<Spell*>(gameObject);
 		if (spell == nullptr) return;
 
-
 		if (spell->getType() == OBJECT_TYPE::NORMALATTACK)
 		{
+			light.attenAndRadius = m_spellHandler->getAttackBase()->m_attenAndRadius;
 			light.color = m_spellHandler->getAttackBase()->m_material->diffuse;
 			m_particleSystems.emplace_back(ParticleSystem(&m_PSinfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), attackBuffer,
 				attackPS->getVertex(), attackPS->getDir(), attackPS->getParticle(), attackPS->getLifetime()));
@@ -430,6 +427,7 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 
 		else if (spell->getType() == OBJECT_TYPE::ENHANCEATTACK)
 		{
+			light.attenAndRadius = m_spellHandler->getEnhAttackBase()->m_attenAndRadius;
 			light.color = m_spellHandler->getEnhAttackBase()->m_material->diffuse;
 			m_particleSystems.emplace_back(ParticleSystem(&m_enhanceInfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), enhanceBuffer,
 				enhancePS->getVertex(), enhancePS->getDir(), enhancePS->getParticle(), enhancePS->getLifetime()));
@@ -437,6 +435,7 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 
 		else if (spell->getType() == OBJECT_TYPE::FIRE)
 		{
+			light.attenAndRadius = m_spellHandler->getFireBase()->m_attenAndRadius;
 			light.color = m_spellHandler->getFireBase()->m_material->diffuse;
 			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &smoke, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
 				flamestrikePS->getVertex(), flamestrikePS->getDir(), flamestrikePS->getParticle(), flamestrikePS->getLifetime()));
@@ -444,10 +443,12 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 
 		else if (spell->getType() == OBJECT_TYPE::FLAMESTRIKE)
 		{
+			light.attenAndRadius = m_spellHandler->getFlamestrikeBase()->m_attenAndRadius;
 			light.color = m_spellHandler->getFlamestrikeBase()->m_material->diffuse;
 			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
 				flamestrikePS->getVertex(), flamestrikePS->getDir(), flamestrikePS->getParticle(), flamestrikePS->getLifetime()));
 		}
+		
 		m_lights.emplace_back(light);
 	}
 	else if (objType == RENDER_TYPE::DYNAMIC) {
@@ -474,8 +475,9 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 
 		light.position = gameObject->getTransform().position;
 		light.color = glm::vec3(1.0f);
+		light.attenAndRadius = glm::vec4(1.0f, 0.09f, 0.034f, 5.0f); //First 3 dims are for the attenuation, final 4th is for radius
 		light.index = -2;
-
+		
 		m_lights.emplace_back(light);
 	}
 }
@@ -644,7 +646,7 @@ void Renderer::renderSkybox()
 	glEnable(GL_CULL_FACE);
 }
 
-void Renderer::render(SpellHandler* m_spellHandler) {
+void Renderer::render() {
 	Mesh* mesh;
 	Transform transform;
 	glm::mat4 modelMatrix;
@@ -776,7 +778,7 @@ void Renderer::render(SpellHandler* m_spellHandler) {
 		//Send all of the light data into the compute shader
 		for (size_t i = 0; i < m_lights.size(); i++) {
 			shader->setVec3("lights[" + std::to_string(i) + "].position", m_lights[i].position);
-			shader->setFloat("lights[" + std::to_string(i) + "].radius", P_LIGHT_RADIUS);
+			shader->setFloat("lights[" + std::to_string(i) + "].radius", m_lights[i].attenAndRadius.w);
 		}
 
 		glDispatchCompute(workGroups.x, workGroups.y, 1);
@@ -818,34 +820,20 @@ void Renderer::render(SpellHandler* m_spellHandler) {
 	shader->setInt("LightCount", m_lights.size());
 
 	if (m_lights.size() > 0) {
+		std::string iConv = "";
 		for (size_t i = 0; i < m_lights.size(); i++) {
-
+			iConv = std::to_string(i);
+			
 			if (m_lights[i].index != -2) {
 				shader->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[m_lights[i].index]->getTransform().position);
 			}
 			else {
 				shader->setVec3("pLights[" + std::to_string(i) + "].position", m_lights[i].position);
 			}
+			
+			shader->setVec3("pLights[" + iConv + "].color", m_lights[i].color);
 
-			shader->setVec3("pLights[" + std::to_string(i) + "].color", m_lights[i].color);
-			/*
-			if (m_lights[i]->getType() == NORMALATTACK) {
-				shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getAttackBase()->m_material->diffuse);
-			}
-			else if (m_lights[i]->getType() == ENHANCEATTACK) {
-				shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getEnhAttackBase()->m_material->diffuse);
-			}
-			else if (m_lights[i]->getType() == FLAMESTRIKE) {
-				shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getFlamestrikeBase()->m_material->diffuse);
-			}
-			else if (m_lights[i]->getType() == FIRE) {
-				shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getFireBase()->m_material->diffuse);
-			}
-			//If no type has been defined then assume that we are working with a basic pointlight
-			else {
-				shader->setVec3("pLights[" + std::to_string(i) + "].color", glm::vec3(1, 1, 1));
-			}*/
-			shader->setFloat("pLights[" + std::to_string(i) + "].radius", P_LIGHT_RADIUS);
+			shader->setVec4("pLights[" + iConv + "].attenAndRadius", m_lights[i].attenAndRadius);
 		}
 	}
 
@@ -983,22 +971,21 @@ void Renderer::render(SpellHandler* m_spellHandler) {
 
 		//Add a step where we insert lights into the scene
 		shader->setInt("LightCount", m_spells.size());
-		if (m_spells.size() > 0) {
-			for (size_t i = 0; i < m_spells.size(); i++) {
-				shader->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[i]->getTransform().position);
-				if (m_spells[i]->getType() == NORMALATTACK) {
-					shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getAttackBase()->m_material->diffuse);
+		if (m_lights.size() > 0) {
+			std::string iConv = "";
+			for (size_t i = 0; i < m_lights.size(); i++) {
+				iConv = std::to_string(i);
+
+				if (m_lights[i].index != -2) {
+					shader->setVec3("pLights[" + iConv + "].position", m_lights[i].position);
 				}
-				else if (m_spells[i]->getType() == ENHANCEATTACK) {
-					shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getEnhAttackBase()->m_material->diffuse);
+				else {
+					shader->setVec3("pLights[" + iConv + "].position", m_lights[i].position);
 				}
-				else if (m_spells[i]->getType() == FLAMESTRIKE) {
-					shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getFlamestrikeBase()->m_material->diffuse);
-				}
-				else if (m_spells[i]->getType() == FIRE) {
-					shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getFireBase()->m_material->diffuse);
-				}
-				shader->setFloat("pLights[" + std::to_string(i) + "].radius", P_LIGHT_RADIUS);
+
+				shader->setVec3("pLights[" + iConv + "].color", m_lights[i].color);
+
+				shader->setVec4("pLights[" + iConv + "].attenAndRadius", m_lights[i].attenAndRadius);
 			}
 		}
 		for (GameObject* object : m_anistaticObjects)

@@ -11,6 +11,7 @@ EnhanceAttackSpell::EnhanceAttackSpell()
 
 	m_done = true;
 	m_ready = false;
+	
 }
 
 EnhanceAttackSpell::~EnhanceAttackSpell()

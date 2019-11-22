@@ -54,7 +54,7 @@ void Spell::setSoundSlot(int slot)
 	m_soundSlot = slot;
 }
 
+
 const glm::vec3& Spell::getDirection() const {
 	return m_direction;
 }
-

@@ -17,12 +17,13 @@ struct AttackSpellBase
 
 	float m_lifeTime;
 	float m_maxBounces;
+	glm::vec4 m_attenAndRadius; //This is important for lights, xyz are attenuation values, while W is radius
 
 	AttackSpellBase()
 	{
 		m_mesh = nullptr;
 		m_material = nullptr;
-
+		m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 12.0f);
 		m_damage = 0;
 		m_speed = 0;
 		m_radius = 0;
@@ -58,12 +59,12 @@ struct EnhanceAtkSpellBase
 
 	float m_lifeTime;
 	float m_maxBounces;
-
+	glm::vec4 m_attenAndRadius; //This is important for lights, xyz are attenuation values, while W is radius
 	EnhanceAtkSpellBase()
 	{
 		m_mesh = nullptr;
 		m_material = nullptr;
-
+		m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 12.0f);
 		m_damage = 0;
 		m_speed = 0;
 		m_radius = 0;
@@ -97,12 +98,12 @@ struct ReflectSpellBase
 	float m_radius;
 	float m_coolDown;
 	float m_lifeTime;
-
+	glm::vec4 m_attenAndRadius; //This is important for lights, xyz are attenuation values, while W is radius
 	ReflectSpellBase()
 	{
 		m_mesh = nullptr;
 		m_material = nullptr;
-
+		m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 12.0f);
 		m_radius = 0;
 		m_coolDown = 0;
 		m_lifeTime = 0;
@@ -136,7 +137,7 @@ struct FlamestrikeSpellBase
 	float m_speed;
 	float m_coolDown;
 	float m_radius;
-
+	glm::vec4 m_attenAndRadius; //This is important for lights, xyz are attenuation values, while W is radius
 	float m_lifeTime;
 	float m_maxBounces;
 
@@ -144,7 +145,7 @@ struct FlamestrikeSpellBase
 	{
 		m_mesh = nullptr;
 		m_material = nullptr;
-
+		m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 12.0f);
 		m_damage = 0;
 		m_speed = 0;
 		m_radius = 0;
@@ -188,7 +189,7 @@ struct FireSpellBase
 	float m_speed;
 	float m_coolDown;
 	float m_radius;
-
+	glm::vec4 m_attenAndRadius; //This is important for lights, xyz are attenuation values, while W is radius
 	float m_lifeTime;
 	float m_maxBounces;
 
@@ -196,7 +197,7 @@ struct FireSpellBase
 	{
 		m_mesh = nullptr;
 		m_material = nullptr;
-
+		m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 12.0f);
 		m_damage = 0;
 		m_speed = 0;
 		m_radius = 0;
