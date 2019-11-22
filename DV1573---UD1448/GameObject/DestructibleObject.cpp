@@ -1,13 +1,16 @@
 #include <Pch/Pch.h>
 #include "DestructibleObject.h"
 
-DestructibleObject::DestructibleObject(DstrGenerator* dstr, int index)
+DestructibleObject::DestructibleObject(DstrGenerator* dstr, int index, float fallTime, float fallGravity)
 {
 	dstrRef = dstr;
 	m_type = DESTRUCTIBLE;
 	m_scale = 0;
 	m_polygonFace.reserve(4);
 	m_index = index;
+
+	m_fallTime = fallTime;
+	m_fallGravity = btVector3(0.0f, -fallGravity, 0.0f);
 }
 
 DestructibleObject::~DestructibleObject()
@@ -23,26 +26,32 @@ void DestructibleObject::update(float dt)
 	{
 		m_lifetime += dt;
 
-		if (m_lifetime >= m_fallTime * 0.65f && m_dstrState == 0)
+		// Freezes object after time
+		if (m_lifetime >= m_fallTime * 0.60f && m_dstrState == 0)
 		{
 			for (int i = 0; i < (int)getRigidBodies().size(); i++)
-				getRigidBodies()[i]->setDamping(1.0f, 1.0f);
+			{
+				//getRigidBodies()[i]->setGravity(m_fallGravity);
+				//getRigidBodies()[i]->setDamping(0.85f, 0.0f);
+			}
 
 			m_dstrState = 1;
 		}
 
+		// Changes gravity after time
 		if (m_lifetime >= m_fallTime && m_dstrState == 1)
 		{
 			for (int i = 0; i < (int)getRigidBodies().size(); i++)
 			{
-				getRigidBodies()[i]->setGravity(btVector3(0.0f, -50.0f, 0.0f));
-				getRigidBodies()[i]->setDamping(0.5f, 0.5f);
+				getRigidBodies()[i]->setGravity(m_fallGravity / 8);
+				getRigidBodies()[i]->setDamping(0.0f, 0.0f);
 			}
 
 			m_dstrState = 2;
 		}
 
-		if (m_lifetime >= 10.0f && m_dstrState == 2)
+		// Removes the object after time
+		if (m_lifetime >= 15.0f && m_dstrState == 2)
 		{
 			for (int i = 0; i < (int)getRigidBodies().size(); i++)
 			{

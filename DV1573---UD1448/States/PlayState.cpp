@@ -115,6 +115,9 @@ PlayState::PlayState(bool spectator)
 // Might change these Pepega constructors later if feeling cute
 void PlayState::loadDestructables()
 {
+	m_dstr.setBreakSettings(DSTR1, 16, 1.8f, 30.0f);
+	m_dstr_alt1.setBreakSettings(DSTR2, 16, 1.8f, -1.0f);
+
 	Renderer* renderer = Renderer::getInstance();
 	for (int i = (int)m_objects.size() - 1; i >= 0; i--)
 	{
@@ -132,7 +135,11 @@ void PlayState::loadDestructables()
 	meshLoader.LoadMesh(MESHPATH + "DSTRWalls.mesh");
 	for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
 	{
-		m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
+		m_objects.emplace_back(new DestructibleObject(
+			&m_dstr_alt1,
+			m_objects.size(),
+			3.0f,
+			-3.0f));
 
 		static_cast<DestructibleObject*>(m_objects.back())->loadDestructible(
 			meshLoader.GetVertices(i),
@@ -152,7 +159,12 @@ void PlayState::loadDestructables()
 	meshLoader.LoadMesh(MESHPATH + "DSTRMaze.mesh");
 	for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
 	{
-		m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
+		m_objects.emplace_back(new DestructibleObject(
+			&m_dstr_alt1,
+			m_objects.size(),
+			1.6f,
+			-40.0f
+		));
 
 		static_cast<DestructibleObject*>(m_objects.back())->loadDestructible(
 			meshLoader.GetVertices(i),
@@ -172,7 +184,12 @@ void PlayState::loadDestructables()
 	meshLoader.LoadMesh(MESHPATH + "DSTRPillars.mesh");
 	for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
 	{
-		m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
+		m_objects.emplace_back(new DestructibleObject(
+			&m_dstr_alt1,
+			m_objects.size(),
+			1.6f,
+			-40.0f
+		));
 
 		static_cast<DestructibleObject*>(m_objects.back())->loadDestructible(
 			meshLoader.GetVertices(i),
@@ -187,6 +204,27 @@ void PlayState::loadDestructables()
 		Renderer::getInstance()->submit(m_objects.back(), STATIC);
 	}
 	meshLoader.Unload();
+
+	// CONCEPT
+	//// Outside walls destructibles
+	//meshLoader.LoadMesh(MESHPATH + "DSTROutsideWalls.mesh");
+	//for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
+	//{
+	//	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
+	//
+	//	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible(
+	//		meshLoader.GetVertices(i),
+	//		meshLoader.GetMeshName(i),
+	//		meshLoader.GetMaterial(i),
+	//		meshLoader.GetAlbedo(i),
+	//		meshLoader.GetTransform(i),
+	//		1.6f
+	//	);
+	//
+	//	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	//	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+	//}
+	//meshLoader.Unload();
 }
 
 PlayState::~PlayState()
