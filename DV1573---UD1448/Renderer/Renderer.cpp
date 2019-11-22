@@ -435,6 +435,7 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 
 		else if (spell->getType() == OBJECT_TYPE::FIRE)
 		{
+			light.position.y += 2.0f;
 			light.attenAndRadius = m_spellHandler->getFireBase()->m_attenAndRadius;
 			light.color = m_spellHandler->getFireBase()->m_material->diffuse;
 			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &smoke, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
@@ -471,11 +472,12 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 	}
 	else if (objType == RENDER_TYPE::POINTLIGHT_SOURCE) {
 		/* Place the light in the lights list */
-		PLIGHT light;
+		Pointlight* lightRef = static_cast<Pointlight*>(gameObject);
 
+		PLIGHT light;
 		light.position = gameObject->getTransform().position;
-		light.color = glm::vec3(1.0f);
-		light.attenAndRadius = glm::vec4(1.0f, 0.09f, 0.034f, 5.0f); //First 3 dims are for the attenuation, final 4th is for radius
+		light.color = lightRef->getColor();
+		light.attenAndRadius = lightRef->getAttenuationAndRadius(); //First 3 dims are for the attenuation, final 4th is for radius
 		light.index = -2;
 		
 		m_lights.emplace_back(light);

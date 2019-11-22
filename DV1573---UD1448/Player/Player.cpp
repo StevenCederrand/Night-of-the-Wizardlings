@@ -19,7 +19,7 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_playerCamera = camera;
 	m_playerPosition = playerPosition;
 	m_name = name;
-	m_speed = 18.0f;
+	m_speed = 15.2f;
 	m_health = 100;
 	m_attackCooldown = 0;
 	m_specialCooldown = 0;

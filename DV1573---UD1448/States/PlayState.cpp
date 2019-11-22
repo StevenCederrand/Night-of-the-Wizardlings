@@ -66,11 +66,45 @@ PlayState::PlayState(bool spectator)
 	m_objects[m_objects.size() - 1]->loadMesh("Academy.mesh");
 	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
 
-	//Create a pointlight
-	Pointlight* pointLight = new Pointlight(glm::vec3(10.0f, 13.0f, 6.0f), glm::vec3(1));
-	pointLight->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 10));
+	//			TOO LAGGY ATM
+	////LIGHTS
+	//// Church tunnel
+	//Pointlight* pointLight = new Pointlight(glm::vec3(30.0f, 14.0f, 14.0f), glm::vec3(0.4, 0.7, 1.0));
+	//pointLight->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 47.0f));
+	//m_pointlights.emplace_back(pointLight);
+	//
+	//// Church
+	//Pointlight* pointLight1 = new Pointlight(glm::vec3(62.0f, 14.0f, 0.0f), glm::vec3(0.4, 0.7, 1.0));
+	//pointLight1->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 47.0f));
+	//m_pointlights.emplace_back(pointLight1);
+	//
+	//// Middle
+	//Pointlight* pointLight2 = new Pointlight(glm::vec3(0.0f, 26.0f, 0.0f), glm::vec3(1.0, 0.0, 0.0));
+	//pointLight2->setAttenuationAndRadius(glm::vec4(1.0f, 0.19f, 0.132f, 31.0f));
+	//m_pointlights.emplace_back(pointLight2);
+	//
+	//// Large area
+	//Pointlight* pointLight3 = new Pointlight(glm::vec3(-40.0f, 21.0f, 10.0f), glm::vec3(0.9, 0.4, 1.0));
+	//pointLight3->setAttenuationAndRadius(glm::vec4(1.0f, 0.05f, 0.009f, 47.0f));
+	//m_pointlights.emplace_back(pointLight3);
+	//
+	//// Forward wall platforms R
+	//Pointlight* pointLight4 = new Pointlight(glm::vec3(-27.0f, 19.0f, -37.0f), glm::vec3(0.4, 0.7, 1.0));
+	//pointLight4->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 47.0f));
+	//m_pointlights.emplace_back(pointLight4);
+	//
+	//// Forward wall platforms L
+	//Pointlight* pointLight5 = new Pointlight(glm::vec3(31.0f, 19.0f, -37.0f), glm::vec3(0.4, 0.7, 1.0));
+	//pointLight5->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 47.0f));
+	//m_pointlights.emplace_back(pointLight5);
+	//
+	//// Maze
+	//Pointlight* pointLight6 = new Pointlight(glm::vec3(-100.0f, 12.0f, -3.0f), glm::vec3(0.3, 0.4, 1.0));
+	//pointLight6->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 64.0f));
+	//m_pointlights.emplace_back(pointLight6);
 
-	m_pointlights.emplace_back(pointLight);
+
+
 
 	for (size_t i = 0; i < m_pointlights.size(); i++)
 	{
@@ -140,8 +174,8 @@ void PlayState::loadDestructables()
 		m_objects.emplace_back(new DestructibleObject(
 			&m_dstr_alt1,
 			m_objects.size(),
-			3.0f,
-			-3.0f));
+			2.5f,
+			-8.0f));
 
 		static_cast<DestructibleObject*>(m_objects.back())->loadDestructible(
 			meshLoader.GetVertices(i),
@@ -189,8 +223,8 @@ void PlayState::loadDestructables()
 		m_objects.emplace_back(new DestructibleObject(
 			&m_dstr_alt1,
 			m_objects.size(),
-			1.6f,
-			-40.0f
+			2.6f,
+			-8.0f
 		));
 
 		static_cast<DestructibleObject*>(m_objects.back())->loadDestructible(
@@ -235,7 +269,8 @@ PlayState::~PlayState()
 		delete object;
 
 	for (Pointlight* light : m_pointlights)
-		delete light;
+		if (light)
+			delete light;
 
 	GUIclear();
 
@@ -286,8 +321,8 @@ void PlayState::removeDeadObjects()
 			if (obj->is_destroyed() && obj->getLifetime() >= 20.0 )
 			{
 				renderer->removeRenderObject(m_objects[i], STATIC);
-				delete m_objects[i];
-				m_objects.erase(m_objects.begin() + i);
+				//delete m_objects[i];
+				//m_objects.erase(m_objects.begin() + i);
 			}
 		}
 	}
@@ -436,8 +471,8 @@ void PlayState::update_isPlaying(const float& dt)
 					const DestructionPacket& p = vec[i];
 
 					// Destroy
-					m_dstr.seedRand(p.randomSeed);
-					m_dstr.Destroy(static_cast<DestructibleObject*>(m_objects[p.index]), p.hitPoint, p.hitDir);
+					m_dstr_alt1.seedRand(p.randomSeed);
+					m_dstr_alt1.Destroy(static_cast<DestructibleObject*>(m_objects[p.index]), p.hitPoint, p.hitDir);
 				}
 
 				// Tells the client to clear the vector

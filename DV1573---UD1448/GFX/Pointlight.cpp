@@ -33,3 +33,8 @@ const glm::vec4& Pointlight::getAttenuationAndRadius() const
 {
 	return m_attenAndRadius;
 }
+
+const glm::vec3& Pointlight::getColor() const
+{
+	return m_color;
+}
