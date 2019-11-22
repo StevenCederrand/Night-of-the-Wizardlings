@@ -223,7 +223,7 @@ void BulletPhysics::update(float dt)
 		m_counter++;
 
 	// If it crashes here it's probably the callback function in playstate
-	m_dynamicsWorld->stepSimulation(dt, 10, 1.0f/ 240.0f);
+	m_dynamicsWorld->stepSimulation(dt, 5, 1.0f/ 120.0f);
 }
 
 void BulletPhysics::destructionobj(btRigidBody* body)
