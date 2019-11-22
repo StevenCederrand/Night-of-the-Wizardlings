@@ -78,8 +78,8 @@ void SpellHandler::initEnhanceSpell()
 
 	//enhanceAtkBase->m_material->diffuse = glm::vec3(0.3f, 1.0f, 0.3f);
 	//enhanceAtkBase->m_material->ambient = glm::vec3(0.3f, 1.0f, 0.3f);
-	enhanceAtkBase->m_material->diffuse = glm::vec3(0.85f, 0.3f, 0.2f);
-	enhanceAtkBase->m_material->ambient = glm::vec3(0.85f, 0.3f, 0.2f);
+	enhanceAtkBase->m_material->diffuse = glm::vec3(0.85f, 1.f, 0.4f);
+	enhanceAtkBase->m_material->ambient = glm::vec3(0.85f, 1.f, 0.4f);
 
 	enhanceAtkBase->m_damage = 34.0f;
 	enhanceAtkBase->m_speed = 70.0f;
