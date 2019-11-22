@@ -408,7 +408,7 @@ void ParticleSystem::Render(const Camera* camera, const PSinfo* psInfo)
 	ShaderMap::getInstance()->getShader(PARTICLES)->setVec2("size", (glm::vec2(psInfo->width, psInfo->heigth)));
 	ShaderMap::getInstance()->getShader(PARTICLES)->setInt("scaleDirection", psInfo->scaleDirection);
 	ShaderMap::getInstance()->getShader(PARTICLES)->setInt("swirl", psInfo->swirl);
-	ShaderMap::getInstance()->getShader(PARTICLES)->setInt("glow", psInfo->glow);
+	ShaderMap::getInstance()->getShader(PARTICLES)->setFloat("glow", psInfo->glow);
 	ShaderMap::getInstance()->getShader(PARTICLES)->setInt("fade", psInfo->fade);
 	ShaderMap::getInstance()->getShader(PARTICLES)->setVec3("color", psInfo->color);
 	ShaderMap::getInstance()->getShader(PARTICLES)->setVec3("blendColor", psInfo->blendColor);

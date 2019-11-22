@@ -1337,25 +1337,25 @@ void Renderer::initializeParticle()
 	//rings.name = "Assets/Textures/Spell_1.png";
 	m_txtInfo.name = "Assets/Textures/dots.png";
 
-	m_PSinfo.width = 0.5f;
-	m_PSinfo.heigth = 0.8f;
-	m_PSinfo.lifetime = 0.7f;
+	m_PSinfo.width = 0.4f;
+	m_PSinfo.heigth = 0.6f;
+	m_PSinfo.lifetime = 2.0f;
 	m_PSinfo.maxParticles = 500; //350
-	m_PSinfo.emission = 0.005f; //0.00001f;
-	m_PSinfo.force = -1.0f; //5
+	m_PSinfo.emission = 0.0075f; //0.00001f;
+	m_PSinfo.force = -0.2f; //5
 	m_PSinfo.drag = 0.0f;
 	m_PSinfo.gravity = 0.0f; //Standard is 1
 	m_PSinfo.seed = 0;
 	m_PSinfo.cont = true;
 	m_PSinfo.omnious = false;
 	m_PSinfo.spread = 0.0f;
-	m_PSinfo.glow = false;
+	m_PSinfo.glow = 2;
 	m_PSinfo.scaleDirection = 0;
 	m_PSinfo.swirl = 0;
 	m_PSinfo.fade = 1;
 
-	m_PSinfo.color = glm::vec3(0.5f, 0.0f, 0.9f); //frosty 0.0f, 0.5f, 0.9f
-	m_PSinfo.blendColor = glm::vec3(1.0f, 1.0f, 1.0f);
+	m_PSinfo.color = glm::vec3(0.0f, 0.9f, 0.9f); //frosty 0.0f, 0.5f, 0.9f
+	m_PSinfo.blendColor = glm::vec3(0.8f, 1.0f, 1.0f);
 
 	//m_PSinfo.color = glm::vec3(0.65f, 1.0f, 1.0f); //jerrys färg
 
@@ -1374,24 +1374,24 @@ void Renderer::initializeParticle()
 
 
 	//------------------------------------------
-	m_txtInfo.name = "Assets/Textures/Spell_1.png";
+	m_txtInfo.name = "Assets/Textures/dots.png";
 
-	m_enhanceInfo.width = 0.2f;
-	m_enhanceInfo.heigth = 0.2f;
-	m_enhanceInfo.lifetime = 0.3f;
+	m_enhanceInfo.width = 0.6f;
+	m_enhanceInfo.heigth = 0.8f;
+	m_enhanceInfo.lifetime = 0.1f;
 	m_enhanceInfo.maxParticles = 500; //350
-	m_enhanceInfo.emission = 0.01f; //0.00001f;
+	m_enhanceInfo.emission = 0.0005f; //0.00001f;
 	m_enhanceInfo.force = -1.0f; //5
 	m_enhanceInfo.drag = 0.0f;
 	m_enhanceInfo.gravity = 0.0f; //Standard is 1
 	m_enhanceInfo.seed = 0;
 	m_enhanceInfo.cont = true;
 	m_enhanceInfo.omnious = false;
-	m_enhanceInfo.spread = 0.0f;
-	m_enhanceInfo.glow = false;
+	m_enhanceInfo.spread = -10.0f;
+	m_enhanceInfo.glow = 1.3;
 	m_enhanceInfo.scaleDirection = 0;
 	m_enhanceInfo.swirl = 0;
-	m_enhanceInfo.fade = 1;
+	m_enhanceInfo.fade = 0;
 
 	m_enhanceInfo.color = glm::vec3(0.5f, 1.0f, 0.0f);
 	m_enhanceInfo.blendColor = glm::vec3(0.5f, 1.0f, 0.0f);
@@ -1445,7 +1445,7 @@ void Renderer::initializeParticle()
 	m_flameInfo.cont = true;     
 	m_flameInfo.omnious = true;     
 	m_flameInfo.spread = 5.0f;     
-	m_flameInfo.glow = false;     
+	m_flameInfo.glow = 1.3;     
 	m_flameInfo.scaleDirection = 0; 
 	m_flameInfo.swirl = 1;
 	m_flameInfo.fade = 1;
