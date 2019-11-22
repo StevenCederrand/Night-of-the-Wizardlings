@@ -579,7 +579,7 @@ void Renderer::removeRenderObject(GameObject* gameObject, RENDER_TYPE objType)
 			}
 		}
 	}
-	else if (objType == RENDER_TYPE::PICKUP) { //remove PICKUP from the spell PICKUP!!
+	else if (objType == RENDER_TYPE::PICKUP) { //remove spells from the spell vector!!
 	   //Find the index of the object
 		for (size_t i = 0; i < m_pickups.size(); i++)
 		{
@@ -593,7 +593,7 @@ void Renderer::removeRenderObject(GameObject* gameObject, RENDER_TYPE objType)
 		}
 	}
 	else if (objType == STATIC) {
-	   //Find the index of the object
+		//Find the index of the object
 		for (size_t i = 0; i < m_staticObjects.size(); i++)
 		{
 			if (m_staticObjects[i] == gameObject) {
@@ -654,6 +654,7 @@ void Renderer::render() {
 	MeshMap* meshMap = MeshMap::getInstance();
 	ShaderMap* shaderMap = ShaderMap::getInstance();
 	Material* material;
+	
 
 #pragma region Depth_Render & Light_Cull
 	if (m_lights.size() > 0) {
@@ -711,6 +712,7 @@ void Renderer::render() {
 			{
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
+
 				mesh = object->getMesh(j);
 
 				modelMatrix = object->getMatrix(j);
@@ -864,6 +866,7 @@ void Renderer::render() {
 				object->bindMaterialToShader(shader, material);
 			}
 
+
 			modelMatrix = glm::mat4(1.0f);
 
 			modelMatrix = object->getMatrix(j);
@@ -894,7 +897,6 @@ void Renderer::render() {
 			//Then through all of the meshes
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
-
 				mesh = object->getMesh(j);
 				//Bind the material
 				if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
@@ -959,6 +961,7 @@ void Renderer::render() {
 	shader->clearBinding();
 #pragma endregion
 
+
 #pragma region Animation_Render
 	//TODO: Evaluate this implementation, should be an easier way to bind values to shaders as they're changed
 	// Possibly extract functions. Only difference in rendering is the shader and the binding of bone matrices
@@ -1013,8 +1016,7 @@ void Renderer::render() {
 				animObj->BindAnimation(j);
 
 				//Bind the material
-				material = object->getMaterial(j);
-				object->bindMaterialToShader(shader, material);
+				object->bindMaterialToShader(ANIMATION, j);
 
 				modelMatrix = glm::mat4(1.0f);
 				modelMatrix = object->getMatrix(j);

@@ -47,8 +47,8 @@ private:
 	// Collision with players
 	void handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* spell, PlayerPacket* shooter, PlayerPacket* target);
 	bool validDeflect(SpellPacket* spell, PlayerPacket* target);
-	bool specificSpellCollision(const SpellPacket& spellPacket, const glm::vec3& playerPos, const std::vector<glm::vec3>& axis);
-	float OBBsqDist(const glm::vec3& spellPosition, const std::vector<glm::vec3>& axis, const glm::vec3& playerPos);
+	bool specificSpellCollision(const SpellPacket& spellPacket, PlayerPacket* target, const std::vector<glm::vec3>& axis);
+	float OBBsqDist(const glm::vec3& spellPosition, PlayerPacket* target, const std::vector<glm::vec3>& axis);
 	
 	PlayerPacket* getSpecificPlayer(const RakNet::RakNetGUID& guid);
 	SpellPacket* getSpecificSpell(const uint64_t& creatorGUID, const uint64_t& spellID);

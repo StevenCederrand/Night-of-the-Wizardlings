@@ -702,7 +702,7 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 	axis.emplace_back(yAxis);
 	axis.emplace_back(zAxis);
 
-	if (specificSpellCollision(*spell, target->position, axis))
+	if (specificSpellCollision(*spell, target, axis))
 	{
 
 		// It collided with a player, now check if the player is in deflect state. If the player is deflect state
@@ -791,7 +791,7 @@ bool LocalServer::validDeflect(SpellPacket* spell, PlayerPacket* target)
 	return false;
 }
 
-bool LocalServer::specificSpellCollision(const SpellPacket& spellPacket, const glm::vec3& playerPos, const std::vector<glm::vec3>& axis) {
+bool LocalServer::specificSpellCollision(const SpellPacket& spellPacket, PlayerPacket* target, const std::vector<glm::vec3>& axis) {
 
 	bool collision = false;
 	//float sphereRadius = 2.0f * spellPacket.Scale.x * 2;
@@ -807,7 +807,7 @@ bool LocalServer::specificSpellCollision(const SpellPacket& spellPacket, const g
 	{
 		interpolationPos += line;
 
-		float distx2 = OBBsqDist(interpolationPos, axis, playerPos);
+		float distx2 = OBBsqDist(interpolationPos, target, axis);
 
 		if (distx2 <= sphereRadius * sphereRadius)
 		{
@@ -818,15 +818,16 @@ bool LocalServer::specificSpellCollision(const SpellPacket& spellPacket, const g
 	return collision;
 }
 
-float LocalServer::OBBsqDist(const glm::vec3& spellPosition, const std::vector<glm::vec3>& axis, const glm::vec3& playerPos) {
+float LocalServer::OBBsqDist(const glm::vec3& spellPosition, PlayerPacket* target, const std::vector<glm::vec3>& axis) {
 
 	float dist = 0.0f;
-	glm::vec3 halfSize = glm::vec3(2.7f, 6.0f, 0.5f); // change this when real character is in
+	//glm::vec3 halfSize = glm::vec3(2.7f, 6.0f, 0.5f); // change this when real character is in
+	glm::vec3 halfSize = target->meshHalfSize;
 
 	//closest point on obb
-	glm::vec3 boxPoint = playerPos;
+	glm::vec3 boxPoint = target->position;
 	boxPoint.y += halfSize.y;
-	glm::vec3 ray = glm::vec3(spellPosition - playerPos);
+	glm::vec3 ray = glm::vec3(spellPosition - boxPoint);
 
 	for (int j = 0; j < 3; j++) {
 		float distance = glm::dot(ray, axis.at(j));

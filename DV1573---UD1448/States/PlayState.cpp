@@ -24,7 +24,7 @@ PlayState::PlayState(bool spectator)
 
 		// To get the height of the character at start due to bounding box calculations.
 		GameObject* AnimationMesh = new WorldObject("AnimationMesh");
-		AnimationMesh->loadMesh("ANIM.mesh");
+		AnimationMesh->loadMesh("NyCharacter.mesh");
 		delete AnimationMesh;
 
 		GameObject* fpsShield = new ShieldObject("PlayerShield");
