@@ -660,7 +660,7 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 		unsigned int seed = m_dstr->seedRand();
 
 		m_dstr->Destroy(dstrobj, glm::vec2(hitpoint.getX(), hitpoint.getY()), spellobj->getDirection());
-		
+
 		if (spellobj->getBodyReference() != nullptr)
 		{
 			float rndX = rand() % 1999 + 1 - 1000; rndX /= 1000;

@@ -20,11 +20,10 @@ DestructibleObject::~DestructibleObject()
 void DestructibleObject::update(float dt)
 {
 	updateBulletRigids();
-	
+	m_lifetime += dt;
 
 	if (m_destroyed && m_dstrState != 3)
 	{
-		m_lifetime += dt;
 
 		// Freezes object after time
 		if (m_lifetime >= m_fallTime * 0.60f && m_dstrState == 0)
