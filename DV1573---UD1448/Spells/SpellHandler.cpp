@@ -107,10 +107,55 @@ void SpellHandler::initFlamestrikeSpell()
 	flamestrikeBase->m_material->diffuse = newMaterial.diffuse;
 	flamestrikeBase->m_material->name = newMaterial.name;
 	flamestrikeBase->m_material->specular = newMaterial.specular;
-	tempLoader.Unload();
 
-	flamestrikeBase->m_material->diffuse = glm::vec3(1.0f, 0.5f, 0.0f);
-	flamestrikeBase->m_material->ambient = glm::vec3(1.0f, 0.5f, 0.0f);
+	MeshBox tempMeshBox;									// Meshbox holds the mesh identity and local transform to GameObject
+	std::string meshName = tempLoader.GetMeshName();
+	tempMeshBox.name = meshName;
+	tempMeshBox.transform = tempLoader.GetTransform();
+
+	if (!MaterialMap::getInstance()->existsWithName(flamestrikeBase->m_material->name)) 	// This creates the material if it does not exist (by name)
+	{
+		if (tempLoader.GetAlbedo() != "-1")
+		{
+			std::string albedoFile = TEXTUREPATH + tempLoader.GetAlbedo();
+			GLuint texture;
+			glGenTextures(1, &texture);
+			glBindTexture(GL_TEXTURE_2D, texture);
+			// set the texture wrapping/filtering options (on the currently bound texture object)
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			// load and generate the texture
+			int width, height, nrChannels;
+			unsigned char* data = stbi_load(albedoFile.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
+			if (data)
+			{
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+				glGenerateMipmap(GL_TEXTURE_2D);
+
+				flamestrikeBase->m_material->texture = true;
+				flamestrikeBase->m_material->textureID.push_back(texture);
+			}
+			else
+			{
+				std::cout << "Failed to load texture" << std::endl;
+			}
+			stbi_image_free(data);
+		}
+		else
+		{
+			flamestrikeBase->m_material->texture = false;
+		}
+		//Get the material pointer so that we don't have to always search through the MatMap, when rendering
+		tempMeshBox.material = MaterialMap::getInstance()->createMaterial(flamestrikeBase->m_material->name, *flamestrikeBase->m_material);
+		logTrace("Material created: {0}", flamestrikeBase->m_material->name);
+	}
+	else {
+		tempMeshBox.material = MaterialMap::getInstance()->getMaterial(flamestrikeBase->m_material->name);
+	}
+	flamestrikeBase->m_mesh->setMaterial(flamestrikeBase->m_material->name);
+	tempLoader.Unload();
 
 	flamestrikeBase->m_damage = 10;
 	flamestrikeBase->m_speed = 55.0f;
