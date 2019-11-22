@@ -3,6 +3,7 @@
 #include <Networking/Client.h>
 #include <Loader/BGLoader.h>
 
+
 SpellHandler::SpellHandler(BulletPhysics * bp)
 {
 	m_bp = bp;
@@ -43,10 +44,10 @@ void SpellHandler::initAttackSpell()
 	attackBase->m_material->specular = newMaterial.specular;
 	tempLoader.Unload();
 
-	//attackBase->m_material->diffuse = glm::vec3(0.65f, 1.0f, 1.0f); // Light blue
-	attackBase->m_material->diffuse = glm::vec3(0.5f, 0.0f, 0.9f);	// Purple
-	//attackBase->m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
-	attackBase->m_material->ambient = glm::vec3(0.5f, 0.0f, 0.9f);
+	attackBase->m_material->diffuse = glm::vec3(0.65f, 1.0f, 1.0f); // Light blue
+	//attackBase->m_material->diffuse = glm::vec3(0.5f, 0.0f, 0.9f);	// Purple
+	attackBase->m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
+	//attackBase->m_material->ambient = glm::vec3(0.5f, 0.0f, 0.9f);
 
 	attackBase->m_damage = 34.0f;
 	attackBase->m_speed = 70.0f;
@@ -78,11 +79,11 @@ void SpellHandler::initEnhanceSpell()
 
 	//enhanceAtkBase->m_material->diffuse = glm::vec3(0.3f, 1.0f, 0.3f);
 	//enhanceAtkBase->m_material->ambient = glm::vec3(0.3f, 1.0f, 0.3f);
-	enhanceAtkBase->m_material->diffuse = glm::vec3(0.85f, 0.3f, 0.2f);
-	enhanceAtkBase->m_material->ambient = glm::vec3(0.85f, 0.3f, 0.2f);
+	enhanceAtkBase->m_material->diffuse = glm::vec3(0.85f, 1.f, 0.4f);
+	enhanceAtkBase->m_material->ambient = glm::vec3(0.85f, 1.f, 0.4f);
 
 	enhanceAtkBase->m_damage = 34.0f;
-	enhanceAtkBase->m_speed = 110.0f;
+	enhanceAtkBase->m_speed = 70.0f;
 	enhanceAtkBase->m_radius = 0.5f;
 	enhanceAtkBase->m_coolDown = 3.0f;
 	enhanceAtkBase->m_lifeTime = 5.0f;

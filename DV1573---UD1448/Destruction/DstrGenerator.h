@@ -3,13 +3,27 @@
 //#include <Pch/Pch.h>
 #include <GameObject/DestructibleObject.h>
 
+enum DSTRType
+{
+	DSTR1,
+	DSTR2,
+	DSTR3,
+	DSTR4
+};
+
 class DstrGenerator
 {
 public:
 	DstrGenerator();
 	~DstrGenerator();
 
-	void initPoints(glm::vec2 position = glm::vec2(), int amount = 0);
+	void initPoints(glm::vec2 position = glm::vec2());
+	void setBreakSettings(DSTRType type, float breakPoints, float breakAreaRadius, float gravity);
+	void setBreakPoints(float breakPoints);
+	void setBreakRadius(float breakAreaRadius);
+	void setBreakGravity(float gravity);
+	void setBreakType(DSTRType type);
+
 	void offsetPoints(glm::vec2 position = glm::vec2());
 
 	void Destroy(DestructibleObject* object, glm::vec2 hitPosition = glm::vec3(0.0f), glm::vec3 hitDirection = glm::vec3(0.0f));
@@ -34,8 +48,11 @@ private:
 
 	std::vector<DestructionPacket> m_packets;
 	unsigned int m_seed;
+
+	DSTRType m_dstType = DSTR1;
 	unsigned int m_breakPoints;
 	float m_breakAreaRadius;
+	btVector3 m_initGravity;
 
 };
 

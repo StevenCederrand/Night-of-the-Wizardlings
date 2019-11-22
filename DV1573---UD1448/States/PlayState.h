@@ -51,6 +51,8 @@ private:
 	std::vector<Pointlight*> m_pointlights;
 
 	DstrGenerator m_dstr;
+	DstrGenerator m_dstr_alt1;
+
 	AnimatedObject* m_firstPerson;
 	SpellHandler* m_spellHandler;
 	Player* m_player;
