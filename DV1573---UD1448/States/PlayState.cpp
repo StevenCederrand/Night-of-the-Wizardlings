@@ -444,6 +444,7 @@ void PlayState::update_isPlaying(const float& dt)
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::ReadDestructableWallsMutex); // Thread safe
 
+				//SoundHandler::getInstance()->playSound(DestructionSound, Client::getInstance()->getMyData().guid);
 				auto& vec = Client::getInstance()->getDestructedWalls();
 				for (size_t i = 0; i < vec.size(); i++) {
 					const DestructionPacket& p = vec[i];
@@ -615,6 +616,7 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 	{
 	case (DESTRUCTIBLE):
 		dstrobj = static_cast<DestructibleObject*>(sp1);
+		//SoundHandler::getInstance()->playSound(DestructionSound, Client::getInstance()->getMyData().guid);
 		hitpoint = cp.m_localPointA;
 		break;
 

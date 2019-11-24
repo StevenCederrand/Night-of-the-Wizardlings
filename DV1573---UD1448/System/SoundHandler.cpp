@@ -206,6 +206,12 @@ void SoundHandler::loadAllSound()
 	{
 		logTrace(PICKUP_TOP_SPAWN_SOUND + " failed to be loaded");
 	}
+
+	success = loadSound(DestructionSound);
+	if (success == -1)
+	{
+		logTrace(DESTRUCTION_SOUND + " failed to be loaded");
+	}
 }
 
 int SoundHandler::loadSound(SoundIndexClient whatSound)
@@ -361,6 +367,9 @@ int SoundHandler::loadSound(SoundIndexCommon whatSound)
 		break;
 	case GlassBreakSound:
 		fileName += GLASS_BREAK_SOUND;
+		break;
+	case DestructionSound:
+		fileName += DESTRUCTION_SOUND;
 	}
 
 	FILE* fp = 0;
@@ -472,6 +481,7 @@ void SoundHandler::setPlayerSourceGains(RakNet::AddressOrGUID guid)
 			setSourceGain(0.3, JumpSound, m_playerSoundInfo.at(i).guid);
 			setSourceGain(0.4, StepsSound, m_playerSoundInfo.at(i).guid);
 			setSourceGain(0.3, FireSound, m_playerSoundInfo.at(i).guid);
+			setSourceGain(0.3, DestructionSound, m_playerSoundInfo.at(i).guid);
 
 			/*for (int j = 0; j < NR_OF_SUBSEQUENT_SOUNDS; j++)
 			{
@@ -574,7 +584,7 @@ int SoundHandler::playSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID pl
 			//Sounds that should be able to play over each other
 			if (whatSound == JumpSound || whatSound == BasicAttackSound ||
 				whatSound == EnhanceAttackSound || whatSound == FireSound ||
-				whatSound == GlassBreakSound)
+				whatSound == GlassBreakSound || whatSound == DestructionSound)
 			{
 				m_error = alGetError();
 				bool foundFreeSlot = false;

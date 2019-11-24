@@ -21,13 +21,14 @@ const std::string PICKUP_GRAVEYARD_SPAWN_SOUND = "HealthPotionGraveyard.ogg";
 const std::string PICKUP_MAZE_SPAWN_SOUND = "HealthPotionMaze.ogg";
 const std::string PICKUP_TUNNELS_SPAWN_SOUND = "HealthPotionTunnels.ogg";
 const std::string PICKUP_TOP_SPAWN_SOUND = "HealthPotionTop.ogg";
+const std::string DESTRUCTION_SOUND = "kablamo.ogg";
 
 //Nr of sounds every player has in common.
-const int NR_OF_COMMON_SOUNDS = 8;
+const int NR_OF_COMMON_SOUNDS = 9;
 //Nr of sounds only the client will hear.
 const int NR_OF_CLIENT_SOUNDS = 7;
-//Nr of sounds in total
-const int NR_OF_SOUNDS = 15;
+//Nr of sounds in totals
+const int NR_OF_SOUNDS = 16;
 //Nr of sounds from the same source that can be played subsequently
 const int NR_OF_SUBSEQUENT_SOUNDS = 4;
 
@@ -46,7 +47,8 @@ enum SoundIndexCommon {
 	JumpSound,
 	LandingSound,
 	FireSound,
-	GlassBreakSound
+	GlassBreakSound,
+	DestructionSound
 };
 
 //Sounds only for client here:

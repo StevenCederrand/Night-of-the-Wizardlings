@@ -122,6 +122,7 @@ void Player::updateListenerProperties()
 	shPtr->setSourcePosition(m_playerPosition, JumpSound, m_client->getMyData().guid);
 	shPtr->setSourcePosition(m_playerPosition, LandingSound, m_client->getMyData().guid);
 	shPtr->setSourcePosition(m_playerPosition, PickupGraveyardSound);
+	shPtr->setSourcePosition(m_playerPosition, DestructionSound, m_client->getMyData().guid);
 	shPtr->setSourceLooping(true, StepsSound, m_client->getMyData().guid);
 
 	for (int i = 0; i < NR_OF_SUBSEQUENT_SOUNDS; i++)
