@@ -450,7 +450,7 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 				flamestrikePS->getVertex(), flamestrikePS->getDir(), flamestrikePS->getParticle(), flamestrikePS->getLifetime()));
 		}
 		
-		m_lights.emplace_back(light);
+		//m_lights.emplace_back(light);
 	}
 	else if (objType == RENDER_TYPE::DYNAMIC) {
 		m_dynamicObjects.emplace_back(gameObject);
@@ -480,7 +480,7 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 		light.attenAndRadius = lightRef->getAttenuationAndRadius(); //First 3 dims are for the attenuation, final 4th is for radius
 		light.index = -2;
 		
-		m_lights.emplace_back(light);
+		//m_lights.emplace_back(light);
 	}
 }
 
@@ -565,7 +565,7 @@ void Renderer::removeRenderObject(GameObject* gameObject, RENDER_TYPE objType)
 					break;
 				}
 			}
-			m_lights.erase(m_lights.begin() + lightIndex);
+			//m_lights.erase(m_lights.begin() + lightIndex);
 			m_spells.erase(m_spells.begin() + index);
 			m_particleSystems.erase(m_particleSystems.begin() + index);
 
@@ -660,7 +660,7 @@ void Renderer::render() {
 	ShaderMap* shaderMap = ShaderMap::getInstance();
 	Material* material;
 	
-
+	/*
 #pragma region Depth_Render & Light_Cull
 	if (m_lights.size() > 0) {
 		shader = shaderMap->useByName(DEPTH_MAP);
@@ -801,6 +801,8 @@ void Renderer::render() {
 #pragma endregion
 	}
 
+	*/
+	
 	//BLOOMBLUR MISSION STEP 1: SAMPLE
 	//m_bloom->bindHdrFBO();
 
