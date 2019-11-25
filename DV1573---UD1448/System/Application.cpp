@@ -5,7 +5,8 @@
 #include <Networking/Client.h>
 #include <Networking/LocalServer.h>
 #include <Gui/Gui.h>
-#define AUTOSTART false;
+#define AUTOSTART true;
+#define FULLSCREEN false;
 float DeltaTime = 0.0f;
 
 Application::Application() {
@@ -53,9 +54,12 @@ bool Application::init() {
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
-
-	//m_window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Night of the Wizardlings", NULL, NULL);
+#if FULLSCREEN
 	m_window = glfwCreateWindow(1280, 720, "Night of the Wizardlings", glfwGetPrimaryMonitor(), NULL);// !!! FULLSCREEN!!!
+#else 
+	m_window = glfwCreateWindow(1280, 720, "Night of the Wizardlings", NULL, NULL);
+#endif
+	//m_window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Night of the Wizardlings", NULL, NULL);
 
 	//glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	

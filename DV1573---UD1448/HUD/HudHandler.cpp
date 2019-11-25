@@ -95,13 +95,17 @@ void HudHandler::loadPlayStateHUD() {
 	hudObject = new HudObject("Assets/Textures/hud/TripleSpell.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(454 / 6)), glm::vec2(static_cast<float>(267 / 3), static_cast<float>(265 / 3)));
 	hudObject->setPosition(glm::vec2(0, -0.735f));
 	hudObject->setAlpha(1.0f);
-	insertHUDObject(hudObject, HUDID::SPELL_SPECIAL); //0.741667
+	insertHUDObject(hudObject, HUDID::SPELL_TRIPLE); //0.741667
+	
+	hudObject = new HudObject("Assets/Textures/hud/FlameStrike.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(454 / 6)), glm::vec2(static_cast<float>(267 / 3), static_cast<float>(265 / 3)));
+	hudObject->setPosition(glm::vec2(0, -0.735f));
+	hudObject->setAlpha(1.0f);
+	insertHUDObject(hudObject, HUDID::SPELL_FLAMESTRIKE); //0.741667
 
 	hudObject = new HudObject("Assets/Textures/hud/DeflectSpell.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 4) * 3 + 128, static_cast<float>(64)), glm::vec2(static_cast<float>(189 / 3), static_cast<float>(191 / 3)));
 	hudObject->setPosition(glm::vec2(0.15f, -0.79f));
 	hudObject->setAlpha(1.0f);
 	insertHUDObject(hudObject, HUDID::SPELL_DEFLECT);
-
 }
 
 void HudHandler::fadeOut() {
