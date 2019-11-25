@@ -683,6 +683,7 @@ void Renderer::render() {
 			//Then through all of the meshes
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
+				glEnableVertexAttribArray(0);
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
 				mesh = object->getMesh(j);
@@ -697,6 +698,7 @@ void Renderer::render() {
 				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 				glBindVertexArray(0);
+				glDisableVertexAttribArray(0);
 			}
 		}
 
@@ -715,6 +717,7 @@ void Renderer::render() {
 			//Then through all of the meshes
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
+				glEnableVertexAttribArray(0);
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
 
@@ -730,6 +733,7 @@ void Renderer::render() {
 				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 				glBindVertexArray(0);
+				glDisableVertexAttribArray(0);
 			}
 		}
 
@@ -748,6 +752,7 @@ void Renderer::render() {
 			//Then through all of the meshes
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
+				glEnableVertexAttribArray(0);
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
 
@@ -763,6 +768,7 @@ void Renderer::render() {
 				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 				glBindVertexArray(0);
+				glDisableVertexAttribArray(0);
 			}
 		}
 
@@ -859,7 +865,9 @@ void Renderer::render() {
 		for (int j = 0; j < object->getMeshesCount(); j++)
 		{
 			//Fetch the current mesh and its transform
-
+			glEnableVertexAttribArray(0);
+			glEnableVertexAttribArray(1);
+			glEnableVertexAttribArray(2);
 			mesh = object->getMesh(j);
 
 			//Bind the material
@@ -883,6 +891,9 @@ void Renderer::render() {
 			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 			glBindVertexArray(0);
+			glDisableVertexAttribArray(0);
+			glDisableVertexAttribArray(1);
+			glDisableVertexAttribArray(2);
 		}
 	}
 
@@ -902,6 +913,9 @@ void Renderer::render() {
 			//Then through all of the meshes
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
+				glEnableVertexAttribArray(0);
+				glEnableVertexAttribArray(1);
+				glEnableVertexAttribArray(2);
 				mesh = object->getMesh(j);
 				//Bind the material
 				if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
@@ -924,6 +938,9 @@ void Renderer::render() {
 				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 				glBindVertexArray(0);
+				glDisableVertexAttribArray(0);
+				glDisableVertexAttribArray(1);
+				glDisableVertexAttribArray(2);
 			}
 		}
 	}
@@ -940,6 +957,9 @@ void Renderer::render() {
 			if (!object->getShouldRender()) {
 				continue;
 			}
+			glEnableVertexAttribArray(0);
+			glEnableVertexAttribArray(1);
+			glEnableVertexAttribArray(2);
 
 			Pickup* p = dynamic_cast<Pickup*>(object);
 
@@ -961,6 +981,9 @@ void Renderer::render() {
 			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 			glBindVertexArray(0);
+			glDisableVertexAttribArray(0);
+			glDisableVertexAttribArray(1);
+			glDisableVertexAttribArray(2);
 		}
 	}
 	shader->clearBinding();
@@ -1013,6 +1036,10 @@ void Renderer::render() {
 
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
+				glEnableVertexAttribArray(0);
+				glEnableVertexAttribArray(1);
+				glEnableVertexAttribArray(2);
+
 				//Fetch the current mesh and its transform
 				mesh = object->getMesh(j);
 				transform = object->getTransform(mesh, j);
@@ -1034,6 +1061,9 @@ void Renderer::render() {
 				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 				object->unbindMaterialFromShader(shader, mesh->getMaterial());
 				glBindVertexArray(0);
+				glDisableVertexAttribArray(0);
+				glDisableVertexAttribArray(1);
+				glDisableVertexAttribArray(2);
 			}
 		}
 	}
