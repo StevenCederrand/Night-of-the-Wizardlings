@@ -44,7 +44,7 @@ SoundHandler::SoundHandler()
 	//setSourceGain(0.8, BasicAttackSound, myGuid);
 	//setSourceGain(0.2, DeflectSound, myGuid);
 	
-	setSourceGain(0.7, ThemeSong0);
+	setSourceGain(0.6, ThemeSong0);
 	setSourceGain(0.5, JumpSound, myGuid);
 	setSourceGain(0.5, LandingSound, myGuid);
 	setSourceGain(0.3, StepsSound, myGuid);
