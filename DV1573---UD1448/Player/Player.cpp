@@ -7,10 +7,12 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_firstPersonMesh = new AnimatedObject("fpsMesh");
 	m_firstPersonMesh->loadMesh("FPSTESTIGEN.mesh");
 	m_firstPersonMesh->initAnimations("CastAnimation", 1.0f, 17.0f);
+	m_firstPersonMesh->initAnimations("CastTrippleAnimation", 89.0f, 114.0f);
+	m_firstPersonMesh->initAnimations("CastPotionAnimation", 137.0f, 152.0f);
 	m_firstPersonMesh->initAnimations("JumpAnimation", 1.0f, 1.0f);
-	m_firstPersonMesh->initAnimations("RunAnimation", 1.0f, 1.0f);
+	m_firstPersonMesh->initAnimations("RunAnimation", 116.0f, 136.0f);
 	m_firstPersonMesh->initAnimations("IdleAnimation", 19.0f, 87.0f);
-	m_firstPersonMesh->initAnimations("DeflectAnimation", 1.0f, 1.0f);
+	m_firstPersonMesh->initAnimations("DeflectAnimation", 154.0f, 169.0f);
 
 
 
@@ -227,8 +229,11 @@ void Player::move(float deltaTime)
 
 void Player::PlayAnimation(float deltaTime)
 {
-
-
+	while (animState.deflecting)
+	{
+		m_firstPersonMesh->playLoopAnimation("DeflectAnimation");
+		//animState.deflecting = false;
+	}
 	if (animState.running){
 		m_firstPersonMesh->playLoopAnimation("RunAnimation");
 		animState.running = false;
@@ -236,6 +241,14 @@ void Player::PlayAnimation(float deltaTime)
 	if (animState.casting) {
 		m_firstPersonMesh->playAnimation("CastAnimation");
 		animState.casting = false;
+	}
+	if (animState.castPotion) {
+		m_firstPersonMesh->playAnimation("CastPotionAnimation");
+		animState.castPotion = false;
+	}
+	if (animState.casTripple) {
+		m_firstPersonMesh->playAnimation("CastTrippleAnimation");
+		animState.casTripple = false;
 	}
 	if (animState.jumping) {
 		m_firstPersonMesh->playAnimation("JumpAnimation");
@@ -245,11 +258,7 @@ void Player::PlayAnimation(float deltaTime)
 		m_firstPersonMesh->playLoopAnimation("IdleAnimation");
 		animState.idle = false;
 	}
-	if (animState.deflecting)
-	{
-		m_firstPersonMesh->playAnimation("DeflectAnimation");
-		animState.deflecting = false;
-	}
+
 
 	m_firstPersonMesh->update(deltaTime);
 
@@ -331,6 +340,7 @@ void Player::attack()
 
 	if (Input::isMouseReleased(GLFW_MOUSE_BUTTON_RIGHT)) {				
 		m_rMouse = false;	
+		//animState.deflecting = false;
 	}	
 
 	if (Input::isKeyHeldDown(GLFW_KEY_Q))
@@ -341,7 +351,7 @@ void Player::attack()
 			m_specialCooldown = m_spellhandler->getEnhAttackBase()->m_coolDown;
 			// Start loop
 			m_enhanceAttack.start();
-			animState.casting = true;
+			animState.casTripple = true;
 		}
 	}
 
@@ -351,7 +361,7 @@ void Player::attack()
 		{
 			m_special3Cooldown = m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, FLAMESTRIKE); // Put attack on cooldown
 
-			animState.casting = true;
+			animState.castPotion = true;
 		}
 	}
 }
