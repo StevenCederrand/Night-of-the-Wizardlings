@@ -87,22 +87,22 @@ void HudHandler::loadPlayStateHUD() {
 	hudObject = new HudObject("Assets/Textures/hud/MainFrame.png", glm::vec2(static_cast<float>((SCREEN_WIDTH / 2) - 14 ), static_cast<float>(454 / 6)), glm::vec2(static_cast<float>(1643 / 3), static_cast<float>(454 / 3)));
 	insertHUDObject(hudObject, HUDID::ICON_FRAME);
 	// ___ ICONS ___
-	hudObject = new HudObject("Assets/Textures/hud/ArcaneSpell.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 4) * 3, static_cast<float>(64)), glm::vec2(static_cast<float>(193 / 3), static_cast<float>(191 / 3)));
+	hudObject = new HudObject("Assets/Textures/hud/ArcaneSpellHint.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 4) * 3, static_cast<float>(64)), glm::vec2(static_cast<float>(193 / 3), static_cast<float>(191 / 3)));
 	hudObject->setPosition(glm::vec2(-0.15f, -0.79f));
 	hudObject->setAlpha(1.0f);
 	insertHUDObject(hudObject, HUDID::SPELL_ARCANE);
 
-	hudObject = new HudObject("Assets/Textures/hud/TripleSpell.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(454 / 6)), glm::vec2(static_cast<float>(267 / 3), static_cast<float>(265 / 3)));
+	hudObject = new HudObject("Assets/Textures/hud/TripleSpellHint.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(454 / 6)), glm::vec2(static_cast<float>(267 / 3), static_cast<float>(265 / 3)));
 	hudObject->setPosition(glm::vec2(0, -0.735f));
 	hudObject->setAlpha(1.0f);
 	insertHUDObject(hudObject, HUDID::SPELL_TRIPLE); //0.741667
 	
-	hudObject = new HudObject("Assets/Textures/hud/FlameStrike.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(454 / 6)), glm::vec2(static_cast<float>(267 / 3), static_cast<float>(265 / 3)));
+	hudObject = new HudObject("Assets/Textures/hud/FlameStrikeHint.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(454 / 6)), glm::vec2(static_cast<float>(267 / 3), static_cast<float>(265 / 3)));
 	hudObject->setPosition(glm::vec2(0, -0.735f));
 	hudObject->setAlpha(1.0f);
 	insertHUDObject(hudObject, HUDID::SPELL_FLAMESTRIKE); //0.741667
 
-	hudObject = new HudObject("Assets/Textures/hud/DeflectSpell.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 4) * 3 + 128, static_cast<float>(64)), glm::vec2(static_cast<float>(189 / 3), static_cast<float>(191 / 3)));
+	hudObject = new HudObject("Assets/Textures/hud/DeflectSpellHint.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 4) * 3 + 128, static_cast<float>(64)), glm::vec2(static_cast<float>(189 / 3), static_cast<float>(191 / 3)));
 	hudObject->setPosition(glm::vec2(0.15f, -0.79f));
 	hudObject->setAlpha(1.0f);
 	insertHUDObject(hudObject, HUDID::SPELL_DEFLECT);
