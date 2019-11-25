@@ -5,7 +5,7 @@
 #include <Networking/Client.h>
 #include <Networking/LocalServer.h>
 #include <Gui/Gui.h>
-#define AUTOSTART true;
+#define AUTOSTART false;
 float DeltaTime = 0.0f;
 
 Application::Application() {
