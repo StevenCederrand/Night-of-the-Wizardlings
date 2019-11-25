@@ -260,18 +260,7 @@ void Player::PlayAnimation(float deltaTime)
 void Player::attack()
 {
 	SoundHandler* shPtr = SoundHandler::getInstance();
-
-	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_LEFT))
-	{
-		if (m_attackCooldown <= 0)
-		{
-
-			shPtr->playSound(BasicAttackSound, m_client->getMyData().guid);
-			m_attackCooldown = m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, NORMALATTACK); // Put attack on cooldown
-			animState.casting = true;
-
-		}
-	}	
+	
 	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_RIGHT))
 	{
 		//Render the shield mesh
@@ -327,31 +316,45 @@ void Player::attack()
 			m_deflecting = false;
 		}		
 	}
-
-	if (Input::isMouseReleased(GLFW_MOUSE_BUTTON_RIGHT)) {				
-		m_rMouse = false;	
-	}	
-
-	if (Input::isKeyHeldDown(GLFW_KEY_Q))
+	else
 	{
-		if (m_specialCooldown <= 0)
+
+		if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_LEFT))
 		{
-			//Sound for enhance spell is handled in spellhandler
-			m_specialCooldown = m_spellhandler->getEnhAttackBase()->m_coolDown;
-			// Start loop
-			m_enhanceAttack.start();
-			animState.casting = true;
+			if (m_attackCooldown <= 0)
+			{
+
+				shPtr->playSound(BasicAttackSound, m_client->getMyData().guid);
+				m_attackCooldown = m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, NORMALATTACK); // Put attack on cooldown
+				animState.casting = true;
+
+			}
+		}
+
+		if (Input::isKeyHeldDown(GLFW_KEY_Q))
+		{
+			if (m_specialCooldown <= 0)
+			{
+				//Sound for enhance spell is handled in spellhandler
+				m_specialCooldown = m_spellhandler->getEnhAttackBase()->m_coolDown;
+				// Start loop
+				m_enhanceAttack.start();
+				animState.casting = true;
+			}
+		}
+
+		if (Input::isKeyHeldDown(GLFW_KEY_R))
+		{
+			if (m_special3Cooldown <= 0)
+			{
+				m_special3Cooldown = m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, FLAMESTRIKE); // Put attack on cooldown
+
+				animState.casting = true;
+			}
 		}
 	}
-
-	if (Input::isKeyHeldDown(GLFW_KEY_R))
-	{
-		if (m_special3Cooldown <= 0)
-		{
-			m_special3Cooldown = m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, FLAMESTRIKE); // Put attack on cooldown
-
-			animState.casting = true;
-		}
+	if (Input::isMouseReleased(GLFW_MOUSE_BUTTON_RIGHT)) {
+		m_rMouse = false;
 	}
 }
 

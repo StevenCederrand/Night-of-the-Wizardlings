@@ -54,8 +54,8 @@ bool Application::init() {
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
 
-	m_window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Night of the Wizardlings", NULL, NULL);
-	//m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", glfwGetPrimaryMonitor(), NULL);// !!! FULLSCREEN!!!
+	//m_window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Night of the Wizardlings", NULL, NULL);
+	m_window = glfwCreateWindow(1280, 720, "Night of the Wizardlings", glfwGetPrimaryMonitor(), NULL);// !!! FULLSCREEN!!!
 
 	//glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	
@@ -78,7 +78,7 @@ bool Application::init() {
 	}
 	
 	// Vsync
-	glfwSwapInterval(0); // Turning this off will cause occasionally freezes, so don't!
+	glfwSwapInterval(1); // Turning this off will cause occasionally freezes, so don't!
 	
 	m_input = new Input();
 
