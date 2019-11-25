@@ -7,14 +7,12 @@ class DstrGenerator;
 class DestructibleObject : public GameObject
 {
 public:
-	DestructibleObject(DstrGenerator* dstr, int index, float fallTime, float fallGravity);
+	DestructibleObject(DstrGenerator* dstr, int index);
 	~DestructibleObject();
 
 	void update(float dt);
 
 	void loadDestructible(std::string fileName, float size);
-	void loadDestructible(std::vector<Vertex> vertices_in, std::string name_in,
-		Material newMaterial_in, std::string albedo_in, Transform transform, float size);
 	void loadBasic(std::string name);
 	void loadDefined(std::string name, std::vector<glm::vec2> polygon);
 	void meshFromPolygon(std::string name);
@@ -31,11 +29,9 @@ public:
 
 private:
 	std::vector<glm::vec2> m_polygonFace;
-
-	float m_fallTime;
-	btVector3 m_fallGravity;
-
 	float m_lifetime = 0.0f;
+	float m_fallTime = 0.0f;
+
 	float m_scale = 0.0f;
 	bool m_destroyed = false;
 	int m_dstrState = 0;

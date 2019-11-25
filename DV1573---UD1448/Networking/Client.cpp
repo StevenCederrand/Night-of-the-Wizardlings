@@ -995,7 +995,6 @@ void Client::updatePlayerData(Player* player)
 	m_myPlayerDataPacket.lookDirection = player->getCamera()->getCamFace();
 	m_myPlayerDataPacket.meshHalfSize = player->getMeshHalfSize();
 	m_myPlayerDataPacket.timestamp = RakNet::GetTimeMS();
-	m_myPlayerDataPacket.meshHalfSize = player->getMeshHalfSize();
 	m_myPlayerDataPacket.rotation = glm::vec3(
 		0.0f,
 		-glm::radians(player->getCamera()->getYaw() - 90.0f),

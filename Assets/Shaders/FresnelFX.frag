@@ -30,7 +30,6 @@ uniform vec3 Ambient_Color;
 uniform vec3 Diffuse_Color;
 uniform vec3 Specular_Color;
 uniform vec2 TexAndRim;
-uniform float time;
 
 uniform int LightCount;
 uniform sampler2D shieldTexture;
@@ -39,17 +38,8 @@ uniform int grayscale = 0;
 uniform P_LIGHT pLights[LIGHTS_MAX];
 
 vec3 calcDirLight(vec3 normal, vec3 diffuseColor);
-vec2 rotate(float magnitude, vec2 p);
 
 void main() {
-    vec3 pivot = vec3(0.5, -0.5, 1.);
-    vec2 p = f_UV - pivot.xy;
-    p = rotate(3.14 * time * 0.1, p);
-    float a = atan(p.y, p.x) * 1;
-    float r = sqrt(dot(p,p));
-    vec2 finalUV;
-    finalUV.x = (time * -.5) - 1/(r + 1.7);
-    finalUV.y = pivot.z * a/3.1416;
 
     vec3 position = vec3(0);
     //Create the diffuse color once
@@ -58,10 +48,19 @@ void main() {
 
     //vec3 ambientCol = (Ambient_Color + ambientStr);
     if (TexAndRim.x == 1) {
+        //ambientCol = (Ambient_Color + ambientStr) * texture(albedoTexture, f_UV).rgb;
         diffuse *= alphaTexture.rgb;
+        //diffuse = Diffuse_Color;
     }
 
     vec3 result = diffuse;
+    result += calcDirLight(f_normal, diffuse);
+
+
+
+    //result += calcDirLight(f_normal, diffuse);
+    //This is a light accumilation over the point lights
+
 
     //HOLDERS (Values that we take in but not currently use: aka CLEAN UP)
     int grayHolder = grayscale;
@@ -72,16 +71,8 @@ void main() {
 
     vec3 viewDir = normalize(cameraHolder - f_position.xyz);
     float fresnel = 1 - dot(viewDir,  f_normal);
-    result += fresnel;
-    color = vec4(result, alphaTexture.a * 1.8);
-}
-
-vec2 rotate(float magnitude, vec2 p)
-{
-    float sinTheta = sin(magnitude);
-    float cosTheta = cos(magnitude);
-    mat2 rotationMat = mat2(cosTheta, -sinTheta, sinTheta, cosTheta);
-    return p * rotationMat;
+    result += fresnel * 1;
+    color = vec4(result * 2, alphaTexture.a);
 }
 
 vec3 calcDirLight(vec3 normal, vec3 diffuseColor)

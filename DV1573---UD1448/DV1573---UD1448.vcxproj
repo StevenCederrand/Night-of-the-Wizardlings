@@ -183,12 +183,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DebugDrawer\DebugDrawer.cpp" />
-    <ClCompile Include="GameObject\EnemyShieldObject.cpp" />
-    <ClCompile Include="GameObject\ShieldObject.cpp" />
     <ClCompile Include="Destruction\DelaunayGenerator.cpp" />
     <ClCompile Include="Destruction\DstrGenerator.cpp" />
     <ClCompile Include="Destruction\PointCompare.cpp" />
     <ClCompile Include="Destruction\VoroniClipper.cpp" />
+    <ClCompile Include="Deflect\Deflect.cpp" />
     <ClCompile Include="GameObject\AnimatedObject.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
@@ -234,6 +233,7 @@
     </ClCompile>
     <ClCompile Include="HUD\HudObject.cpp" />
     <ClCompile Include="HUD\HudTextureMap.cpp" />
+    <ClCompile Include="Deflect\DeflectRender.cpp" />
     <ClCompile Include="Renderer\Renderer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
@@ -300,14 +300,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
-    <ClInclude Include="GameObject\EnemyShieldObject.h" />
-    <ClInclude Include="GameObject\ShieldObject.h" />
     <ClInclude Include="Destruction\DelaunayGenerator.h" />
     <ClInclude Include="Destruction\DstrGenerator.h" />
     <ClInclude Include="Destruction\Geometry.h" />
     <ClInclude Include="Destruction\PointCompare.h" />
     <ClInclude Include="Destruction\TriangleNode.h" />
     <ClInclude Include="Destruction\VoroniClipper.h" />
+    <ClInclude Include="Deflect\Deflect.h" />
     <ClInclude Include="GameObject\AnimatedObject.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
@@ -344,7 +343,9 @@
     <ClInclude Include="Pickups\PickupTypes.h" />
     <ClInclude Include="Player\Player.h" />
     <ClInclude Include="Renderer\PickupNotificationStructure.h" />
+    <ClInclude Include="Deflect\DeflectRender.h" />
     <ClInclude Include="Renderer\NotificationStructure.h" />
+    <ClInclude Include="Renderer\DeflectRender.h" />
     <ClInclude Include="Spells\ReflectSpell.h" />
     <ClInclude Include="Renderer\BloomBlur.h" />
     <ClInclude Include="Renderer\Camera.h">

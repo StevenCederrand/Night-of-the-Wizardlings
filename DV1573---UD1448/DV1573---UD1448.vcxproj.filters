@@ -60,12 +60,12 @@
     <ClCompile Include="Destruction\VoroniClipper.cpp" />
     <ClCompile Include="Destruction\DstrGenerator.cpp" />
     <ClCompile Include="GameObject\DestructibleObject.cpp" />
+    <ClCompile Include="Deflect\DeflectRender.cpp" />
+    <ClCompile Include="Deflect\Deflect.cpp" />
     <ClCompile Include="Particles\Particles.cpp" />
     <ClCompile Include="Particles\ParticleBuffers.cpp" />
     <ClCompile Include="GameObject\MapObject.cpp" />
-    <ClCompile Include="GameObject\ShieldObject.cpp" />
     <ClCompile Include="GFX\Pointlight.cpp" />
-    <ClCompile Include="GameObject\EnemyShieldObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
@@ -129,7 +129,7 @@
     <ClInclude Include="Texture\stb_image.h" />
     <ClInclude Include="Text\FreeType.h" />
     <ClInclude Include="Text\HUDShader.h" />
-    <ClInclude Include="System\SoundHandler.h" />
+    <ClInclude Include="System\SoundHandler.h" />   
     <ClInclude Include="Destruction\TriangleNode.h" />
     <ClInclude Include="Destruction\Geometry.h" />
     <ClInclude Include="Destruction\VoroniCalculator.h" />
@@ -138,9 +138,11 @@
     <ClInclude Include="Destruction\VoroniClipper.h" />
     <ClInclude Include="Destruction\DstrGenerator.h" />
     <ClInclude Include="GameObject\DestructibleObject.h" />
+    <ClInclude Include="Deflect\Deflect.h" />
     <ClInclude Include="System\Helper.h" />
     <ClInclude Include="Particles\Particles.h" />
     <ClInclude Include="Particles\ParticleBuffers.h" />
+    <ClInclude Include="Deflect\Deflect.h" />
     <ClInclude Include="System\Helper.h" />
     <ClInclude Include="HUD\HudObject.h" />
     <ClInclude Include="HUD\HudTextureMap.h" />
@@ -151,15 +153,14 @@
     <ClInclude Include="Pickups\PickupTypes.h" />
     <ClInclude Include="System\Randomizer.h" />
     <ClInclude Include="System\DeltaTime.h" />
+    <ClInclude Include="Renderer\DeflectRender.h" />
     <ClInclude Include="Networking\PlayerEvents.h" />
     <ClInclude Include="Renderer\NotificationStructure.h" />
     <ClInclude Include="GameObject\MapObject.h" />
-    <ClInclude Include="Renderer\PickupNotificationStructure.h" />
-    <ClInclude Include="GameObject\ShieldObject.h" />
     <ClInclude Include="GameObject\ObjectTypes.h" />
     <ClInclude Include="Renderer\PickupNotificationStructure.h" />
+    <ClInclude Include="Deflect\DeflectRender.h" />
     <ClInclude Include="GFX\Pointlight.h" />
-    <ClInclude Include="GameObject\EnemyShieldObject.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

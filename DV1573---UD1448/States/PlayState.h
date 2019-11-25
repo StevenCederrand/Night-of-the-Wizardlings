@@ -50,13 +50,12 @@ private:
 	std::vector<Pointlight*> m_pointlights;
 
 	DstrGenerator m_dstr;
-	DstrGenerator m_dstr_alt1;
-
 	AnimatedObject* m_firstPerson;
 	SpellHandler* m_spellHandler;
 	Player* m_player;
 	Camera* m_camera;
 	SkyBox* m_skybox;
+	DeflectRender* m_deflectBox;
 	BulletPhysics* m_bPhysics;
 
 	HudHandler m_hudHandler;

@@ -26,6 +26,7 @@ ReflectSpell::ReflectSpell(glm::vec3 pos) : Spell(pos, glm::vec3(0))
 	tempTransform.scale = glm::vec3(0.01f, 0.01f, 0.01f);
 	setTransform(tempTransform);
 	m_transform = tempTransform;
+
 	setWorldPosition(pos);
 }
 

@@ -190,7 +190,7 @@ void Shader::setVec4(std::string name, glm::vec4 vec)
 		return;
 	}
 
-	glUniform4fv(uniformLoc, 1, &vec[0]);
+	glUniform3fv(uniformLoc, 1, &vec[0]);
 }
 //uniform float
 void Shader::setFloat(std::string name, float num)

@@ -18,7 +18,7 @@ Renderer::Renderer()
 	//Define Work Groups
 	workGroups.x = (SCREEN_WIDTH + (SCREEN_WIDTH % TILE_SIZE)) / TILE_SIZE;
 	workGroups.y = (SCREEN_HEIGHT + (SCREEN_HEIGHT % TILE_SIZE)) / TILE_SIZE;
-	//INIT SHADER_STORAGE_BUFFER_OBJECT
+	//INIT SHADER_STORAGE_BUFFER_OBJECT 
 	glGenBuffers(1, &m_lightIndexSSBO);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_lightIndexSSBO);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(LightIndex), 0, GL_STATIC_DRAW);
@@ -29,7 +29,7 @@ Renderer::Renderer()
 	//Blending
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+	
 }
 
 Renderer::~Renderer()
@@ -56,12 +56,12 @@ void Renderer::renderHUD()
 	for (auto& item : m_2DHudMap) {
 
 		auto& vec = item.second;
-
+		
 		if (vec.size() == 0)
 			continue;
-
+			   
 		auto* hudObjectDummy = vec[0];
-
+		
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, hudObjectDummy->getTextureID());
 
@@ -132,7 +132,7 @@ void Renderer::renderAndAnimateNetworkingTexts()
 			std::string numberOfReadyPlayersText = std::to_string(numberOfPlayersReady) + "/" + std::to_string(numberOfPlayers) + " players ready";
 			if (!Client::getInstance()->isSpectating()) {
 				bool meReady = Client::getInstance()->getMyData().isReady;
-
+	
 				std::string readyBase = "You are ";
 				std::string readyText = meReady ? "Ready" : "Not Ready";
 				glm::vec3 readyColor = meReady ? glm::vec3(0.0f, 1.0f, 0.0f) : glm::vec3(1.0f, 0.0f, 0.0f);
@@ -141,7 +141,7 @@ void Renderer::renderAndAnimateNetworkingTexts()
 				unsigned int readyBaseWidth = m_text->getTotalWidth(readyBase, scale);
 				unsigned int readyWidth = m_text->getTotalWidth(readyText, scale);
 				unsigned int totalWidth = readyBaseWidth + readyWidth;
-
+				
 				m_text->RenderText(readyBase, (SCREEN_WIDTH / 2) - totalWidth * 0.5f, SCREEN_HEIGHT * 0.35f, scale.x, baseColor);
 				m_text->RenderText(readyText, (SCREEN_WIDTH / 2) - totalWidth * 0.5f + readyBaseWidth, SCREEN_HEIGHT * 0.35f, scale.x, readyColor);
 
@@ -157,11 +157,11 @@ void Renderer::renderAndAnimateNetworkingTexts()
 
 			unsigned int playersThatAreReadyWidth = m_text->getTotalWidth(numberOfReadyPlayersText, glm::vec3(0.40f));
 			m_text->RenderText(numberOfReadyPlayersText, (SCREEN_WIDTH / 2) - playersThatAreReadyWidth * 0.5f, SCREEN_HEIGHT * 0.92f, 0.40f, baseColor);
-
+			
 		}
 		else if (state == NetGlobals::SERVER_STATE::GameFinished) {
 			uint32_t minutes = Client::getInstance()->getRoundTimePacket().minutes;
-			uint32_t seconds = Client::getInstance()->getRoundTimePacket().seconds;
+			uint32_t seconds = Client::getInstance()->getRoundTimePacket().seconds; 
 			std::string timeText = std::to_string(minutes) + ":";
 
 			if (seconds >= 10) {
@@ -186,7 +186,7 @@ void Renderer::renderAndAnimateNetworkingTexts()
 
 		}
 		else {
-
+			
 			if (m_camera == nullptr) return;
 
 			glm::vec3 modeTextScale = glm::vec3(0.35f);
@@ -212,7 +212,7 @@ void Renderer::renderAndAnimateNetworkingTexts()
 
 			if (m_camera->getSpectatorMode() == SpectatorMode::ThirdPerson) {
 				const PlayerPacket* spectatedPlayer = Client::getInstance()->getSpectatedPlayer();
-
+				
 				if (spectatedPlayer == nullptr)
 					return;
 
@@ -220,12 +220,12 @@ void Renderer::renderAndAnimateNetworkingTexts()
 
 				std::string spectateText = "Spectating  ";
 				float spectateTextWidth = m_text->getTotalWidth(spectateText, textScale);
-
+				
 				std::string playerName = std::string(spectatedPlayer->userName);
 				float playerNameWidth = m_text->getTotalWidth(playerName, textScale);
-
+				
 				float totalWidth = spectateTextWidth + playerNameWidth;
-
+				
 				m_text->RenderText(spectateText, (SCREEN_WIDTH / 2) - totalWidth * 0.5f, (SCREEN_HEIGHT * 0.15f), textScale.x, glm::vec3(1.0f, 1.0f, 1.0f));
 				m_text->RenderText(playerName, (SCREEN_WIDTH / 2) - (totalWidth * 0.5f) + spectateTextWidth, (SCREEN_HEIGHT * 0.15f), textScale.x, glm::vec3(1.0f, 0.5f, 0.0f));
 
@@ -267,12 +267,12 @@ void Renderer::renderKillFeed()
 {
 	std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateKillFeedMutex);
 	for (size_t i = 0; i < m_killFeed.size(); i++) {
-
+		
 		NotificationText& notification = m_killFeed[i];
 
 		float xPos = (float)((SCREEN_WIDTH) - notification.width - 25.0f);
 		float yPos = (float)(SCREEN_HEIGHT - ((60.0f * notification.scale.x) * (i + 1)));
-
+		
 		m_text->RenderText(notification, glm::vec3(xPos, yPos, 0.0f), glm::vec2(notification.scale), notification.useAlpha);
 
 		float lifeTime = notification.lifeTimeInSeconds;
@@ -309,7 +309,7 @@ void Renderer::createDepthMap() {
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
+	
 	glGenRenderbuffers(1, &m_rbo);
 	glBindRenderbuffer(GL_RENDERBUFFER, m_rbo);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -330,7 +330,6 @@ void Renderer::initShaders() {
 	ShaderMap::getInstance()->getShader("Skybox_Shader")->setInt("skyBox", 4);
 	ShaderMap::getInstance()->createShader(DEBUG_SHADER, "VertexShader.vert", "DebugFragShader.frag");
 	ShaderMap::getInstance()->createShader(FRESNEL, "FresnelFX.vert", "FresnelFX.frag");
-	ShaderMap::getInstance()->createShader(ENEMYSHIELD, "FresnelFX.vert", "EnemyShield.frag");
 
 
 	/*=====================================================*/
@@ -357,7 +356,7 @@ void Renderer::initShaders() {
 	auto* shader = ShaderMap::getInstance()->createShader(HUD, "HUD.vs", "HUD.fs");
 	shader->use();
 	shader->setInt("textureSampler", 0);
-
+	
 	ShaderMap::getInstance()->createShader(PARTICLES, "Particles.vs", "Particles.gs", "Particles.fs");
 
 	initializeParticle();
@@ -412,14 +411,17 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 		light.position = gameObject->getTransform().position;
 		light.color = glm::vec3(1.0f);
 		light.index = m_spells.size();
+		
 		m_spells.emplace_back(gameObject);
-	
+		
+
+		//light.color = 
 		Spell* spell = dynamic_cast<Spell*>(gameObject);
 		if (spell == nullptr) return;
 
+		
 		if (spell->getType() == OBJECT_TYPE::NORMALATTACK)
 		{
-			light.attenAndRadius = m_spellHandler->getAttackBase()->m_attenAndRadius;
 			light.color = m_spellHandler->getAttackBase()->m_material->diffuse;
 			m_particleSystems.emplace_back(ParticleSystem(&m_PSinfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), attackBuffer,
 				attackPS->getVertex(), attackPS->getDir(), attackPS->getParticle(), attackPS->getLifetime()));
@@ -427,7 +429,6 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 
 		else if (spell->getType() == OBJECT_TYPE::ENHANCEATTACK)
 		{
-			light.attenAndRadius = m_spellHandler->getEnhAttackBase()->m_attenAndRadius;
 			light.color = m_spellHandler->getEnhAttackBase()->m_material->diffuse;
 			m_particleSystems.emplace_back(ParticleSystem(&m_enhanceInfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), enhanceBuffer,
 				enhancePS->getVertex(), enhancePS->getDir(), enhancePS->getParticle(), enhancePS->getLifetime()));
@@ -435,8 +436,6 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 
 		else if (spell->getType() == OBJECT_TYPE::FIRE)
 		{
-			light.position.y += 2.0f;
-			light.attenAndRadius = m_spellHandler->getFireBase()->m_attenAndRadius;
 			light.color = m_spellHandler->getFireBase()->m_material->diffuse;
 			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &smoke, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
 				flamestrikePS->getVertex(), flamestrikePS->getDir(), flamestrikePS->getParticle(), flamestrikePS->getLifetime()));
@@ -444,12 +443,10 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 
 		else if (spell->getType() == OBJECT_TYPE::FLAMESTRIKE)
 		{
-			light.attenAndRadius = m_spellHandler->getFlamestrikeBase()->m_attenAndRadius;
 			light.color = m_spellHandler->getFlamestrikeBase()->m_material->diffuse;
 			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
 				flamestrikePS->getVertex(), flamestrikePS->getDir(), flamestrikePS->getParticle(), flamestrikePS->getLifetime()));
 		}
-		
 		m_lights.emplace_back(light);
 	}
 	else if (objType == RENDER_TYPE::DYNAMIC) {
@@ -467,19 +464,14 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 	else if (objType == RENDER_TYPE::SHIELD) {
 		m_shieldObject.emplace_back(gameObject);
 	}
-	else if (objType == RENDER_TYPE::ENEMY_SHIELD) {
-		m_enemyShieldObject.emplace_back(gameObject);
-	}
 	else if (objType == RENDER_TYPE::POINTLIGHT_SOURCE) {
 		/* Place the light in the lights list */
-		Pointlight* lightRef = static_cast<Pointlight*>(gameObject);
-
 		PLIGHT light;
+
 		light.position = gameObject->getTransform().position;
-		light.color = lightRef->getColor();
-		light.attenAndRadius = lightRef->getAttenuationAndRadius(); //First 3 dims are for the attenuation, final 4th is for radius
+		light.color = glm::vec3(1.0f);
 		light.index = -2;
-		
+
 		m_lights.emplace_back(light);
 	}
 }
@@ -506,7 +498,7 @@ void Renderer::submit2DHUD(HudObject* hud)
 }
 
 void Renderer::submitSkybox(SkyBox* skybox)
-{
+{	
 	m_skyBox = skybox;
 }
 
@@ -516,7 +508,7 @@ void Renderer::submitSpellhandler(SpellHandler* spellhandler)
 }
 
 void Renderer::clear() {
-
+	
 	m_staticObjects.clear();
 	m_dynamicObjects.clear();
 	m_anistaticObjects.clear();
@@ -527,14 +519,14 @@ void Renderer::clear() {
 	m_spells.clear();
 	m_lights.clear();
 	m_2DHudMap.clear();
+	m_deflectObject.clear();
 	m_shieldObject.clear();
-	m_enemyShieldObject.clear();
 }
 
 void Renderer::removeRenderObject(GameObject* gameObject, RENDER_TYPE objType)
 {
 	int index = -1;
-
+	
 	if (objType == RENDER_TYPE::DYNAMIC) { //Remove dynamic objet from the dynamic objet vector
 		//Find the index of the object
 		for (size_t i = 0; i < m_dynamicObjects.size(); i++)
@@ -553,7 +545,7 @@ void Renderer::removeRenderObject(GameObject* gameObject, RENDER_TYPE objType)
 		//Find the index of the object
 		for (size_t i = 0; i < m_spells.size(); i++)
 		{
-			if (m_spells[i] == gameObject) {
+			if (m_spells[i] == gameObject) {	
 				index = i;
 				break;
 			}
@@ -581,7 +573,7 @@ void Renderer::removeRenderObject(GameObject* gameObject, RENDER_TYPE objType)
 			}
 		}
 	}
-	else if (objType == RENDER_TYPE::PICKUP) { //remove spells from the spell vector!!
+	else if (objType == RENDER_TYPE::PICKUP) { //remove PICKUP from the spell PICKUP!!
 	   //Find the index of the object
 		for (size_t i = 0; i < m_pickups.size(); i++)
 		{
@@ -595,7 +587,7 @@ void Renderer::removeRenderObject(GameObject* gameObject, RENDER_TYPE objType)
 		}
 	}
 	else if (objType == STATIC) {
-		//Find the index of the object
+	   //Find the index of the object
 		for (size_t i = 0; i < m_staticObjects.size(); i++)
 		{
 			if (m_staticObjects[i] == gameObject) {
@@ -628,13 +620,15 @@ void Renderer::destroy()
 	delete m_rendererInstance;
 }
 
+void Renderer::renderDeflectBox(DeflectRender* m_deflectBox)
+{
+	//REMOVE
+}
 
 void Renderer::renderSkybox()
 {
 	glDisable(GL_CULL_FACE);
-	
-	//glDepthMask(GL_FALSE);
-	glDepthFunc(GL_LEQUAL);
+	glDepthMask(GL_FALSE);
 	auto* shader = ShaderMap::getInstance()->useByName("Skybox_Shader");
 	shader->setMat4("modelMatrix", m_skyBox->getModelMatrix());
 	shader->setMat4("viewMatrix", glm::mat4(glm::mat3(m_camera->getViewMat())));
@@ -647,11 +641,10 @@ void Renderer::renderSkybox()
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, NULL);
 	glDepthMask(GL_TRUE);
-	glDepthFunc(GL_LESS);
 	glEnable(GL_CULL_FACE);
 }
 
-void Renderer::render() {
+void Renderer::render(DeflectRender* m_deflectBox) {
 	Mesh* mesh;
 	Transform transform;
 	glm::mat4 modelMatrix;
@@ -659,7 +652,6 @@ void Renderer::render() {
 	MeshMap* meshMap = MeshMap::getInstance();
 	ShaderMap* shaderMap = ShaderMap::getInstance();
 	Material* material;
-	
 
 #pragma region Depth_Render & Light_Cull
 	if (m_lights.size() > 0) {
@@ -686,7 +678,7 @@ void Renderer::render() {
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
 				mesh = object->getMesh(j);
-
+				
 				modelMatrix = object->getMatrix(j);
 
 				glBindVertexArray(mesh->getBuffers().vao);
@@ -717,9 +709,8 @@ void Renderer::render() {
 			{
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
-
 				mesh = object->getMesh(j);
-
+				
 				modelMatrix = object->getMatrix(j);
 
 				glBindVertexArray(mesh->getBuffers().vao);
@@ -750,7 +741,7 @@ void Renderer::render() {
 			{
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
-
+				
 				mesh = p->getRenderInformation().mesh;
 
 				modelMatrix = object->getMatrix(j);
@@ -767,7 +758,7 @@ void Renderer::render() {
 		}
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
+			   
 #pragma region Light_Culling
 		shader = shaderMap->useByName(LIGHT_CULL);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
@@ -775,17 +766,17 @@ void Renderer::render() {
 
 		glm::vec2 screenSize = glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT);
 		shader->setVec2("screenSize", screenSize);
-		shader->setInt("lightCount", m_lights.size());//Set the number of active pointlights in the scene
+		shader->setInt("lightCount", m_lights.size());//Set the number of active pointlights in the scene 
 
-		//Bind the depthmap
+		//Bind the depthmap	
 		glActiveTexture(GL_TEXTURE0);
 		shader->setInt("depthMap", 0); //Not sure if this has to happen every frame
 		glBindTexture(GL_TEXTURE_2D, m_depthMap);
 
-		//Send all of the light data into the compute shader
+		//Send all of the light data into the compute shader	
 		for (size_t i = 0; i < m_lights.size(); i++) {
 			shader->setVec3("lights[" + std::to_string(i) + "].position", m_lights[i].position);
-			shader->setFloat("lights[" + std::to_string(i) + "].radius", m_lights[i].attenAndRadius.w);
+			shader->setFloat("lights[" + std::to_string(i) + "].radius", P_LIGHT_RADIUS);
 		}
 
 		glDispatchCompute(workGroups.x, workGroups.y, 1);
@@ -797,8 +788,8 @@ void Renderer::render() {
 
 	//BLOOMBLUR MISSION STEP 1: SAMPLE
 	//m_bloom->bindHdrFBO();
-
-	//renderDeflectBox(m_deflectBox);
+	renderSkybox();
+	renderDeflectBox(m_deflectBox);
 
 #ifdef DEBUG_WIREFRAME
 	// DEBUG (MOSTLY FOR DSTR)
@@ -827,20 +818,34 @@ void Renderer::render() {
 	shader->setInt("LightCount", m_lights.size());
 
 	if (m_lights.size() > 0) {
-		std::string iConv = "";
 		for (size_t i = 0; i < m_lights.size(); i++) {
-			iConv = std::to_string(i);
-			
+
 			if (m_lights[i].index != -2) {
 				shader->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[m_lights[i].index]->getTransform().position);
 			}
 			else {
 				shader->setVec3("pLights[" + std::to_string(i) + "].position", m_lights[i].position);
 			}
-			
-			shader->setVec3("pLights[" + iConv + "].color", m_lights[i].color);
 
-			shader->setVec4("pLights[" + iConv + "].attenAndRadius", m_lights[i].attenAndRadius);
+			shader->setVec3("pLights[" + std::to_string(i) + "].color", m_lights[i].color);
+			/*
+			if (m_lights[i]->getType() == NORMALATTACK) {
+				shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getAttackBase()->m_material->diffuse);
+			}
+			else if (m_lights[i]->getType() == ENHANCEATTACK) {
+				shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getEnhAttackBase()->m_material->diffuse);
+			}
+			else if (m_lights[i]->getType() == FLAMESTRIKE) {
+				shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getFlamestrikeBase()->m_material->diffuse);
+			}
+			else if (m_lights[i]->getType() == FIRE) {
+				shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getFireBase()->m_material->diffuse);
+			}
+			//If no type has been defined then assume that we are working with a basic pointlight
+			else {
+				shader->setVec3("pLights[" + std::to_string(i) + "].color", glm::vec3(1, 1, 1));
+			}*/
+			shader->setFloat("pLights[" + std::to_string(i) + "].radius", P_LIGHT_RADIUS);
 		}
 	}
 
@@ -860,9 +865,9 @@ void Renderer::render() {
 		{
 			//Fetch the current mesh and its transform
 
-			mesh = object->getMesh(j);
+			mesh = object->getMesh(j); 
 
-			//Bind the material
+			//Bind the material   
 			if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
 				object->bindMaterialToShader(shader, mesh->getMaterial());
 			}
@@ -870,7 +875,6 @@ void Renderer::render() {
 				material = object->getMaterial(j);
 				object->bindMaterialToShader(shader, material);
 			}
-
 
 			modelMatrix = glm::mat4(1.0f);
 
@@ -881,11 +885,11 @@ void Renderer::render() {
 			glBindVertexArray(mesh->getBuffers().vao);
 
 			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
+			
 			glBindVertexArray(0);
 		}
 	}
-
+	
 	shader->clearBinding();
 	//Dynamic objects
 	if (m_dynamicObjects.size() > 0) {
@@ -902,8 +906,9 @@ void Renderer::render() {
 			//Then through all of the meshes
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
+
 				mesh = object->getMesh(j);
-				//Bind the material
+				//Bind the material   
 				if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
 					object->bindMaterialToShader(shader, mesh->getMaterial());
 				}
@@ -922,7 +927,7 @@ void Renderer::render() {
 				glBindVertexArray(mesh->getBuffers().vao);
 
 				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
+				
 				glBindVertexArray(0);
 			}
 		}
@@ -947,7 +952,7 @@ void Renderer::render() {
 			mesh = p->getRenderInformation().mesh;
 			//Bind the material
 			object->bindMaterialToShader(shader, p->getRenderInformation().material);
-
+				
 			//Bind the modelmatrix
 			glm::mat4 mMatrix = glm::mat4(1.0f);
 			mMatrix = glm::translate(mMatrix, p->getTransform().position);
@@ -959,7 +964,7 @@ void Renderer::render() {
 			glBindVertexArray(mesh->getBuffers().vao);
 
 			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
+			
 			glBindVertexArray(0);
 		}
 	}
@@ -967,33 +972,87 @@ void Renderer::render() {
 #pragma endregion
 
 
+#pragma region Deflect_Render
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_CULL_FACE);
+	glDepthFunc(GL_LEQUAL);
+	shader = shaderMap->useByName(FRESNEL);
+	
+	//Bind view- and projection matrix
+	bindMatrixes(shader);
+
+	shader->setVec3("CameraPosition", m_camera->getCamPos());
+	//Add a step where we insert lights into the scene
+	shader->setInt("LightCount", m_spells.size());
+
+	//Render Deflect Objects
+	for (GameObject* object : m_shieldObject)
+	{
+		if (object == nullptr) {
+			continue;
+		}
+
+		if (!object->getShouldRender()) {
+			continue;
+		}
+
+		//Then through all of the meshes
+		for (int j = 0; j < object->getMeshesCount(); j++)
+		{
+			//Fetch the current mesh and its transform
+			mesh = object->getMesh(j);
+
+			//Bind the material
+			material = object->getMaterial(j);
+			object->bindMaterialToShader(shader, material);
+
+			modelMatrix = glm::mat4(1.0f);
+
+			modelMatrix = object->getMatrix(j);
+			//Bind the modelmatrix
+			shader->setMat4("modelMatrix", modelMatrix);
+
+			glBindVertexArray(mesh->getBuffers().vao);
+
+			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+			
+			glBindVertexArray(0);
+		}
+	}
+	
+	shader->clearBinding();
+	glEnable(GL_CULL_FACE);
+#pragma endregion
+
 #pragma region Animation_Render
 	//TODO: Evaluate this implementation, should be an easier way to bind values to shaders as they're changed
 	// Possibly extract functions. Only difference in rendering is the shader and the binding of bone matrices
 	if (m_anistaticObjects.size() > 0) {
 		shader = shaderMap->useByName(ANIMATION);
-
+		
 		//Bind view- and projection matrix
 		bindMatrixes(shader);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
 
 		//Add a step where we insert lights into the scene
 		shader->setInt("LightCount", m_spells.size());
-		if (m_lights.size() > 0) {
-			std::string iConv = "";
-			for (size_t i = 0; i < m_lights.size(); i++) {
-				iConv = std::to_string(i);
-
-				if (m_lights[i].index != -2) {
-					shader->setVec3("pLights[" + iConv + "].position", m_lights[i].position);
+		if (m_spells.size() > 0) {
+			for (size_t i = 0; i < m_spells.size(); i++) {
+				shader->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[i]->getTransform().position);
+				if (m_spells[i]->getType() == NORMALATTACK) {
+					shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getAttackBase()->m_material->diffuse);
 				}
-				else {
-					shader->setVec3("pLights[" + iConv + "].position", m_lights[i].position);
+				else if (m_spells[i]->getType() == ENHANCEATTACK) {
+					shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getEnhAttackBase()->m_material->diffuse);
 				}
-
-				shader->setVec3("pLights[" + iConv + "].color", m_lights[i].color);
-
-				shader->setVec4("pLights[" + iConv + "].attenAndRadius", m_lights[i].attenAndRadius);
+				else if (m_spells[i]->getType() == FLAMESTRIKE) {
+					shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getFlamestrikeBase()->m_material->diffuse);
+				}
+				else if (m_spells[i]->getType() == FIRE) {
+					shader->setVec3("pLights[" + std::to_string(i) + "].color", m_spellHandler->getFireBase()->m_material->diffuse);
+				}
+				shader->setFloat("pLights[" + std::to_string(i) + "].radius", P_LIGHT_RADIUS);
 			}
 		}
 		for (GameObject* object : m_anistaticObjects)
@@ -1016,12 +1075,13 @@ void Renderer::render() {
 				//Fetch the current mesh and its transform
 				mesh = object->getMesh(j);
 				transform = object->getTransform(mesh, j);
-
+				
 				//Bind calculated bone matrices
 				animObj->BindAnimation(j);
-
+				
 				//Bind the material
-				object->bindMaterialToShader(ANIMATION, j);
+				material = object->getMaterial(j);
+				object->bindMaterialToShader(shader, material);
 
 				modelMatrix = glm::mat4(1.0f);
 				modelMatrix = object->getMatrix(j);
@@ -1037,10 +1097,10 @@ void Renderer::render() {
 			}
 		}
 	}
-
+	
 	shader->clearBinding();
 #pragma endregion
-	renderSkybox();
+
 	// Spell Rendering
 	m_spellHandler->renderSpell();
 
@@ -1071,107 +1131,7 @@ void Renderer::render() {
 	//m_bloom->sendTextureLastPass();
 	//m_bloom->renderQuad();
 	//m_bloom->unbindTextures();
-
-#pragma region Enemy_Deflect_Render
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glDisable(GL_CULL_FACE);
-	glDepthFunc(GL_LEQUAL);
-	shader = shaderMap->useByName(ENEMYSHIELD);
-
-	//Bind view- and projection matrix
-	bindMatrixes(shader);
-
-	shader->setVec3("CameraPosition", m_camera->getCamPos());
-	//Add a step where we insert lights into the scene
-	shader->setInt("LightCount", m_spells.size());
-
-	//Render Deflect Objects
-	for (GameObject* object : m_enemyShieldObject)
-	{
-		//Then through all of the meshes
-		for (int j = 0; j < object->getMeshesCount(); j++)
-		{
-			//Fetch the current mesh and its transform
-			mesh = meshMap->getMesh(object->getMeshName(j));
-			shader->setFloat("time", glfwGetTime());
-			//Bind the material
-			object->bindMaterialToShader(shader, mesh->getMaterial());
-
-			modelMatrix = glm::mat4(1.0f);
-
-			modelMatrix = object->getMatrix(j);
-			//Bind the modelmatrix
-			shader->setMat4("modelMatrix", modelMatrix);
-
-			glBindVertexArray(mesh->getBuffers().vao);
-
-			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
-			glBindVertexArray(0);
-		}
-	}
-
-	for (size_t i = 0; i < m_enemyShieldObject.size(); i++)
-	{
-		delete m_enemyShieldObject[i];
-	}
-
-	m_enemyShieldObject.clear();
-	shader->clearBinding();
-#pragma endregion
-
-#pragma region Deflect_Render
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glDisable(GL_CULL_FACE);
-	glDepthFunc(GL_LEQUAL);
-	shader = shaderMap->useByName(FRESNEL);
-
-	//Bind view- and projection matrix
-	bindMatrixes(shader);
-
-	shader->setVec3("CameraPosition", m_camera->getCamPos());
-	//Add a step where we insert lights into the scene
-	shader->setInt("LightCount", m_spells.size());
-
-	//Render Deflect Objects
-	for (GameObject* object : m_shieldObject)
-	{
-		//Then through all of the meshes
-		for (int j = 0; j < object->getMeshesCount(); j++)
-		{
-			//Fetch the current mesh and its transform
-			mesh = meshMap->getMesh(object->getMeshName(j));
-			shader->setFloat("time", glfwGetTime());
-			//Bind the material
-			object->bindMaterialToShader(shader, mesh->getMaterial());
-
-			modelMatrix = glm::mat4(1.0f);
-
-			modelMatrix = object->getMatrix(j);
-			//Bind the modelmatrix
-			shader->setMat4("modelMatrix", modelMatrix);
-
-			glBindVertexArray(mesh->getBuffers().vao);
-
-			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
-			glBindVertexArray(0);
-		}
-	}
-
-	for (size_t i = 0; i < m_shieldObject.size(); i++)
-	{
-		delete m_shieldObject[i];
-	}
-
-	m_shieldObject.clear();
-	shader->clearBinding();
-#pragma endregion
-
-
-
+	
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -1179,12 +1139,11 @@ void Renderer::render() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_CULL_FACE);
-
+	
 	renderAndAnimateNetworkingTexts();
 	renderBigNotifications();
 	renderKillFeed();
 	renderHUD();
-	m_enemyShieldObject.clear();
 }
 
 
@@ -1209,7 +1168,7 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 		modelMatrix = glm::scale(modelMatrix, meshTransform.scale);
 		modelMatrix *= glm::mat4_cast(meshTransform.rotation);
 
-		shader->setMat4("modelMatrix", modelMatrix);
+		shader->setMat4("modelMatrix", modelMatrix);		
 
 		if (m_spells[i]->getType() == OBJECT_TYPE::NORMALATTACK)
 		{
@@ -1267,7 +1226,6 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 		}
 
 	}
-
 }
 
 void Renderer::renderDebug()
@@ -1329,27 +1287,27 @@ void Renderer::initializeParticle()
 
 	//
 	//rings.name = "Assets/Textures/Spell_1.png";
-	m_txtInfo.name = "Assets/Textures/dots.png";
+	m_txtInfo.name = "Assets/Textures/Spell_1.png";
 
-	m_PSinfo.width = 0.4f;
-	m_PSinfo.heigth = 0.6f;
-	m_PSinfo.lifetime = 1.5f;
-	m_PSinfo.maxParticles = 100; //350
-	m_PSinfo.emission = 0.02f; //0.00001f;
-	m_PSinfo.force = -0.2f; //5
+	m_PSinfo.width = 0.3f;
+	m_PSinfo.heigth = 0.1f;
+	m_PSinfo.lifetime = 1.0f;
+	m_PSinfo.maxParticles = 500; //350
+	m_PSinfo.emission = 0.01f; //0.00001f;
+	m_PSinfo.force = -1.0f; //5
 	m_PSinfo.drag = 0.0f;
 	m_PSinfo.gravity = 0.0f; //Standard is 1
 	m_PSinfo.seed = 0;
 	m_PSinfo.cont = true;
 	m_PSinfo.omnious = false;
 	m_PSinfo.spread = 0.0f;
-	m_PSinfo.glow = 2;
+	m_PSinfo.glow = false;
 	m_PSinfo.scaleDirection = 0;
 	m_PSinfo.swirl = 0;
 	m_PSinfo.fade = 1;
 
-	m_PSinfo.color = glm::vec3(0.0f, 0.9f, 0.9f); //frosty 0.0f, 0.5f, 0.9f
-	m_PSinfo.blendColor = glm::vec3(0.8f, 1.0f, 1.0f);
+	m_PSinfo.color = glm::vec3(0.5f, 0.0f, 0.9f); //frosty 0.0f, 0.5f, 0.9f
+	m_PSinfo.blendColor = glm::vec3(1.0f, 1.0f, 1.0f);
 
 	//m_PSinfo.color = glm::vec3(0.65f, 1.0f, 1.0f); //jerrys färg
 
@@ -1368,29 +1326,28 @@ void Renderer::initializeParticle()
 
 
 	//------------------------------------------
-	m_txtInfo.name = "Assets/Textures/star.png";
 
-	m_enhanceInfo.width = 0.3f;
-	m_enhanceInfo.heigth = 0.3f;
+	m_enhanceInfo.width = 0.2f;
+	m_enhanceInfo.heigth = 0.2f;
 	m_enhanceInfo.lifetime = 0.3f;
-	m_enhanceInfo.maxParticles = 100; //350
+	m_enhanceInfo.maxParticles = 500; //350
 	m_enhanceInfo.emission = 0.01f; //0.00001f;
-	m_enhanceInfo.force = -0.2f; //5
+	m_enhanceInfo.force = -1.0f; //5
 	m_enhanceInfo.drag = 0.0f;
 	m_enhanceInfo.gravity = 0.0f; //Standard is 1
 	m_enhanceInfo.seed = 0;
 	m_enhanceInfo.cont = true;
 	m_enhanceInfo.omnious = false;
-	m_enhanceInfo.spread = -1.0f;
-	m_enhanceInfo.glow = 1.3;
+	m_enhanceInfo.spread = 0.0f;
+	m_enhanceInfo.glow = false;
 	m_enhanceInfo.scaleDirection = 0;
 	m_enhanceInfo.swirl = 0;
 	m_enhanceInfo.fade = 1;
 
 	m_enhanceInfo.color = glm::vec3(0.5f, 1.0f, 0.0f);
-	m_enhanceInfo.blendColor = glm::vec3(1.0f, 1.0f, 1.0f);
+	m_enhanceInfo.blendColor = glm::vec3(0.5f, 1.0f, 0.0f);
 
-	m_enhanceInfo.color = glm::vec3(0.85f, 1.f, 0.2f); //jerrys färg
+	m_enhanceInfo.color = glm::vec3(0.85f, 0.3f, 0.2f); //jerrys färg
 	m_enhanceInfo.direction = glm::vec3(1.0f, 0.0f, 0.0f);
 	vertexCountDiff2 = m_enhanceInfo.maxParticles;
 	emissionDiff2 = m_enhanceInfo.emission;
@@ -1429,25 +1386,21 @@ void Renderer::initializeParticle()
 	//emissionDiff3 = m_flameInfo.emission;
 	m_flameInfo.width = 1.2f;     
 	m_flameInfo.heigth = 1.0f;     
-	m_flameInfo.lifetime = 10.0f;     
-	m_flameInfo.maxParticles = 300; //350     
+	m_flameInfo.lifetime = 12.0f;     
+	m_flameInfo.maxParticles = 500; //350     
 	m_flameInfo.emission = 0.02f; //0.00001f;     
-	m_flameInfo.force = -0.04f; //5     
-	m_flameInfo.drag = 0.0f;     
-	m_flameInfo.gravity = -0.2f; //Standard is 1     
+	m_flameInfo.force = -0.04f; //5     m_flameInfo.drag = 0.0f;     
+	m_flameInfo.gravity = 0.0f; //Standard is 1     
 	m_flameInfo.seed = 1;     
 	m_flameInfo.cont = true;     
 	m_flameInfo.omnious = true;     
-	m_flameInfo.spread = 5.0f;     
-	m_flameInfo.glow = 1.3;     
+	m_flameInfo.spread = 20.0f;     
+	m_flameInfo.glow = false;     
 	m_flameInfo.scaleDirection = 0; 
 	m_flameInfo.swirl = 1;
-	m_flameInfo.fade = 1;
-	m_flameInfo.color = glm::vec3(1.0f, 0.2f, 0.0f);
+	m_flameInfo.fade = 1;     
+	m_flameInfo.color = glm::vec3(1.0f, 0.2f, 0.0f);     
 	m_flameInfo.blendColor = glm::vec3(1.0f, 1.0f, 0.1f);
-	m_flameInfo.randomSpawn = true;
-	//m_flameInfo.color = glm::vec3(0.8f, 0.4f, 0.0f);     
-	//m_flameInfo.blendColor = glm::vec3(1.0f, 1.0f, 1.0f);
 	m_flameInfo.direction = glm::vec3(0.0f, 1.0f, 0.0f);     
 	vertexCountDiff3 = m_flameInfo.maxParticles;     
 
@@ -1465,13 +1418,13 @@ void Renderer::initializeParticle()
 }
 
 void Renderer::updateParticles(float dt)
-{
+{ 
 	for (int i = 0; i < m_particleSystems.size(); i++)
 	{
 		if (i >= m_spells.size()) continue;
 
 		Spell* spell = dynamic_cast <Spell*>(m_spells[i]);
-
+		
 		if (spell == nullptr) continue;
 
 		if (spell->getType() == NORMALATTACK)

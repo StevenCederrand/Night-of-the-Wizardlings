@@ -4,7 +4,7 @@ in vec2 UV_ps;
 in float life_ps;
 
 uniform sampler2D ps_texture;
-uniform float glow;
+uniform int glow;
 uniform int fade;
 uniform vec3 color;
 uniform vec3 blendColor;
@@ -12,10 +12,10 @@ uniform vec3 blendColor;
 out vec4 fragment_color;
 void main() 
 {
-	fragment_color = texture(ps_texture, UV_ps);// * 2;
-	if (glow != 0)
+	fragment_color = texture(ps_texture, UV_ps);
+	if (glow == 1)
 	{
-		fragment_color.xyz *= glow;
+		fragment_color.xyz = vec3(0.0f, 1.0f, 0.0f);
 	}
 
 	//Fade in

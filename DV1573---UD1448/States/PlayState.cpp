@@ -21,23 +21,15 @@ PlayState::PlayState(bool spectator)
 	m_bPhysics = new BulletPhysics(-20.0f);
 
 	if (spectator == false) {
-
+		
 		// To get the height of the character at start due to bounding box calculations.
 		GameObject* AnimationMesh = new WorldObject("AnimationMesh");
-		AnimationMesh->loadMesh("NyCharacter.mesh");
+		AnimationMesh->loadMesh("ANIM.mesh");
 		delete AnimationMesh;
-
-		GameObject* fpsShield = new ShieldObject("PlayerShield");
-		fpsShield->loadMesh("ShieldMeshFPS.mesh");
-		delete fpsShield;
-
-		GameObject* enemyShield = new EnemyShieldObject("enemyShield");
-		enemyShield->loadMesh("EnemyShieldMesh.mesh");
-		delete enemyShield;
 
 		m_spellHandler = new SpellHandler(m_bPhysics);
 		m_spellHandler->setOnHitCallback(std::bind(&PlayState::onSpellHit_callback, this));
-
+		
 		m_player = new Player(m_bPhysics, "Player", NetGlobals::PlayerFirstSpawnPoint, m_camera, m_spellHandler);
 		m_player->setHealth(NetGlobals::PlayerMaxHealth);
 
@@ -52,7 +44,7 @@ PlayState::PlayState(bool spectator)
 		m_camera->setSpectatorMode(SpectatorMode::FreeCamera);
 	}
 
-
+	
 	Renderer* renderer = Renderer::getInstance();
 	renderer->setupCamera(m_camera);
 
@@ -66,51 +58,15 @@ PlayState::PlayState(bool spectator)
 	m_objects[m_objects.size() - 1]->loadMesh("Academy.mesh");
 	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
 
-	//			TOO LAGGY ATM
-	////LIGHTS
-	//// Church tunnel
-	//Pointlight* pointLight = new Pointlight(glm::vec3(30.0f, 14.0f, 14.0f), glm::vec3(0.4, 0.7, 1.0));
-	//pointLight->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 47.0f));
-	//m_pointlights.emplace_back(pointLight);
-	//
-	//// Church
-	//Pointlight* pointLight1 = new Pointlight(glm::vec3(62.0f, 14.0f, 0.0f), glm::vec3(0.4, 0.7, 1.0));
-	//pointLight1->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 47.0f));
-	//m_pointlights.emplace_back(pointLight1);
-	//
-	//// Middle
-	//Pointlight* pointLight2 = new Pointlight(glm::vec3(0.0f, 26.0f, 0.0f), glm::vec3(1.0, 0.0, 0.0));
-	//pointLight2->setAttenuationAndRadius(glm::vec4(1.0f, 0.19f, 0.132f, 31.0f));
-	//m_pointlights.emplace_back(pointLight2);
-	//
-	//// Large area
-	//Pointlight* pointLight3 = new Pointlight(glm::vec3(-40.0f, 21.0f, 10.0f), glm::vec3(0.9, 0.4, 1.0));
-	//pointLight3->setAttenuationAndRadius(glm::vec4(1.0f, 0.05f, 0.009f, 47.0f));
-	//m_pointlights.emplace_back(pointLight3);
-	//
-	//// Forward wall platforms R
-	//Pointlight* pointLight4 = new Pointlight(glm::vec3(-27.0f, 19.0f, -37.0f), glm::vec3(0.4, 0.7, 1.0));
-	//pointLight4->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 47.0f));
-	//m_pointlights.emplace_back(pointLight4);
-	//
-	//// Forward wall platforms L
-	//Pointlight* pointLight5 = new Pointlight(glm::vec3(31.0f, 19.0f, -37.0f), glm::vec3(0.4, 0.7, 1.0));
-	//pointLight5->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 47.0f));
-	//m_pointlights.emplace_back(pointLight5);
-	//
-	//// Maze
-	//Pointlight* pointLight6 = new Pointlight(glm::vec3(-100.0f, 12.0f, -3.0f), glm::vec3(0.3, 0.4, 1.0));
-	//pointLight6->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 64.0f));
-	//m_pointlights.emplace_back(pointLight6);
+	//Create a pointlight
+	Pointlight* pointLight = new Pointlight(glm::vec3(10.0f, 13.0f, 6.0f), glm::vec3(1));
 
-
-
-
+	m_pointlights.emplace_back(pointLight);
 	for (size_t i = 0; i < m_pointlights.size(); i++)
 	{
 		renderer->submit(m_pointlights.at(i), RENDER_TYPE::POINTLIGHT_SOURCE);
 	}
-
+	
 
 	//m_firstPerson = new AnimatedObject("NyCharacter");
 	//m_firstPerson->loadMesh("NyCharacter.mesh");
@@ -121,7 +77,7 @@ PlayState::PlayState(bool spectator)
 
 	gContactAddedCallback = callbackFunc;
 	// Geneterate bullet objects / hitboxes
-
+	
 	//if (spectator == false) {
 		for (size_t i = 0; i < m_objects.size(); i++)
 		{
@@ -148,12 +104,9 @@ PlayState::PlayState(bool spectator)
 	m_hideHUD = false;	
 }
 
-// Might change these Pepega constructors later if feeling cute
+// TODO: loader function for this XD
 void PlayState::loadDestructables()
 {
-	m_dstr.setBreakSettings(DSTR1, 16, 1.8f, 30.0f);
-	m_dstr_alt1.setBreakSettings(DSTR2, 16, 1.8f, -1.0f);
-
 	Renderer* renderer = Renderer::getInstance();
 	for (int i = (int)m_objects.size() - 1; i >= 0; i--)
 	{
@@ -165,102 +118,126 @@ void PlayState::loadDestructables()
 		}
 	}
 
+	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall1.mesh", 0.15f);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
 
-	BGLoader meshLoader; // The file loader
-	// Wall desctructibles
-	meshLoader.LoadMesh(MESHPATH + "DSTRWalls.mesh");
-	for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
-	{
-		m_objects.emplace_back(new DestructibleObject(
-			&m_dstr_alt1,
-			m_objects.size(),
-			2.5f,
-			-8.0f));
+	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall2.mesh", 0.15f);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
 
-		static_cast<DestructibleObject*>(m_objects.back())->loadDestructible(
-			meshLoader.GetVertices(i),
-			meshLoader.GetMeshName(i),
-			meshLoader.GetMaterial(i),
-			meshLoader.GetAlbedo(i),
-			meshLoader.GetTransform(i),
-			0.15f
-		);
+	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall3.mesh", 0.15f);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
 
-		m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-		Renderer::getInstance()->submit(m_objects.back(), STATIC);
-	}
-	meshLoader.Unload();
+	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall4.mesh", 0.15f);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
 
-	// Maze desctructibles
-	meshLoader.LoadMesh(MESHPATH + "DSTRMaze.mesh");
-	for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
-	{
-		m_objects.emplace_back(new DestructibleObject(
-			&m_dstr_alt1,
-			m_objects.size(),
-			1.6f,
-			-40.0f
-		));
+	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall5.mesh", 0.15f);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
 
-		static_cast<DestructibleObject*>(m_objects.back())->loadDestructible(
-			meshLoader.GetVertices(i),
-			meshLoader.GetMeshName(i),
-			meshLoader.GetMaterial(i),
-			meshLoader.GetAlbedo(i),
-			meshLoader.GetTransform(i),
-			0.25f
-		);
+	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall6.mesh", 0.15f);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
 
-		m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-		Renderer::getInstance()->submit(m_objects.back(), STATIC);
-	}
-	meshLoader.Unload();
+	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall7.mesh", 0.15f);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
 
-	// Pillar destructibles
-	meshLoader.LoadMesh(MESHPATH + "DSTRPillars.mesh");
-	for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
-	{
-		m_objects.emplace_back(new DestructibleObject(
-			&m_dstr_alt1,
-			m_objects.size(),
-			2.6f,
-			-8.0f
-		));
+	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall8.mesh", 0.15f);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
 
-		static_cast<DestructibleObject*>(m_objects.back())->loadDestructible(
-			meshLoader.GetVertices(i),
-			meshLoader.GetMeshName(i),
-			meshLoader.GetMaterial(i),
-			meshLoader.GetAlbedo(i),
-			meshLoader.GetTransform(i),
-			1.0f
-		);
+	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall9.mesh", 0.15f);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
 
-		m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-		Renderer::getInstance()->submit(m_objects.back(), STATIC);
-	}
-	meshLoader.Unload();
+	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall10.mesh", 0.15f);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
 
-	// CONCEPT
-	//// Outside walls destructibles
-	//meshLoader.LoadMesh(MESHPATH + "DSTROutsideWalls.mesh");
-	//for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
-	//{
-	//	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
-	//
-	//	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible(
-	//		meshLoader.GetVertices(i),
-	//		meshLoader.GetMeshName(i),
-	//		meshLoader.GetMaterial(i),
-	//		meshLoader.GetAlbedo(i),
-	//		meshLoader.GetTransform(i),
-	//		1.6f
-	//	);
-	//
-	//	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-	//	Renderer::getInstance()->submit(m_objects.back(), STATIC);
-	//}
-	//meshLoader.Unload();
+	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall11.mesh", 0.15f);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+
+	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall12.mesh", 0.15f);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+
+	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall13.mesh", 0.15f);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+
+	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall14.mesh", 0.15f);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+
+	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTWall15.mesh", 0.15f);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+
+	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTMazeWall1.mesh", 0.25f);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+
+	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTMazeWall2.mesh", 0.25f);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+
+	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTMazeWall3.mesh", 0.25f);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+
+	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTMazeWall4.mesh", 0.25f);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+
+	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTMazeWall5.mesh", 0.25f);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+
+	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTPillar1.mesh", 1.00f);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+
+	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTPillar2.mesh", 1.00f);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+
+	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTPillar3.mesh", 1.00f);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+
+	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
+	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible("DSTPillar4.mesh", 1.00f);
+	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+	Renderer::getInstance()->submit(m_objects.back(), STATIC);
+
+	
 }
 
 PlayState::~PlayState()
@@ -269,19 +246,20 @@ PlayState::~PlayState()
 		delete object;
 
 	for (Pointlight* light : m_pointlights)
-		if (light)
-			delete light;
+		delete light;
 
 	GUIclear();
 
 	m_pointlights.clear();
 	m_objects.clear();
-
+	
 	delete m_skybox;
 	delete m_player;
 	delete m_bPhysics;
 	delete m_spellHandler;
 	delete m_camera;
+	delete m_deflectBox;
+
 	if (LocalServer::getInstance()->isInitialized()) {
 		LocalServer::getInstance()->destroy();
 	}
@@ -291,9 +269,9 @@ PlayState::~PlayState()
 	}
 
 }
-	
+
 void PlayState::update(float dt)
-{
+{	
 	//m_firstPerson->playLoopAnimation("Test");
 	//m_firstPerson->update(dt);
 	Client::getInstance()->updateNetworkEntities(dt);
@@ -322,8 +300,8 @@ void PlayState::removeDeadObjects()
 			if (obj->is_destroyed() && obj->getLifetime() >= 20.0 )
 			{
 				renderer->removeRenderObject(m_objects[i], STATIC);
-				//delete m_objects[i];
-				//m_objects.erase(m_objects.begin() + i);
+				delete m_objects[i];
+				m_objects.erase(m_objects.begin() + i);
 			}
 		}
 	}
@@ -356,7 +334,7 @@ void PlayState::update_isPlaying(const float& dt)
 			case PlayerEvents::Died:
 			{
 				logWarning("[Event system] Died");
-				//Update the HP bar
+				//Update the HP bar 
 				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				const PlayerPacket* shooter = clientPtr->getLatestPlayerThatHitMe();
@@ -371,7 +349,7 @@ void PlayState::update_isPlaying(const float& dt)
 			case PlayerEvents::Respawned:
 			{
 				logWarning("[Event system] Respawned");
-				//Update the HP bar
+				//Update the HP bar 
 				m_player->setPlayerPos(Client::getInstance()->getMyData().latestSpawnPosition);
 				m_player->setHealth(NetGlobals::PlayerMaxHealth);
 				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
@@ -384,10 +362,10 @@ void PlayState::update_isPlaying(const float& dt)
 			case PlayerEvents::TookDamage:
 			{
 				logWarning("[Event system] Took damage");
-
+				
 				shPtr->setSourcePosition(m_player->getPlayerPos(), TakingDamageSound);
 				shPtr->playSound(TakingDamageSound);
-
+			
 				const PlayerPacket* shooter = clientPtr->getLatestPlayerThatHitMe();
 
 				if (shooter != nullptr) {
@@ -401,7 +379,7 @@ void PlayState::update_isPlaying(const float& dt)
 					float playerAngle = glm::degrees(playerRotation.y);
 					float indicatorAngle = angle - playerAngle;
 
-					// Health
+					// Health 
 					int myNewHealth = Client::getInstance()->getMyData().health;
 					float clipPercentage = static_cast<float>(myNewHealth) / 100.0f;
 
@@ -473,8 +451,8 @@ void PlayState::update_isPlaying(const float& dt)
 					const DestructionPacket& p = vec[i];
 
 					// Destroy
-					m_dstr_alt1.seedRand(p.randomSeed);
-					m_dstr_alt1.Destroy(static_cast<DestructibleObject*>(m_objects[p.index]), p.hitPoint, p.hitDir);
+					m_dstr.seedRand(p.randomSeed);
+					m_dstr.Destroy(static_cast<DestructibleObject*>(m_objects[p.index]), p.hitPoint, p.hitDir);
 				}
 
 				// Tells the client to clear the vector
@@ -499,14 +477,14 @@ void PlayState::update_isPlaying(const float& dt)
 
 			case PlayerEvents::GameEnded:
 			{
-
+				
 				break;
 			}
 
 
 
 		}
-
+	
 	}
 	// Look at the killer when dead ( If he exist )
 	if (!m_camera->isCameraActive() && clientPtr->getMyData().health <= 0)
@@ -553,9 +531,9 @@ void PlayState::update_isSpectating(const float& dt)
 		switch (evnt) {
 
 		case PlayerEvents::WallGotDestroyed:
-		{
-			std::lock_guard<std::mutex> lockGuard(NetGlobals::ReadDestructableWallsMutex); // Thread safe
-
+		{			
+			std::lock_guard<std::mutex> lockGuard(NetGlobals::ReadDestructableWallsMutex); // Thread safe			
+			
 			auto& vec = Client::getInstance()->getDestructedWalls();
 			for (size_t i = 0; i < vec.size(); i++) {
 				const DestructionPacket& p = vec[i];
@@ -618,10 +596,8 @@ void PlayState::update_isSpectating(const float& dt)
 }
 
 void PlayState::render()
-{
-
-	Renderer::getInstance()->render();
-
+{	
+	Renderer::getInstance()->render(m_deflectBox);
 	//Renderer::getInstance()->renderDebug();
 }
 
@@ -687,7 +663,7 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 		break;
 	}
 
-	if (spellobj)
+	if (spellobj) 
 	{
 		if (!spellobj->getHasCollided())
 			spellobj->hasCollided();
@@ -696,10 +672,10 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 	if (dstrobj && spellobj)
 	{
 		DstrGenerator* m_dstr = dstrobj->getDstr();
-		unsigned int seed = m_dstr->seedRand();
-
+		unsigned int seed = m_dstr->seedRand();		
+	
 		m_dstr->Destroy(dstrobj, glm::vec2(hitpoint.getX(), hitpoint.getY()), spellobj->getDirection());
-
+		
 		if (spellobj->getBodyReference() != nullptr)
 		{
 			float rndX = rand() % 1999 + 1 - 1000; rndX /= 1000;
@@ -718,7 +694,7 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 		dstrPacket.hitDir = spellobj->getDirection();
 		dstrPacket.index = dstrobj->getIndex();
 		dstrPacket.randomSeed = seed;
-
+	
 		Client::getInstance()->sendDestructionPacket(dstrPacket);
 	}
 
@@ -727,10 +703,10 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 }
 
 void PlayState::HUDHandler() {
-
+	
 	if (m_player == nullptr)
 		return;
-
+	
 	//Mana bar
 	m_hudHandler.getHudObject(BAR_MANA)->setXClip(m_player->getMana() / 100.0f);
 	m_hudHandler.getHudObject(CROSSHAIR_MANA)->setYClip(m_player->getMana() / 100.0f);
@@ -742,11 +718,11 @@ void PlayState::HUDHandler() {
 	else {
 		m_hudHandler.getHudObject(SPELL_ARCANE)->setGrayscale(0);
 	}
-
+	
 	if (m_player->getSpecialCooldown() > 0) {
 		//logTrace(std::to_string(m_player->getSpecialCooldown() / m_player->getMaxSpecialCooldown()));
 		m_hudHandler.getHudObject(SPELL_SPECIAL)->setGrayscale(m_player->getSpecialCooldown() / m_player->getMaxSpecialCooldown());
-	}
+	} 
 	else {
 		m_hudHandler.getHudObject(SPELL_SPECIAL)->setGrayscale(0);
 	}
@@ -757,7 +733,7 @@ void PlayState::HUDHandler() {
 	else {
 		m_hudHandler.getHudObject(SPELL_DEFLECT)->setGrayscale(0);
 	}
-
+		
 	//Deflect
 	if (m_player->isDeflecting()) {
 		m_hudHandler.getHudObject(CROSSHAIR)->setAlpha(0.0f);
@@ -804,7 +780,7 @@ void PlayState::GUIHandler()
 	if (Input::isKeyPressed(GLFW_KEY_ESCAPE)) {
 		m_GUIOpen = !m_GUIOpen;
 		if (m_GUIOpen) {
-			glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_NORMAL); 
 			m_camera->enableFP(false);
 			//m_player->logicStop(true);
 			GUILoadButtons();
@@ -821,7 +797,7 @@ void PlayState::GUIHandler()
 		GUIclear();
 		m_endGameBoardVisible = false;
 	}
-
+	
 	if (Input::isKeyPressed(GLFW_KEY_TAB) && !m_endGameBoardVisible) {
 		GUILoadScoreboard();
 	}
@@ -829,7 +805,7 @@ void PlayState::GUIHandler()
 		GUILoadScoreboard();
 		m_endGameBoardVisible = true;
 	}
-
+	
 	if (Input::isKeyReleased(GLFW_KEY_TAB) && !m_endGameBoardVisible) {
 		GUIclear();
 	}
@@ -860,7 +836,7 @@ void PlayState::GUILoadScoreboard() {
 			m_scoreBoard->setItem(itemMultiColumnList, 2, static_cast<CEGUI::uint>(index)); // ColumnID, RowID
 			index++;
 		}
-
+		
 
 		//Add other players
 		auto& list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
@@ -913,5 +889,5 @@ bool PlayState::onMainMenuClick(const CEGUI::EventArgs& e)
 bool PlayState::onQuitClick(const CEGUI::EventArgs& e) {
 	Renderer::getInstance()->clear();
 	glfwSetWindowShouldClose(glfwGetCurrentContext(), true);
-	return true;
+	return true;	
 }

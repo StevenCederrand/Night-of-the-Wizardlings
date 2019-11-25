@@ -7,7 +7,7 @@ class AttackSpell : public Spell
 {
 public:
 	AttackSpell(glm::vec3 pos, glm::vec3 direction, const AttackSpellBase* spellBase);
-	AttackSpell(glm::vec3 pos, OBJECT_TYPE type);
+	AttackSpell(glm::vec3 pos);
 	~AttackSpell();
 
 	// Virtual functions

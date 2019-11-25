@@ -251,7 +251,7 @@ void GameObject::setTransform(Transform transform, int meshIndex)
 
 void GameObject::setTransform(glm::vec3 worldPosition = glm::vec3(.0f), glm::quat worldRot = glm::quat(), glm::vec3 worldScale = glm::vec3(1.0f))
 {
-	m_transform.position = worldPosition;
+	//m_transform.position = worldPosition;
 	m_transform.scale = worldScale;
 	m_transform.rotation = worldRot;
 	updateModelMatrix();

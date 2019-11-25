@@ -25,6 +25,7 @@ AOEAttack::AOEAttack(glm::vec3 pos)
 	//Transform tempTransform;
 	//tempTransform.scale = glm::vec3(0.2f, 0.2f, 0.2f);
 	//setTransform(tempTransform);
+
 	setWorldPosition(pos);
 }
 
