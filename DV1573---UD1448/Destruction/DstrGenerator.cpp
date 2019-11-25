@@ -144,13 +144,27 @@ void DstrGenerator::offsetPoints(glm::vec2 position)
 	}
 }
 
+void DstrGenerator::update()
+{
+	m_timeSinceLastDestruction += DeltaTime;
+}
+
 void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, glm::vec3 hitDirection)
 {
 	if (object->is_destroyed())
-		return;
+		return;	
+
+	if (m_timeSinceLastDestruction > 0.3f)
+	{
+		int slot = SoundHandler::getInstance()->playSound(DestructionSound, Client::getInstance()->getMyData().guid);
+		logTrace("slot");
+		logTrace(slot);
+		SoundHandler::getInstance()->setSourcePosition(object->getTransform().position, DestructionSound, Client::getInstance()->getMyData().guid, slot);
+		m_timeSinceLastDestruction = 0.0f;
+	}
 
 	Clear();
-
+	
 	initPoints(hitPosition);
 
 	m_diagram = m_voroniCalc.CalculateDiagram(m_randomPoints);

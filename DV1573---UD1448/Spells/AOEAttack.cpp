@@ -56,11 +56,6 @@ void AOEAttack::setSpellBool(bool state)
 	m_fire = state;
 }
 
-void AOEAttack::updateActiveSpell(float deltaTime)
-{
-	
-}
-
 void AOEAttack::updateRigidbody(float deltaTime, btRigidBody* body)
 {
 	m_bounceTime += deltaTime;

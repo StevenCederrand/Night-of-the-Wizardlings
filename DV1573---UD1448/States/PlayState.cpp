@@ -145,7 +145,7 @@ PlayState::PlayState(bool spectator)
 		Client::getInstance()->assignSpellHandler(m_spellHandler);
 
 	//m_hudHandler.loadPlayStateHUD();
-	m_hideHUD = false;
+	m_hideHUD = false;	
 }
 
 // Might change these Pepega constructors later if feeling cute
@@ -315,6 +315,8 @@ void PlayState::update(float dt)
 	//m_firstPerson->update(dt);
 	Client::getInstance()->updateNetworkEntities(dt);
 	auto* clientPtr = Client::getInstance();
+	m_dstr.update();
+	m_dstr_alt1.update();
 	if (clientPtr->isSpectating()) {
 		update_isSpectating(dt);
 	}
@@ -483,7 +485,7 @@ void PlayState::update_isPlaying(const float& dt)
 			case PlayerEvents::WallGotDestroyed:
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::ReadDestructableWallsMutex); // Thread safe
-
+								
 				auto& vec = Client::getInstance()->getDestructedWalls();
 				for (size_t i = 0; i < vec.size(); i++) {
 					const DestructionPacket& p = vec[i];
@@ -643,6 +645,8 @@ void PlayState::render()
 
 bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1, const btCollisionObjectWrapper* obj2, int id2, int index2)
 {
+	SoundHandler* shPtr = SoundHandler::getInstance();
+	auto* clientPtr = Client::getInstance();
 	GameObject* sp1 = static_cast<GameObject*>(obj1->getCollisionObject()->getUserPointer());
 	GameObject* sp2 = static_cast<GameObject*>(obj2->getCollisionObject()->getUserPointer());
 	if (!sp1 || !sp2)
@@ -656,7 +660,7 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 	switch (sp1->getType())
 	{
 	case (DESTRUCTIBLE):
-		dstrobj = static_cast<DestructibleObject*>(sp1);
+		dstrobj = static_cast<DestructibleObject*>(sp1);		
 		hitpoint = cp.m_localPointA;
 		break;
 

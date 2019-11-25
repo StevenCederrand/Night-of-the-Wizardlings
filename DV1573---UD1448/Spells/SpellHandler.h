@@ -71,7 +71,6 @@ private:
 	void setCharacter(std::string meshName);
 
 	void REFLECTupdate(float deltaTime, int i);
-	void flamestrikeUpdate(float deltaTime, int i);
 	
 	BulletPhysics* m_bp;
 	std::vector<btRigidBody*> m_BulletNormalSpell;
