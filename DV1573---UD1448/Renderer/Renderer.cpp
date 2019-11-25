@@ -1397,7 +1397,7 @@ void Renderer::initializeParticle()
 
 
 	//------------------------------------------
-	m_txtInfo.name = "Assets/Textures/star.png";
+	m_txtInfo.name = "Assets/Textures/betterStar.png";
 
 	m_enhanceInfo.width = 0.3f;
 	m_enhanceInfo.heigth = 0.3f;
@@ -1417,9 +1417,9 @@ void Renderer::initializeParticle()
 	m_enhanceInfo.fade = 1;
 
 	m_enhanceInfo.color = glm::vec3(0.5f, 1.0f, 0.0f);
-	m_enhanceInfo.blendColor = glm::vec3(1.0f, 1.0f, 1.0f);
+	m_enhanceInfo.blendColor = glm::vec3(1.0f, 0.0f, 1.0f);
 
-	m_enhanceInfo.color = glm::vec3(0.85f, 1.f, 0.2f); //jerrys färg
+	m_enhanceInfo.color = glm::vec3(0.0, 0.0f, 0.0f); //jerrys färg
 	m_enhanceInfo.direction = glm::vec3(1.0f, 0.0f, 0.0f);
 	vertexCountDiff2 = m_enhanceInfo.maxParticles;
 	emissionDiff2 = m_enhanceInfo.emission;
