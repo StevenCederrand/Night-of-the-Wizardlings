@@ -90,6 +90,4 @@ const unsigned int SCREEN_HEIGHT = 720;
 const int MAX_BONES = 64;
 
 
-
-
 #endif

@@ -12,6 +12,8 @@ public:
 	void initPoints(glm::vec2 position = glm::vec2(), int amount = 0);
 	void offsetPoints(glm::vec2 position = glm::vec2());
 
+	void update();
+
 	void Destroy(DestructibleObject* object, glm::vec2 hitPosition = glm::vec3(0.0f), glm::vec3 hitDirection = glm::vec3(0.0f));
 
 	const unsigned int seedRand(unsigned int seed = 0);
@@ -36,6 +38,7 @@ private:
 	unsigned int m_seed;
 	unsigned int m_breakPoints;
 	float m_breakAreaRadius;
+	float m_timeSinceLastDestruction = 0.0f;
 
 };
 

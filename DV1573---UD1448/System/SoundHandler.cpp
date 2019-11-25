@@ -623,6 +623,25 @@ int SoundHandler::playSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID pl
 	return slot;
 }
 
+void SoundHandler::playSpecificSource(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID, int slot)
+{
+	bool found = false;
+	for (int i = 0; i < m_nrOfPlayers && !found; i++)
+	{
+		if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
+		{
+			m_error = alGetError();
+			alSourcePlay(m_playerSoundInfo.at(i).sources.at(whatSound).at(slot));
+			found = true;
+
+			if ((m_error = alGetError()) != AL_NO_ERROR)
+			{
+				logTrace("Error playing sound");
+			}
+		}
+	}
+}
+
 void SoundHandler::pauseSound(SoundIndexClient whatSound)
 {	
 	m_error = alGetError();

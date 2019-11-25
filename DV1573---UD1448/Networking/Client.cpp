@@ -936,7 +936,7 @@ void Client::processAndHandlePackets()
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			DestructionPacket destpacket;
 			destpacket.Serialize(false, bsIn);
-			
+			//SoundHandler::getInstance()->playSound(DestructionSound, Client::getInstance()->getMyData().guid);
 			// Add it to the destroyed walls vector
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::ReadDestructableWallsMutex); // Thread safe

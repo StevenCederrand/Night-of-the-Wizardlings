@@ -21,7 +21,7 @@ const std::string PICKUP_GRAVEYARD_SPAWN_SOUND = "HealthPotionGraveyard.ogg";
 const std::string PICKUP_MAZE_SPAWN_SOUND = "HealthPotionMaze.ogg";
 const std::string PICKUP_TUNNELS_SPAWN_SOUND = "HealthPotionTunnels.ogg";
 const std::string PICKUP_TOP_SPAWN_SOUND = "HealthPotionTop.ogg";
-const std::string DESTRUCTION_SOUND = "kablamo.ogg";
+const std::string DESTRUCTION_SOUND = "BAEM.ogg";
 
 //Nr of sounds every player has in common.
 const int NR_OF_COMMON_SOUNDS = 9;
@@ -105,6 +105,8 @@ public:
 
 	void playSound(SoundIndexClient whatSound);
 	int playSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
+
+	void playSpecificSource(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID, int slot);
 
 	void pauseSound(SoundIndexClient whatSound);
 	void pauseSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID, int slot);
