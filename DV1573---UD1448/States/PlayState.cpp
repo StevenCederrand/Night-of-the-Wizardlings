@@ -467,8 +467,7 @@ void PlayState::update_isPlaying(const float& dt)
 			case PlayerEvents::WallGotDestroyed:
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::ReadDestructableWallsMutex); // Thread safe
-				
-				SoundHandler::getInstance()->playSound(DestructionSound, Client::getInstance()->getMyData().guid);
+								
 				auto& vec = Client::getInstance()->getDestructedWalls();
 				for (size_t i = 0; i < vec.size(); i++) {
 					const DestructionPacket& p = vec[i];
