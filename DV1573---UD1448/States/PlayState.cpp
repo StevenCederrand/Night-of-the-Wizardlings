@@ -67,8 +67,8 @@ PlayState::PlayState(bool spectator)
 	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
 
 	//			TOO LAGGY ATM
-	////LIGHTS
-	//// Church tunnel
+	//LIGHTS
+	// Church tunnel
 	//Pointlight* pointLight = new Pointlight(glm::vec3(30.0f, 14.0f, 14.0f), glm::vec3(0.4, 0.7, 1.0));
 	//pointLight->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 47.0f));
 	//m_pointlights.emplace_back(pointLight);
@@ -79,8 +79,8 @@ PlayState::PlayState(bool spectator)
 	//m_pointlights.emplace_back(pointLight1);
 	//
 	//// Middle
-	//Pointlight* pointLight2 = new Pointlight(glm::vec3(0.0f, 26.0f, 0.0f), glm::vec3(1.0, 0.0, 0.0));
-	//pointLight2->setAttenuationAndRadius(glm::vec4(1.0f, 0.19f, 0.132f, 31.0f));
+	//Pointlight* pointLight2 = new Pointlight(glm::vec3(0.0f, 26.0f, 0.0f), glm::vec3(1.0, 0.5, 0.5));
+	//pointLight2->setAttenuationAndRadius(glm::vec4(1.0f, 0.22f, 0.20f, 31.0f));
 	//m_pointlights.emplace_back(pointLight2);
 	//
 	//// Large area
@@ -145,14 +145,30 @@ PlayState::PlayState(bool spectator)
 		Client::getInstance()->assignSpellHandler(m_spellHandler);
 
 	//m_hudHandler.loadPlayStateHUD();
-	m_hideHUD = false;
+	m_hideHUD = false;	
 }
 
 // Might change these Pepega constructors later if feeling cute
 void PlayState::loadDestructables()
 {
-	m_dstr.setBreakSettings(DSTR1, 16, 1.8f, 30.0f);
-	m_dstr_alt1.setBreakSettings(DSTR2, 16, 1.8f, -1.0f);
+	m_dstr = DstrGenerator();
+	m_dstr_alt1 = DstrGenerator();
+
+
+	// Temporary variables to move later ---
+
+	/*float gravityOnImpact = 0.0f;
+	float timeToChange = 2.0f;
+	float gravityAfterTime = 30.0f;*/ // Stop-fall effect
+
+	float gravityOnImpact = -1.0f;
+	float timeToChange = 2.5f;
+	float gravityAfterTime = -8.0f; // Hover-up effect
+
+	// Temporary variables to move later ---
+
+	m_dstr.setBreakSettings(DSTR1, 16, 1.8f, gravityOnImpact);
+	m_dstr_alt1.setBreakSettings(DSTR1, 16, 4.0f, gravityOnImpact);
 
 	Renderer* renderer = Renderer::getInstance();
 	for (int i = (int)m_objects.size() - 1; i >= 0; i--)
@@ -172,10 +188,10 @@ void PlayState::loadDestructables()
 	for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
 	{
 		m_objects.emplace_back(new DestructibleObject(
-			&m_dstr_alt1,
+			&m_dstr,
 			m_objects.size(),
-			2.5f,
-			-8.0f));
+			gravityAfterTime,
+			timeToChange));
 
 		static_cast<DestructibleObject*>(m_objects.back())->loadDestructible(
 			meshLoader.GetVertices(i),
@@ -196,10 +212,10 @@ void PlayState::loadDestructables()
 	for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
 	{
 		m_objects.emplace_back(new DestructibleObject(
-			&m_dstr_alt1,
+			&m_dstr,
 			m_objects.size(),
-			1.6f,
-			-40.0f
+			gravityAfterTime,
+			timeToChange
 		));
 
 		static_cast<DestructibleObject*>(m_objects.back())->loadDestructible(
@@ -223,8 +239,8 @@ void PlayState::loadDestructables()
 		m_objects.emplace_back(new DestructibleObject(
 			&m_dstr_alt1,
 			m_objects.size(),
-			2.6f,
-			-8.0f
+			gravityAfterTime,
+			timeToChange
 		));
 
 		static_cast<DestructibleObject*>(m_objects.back())->loadDestructible(
@@ -290,6 +306,7 @@ PlayState::~PlayState()
 		Client::getInstance()->destroy();
 	}
 
+	MeshMap::getInstance()->cleanUp();
 }
 	
 void PlayState::update(float dt)
@@ -298,6 +315,8 @@ void PlayState::update(float dt)
 	//m_firstPerson->update(dt);
 	Client::getInstance()->updateNetworkEntities(dt);
 	auto* clientPtr = Client::getInstance();
+	m_dstr.update();
+	m_dstr_alt1.update();
 	if (clientPtr->isSpectating()) {
 		update_isSpectating(dt);
 	}
@@ -345,6 +364,7 @@ void PlayState::removeDeadObjects()
 			if (obj->is_destroyed() && obj->getLifetime() >= 20.0 )
 			{
 				renderer->removeRenderObject(m_objects[i], STATIC);
+				// Keeping gameobjects for now, desync in indexing with server
 				//delete m_objects[i];
 				//m_objects.erase(m_objects.begin() + i);
 			}
@@ -489,14 +509,14 @@ void PlayState::update_isPlaying(const float& dt)
 			case PlayerEvents::WallGotDestroyed:
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::ReadDestructableWallsMutex); // Thread safe
-
+								
 				auto& vec = Client::getInstance()->getDestructedWalls();
 				for (size_t i = 0; i < vec.size(); i++) {
 					const DestructionPacket& p = vec[i];
 
 					// Destroy
-					m_dstr_alt1.seedRand(p.randomSeed);
-					m_dstr_alt1.Destroy(static_cast<DestructibleObject*>(m_objects[p.index]), p.hitPoint, p.hitDir);
+					m_dstr.seedRand(p.randomSeed);
+					m_dstr.Destroy(static_cast<DestructibleObject*>(m_objects[p.index]), p.hitPoint, p.hitDir);
 				}
 
 				// Tells the client to clear the vector
@@ -649,6 +669,8 @@ void PlayState::render()
 
 bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1, const btCollisionObjectWrapper* obj2, int id2, int index2)
 {
+	SoundHandler* shPtr = SoundHandler::getInstance();
+	auto* clientPtr = Client::getInstance();
 	GameObject* sp1 = static_cast<GameObject*>(obj1->getCollisionObject()->getUserPointer());
 	GameObject* sp2 = static_cast<GameObject*>(obj2->getCollisionObject()->getUserPointer());
 	if (!sp1 || !sp2)
@@ -662,7 +684,7 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 	switch (sp1->getType())
 	{
 	case (DESTRUCTIBLE):
-		dstrobj = static_cast<DestructibleObject*>(sp1);
+		dstrobj = static_cast<DestructibleObject*>(sp1);		
 		hitpoint = cp.m_localPointA;
 		break;
 
@@ -715,31 +737,34 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 
 	if (dstrobj && spellobj)
 	{
-		DstrGenerator* m_dstr = dstrobj->getDstr();
-		unsigned int seed = m_dstr->seedRand();
-
-		m_dstr->Destroy(dstrobj, glm::vec2(hitpoint.getX(), hitpoint.getY()), spellobj->getDirection());
-
-		if (spellobj->getBodyReference() != nullptr)
+		if (!dstrobj->is_destroyed())
 		{
-			float rndX = rand() % 1999 + 1 - 1000; rndX /= 1000;
-			float rndY = rand() % 1999 + 1 - 1000; rndY /= 1000;
-			float rndZ = rand() % 1999 + 1 - 1000; rndZ /= 1000;
-			spellobj->getBodyReference()->setLinearVelocity(btVector3(rndX, rndY, rndZ) * 35);
-		}
+			DstrGenerator* m_dstr = dstrobj->getDstr();
+			int seed = m_dstr->seedRand();
+
+			m_dstr->Destroy(dstrobj, glm::vec2(hitpoint.getX(), hitpoint.getY()), spellobj->getDirection());
+
+			if (spellobj->getBodyReference() != nullptr)
+			{
+				float rndX = rand() % 1999 + 1 - 1000; rndX /= 1000;
+				float rndY = rand() % 1999 + 1 - 1000; rndY /= 1000;
+				float rndZ = rand() % 1999 + 1 - 1000; rndZ /= 1000;
+				spellobj->getBodyReference()->setLinearVelocity(btVector3(rndX, rndY, rndZ) * 35);
+			}
 		
 	
-		//if (spellobj->getType() != FLAMESTRIKE)
-		//	spellobj->setTravelTime(0.0f);
+			//if (spellobj->getType() != FLAMESTRIKE)
+			//	spellobj->setTravelTime(0.0f);
 
-		// Network packet
-		DestructionPacket dstrPacket;
-		dstrPacket.hitPoint = glm::vec2(hitpoint.getX(), hitpoint.getY());
-		dstrPacket.hitDir = spellobj->getDirection();
-		dstrPacket.index = dstrobj->getIndex();
-		dstrPacket.randomSeed = seed;
+			// Network packet
+			DestructionPacket dstrPacket;
+			dstrPacket.hitPoint = glm::vec2(hitpoint.getX(), hitpoint.getY());
+			dstrPacket.hitDir = spellobj->getDirection();
+			dstrPacket.index = dstrobj->getIndex();
+			dstrPacket.randomSeed = seed;
 
-		Client::getInstance()->sendDestructionPacket(dstrPacket);
+			Client::getInstance()->sendDestructionPacket(dstrPacket);
+		}
 	}
 
 

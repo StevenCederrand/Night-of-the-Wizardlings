@@ -1398,10 +1398,34 @@ void Renderer::initializeParticle()
 
 
 	//------------------------------------------
-	m_txtInfo.name = "Assets/Textures/star.png";
+	m_txtInfo.name = "Assets/Textures/betterStar.png";
 
-	m_enhanceInfo.width = 0.3f;
-	m_enhanceInfo.heigth = 0.3f;
+	//m_enhanceInfo.width = 0.3f;
+	//m_enhanceInfo.heigth = 0.3f;
+	//m_enhanceInfo.lifetime = 0.3f;
+	//m_enhanceInfo.maxParticles = 100; //350
+	//m_enhanceInfo.emission = 0.01f; //0.00001f;
+	//m_enhanceInfo.force = -0.2f; //5
+	//m_enhanceInfo.drag = 0.0f;
+	//m_enhanceInfo.gravity = 0.0f; //Standard is 1
+	//m_enhanceInfo.seed = 0;
+	//m_enhanceInfo.cont = true;
+	//m_enhanceInfo.omnious = false;
+	//m_enhanceInfo.spread = -1.0f;
+	//m_enhanceInfo.glow = 1.3;
+	//m_enhanceInfo.scaleDirection = 0;
+	//m_enhanceInfo.swirl = 0;
+	//m_enhanceInfo.fade = 1;
+
+	//m_enhanceInfo.color = glm::vec3(0.5f, 1.0f, 0.0f);
+	//m_enhanceInfo.blendColor = glm::vec3(1.0f, 1.0f, 1.0f);
+
+	//m_enhanceInfo.color = glm::vec3(0.85f, 1.f, 0.2f); //jerrys färg
+	//m_enhanceInfo.direction = glm::vec3(1.0f, 0.0f, 0.0f);
+	//vertexCountDiff2 = m_enhanceInfo.maxParticles;
+	//emissionDiff2 = m_enhanceInfo.emission;
+	m_enhanceInfo.width = 0.4f;
+	m_enhanceInfo.heigth = 0.4f;
 	m_enhanceInfo.lifetime = 0.3f;
 	m_enhanceInfo.maxParticles = 100; //350
 	m_enhanceInfo.emission = 0.01f; //0.00001f;
@@ -1417,11 +1441,11 @@ void Renderer::initializeParticle()
 	m_enhanceInfo.swirl = 0;
 	m_enhanceInfo.fade = 1;
 
-	m_enhanceInfo.color = glm::vec3(0.5f, 1.0f, 0.0f);
-	m_enhanceInfo.blendColor = glm::vec3(1.0f, 1.0f, 1.0f);
+	m_enhanceInfo.color = glm::vec3(0.0f, 0.0f, 0.0f);
+	m_enhanceInfo.blendColor = glm::vec3(1.0f, 0.0f, 1.0f);
 
-	m_enhanceInfo.color = glm::vec3(0.85f, 1.f, 0.2f); //jerrys färg
-	m_enhanceInfo.direction = glm::vec3(1.0f, 0.0f, 0.0f);
+	//m_enhanceInfo.color = glm::vec3(0.85f, 1.f, 0.2f); //jerrys färg
+	//m_enhanceInfo.direction = glm::vec3(1.0f, 0.0f, 0.0f);
 	vertexCountDiff2 = m_enhanceInfo.maxParticles;
 	emissionDiff2 = m_enhanceInfo.emission;
 	//ps = new ParticleSystem(&m_PSinfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());

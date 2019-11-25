@@ -82,8 +82,8 @@ void SpellHandler::initEnhanceSpell()
 
 	//enhanceAtkBase->m_material->diffuse = glm::vec3(0.3f, 1.0f, 0.3f);
 	//enhanceAtkBase->m_material->ambient = glm::vec3(0.3f, 1.0f, 0.3f);
-	enhanceAtkBase->m_material->diffuse = glm::vec3(0.85f, 1.f, 0.4f);
-	enhanceAtkBase->m_material->ambient = glm::vec3(0.85f, 1.f, 0.4f);
+	enhanceAtkBase->m_material->diffuse = glm::vec3(0.5f, 0.0f, 0.6f);
+	enhanceAtkBase->m_material->ambient = glm::vec3(0.5f, 0.0f, 0.6f);
 
 	enhanceAtkBase->m_damage = 34.0f;
 	enhanceAtkBase->m_speed = 70.0f;
@@ -258,8 +258,8 @@ void SpellHandler::initFireSpell()
 	//fireBase->m_psBuffers.push_back(tempPS); //m_psBuffers
 	//fireBase->m_txtInfo.push_back(tempTxt); //m_txtInfo
 
-	////TODO
-	////Another one!
+	//TODO
+	//Another one!
 
 	//tempTxt.name = "Assets/Textures/Spell_2.png";
 
@@ -483,6 +483,7 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 
 		shPtr->setSourcePosition(spellPos, GlassBreakSound, clientPtr->getMyData().guid);
 		shPtr->playSound(GlassBreakSound, clientPtr->getMyData().guid);		
+
 	}
 
 	
@@ -500,9 +501,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 			
 			if (flamestrikeSpells[i]->getType() == FLAMESTRIKE)
 			{				
-				flamestrikeUpdate(deltaTime, i);
 				AOEAttack* flamestrike = static_cast<AOEAttack*>(flamestrikeSpells[i]);
-				//flamestrike->updateActiveSpell(deltaTime);
 				
 				if (flamestrikeSpells[i]->getSoundSlot() != -1)
 				{
@@ -517,8 +516,6 @@ void SpellHandler::spellUpdate(float deltaTime)
 					flamestrike->setSpellBool(false);
 				}
 			}
-			
-
 
 			Client::getInstance()->updateSpellOnNetwork(*flamestrikeSpells[i]);
 		}
@@ -869,10 +866,4 @@ void SpellHandler::REFLECTupdate(float deltaTime, int i)
 			createSpell(m_spawnerPos, m_spawnerDir, spellList[i].SpellType);
 		}
 	}
-}
-
-void SpellHandler::flamestrikeUpdate(float deltaTime, int i)
-{
-	AOEAttack* flamestrike = static_cast<AOEAttack*>(flamestrikeSpells[i]);
-	flamestrike->updateActiveSpell(deltaTime);
 }
