@@ -31,6 +31,7 @@ public:
 	const glm::vec3& getFillColor() const;
 	const float& getGrayscale() const;
 	const glm::quat& getRotation() const;
+	const glm::vec2& getPosition() const;
 private:
 	void setupBuffers();
 	void loadTexture(const std::string& texturePath);

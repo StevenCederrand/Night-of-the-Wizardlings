@@ -306,7 +306,31 @@ void PlayState::update(float dt)
 	}
 
 	removeDeadObjects();
-
+	if (Input::isKeyHeldDown(GLFW_KEY_UP)) {
+		logTrace("UP");
+		glm::vec2 position = m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->getPosition();
+		position.y += 0.01f;
+		logVec3(glm::vec3(position, 0));
+		m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->setPosition(glm::vec2(position.x, position.y));
+	}
+	else if (Input::isKeyHeldDown(GLFW_KEY_DOWN)) {
+		glm::vec2 position = m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->getPosition();
+		position.y -= 0.01f;
+		logVec3(glm::vec3(position, 0));
+		m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->setPosition(glm::vec2(position.x, position.y));
+	}
+	else if (Input::isKeyHeldDown(GLFW_KEY_LEFT)) {
+		glm::vec2 position = m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->getPosition();
+		position.x -= 0.005f;
+		logVec3(glm::vec3(position, 0));
+		m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->setPosition(glm::vec2(position.x, position.y));
+	}
+	else if (Input::isKeyHeldDown(GLFW_KEY_RIGHT)) {
+		glm::vec2 position = m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->getPosition();
+		position.x += 0.005f;
+		logVec3(glm::vec3(position, 0));
+		m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->setPosition(glm::vec2(position.x, position.y));
+	}
 }
 
 void PlayState::removeDeadObjects()

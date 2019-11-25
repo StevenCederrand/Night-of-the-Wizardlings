@@ -5,7 +5,7 @@
 #include <Networking/Client.h>
 #include <Networking/LocalServer.h>
 #include <Gui/Gui.h>
-
+#define AUTOSTART true;
 float DeltaTime = 0.0f;
 
 Application::Application() {
@@ -90,7 +90,12 @@ bool Application::init() {
 	Gui::getInstance()->setFont("DejaVuSans-10");
 
 	m_stateManager = new StateManager();
+
+#if AUTOSTART
+	m_stateManager->pushState(new PlayState(false));
+#else 
 	m_stateManager->pushState(new MenuState());	
+#endif
 
 	SoundHandler* shPtr = SoundHandler::getInstance();
 	//shPtr->setSourceType(AL_STREAMING, ThemeSong0);

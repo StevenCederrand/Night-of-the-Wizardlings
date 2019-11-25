@@ -3,7 +3,6 @@
   <ItemGroup>
     <ClCompile Include="DebugDrawer\DebugDrawer.cpp" />
     <ClCompile Include="GameObject\AnimatedObject.cpp" />
-    <ClCompile Include="Gui\GameGUI.cpp" />
     <ClCompile Include="HUD\HudHandler.cpp" />
     <ClCompile Include="Mesh\AnimationMap.cpp" />
     <ClCompile Include="Mesh\MeshMap.cpp" />
@@ -70,7 +69,6 @@
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
     <ClInclude Include="GameObject\AnimatedObject.h" />
-    <ClInclude Include="Gui\GameGUI.h" />
     <ClInclude Include="HUD\HudHandler.h" />
     <ClInclude Include="Mesh\AnimationMap.h" />
     <ClInclude Include="Mesh\MeshMap.h" />
@@ -138,7 +136,6 @@
     <ClInclude Include="Destruction\VoroniClipper.h" />
     <ClInclude Include="Destruction\DstrGenerator.h" />
     <ClInclude Include="GameObject\DestructibleObject.h" />
-    <ClInclude Include="System\Helper.h" />
     <ClInclude Include="Particles\Particles.h" />
     <ClInclude Include="Particles\ParticleBuffers.h" />
     <ClInclude Include="System\Helper.h" />
