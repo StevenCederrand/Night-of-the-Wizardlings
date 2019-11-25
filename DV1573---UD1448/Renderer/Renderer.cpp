@@ -1249,7 +1249,7 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 
 			glBindVertexArray(0);
 			m_particleSystems[i].SetPosition(meshTransform.position);
-			//m_particleSystems[i].Render(m_camera, &m_PSinfo);
+			m_particleSystems[i].Render(m_camera, &m_PSinfo);
 		}
 		else if (m_spells[i]->getType() == OBJECT_TYPE::ENHANCEATTACK)
 		{
@@ -1259,7 +1259,7 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 			glBindVertexArray(0);
-			//m_particleSystems[i].Render(m_camera, &m_enhanceInfo);
+			m_particleSystems[i].Render(m_camera, &m_enhanceInfo);
 			m_particleSystems[i].SetPosition(meshTransform.position);
 		}
 		else if (m_spells[i]->getType() == OBJECT_TYPE::REFLECT)
@@ -1291,7 +1291,7 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 			//glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 			glBindVertexArray(0);
 
-			//m_particleSystems[i].Render(m_camera, &m_flameInfo);
+			m_particleSystems[i].Render(m_camera, &m_flameInfo);
 			m_particleSystems[i].SetPosition(glm::vec3(meshTransform.position.x, meshTransform.position.y - 1, meshTransform.position.z));
 		}
 
