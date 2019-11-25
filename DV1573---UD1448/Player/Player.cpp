@@ -13,7 +13,6 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_firstPersonMesh->initAnimations("DeflectAnimation", 1.0f, 1.0f);
 
 
-
 	Renderer::getInstance()->submit(m_firstPersonMesh, ANIMATEDSTATIC);
 
 	m_playerCamera = camera;
@@ -100,6 +99,8 @@ void Player::update(float deltaTime)
 	if (m_health <= 0) {
 		if (m_firstPersonMesh->getShouldRender() == true) {
 			m_firstPersonMesh->setShouldRender(false);
+			SoundHandler* shPtr = SoundHandler::getInstance(); //stop Deflect
+			shPtr->stopSound(DeflectSound, m_client->getMyData().guid);
 		}
 	}else{
 		if (m_firstPersonMesh->getShouldRender() == false) {
@@ -232,7 +233,6 @@ void Player::move(float deltaTime)
 void Player::PlayAnimation(float deltaTime)
 {
 
-
 	if (animState.running){
 		m_firstPersonMesh->playLoopAnimation("RunAnimation");
 		animState.running = false;
@@ -259,16 +259,11 @@ void Player::PlayAnimation(float deltaTime)
 
 }
 
-
-
 void Player::attack()
 {
-	SoundHandler* shPtr = SoundHandler::getInstance();
-	
+	SoundHandler* shPtr = SoundHandler::getInstance();	
 	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_RIGHT))
 	{
-		//Render the shield mesh
-
 		//Actually deflecting
 		if (m_mana > 10) {
 			GameObject* shieldObject = new ShieldObject("playerShield");
@@ -282,9 +277,10 @@ void Player::attack()
 			shieldObject->setTransform(m_fpsTrans);
 			Renderer::getInstance()->submit(shieldObject, SHIELD);
 			if (!m_deflecting) {
+				logTrace("HEJSAN hp: " + std::to_string(m_client->getMyData().health));
 				animState.deflecting = true; //Play the animation once
 				m_mana -= 10; //This is the initial manacost for the deflect
-				
+
 				shPtr->playSound(DeflectSound, m_client->getMyData().guid);
 				m_deflecting = true; //So we don't play sound over and over
 			}
@@ -295,9 +291,9 @@ void Player::attack()
 			
 			//Fade out deflect sound
 			if (m_deflectSoundGain > 0.0f)
-			{				
-				shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
+			{
 				m_deflectSoundGain -= 2.0f * DeltaTime;
+				shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
 			}
 			else
 			{
@@ -310,9 +306,9 @@ void Player::attack()
 	{		
 		//Fade out deflect sound
 		if (m_deflectSoundGain > 0.0f)
-		{			
-			shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
+		{
 			m_deflectSoundGain -= 2.0f * DeltaTime;
+			shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
 		}
 		else
 		{
@@ -324,7 +320,6 @@ void Player::attack()
 	}
 	else
 	{
-
 		if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_LEFT))
 		{
 			if (m_attackCooldown <= 0)
@@ -336,32 +331,39 @@ void Player::attack()
 
 			}
 		}
-
-		if (Input::isKeyHeldDown(GLFW_KEY_Q))
+		//Special Abilities are to be placed here
+		if (Input::isKeyPressed(GLFW_KEY_Q))
 		{
-			if (m_specialCooldown <= 0)
-			{
-				//Sound for enhance spell is handled in spellhandler
-				m_specialCooldown = m_spellhandler->getEnhAttackBase()->m_coolDown;
-				// Start loop
-				m_enhanceAttack.start();
-				animState.casting = true;
+			//If we are using the triple spell
+			if (m_usingTripleSpell) {
+				if (m_specialCooldown <= 0)
+				{
+					//Sound for enhance spell is handled in spellhandler
+					//m_specialCooldown = m_spellhandler->getEnhAttackBase()->m_coolDown;
+					/* Because we are swapping spells, we want to keep a more or less uniform cooldown. */
+					// Start loop
+					m_enhanceAttack.start();
+					animState.casting = true;
+					m_usingTripleSpell = false;
+					m_specialCooldown = 3.5f;
+				}
 			}
-		}
+			else { //If our active spell is flamestrike
+				if (m_specialCooldown <= 0)
+				{
+					m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, FLAMESTRIKE); // Put attack on cooldown
 
-		if (Input::isKeyHeldDown(GLFW_KEY_R))
-		{
-			if (m_special3Cooldown <= 0)
-			{
-				m_special3Cooldown = m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, FLAMESTRIKE); // Put attack on cooldown
-
-				animState.casting = true;
+					animState.casting = true;
+					m_usingTripleSpell = true;
+					m_specialCooldown = 3.5f;
+				}
 			}
 		}
 	}
 	if (Input::isMouseReleased(GLFW_MOUSE_BUTTON_RIGHT)) {
 		m_rMouse = false;
 	}
+	
 }
 
 void Player::createRay()
@@ -437,6 +439,11 @@ void Player::logicStop(const bool& stop)
 	m_logicStop = stop;
 }
 
+void Player::submitHudHandler(HudHandler* hudHandler)
+{
+	m_hudHandler = hudHandler;
+}
+
 const float& Player::getAttackCooldown() const
 {
 	return m_attackCooldown;
@@ -475,6 +482,11 @@ const float& Player::getMana() const
 const bool& Player::onGround() const
 {
 	return m_character->onGround();
+}
+
+const bool& Player::usingTripleSpell() const
+{
+	return m_usingTripleSpell;
 }
 
 const glm::vec3& Player::getPlayerPos() const
