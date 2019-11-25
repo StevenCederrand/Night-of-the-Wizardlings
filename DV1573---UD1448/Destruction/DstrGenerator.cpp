@@ -24,7 +24,7 @@ void DstrGenerator::initPoints(glm::vec2 position)
 	//if (amount && amount != m_breakPoints)
 	//{
 	//	m_breakPoints = amount;
-	//	m_randomPoints.resize(m_breakPoints);
+	m_randomPoints.resize(m_breakPoints);
 	//}
 	//else if (position != glm::vec2(0))
 	//{
