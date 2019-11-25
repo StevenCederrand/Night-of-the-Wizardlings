@@ -775,29 +775,29 @@ void Renderer::render() {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 #pragma region Light_Culling
-		//shader = shaderMap->useByName(LIGHT_CULL);
-		//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
-		//bindMatrixes(shader);
+		shader = shaderMap->useByName(LIGHT_CULL);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
+		bindMatrixes(shader);
 
-		//glm::vec2 screenSize = glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT);
-		//shader->setVec2("screenSize", screenSize);
-		//shader->setInt("lightCount", m_lights.size());//Set the number of active pointlights in the scene
+		glm::vec2 screenSize = glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT);
+		shader->setVec2("screenSize", screenSize);
+		shader->setInt("lightCount", m_lights.size());//Set the number of active pointlights in the scene
 
-		////Bind the depthmap
-		//glActiveTexture(GL_TEXTURE0);
-		//shader->setInt("depthMap", 0); //Not sure if this has to happen every frame
-		//glBindTexture(GL_TEXTURE_2D, m_depthMap);
+		//Bind the depthmap
+		glActiveTexture(GL_TEXTURE0);
+		shader->setInt("depthMap", 0); //Not sure if this has to happen every frame
+		glBindTexture(GL_TEXTURE_2D, m_depthMap);
 
-		////Send all of the light data into the compute shader
-		//for (size_t i = 0; i < m_lights.size(); i++) {
-		//	shader->setVec3("lights[" + std::to_string(i) + "].position", m_lights[i].position);
-		//	shader->setFloat("lights[" + std::to_string(i) + "].radius", m_lights[i].attenAndRadius.w);
-		//}
+		//Send all of the light data into the compute shader
+		for (size_t i = 0; i < m_lights.size(); i++) {
+			shader->setVec3("lights[" + std::to_string(i) + "].position", m_lights[i].position);
+			shader->setFloat("lights[" + std::to_string(i) + "].radius", m_lights[i].attenAndRadius.w);
+		}
 
-		//glDispatchCompute(workGroups.x, workGroups.y, 1);
-		////Unbind the depth
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, 0);
+		glDispatchCompute(workGroups.x, workGroups.y, 1);
+		//Unbind the depth
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, 0);
 #pragma endregion
 	}
 
@@ -832,23 +832,23 @@ void Renderer::render() {
 	//Add a step where we insert lights into the scene
 	shader->setInt("LightCount", m_lights.size());
 
-	//if (m_lights.size() > 0) {
-	//	std::string iConv = "";
-	//	for (size_t i = 0; i < m_lights.size(); i++) {
-	//		iConv = std::to_string(i);
-	//		
-	//		if (m_lights[i].index != -2) {
-	//			shader->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[m_lights[i].index]->getTransform().position);
-	//		}
-	//		else {
-	//			shader->setVec3("pLights[" + std::to_string(i) + "].position", m_lights[i].position);
-	//		}
-	//		
-	//		shader->setVec3("pLights[" + iConv + "].color", m_lights[i].color);
+	if (m_lights.size() > 0) {
+		std::string iConv = "";
+		for (size_t i = 0; i < m_lights.size(); i++) {
+			iConv = std::to_string(i);
+			
+			if (m_lights[i].index != -2) {
+				shader->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[m_lights[i].index]->getTransform().position);
+			}
+			else {
+				shader->setVec3("pLights[" + std::to_string(i) + "].position", m_lights[i].position);
+			}
+			
+			shader->setVec3("pLights[" + iConv + "].color", m_lights[i].color);
 
-	//		shader->setVec4("pLights[" + iConv + "].attenAndRadius", m_lights[i].attenAndRadius);
-	//	}
-	//}
+			shader->setVec4("pLights[" + iConv + "].attenAndRadius", m_lights[i].attenAndRadius);
+		}
+	}
 
 	//Render Static objects
 	for (GameObject* object : m_staticObjects)
@@ -1001,25 +1001,24 @@ void Renderer::render() {
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
 
 		//Add a step where we insert lights into the scene
-		//shader->setInt("LightCount", m_spells.size());
-		//if (m_lights.size() > 0) {
-		//	std::string iConv = "";
-		//	for (size_t i = 0; i < m_lights.size(); i++) {
-		//		iConv = std::to_string(i);
+		shader->setInt("LightCount", m_spells.size());
+		if (m_lights.size() > 0) {
+			std::string iConv = "";
+			for (size_t i = 0; i < m_lights.size(); i++) {
+				iConv = std::to_string(i);
 
-		//		if (m_lights[i].index != -2) {
-		//			shader->setVec3("pLights[" + iConv + "].position", m_lights[i].position);
-		//		}
-		//		else {
-		//			shader->setVec3("pLights[" + iConv + "].position", m_lights[i].position);
-		//		}
+				if (m_lights[i].index != -2) {
+					shader->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[m_lights[i].index]->getTransform().position);
+				}
+				else {
+					shader->setVec3("pLights[" + std::to_string(i) + "].position", m_lights[i].position);
+				}
 
-		//		shader->setVec3("pLights[" + iConv + "].color", m_lights[i].color);
+				shader->setVec3("pLights[" + iConv + "].color", m_lights[i].color);
 
-		//		shader->setVec4("pLights[" + iConv + "].attenAndRadius", m_lights[i].attenAndRadius);
-		//	}
-		//}
-
+				shader->setVec4("pLights[" + iConv + "].attenAndRadius", m_lights[i].attenAndRadius);
+			}
+		}
 		for (GameObject* object : m_anistaticObjects)
 		{
 			if (object == nullptr) {
@@ -1040,7 +1039,6 @@ void Renderer::render() {
 				glEnableVertexAttribArray(0);
 				glEnableVertexAttribArray(1);
 				glEnableVertexAttribArray(2);
-
 				//Fetch the current mesh and its transform
 				mesh = object->getMesh(j);
 				transform = object->getTransform(mesh, j);
