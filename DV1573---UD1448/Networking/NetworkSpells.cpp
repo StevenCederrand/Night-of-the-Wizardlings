@@ -28,13 +28,13 @@ void NetworkSpells::update(const float& dt)
 				if (e.gameobject == nullptr) {
 					
 					if (e.spellData.SpellType == OBJECT_TYPE::NORMALATTACK || e.spellData.SpellType == OBJECT_TYPE::UNKNOWN) {
-						e.gameobject = new AttackSpell(e.spellData.Position);
+						e.gameobject = new AttackSpell(e.spellData.Position, NORMALATTACK);
 
 						int slot = shPtr->playSound(BasicAttackSound, e.spellData.CreatorGUID);							
 						shPtr->setSourcePosition(e.spellData.Position, BasicAttackSound, e.spellData.CreatorGUID, slot);
 					}
 					else if (e.spellData.SpellType == OBJECT_TYPE::ENHANCEATTACK) {
-						e.gameobject = new AttackSpell(e.spellData.Position);				
+						e.gameobject = new AttackSpell(e.spellData.Position, ENHANCEATTACK);
 						
 						int slot = shPtr->playSound(EnhanceAttackSound, e.spellData.CreatorGUID);
 						shPtr->setSourcePosition(e.spellData.Position, EnhanceAttackSound, e.spellData.CreatorGUID, slot);						

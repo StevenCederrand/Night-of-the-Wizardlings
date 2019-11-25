@@ -53,6 +53,7 @@ bool Application::init() {
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
+
 	m_window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Night of the Wizardlings", NULL, NULL);
 	//m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", glfwGetPrimaryMonitor(), NULL); !!! FULLSCREEN!!!
 
