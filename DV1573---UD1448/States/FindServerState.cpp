@@ -143,9 +143,9 @@ bool FindServerState::onBackToMenuClicked(const CEGUI::EventArgs& e)
 bool FindServerState::onJoinServerClicked(const CEGUI::EventArgs& e)
 {
 	CEGUI::ListboxItem* item = m_serverList->getFirstSelectedItem();
-	Gui::getInstance()->setWidgetDestRect(m_joinServer, glm::vec4(0.35f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f));
 	if (item != NULL)
 	{
+		Gui::getInstance()->setWidgetDestRect(m_joinServer, glm::vec4(0.35f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f));
 		usernameInput();
 		if (m_usernameBox->getText() == "Enter Username...") {
 			return false;
@@ -175,7 +175,6 @@ bool FindServerState::onJoinServerClicked(const CEGUI::EventArgs& e)
 		m_stateManager->clearAllAndSetState(new PlayState(false));
 	}
 
-	
 	return true;
 }
 
@@ -212,7 +211,7 @@ bool FindServerState::onSpectateServerClicked(const CEGUI::EventArgs& e)
 				return true;
 			}
 		}
-
+		SoundHandler::getInstance()->stopSound(ThemeSong0);
 		glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		Renderer::getInstance()->clear();
 		m_stateManager->clearAllAndSetState(new PlayState(true));

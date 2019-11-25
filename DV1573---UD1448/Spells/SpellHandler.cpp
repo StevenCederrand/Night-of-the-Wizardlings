@@ -632,7 +632,7 @@ void SpellHandler::spellCollisionCheck()
 	fireDamageCounter = fireDamageCounter - DeltaTime * 1;
 	ownfireDamageCounter = ownfireDamageCounter - DeltaTime * 1;
 
-	if (ownPlayer.health > 0 && list.size() >= 1)
+	if (ownPlayer.health > 0 && list.size() >= 0)
 	{
 		glm::vec3 ownPlayerPos = ownPlayer.position;
 
