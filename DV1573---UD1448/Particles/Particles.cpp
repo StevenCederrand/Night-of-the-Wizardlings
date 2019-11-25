@@ -402,16 +402,17 @@ void ParticleSystem::Render(const Camera* camera, const PSinfo* psInfo)
 	//VP = m_camera->getViewMat() * m_camera->getProjMat();
 	VP = camera->getProjMat() * camera->getViewMat();
 
+	Shader* shader = ShaderMap::getInstance()->getShader(PARTICLES);
 
-	ShaderMap::getInstance()->getShader(PARTICLES)->setMat4("WVP", VP); //Flipped order, check this!
-	ShaderMap::getInstance()->getShader(PARTICLES)->setVec3("cam", camera->getCamPos());
-	ShaderMap::getInstance()->getShader(PARTICLES)->setVec2("size", (glm::vec2(psInfo->width, psInfo->heigth)));
-	ShaderMap::getInstance()->getShader(PARTICLES)->setInt("scaleDirection", psInfo->scaleDirection);
-	ShaderMap::getInstance()->getShader(PARTICLES)->setInt("swirl", psInfo->swirl);
-	ShaderMap::getInstance()->getShader(PARTICLES)->setFloat("glow", psInfo->glow);
-	ShaderMap::getInstance()->getShader(PARTICLES)->setInt("fade", psInfo->fade);
-	ShaderMap::getInstance()->getShader(PARTICLES)->setVec3("color", psInfo->color);
-	ShaderMap::getInstance()->getShader(PARTICLES)->setVec3("blendColor", psInfo->blendColor);
+	shader->setMat4("WVP", VP); //Flipped order, check this!
+	shader->setVec3("cam", camera->getCamPos());
+	shader->setVec2("size", (glm::vec2(psInfo->width, psInfo->heigth)));
+	shader->setInt("scaleDirection", psInfo->scaleDirection);
+	shader->setInt("swirl", psInfo->swirl);
+	shader->setFloat("glow", psInfo->glow);
+	shader->setInt("fade", psInfo->fade);
+	shader->setVec3("color", psInfo->color);
+	shader->setVec3("blendColor", psInfo->blendColor);
 
 
 

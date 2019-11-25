@@ -1,7 +1,7 @@
 #include <Pch/Pch.h>
 #include "DestructibleObject.h"
 
-DestructibleObject::DestructibleObject(DstrGenerator* dstr, int index, float fallTime, float fallGravity)
+DestructibleObject::DestructibleObject(DstrGenerator* dstr, int index, float fallGravity, float event1Time)
 {
 	dstrRef = dstr;
 	m_type = DESTRUCTIBLE;
@@ -9,7 +9,9 @@ DestructibleObject::DestructibleObject(DstrGenerator* dstr, int index, float fal
 	m_polygonFace.reserve(4);
 	m_index = index;
 
-	m_fallTime = fallTime;
+	m_ev1Time = event1Time;
+	m_ev2Time = m_ev1Time;
+	m_ev3Time = m_ev2Time;
 	m_fallGravity = btVector3(0.0f, -fallGravity, 0.0f);
 }
 
@@ -22,35 +24,49 @@ void DestructibleObject::update(float dt)
 	updateBulletRigids();
 	m_lifetime += dt;
 
+	// Temporary variables to move later ---
+
+	/*float dampingMidTime = 1.0f;
+	float dampingSpinMidTime = 0.0f;
+	float dampingAfterTime = 0.0f;
+	float dampingSpinAfterTime = 0.0f;*/ // Stop-fall effect
+
+	float dampingEv1 = 0.0f;
+	float dampingSpinEv1 = 0.0f;
+	float dampingEv2 = 0.0f;
+	float dampingSpinEv2 = 0.0f;
+
+	// Temporary variables to move later ---
+	
 	if (m_destroyed && m_dstrState != 3)
 	{
 
 		// Freezes object after time
-		if (m_lifetime >= m_fallTime * 0.60f && m_dstrState == 0)
+		if (m_lifetime >= m_ev1Time && m_dstrState == 0)
 		{
 			for (int i = 0; i < (int)getRigidBodies().size(); i++)
 			{
-				//getRigidBodies()[i]->setGravity(m_fallGravity);
-				//getRigidBodies()[i]->setDamping(0.85f, 0.0f);
+				getRigidBodies()[i]->setGravity(m_fallGravity);
+				getRigidBodies()[i]->setDamping(dampingEv1, dampingSpinEv1);
 			}
 
 			m_dstrState = 1;
 		}
 
 		// Changes gravity after time
-		if (m_lifetime >= m_fallTime && m_dstrState == 1)
+		if (m_lifetime >= m_ev2Time && m_dstrState == 1)
 		{
 			for (int i = 0; i < (int)getRigidBodies().size(); i++)
 			{
 				getRigidBodies()[i]->setGravity(m_fallGravity);
-				getRigidBodies()[i]->setDamping(0.0f, 0.0f);
+				getRigidBodies()[i]->setDamping(dampingEv2, dampingSpinEv2);
 			}
 
 			m_dstrState = 2;
 		}
 
 		// Removes the object after time
-		if (m_lifetime >= 15.0f && m_dstrState == 2)
+		if (m_lifetime >= 17.0f && m_dstrState == 2)
 		{
 			for (int i = 0; i < (int)getRigidBodies().size(); i++)
 			{

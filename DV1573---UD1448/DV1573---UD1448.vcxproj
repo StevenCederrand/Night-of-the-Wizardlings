@@ -195,12 +195,6 @@
     <ClCompile Include="GameObject\MapObject.cpp" />
     <ClCompile Include="GameObject\DestructibleObject.cpp" />
     <ClCompile Include="GFX\Pointlight.cpp" />
-    <ClCompile Include="Gui\GameGUI.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="HUD\HudHandler.cpp" />
     <ClCompile Include="Mesh\AnimationMap.cpp" />
     <ClCompile Include="Mesh\MeshMap.cpp" />
@@ -316,12 +310,6 @@
     <ClInclude Include="GameObject\DestructibleObject.h" />
     <ClInclude Include="GameObject\MapObject.h" />
     <ClInclude Include="GFX\Pointlight.h" />
-    <ClInclude Include="Gui\GameGUI.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClInclude>
     <ClInclude Include="HUD\HudHandler.h" />
     <ClInclude Include="Mesh\AnimationMap.h" />
     <ClInclude Include="Mesh\MeshMap.h" />
@@ -390,9 +378,6 @@
     <ClInclude Include="System\Application.h" />
     <ClInclude Include="System\BulletPhysics.h" />
     <ClInclude Include="System\DeltaTime.h" />
-    <ClInclude Include="System\Helper.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
     <ClInclude Include="System\Input.h" />
     <ClInclude Include="System\Lerp.h" />
     <ClInclude Include="System\Log.h" />

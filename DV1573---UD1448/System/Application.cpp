@@ -5,7 +5,7 @@
 #include <Networking/Client.h>
 #include <Networking/LocalServer.h>
 #include <Gui/Gui.h>
-
+#define AUTOSTART false;
 float DeltaTime = 0.0f;
 
 Application::Application() {
@@ -55,7 +55,7 @@ bool Application::init() {
 
 
 	m_window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Night of the Wizardlings", NULL, NULL);
-	//m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", glfwGetPrimaryMonitor(), NULL); !!! FULLSCREEN!!!
+	//m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", glfwGetPrimaryMonitor(), NULL);// !!! FULLSCREEN!!!
 
 	//glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	
@@ -78,7 +78,7 @@ bool Application::init() {
 	}
 	
 	// Vsync
-	glfwSwapInterval(1); // Turning this off will cause occasionally freezes, so don't!
+	glfwSwapInterval(0); // Turning this off will cause occasionally freezes, so don't!
 	
 	m_input = new Input();
 
@@ -90,7 +90,12 @@ bool Application::init() {
 	Gui::getInstance()->setFont("DejaVuSans-10");
 
 	m_stateManager = new StateManager();
+
+#if AUTOSTART
+	m_stateManager->pushState(new PlayState(false));
+#else 
 	m_stateManager->pushState(new MenuState());	
+#endif
 
 	SoundHandler* shPtr = SoundHandler::getInstance();
 	//shPtr->setSourceType(AL_STREAMING, ThemeSong0);

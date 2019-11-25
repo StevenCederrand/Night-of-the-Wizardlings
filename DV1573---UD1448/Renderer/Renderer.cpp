@@ -683,6 +683,7 @@ void Renderer::render() {
 			//Then through all of the meshes
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
+				glEnableVertexAttribArray(0);
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
 				mesh = object->getMesh(j);
@@ -697,6 +698,7 @@ void Renderer::render() {
 				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 				glBindVertexArray(0);
+				glDisableVertexAttribArray(0);
 			}
 		}
 
@@ -715,6 +717,7 @@ void Renderer::render() {
 			//Then through all of the meshes
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
+				glEnableVertexAttribArray(0);
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
 
@@ -730,6 +733,7 @@ void Renderer::render() {
 				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 				glBindVertexArray(0);
+				glDisableVertexAttribArray(0);
 			}
 		}
 
@@ -748,6 +752,7 @@ void Renderer::render() {
 			//Then through all of the meshes
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
+				glEnableVertexAttribArray(0);
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
 
@@ -763,6 +768,7 @@ void Renderer::render() {
 				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 				glBindVertexArray(0);
+				glDisableVertexAttribArray(0);
 			}
 		}
 
@@ -859,7 +865,9 @@ void Renderer::render() {
 		for (int j = 0; j < object->getMeshesCount(); j++)
 		{
 			//Fetch the current mesh and its transform
-
+			glEnableVertexAttribArray(0);
+			glEnableVertexAttribArray(1);
+			glEnableVertexAttribArray(2);
 			mesh = object->getMesh(j);
 
 			//Bind the material
@@ -883,6 +891,9 @@ void Renderer::render() {
 			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 			glBindVertexArray(0);
+			glDisableVertexAttribArray(0);
+			glDisableVertexAttribArray(1);
+			glDisableVertexAttribArray(2);
 		}
 	}
 
@@ -902,6 +913,9 @@ void Renderer::render() {
 			//Then through all of the meshes
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
+				glEnableVertexAttribArray(0);
+				glEnableVertexAttribArray(1);
+				glEnableVertexAttribArray(2);
 				mesh = object->getMesh(j);
 				//Bind the material
 				if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
@@ -924,6 +938,9 @@ void Renderer::render() {
 				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 				glBindVertexArray(0);
+				glDisableVertexAttribArray(0);
+				glDisableVertexAttribArray(1);
+				glDisableVertexAttribArray(2);
 			}
 		}
 	}
@@ -940,6 +957,9 @@ void Renderer::render() {
 			if (!object->getShouldRender()) {
 				continue;
 			}
+			glEnableVertexAttribArray(0);
+			glEnableVertexAttribArray(1);
+			glEnableVertexAttribArray(2);
 
 			Pickup* p = dynamic_cast<Pickup*>(object);
 
@@ -961,6 +981,9 @@ void Renderer::render() {
 			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 			glBindVertexArray(0);
+			glDisableVertexAttribArray(0);
+			glDisableVertexAttribArray(1);
+			glDisableVertexAttribArray(2);
 		}
 	}
 	shader->clearBinding();
@@ -985,10 +1008,10 @@ void Renderer::render() {
 				iConv = std::to_string(i);
 
 				if (m_lights[i].index != -2) {
-					shader->setVec3("pLights[" + iConv + "].position", m_lights[i].position);
+					shader->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[m_lights[i].index]->getTransform().position);
 				}
 				else {
-					shader->setVec3("pLights[" + iConv + "].position", m_lights[i].position);
+					shader->setVec3("pLights[" + std::to_string(i) + "].position", m_lights[i].position);
 				}
 
 				shader->setVec3("pLights[" + iConv + "].color", m_lights[i].color);
@@ -1013,6 +1036,9 @@ void Renderer::render() {
 
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
+				glEnableVertexAttribArray(0);
+				glEnableVertexAttribArray(1);
+				glEnableVertexAttribArray(2);
 				//Fetch the current mesh and its transform
 				mesh = object->getMesh(j);
 				transform = object->getTransform(mesh, j);
@@ -1034,6 +1060,9 @@ void Renderer::render() {
 				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 				object->unbindMaterialFromShader(shader, mesh->getMaterial());
 				glBindVertexArray(0);
+				glDisableVertexAttribArray(0);
+				glDisableVertexAttribArray(1);
+				glDisableVertexAttribArray(2);
 			}
 		}
 	}
@@ -1370,32 +1399,8 @@ void Renderer::initializeParticle()
 	//------------------------------------------
 	m_txtInfo.name = "Assets/Textures/betterStar.png";
 
-	//m_enhanceInfo.width = 0.3f;
-	//m_enhanceInfo.heigth = 0.3f;
-	//m_enhanceInfo.lifetime = 0.3f;
-	//m_enhanceInfo.maxParticles = 100; //350
-	//m_enhanceInfo.emission = 0.01f; //0.00001f;
-	//m_enhanceInfo.force = -0.2f; //5
-	//m_enhanceInfo.drag = 0.0f;
-	//m_enhanceInfo.gravity = 0.0f; //Standard is 1
-	//m_enhanceInfo.seed = 0;
-	//m_enhanceInfo.cont = true;
-	//m_enhanceInfo.omnious = false;
-	//m_enhanceInfo.spread = -1.0f;
-	//m_enhanceInfo.glow = 1.3;
-	//m_enhanceInfo.scaleDirection = 0;
-	//m_enhanceInfo.swirl = 0;
-	//m_enhanceInfo.fade = 1;
-
-	//m_enhanceInfo.color = glm::vec3(0.5f, 1.0f, 0.0f);
-	//m_enhanceInfo.blendColor = glm::vec3(1.0f, 1.0f, 1.0f);
-
-	//m_enhanceInfo.color = glm::vec3(0.85f, 1.f, 0.2f); //jerrys färg
-	//m_enhanceInfo.direction = glm::vec3(1.0f, 0.0f, 0.0f);
-	//vertexCountDiff2 = m_enhanceInfo.maxParticles;
-	//emissionDiff2 = m_enhanceInfo.emission;
-	m_enhanceInfo.width = 0.4f;
-	m_enhanceInfo.heigth = 0.4f;
+	m_enhanceInfo.width = 0.3f;
+	m_enhanceInfo.heigth = 0.3f;
 	m_enhanceInfo.lifetime = 0.3f;
 	m_enhanceInfo.maxParticles = 100; //350
 	m_enhanceInfo.emission = 0.01f; //0.00001f;
@@ -1411,11 +1416,11 @@ void Renderer::initializeParticle()
 	m_enhanceInfo.swirl = 0;
 	m_enhanceInfo.fade = 1;
 
-	m_enhanceInfo.color = glm::vec3(0.0f, 0.0f, 0.0f);
+	m_enhanceInfo.color = glm::vec3(0.5f, 1.0f, 0.0f);
 	m_enhanceInfo.blendColor = glm::vec3(1.0f, 0.0f, 1.0f);
 
-	//m_enhanceInfo.color = glm::vec3(0.85f, 1.f, 0.2f); //jerrys färg
-	//m_enhanceInfo.direction = glm::vec3(1.0f, 0.0f, 0.0f);
+	m_enhanceInfo.color = glm::vec3(0.0, 0.0f, 0.0f); //jerrys färg
+	m_enhanceInfo.direction = glm::vec3(1.0f, 0.0f, 0.0f);
 	vertexCountDiff2 = m_enhanceInfo.maxParticles;
 	emissionDiff2 = m_enhanceInfo.emission;
 	//ps = new ParticleSystem(&m_PSinfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
