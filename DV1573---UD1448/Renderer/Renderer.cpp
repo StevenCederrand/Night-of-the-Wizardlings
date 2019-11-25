@@ -632,7 +632,9 @@ void Renderer::destroy()
 void Renderer::renderSkybox()
 {
 	glDisable(GL_CULL_FACE);
-	glDepthMask(GL_FALSE);
+	
+	//glDepthMask(GL_FALSE);
+	glDepthFunc(GL_LEQUAL);
 	auto* shader = ShaderMap::getInstance()->useByName("Skybox_Shader");
 	shader->setMat4("modelMatrix", m_skyBox->getModelMatrix());
 	shader->setMat4("viewMatrix", glm::mat4(glm::mat3(m_camera->getViewMat())));
@@ -645,6 +647,7 @@ void Renderer::renderSkybox()
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, NULL);
 	glDepthMask(GL_TRUE);
+	glDepthFunc(GL_LESS);
 	glEnable(GL_CULL_FACE);
 }
 
@@ -794,7 +797,7 @@ void Renderer::render() {
 
 	//BLOOMBLUR MISSION STEP 1: SAMPLE
 	//m_bloom->bindHdrFBO();
-	renderSkybox();
+
 	//renderDeflectBox(m_deflectBox);
 
 #ifdef DEBUG_WIREFRAME
@@ -1037,7 +1040,7 @@ void Renderer::render() {
 
 	shader->clearBinding();
 #pragma endregion
-
+	renderSkybox();
 	// Spell Rendering
 	m_spellHandler->renderSpell();
 
