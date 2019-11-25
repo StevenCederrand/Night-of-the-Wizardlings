@@ -212,6 +212,18 @@ void SoundHandler::loadAllSound()
 	{
 		logTrace(DESTRUCTION_SOUND + " failed to be loaded");
 	}
+
+	success = loadSound(PickupSound);
+	if (success == -1)
+	{
+		logTrace(PICKUP_SOUND + " failed to be loaded");
+	}
+
+	success = loadSound(SuccessfulDeflectSound);
+	if (success == -1)
+	{
+		logTrace(SUCCESSFUL_DEFLECT_SOUND + " failed to be loaded");
+	}
 }
 
 int SoundHandler::loadSound(SoundIndexClient whatSound)
@@ -241,6 +253,9 @@ int SoundHandler::loadSound(SoundIndexClient whatSound)
 	//case PickupTopSound:
 	//	fileName += PICKUP_TOP_SPAWN_SOUND;
 	//	break;
+	case PickupSound:
+		fileName += PICKUP_SOUND;
+		break;
 	}
 
 	FILE* fp = 0;
@@ -370,6 +385,10 @@ int SoundHandler::loadSound(SoundIndexCommon whatSound)
 		break;
 	case DestructionSound:
 		fileName += DESTRUCTION_SOUND;
+		break;
+	case SuccessfulDeflectSound:
+		fileName += SUCCESSFUL_DEFLECT_SOUND;
+		break;
 	}
 
 	FILE* fp = 0;
@@ -584,7 +603,8 @@ int SoundHandler::playSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID pl
 			//Sounds that should be able to play over each other
 			if (whatSound == JumpSound || whatSound == BasicAttackSound ||
 				whatSound == EnhanceAttackSound || whatSound == FireSound ||
-				whatSound == GlassBreakSound || whatSound == DestructionSound)
+				whatSound == GlassBreakSound || whatSound == DestructionSound || 
+				whatSound == SuccessfulDeflectSound)
 			{
 				m_error = alGetError();
 				bool foundFreeSlot = false;

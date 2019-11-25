@@ -157,7 +157,7 @@ void Client::ThreadedUpdate()
 void Client::processAndHandlePackets()
 {
 	/* This is the meat of the client, processing every packet that is coming in and sending packets to the server respectively */
-
+	SoundHandler* shPtr = SoundHandler::getInstance();
 	for (RakNet::Packet* packet = m_clientPeer->Receive(); packet; m_clientPeer->DeallocatePacket(packet), packet = m_clientPeer->Receive())
 	{
 		/* Construct the bitstream with the data from the packet */
@@ -709,6 +709,9 @@ void Client::processAndHandlePackets()
 			data.position = m_myPlayerDataPacket.position;
 			data.direction = m_myPlayerDataPacket.lookDirection;
 			data.type = spellPacket.SpellType;
+
+			int slot = shPtr->playSound(SuccessfulDeflectSound, spellPacket.CreatorGUID);
+			shPtr->setSourcePosition(spellPacket.Position, SuccessfulDeflectSound, spellPacket.CreatorGUID, slot);
 			
 			// Add this to the event list
 			{
@@ -720,7 +723,7 @@ void Client::processAndHandlePackets()
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateDeflectSpellMutex);
 				m_spellHandler->m_deflectedSpells.emplace_back(data);
-			}
+			}			
 		}
 		break;
 

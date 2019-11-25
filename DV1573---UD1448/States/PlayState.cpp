@@ -466,6 +466,7 @@ void PlayState::update_isPlaying(const float& dt)
 
 			case PlayerEvents::TookPowerup:
 			{
+				shPtr->playSound(PickupSound);
 				logWarning("[Event system] Took a powerup");
 				m_hudHandler.getHudObject(HUDID::POWERUP)->setAlpha(1.0f);
 				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
@@ -475,6 +476,7 @@ void PlayState::update_isPlaying(const float& dt)
 
 			case PlayerEvents::TookHeal:
 			{
+				shPtr->playSound(PickupSound);
 				logWarning("[Event system] Took a heal");
 				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);

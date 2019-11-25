@@ -50,7 +50,7 @@ public:
 	void logicStop(const bool& stop);
 
 private:
-	void move(float deltaTime); 
+	void move(float deltaTime); 	
 
 	std::string m_name;
 	glm::vec3 m_directionVector;

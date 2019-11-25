@@ -124,6 +124,7 @@ void Player::updateListenerProperties()
 	shPtr->setSourcePosition(m_playerPosition, JumpSound, m_client->getMyData().guid);
 	shPtr->setSourcePosition(m_playerPosition, LandingSound, m_client->getMyData().guid);
 	//shPtr->setSourcePosition(m_playerPosition, PickupGraveyardSound);
+	shPtr->setSourcePosition(m_playerPosition, PickupSound);
 	shPtr->setSourceLooping(true, StepsSound, m_client->getMyData().guid);
 
 	for (int i = 0; i < NR_OF_SUBSEQUENT_SOUNDS; i++)
@@ -293,13 +294,14 @@ void Player::attack()
 				m_mana -= 10; //This is the initial manacost for the deflect
 				
 				shPtr->playSound(DeflectSound, m_client->getMyData().guid);
-				m_deflecting = true;
+				m_deflecting = true; //So we don't play sound over and over
 			}
 			m_mana -= 10.f * DeltaTime;			
 			m_deflectCooldown = 0.5f;
 		}
 		else { //Player is holding down RM without any mana
 			
+			//Fade out deflect sound
 			if (m_deflectSoundGain > 0.0f)
 			{				
 				shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
@@ -314,6 +316,7 @@ void Player::attack()
 	}
 	else if(m_deflecting)
 	{		
+		//Fade out deflect sound
 		if (m_deflectSoundGain > 0.0f)
 		{			
 			shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
