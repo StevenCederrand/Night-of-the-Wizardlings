@@ -8,7 +8,7 @@
 //Set custom names for easier reference to soundFile names
 const std::string THEME_SONG0 = "HarryPotterThemeSong.ogg";
 const std::string BASIC_ATTACK_SOUND = "NewBasicAttack.ogg";
-const std::string DEFLECT_SOUND = "DeflectNew2.ogg";
+const std::string DEFLECT_SOUND = "DeflectNew3.ogg";
 const std::string ENHANCE_ATTACK_SOUND = "NewBasicAttack.ogg";
 const std::string TAKING_DAMAGE_SOUND = "TakingDamage.ogg";
 const std::string STEPS_SOUND = "FootSteps.ogg";
@@ -17,10 +17,10 @@ const std::string LANDING_SOUND = "Landing.ogg";
 const std::string HITMARK_SOUND = "Hitmark.ogg";
 const std::string FIRE_SOUND = "Fire.ogg";
 const std::string GLASS_BREAK_SOUND = "GlassBreak.ogg";
-//const std::string PICKUP_GRAVEYARD_SPAWN_SOUND = "HealthPotionGraveyard.ogg";
-//const std::string PICKUP_MAZE_SPAWN_SOUND = "HealthPotionMaze.ogg";
-//const std::string PICKUP_TUNNELS_SPAWN_SOUND = "HealthPotionTunnels.ogg";
-//const std::string PICKUP_TOP_SPAWN_SOUND = "HealthPotionTop.ogg";
+const std::string PICKUP_GRAVEYARD_SPAWN_SOUND = "PickupGraveyard.ogg";
+const std::string PICKUP_MAZE_SPAWN_SOUND = "PickupMaze.ogg";
+const std::string PICKUP_TUNNELS_SPAWN_SOUND = "PickupTunnels.ogg";
+const std::string PICKUP_TOP_SPAWN_SOUND = "PickupTop.ogg";
 const std::string DESTRUCTION_SOUND = "BAEM.ogg";
 const std::string PICKUP_SOUND = "Bottle_Cork.ogg";
 const std::string SUCCESSFUL_DEFLECT_SOUND = "Boing.ogg";
@@ -28,7 +28,7 @@ const std::string SUCCESSFUL_DEFLECT_SOUND = "Boing.ogg";
 //Nr of sounds every player has in common.
 const int NR_OF_COMMON_SOUNDS = 10;
 //Nr of sounds only the client will hear.
-const int NR_OF_CLIENT_SOUNDS = 4;
+const int NR_OF_CLIENT_SOUNDS = 8;
 //Nr of sounds in totals
 const int NR_OF_SOUNDS = NR_OF_COMMON_SOUNDS + NR_OF_CLIENT_SOUNDS;
 //Nr of sounds from the same source that can be played subsequently
@@ -60,10 +60,10 @@ enum SoundIndexClient {
 	HitmarkSound,
 	TakingDamageSound,
 	PickupSound,
-	/*PickupGraveyardSound,
+	PickupGraveyardSound,
 	PickupMazeSound,
 	PickupTunnelsSound,
-	PickupTopSound*/
+	PickupTopSound
 };
 
 struct PlayerSoundInfo

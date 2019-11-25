@@ -123,7 +123,10 @@ void Player::updateListenerProperties()
 	shPtr->setSourcePosition(m_playerPosition, StepsSound, m_client->getMyData().guid);
 	shPtr->setSourcePosition(m_playerPosition, JumpSound, m_client->getMyData().guid);
 	shPtr->setSourcePosition(m_playerPosition, LandingSound, m_client->getMyData().guid);
-	//shPtr->setSourcePosition(m_playerPosition, PickupGraveyardSound);
+	shPtr->setSourcePosition(m_playerPosition, PickupGraveyardSound);
+	shPtr->setSourcePosition(m_playerPosition, PickupMazeSound);
+	shPtr->setSourcePosition(m_playerPosition, PickupTunnelsSound);
+	shPtr->setSourcePosition(m_playerPosition, PickupTopSound);
 	shPtr->setSourcePosition(m_playerPosition, PickupSound);
 	shPtr->setSourceLooping(true, StepsSound, m_client->getMyData().guid);
 

@@ -183,7 +183,7 @@ void SoundHandler::loadAllSound()
 		logTrace(GLASS_BREAK_SOUND + " failed to be loaded");
 	}
 
-	/*success = loadSound(PickupGraveyardSound);
+	success = loadSound(PickupGraveyardSound);
 	if (success == -1)
 	{
 		logTrace(PICKUP_GRAVEYARD_SPAWN_SOUND + " failed to be loaded");
@@ -205,7 +205,7 @@ void SoundHandler::loadAllSound()
 	if (success == -1)
 	{
 		logTrace(PICKUP_TOP_SPAWN_SOUND + " failed to be loaded");
-	}*/
+	}
 
 	success = loadSound(DestructionSound);
 	if (success == -1)
@@ -241,18 +241,18 @@ int SoundHandler::loadSound(SoundIndexClient whatSound)
 	case HitmarkSound:
 		fileName += HITMARK_SOUND;
 		break;	
-	//case PickupGraveyardSound:
-	//	fileName += PICKUP_GRAVEYARD_SPAWN_SOUND;
-	//	break;
-	//case PickupMazeSound:
-	//	fileName += PICKUP_MAZE_SPAWN_SOUND;
-	//	break;
-	//case PickupTunnelsSound:
-	//	fileName += PICKUP_TUNNELS_SPAWN_SOUND;
-	//	break;
-	//case PickupTopSound:
-	//	fileName += PICKUP_TOP_SPAWN_SOUND;
-	//	break;
+	case PickupGraveyardSound:
+		fileName += PICKUP_GRAVEYARD_SPAWN_SOUND;
+		break;
+	case PickupMazeSound:
+		fileName += PICKUP_MAZE_SPAWN_SOUND;
+		break;
+	case PickupTunnelsSound:
+		fileName += PICKUP_TUNNELS_SPAWN_SOUND;
+		break;
+	case PickupTopSound:
+		fileName += PICKUP_TOP_SPAWN_SOUND;
+		break;
 	case PickupSound:
 		fileName += PICKUP_SOUND;
 		break;
@@ -494,18 +494,13 @@ void SoundHandler::setPlayerSourceGains(RakNet::AddressOrGUID guid)
 	{
 		if (m_playerSoundInfo.at(i).guid.rakNetGuid == guid.rakNetGuid)
 		{
-			setSourceLooping(true, DeflectSound, guid);
-			//setSourceGain(0.8, BasicAttackSound, m_playerSoundInfo.at(i).guid);
+			setSourceLooping(true, DeflectSound, guid);			
 			setSourceGain(1.0, DeflectSound, m_playerSoundInfo.at(i).guid);			
 			setSourceGain(0.3, JumpSound, m_playerSoundInfo.at(i).guid);
 			setSourceGain(0.4, StepsSound, m_playerSoundInfo.at(i).guid);
 			setSourceGain(0.3, FireSound, m_playerSoundInfo.at(i).guid);
 			setSourceGain(0.3, DestructionSound, m_playerSoundInfo.at(i).guid);
-
-			/*for (int j = 0; j < NR_OF_SUBSEQUENT_SOUNDS; j++)
-			{
-				setSourceGain(0.3, EnhanceAttackSound, m_playerSoundInfo.at(i).guid, j);
-			}*/
+			
 			found = true;
 		}
 	}	
