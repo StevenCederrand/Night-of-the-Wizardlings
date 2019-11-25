@@ -500,9 +500,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 			
 			if (flamestrikeSpells[i]->getType() == FLAMESTRIKE)
 			{				
-				flamestrikeUpdate(deltaTime, i);
 				AOEAttack* flamestrike = static_cast<AOEAttack*>(flamestrikeSpells[i]);
-				//flamestrike->updateActiveSpell(deltaTime);
 				
 				if (flamestrikeSpells[i]->getSoundSlot() != -1)
 				{
@@ -869,10 +867,4 @@ void SpellHandler::REFLECTupdate(float deltaTime, int i)
 			createSpell(m_spawnerPos, m_spawnerDir, spellList[i].SpellType);
 		}
 	}
-}
-
-void SpellHandler::flamestrikeUpdate(float deltaTime, int i)
-{
-	AOEAttack* flamestrike = static_cast<AOEAttack*>(flamestrikeSpells[i]);
-	flamestrike->updateActiveSpell(deltaTime);
 }
