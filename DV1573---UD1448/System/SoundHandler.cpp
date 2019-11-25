@@ -44,6 +44,7 @@ SoundHandler::SoundHandler()
 	//setSourceGain(0.8, BasicAttackSound, myGuid);
 	//setSourceGain(0.2, DeflectSound, myGuid);
 	
+	setSourceGain(0.7, ThemeSong0);
 	setSourceGain(0.5, JumpSound, myGuid);
 	setSourceGain(0.5, LandingSound, myGuid);
 	setSourceGain(0.3, StepsSound, myGuid);
@@ -53,10 +54,7 @@ SoundHandler::SoundHandler()
 	/*setSourceGain(0.4, PickupGraveyardSound);
 	setSourceGain(0.4, PickupMazeSound);
 	setSourceGain(0.4, PickupTunnelsSound);
-	setSourceGain(0.4, PickupTopSound);*/
-
-	/*for(int i = 0; i < NR_OF_SUBSEQUENT_SOUNDS; i++)
-		setSourceGain(0.3, EnhanceAttackSound, myGuid, i);*/
+	setSourceGain(0.4, PickupTopSound);*/	
 
 	setSourceLooping(true, DeflectSound, myGuid);
 }

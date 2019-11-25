@@ -6,7 +6,7 @@
 #include <Networking/Client.h>
 
 //Set custom names for easier reference to soundFile names
-const std::string THEME_SONG0 = "HarryPotterThemeSong.ogg";
+const std::string THEME_SONG0 = "Night of the Wizardlings.ogg";
 const std::string BASIC_ATTACK_SOUND = "NewBasicAttack.ogg";
 const std::string DEFLECT_SOUND = "DeflectNew3.ogg";
 const std::string ENHANCE_ATTACK_SOUND = "NewBasicAttack.ogg";

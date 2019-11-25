@@ -97,8 +97,7 @@ bool Application::init() {
 	m_stateManager->pushState(new MenuState());	
 #endif
 
-	SoundHandler* shPtr = SoundHandler::getInstance();
-	//shPtr->setSourceType(AL_STREAMING, ThemeSong0);
+	SoundHandler* shPtr = SoundHandler::getInstance();	
 	shPtr->playSound(ThemeSong0);
 	shPtr->setSourceLooping(true, ThemeSong0);
 
