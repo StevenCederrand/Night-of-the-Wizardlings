@@ -9,7 +9,7 @@ layout(std430, binding = 0) readonly buffer LightIndexBuffer {
 struct P_LIGHT {
     vec3 position;
     vec3 color; //Light that is sent out from the light
-    float radius;
+    vec4 attenAndRadius;
 };
 
 in vec2 f_UV;
@@ -19,11 +19,18 @@ in vec4 f_position;
 out vec4 color;
 out vec4 brightColor;
 
-vec3 GLOBAL_lightDirection = vec3(0.2f, -0.7f, 0.4f);       // 1 Directional light
+vec3 GLOBAL_lightDirection = vec3(0.3f, -0.5f, -0.5f);       // 1 Directional light
 vec3 GLOBAL_lightColor = normalize(vec3(1, 1, 1));          // Directional light color (white)
 
-float ambientStr = 0.35f;                                    // Global light strength (ambient)
-float brightnessMod = 0.7f;                                 // Modifier for brightness (textures)
+float dirlightStr = 1.5f;     // Modifier for brightness (dirlight)
+float ambientStr = 0.35f;      // Global light strength (ambient)
+float brightnessMod = 0.7f;    // Modifier for brightness (textures)
+
+// Modifier for brightness (point light), hardcoded temp needs fix
+float pointLightModP = 68.0f;    //SPELLS
+float pointLightMod1 = 2.4f;      //MAPLIGHT
+float pointLightMod2 = 1.7f;      //MAPLIGHT2
+float pointLightMod3 = 0.9f;      //MAPLIGHT
 
 uniform vec3 CameraPosition;
 
@@ -45,7 +52,8 @@ vec3 calcDirLight(vec3 normal, vec3 diffuseColor);
 vec3 grayscaleColour(vec3 col);
 
 void main() {
-    vec3 emissive = Ambient_Color; // To remove errors
+    vec3 emissive = Ambient_Color; // Temp used as emmisve, should rename all ambient names to emmisive. 
+    //Makes the material full solid color (basically fully lit). Needs bloom for best effect.
 
     // Ambient light
     vec3 ambientLight = Diffuse_Color * ambientStr;     // Material color
@@ -68,13 +76,33 @@ void main() {
         //position += pLights[lightIndex].position;
         float distance = length(f_position.xyz - pLights[lightIndex].position);
         //if we are within the light position
-        if(distance > pLights[lightIndex].radius) {
+        if(distance > pLights[lightIndex].attenAndRadius.w) {
             continue;
         }
         else {
-            pointLights += calcPointLights(pLights[lightIndex], f_normal, f_position.xyz, distance, diffuseColor);
+
+            // Hardcode strength because lights have no input and lazy Xd
+            float str = pointLightModP;
+
+             if(pLights[lightIndex].attenAndRadius.w >= 30.0f)
+            {
+                str = pointLightMod1;
+            }
+            if(pLights[lightIndex].attenAndRadius.w >= 45.0f)
+            {
+                str = pointLightMod2;
+            }
+            if(pLights[lightIndex].attenAndRadius.w >= 60.0f)
+            {
+                str = pointLightMod3;
+            }
+            // Hardcode strength because lights have no input and lazy Xd
+
+
+            pointLights += calcPointLights(pLights[lightIndex], f_normal, f_position.xyz, distance, diffuseColor) * str;
         }
     }
+    
 
     // Resulting light
     vec3 result = ambientLight + directionalLight + pointLights + emissive; // We see light, so add only and all the lights together to get color
@@ -82,29 +110,21 @@ void main() {
     	result = grayscaleColour(result);
     }
     color = vec4(result, 1);
-
-/* BLOOM STUFF
-    float brightness = dot(result, vec3(0.2126, 0.7152, 0.0722));
-
-    if(brightness > 1.0)
-        brightColor = vec4(ambientCol + result, 1.0);
-    else
-        brightColor = vec4(0.0, 0.0, 0.0, 1.0);*/
-
 }
 
 vec3 calcPointLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance, vec3 diffuse) {
     vec3 lightDir = normalize(pLight.position - position); //From the surface to the light
     float diff = max(dot(normal, lightDir), 0);
-    vec3 diffuseLight = diffuse * diff * normalize(pLight.color);
-    //vec3 ambient = vec3(0.1f) * pLight.color * ambientStr; // Unused - remove when confirmed ok
+    vec3 diffuseLight = diffuse * diff * normalize(pLight.color) * 5.0f;
+    float attenuation = 1.0 / (pLight.attenAndRadius.x + pLight.attenAndRadius.y * distance +
+  			     pLight.attenAndRadius.z * (distance * distance));
 
-    return (diffuseLight);// * attenuation;
+    return (diffuseLight) * attenuation;
 }
 
 vec3 calcDirLight(vec3 normal, vec3 diffuseColor) {
     /* --- DIFFUSE SHADING --- */
-    float lightStr = 0.71f;
+    float lightStr = dirlightStr;
     vec3 lightDir = normalize(-GLOBAL_lightDirection);
     float nDotL = dot(normal, lightDir);
 
