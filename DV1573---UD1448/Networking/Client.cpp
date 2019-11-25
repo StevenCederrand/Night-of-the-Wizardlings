@@ -1004,9 +1004,9 @@ void Client::updatePlayerData(Player* player)
 	m_myPlayerDataPacket.animStates = *player->getAnimState();
 	m_myPlayerDataPacket.onGround = player->onGround();
 	
-	if (player->getMana() > 10 && !m_myPlayerDataPacket.hasDeflectMana)
+	if (player->getMana() > 10)
 		m_myPlayerDataPacket.hasDeflectMana = true;
-	else if(m_myPlayerDataPacket.hasDeflectMana == true)
+	else
 		m_myPlayerDataPacket.hasDeflectMana = false;
 
 	
