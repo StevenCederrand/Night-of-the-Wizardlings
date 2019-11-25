@@ -17,18 +17,18 @@ const std::string LANDING_SOUND = "Landing.ogg";
 const std::string HITMARK_SOUND = "Hitmark.ogg";
 const std::string FIRE_SOUND = "Fire.ogg";
 const std::string GLASS_BREAK_SOUND = "GlassBreak.ogg";
-const std::string PICKUP_GRAVEYARD_SPAWN_SOUND = "HealthPotionGraveyard.ogg";
-const std::string PICKUP_MAZE_SPAWN_SOUND = "HealthPotionMaze.ogg";
-const std::string PICKUP_TUNNELS_SPAWN_SOUND = "HealthPotionTunnels.ogg";
-const std::string PICKUP_TOP_SPAWN_SOUND = "HealthPotionTop.ogg";
+//const std::string PICKUP_GRAVEYARD_SPAWN_SOUND = "HealthPotionGraveyard.ogg";
+//const std::string PICKUP_MAZE_SPAWN_SOUND = "HealthPotionMaze.ogg";
+//const std::string PICKUP_TUNNELS_SPAWN_SOUND = "HealthPotionTunnels.ogg";
+//const std::string PICKUP_TOP_SPAWN_SOUND = "HealthPotionTop.ogg";
 const std::string DESTRUCTION_SOUND = "BAEM.ogg";
 
 //Nr of sounds every player has in common.
 const int NR_OF_COMMON_SOUNDS = 9;
 //Nr of sounds only the client will hear.
-const int NR_OF_CLIENT_SOUNDS = 7;
+const int NR_OF_CLIENT_SOUNDS = 3;
 //Nr of sounds in totals
-const int NR_OF_SOUNDS = 16;
+const int NR_OF_SOUNDS = 12;
 //Nr of sounds from the same source that can be played subsequently
 const int NR_OF_SUBSEQUENT_SOUNDS = 4;
 
@@ -56,10 +56,10 @@ enum SoundIndexClient {
 	ThemeSong0,	
 	HitmarkSound,
 	TakingDamageSound,
-	PickupGraveyardSound,
+	/*PickupGraveyardSound,
 	PickupMazeSound,
 	PickupTunnelsSound,
-	PickupTopSound
+	PickupTopSound*/
 };
 
 struct PlayerSoundInfo

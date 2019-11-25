@@ -94,8 +94,8 @@ void NetworkPlayers::update(const float& dt)
 			{
 				if (p.deflectSoundGain > 0.0f)
 				{
-					p.deflectSoundGain -= 2.0f * dt;
 					shPtr->setSourceGain(p.deflectSoundGain, DeflectSound, p.data.guid);
+					p.deflectSoundGain -= 2.0f * dt;
 				}
 				else
 				{
@@ -106,9 +106,9 @@ void NetworkPlayers::update(const float& dt)
 		else if (p.wasDeflecting)
 		{
 			if (p.deflectSoundGain > 0.0f)
-			{
-				p.deflectSoundGain -= 2.0f * dt;
+			{				
 				shPtr->setSourceGain(p.deflectSoundGain, DeflectSound, p.data.guid);
+				p.deflectSoundGain -= 2.0f * dt;
 			}
 			else
 			{

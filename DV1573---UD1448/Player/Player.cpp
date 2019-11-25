@@ -123,7 +123,7 @@ void Player::updateListenerProperties()
 	shPtr->setSourcePosition(m_playerPosition, StepsSound, m_client->getMyData().guid);
 	shPtr->setSourcePosition(m_playerPosition, JumpSound, m_client->getMyData().guid);
 	shPtr->setSourcePosition(m_playerPosition, LandingSound, m_client->getMyData().guid);
-	shPtr->setSourcePosition(m_playerPosition, PickupGraveyardSound);
+	//shPtr->setSourcePosition(m_playerPosition, PickupGraveyardSound);
 	shPtr->setSourceLooping(true, StepsSound, m_client->getMyData().guid);
 
 	for (int i = 0; i < NR_OF_SUBSEQUENT_SOUNDS; i++)
@@ -301,9 +301,9 @@ void Player::attack()
 		else { //Player is holding down RM without any mana
 			
 			if (m_deflectSoundGain > 0.0f)
-			{
-				m_deflectSoundGain -= 2.0f * DeltaTime;
+			{				
 				shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
+				m_deflectSoundGain -= 2.0f * DeltaTime;
 			}
 			else
 			{
@@ -315,9 +315,9 @@ void Player::attack()
 	else if(m_deflecting)
 	{		
 		if (m_deflectSoundGain > 0.0f)
-		{
-			m_deflectSoundGain -= 2.0f * DeltaTime;
+		{			
 			shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
+			m_deflectSoundGain -= 2.0f * DeltaTime;
 		}
 		else
 		{

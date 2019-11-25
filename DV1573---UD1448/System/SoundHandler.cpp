@@ -183,7 +183,7 @@ void SoundHandler::loadAllSound()
 		logTrace(GLASS_BREAK_SOUND + " failed to be loaded");
 	}
 
-	success = loadSound(PickupGraveyardSound);
+	/*success = loadSound(PickupGraveyardSound);
 	if (success == -1)
 	{
 		logTrace(PICKUP_GRAVEYARD_SPAWN_SOUND + " failed to be loaded");
@@ -205,7 +205,7 @@ void SoundHandler::loadAllSound()
 	if (success == -1)
 	{
 		logTrace(PICKUP_TOP_SPAWN_SOUND + " failed to be loaded");
-	}
+	}*/
 
 	success = loadSound(DestructionSound);
 	if (success == -1)
@@ -229,18 +229,18 @@ int SoundHandler::loadSound(SoundIndexClient whatSound)
 	case HitmarkSound:
 		fileName += HITMARK_SOUND;
 		break;	
-	case PickupGraveyardSound:
-		fileName += PICKUP_GRAVEYARD_SPAWN_SOUND;
-		break;
-	case PickupMazeSound:
-		fileName += PICKUP_MAZE_SPAWN_SOUND;
-		break;
-	case PickupTunnelsSound:
-		fileName += PICKUP_TUNNELS_SPAWN_SOUND;
-		break;
-	case PickupTopSound:
-		fileName += PICKUP_TOP_SPAWN_SOUND;
-		break;
+	//case PickupGraveyardSound:
+	//	fileName += PICKUP_GRAVEYARD_SPAWN_SOUND;
+	//	break;
+	//case PickupMazeSound:
+	//	fileName += PICKUP_MAZE_SPAWN_SOUND;
+	//	break;
+	//case PickupTunnelsSound:
+	//	fileName += PICKUP_TUNNELS_SPAWN_SOUND;
+	//	break;
+	//case PickupTopSound:
+	//	fileName += PICKUP_TOP_SPAWN_SOUND;
+	//	break;
 	}
 
 	FILE* fp = 0;
