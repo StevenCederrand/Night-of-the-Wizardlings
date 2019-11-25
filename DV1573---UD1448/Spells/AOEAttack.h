@@ -20,7 +20,6 @@ public:
 	virtual const float getDamage();
 	virtual const glm::vec3& getPos() const;
 
-	void updateActiveSpell(float deltaTime);
 	bool spellOnGround();
 	void setSpellBool(bool state);
 
