@@ -100,6 +100,8 @@ void Player::update(float deltaTime)
 	if (m_health <= 0) {
 		if (m_firstPersonMesh->getShouldRender() == true) {
 			m_firstPersonMesh->setShouldRender(false);
+			SoundHandler* shPtr = SoundHandler::getInstance(); //stop Deflect
+			shPtr->stopSound(DeflectSound, m_client->getMyData().guid);
 		}
 	}else{
 		if (m_firstPersonMesh->getShouldRender() == false) {
@@ -278,9 +280,10 @@ void Player::attack()
 			shieldObject->setTransform(m_fpsTrans);
 			Renderer::getInstance()->submit(shieldObject, SHIELD);
 			if (!m_deflecting) {
+				logTrace("HEJSAN hp: " + std::to_string(m_client->getMyData().health));
 				animState.deflecting = true; //Play the animation once
 				m_mana -= 10; //This is the initial manacost for the deflect
-				
+
 				shPtr->playSound(DeflectSound, m_client->getMyData().guid);
 				m_deflecting = true;
 			}
@@ -291,6 +294,7 @@ void Player::attack()
 			
 			if (m_deflectSoundGain > 0.0f)
 			{
+				logTrace("HEJSAN1 hp: " + std::to_string(m_client->getMyData().health));
 				m_deflectSoundGain -= 2.0f * DeltaTime;
 				shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
 			}
@@ -305,6 +309,7 @@ void Player::attack()
 	{		
 		if (m_deflectSoundGain > 0.0f)
 		{
+			logTrace("HEJSAN2 hp: " + std::to_string(m_client->getMyData().health));
 			m_deflectSoundGain -= 2.0f * DeltaTime;
 			shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
 		}
@@ -356,6 +361,7 @@ void Player::attack()
 	if (Input::isMouseReleased(GLFW_MOUSE_BUTTON_RIGHT)) {
 		m_rMouse = false;
 	}
+	logTrace("deflect" + std::to_string(m_deflecting));
 }
 
 void Player::createRay()

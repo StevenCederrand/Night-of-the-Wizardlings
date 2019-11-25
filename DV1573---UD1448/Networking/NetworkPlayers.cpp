@@ -68,7 +68,7 @@ void NetworkPlayers::update(const float& dt)
 		}
 
 		GameObject* g = p.gameobject;
-		if (p.data.inDeflectState)
+		if (p.data.inDeflectState && p.data.health > 0.0f)
 		{
 			GameObject* shieldObject = new EnemyShieldObject("enemyShield");
 			//logTrace(std::to_string(p.data.position.x) + " " + std::to_string(p.data.position.y) + " " + std::to_string(p.data.position.z));
