@@ -296,15 +296,14 @@ void Player::attack()
 				shPtr->playSound(DeflectSound, m_client->getMyData().guid);
 				m_deflecting = true;
 			}
-			m_mana -= 10.f * DeltaTime;
-			m_deflecting = true;
+			m_mana -= 10.f * DeltaTime;			
 			m_deflectCooldown = 0.5f;
 		}
 		else { //Player is holding down RM without any mana
 			
 			if (m_deflectSoundGain > 0.0f)
 			{
-				m_deflectSoundGain -= 0.05f;
+				m_deflectSoundGain -= 2.0f * DeltaTime;
 				shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
 			}
 			else
@@ -318,7 +317,7 @@ void Player::attack()
 	{		
 		if (m_deflectSoundGain > 0.0f)
 		{
-			m_deflectSoundGain -= 0.05f;
+			m_deflectSoundGain -= 2.0f * DeltaTime;
 			shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
 		}
 		else

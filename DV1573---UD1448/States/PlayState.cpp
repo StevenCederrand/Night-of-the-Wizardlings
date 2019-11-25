@@ -299,6 +299,7 @@ void PlayState::update(float dt)
 	Client::getInstance()->updateNetworkEntities(dt);
 	auto* clientPtr = Client::getInstance();
 	m_dstr.update();
+	m_dstr_alt1.update();
 	if (clientPtr->isSpectating()) {
 		update_isSpectating(dt);
 	}
