@@ -305,7 +305,7 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			glm::vec3 forceDir = glm::vec3((m_diagram.sites[i] - hitPosition), 0.0f) * glm::inverse(newTransform.rotation);
 			glm::vec3 force = (forceDir * 20) + hitDirection;
 			if (scale > 0.6)
-				force = (forceDir * 100) + hitDirection * 5;	//Hardcoded for pillar, to fix later pls dont worrying
+				force = (forceDir * 100) + hitDirection * 9;	//Hardcoded for pillar, to fix later pls dont worrying
 
 			if (scale > 1.5)
 				force = (forceDir * 200) + hitDirection * 30;	//Hardcoded for big walls, to fix later pls dont worrying
@@ -318,9 +318,6 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			float dirRndY = 2 * (double)rand() / (double)RAND_MAX - 1;
 			float dirRndZ = 2 * (double)rand() / (double)RAND_MAX - 1;
 			
-
-			
-
 			btRigidBody* body = object->getRigidBodies()[mi];
 			body->applyCentralImpulse(btVector3(force.x, force.y, force.z) * 1.4);
 			body->applyTorque(btVector3(force.x * dirRndX, force.y * dirRndY, force.z * dirRndZ) * 15);

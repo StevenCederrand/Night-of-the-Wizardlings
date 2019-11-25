@@ -168,7 +168,7 @@ void PlayState::loadDestructables()
 	// Temporary variables to move later ---
 
 	m_dstr.setBreakSettings(DSTR2, 11, 2.8f, gravityOnImpact);
-	m_dstr_alt1.setBreakSettings(DSTR1, 8, 4.0f, gravityOnImpact);
+	m_dstr_alt1.setBreakSettings(DSTR1, 8, 3.4f, gravityOnImpact);
 
 	Renderer* renderer = Renderer::getInstance();
 	for (int i = (int)m_objects.size() - 1; i >= 0; i--)
