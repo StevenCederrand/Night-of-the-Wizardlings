@@ -534,14 +534,19 @@ void PlayState::update_isPlaying(const float& dt)
 			}
 
 			case PlayerEvents::GameStarted:
-			{
+			{	
+				m_hudHandler.getHudObject(HUDID::BAR_MANA)->setYClip(1.0f);
+				m_hudHandler.getHudObject(HUDID::BAR_HP)->setYClip(1.0f);
+				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(1.0f);
 				loadDestructables();
 				break;
 			}
 
 			case PlayerEvents::GameEnded:
 			{
-
+				m_hudHandler.getHudObject(HUDID::BAR_MANA)->setYClip(1.0f);
+				m_hudHandler.getHudObject(HUDID::BAR_HP)->setYClip(1.0f);
+				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(1.0f);
 				break;
 			}
 
