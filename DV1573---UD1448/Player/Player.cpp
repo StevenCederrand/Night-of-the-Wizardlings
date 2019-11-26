@@ -313,7 +313,7 @@ void Player::attack()
 		else
 		{
 			shPtr->stopSound(DeflectSound, m_client->getMyData().guid);
-			m_deflectSoundGain = 1.0f;
+			m_deflectSoundGain = 0.4f;
 			shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
 			m_deflecting = false;
 		}		

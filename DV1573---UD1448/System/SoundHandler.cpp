@@ -42,9 +42,9 @@ SoundHandler::SoundHandler()
 	//Set the volume for the client sources. 
 	RakNet::AddressOrGUID myGuid = Client::getInstance()->getMyData().guid;	
 	//setSourceGain(0.8, BasicAttackSound, myGuid);
-	//setSourceGain(0.2, DeflectSound, myGuid);
+	setSourceGain(0.4, DeflectSound, myGuid);
 	
-	setSourceGain(0.6, ThemeSong0);
+	setSourceGain(0.4, ThemeSong0);
 	setSourceGain(0.5, JumpSound, myGuid);
 	setSourceGain(0.5, LandingSound, myGuid);
 	setSourceGain(0.3, StepsSound, myGuid);
