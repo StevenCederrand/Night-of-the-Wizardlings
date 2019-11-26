@@ -1461,8 +1461,8 @@ void Renderer::initializeParticle()
 	m_flameInfo.width = 1.2f;     
 	m_flameInfo.heigth = 1.0f;     
 	m_flameInfo.lifetime = 10.0f;     
-	m_flameInfo.maxParticles = 3000; //350     
-	m_flameInfo.emission = 0.002f; //0.00001f;     
+	m_flameInfo.maxParticles = 1000; //350     
+	m_flameInfo.emission = 0.01f; //0.00001f;     
 	m_flameInfo.force = -0.04f; //5     
 	m_flameInfo.drag = 0.0f;     
 	m_flameInfo.gravity = -0.2f; //Standard is 1     
