@@ -481,6 +481,10 @@ void PlayState::update_isPlaying(const float& dt)
 				logWarning("[Event system] Took a heal");
 				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+
+				HudObject* DmgOverlay = m_hudHandler.getHudObject(HUDID::HEAL_OVERLAY);
+				DmgOverlay->setAlpha(1.0f);
+
 				break;
 			}
 			case PlayerEvents::PowerupRemoved:
@@ -824,6 +828,11 @@ void PlayState::HUDHandler() {
 	if (m_hudHandler.getHudObject(DAMAGE_OVERLAY)->getAlpha() != 0)
 	{
 		m_hudHandler.getHudObject(DAMAGE_OVERLAY)->setAlpha(m_hudHandler.getHudObject(DAMAGE_OVERLAY)->getAlpha() - DeltaTime);
+	}
+
+	if (m_hudHandler.getHudObject(HEAL_OVERLAY)->getAlpha() != 0)
+	{
+		m_hudHandler.getHudObject(HEAL_OVERLAY)->setAlpha(m_hudHandler.getHudObject(HEAL_OVERLAY)->getAlpha() - DeltaTime);
 	}
 
 	if (m_hudHandler.getHudObject(CROSSHAIR_DEFLECT_INDICATOR)->getAlpha() != 0)

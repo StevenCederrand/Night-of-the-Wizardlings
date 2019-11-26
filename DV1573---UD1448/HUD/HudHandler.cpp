@@ -74,6 +74,10 @@ void HudHandler::loadPlayStateHUD() {
 	hudObject->setAlpha(0.0f);
 	insertHUDObject(hudObject, HUDID::DAMAGE_OVERLAY);
 
+	hudObject = new HudObject("Assets/Textures/hud/PickupOverlayHP.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(static_cast<float>(SCREEN_WIDTH), (static_cast<float>(SCREEN_HEIGHT))));
+	hudObject->setAlpha(0.0f);
+	insertHUDObject(hudObject, HUDID::HEAL_OVERLAY);
+
 	//HP BAR
 	hudObject = new HudObject("Assets/Textures/hud/tmpHP.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(454 / 6)), glm::vec2(static_cast<float>(932 / 3), static_cast<float>(454 / 3)));
 	hudObject->setAlpha(1.0f);
@@ -121,7 +125,7 @@ void HudHandler::fadeIn() {
 	std::map<HUDID, HudObject*>::iterator it;
 
 	for (it = m_hudObjects.begin(); it != m_hudObjects.end(); it++) {
-		if (it->first == DAMAGE_OVERLAY || it->first == CROSSHAIR_HIT || it->first == DAMAGE_INDICATOR) {
+		if (it->first == DAMAGE_OVERLAY || it->first == CROSSHAIR_HIT || it->first == DAMAGE_INDICATOR || it->first == HEAL_OVERLAY) {
 			continue;
 		}
 		it->second->setAlpha(1.0f);
