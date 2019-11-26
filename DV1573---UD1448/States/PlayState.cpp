@@ -387,8 +387,8 @@ void PlayState::update_isPlaying(const float& dt)
 			{
 				logWarning("[Event system] Died");
 				//Update the HP bar
-				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
-				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100.0f);
+				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100.0f);
 				const PlayerPacket* shooter = clientPtr->getLatestPlayerThatHitMe();
 				if (shooter != nullptr) {
 					m_lastPositionOfMyKiller = shooter->position;
@@ -404,8 +404,8 @@ void PlayState::update_isPlaying(const float& dt)
 				//Update the HP bar
 				m_player->setPlayerPos(Client::getInstance()->getMyData().latestSpawnPosition);
 				m_player->setHealth(NetGlobals::PlayerMaxHealth);
-				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
-				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100.0f);
+				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(1.0f);
 				m_camera->resetCamera();
 				m_camera->disableCameraMovement(false);
 				m_player->onRespawn();
@@ -440,7 +440,7 @@ void PlayState::update_isPlaying(const float& dt)
 					HudObject* DmgIndicator = m_hudHandler.getHudObject(HUDID::DAMAGE_INDICATOR);
 					HudObject* DmgOverlay = m_hudHandler.getHudObject(HUDID::DAMAGE_OVERLAY);
 					HudObject* HpBar = m_hudHandler.getHudObject(HUDID::BAR_HP);
-					m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+					m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100.0f);
 
 					DmgIndicator->setRotation(glm::quat(glm::vec3(0, 0, glm::radians(indicatorAngle))));
 					DmgIndicator->setAlpha(1.0f);
@@ -463,8 +463,8 @@ void PlayState::update_isPlaying(const float& dt)
 				shPtr->playSound(PickupSound);
 				logWarning("[Event system] Took a powerup");
 				m_hudHandler.getHudObject(HUDID::POWERUP)->setAlpha(1.0f);
-				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
-				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100.0f);
+				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100.0f);
 				break;
 			}
 
@@ -472,8 +472,8 @@ void PlayState::update_isPlaying(const float& dt)
 			{
 				shPtr->playSound(PickupSound);
 				logWarning("[Event system] Took a heal");
-				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
-				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100.0f);
+				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100.0f);
 
 				HudObject* DmgOverlay = m_hudHandler.getHudObject(HUDID::HEAL_OVERLAY);
 				DmgOverlay->setAlpha(1.0f);
