@@ -440,6 +440,7 @@ void PlayState::update_isPlaying(const float& dt)
 					HudObject* DmgIndicator = m_hudHandler.getHudObject(HUDID::DAMAGE_INDICATOR);
 					HudObject* DmgOverlay = m_hudHandler.getHudObject(HUDID::DAMAGE_OVERLAY);
 					HudObject* HpBar = m_hudHandler.getHudObject(HUDID::BAR_HP);
+					m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 
 					DmgIndicator->setRotation(glm::quat(glm::vec3(0, 0, glm::radians(indicatorAngle))));
 					DmgIndicator->setAlpha(1.0f);
