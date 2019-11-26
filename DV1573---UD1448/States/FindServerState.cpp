@@ -211,7 +211,7 @@ bool FindServerState::onSpectateServerClicked(const CEGUI::EventArgs& e)
 				return true;
 			}
 		}
-		//SoundHandler::getInstance()->stopSound(ThemeSong0);
+		SoundHandler::getInstance()->stopSound(ThemeSong0);
 		glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		Renderer::getInstance()->clear();
 		m_stateManager->clearAllAndSetState(new PlayState(true));
