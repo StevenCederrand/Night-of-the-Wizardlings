@@ -298,6 +298,7 @@ PlayState::~PlayState()
 	delete m_bPhysics;
 	delete m_spellHandler;
 	delete m_camera;
+	delete m_firstPerson;
 	if (LocalServer::getInstance()->isInitialized()) {
 		LocalServer::getInstance()->destroy();
 	}
