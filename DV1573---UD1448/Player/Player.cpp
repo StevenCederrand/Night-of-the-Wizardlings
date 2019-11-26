@@ -437,6 +437,17 @@ void Player::updateMesh()
 
 }
 
+void Player::onDead()
+{
+	animState.deflecting = false;
+	m_deflecting = false;
+}
+
+void Player::onRespawn()
+{
+	m_mana = 100.0f;
+}
+
 void Player::setHealth(int health)
 {
 	m_health = health;

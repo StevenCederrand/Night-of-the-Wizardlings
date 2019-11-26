@@ -725,7 +725,7 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 		float damageMultiplier = 1.0f;
 
 		if (shooter->hasDamageBuff)
-			damageMultiplier = 2.5f;
+			damageMultiplier = 4.0f;
 
 		float totalDamage = hitpacket->damage * damageMultiplier;
 
@@ -888,8 +888,8 @@ void LocalServer::checkCollisionBetweenPlayersAndPickups()
 			if (isCollidingWithPickup(player, pickup)) {
 				// Give player buffs here
 				if (pickup.type == PickupType::HealthPotion) {
-					if(player.health < 100)
-						player.health = 100;
+					if(player.health < NetGlobals::PlayerMaxHealth)
+						player.health = NetGlobals::PlayerMaxHealth;
 					
 					RakNet::BitStream stream;
 					stream.Write((RakNet::MessageID)HEAL_BUFF);
@@ -902,7 +902,7 @@ void LocalServer::checkCollisionBetweenPlayersAndPickups()
 					player.hasDamageBuff = true;
 					RakNet::BitStream stream;
 					stream.Write((RakNet::MessageID)DAMAGE_BUFF_ACTIVE);
-					player.health = 200;
+					player.health = NetGlobals::PlayerMaxHealth;
 					player.Serialize(true, stream);
 					m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, player.guid, false);
 
@@ -988,8 +988,8 @@ void LocalServer::handleRespawns(const uint32_t& diff)
 			RakNet::BitStream stream;
 			stream.Write((RakNet::MessageID)RESPAWN_PLAYER_DURING_SESSION);
 			rs.player->Serialize(true, stream);
+			// Double send it...
 			m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, rs.player->guid, false);
-
 			m_respawnList.erase(m_respawnList.begin() + i);
 			i--;
 		}
@@ -1242,7 +1242,7 @@ void LocalServer::createPickupSpawnLocations()
 
 	PickupSpawnLocation spawn_two;
 	copyStringToCharArray(spawn_two.name, "Graveyard");
-	spawn_two.position = glm::vec3(70.0f, 2.3f, 0.67f);
+	spawn_two.position = glm::vec3(78.64f, 2.3f, 16.23f);
 	m_pickupSpawnLocations.emplace_back(spawn_two);
 
 	PickupSpawnLocation spawn_three;

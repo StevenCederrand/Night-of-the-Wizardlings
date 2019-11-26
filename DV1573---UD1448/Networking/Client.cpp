@@ -707,6 +707,8 @@ void Client::processAndHandlePackets()
 			
 			SpellHandler::deflectSpellData data;
 			data.position = m_myPlayerDataPacket.position;
+			data.position.y += m_myPlayerDataPacket.meshHalfSize.y + m_myPlayerDataPacket.meshHalfSize.y * 0.55;
+
 			data.direction = m_myPlayerDataPacket.lookDirection;
 			data.type = spellPacket.SpellType;
 

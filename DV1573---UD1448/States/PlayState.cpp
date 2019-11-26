@@ -338,31 +338,6 @@ void PlayState::update(float dt)
 	}
 
 	removeDeadObjects();
-	if (Input::isKeyHeldDown(GLFW_KEY_UP)) {
-		logTrace("UP");
-		glm::vec2 position = m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->getPosition();
-		position.y += 0.01f;
-		logVec3(glm::vec3(position, 0));
-		m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->setPosition(glm::vec2(position.x, position.y));
-	}
-	else if (Input::isKeyHeldDown(GLFW_KEY_DOWN)) {
-		glm::vec2 position = m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->getPosition();
-		position.y -= 0.01f;
-		logVec3(glm::vec3(position, 0));
-		m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->setPosition(glm::vec2(position.x, position.y));
-	}
-	else if (Input::isKeyHeldDown(GLFW_KEY_LEFT)) {
-		glm::vec2 position = m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->getPosition();
-		position.x -= 0.005f;
-		logVec3(glm::vec3(position, 0));
-		m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->setPosition(glm::vec2(position.x, position.y));
-	}
-	else if (Input::isKeyHeldDown(GLFW_KEY_RIGHT)) {
-		glm::vec2 position = m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->getPosition();
-		position.x += 0.005f;
-		logVec3(glm::vec3(position, 0));
-		m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->setPosition(glm::vec2(position.x, position.y));
-	}
 }
 
 void PlayState::removeDeadObjects()
@@ -419,7 +394,7 @@ void PlayState::update_isPlaying(const float& dt)
 				if (shooter != nullptr) {
 					m_lastPositionOfMyKiller = shooter->position;
 				}
-
+				m_player->onDead();
 				m_camera->disableCameraMovement(true);
 				break;
 			}
@@ -434,6 +409,7 @@ void PlayState::update_isPlaying(const float& dt)
 				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				m_camera->resetCamera();
 				m_camera->disableCameraMovement(false);
+				m_player->onRespawn();
 				break;
 			}
 
@@ -493,6 +469,10 @@ void PlayState::update_isPlaying(const float& dt)
 				logWarning("[Event system] Took a heal");
 				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+
+				HudObject* DmgOverlay = m_hudHandler.getHudObject(HUDID::HEAL_OVERLAY);
+				DmgOverlay->setAlpha(1.0f);
+
 				break;
 			}
 			case PlayerEvents::PowerupRemoved:
@@ -836,6 +816,11 @@ void PlayState::HUDHandler() {
 	if (m_hudHandler.getHudObject(DAMAGE_OVERLAY)->getAlpha() != 0)
 	{
 		m_hudHandler.getHudObject(DAMAGE_OVERLAY)->setAlpha(m_hudHandler.getHudObject(DAMAGE_OVERLAY)->getAlpha() - DeltaTime);
+	}
+
+	if (m_hudHandler.getHudObject(HEAL_OVERLAY)->getAlpha() != 0)
+	{
+		m_hudHandler.getHudObject(HEAL_OVERLAY)->setAlpha(m_hudHandler.getHudObject(HEAL_OVERLAY)->getAlpha() - DeltaTime);
 	}
 
 	if (m_hudHandler.getHudObject(CROSSHAIR_DEFLECT_INDICATOR)->getAlpha() != 0)
