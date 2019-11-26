@@ -7,10 +7,13 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_firstPersonMesh = new AnimatedObject("fpsMesh");
 	m_firstPersonMesh->loadMesh("FPSTESTIGEN.mesh");
 	m_firstPersonMesh->initAnimations("CastAnimation", 1.0f, 17.0f);
+	m_firstPersonMesh->initAnimations("CastTrippleAnimation", 89.0f, 114.0f);
+	m_firstPersonMesh->initAnimations("CastPotionAnimation", 137.0f, 152.0f);
 	m_firstPersonMesh->initAnimations("JumpAnimation", 1.0f, 1.0f);
-	m_firstPersonMesh->initAnimations("RunAnimation", 1.0f, 1.0f);
+	m_firstPersonMesh->initAnimations("RunAnimation", 116.0f, 136.0f);
 	m_firstPersonMesh->initAnimations("IdleAnimation", 19.0f, 87.0f);
-	m_firstPersonMesh->initAnimations("DeflectAnimation", 1.0f, 1.0f);
+	m_firstPersonMesh->initAnimations("DeflectAnimation", 154.0f, 169.0f);
+
 
 
 	Renderer::getInstance()->submit(m_firstPersonMesh, ANIMATEDSTATIC);
@@ -241,6 +244,14 @@ void Player::PlayAnimation(float deltaTime)
 		m_firstPersonMesh->playAnimation("CastAnimation");
 		animState.casting = false;
 	}
+	if (animState.castPotion) {
+		m_firstPersonMesh->playAnimation("CastPotionAnimation");
+		animState.castPotion = false;
+	}
+	if (animState.casTripple) {
+		m_firstPersonMesh->playAnimation("CastTrippleAnimation");
+		animState.casTripple = false;
+	}
 	if (animState.jumping) {
 		m_firstPersonMesh->playAnimation("JumpAnimation");
 		animState.jumping = false;
@@ -251,9 +262,10 @@ void Player::PlayAnimation(float deltaTime)
 	}
 	if (animState.deflecting)
 	{
-		m_firstPersonMesh->playAnimation("DeflectAnimation");
-		animState.deflecting = false;
+		m_firstPersonMesh->playLoopAnimation("DeflectAnimation");
+		//animState.deflecting = false;
 	}
+
 
 	m_firstPersonMesh->update(deltaTime);
 
@@ -313,7 +325,7 @@ void Player::attack()
 		else
 		{
 			shPtr->stopSound(DeflectSound, m_client->getMyData().guid);
-			m_deflectSoundGain = 1.0f;
+			m_deflectSoundGain = 0.4f;
 			shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
 			m_deflecting = false;
 		}		
@@ -343,7 +355,7 @@ void Player::attack()
 					/* Because we are swapping spells, we want to keep a more or less uniform cooldown. */
 					// Start loop
 					m_enhanceAttack.start();
-					animState.casting = true;
+					animState.casTripple = true;
 					m_usingTripleSpell = false;
 					m_specialCooldown = 3.5f;
 				}
@@ -353,7 +365,7 @@ void Player::attack()
 				{
 					m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, FLAMESTRIKE); // Put attack on cooldown
 
-					animState.casting = true;
+					animState.castPotion = true;
 					m_usingTripleSpell = true;
 					m_specialCooldown = 3.5f;
 				}
@@ -362,6 +374,7 @@ void Player::attack()
 	}
 	if (Input::isMouseReleased(GLFW_MOUSE_BUTTON_RIGHT)) {
 		m_rMouse = false;
+		animState.deflecting = false;
 	}
 	
 }

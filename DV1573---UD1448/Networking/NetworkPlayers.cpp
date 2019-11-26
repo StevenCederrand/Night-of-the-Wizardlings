@@ -113,7 +113,7 @@ void NetworkPlayers::update(const float& dt)
 			else
 			{
 				shPtr->stopSound(DeflectSound, p.data.guid);
-				p.deflectSoundGain = 1.0f;
+				p.deflectSoundGain = 0.4f;
 				shPtr->setSourceGain(p.deflectSoundGain, DeflectSound, p.data.guid);
 				p.wasDeflecting = false;			
 			}
