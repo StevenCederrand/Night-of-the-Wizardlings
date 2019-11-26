@@ -254,15 +254,15 @@ void Shader::setMaterial(const std::string& materialName) {
 
 void Shader::setMaterial(Material* material)
 {
-	if (m_oldMaterial == material->name) { 
+	/*if (m_oldMaterial == material->name) { 
 		return;
-	}
+	}*/
 
 	if (m_totalBoundTextures < material->textureID.size()) {
 		m_totalBoundTextures = material->textureID.size();
 	}
 
-	m_oldMaterial = material->name;
+	/*m_oldMaterial = material->name;*/
 
 	setVec3("Ambient_Color", material->ambient);
 	setVec3("Diffuse_Color", material->diffuse);

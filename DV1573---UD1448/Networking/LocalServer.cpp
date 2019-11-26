@@ -1345,14 +1345,14 @@ void LocalServer::unreadyEveryPlayer()
 PickupType LocalServer::getRandomPickupType()
 {
 
-	size_t luckyNumber = Randomizer::single(size_t(0), size_t(1));
+	/*size_t luckyNumber = Randomizer::single(size_t(0), size_t(1));
 
 	if (luckyNumber == 0) {
 		return PickupType::HealthPotion;
 	}
 	else if (luckyNumber == 1) {
 		return PickupType::DamageBuff;
-	}
+	}*/
 
 	return PickupType::HealthPotion;
 }
