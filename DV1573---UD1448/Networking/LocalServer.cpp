@@ -622,7 +622,7 @@ void LocalServer::processAndHandlePackets()
 			if (target == nullptr || spell == nullptr || shooter == nullptr || target->Spectator || shooter->Spectator)
 				continue;
 			
-			if (target->health == 0.0f)
+			if (target->health == 0.0f || target->invulnerabilityTime > 0.0f)
 				continue;
 
 			
