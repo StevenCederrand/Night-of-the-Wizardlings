@@ -157,7 +157,7 @@ void Client::ThreadedUpdate()
 void Client::processAndHandlePackets()
 {
 	/* This is the meat of the client, processing every packet that is coming in and sending packets to the server respectively */
-
+	SoundHandler* shPtr = SoundHandler::getInstance();
 	for (RakNet::Packet* packet = m_clientPeer->Receive(); packet; m_clientPeer->DeallocatePacket(packet), packet = m_clientPeer->Receive())
 	{
 		/* Construct the bitstream with the data from the packet */
@@ -709,6 +709,9 @@ void Client::processAndHandlePackets()
 			data.position = m_myPlayerDataPacket.position;
 			data.direction = m_myPlayerDataPacket.lookDirection;
 			data.type = spellPacket.SpellType;
+
+			int slot = shPtr->playSound(SuccessfulDeflectSound, spellPacket.CreatorGUID);
+			shPtr->setSourcePosition(spellPacket.Position, SuccessfulDeflectSound, spellPacket.CreatorGUID, slot);
 			
 			// Add this to the event list
 			{
@@ -720,7 +723,7 @@ void Client::processAndHandlePackets()
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateDeflectSpellMutex);
 				m_spellHandler->m_deflectedSpells.emplace_back(data);
-			}
+			}			
 		}
 		break;
 
@@ -779,28 +782,7 @@ void Client::processAndHandlePackets()
 				std::string type = "Health potion ";
 				glm::vec3 color = glm::vec3(1.0f, 0.2f, 0.2f);
 				t.width += Renderer::getInstance()->getTextWidth(type, t.scale);
-				t.textParts.emplace_back(type, color);		
-
-				//Gotta put in some better sounds 
-
-				/*std::string locationNameTemp = pickupPacket.locationName;
-
-				if (locationNameTemp == "Graveyard ")
-				{
-					SoundHandler::getInstance()->playSound(PickupGraveyardSound);
-				}	
-				else if (locationNameTemp == "Maze ")
-				{
-					SoundHandler::getInstance()->playSound(PickupMazeSound);
-				}
-				else if (locationNameTemp == "Tunnels ")
-				{
-					SoundHandler::getInstance()->playSound(PickupTunnelsSound);
-				}
-				else if (locationNameTemp == "Top ")
-				{
-					SoundHandler::getInstance()->playSound(PickupTopSound);
-				}*/
+				t.textParts.emplace_back(type, color);					
 			}
 			else if (pickupPacket.type == PickupType::DamageBuff)
 			{
@@ -810,8 +792,25 @@ void Client::processAndHandlePackets()
 				t.textParts.emplace_back(type, color);
 			}
 			
-			
+			std::string locationNameTemp = pickupPacket.locationName;
 
+			if (locationNameTemp == "Graveyard ")
+			{
+				shPtr->playSound(PickupGraveyardSound);
+			}
+			else if (locationNameTemp == "Maze ")
+			{
+				shPtr->playSound(PickupMazeSound);
+			}
+			else if (locationNameTemp == "Tunnels ")
+			{
+				shPtr->playSound(PickupTunnelsSound);
+			}
+			else if (locationNameTemp == "Top ")
+			{
+				shPtr->playSound(PickupTopSound);
+			}
+			
 			std::string text = "will spawn soon at " + std::string(pickupPacket.locationName) + "!";
 			t.width += Renderer::getInstance()->getTextWidth(text, t.scale);
 			glm::vec3 locColor = glm::vec3(1.0f, 1.0f, 1.0f);

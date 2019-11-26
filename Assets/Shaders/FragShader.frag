@@ -24,8 +24,8 @@ vec3 GLOBAL_lightColor = normalize(vec3(1, 1, 1));          // Directional light
 
 vec3 GLOBAL_lightDirection2 = vec3(0.8f, -0.5f, 0.4f);       // 1 Directional light
 
-float dirlightStr = 1.1f;     // Modifier for brightness (dirlight)
-float ambientStr = 0.45f;      // Global light strength (ambient)
+float dirlightStr = 0.38f;     // Modifier for brightness (dirlight)
+float ambientStr = 0.18f;      // Global light strength (ambient)
 float brightnessMod = 0.7f;    // Modifier for brightness (textures)
 
 // Modifier for brightness (point light), hardcoded temp needs fix
@@ -74,12 +74,12 @@ void main() {
 
     //This is a light accumilation over the point lights
     vec3 pointLights = vec3(0.0f);
-    for(int i = 0; i < LightCount && lightIndexBuffer.index[i] != -1; i++) {
-        uint lightIndex = lightIndexBuffer.index[i];
+    for(int i = 0; i < LightCount; i++) {
+        //uint lightIndex = lightIndexBuffer.index[i];
         //position += pLights[lightIndex].position;
-        float distance = length(f_position.xyz - pLights[lightIndex].position);
+        float distance = length(f_position.xyz - pLights[i].position);
         //if we are within the light position
-        if(distance > pLights[lightIndex].attenAndRadius.w) {
+        if(distance > pLights[i].attenAndRadius.w) {
             continue;
         }
         else {
@@ -87,22 +87,22 @@ void main() {
             // Hardcode strength because lights have no input and lazy Xd
             float str = pointLightModP;
 
-             if(pLights[lightIndex].attenAndRadius.w >= 30.0f)
+             if(pLights[i].attenAndRadius.w >= 30.0f)
             {
                 str = pointLightMod1;
             }
-            if(pLights[lightIndex].attenAndRadius.w >= 45.0f)
+            if(pLights[i].attenAndRadius.w >= 45.0f)
             {
                 str = pointLightMod2;
             }
-            if(pLights[lightIndex].attenAndRadius.w >= 60.0f)
+            if(pLights[i].attenAndRadius.w >= 60.0f)
             {
                 str = pointLightMod3;
             }
             // Hardcode strength because lights have no input and lazy Xd
 
 
-            pointLights += calcPointLights(pLights[lightIndex], f_normal, f_position.xyz, distance, diffuseColor) * str;
+            pointLights += calcPointLights(pLights[i], f_normal, f_position.xyz, distance, diffuseColor) * str;
         }
     }
 

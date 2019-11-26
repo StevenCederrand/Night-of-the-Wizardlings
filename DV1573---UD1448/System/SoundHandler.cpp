@@ -42,8 +42,9 @@ SoundHandler::SoundHandler()
 	//Set the volume for the client sources. 
 	RakNet::AddressOrGUID myGuid = Client::getInstance()->getMyData().guid;	
 	//setSourceGain(0.8, BasicAttackSound, myGuid);
-	//setSourceGain(0.2, DeflectSound, myGuid);
+	setSourceGain(0.4, DeflectSound, myGuid);
 	
+	setSourceGain(0.4, ThemeSong0);
 	setSourceGain(0.5, JumpSound, myGuid);
 	setSourceGain(0.5, LandingSound, myGuid);
 	setSourceGain(0.3, StepsSound, myGuid);
@@ -53,10 +54,7 @@ SoundHandler::SoundHandler()
 	/*setSourceGain(0.4, PickupGraveyardSound);
 	setSourceGain(0.4, PickupMazeSound);
 	setSourceGain(0.4, PickupTunnelsSound);
-	setSourceGain(0.4, PickupTopSound);*/
-
-	/*for(int i = 0; i < NR_OF_SUBSEQUENT_SOUNDS; i++)
-		setSourceGain(0.3, EnhanceAttackSound, myGuid, i);*/
+	setSourceGain(0.4, PickupTopSound);*/	
 
 	setSourceLooping(true, DeflectSound, myGuid);
 }
@@ -212,6 +210,18 @@ void SoundHandler::loadAllSound()
 	{
 		logTrace(DESTRUCTION_SOUND + " failed to be loaded");
 	}
+
+	success = loadSound(PickupSound);
+	if (success == -1)
+	{
+		logTrace(PICKUP_SOUND + " failed to be loaded");
+	}
+
+	success = loadSound(SuccessfulDeflectSound);
+	if (success == -1)
+	{
+		logTrace(SUCCESSFUL_DEFLECT_SOUND + " failed to be loaded");
+	}
 }
 
 int SoundHandler::loadSound(SoundIndexClient whatSound)
@@ -240,6 +250,9 @@ int SoundHandler::loadSound(SoundIndexClient whatSound)
 		break;
 	case PickupTopSound:
 		fileName += PICKUP_TOP_SPAWN_SOUND;
+		break;
+	case PickupSound:
+		fileName += PICKUP_SOUND;
 		break;
 	}
 
@@ -370,6 +383,10 @@ int SoundHandler::loadSound(SoundIndexCommon whatSound)
 		break;
 	case DestructionSound:
 		fileName += DESTRUCTION_SOUND;
+		break;
+	case SuccessfulDeflectSound:
+		fileName += SUCCESSFUL_DEFLECT_SOUND;
+		break;
 	}
 
 	FILE* fp = 0;
@@ -475,18 +492,13 @@ void SoundHandler::setPlayerSourceGains(RakNet::AddressOrGUID guid)
 	{
 		if (m_playerSoundInfo.at(i).guid.rakNetGuid == guid.rakNetGuid)
 		{
-			setSourceLooping(true, DeflectSound, guid);
-			//setSourceGain(0.8, BasicAttackSound, m_playerSoundInfo.at(i).guid);
+			setSourceLooping(true, DeflectSound, guid);			
 			setSourceGain(1.0, DeflectSound, m_playerSoundInfo.at(i).guid);			
 			setSourceGain(0.3, JumpSound, m_playerSoundInfo.at(i).guid);
 			setSourceGain(0.4, StepsSound, m_playerSoundInfo.at(i).guid);
 			setSourceGain(0.3, FireSound, m_playerSoundInfo.at(i).guid);
 			setSourceGain(0.3, DestructionSound, m_playerSoundInfo.at(i).guid);
-
-			/*for (int j = 0; j < NR_OF_SUBSEQUENT_SOUNDS; j++)
-			{
-				setSourceGain(0.3, EnhanceAttackSound, m_playerSoundInfo.at(i).guid, j);
-			}*/
+			
 			found = true;
 		}
 	}	
@@ -584,7 +596,8 @@ int SoundHandler::playSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID pl
 			//Sounds that should be able to play over each other
 			if (whatSound == JumpSound || whatSound == BasicAttackSound ||
 				whatSound == EnhanceAttackSound || whatSound == FireSound ||
-				whatSound == GlassBreakSound || whatSound == DestructionSound)
+				whatSound == GlassBreakSound || whatSound == DestructionSound || 
+				whatSound == SuccessfulDeflectSound)
 			{
 				m_error = alGetError();
 				bool foundFreeSlot = false;

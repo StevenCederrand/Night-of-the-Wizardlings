@@ -450,7 +450,7 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 				flamestrikePS->getVertex(), flamestrikePS->getDir(), flamestrikePS->getParticle(), flamestrikePS->getLifetime()));
 		}
 		
-		//m_lights.emplace_back(light);
+		m_lights.emplace_back(light);
 	}
 	else if (objType == RENDER_TYPE::DYNAMIC) {
 		m_dynamicObjects.emplace_back(gameObject);
@@ -480,7 +480,7 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 		light.attenAndRadius = lightRef->getAttenuationAndRadius(); //First 3 dims are for the attenuation, final 4th is for radius
 		light.index = -2;
 		
-		//m_lights.emplace_back(light);
+		m_lights.emplace_back(light);
 	}
 }
 
@@ -565,7 +565,7 @@ void Renderer::removeRenderObject(GameObject* gameObject, RENDER_TYPE objType)
 					break;
 				}
 			}
-			//m_lights.erase(m_lights.begin() + lightIndex);
+			m_lights.erase(m_lights.begin() + lightIndex);
 			m_spells.erase(m_spells.begin() + index);
 			m_particleSystems.erase(m_particleSystems.begin() + index);
 
@@ -652,13 +652,13 @@ void Renderer::renderSkybox()
 }
 
 void Renderer::render() {
-	Mesh* mesh;
+	Mesh* mesh = nullptr;
 	Transform transform;
 	glm::mat4 modelMatrix;
-	Shader* shader;
+	Shader* shader = nullptr;
 	MeshMap* meshMap = MeshMap::getInstance();
 	ShaderMap* shaderMap = ShaderMap::getInstance();
-	Material* material;
+	Material* material = nullptr;
 	
 	/*
 #pragma region Depth_Render & Light_Cull
@@ -668,7 +668,7 @@ void Renderer::render() {
 		//Bind and draw the objects to the depth-buffer
 		bindMatrixes(shader);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_depthFBO);
-
+		glClear(GL_DEPTH_BUFFER_BIT);
 		//Loop through all of the gameobjects
 		for (GameObject* object : m_staticObjects)
 		{
@@ -959,6 +959,9 @@ void Renderer::render() {
 			if (!object->getShouldRender()) {
 				continue;
 			}
+
+		
+
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
 			glEnableVertexAttribArray(2);
@@ -967,9 +970,10 @@ void Renderer::render() {
 
 			//Fetch the current mesh and its transform
 			mesh = p->getRenderInformation().mesh;
+			glBindVertexArray(mesh->getBuffers().vao);
 			//Bind the material
 			object->bindMaterialToShader(shader, p->getRenderInformation().material);
-
+			//shader->setMaterial(p->getRenderInformation().material);
 			//Bind the modelmatrix
 			glm::mat4 mMatrix = glm::mat4(1.0f);
 			mMatrix = glm::translate(mMatrix, p->getTransform().position);
@@ -977,8 +981,6 @@ void Renderer::render() {
 			mMatrix = glm::scale(mMatrix, p->getTransform().scale);
 
 			shader->setMat4("modelMatrix", mMatrix);
-
-			glBindVertexArray(mesh->getBuffers().vao);
 
 			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
@@ -1365,8 +1367,8 @@ void Renderer::initializeParticle()
 	m_PSinfo.width = 0.4f;
 	m_PSinfo.heigth = 0.6f;
 	m_PSinfo.lifetime = 1.5f;
-	m_PSinfo.maxParticles = 100; //350
-	m_PSinfo.emission = 0.02f; //0.00001f;
+	m_PSinfo.maxParticles = 1000; //350
+	m_PSinfo.emission = 0.002f; //0.00001f;
 	m_PSinfo.force = -0.2f; //5
 	m_PSinfo.drag = 0.0f;
 	m_PSinfo.gravity = 0.0f; //Standard is 1
@@ -1404,8 +1406,8 @@ void Renderer::initializeParticle()
 	m_enhanceInfo.width = 0.3f;
 	m_enhanceInfo.heigth = 0.3f;
 	m_enhanceInfo.lifetime = 0.3f;
-	m_enhanceInfo.maxParticles = 100; //350
-	m_enhanceInfo.emission = 0.01f; //0.00001f;
+	m_enhanceInfo.maxParticles = 1000; //350
+	m_enhanceInfo.emission = 0.001f; //0.00001f;
 	m_enhanceInfo.force = -0.2f; //5
 	m_enhanceInfo.drag = 0.0f;
 	m_enhanceInfo.gravity = 0.0f; //Standard is 1
@@ -1461,8 +1463,8 @@ void Renderer::initializeParticle()
 	m_flameInfo.width = 1.2f;     
 	m_flameInfo.heigth = 1.0f;     
 	m_flameInfo.lifetime = 10.0f;     
-	m_flameInfo.maxParticles = 300; //350     
-	m_flameInfo.emission = 0.02f; //0.00001f;     
+	m_flameInfo.maxParticles = 1000; //350     
+	m_flameInfo.emission = 0.01f; //0.00001f;     
 	m_flameInfo.force = -0.04f; //5     
 	m_flameInfo.drag = 0.0f;     
 	m_flameInfo.gravity = -0.2f; //Standard is 1     

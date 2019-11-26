@@ -200,7 +200,7 @@ void SpellHandler::initFireSpell()
 	fireBase->m_material->diffuse = glm::vec3(1.0f, 0.5f, 0.0f);
 	fireBase->m_material->ambient = glm::vec3(1.0f, 0.5f, 0.0f);
 
-	fireBase->m_damage = 20.0f;
+	fireBase->m_damage = 30.0f;
 	fireBase->m_speed = 0.0f;
 	fireBase->m_coolDown = 4.0f;
 	fireBase->m_lifeTime = 5.0f;
@@ -632,7 +632,7 @@ void SpellHandler::spellCollisionCheck()
 	fireDamageCounter = fireDamageCounter - DeltaTime * 1;
 	ownfireDamageCounter = ownfireDamageCounter - DeltaTime * 1;
 
-	if (ownPlayer.health > 0 && list.size() >= 1)
+	if (ownPlayer.health > 0 && list.size() >= 0)
 	{
 		glm::vec3 ownPlayerPos = ownPlayer.position;
 
@@ -662,7 +662,7 @@ void SpellHandler::spellCollisionCheck()
 				if (ownfireDamageCounter <= 0)
 				{
 					Client::getInstance()->sendHitRequest(*fireSpells[j], ownPlayer);
-					ownfireDamageCounter = 1.0f;
+					ownfireDamageCounter = 0.5f;
 				}
 			}
 		}	
@@ -738,7 +738,7 @@ void SpellHandler::spellCollisionCheck()
 				if (fireDamageCounter <= 0)
 				{
 					Client::getInstance()->sendHitRequest(*fireSpells[j], list[i]);
-					fireDamageCounter = 1.0f;
+					fireDamageCounter = 0.5f;
 					
 				}
 			}

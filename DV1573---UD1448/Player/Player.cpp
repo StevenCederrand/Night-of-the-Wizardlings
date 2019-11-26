@@ -7,10 +7,12 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_firstPersonMesh = new AnimatedObject("fpsMesh");
 	m_firstPersonMesh->loadMesh("FPSTESTIGEN.mesh");
 	m_firstPersonMesh->initAnimations("CastAnimation", 1.0f, 17.0f);
+	m_firstPersonMesh->initAnimations("CastTrippleAnimation", 89.0f, 114.0f);
+	m_firstPersonMesh->initAnimations("CastPotionAnimation", 137.0f, 152.0f);
 	m_firstPersonMesh->initAnimations("JumpAnimation", 1.0f, 1.0f);
-	m_firstPersonMesh->initAnimations("RunAnimation", 1.0f, 1.0f);
+	m_firstPersonMesh->initAnimations("RunAnimation", 116.0f, 136.0f);
 	m_firstPersonMesh->initAnimations("IdleAnimation", 19.0f, 87.0f);
-	m_firstPersonMesh->initAnimations("DeflectAnimation", 1.0f, 1.0f);
+	m_firstPersonMesh->initAnimations("DeflectAnimation", 154.0f, 169.0f);
 
 
 
@@ -100,6 +102,8 @@ void Player::update(float deltaTime)
 	if (m_health <= 0) {
 		if (m_firstPersonMesh->getShouldRender() == true) {
 			m_firstPersonMesh->setShouldRender(false);
+			SoundHandler* shPtr = SoundHandler::getInstance(); //stop Deflect
+			shPtr->stopSound(DeflectSound, m_client->getMyData().guid);
 		}
 	}else{
 		if (m_firstPersonMesh->getShouldRender() == false) {
@@ -124,6 +128,10 @@ void Player::updateListenerProperties()
 	shPtr->setSourcePosition(m_playerPosition, JumpSound, m_client->getMyData().guid);
 	shPtr->setSourcePosition(m_playerPosition, LandingSound, m_client->getMyData().guid);
 	shPtr->setSourcePosition(m_playerPosition, PickupGraveyardSound);
+	shPtr->setSourcePosition(m_playerPosition, PickupMazeSound);
+	shPtr->setSourcePosition(m_playerPosition, PickupTunnelsSound);
+	shPtr->setSourcePosition(m_playerPosition, PickupTopSound);
+	shPtr->setSourcePosition(m_playerPosition, PickupSound);
 	shPtr->setSourceLooping(true, StepsSound, m_client->getMyData().guid);
 
 	for (int i = 0; i < NR_OF_SUBSEQUENT_SOUNDS; i++)
@@ -228,7 +236,6 @@ void Player::move(float deltaTime)
 void Player::PlayAnimation(float deltaTime)
 {
 
-
 	if (animState.running){
 		m_firstPersonMesh->playLoopAnimation("RunAnimation");
 		animState.running = false;
@@ -236,6 +243,14 @@ void Player::PlayAnimation(float deltaTime)
 	if (animState.casting) {
 		m_firstPersonMesh->playAnimation("CastAnimation");
 		animState.casting = false;
+	}
+	if (animState.castPotion) {
+		m_firstPersonMesh->playAnimation("CastPotionAnimation");
+		animState.castPotion = false;
+	}
+	if (animState.casTripple) {
+		m_firstPersonMesh->playAnimation("CastTrippleAnimation");
+		animState.casTripple = false;
 	}
 	if (animState.jumping) {
 		m_firstPersonMesh->playAnimation("JumpAnimation");
@@ -247,35 +262,20 @@ void Player::PlayAnimation(float deltaTime)
 	}
 	if (animState.deflecting)
 	{
-		m_firstPersonMesh->playAnimation("DeflectAnimation");
-		animState.deflecting = false;
+		m_firstPersonMesh->playLoopAnimation("DeflectAnimation");
+		//animState.deflecting = false;
 	}
+
 
 	m_firstPersonMesh->update(deltaTime);
 
 }
 
-
-
 void Player::attack()
 {
-	SoundHandler* shPtr = SoundHandler::getInstance();
-
-	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_LEFT))
-	{
-		if (m_attackCooldown <= 0)
-		{
-
-			shPtr->playSound(BasicAttackSound, m_client->getMyData().guid);
-			m_attackCooldown = m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, NORMALATTACK); // Put attack on cooldown
-			animState.casting = true;
-
-		}
-	}	
+	SoundHandler* shPtr = SoundHandler::getInstance();	
 	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_RIGHT))
 	{
-		//Render the shield mesh
-
 		//Actually deflecting
 		if (m_mana > 10) {
 			GameObject* shieldObject = new ShieldObject("playerShield");
@@ -289,17 +289,19 @@ void Player::attack()
 			shieldObject->setTransform(m_fpsTrans);
 			Renderer::getInstance()->submit(shieldObject, SHIELD);
 			if (!m_deflecting) {
+				logTrace("HEJSAN hp: " + std::to_string(m_client->getMyData().health));
 				animState.deflecting = true; //Play the animation once
 				m_mana -= 10; //This is the initial manacost for the deflect
-				
+
 				shPtr->playSound(DeflectSound, m_client->getMyData().guid);
-				m_deflecting = true;
+				m_deflecting = true; //So we don't play sound over and over
 			}
 			m_mana -= 10.f * DeltaTime;			
 			m_deflectCooldown = 0.5f;
 		}
 		else { //Player is holding down RM without any mana
 			
+			//Fade out deflect sound
 			if (m_deflectSoundGain > 0.0f)
 			{
 				m_deflectSoundGain -= 2.0f * DeltaTime;
@@ -314,6 +316,7 @@ void Player::attack()
 	}
 	else if(m_deflecting)
 	{		
+		//Fade out deflect sound
 		if (m_deflectSoundGain > 0.0f)
 		{
 			m_deflectSoundGain -= 2.0f * DeltaTime;
@@ -322,37 +325,58 @@ void Player::attack()
 		else
 		{
 			shPtr->stopSound(DeflectSound, m_client->getMyData().guid);
-			m_deflectSoundGain = 1.0f;
+			m_deflectSoundGain = 0.4f;
 			shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
 			m_deflecting = false;
 		}		
 	}
-
-	if (Input::isMouseReleased(GLFW_MOUSE_BUTTON_RIGHT)) {				
-		m_rMouse = false;	
-	}	
-
-	if (Input::isKeyHeldDown(GLFW_KEY_Q))
+	else
 	{
-		if (m_specialCooldown <= 0)
+		if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_LEFT))
 		{
-			//Sound for enhance spell is handled in spellhandler
-			m_specialCooldown = m_spellhandler->getEnhAttackBase()->m_coolDown;
-			// Start loop
-			m_enhanceAttack.start();
-			animState.casting = true;
+			if (m_attackCooldown <= 0)
+			{
+
+				shPtr->playSound(BasicAttackSound, m_client->getMyData().guid);
+				m_attackCooldown = m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, NORMALATTACK); // Put attack on cooldown
+				animState.casting = true;
+
+			}
+		}
+		//Special Abilities are to be placed here
+		if (Input::isKeyPressed(GLFW_KEY_Q))
+		{
+			//If we are using the triple spell
+			if (m_usingTripleSpell) {
+				if (m_specialCooldown <= 0)
+				{
+					//Sound for enhance spell is handled in spellhandler
+					//m_specialCooldown = m_spellhandler->getEnhAttackBase()->m_coolDown;
+					/* Because we are swapping spells, we want to keep a more or less uniform cooldown. */
+					// Start loop
+					m_enhanceAttack.start();
+					animState.casTripple = true;
+					m_usingTripleSpell = false;
+					m_specialCooldown = 3.5f;
+				}
+			}
+			else { //If our active spell is flamestrike
+				if (m_specialCooldown <= 0)
+				{
+					m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, FLAMESTRIKE); // Put attack on cooldown
+
+					animState.castPotion = true;
+					m_usingTripleSpell = true;
+					m_specialCooldown = 3.5f;
+				}
+			}
 		}
 	}
-
-	if (Input::isKeyHeldDown(GLFW_KEY_R))
-	{
-		if (m_special3Cooldown <= 0)
-		{
-			m_special3Cooldown = m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, FLAMESTRIKE); // Put attack on cooldown
-
-			animState.casting = true;
-		}
+	if (Input::isMouseReleased(GLFW_MOUSE_BUTTON_RIGHT)) {
+		m_rMouse = false;
+		animState.deflecting = false;
 	}
+	
 }
 
 void Player::createRay()
@@ -413,6 +437,17 @@ void Player::updateMesh()
 
 }
 
+void Player::onDead()
+{
+	animState.deflecting = false;
+	m_deflecting = false;
+}
+
+void Player::onRespawn()
+{
+	m_mana = 100.0f;
+}
+
 void Player::setHealth(int health)
 {
 	m_health = health;
@@ -426,6 +461,11 @@ void Player::setSpeed(float speed)
 void Player::logicStop(const bool& stop)
 {
 	m_logicStop = stop;
+}
+
+void Player::submitHudHandler(HudHandler* hudHandler)
+{
+	m_hudHandler = hudHandler;
 }
 
 const float& Player::getAttackCooldown() const
@@ -466,6 +506,11 @@ const float& Player::getMana() const
 const bool& Player::onGround() const
 {
 	return m_character->onGround();
+}
+
+const bool& Player::usingTripleSpell() const
+{
+	return m_usingTripleSpell;
 }
 
 const glm::vec3& Player::getPlayerPos() const

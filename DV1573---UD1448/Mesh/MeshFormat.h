@@ -79,6 +79,9 @@ struct AnimationState
 	bool jumping = false;
 	bool deflecting = false;
 	bool idle = false;
+	bool casTripple = false;
+	bool castPotion = false;
+	
 };
 
 
