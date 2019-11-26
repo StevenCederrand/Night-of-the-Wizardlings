@@ -1,7 +1,7 @@
 #include <Pch/Pch.h>
 #include "DestructibleObject.h"
 
-DestructibleObject::DestructibleObject(DstrGenerator* dstr, int index, float fallTime, float fallGravity)
+DestructibleObject::DestructibleObject(DstrGenerator* dstr, int index, float fallGravity, float event1Time)
 {
 	dstrRef = dstr;
 	m_type = DESTRUCTIBLE;
@@ -9,7 +9,9 @@ DestructibleObject::DestructibleObject(DstrGenerator* dstr, int index, float fal
 	m_polygonFace.reserve(4);
 	m_index = index;
 
-	m_fallTime = fallTime;
+	m_ev1Time = event1Time;
+	m_ev2Time = m_ev1Time;
+	m_ev3Time = m_ev2Time;
 	m_fallGravity = btVector3(0.0f, -fallGravity, 0.0f);
 }
 
@@ -20,38 +22,51 @@ DestructibleObject::~DestructibleObject()
 void DestructibleObject::update(float dt)
 {
 	updateBulletRigids();
-	
+	m_lifetime += dt;
 
+	// Temporary variables to move later ---
+
+	/*float dampingMidTime = 1.0f;
+	float dampingSpinMidTime = 0.0f;
+	float dampingAfterTime = 0.0f;
+	float dampingSpinAfterTime = 0.0f;*/ // Stop-fall effect
+
+	float dampingEv1 = 0.0f;
+	float dampingSpinEv1 = 0.0f;
+	float dampingEv2 = 0.0f;
+	float dampingSpinEv2 = 0.0f;
+
+	// Temporary variables to move later ---
+	
 	if (m_destroyed && m_dstrState != 3)
 	{
-		m_lifetime += dt;
 
 		// Freezes object after time
-		if (m_lifetime >= m_fallTime * 0.60f && m_dstrState == 0)
+		if (m_lifetime >= m_ev1Time && m_dstrState == 0)
 		{
 			for (int i = 0; i < (int)getRigidBodies().size(); i++)
 			{
-				//getRigidBodies()[i]->setGravity(m_fallGravity);
-				//getRigidBodies()[i]->setDamping(0.85f, 0.0f);
+				getRigidBodies()[i]->setGravity(m_fallGravity);
+				getRigidBodies()[i]->setDamping(dampingEv1, dampingSpinEv1);
 			}
 
 			m_dstrState = 1;
 		}
 
 		// Changes gravity after time
-		if (m_lifetime >= m_fallTime && m_dstrState == 1)
+		if (m_lifetime >= m_ev2Time && m_dstrState == 1)
 		{
 			for (int i = 0; i < (int)getRigidBodies().size(); i++)
 			{
-				getRigidBodies()[i]->setGravity(m_fallGravity / 8);
-				getRigidBodies()[i]->setDamping(0.0f, 0.0f);
+				getRigidBodies()[i]->setGravity(m_fallGravity);
+				getRigidBodies()[i]->setDamping(dampingEv2, dampingSpinEv2);
 			}
 
 			m_dstrState = 2;
 		}
 
 		// Removes the object after time
-		if (m_lifetime >= 15.0f && m_dstrState == 2)
+		if (m_lifetime >= 17.0f && m_dstrState == 2)
 		{
 			for (int i = 0; i < (int)getRigidBodies().size(); i++)
 			{
@@ -247,14 +262,14 @@ void DestructibleObject::loadBasic(std::string name)
 	for (int i = 0; i < count; i++)
 	{
 		newVertices[vi++].position = glm::vec3(m_polygonFace[i].x, m_polygonFace[i].y, scale);
-		newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, -1.0f);
+		newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, 1.0f);
 	}
 
 	// Bottom
 	for (int i = 0; i < count; i++)
 	{
 		newVertices[vi++].position = glm::vec3(m_polygonFace[i].x, m_polygonFace[i].y, -scale);
-		newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, 1.0f);
+		newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, -1.0f);
 	}
 
 	// Sides
@@ -267,7 +282,7 @@ void DestructibleObject::loadBasic(std::string name)
 		newVertices[vi++].position = glm::vec3(m_polygonFace[iNext].x, m_polygonFace[iNext].y, -scale);
 		newVertices[vi++].position = glm::vec3(m_polygonFace[iNext].x, m_polygonFace[iNext].y, scale);
 
-		normal = glm::normalize(glm::cross(glm::vec3(m_polygonFace[iNext] - m_polygonFace[i], 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
+		normal = glm::normalize(glm::cross(glm::vec3(m_polygonFace[iNext] - m_polygonFace[i], 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
 
 		newVertices[ni++].Normals = normal;
 		newVertices[ni++].Normals = normal;
@@ -349,14 +364,14 @@ void DestructibleObject::meshFromPolygon(std::string name)
 	for (int i = 0; i < count; i++)
 	{
 		newVertices[vi++].position = glm::vec3(m_polygonFace[i].x, m_polygonFace[i].y, scale);
-		newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, -1.0f);
+		newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, 1.0f);
 	}
 
 	// Bottom
 	for (int i = 0; i < count; i++)
 	{
 		newVertices[vi++].position = glm::vec3(m_polygonFace[i].x, m_polygonFace[i].y, -scale);
-		newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, 1.0f);
+		newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, -1.0f);
 	}
 
 	// Sides
@@ -369,7 +384,7 @@ void DestructibleObject::meshFromPolygon(std::string name)
 		newVertices[vi++].position = glm::vec3(m_polygonFace[iNext].x, m_polygonFace[iNext].y, -scale);
 		newVertices[vi++].position = glm::vec3(m_polygonFace[iNext].x, m_polygonFace[iNext].y, scale);
 
-		normal = glm::normalize(glm::cross(glm::vec3(m_polygonFace[iNext] - m_polygonFace[i], 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
+		normal = glm::normalize(glm::cross(glm::vec3(m_polygonFace[iNext] - m_polygonFace[i], 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
 
 		newVertices[ni++].Normals = normal;
 		newVertices[ni++].Normals = normal;

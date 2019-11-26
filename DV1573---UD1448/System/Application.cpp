@@ -5,7 +5,8 @@
 #include <Networking/Client.h>
 #include <Networking/LocalServer.h>
 #include <Gui/Gui.h>
-
+#define AUTOSTART false;
+#define FULLSCREEN false;
 float DeltaTime = 0.0f;
 
 Application::Application() {
@@ -53,9 +54,11 @@ bool Application::init() {
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
-
-	m_window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Night of the Wizardlings", NULL, NULL);
-	//m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", glfwGetPrimaryMonitor(), NULL); !!! FULLSCREEN!!!
+#if FULLSCREEN
+	m_window = glfwCreateWindow(1280, 720, "Night of the Wizardlings", glfwGetPrimaryMonitor(), NULL);// !!! FULLSCREEN!!!
+#else 
+	m_window = glfwCreateWindow(1280, 720, "Night of the Wizardlings", NULL, NULL);
+#endif
 
 	//glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	
@@ -90,10 +93,14 @@ bool Application::init() {
 	Gui::getInstance()->setFont("DejaVuSans-10");
 
 	m_stateManager = new StateManager();
-	m_stateManager->pushState(new MenuState());	
 
-	SoundHandler* shPtr = SoundHandler::getInstance();
-	//shPtr->setSourceType(AL_STREAMING, ThemeSong0);
+#if AUTOSTART
+	m_stateManager->pushState(new PlayState(false));
+#else 
+	m_stateManager->pushState(new MenuState());	
+#endif
+
+	SoundHandler* shPtr = SoundHandler::getInstance();	
 	shPtr->playSound(ThemeSong0);
 	shPtr->setSourceLooping(true, ThemeSong0);
 

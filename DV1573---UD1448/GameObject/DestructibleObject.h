@@ -7,7 +7,7 @@ class DstrGenerator;
 class DestructibleObject : public GameObject
 {
 public:
-	DestructibleObject(DstrGenerator* dstr, int index, float fallTime, float fallGravity);
+	DestructibleObject(DstrGenerator* dstr, int index, float fallGravity, float event1Time);
 	~DestructibleObject();
 
 	void update(float dt);
@@ -20,7 +20,9 @@ public:
 	void meshFromPolygon(std::string name);
 	void set_destroyed(bool state) { m_destroyed = state; }
 	void setLifetime(float time) { m_lifetime = time; }
-	void setFallTime(float time) { m_fallTime = time; }
+	void setEvent1Time(float time) { m_ev1Time = time; }
+	void setEvent2Time(float time) { m_ev2Time = time; }
+	void setEvent3Time(float time) { m_ev3Time = time; }
 
 	const std::vector<glm::vec2>& getPolygon() const { return m_polygonFace; }
 	const float& getScale() const { return m_scale; }
@@ -32,7 +34,9 @@ public:
 private:
 	std::vector<glm::vec2> m_polygonFace;
 
-	float m_fallTime;
+	float m_ev1Time;
+	float m_ev2Time;
+	float m_ev3Time;
 	btVector3 m_fallGravity;
 
 	float m_lifetime = 0.0f;

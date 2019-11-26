@@ -435,6 +435,7 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 
 		else if (spell->getType() == OBJECT_TYPE::FIRE)
 		{
+			light.position.y += 2.0f;
 			light.attenAndRadius = m_spellHandler->getFireBase()->m_attenAndRadius;
 			light.color = m_spellHandler->getFireBase()->m_material->diffuse;
 			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &smoke, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
@@ -471,11 +472,12 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 	}
 	else if (objType == RENDER_TYPE::POINTLIGHT_SOURCE) {
 		/* Place the light in the lights list */
-		PLIGHT light;
+		Pointlight* lightRef = static_cast<Pointlight*>(gameObject);
 
+		PLIGHT light;
 		light.position = gameObject->getTransform().position;
-		light.color = glm::vec3(1.0f);
-		light.attenAndRadius = glm::vec4(1.0f, 0.09f, 0.034f, 5.0f); //First 3 dims are for the attenuation, final 4th is for radius
+		light.color = lightRef->getColor();
+		light.attenAndRadius = lightRef->getAttenuationAndRadius(); //First 3 dims are for the attenuation, final 4th is for radius
 		light.index = -2;
 		
 		m_lights.emplace_back(light);
@@ -630,7 +632,9 @@ void Renderer::destroy()
 void Renderer::renderSkybox()
 {
 	glDisable(GL_CULL_FACE);
-	glDepthMask(GL_FALSE);
+	
+	//glDepthMask(GL_FALSE);
+	glDepthFunc(GL_LEQUAL);
 	auto* shader = ShaderMap::getInstance()->useByName("Skybox_Shader");
 	shader->setMat4("modelMatrix", m_skyBox->getModelMatrix());
 	shader->setMat4("viewMatrix", glm::mat4(glm::mat3(m_camera->getViewMat())));
@@ -643,6 +647,7 @@ void Renderer::renderSkybox()
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, NULL);
 	glDepthMask(GL_TRUE);
+	glDepthFunc(GL_LESS);
 	glEnable(GL_CULL_FACE);
 }
 
@@ -663,7 +668,7 @@ void Renderer::render() {
 		//Bind and draw the objects to the depth-buffer
 		bindMatrixes(shader);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_depthFBO);
-
+		glClear(GL_DEPTH_BUFFER_BIT);
 		//Loop through all of the gameobjects
 		for (GameObject* object : m_staticObjects)
 		{
@@ -678,6 +683,7 @@ void Renderer::render() {
 			//Then through all of the meshes
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
+				glEnableVertexAttribArray(0);
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
 				mesh = object->getMesh(j);
@@ -692,6 +698,7 @@ void Renderer::render() {
 				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 				glBindVertexArray(0);
+				glDisableVertexAttribArray(0);
 			}
 		}
 
@@ -710,6 +717,7 @@ void Renderer::render() {
 			//Then through all of the meshes
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
+				glEnableVertexAttribArray(0);
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
 
@@ -725,6 +733,7 @@ void Renderer::render() {
 				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 				glBindVertexArray(0);
+				glDisableVertexAttribArray(0);
 			}
 		}
 
@@ -743,6 +752,7 @@ void Renderer::render() {
 			//Then through all of the meshes
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
+				glEnableVertexAttribArray(0);
 				modelMatrix = glm::mat4(1.0f);
 				//Fetch the current mesh and its transform
 
@@ -758,6 +768,7 @@ void Renderer::render() {
 				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 				glBindVertexArray(0);
+				glDisableVertexAttribArray(0);
 			}
 		}
 
@@ -792,7 +803,7 @@ void Renderer::render() {
 
 	//BLOOMBLUR MISSION STEP 1: SAMPLE
 	//m_bloom->bindHdrFBO();
-	renderSkybox();
+
 	//renderDeflectBox(m_deflectBox);
 
 #ifdef DEBUG_WIREFRAME
@@ -854,7 +865,9 @@ void Renderer::render() {
 		for (int j = 0; j < object->getMeshesCount(); j++)
 		{
 			//Fetch the current mesh and its transform
-
+			glEnableVertexAttribArray(0);
+			glEnableVertexAttribArray(1);
+			glEnableVertexAttribArray(2);
 			mesh = object->getMesh(j);
 
 			//Bind the material
@@ -878,6 +891,9 @@ void Renderer::render() {
 			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 			glBindVertexArray(0);
+			glDisableVertexAttribArray(0);
+			glDisableVertexAttribArray(1);
+			glDisableVertexAttribArray(2);
 		}
 	}
 
@@ -897,6 +913,9 @@ void Renderer::render() {
 			//Then through all of the meshes
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
+				glEnableVertexAttribArray(0);
+				glEnableVertexAttribArray(1);
+				glEnableVertexAttribArray(2);
 				mesh = object->getMesh(j);
 				//Bind the material
 				if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
@@ -919,6 +938,9 @@ void Renderer::render() {
 				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 				glBindVertexArray(0);
+				glDisableVertexAttribArray(0);
+				glDisableVertexAttribArray(1);
+				glDisableVertexAttribArray(2);
 			}
 		}
 	}
@@ -935,6 +957,9 @@ void Renderer::render() {
 			if (!object->getShouldRender()) {
 				continue;
 			}
+			glEnableVertexAttribArray(0);
+			glEnableVertexAttribArray(1);
+			glEnableVertexAttribArray(2);
 
 			Pickup* p = dynamic_cast<Pickup*>(object);
 
@@ -956,6 +981,9 @@ void Renderer::render() {
 			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 			glBindVertexArray(0);
+			glDisableVertexAttribArray(0);
+			glDisableVertexAttribArray(1);
+			glDisableVertexAttribArray(2);
 		}
 	}
 	shader->clearBinding();
@@ -980,10 +1008,10 @@ void Renderer::render() {
 				iConv = std::to_string(i);
 
 				if (m_lights[i].index != -2) {
-					shader->setVec3("pLights[" + iConv + "].position", m_lights[i].position);
+					shader->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[m_lights[i].index]->getTransform().position);
 				}
 				else {
-					shader->setVec3("pLights[" + iConv + "].position", m_lights[i].position);
+					shader->setVec3("pLights[" + std::to_string(i) + "].position", m_lights[i].position);
 				}
 
 				shader->setVec3("pLights[" + iConv + "].color", m_lights[i].color);
@@ -1008,6 +1036,9 @@ void Renderer::render() {
 
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
+				glEnableVertexAttribArray(0);
+				glEnableVertexAttribArray(1);
+				glEnableVertexAttribArray(2);
 				//Fetch the current mesh and its transform
 				mesh = object->getMesh(j);
 				transform = object->getTransform(mesh, j);
@@ -1029,13 +1060,16 @@ void Renderer::render() {
 				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 				object->unbindMaterialFromShader(shader, mesh->getMaterial());
 				glBindVertexArray(0);
+				glDisableVertexAttribArray(0);
+				glDisableVertexAttribArray(1);
+				glDisableVertexAttribArray(2);
 			}
 		}
 	}
 
 	shader->clearBinding();
 #pragma endregion
-
+	renderSkybox();
 	// Spell Rendering
 	m_spellHandler->renderSpell();
 
@@ -1328,9 +1362,9 @@ void Renderer::initializeParticle()
 
 	m_PSinfo.width = 0.4f;
 	m_PSinfo.heigth = 0.6f;
-	m_PSinfo.lifetime = 2.0f;
-	m_PSinfo.maxParticles = 500; //350
-	m_PSinfo.emission = 0.0075f; //0.00001f;
+	m_PSinfo.lifetime = 1.5f;
+	m_PSinfo.maxParticles = 100; //350
+	m_PSinfo.emission = 0.02f; //0.00001f;
 	m_PSinfo.force = -0.2f; //5
 	m_PSinfo.drag = 0.0f;
 	m_PSinfo.gravity = 0.0f; //Standard is 1
@@ -1363,12 +1397,12 @@ void Renderer::initializeParticle()
 
 
 	//------------------------------------------
-	m_txtInfo.name = "Assets/Textures/star.png";
+	m_txtInfo.name = "Assets/Textures/betterStar.png";
 
 	m_enhanceInfo.width = 0.3f;
 	m_enhanceInfo.heigth = 0.3f;
 	m_enhanceInfo.lifetime = 0.3f;
-	m_enhanceInfo.maxParticles = 750; //350
+	m_enhanceInfo.maxParticles = 100; //350
 	m_enhanceInfo.emission = 0.01f; //0.00001f;
 	m_enhanceInfo.force = -0.2f; //5
 	m_enhanceInfo.drag = 0.0f;
@@ -1383,9 +1417,9 @@ void Renderer::initializeParticle()
 	m_enhanceInfo.fade = 1;
 
 	m_enhanceInfo.color = glm::vec3(0.5f, 1.0f, 0.0f);
-	m_enhanceInfo.blendColor = glm::vec3(1.0f, 1.0f, 1.0f);
+	m_enhanceInfo.blendColor = glm::vec3(1.0f, 0.0f, 1.0f);
 
-	m_enhanceInfo.color = glm::vec3(0.85f, 1.f, 0.2f); //jerrys färg
+	m_enhanceInfo.color = glm::vec3(0.0, 0.0f, 0.0f); //jerrys färg
 	m_enhanceInfo.direction = glm::vec3(1.0f, 0.0f, 0.0f);
 	vertexCountDiff2 = m_enhanceInfo.maxParticles;
 	emissionDiff2 = m_enhanceInfo.emission;
@@ -1425,8 +1459,8 @@ void Renderer::initializeParticle()
 	m_flameInfo.width = 1.2f;     
 	m_flameInfo.heigth = 1.0f;     
 	m_flameInfo.lifetime = 10.0f;     
-	m_flameInfo.maxParticles = 700; //350     
-	m_flameInfo.emission = 0.01f; //0.00001f;     
+	m_flameInfo.maxParticles = 300; //350     
+	m_flameInfo.emission = 0.02f; //0.00001f;     
 	m_flameInfo.force = -0.04f; //5     
 	m_flameInfo.drag = 0.0f;     
 	m_flameInfo.gravity = -0.2f; //Standard is 1     

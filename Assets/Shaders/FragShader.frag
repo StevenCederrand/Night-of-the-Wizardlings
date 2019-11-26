@@ -19,12 +19,20 @@ in vec4 f_position;
 out vec4 color;
 out vec4 brightColor;
 
-vec3 GLOBAL_lightDirection = vec3(0.2f, -0.7f, 0.4f);       // 1 Directional light
+vec3 GLOBAL_lightDirection = vec3(0.3f, -0.5f, -0.5f);       // 1 Directional light
 vec3 GLOBAL_lightColor = normalize(vec3(1, 1, 1));          // Directional light color (white)
 
-float ambientStr = 0.35f;      // Global light strength (ambient)
+vec3 GLOBAL_lightDirection2 = vec3(0.8f, -0.5f, 0.4f);       // 1 Directional light
+
+float dirlightStr = 1.1f;     // Modifier for brightness (dirlight)
+float ambientStr = 0.45f;      // Global light strength (ambient)
 float brightnessMod = 0.7f;    // Modifier for brightness (textures)
-float pointLightMod = 2.2f;    // Modifier for brightness (point light), hardcoded temp needs fix
+
+// Modifier for brightness (point light), hardcoded temp needs fix
+float pointLightModP = 68.0f;    //SPELLS
+float pointLightMod1 = 5.4f;      //MAPLIGHT
+float pointLightMod2 = 2.7f;      //MAPLIGHT2
+float pointLightMod3 = 1.9f;      //MAPLIGHT
 
 uniform vec3 CameraPosition;
 
@@ -41,7 +49,7 @@ uniform P_LIGHT pLights[LIGHTS_MAX];
 
 vec3 calcPointLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance, vec3 diffuse);
 //Calculate the directional light... Returns the diffuse color, post calculations
-vec3 calcDirLight(vec3 normal, vec3 diffuseColor);
+vec3 calcDirLight(vec3 normal, vec3 diffuseColor, vec3 lightDirection);
 // To simulate death
 vec3 grayscaleColour(vec3 col);
 
@@ -61,7 +69,8 @@ void main() {
 
 
     // Directional light
-    vec3 directionalLight = calcDirLight(f_normal, diffuseColor);
+    vec3 directionalLight = calcDirLight(f_normal, diffuseColor, GLOBAL_lightDirection);
+    directionalLight += calcDirLight(f_normal, diffuseColor, GLOBAL_lightDirection2);
 
     //This is a light accumilation over the point lights
     vec3 pointLights = vec3(0.0f);
@@ -74,7 +83,26 @@ void main() {
             continue;
         }
         else {
-            pointLights += calcPointLights(pLights[lightIndex], f_normal, f_position.xyz, distance, diffuseColor) * pointLightMod;
+
+            // Hardcode strength because lights have no input and lazy Xd
+            float str = pointLightModP;
+
+             if(pLights[lightIndex].attenAndRadius.w >= 30.0f)
+            {
+                str = pointLightMod1;
+            }
+            if(pLights[lightIndex].attenAndRadius.w >= 45.0f)
+            {
+                str = pointLightMod2;
+            }
+            if(pLights[lightIndex].attenAndRadius.w >= 60.0f)
+            {
+                str = pointLightMod3;
+            }
+            // Hardcode strength because lights have no input and lazy Xd
+
+
+            pointLights += calcPointLights(pLights[lightIndex], f_normal, f_position.xyz, distance, diffuseColor) * str;
         }
     }
     
@@ -97,10 +125,10 @@ vec3 calcPointLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance,
     return (diffuseLight) * attenuation;
 }
 
-vec3 calcDirLight(vec3 normal, vec3 diffuseColor) {
+vec3 calcDirLight(vec3 normal, vec3 diffuseColor, vec3 lightDirection) {
     /* --- DIFFUSE SHADING --- */
-    float lightStr = 0.71f;
-    vec3 lightDir = normalize(-GLOBAL_lightDirection);
+    float lightStr = dirlightStr;
+    vec3 lightDir = normalize(-lightDirection);
     float nDotL = dot(normal, lightDir);
 
     float diff = smoothstep(0.0, 0.01, (max(dot(normal, lightDir), 0.0)));

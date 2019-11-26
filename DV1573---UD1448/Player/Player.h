@@ -4,10 +4,9 @@
 #include <GameObject/AnimatedObject.h>
 #include <Spells/EnhanceAttackSpell.h>
 #include <Spells/SpellHandler.h>
-
 #include "System/BulletPhysics.h"
 #include <System/SoundHandler.h>
-
+#include <HUD/HudHandler.h>
 class Client;
 
 class Player
@@ -42,30 +41,33 @@ public:
 	const glm::vec3 getMeshHalfSize() const;
 	const float& getMana() const;
 	const bool& onGround() const;
+	const bool& usingTripleSpell() const; //Get info over what spell should be in use. Either triple or flamestrike
 
 	//-----Set-----//
 	void setPlayerPos(glm::vec3 pos);
 	void setHealth(int health);
 	void setSpeed(float speed);
 	void logicStop(const bool& stop);
+	void submitHudHandler(HudHandler* hudHandler);
 
 private:
-	void move(float deltaTime); 
+	void move(float deltaTime); 	
 
 	std::string m_name;
 	glm::vec3 m_directionVector;
 	glm::vec3 m_playerPosition;
 	glm::vec3 m_cameraPosition;
 	glm::vec3 m_spellSpawnPosition;
-	//glm::vec3 m_inputVector;
-
+	
 	glm::vec3 m_moveDir;
 	Camera* m_playerCamera;
 	bool m_logicStop;
 	SpellHandler* m_spellhandler;
 	EnhanceAttackSpell m_enhanceAttack;
 	AnimatedObject* m_firstPersonMesh;
-
+	//This is used for swapping spells. So that we know if we are to swap to flamestrike or triple spell
+	bool m_usingTripleSpell; 
+	HudHandler* m_hudHandler;
 	float m_attackCooldown;
 	float m_deflectCooldown;
 	float m_specialCooldown;

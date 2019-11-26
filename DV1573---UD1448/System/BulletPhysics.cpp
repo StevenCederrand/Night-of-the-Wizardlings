@@ -134,8 +134,8 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	if (destruction)
 	{
 		myGoup = DestructableObjects;
-		//mask = NormalObjects | btBroadphaseProxy::CharacterFilter;
-		mask = NormalObjects;
+		mask = NormalObjects | btBroadphaseProxy::CharacterFilter;
+		//mask = NormalObjects;
 
 		destructionobj(body);	
 	}
@@ -223,15 +223,16 @@ void BulletPhysics::update(float dt)
 		m_counter++;
 
 	// If it crashes here it's probably the callback function in playstate
-	m_dynamicsWorld->stepSimulation(dt, 10, 1.0f/ 240.0f);
+	m_dynamicsWorld->stepSimulation(dt, 5, 1.0f/ 120.0f);
 }
 
 void BulletPhysics::destructionobj(btRigidBody* body)
 {
 	body->setRestitution(0.0f);
-	body->setFriction(1.0f);
+	body->setFriction(100.0f);
 	body->setSpinningFriction(1.0f);
 	body->setAngularFactor(btVector3(1.0f, 1.0f, 1.0f));
-	body->setDamping(0.8f, 0.8f);
+	body->setDamping(0.2f, 0.1f);	// Chaotic
+	//body->setDamping(0.4f, 0.2f);	// Breaks in air
 
 }

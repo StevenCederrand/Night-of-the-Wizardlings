@@ -55,6 +55,9 @@ void SpellHandler::initAttackSpell()
 	attackBase->m_coolDown = 1.0f;
 	attackBase->m_lifeTime = 5.0f;
 	attackBase->m_maxBounces = 3.0f;
+
+	attackBase->m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f);// OLD
+	attackBase->m_attenAndRadius = glm::vec4(1.0f, 2.15f, 4.5f, 22.0f);
 }
 
 void SpellHandler::initEnhanceSpell()
@@ -79,8 +82,8 @@ void SpellHandler::initEnhanceSpell()
 
 	//enhanceAtkBase->m_material->diffuse = glm::vec3(0.3f, 1.0f, 0.3f);
 	//enhanceAtkBase->m_material->ambient = glm::vec3(0.3f, 1.0f, 0.3f);
-	enhanceAtkBase->m_material->diffuse = glm::vec3(0.85f, 1.f, 0.4f);
-	enhanceAtkBase->m_material->ambient = glm::vec3(0.85f, 1.f, 0.4f);
+	enhanceAtkBase->m_material->diffuse = glm::vec3(0.5f, 0.0f, 0.6f);
+	enhanceAtkBase->m_material->ambient = glm::vec3(0.5f, 0.0f, 0.6f);
 
 	enhanceAtkBase->m_damage = 34.0f;
 	enhanceAtkBase->m_speed = 70.0f;
@@ -88,6 +91,9 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase->m_coolDown = 3.0f;
 	enhanceAtkBase->m_lifeTime = 5.0f;
 	enhanceAtkBase->m_maxBounces = 3;
+
+	enhanceAtkBase->m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // OLD
+	enhanceAtkBase->m_attenAndRadius = glm::vec4(1.0f, 1.55f, 3.7f, 22.0f);
 }
 
 void SpellHandler::initFlamestrikeSpell()
@@ -106,10 +112,11 @@ void SpellHandler::initFlamestrikeSpell()
 	const Material & newMaterial = tempLoader.GetMaterial();
 	flamestrikeBase->m_material->ambient = newMaterial.ambient;
 	flamestrikeBase->m_material->diffuse = newMaterial.diffuse;
+	flamestrikeBase->m_material->diffuse = glm::vec3(1.0f, 0.5f, 0.0f);
+	flamestrikeBase->m_material->ambient = glm::vec3(1.0f, 0.5f, 0.0f);
+
 	flamestrikeBase->m_material->name = newMaterial.name;
 	flamestrikeBase->m_material->specular = newMaterial.specular;
-	flamestrikeBase->m_material->texture = newMaterial.texture;
-	flamestrikeBase->m_material->textureID = newMaterial.textureID;
 
 	MeshBox tempMeshBox;									// Meshbox holds the mesh identity and local transform to GameObject
 	std::string meshName = tempLoader.GetMeshName();
@@ -159,14 +166,15 @@ void SpellHandler::initFlamestrikeSpell()
 	}
 	flamestrikeBase->m_mesh->setMaterial(flamestrikeBase->m_material->name);
 	tempLoader.Unload();
-	//flamestrikeBase->m_material->diffuse = glm::vec3(1.0f, 0.5f, 0.0f);
-	//flamestrikeBase->m_material->ambient = glm::vec3(1.0f, 0.5f, 0.0f);
 
 	flamestrikeBase->m_damage = 10;
 	flamestrikeBase->m_speed = 55.0f;
 	flamestrikeBase->m_coolDown = 5.0f;
 	flamestrikeBase->m_lifeTime = 5;
 	flamestrikeBase->m_maxBounces = 2;
+
+	flamestrikeBase->m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // Old
+	flamestrikeBase->m_attenAndRadius = glm::vec4(1.0f, 0.61f, 0.74f, 22.0f);
 }
 
 void SpellHandler::initFireSpell()
@@ -198,6 +206,9 @@ void SpellHandler::initFireSpell()
 	fireBase->m_lifeTime = 5.0f;
 
 	fireBase->m_maxBounces = 0.0f;
+
+	fireBase->m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // Old
+	fireBase->m_attenAndRadius = glm::vec4(1.0f, 0.61f, 0.74f, 22.0f);
 
 	//TODO
 	//Particle code here
@@ -247,8 +258,8 @@ void SpellHandler::initFireSpell()
 	//fireBase->m_psBuffers.push_back(tempPS); //m_psBuffers
 	//fireBase->m_txtInfo.push_back(tempTxt); //m_txtInfo
 
-	////TODO
-	////Another one!
+	//TODO
+	//Another one!
 
 	//tempTxt.name = "Assets/Textures/Spell_2.png";
 
@@ -472,6 +483,7 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 
 		shPtr->setSourcePosition(spellPos, GlassBreakSound, clientPtr->getMyData().guid);
 		shPtr->playSound(GlassBreakSound, clientPtr->getMyData().guid);		
+
 	}
 
 	
@@ -489,9 +501,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 			
 			if (flamestrikeSpells[i]->getType() == FLAMESTRIKE)
 			{				
-				flamestrikeUpdate(deltaTime, i);
 				AOEAttack* flamestrike = static_cast<AOEAttack*>(flamestrikeSpells[i]);
-				//flamestrike->updateActiveSpell(deltaTime);
 				
 				if (flamestrikeSpells[i]->getSoundSlot() != -1)
 				{
@@ -506,8 +516,6 @@ void SpellHandler::spellUpdate(float deltaTime)
 					flamestrike->setSpellBool(false);
 				}
 			}
-			
-
 
 			Client::getInstance()->updateSpellOnNetwork(*flamestrikeSpells[i]);
 		}
@@ -624,7 +632,7 @@ void SpellHandler::spellCollisionCheck()
 	fireDamageCounter = fireDamageCounter - DeltaTime * 1;
 	ownfireDamageCounter = ownfireDamageCounter - DeltaTime * 1;
 
-	if (ownPlayer.health > 0 && list.size() >= 1)
+	if (ownPlayer.health > 0 && list.size() >= 0)
 	{
 		glm::vec3 ownPlayerPos = ownPlayer.position;
 
@@ -858,10 +866,4 @@ void SpellHandler::REFLECTupdate(float deltaTime, int i)
 			createSpell(m_spawnerPos, m_spawnerDir, spellList[i].SpellType);
 		}
 	}
-}
-
-void SpellHandler::flamestrikeUpdate(float deltaTime, int i)
-{
-	AOEAttack* flamestrike = static_cast<AOEAttack*>(flamestrikeSpells[i]);
-	flamestrike->updateActiveSpell(deltaTime);
 }

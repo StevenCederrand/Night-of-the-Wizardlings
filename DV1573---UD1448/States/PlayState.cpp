@@ -66,11 +66,45 @@ PlayState::PlayState(bool spectator)
 	m_objects[m_objects.size() - 1]->loadMesh("Academy.mesh");
 	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
 
-	//Create a pointlight
-	Pointlight* pointLight = new Pointlight(glm::vec3(10.0f, 13.0f, 6.0f), glm::vec3(1));
-	pointLight->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 10));
+	//			TOO LAGGY ATM
+	//LIGHTS
+	// Church tunnel
+	//Pointlight* pointLight = new Pointlight(glm::vec3(30.0f, 14.0f, 14.0f), glm::vec3(0.4, 0.7, 1.0));
+	//pointLight->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 47.0f));
+	//m_pointlights.emplace_back(pointLight);
+	//
+	//// Church
+	//Pointlight* pointLight1 = new Pointlight(glm::vec3(62.0f, 14.0f, 0.0f), glm::vec3(0.4, 0.7, 1.0));
+	//pointLight1->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 47.0f));
+	//m_pointlights.emplace_back(pointLight1);
+	//
+	//// Middle
+	//Pointlight* pointLight2 = new Pointlight(glm::vec3(0.0f, 26.0f, 0.0f), glm::vec3(1.0, 0.5, 0.5));
+	//pointLight2->setAttenuationAndRadius(glm::vec4(1.0f, 0.22f, 0.20f, 31.0f));
+	//m_pointlights.emplace_back(pointLight2);
+	//
+	//// Large area
+	//Pointlight* pointLight3 = new Pointlight(glm::vec3(-40.0f, 21.0f, 10.0f), glm::vec3(0.9, 0.4, 1.0));
+	//pointLight3->setAttenuationAndRadius(glm::vec4(1.0f, 0.05f, 0.009f, 47.0f));
+	//m_pointlights.emplace_back(pointLight3);
+	//
+	//// Forward wall platforms R
+	//Pointlight* pointLight4 = new Pointlight(glm::vec3(-27.0f, 19.0f, -37.0f), glm::vec3(0.4, 0.7, 1.0));
+	//pointLight4->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 47.0f));
+	//m_pointlights.emplace_back(pointLight4);
+	//
+	//// Forward wall platforms L
+	//Pointlight* pointLight5 = new Pointlight(glm::vec3(31.0f, 19.0f, -37.0f), glm::vec3(0.4, 0.7, 1.0));
+	//pointLight5->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 47.0f));
+	//m_pointlights.emplace_back(pointLight5);
+	//
+	//// Maze
+	//Pointlight* pointLight6 = new Pointlight(glm::vec3(-100.0f, 12.0f, -3.0f), glm::vec3(0.3, 0.4, 1.0));
+	//pointLight6->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 64.0f));
+	//m_pointlights.emplace_back(pointLight6);
 
-	m_pointlights.emplace_back(pointLight);
+
+
 
 	for (size_t i = 0; i < m_pointlights.size(); i++)
 	{
@@ -111,14 +145,30 @@ PlayState::PlayState(bool spectator)
 		Client::getInstance()->assignSpellHandler(m_spellHandler);
 
 	//m_hudHandler.loadPlayStateHUD();
-	m_hideHUD = false;
+	m_hideHUD = false;	
 }
 
 // Might change these Pepega constructors later if feeling cute
 void PlayState::loadDestructables()
 {
-	m_dstr.setBreakSettings(DSTR1, 16, 1.8f, 30.0f);
-	m_dstr_alt1.setBreakSettings(DSTR2, 16, 1.8f, -1.0f);
+	m_dstr = DstrGenerator();
+	m_dstr_alt1 = DstrGenerator();
+
+
+	// Temporary variables to move later ---
+
+	/*float gravityOnImpact = 0.0f;
+	float timeToChange = 2.0f;
+	float gravityAfterTime = 30.0f;*/ // Stop-fall effect
+
+	float gravityOnImpact = -1.0f;
+	float timeToChange = 2.5f;
+	float gravityAfterTime = -8.0f; // Hover-up effect
+
+	// Temporary variables to move later ---
+
+	m_dstr.setBreakSettings(DSTR1, 16, 1.8f, gravityOnImpact);
+	m_dstr_alt1.setBreakSettings(DSTR1, 16, 4.0f, gravityOnImpact);
 
 	Renderer* renderer = Renderer::getInstance();
 	for (int i = (int)m_objects.size() - 1; i >= 0; i--)
@@ -138,10 +188,10 @@ void PlayState::loadDestructables()
 	for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
 	{
 		m_objects.emplace_back(new DestructibleObject(
-			&m_dstr_alt1,
+			&m_dstr,
 			m_objects.size(),
-			3.0f,
-			-3.0f));
+			gravityAfterTime,
+			timeToChange));
 
 		static_cast<DestructibleObject*>(m_objects.back())->loadDestructible(
 			meshLoader.GetVertices(i),
@@ -162,10 +212,10 @@ void PlayState::loadDestructables()
 	for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
 	{
 		m_objects.emplace_back(new DestructibleObject(
-			&m_dstr_alt1,
+			&m_dstr,
 			m_objects.size(),
-			1.6f,
-			-40.0f
+			gravityAfterTime,
+			timeToChange
 		));
 
 		static_cast<DestructibleObject*>(m_objects.back())->loadDestructible(
@@ -189,8 +239,8 @@ void PlayState::loadDestructables()
 		m_objects.emplace_back(new DestructibleObject(
 			&m_dstr_alt1,
 			m_objects.size(),
-			1.6f,
-			-40.0f
+			gravityAfterTime,
+			timeToChange
 		));
 
 		static_cast<DestructibleObject*>(m_objects.back())->loadDestructible(
@@ -235,7 +285,8 @@ PlayState::~PlayState()
 		delete object;
 
 	for (Pointlight* light : m_pointlights)
-		delete light;
+		if (light)
+			delete light;
 
 	GUIclear();
 
@@ -256,6 +307,7 @@ PlayState::~PlayState()
 		Client::getInstance()->destroy();
 	}
 
+	MeshMap::getInstance()->cleanUp();
 }
 	
 void PlayState::update(float dt)
@@ -264,6 +316,8 @@ void PlayState::update(float dt)
 	//m_firstPerson->update(dt);
 	Client::getInstance()->updateNetworkEntities(dt);
 	auto* clientPtr = Client::getInstance();
+	m_dstr.update();
+	m_dstr_alt1.update();
 	if (clientPtr->isSpectating()) {
 		update_isSpectating(dt);
 	}
@@ -272,7 +326,31 @@ void PlayState::update(float dt)
 	}
 
 	removeDeadObjects();
-
+	if (Input::isKeyHeldDown(GLFW_KEY_UP)) {
+		logTrace("UP");
+		glm::vec2 position = m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->getPosition();
+		position.y += 0.01f;
+		logVec3(glm::vec3(position, 0));
+		m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->setPosition(glm::vec2(position.x, position.y));
+	}
+	else if (Input::isKeyHeldDown(GLFW_KEY_DOWN)) {
+		glm::vec2 position = m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->getPosition();
+		position.y -= 0.01f;
+		logVec3(glm::vec3(position, 0));
+		m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->setPosition(glm::vec2(position.x, position.y));
+	}
+	else if (Input::isKeyHeldDown(GLFW_KEY_LEFT)) {
+		glm::vec2 position = m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->getPosition();
+		position.x -= 0.005f;
+		logVec3(glm::vec3(position, 0));
+		m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->setPosition(glm::vec2(position.x, position.y));
+	}
+	else if (Input::isKeyHeldDown(GLFW_KEY_RIGHT)) {
+		glm::vec2 position = m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->getPosition();
+		position.x += 0.005f;
+		logVec3(glm::vec3(position, 0));
+		m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->setPosition(glm::vec2(position.x, position.y));
+	}
 }
 
 void PlayState::removeDeadObjects()
@@ -287,8 +365,9 @@ void PlayState::removeDeadObjects()
 			if (obj->is_destroyed() && obj->getLifetime() >= 20.0 )
 			{
 				renderer->removeRenderObject(m_objects[i], STATIC);
-				delete m_objects[i];
-				m_objects.erase(m_objects.begin() + i);
+				// Keeping gameobjects for now, desync in indexing with server
+				//delete m_objects[i];
+				//m_objects.erase(m_objects.begin() + i);
 			}
 		}
 	}
@@ -388,6 +467,7 @@ void PlayState::update_isPlaying(const float& dt)
 
 			case PlayerEvents::TookPowerup:
 			{
+				shPtr->playSound(PickupSound);
 				logWarning("[Event system] Took a powerup");
 				m_hudHandler.getHudObject(HUDID::POWERUP)->setAlpha(1.0f);
 				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
@@ -397,6 +477,7 @@ void PlayState::update_isPlaying(const float& dt)
 
 			case PlayerEvents::TookHeal:
 			{
+				shPtr->playSound(PickupSound);
 				logWarning("[Event system] Took a heal");
 				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
@@ -431,7 +512,7 @@ void PlayState::update_isPlaying(const float& dt)
 			case PlayerEvents::WallGotDestroyed:
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::ReadDestructableWallsMutex); // Thread safe
-
+								
 				auto& vec = Client::getInstance()->getDestructedWalls();
 				for (size_t i = 0; i < vec.size(); i++) {
 					const DestructionPacket& p = vec[i];
@@ -591,6 +672,8 @@ void PlayState::render()
 
 bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1, const btCollisionObjectWrapper* obj2, int id2, int index2)
 {
+	SoundHandler* shPtr = SoundHandler::getInstance();
+	auto* clientPtr = Client::getInstance();
 	GameObject* sp1 = static_cast<GameObject*>(obj1->getCollisionObject()->getUserPointer());
 	GameObject* sp2 = static_cast<GameObject*>(obj2->getCollisionObject()->getUserPointer());
 	if (!sp1 || !sp2)
@@ -604,7 +687,7 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 	switch (sp1->getType())
 	{
 	case (DESTRUCTIBLE):
-		dstrobj = static_cast<DestructibleObject*>(sp1);
+		dstrobj = static_cast<DestructibleObject*>(sp1);		
 		hitpoint = cp.m_localPointA;
 		break;
 
@@ -657,31 +740,34 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 
 	if (dstrobj && spellobj)
 	{
-		DstrGenerator* m_dstr = dstrobj->getDstr();
-		unsigned int seed = m_dstr->seedRand();
-
-		m_dstr->Destroy(dstrobj, glm::vec2(hitpoint.getX(), hitpoint.getY()), spellobj->getDirection());
-		
-		if (spellobj->getBodyReference() != nullptr)
+		if (!dstrobj->is_destroyed())
 		{
-			float rndX = rand() % 1999 + 1 - 1000; rndX /= 1000;
-			float rndY = rand() % 1999 + 1 - 1000; rndY /= 1000;
-			float rndZ = rand() % 1999 + 1 - 1000; rndZ /= 1000;
-			spellobj->getBodyReference()->setLinearVelocity(btVector3(rndX, rndY, rndZ) * 35);
-		}
+			DstrGenerator* m_dstr = dstrobj->getDstr();
+			int seed = m_dstr->seedRand();
+
+			m_dstr->Destroy(dstrobj, glm::vec2(hitpoint.getX(), hitpoint.getY()), spellobj->getDirection());
+
+			if (spellobj->getBodyReference() != nullptr)
+			{
+				float rndX = rand() % 1999 + 1 - 1000; rndX /= 1000;
+				float rndY = rand() % 1999 + 1 - 1000; rndY /= 1000;
+				float rndZ = rand() % 1999 + 1 - 1000; rndZ /= 1000;
+				spellobj->getBodyReference()->setLinearVelocity(btVector3(rndX, rndY, rndZ) * 35);
+			}
 		
 	
-		//if (spellobj->getType() != FLAMESTRIKE)
-		//	spellobj->setTravelTime(0.0f);
+			//if (spellobj->getType() != FLAMESTRIKE)
+			//	spellobj->setTravelTime(0.0f);
 
-		// Network packet
-		DestructionPacket dstrPacket;
-		dstrPacket.hitPoint = glm::vec2(hitpoint.getX(), hitpoint.getY());
-		dstrPacket.hitDir = spellobj->getDirection();
-		dstrPacket.index = dstrobj->getIndex();
-		dstrPacket.randomSeed = seed;
+			// Network packet
+			DestructionPacket dstrPacket;
+			dstrPacket.hitPoint = glm::vec2(hitpoint.getX(), hitpoint.getY());
+			dstrPacket.hitDir = spellobj->getDirection();
+			dstrPacket.index = dstrobj->getIndex();
+			dstrPacket.randomSeed = seed;
 
-		Client::getInstance()->sendDestructionPacket(dstrPacket);
+			Client::getInstance()->sendDestructionPacket(dstrPacket);
+		}
 	}
 
 
@@ -706,27 +792,30 @@ void PlayState::HUDHandler() {
 	}
 
 	if (m_player->getSpecialCooldown() > 0) {
-		//logTrace(std::to_string(m_player->getSpecialCooldown() / m_player->getMaxSpecialCooldown()));
-		m_hudHandler.getHudObject(SPELL_SPECIAL)->setGrayscale(m_player->getSpecialCooldown() / m_player->getMaxSpecialCooldown());
+		m_hudHandler.getHudObject(SPELL_TRIPLE)->setGrayscale(m_player->getSpecialCooldown() / m_player->getMaxSpecialCooldown());
+		m_hudHandler.getHudObject(SPELL_FLAMESTRIKE)->setGrayscale(m_player->getSpecialCooldown() / m_player->getMaxSpecialCooldown());
 	}
 	else {
-		m_hudHandler.getHudObject(SPELL_SPECIAL)->setGrayscale(0);
+		m_hudHandler.getHudObject(SPELL_TRIPLE)->setGrayscale(0);
 	}
-
-	if (m_player->isDeflecting()) {
-		m_hudHandler.getHudObject(SPELL_DEFLECT)->setGrayscale(1);
+	//If triple spell is active
+	if (m_player->usingTripleSpell()) {
+		m_hudHandler.getHudObject(SPELL_TRIPLE)->setAlpha(1.0f);
+		m_hudHandler.getHudObject(SPELL_FLAMESTRIKE)->setAlpha(0.0f);
 	}
 	else {
-		m_hudHandler.getHudObject(SPELL_DEFLECT)->setGrayscale(0);
+		m_hudHandler.getHudObject(SPELL_TRIPLE)->setAlpha(0.0f);
+		m_hudHandler.getHudObject(SPELL_FLAMESTRIKE)->setAlpha(1.0f);
 	}
 
 	//Deflect
 	if (m_player->isDeflecting()) {
 		m_hudHandler.getHudObject(CROSSHAIR)->setAlpha(0.0f);
 		m_hudHandler.getHudObject(CROSSHAIR_DEFLECT)->setAlpha(1.0f);
+		m_hudHandler.getHudObject(SPELL_DEFLECT)->setGrayscale(1);
 	}
-	else
-	{
+	else {
+		m_hudHandler.getHudObject(SPELL_DEFLECT)->setGrayscale(0);
 		m_hudHandler.getHudObject(CROSSHAIR)->setAlpha(1.0f);
 		m_hudHandler.getHudObject(CROSSHAIR_DEFLECT)->setAlpha(0.0f);
 	}
