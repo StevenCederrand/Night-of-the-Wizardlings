@@ -15,7 +15,8 @@ enum PlayerEvents {
 	GameStarted,
 	GameEnded,
 	Warmup,
-	None
+	None,
+	Hitmark
 
 };
 

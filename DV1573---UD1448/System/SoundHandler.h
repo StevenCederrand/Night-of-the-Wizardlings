@@ -21,7 +21,7 @@ const std::string PICKUP_GRAVEYARD_SPAWN_SOUND = "PickupGraveyard.ogg";
 const std::string PICKUP_MAZE_SPAWN_SOUND = "PickupMaze.ogg";
 const std::string PICKUP_TUNNELS_SPAWN_SOUND = "PickupTunnels.ogg";
 const std::string PICKUP_TOP_SPAWN_SOUND = "PickupTop.ogg";
-const std::string DESTRUCTION_SOUND = "BAEM.ogg";
+const std::string DESTRUCTION_SOUND = "Wood Crash.ogg";
 const std::string PICKUP_SOUND = "Bottle_Cork.ogg";
 const std::string SUCCESSFUL_DEFLECT_SOUND = "Boing.ogg";
 
