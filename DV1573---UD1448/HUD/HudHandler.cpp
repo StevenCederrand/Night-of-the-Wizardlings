@@ -34,18 +34,18 @@ void HudHandler::loadPlayStateHUD() {
 	
 	// HUD
 	HudObject* hudObject = new HudObject("Assets/Textures/HUD/Crosshair_Hp2.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2) - 3, static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(50.0f, 50.0f));
-	hudObject->setAlpha(0.6f);
+	hudObject->setAlpha(0.7f);
 	insertHUDObject(hudObject, HUDID::CROSSHAIR_HP);
 
 	hudObject = new HudObject("Assets/Textures/HUD/Crosshair_Mana2.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2) + 3, static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(50.0f, 50.0f));
-	hudObject->setAlpha(0.6f);
+	hudObject->setAlpha(0.7f);
 	insertHUDObject(hudObject, HUDID::CROSSHAIR_MANA);
 
 	hudObject = new HudObject("Assets/Textures/hud/Crosshair_Dot.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(10.0f, 10.0f));
 	hudObject->setAlpha(1.0f);
 	insertHUDObject(hudObject, HUDID::CROSSHAIR);
 
-	hudObject = new HudObject("Assets/Textures/HUD/Crosshair_Dot_Hit.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(10.0f, 10.0f));
+	hudObject = new HudObject("Assets/Textures/HUD/Crosshair_Hitmarker.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(25.0f, 25.0f));
 	hudObject->setAlpha(0.0f);
 	insertHUDObject(hudObject, HUDID::CROSSHAIR_HIT);
 
