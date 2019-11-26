@@ -24,15 +24,15 @@ vec3 GLOBAL_lightColor = normalize(vec3(1, 1, 1));          // Directional light
 
 vec3 GLOBAL_lightDirection2 = vec3(0.8f, -0.5f, 0.4f);       // 1 Directional light
 
-float dirlightStr = 0.38f;     // Modifier for brightness (dirlight)
-float ambientStr = 0.18f;      // Global light strength (ambient)
-float brightnessMod = 0.7f;    // Modifier for brightness (textures)
+float dirlightStr = 0.1f;     // Modifier for brightness (dirlight)
+float ambientStr = 0.1f;      // Global light strength (ambient)
+float brightnessMod = 1.0f;    // Modifier for brightness (textures)
 
 // Modifier for brightness (point light), hardcoded temp needs fix
 float pointLightModP = 68.0f;    //SPELLS
-float pointLightMod1 = 5.4f;      //MAPLIGHT
-float pointLightMod2 = 2.7f;      //MAPLIGHT2
-float pointLightMod3 = 1.9f;      //MAPLIGHT
+float pointLightMod1 = 8.8f;      //MAPLIGHT
+float pointLightMod2 = 4.2f;      //MAPLIGHT2
+float pointLightMod3 = 2.5f;      //MAPLIGHT
 
 uniform vec3 CameraPosition;
 
@@ -87,15 +87,15 @@ void main() {
             // Hardcode strength because lights have no input and lazy Xd
             float str = pointLightModP;
 
-             if(pLights[i].attenAndRadius.w >= 30.0f)
+             if(pLights[i].attenAndRadius.w >= 31.0f)
             {
                 str = pointLightMod1;
             }
-            if(pLights[i].attenAndRadius.w >= 45.0f)
+            if(pLights[i].attenAndRadius.w >= 64.0f)
             {
                 str = pointLightMod2;
             }
-            if(pLights[i].attenAndRadius.w >= 60.0f)
+            if(pLights[i].attenAndRadius.w >= 99.0f)
             {
                 str = pointLightMod3;
             }
@@ -119,6 +119,16 @@ vec3 calcPointLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance,
     vec3 lightDir = normalize(pLight.position - position); //From the surface to the light
     float diff = max(dot(normal, lightDir), 0);
     vec3 diffuseLight = diffuse * diff * normalize(pLight.color) * 5.0f;
+
+    vec3 newDiffuse = diffuseLight;
+    float f = 0.15; // desaturate by %
+    float L = 0.3 * newDiffuse.r + 0.6 * newDiffuse.g + 0.1 * newDiffuse.b;
+    float new_r = newDiffuse.r + f * (L - newDiffuse.r);
+    float new_g = newDiffuse.g + f * (L - newDiffuse.g);
+    float new_b = newDiffuse.b + f * (L - newDiffuse.b);
+    newDiffuse = vec3(new_r, new_g, new_b);
+    diffuseLight = newDiffuse;
+
     float attenuation = 1.0 / (pLight.attenAndRadius.x + pLight.attenAndRadius.y * distance +
   			     pLight.attenAndRadius.z * (distance * distance));
 
@@ -135,7 +145,7 @@ vec3 calcDirLight(vec3 normal, vec3 diffuseColor, vec3 lightDirection) {
 
     vec3 newDiffuse = diffuseColor;
 
-    float f = 0.2; // desaturate by %
+    float f = 0.0; // desaturate by %
     float L = 0.3 * newDiffuse.r + 0.6 * newDiffuse.g + 0.1 * newDiffuse.b;
     float new_r = newDiffuse.r + f * (L - newDiffuse.r);
     float new_g = newDiffuse.g + f * (L - newDiffuse.g);
