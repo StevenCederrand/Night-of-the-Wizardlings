@@ -668,7 +668,7 @@ void Renderer::render() {
 		//Bind and draw the objects to the depth-buffer
 		bindMatrixes(shader);
 		glBindFramebuffer(GL_FRAMEBUFFER, m_depthFBO);
-
+		glClear(GL_DEPTH_BUFFER_BIT);
 		//Loop through all of the gameobjects
 		for (GameObject* object : m_staticObjects)
 		{

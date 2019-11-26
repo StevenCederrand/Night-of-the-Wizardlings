@@ -298,6 +298,7 @@ PlayState::~PlayState()
 	delete m_bPhysics;
 	delete m_spellHandler;
 	delete m_camera;
+	delete m_firstPerson;
 	if (LocalServer::getInstance()->isInitialized()) {
 		LocalServer::getInstance()->destroy();
 	}
@@ -466,6 +467,7 @@ void PlayState::update_isPlaying(const float& dt)
 
 			case PlayerEvents::TookPowerup:
 			{
+				shPtr->playSound(PickupSound);
 				logWarning("[Event system] Took a powerup");
 				m_hudHandler.getHudObject(HUDID::POWERUP)->setAlpha(1.0f);
 				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
@@ -475,6 +477,7 @@ void PlayState::update_isPlaying(const float& dt)
 
 			case PlayerEvents::TookHeal:
 			{
+				shPtr->playSound(PickupSound);
 				logWarning("[Event system] Took a heal");
 				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
@@ -789,27 +792,30 @@ void PlayState::HUDHandler() {
 	}
 
 	if (m_player->getSpecialCooldown() > 0) {
-		//logTrace(std::to_string(m_player->getSpecialCooldown() / m_player->getMaxSpecialCooldown()));
-		m_hudHandler.getHudObject(SPELL_SPECIAL)->setGrayscale(m_player->getSpecialCooldown() / m_player->getMaxSpecialCooldown());
+		m_hudHandler.getHudObject(SPELL_TRIPLE)->setGrayscale(m_player->getSpecialCooldown() / m_player->getMaxSpecialCooldown());
+		m_hudHandler.getHudObject(SPELL_FLAMESTRIKE)->setGrayscale(m_player->getSpecialCooldown() / m_player->getMaxSpecialCooldown());
 	}
 	else {
-		m_hudHandler.getHudObject(SPELL_SPECIAL)->setGrayscale(0);
+		m_hudHandler.getHudObject(SPELL_TRIPLE)->setGrayscale(0);
 	}
-
-	if (m_player->isDeflecting()) {
-		m_hudHandler.getHudObject(SPELL_DEFLECT)->setGrayscale(1);
+	//If triple spell is active
+	if (m_player->usingTripleSpell()) {
+		m_hudHandler.getHudObject(SPELL_TRIPLE)->setAlpha(1.0f);
+		m_hudHandler.getHudObject(SPELL_FLAMESTRIKE)->setAlpha(0.0f);
 	}
 	else {
-		m_hudHandler.getHudObject(SPELL_DEFLECT)->setGrayscale(0);
+		m_hudHandler.getHudObject(SPELL_TRIPLE)->setAlpha(0.0f);
+		m_hudHandler.getHudObject(SPELL_FLAMESTRIKE)->setAlpha(1.0f);
 	}
 
 	//Deflect
 	if (m_player->isDeflecting()) {
 		m_hudHandler.getHudObject(CROSSHAIR)->setAlpha(0.0f);
 		m_hudHandler.getHudObject(CROSSHAIR_DEFLECT)->setAlpha(1.0f);
+		m_hudHandler.getHudObject(SPELL_DEFLECT)->setGrayscale(1);
 	}
-	else
-	{
+	else {
+		m_hudHandler.getHudObject(SPELL_DEFLECT)->setGrayscale(0);
 		m_hudHandler.getHudObject(CROSSHAIR)->setAlpha(1.0f);
 		m_hudHandler.getHudObject(CROSSHAIR_DEFLECT)->setAlpha(0.0f);
 	}
