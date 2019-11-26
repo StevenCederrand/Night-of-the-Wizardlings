@@ -289,7 +289,6 @@ void Player::attack()
 			shieldObject->setTransform(m_fpsTrans);
 			Renderer::getInstance()->submit(shieldObject, SHIELD);
 			if (!m_deflecting) {
-				logTrace("HEJSAN hp: " + std::to_string(m_client->getMyData().health));
 				animState.deflecting = true; //Play the animation once
 				m_mana -= 10; //This is the initial manacost for the deflect
 

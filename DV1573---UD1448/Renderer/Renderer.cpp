@@ -808,13 +808,13 @@ void Renderer::render() {
 
 	//renderDeflectBox(m_deflectBox);
 
-#ifdef DEBUG_WIREFRAME
-	// DEBUG (MOSTLY FOR DSTR)
-	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_M) == GLFW_PRESS)
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_N) == GLFW_PRESS)
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-#endif
+//#ifdef DEBUG_WIREFRAME
+//	// DEBUG (MOSTLY FOR DSTR)
+//	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_M) == GLFW_PRESS)
+//		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+//	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_N) == GLFW_PRESS)
+//		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//#endif
 
 #pragma region Color_Render
 	shader = shaderMap->useByName(BASIC_FORWARD);

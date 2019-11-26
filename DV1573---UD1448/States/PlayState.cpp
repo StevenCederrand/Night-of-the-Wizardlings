@@ -362,8 +362,7 @@ void PlayState::removeDeadObjects()
 
 void PlayState::onSpellHit_callback()
 {
-	m_hudHandler.getHudObject(HUDID::CROSSHAIR_HIT)->setAlpha(1.0f);
-	SoundHandler::getInstance()->playSound(HitmarkSound);
+	
 }
 
 void PlayState::update_isPlaying(const float& dt)
@@ -452,7 +451,12 @@ void PlayState::update_isPlaying(const float& dt)
 
 				break;
 			}
-
+			case PlayerEvents::Hitmark:
+			{
+				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HIT)->setAlpha(1.0f);
+				shPtr->playSound(HitmarkSound);
+				break;
+			}
 			case PlayerEvents::TookPowerup:
 			{
 				shPtr->playSound(PickupSound);
@@ -850,6 +854,9 @@ void PlayState::GUIHandler()
 {
 	//Open the menu
 	if (Input::isKeyPressed(GLFW_KEY_ESCAPE)) {
+	
+		SoundHandler::getInstance()->stopSound(DeflectSound, Client::getInstance()->getMyData().guid);
+		
 		m_GUIOpen = !m_GUIOpen;
 		if (m_GUIOpen) {
 			glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
