@@ -54,18 +54,18 @@ vec3 calcDirLight(vec3 normal, vec3 diffuseColor, vec3 lightDirection);
 vec3 grayscaleColour(vec3 col);
 
 void main() {
-    vec3 emissive = Ambient_Color; // Temp used as emmisve, should rename all ambient names to emmisive. 
+    vec3 emissive = Ambient_Color; // Temp used as emmisve, should rename all ambient names to emmisive.
     //Makes the material full solid color (basically fully lit). Needs bloom for best effect.
-
+    vec4 finalTexture = texture(albedoTexture, f_UV);
     // Ambient light
     vec3 ambientLight = Diffuse_Color * ambientStr;     // Material color
     if (TexAndRim.x == 1)
-        ambientLight = texture(albedoTexture, f_UV).rgb * ambientStr * brightnessMod; // Texture color    (If there is texture we disregard material color)
+        ambientLight = finalTexture.rgb * ambientStr * brightnessMod; // Texture color    (If there is texture we disregard material color)
 
     // Create the diffuse color once
     vec3 diffuseColor = Diffuse_Color;  // Material color
     if(TexAndRim.x == 1)
-        diffuseColor = texture(albedoTexture, f_UV).rgb * 0.5;   // Texture color
+        diffuseColor = finalTexture.rgb * 0.5;   // Texture color
 
 
     // Directional light
@@ -105,13 +105,14 @@ void main() {
             pointLights += calcPointLights(pLights[lightIndex], f_normal, f_position.xyz, distance, diffuseColor) * str;
         }
     }
-    
+
 
     // Resulting light
     vec3 result = ambientLight + directionalLight + pointLights + emissive; // We see light, so add only and all the lights together to get color
     if(grayscale == 1){
     	result = grayscaleColour(result);
     }
+    
     color = vec4(result, 1);
 }
 

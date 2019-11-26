@@ -133,7 +133,7 @@ PlayState::PlayState(bool spectator)
 	// Non dynamic mesh (no rigidbody)
 	// Very big mesh hope not overload gpu XD
 	m_objects.push_back(new MapObject("Academy_Outer"));
-	m_objects[m_objects.size() - 1]->loadMesh("AcademyOuter.mesh");
+	m_objects[m_objects.size() - 1]->loadMesh("ExteriorTest.mesh");
 	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
 
 	startY = SCREEN_HEIGHT / 2;
