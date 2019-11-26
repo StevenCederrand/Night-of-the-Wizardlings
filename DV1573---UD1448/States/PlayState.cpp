@@ -407,7 +407,7 @@ void PlayState::update_isPlaying(const float& dt)
 				if (shooter != nullptr) {
 					m_lastPositionOfMyKiller = shooter->position;
 				}
-
+				m_player->onDead();
 				m_camera->disableCameraMovement(true);
 				break;
 			}
@@ -422,6 +422,7 @@ void PlayState::update_isPlaying(const float& dt)
 				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
 				m_camera->resetCamera();
 				m_camera->disableCameraMovement(false);
+				m_player->onRespawn();
 				break;
 			}
 

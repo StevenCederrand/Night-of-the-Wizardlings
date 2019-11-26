@@ -652,13 +652,13 @@ void Renderer::renderSkybox()
 }
 
 void Renderer::render() {
-	Mesh* mesh;
+	Mesh* mesh = nullptr;
 	Transform transform;
 	glm::mat4 modelMatrix;
-	Shader* shader;
+	Shader* shader = nullptr;
 	MeshMap* meshMap = MeshMap::getInstance();
 	ShaderMap* shaderMap = ShaderMap::getInstance();
-	Material* material;
+	Material* material = nullptr;
 	
 	/*
 #pragma region Depth_Render & Light_Cull
@@ -959,6 +959,9 @@ void Renderer::render() {
 			if (!object->getShouldRender()) {
 				continue;
 			}
+
+		
+
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
 			glEnableVertexAttribArray(2);
@@ -967,9 +970,10 @@ void Renderer::render() {
 
 			//Fetch the current mesh and its transform
 			mesh = p->getRenderInformation().mesh;
+			glBindVertexArray(mesh->getBuffers().vao);
 			//Bind the material
 			object->bindMaterialToShader(shader, p->getRenderInformation().material);
-
+			//shader->setMaterial(p->getRenderInformation().material);
 			//Bind the modelmatrix
 			glm::mat4 mMatrix = glm::mat4(1.0f);
 			mMatrix = glm::translate(mMatrix, p->getTransform().position);
@@ -977,8 +981,6 @@ void Renderer::render() {
 			mMatrix = glm::scale(mMatrix, p->getTransform().scale);
 
 			shader->setMat4("modelMatrix", mMatrix);
-
-			glBindVertexArray(mesh->getBuffers().vao);
 
 			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
