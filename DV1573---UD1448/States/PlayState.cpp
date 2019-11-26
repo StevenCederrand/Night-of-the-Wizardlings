@@ -63,7 +63,7 @@ PlayState::PlayState(bool spectator)
 	renderer->submitSpellhandler(m_spellHandler);
 
 	m_objects.push_back(new MapObject("Academy_Map"));
-	m_objects[m_objects.size() - 1]->loadMesh("Academy.mesh");
+	m_objects[m_objects.size() - 1]->loadMesh("Towermap/Academy_t.mesh");
 	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
 
 	//			TOO LAGGY ATM
@@ -196,7 +196,7 @@ void PlayState::loadDestructables()
 
 	BGLoader meshLoader; // The file loader
 	// Wall desctructibles
-	meshLoader.LoadMesh(MESHPATH + "DSTRWalls.mesh");
+	meshLoader.LoadMesh(MESHPATH + "Towermap/DSTRWalls.mesh");
 	for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
 	{
 		m_objects.emplace_back(new DestructibleObject(
@@ -245,7 +245,7 @@ void PlayState::loadDestructables()
 	meshLoader.Unload();
 
 	// Pillar destructibles
-	meshLoader.LoadMesh(MESHPATH + "DSTRPillars.mesh");
+	meshLoader.LoadMesh(MESHPATH + "Towermap/DSTRPillars.mesh");
 	for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
 	{
 		m_objects.emplace_back(new DestructibleObject(
