@@ -853,6 +853,9 @@ void PlayState::GUIHandler()
 {
 	//Open the menu
 	if (Input::isKeyPressed(GLFW_KEY_ESCAPE)) {
+	
+		SoundHandler::getInstance()->stopSound(DeflectSound, Client::getInstance()->getMyData().guid);
+		
 		m_GUIOpen = !m_GUIOpen;
 		if (m_GUIOpen) {
 			glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
