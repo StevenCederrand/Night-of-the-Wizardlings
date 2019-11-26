@@ -463,7 +463,7 @@ void PlayState::update_isPlaying(const float& dt)
 
 				break;
 			}
-			case Hitmark:
+			case PlayerEvents::Hitmark:
 			{
 				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HIT)->setAlpha(1.0f);
 				shPtr->playSound(HitmarkSound);
