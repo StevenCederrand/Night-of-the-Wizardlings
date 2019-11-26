@@ -529,6 +529,7 @@ void Renderer::clear() {
 	m_2DHudMap.clear();
 	m_shieldObject.clear();
 	m_enemyShieldObject.clear();
+	m_particleSystems.clear();
 }
 
 void Renderer::removeRenderObject(GameObject* gameObject, RENDER_TYPE objType)
