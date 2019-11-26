@@ -138,7 +138,7 @@ PlayState::PlayState(bool spectator)
 
 	startY = SCREEN_HEIGHT / 2;
 
-	// Destuction
+	// Destuction 
 	loadDestructables();
 
 	if(Client::getInstance()->isInitialized())

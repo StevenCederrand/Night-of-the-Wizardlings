@@ -112,7 +112,8 @@ void main() {
     if(grayscale == 1){
     	result = grayscaleColour(result);
     }
-    
+    if(texture(albedoTexture, f_UV).a < 0.5)
+      discard;
     color = vec4(result, 1);
 }
 
