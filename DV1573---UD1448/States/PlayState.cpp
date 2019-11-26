@@ -69,39 +69,39 @@ PlayState::PlayState(bool spectator)
 	//			TOO LAGGY ATM
 	//LIGHTS
 	// Church tunnel
-	//Pointlight* pointLight = new Pointlight(glm::vec3(30.0f, 14.0f, 14.0f), glm::vec3(0.4, 0.7, 1.0));
-	//pointLight->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 47.0f));
-	//m_pointlights.emplace_back(pointLight);
-	//
-	//// Church
-	//Pointlight* pointLight1 = new Pointlight(glm::vec3(62.0f, 14.0f, 0.0f), glm::vec3(0.4, 0.7, 1.0));
-	//pointLight1->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 47.0f));
-	//m_pointlights.emplace_back(pointLight1);
-	//
-	//// Middle
-	//Pointlight* pointLight2 = new Pointlight(glm::vec3(0.0f, 26.0f, 0.0f), glm::vec3(1.0, 0.5, 0.5));
-	//pointLight2->setAttenuationAndRadius(glm::vec4(1.0f, 0.22f, 0.20f, 31.0f));
-	//m_pointlights.emplace_back(pointLight2);
-	//
-	//// Large area
-	//Pointlight* pointLight3 = new Pointlight(glm::vec3(-40.0f, 21.0f, 10.0f), glm::vec3(0.9, 0.4, 1.0));
-	//pointLight3->setAttenuationAndRadius(glm::vec4(1.0f, 0.05f, 0.009f, 47.0f));
-	//m_pointlights.emplace_back(pointLight3);
-	//
-	//// Forward wall platforms R
-	//Pointlight* pointLight4 = new Pointlight(glm::vec3(-27.0f, 19.0f, -37.0f), glm::vec3(0.4, 0.7, 1.0));
-	//pointLight4->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 47.0f));
-	//m_pointlights.emplace_back(pointLight4);
-	//
-	//// Forward wall platforms L
-	//Pointlight* pointLight5 = new Pointlight(glm::vec3(31.0f, 19.0f, -37.0f), glm::vec3(0.4, 0.7, 1.0));
-	//pointLight5->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 47.0f));
-	//m_pointlights.emplace_back(pointLight5);
-	//
-	//// Maze
-	//Pointlight* pointLight6 = new Pointlight(glm::vec3(-100.0f, 12.0f, -3.0f), glm::vec3(0.3, 0.4, 1.0));
-	//pointLight6->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 64.0f));
-	//m_pointlights.emplace_back(pointLight6);
+	Pointlight* pointLight = new Pointlight(glm::vec3(30.0f, 14.0f, 14.0f), glm::vec3(0.4, 0.7, 1.0));
+	pointLight->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 47.0f));
+	m_pointlights.emplace_back(pointLight);
+	
+	// Church
+	Pointlight* pointLight1 = new Pointlight(glm::vec3(62.0f, 14.0f, 0.0f), glm::vec3(0.4, 0.7, 1.0));
+	pointLight1->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 47.0f));
+	m_pointlights.emplace_back(pointLight1);
+	
+	// Middle
+	Pointlight* pointLight2 = new Pointlight(glm::vec3(0.0f, 26.0f, 0.0f), glm::vec3(1.0, 0.5, 0.5));
+	pointLight2->setAttenuationAndRadius(glm::vec4(1.0f, 0.22f, 0.20f, 31.0f));
+	m_pointlights.emplace_back(pointLight2);
+	
+	// Large area
+	Pointlight* pointLight3 = new Pointlight(glm::vec3(-40.0f, 21.0f, 10.0f), glm::vec3(0.9, 0.4, 1.0));
+	pointLight3->setAttenuationAndRadius(glm::vec4(1.0f, 0.05f, 0.009f, 47.0f));
+	m_pointlights.emplace_back(pointLight3);
+	
+	// Forward wall platforms R
+	Pointlight* pointLight4 = new Pointlight(glm::vec3(-27.0f, 19.0f, -37.0f), glm::vec3(0.4, 0.7, 1.0));
+	pointLight4->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 47.0f));
+	m_pointlights.emplace_back(pointLight4);
+	
+	// Forward wall platforms L
+	Pointlight* pointLight5 = new Pointlight(glm::vec3(31.0f, 19.0f, -37.0f), glm::vec3(0.4, 0.7, 1.0));
+	pointLight5->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 47.0f));
+	m_pointlights.emplace_back(pointLight5);
+	
+	// Maze
+	Pointlight* pointLight6 = new Pointlight(glm::vec3(-100.0f, 12.0f, -3.0f), glm::vec3(0.3, 0.4, 1.0));
+	pointLight6->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 64.0f));
+	m_pointlights.emplace_back(pointLight6);
 
 
 
