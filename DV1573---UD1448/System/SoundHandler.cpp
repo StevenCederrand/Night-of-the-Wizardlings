@@ -493,11 +493,11 @@ void SoundHandler::setPlayerSourceGains(RakNet::AddressOrGUID guid)
 		if (m_playerSoundInfo.at(i).guid.rakNetGuid == guid.rakNetGuid)
 		{
 			setSourceLooping(true, DeflectSound, guid);			
-			setSourceGain(1.0, DeflectSound, m_playerSoundInfo.at(i).guid);			
+			setSourceGain(0.4, DeflectSound, m_playerSoundInfo.at(i).guid);			
 			setSourceGain(0.3, JumpSound, m_playerSoundInfo.at(i).guid);
 			setSourceGain(0.4, StepsSound, m_playerSoundInfo.at(i).guid);
 			setSourceGain(0.3, FireSound, m_playerSoundInfo.at(i).guid);
-			setSourceGain(0.3, DestructionSound, m_playerSoundInfo.at(i).guid);
+			//setSourceGain(0.3, DestructionSound, m_playerSoundInfo.at(i).guid);
 			
 			found = true;
 		}

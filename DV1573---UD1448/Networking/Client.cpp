@@ -695,6 +695,15 @@ void Client::processAndHandlePackets()
 
 		break;
 
+		case HITMARK:
+		{
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+				m_playerEvents.push_back(PlayerEvents::Hitmark);
+			}			
+		}
+		break;
 		case SPELL_GOT_DEFLECTED:
 		{
 			
@@ -706,9 +715,9 @@ void Client::processAndHandlePackets()
 			bsIn.SetReadOffset(0);
 			
 			SpellHandler::deflectSpellData data;
+			//position + halfsize.y
 			data.position = m_myPlayerDataPacket.position;
-			data.position.y += m_myPlayerDataPacket.meshHalfSize.y + m_myPlayerDataPacket.meshHalfSize.y * 0.55;
-
+			data.position.y += m_myPlayerDataPacket.meshHalfSize.y + m_myPlayerDataPacket.meshHalfSize.y * 0.55f;
 			data.direction = m_myPlayerDataPacket.lookDirection;
 			data.type = spellPacket.SpellType;
 
