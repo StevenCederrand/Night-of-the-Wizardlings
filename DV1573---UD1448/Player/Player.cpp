@@ -229,11 +229,7 @@ void Player::move(float deltaTime)
 
 void Player::PlayAnimation(float deltaTime)
 {
-	while (animState.deflecting)
-	{
-		m_firstPersonMesh->playLoopAnimation("DeflectAnimation");
-		//animState.deflecting = false;
-	}
+
 	if (animState.running){
 		m_firstPersonMesh->playLoopAnimation("RunAnimation");
 		animState.running = false;
@@ -257,6 +253,11 @@ void Player::PlayAnimation(float deltaTime)
 	if (animState.idle){
 		m_firstPersonMesh->playLoopAnimation("IdleAnimation");
 		animState.idle = false;
+	}
+	if (animState.deflecting)
+	{
+		m_firstPersonMesh->playLoopAnimation("DeflectAnimation");
+		//animState.deflecting = false;
 	}
 
 
@@ -340,7 +341,7 @@ void Player::attack()
 
 	if (Input::isMouseReleased(GLFW_MOUSE_BUTTON_RIGHT)) {				
 		m_rMouse = false;	
-		//animState.deflecting = false;
+		animState.deflecting = false;
 	}	
 
 	if (Input::isKeyHeldDown(GLFW_KEY_Q))
