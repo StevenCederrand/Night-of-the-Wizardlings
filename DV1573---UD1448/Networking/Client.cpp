@@ -695,6 +695,15 @@ void Client::processAndHandlePackets()
 
 		break;
 
+		case HITMARK:
+		{
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+				m_playerEvents.push_back(PlayerEvents::Hitmark);
+			}			
+		}
+		break;
 		case SPELL_GOT_DEFLECTED:
 		{
 			

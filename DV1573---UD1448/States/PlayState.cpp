@@ -375,8 +375,7 @@ void PlayState::removeDeadObjects()
 
 void PlayState::onSpellHit_callback()
 {
-	m_hudHandler.getHudObject(HUDID::CROSSHAIR_HIT)->setAlpha(1.0f);
-	SoundHandler::getInstance()->playSound(HitmarkSound);
+	
 }
 
 void PlayState::update_isPlaying(const float& dt)
@@ -464,7 +463,12 @@ void PlayState::update_isPlaying(const float& dt)
 
 				break;
 			}
-
+			case Hitmark:
+			{
+				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HIT)->setAlpha(1.0f);
+				shPtr->playSound(HitmarkSound);
+				break;
+			}
 			case PlayerEvents::TookPowerup:
 			{
 				shPtr->playSound(PickupSound);
