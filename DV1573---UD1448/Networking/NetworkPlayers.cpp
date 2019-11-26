@@ -74,7 +74,6 @@ void NetworkPlayers::update(const float& dt)
 			//logTrace(std::to_string(p.data.position.x) + " " + std::to_string(p.data.position.y) + " " + std::to_string(p.data.position.z));
 			shieldObject->loadMesh("EnemyShieldMesh.mesh");
 			
-			glm::vec3 newShieldpos = g->getTransform().position + glm::vec3(0.0f, p.data.meshHalfSize.y, 0.0f);
 			glm::vec3 spawnpos = p.data.position + glm::vec3(0.0f, p.data.meshHalfSize.y, 0.0f);
 			glm::vec3 newShieldpos = g->getTransform().position + glm::vec3(0.0f, p.data.meshHalfSize.y, 0.0f);
 			glm::vec3 shieldLerp = CustomLerp(newShieldpos, spawnpos, m_lerpSpeed * dt);
