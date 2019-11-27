@@ -20,9 +20,7 @@ MenuState::~MenuState()
 
 void MenuState::update(float dt)
 {
-	if (Input::isKeyHeldDown(GLFW_KEY_F3)) {
-		m_stateManager->clearAllAndSetState(new FindServerState());
-	}
+
 }
 
 void MenuState::render()

@@ -1267,7 +1267,7 @@ void LocalServer::createPickupSpawnLocations()
 
 void LocalServer::createPlayerSpawnLocations()
 {
-	m_playerSpawnLocations.emplace_back(0.0f, 3.0f, 17.0f);
+	m_playerSpawnLocations.emplace_back(1.0f, 36.0f, -2.73f);
 	m_playerSpawnLocations.emplace_back(59.0f, 3.0f, 6.0f);
 	m_playerSpawnLocations.emplace_back(36.0f, 7.5f, -51.43f);
 
