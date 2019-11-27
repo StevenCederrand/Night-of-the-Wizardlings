@@ -259,7 +259,15 @@ void LocalServer::processAndHandlePackets()
 		case PLAY_REQUEST:
 		{
 			logTrace("[Server] Got a play request.\n");
-			if (m_connectedPlayers.size() >= NetGlobals::MaximumPlayingPlayersOnServer || m_serverInfo.currentState != NetGlobals::SERVER_STATE::WaitingForPlayers)
+
+			int numPlayersPlaying = 0; // Not counting spectators
+
+			for (int i = 0; i < m_connectedPlayers.size(); i++) {
+				if (m_connectedPlayers[i].Spectator == false)
+					numPlayersPlaying++;
+			}
+
+			if (numPlayersPlaying >= NetGlobals::MaximumPlayingPlayersOnServer || m_serverInfo.currentState != NetGlobals::SERVER_STATE::WaitingForPlayers)
 			{
 				logTrace("[Server] Denied play request.\n");
 				m_serverPeer->CloseConnection(packet->guid, true);
@@ -287,12 +295,6 @@ void LocalServer::processAndHandlePackets()
 			// Send info about all clients to the newly connected one
 			RakNet::BitStream stream_otherPlayers;
 			stream_otherPlayers.Write((RakNet::MessageID)INFO_ABOUT_OTHER_PLAYERS);
-			int numPlayersPlaying = 0; // Not counting spectators
-
-			for (int i = 0; i < m_connectedPlayers.size(); i++) {
-				if (m_connectedPlayers[i].Spectator == false)
-					numPlayersPlaying++;
-			}
 			
 			stream_otherPlayers.Write(numPlayersPlaying);
 
