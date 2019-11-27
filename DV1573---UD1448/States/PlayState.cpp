@@ -337,11 +337,6 @@ void PlayState::update(float dt)
 		update_isPlaying(dt);
 	}
 
-	if (Input::isKeyPressed(GLFW_KEY_O)) {
-		logVec3(m_camera->getCamPos());
-		printf("%f %f %f\n", m_camera->getCamPos().x, m_camera->getCamPos().y, m_camera->getCamPos().z);
-	}
-
 	removeDeadObjects();
 }
 

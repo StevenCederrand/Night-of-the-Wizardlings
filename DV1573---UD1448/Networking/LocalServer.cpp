@@ -1245,7 +1245,7 @@ void LocalServer::createPickupSpawnLocations()
 	
 	PickupSpawnLocation spawn_one;
 	copyStringToCharArray(spawn_one.name, "Top");
-	spawn_one.position = glm::vec3(1.0f, 36.0f, -2.73f);
+	spawn_one.position = glm::vec3(1.67f, 33.0f, -7.18f);
 	m_pickupSpawnLocations.emplace_back(spawn_one);
 
 	PickupSpawnLocation spawn_two;
