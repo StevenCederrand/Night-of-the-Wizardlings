@@ -265,6 +265,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pch/Pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pch/Pch.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="States\SpellCreatorState.cpp" />
     <ClCompile Include="System\Application.cpp" />
     <ClCompile Include="System\BulletPhysics.cpp" />
     <ClCompile Include="System\Input.cpp" />
@@ -375,6 +376,7 @@
     <ClInclude Include="States\LobbyState.h" />
     <ClInclude Include="States\MenuState.h" />
     <ClInclude Include="States\PlayState.h" />
+    <ClInclude Include="States\SpellCreatorState.h" />
     <ClInclude Include="System\Application.h" />
     <ClInclude Include="System\BulletPhysics.h" />
     <ClInclude Include="System\DeltaTime.h" />

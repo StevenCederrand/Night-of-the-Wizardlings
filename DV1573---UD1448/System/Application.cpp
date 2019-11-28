@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "States/PlayState.h"
 #include "States/MenuState.h"
+#include <States/SpellCreatorState.h>
 #include <Networking/Client.h>
 #include <Networking/LocalServer.h>
 #include <Gui/Gui.h>
@@ -55,7 +56,8 @@ bool Application::init() {
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
 #if FULLSCREEN
-	m_window = glfwCreateWindow(1280, 720, "Night of the Wizardlings", glfwGetPrimaryMonitor(), NULL);// !!! FULLSCREEN!!!
+	//m_window = glfwCreateWindow(1280, 720, "Night of the Wizardlings", glfwGetPrimaryMonitor(), NULL);// !!! FULLSCREEN!!!
+	m_window = glfwCreateWindow(1280, 720, "Night of the Wizardlings", NULL, NULL);// !!! FULLSCREEN!!!
 #else 
 	m_window = glfwCreateWindow(1280, 720, "Night of the Wizardlings", NULL, NULL);
 #endif
@@ -97,7 +99,7 @@ bool Application::init() {
 #if AUTOSTART
 	m_stateManager->pushState(new PlayState(false));
 #else 
-	m_stateManager->pushState(new MenuState());	
+	m_stateManager->pushState(new SpellCreatorState());	
 #endif
 
 	SoundHandler* shPtr = SoundHandler::getInstance();	
