@@ -38,7 +38,7 @@ const int NR_OF_SUBSEQUENT_SOUNDS = 4;
 //For example, you can hear other players' spells.
 //Put sounds that will come only from this client as a SoundIndexClient enum.
 //Also, make sure to increase NR_OF_CLIENT_SOUNDS or NR_OF_COMMON_SOUNDS depending 
-//on what type of sound you added. And, of course, increase the number of total sounds aswell. 
+//on what type of sound you added.
 
 //Sounds in common here:
 enum SoundIndexCommon {		
@@ -156,6 +156,8 @@ public:
 	const ALint& getSourceState(SoundIndexClient whatSound) const;
 	const ALint& getSourceState(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID, int slot = 0) const;
 	//source relative?	
+
+	void freeBuffer(SoundIndexClient whatSound);
 };
 
 #endif

@@ -55,6 +55,7 @@ void MenuState::loadGui()
 bool MenuState::onStartOfflineClicked(const CEGUI::EventArgs& e)
 {
 	SoundHandler::getInstance()->stopSound(ThemeSong0);	
+	SoundHandler::getInstance()->freeBuffer(ThemeSong0);
 	Renderer::getInstance()->clear();
 	glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	m_stateManager->clearAllAndSetState(new PlayState(false));

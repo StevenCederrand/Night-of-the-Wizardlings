@@ -968,7 +968,8 @@ bool PlayState::onMainMenuClick(const CEGUI::EventArgs& e)
 {
 	Renderer::getInstance()->clear();
 	m_stateManager->clearAllAndSetState(new MenuState());
-	SoundHandler::getInstance()->playSound(ThemeSong0);
+	if(SoundHandler::getInstance()->loadSound(ThemeSong0) != -1)
+		SoundHandler::getInstance()->playSound(ThemeSong0);
 	return true;
 }
 
