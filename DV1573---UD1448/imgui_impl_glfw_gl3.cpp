@@ -1,6 +1,7 @@
 // ImGui GLFW binding with OpenGL3 + shaders
 // (GLFW is a cross-platform general purpose library for handling windows, inputs, OpenGL/Vulkan graphics context creation, etc.)
 // (GL3W is a helper library to access OpenGL functions since there is no standard header to access modern OpenGL functions easily. Alternatives are GLEW, Glad, etc.)
+#include "Pch/Pch.h"
 
 // Implemented features:
 //  [X] User texture binding. Cast 'GLuint' OpenGL texture identifier as void*/ImTextureID. Read the FAQ about ImTextureID in imgui.cpp.
@@ -363,8 +364,8 @@ bool    ImGui_ImplGlfwGL3_Init(GLFWwindow* window, bool install_callbacks, const
     if (glsl_version == NULL)
         glsl_version = "#version 150";
     IM_ASSERT((int)strlen(glsl_version) + 2 < IM_ARRAYSIZE(g_GlslVersion));
-    strcpy(g_GlslVersion, glsl_version);
-    strcat(g_GlslVersion, "\n");
+    strcpy_s(g_GlslVersion, glsl_version);
+    strcat_s(g_GlslVersion, "\n");
 
     // Setup back-end capabilities flags
     ImGuiIO& io = ImGui::GetIO();

@@ -1,5 +1,6 @@
 // dear imgui, v1.60
 // (main code and documentation)
+#include "Pch/Pch.h"
 
 // Call and read ImGui::ShowDemoWindow() in imgui_demo.cpp for demo code.
 // Newcomers, read 'Programmer guide' below for notes on how to setup Dear ImGui in your codebase.
