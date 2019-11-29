@@ -15,7 +15,7 @@ void logVec3(glm::vec3 vector) {
 
 PlayState::PlayState(bool spectator)
 {
-
+	
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
 
 	m_camera = new Camera();
@@ -144,8 +144,7 @@ PlayState::PlayState(bool spectator)
 	//if (spectator == false) {
 		for (size_t i = 0; i < m_objects.size(); i++)
 		{
-			m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);
-			//m_objects.at(i)->createDebugDrawer();
+			m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);			
 		}
 	//}
 		mu.printBoth("After creation of rigidbodies:");
@@ -362,7 +361,7 @@ void PlayState::update(float dt)
 
 	static float t = 0.0f;
 	t += DeltaTime;
-	if (t >= 2.0f)
+	if (t >= 3.0f)
 	{
 		t = 0.0f;
 		mu.printBoth("Update:");

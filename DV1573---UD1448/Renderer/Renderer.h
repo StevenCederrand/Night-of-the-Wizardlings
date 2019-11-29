@@ -7,7 +7,6 @@
 #define DEPTH_MAP "Depth_Map"
 #define SKYBOX "Skybox_Shader"
 #define ANIMATION "Basic_Animation"
-#define DEBUG_SHADER "Debug_Forward"
 #define FRESNEL "Fresnel_Shader"
 #define ENEMYSHIELD "Enemy_Shield"
 //#define BLOOM "Bloom_Shader"
@@ -76,6 +75,7 @@ class Renderer
 private:
 	std::vector<NotificationText> m_bigNotifications;
 	std::vector<NotificationText> m_killFeed;
+	std::vector<NotificationText> m_killNotification;
 
 private:
 	static Renderer* m_rendererInstance;
@@ -182,10 +182,10 @@ public:
 	void renderSkybox();
 	void render();
 	//void renderSpell();
-	void renderHUD();
-	void renderDebug();
+	void renderHUD();	
 	void addBigNotification(NotificationText notification);
 	void addKillFeed(NotificationText notification);
+	void addKillNotification(NotificationText notification);
 	unsigned int getTextWidth(const std::string& text, const glm::vec3& scale);
 
 	void renderSpell(SpellHandler* spellHandler);
