@@ -15,7 +15,7 @@ void logVec3(glm::vec3 vector) {
 
 PlayState::PlayState(bool spectator)
 {
-
+	
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
 
 	m_camera = new Camera();
@@ -362,7 +362,7 @@ void PlayState::update(float dt)
 
 	static float t = 0.0f;
 	t += DeltaTime;
-	if (t >= 2.0f)
+	if (t >= 3.0f)
 	{
 		t = 0.0f;
 		mu.printBoth("Update:");
