@@ -143,6 +143,7 @@ void AnimatedObject::ComputeMatrix(int meshId, std::string meshn, std::string an
 		if (i < transformCount)
 			bones_global_pose[i] = bones_global_pose[skeleton.joints[i].parentIndex] * localTransform;
 		bonePallete.bones[i] = bones_global_pose[i] * skeleton.joints[i].invBindPose;
+
 	}
 }
 
