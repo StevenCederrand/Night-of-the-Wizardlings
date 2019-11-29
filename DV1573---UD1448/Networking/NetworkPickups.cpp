@@ -9,7 +9,7 @@ NetworkPickups::NetworkPickups()
 	
 	BGLoader* loader = new BGLoader();
 	setupHealthPickupRenderInformation(loader);
-	setupDamagePickupRenderInformation(loader);
+	setupManaPickupRenderInformation(loader);
 	delete loader;
 
 }
@@ -23,7 +23,7 @@ void NetworkPickups::cleanUp()
 {
 
 	cleanupRenderInformation(&m_healthRenderInformation);
-	cleanupRenderInformation(&m_damagaRenderInformation);
+	cleanupRenderInformation(&m_ManaRenderInformation);
 
 	for (size_t i = 0; i < m_pickupProps.size(); i++) {
 		if(m_pickupProps[i].pickup != nullptr)
@@ -49,8 +49,8 @@ void NetworkPickups::update(const float& dt)
 					if (e.packet.type == PickupType::HealthPotion) {
 						e.pickup = new HealthPickup(m_healthRenderInformation, e.packet.type, e.packet.position, e.packet.uniqueID);
 					}
-					else if (e.packet.type == PickupType::DamageBuff) {
-						e.pickup = new HealthPickup(m_damagaRenderInformation, e.packet.type, e.packet.position, e.packet.uniqueID);
+					else if (e.packet.type == PickupType::ManaPotion) {
+						e.pickup = new HealthPickup(m_ManaRenderInformation, e.packet.type, e.packet.position, e.packet.uniqueID);
 					}					
 					
 					Renderer::getInstance()->submit(e.pickup, PICKUP); 
@@ -126,17 +126,17 @@ void NetworkPickups::setupHealthPickupRenderInformation(BGLoader* loader)
 	mesh->setMaterial(mat->name);
 }
 
-void NetworkPickups::setupDamagePickupRenderInformation(BGLoader* loader)
+void NetworkPickups::setupManaPickupRenderInformation(BGLoader* loader)
 {
 	//BGLoader tempLoader;
 
-	m_damagaRenderInformation.mesh = new Mesh();
-	m_damagaRenderInformation.material = new Material();
+	m_ManaRenderInformation.mesh = new Mesh();
+	m_ManaRenderInformation.material = new Material();
 
-	auto* mesh = m_damagaRenderInformation.mesh;
-	auto* mat = m_damagaRenderInformation.material;
+	auto* mesh = m_ManaRenderInformation.mesh;
+	auto* mat = m_ManaRenderInformation.material;
 
-	loader->LoadMesh(MESHPATH + "DamagePickup.mesh");
+	loader->LoadMesh(MESHPATH + "ManaPickup.mesh");
 
 	mesh->saveFilePath(loader->GetFileName(), 0);
 	mesh->nameMesh(loader->GetMeshName());

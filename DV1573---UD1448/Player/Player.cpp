@@ -302,9 +302,9 @@ void Player::attack()
 			
 			//Fade out deflect sound
 			if (m_deflectSoundGain > 0.0f)
-			{
-				m_deflectSoundGain -= 2.0f * DeltaTime;
+			{				
 				shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
+				m_deflectSoundGain -= 2.0f * DeltaTime;
 			}
 			else
 			{
@@ -317,9 +317,9 @@ void Player::attack()
 	{		
 		//Fade out deflect sound
 		if (m_deflectSoundGain > 0.0f)
-		{
-			m_deflectSoundGain -= 2.0f * DeltaTime;
+		{			
 			shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
+			m_deflectSoundGain -= 2.0f * DeltaTime;
 		}
 		else
 		{
@@ -454,6 +454,11 @@ void Player::onRespawn()
 void Player::setHealth(int health)
 {
 	m_health = health;
+}
+
+void Player::setMana(int mana)
+{
+	m_mana = mana;
 }
 
 void Player::setSpeed(float speed)

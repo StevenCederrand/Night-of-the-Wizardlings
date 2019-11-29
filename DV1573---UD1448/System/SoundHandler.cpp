@@ -1215,3 +1215,11 @@ const ALint& SoundHandler::getSourceState(SoundIndexCommon whatSound, RakNet::Ad
 
 	return value;
 }
+
+void SoundHandler::freeBuffer(SoundIndexClient whatSound)
+{
+	alSourcei(m_clientSoundInfo.sources.at(whatSound), AL_BUFFER, NULL);
+	alDeleteSources(1, &m_clientSoundInfo.sources.at(whatSound));
+
+	alDeleteBuffers(1, &m_buffersClient.at(whatSound));
+}

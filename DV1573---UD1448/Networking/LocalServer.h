@@ -29,10 +29,6 @@ private:
 		glm::vec3 position;
 	};
 
-	struct BuffedPlayer {
-		PlayerPacket* player;
-		uint32_t currentTime = NetGlobals::DamageBuffActiveTimeMS;
-	};
 
 private:
 	
@@ -57,15 +53,11 @@ private:
 	bool isCollidingWithPickup(const PlayerPacket& player, const PickupPacket& pickup);
 
 	// Helper funcs
-	void updatePlayersWithDamageBuffs(const uint32_t& diff);
-
 	void handleRespawns(const uint32_t& diff);
 	void hardRespawnPlayer(PlayerPacket& player);
 	void resetScores();
 	void respawnPlayers();
-	void resetPlayerBuffs();
-	void removePlayerBuff(const PlayerPacket* player);
-
+	
 	void handleCountdown(const uint32_t& diff);
 	void countdownExecutionLogic();
 
@@ -124,7 +116,6 @@ private:
 	std::vector<PickupSpawnLocation> m_pickupSpawnLocations;
 	std::vector<PickupPacket> m_activePickups;
 	std::vector<PickupPacket> m_queuedPickups;
-	std::vector<BuffedPlayer> m_buffedPlayers;
 	std::vector<glm::vec3> m_playerSpawnLocations;
 
 };
