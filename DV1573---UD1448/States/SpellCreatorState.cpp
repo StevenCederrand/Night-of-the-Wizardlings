@@ -25,25 +25,25 @@ SpellCreatorState::SpellCreatorState()
 {
 	std::cout << "SpellCreator State Created! Have fun!" << std::endl;
 
-    m_bPhysics = new BulletPhysics(-20.0f);
-    m_spellHandler = new SpellHandler(m_bPhysics);
+    //m_bPhysics = new BulletPhysics(-20.0f);
+    //m_spellHandler = new SpellHandler(m_bPhysics);
     //m_spellHandler->setOnHitCallback(std::bind(&PlayState::onSpellHit_callback, this));
 
-    ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
+    //ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
 
-   m_camera = new Camera();
-    m_player = new Player(m_bPhysics, "Player", NetGlobals::PlayerFirstSpawnPoint, m_camera, m_spellHandler);
+    //m_camera = new Camera();
+    //m_player = new Player(m_bPhysics, "Player", NetGlobals::PlayerFirstSpawnPoint, m_camera, m_spellHandler);
 
-    Renderer::getInstance()->setupCamera(m_player->getCamera());
+    /*Renderer::getInstance()->setupCamera(m_player->getCamera());*/
 
     //TODO: organized loading system?
-    m_skybox = new SkyBox();
+   /* m_skybox = new SkyBox();
     m_skybox->prepareBuffers();
     m_player->setHealth(NetGlobals::PlayerMaxHealth);
     m_objects.push_back(new MapObject("internalTestmap"));
     m_objects[m_objects.size() - 1]->loadMesh("map1.mesh");
     m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-    Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
+    Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);*/
 
     //-----Set up IMGUI-----//
     ImGui::CreateContext();
@@ -55,14 +55,14 @@ SpellCreatorState::SpellCreatorState()
     //MaterialMap::getInstance();
     //gContactAddedCallback = callbackFunc;
     // Geneterate bullet objects / hitboxes
-    for (size_t i = 0; i < m_objects.size(); i++)
-    {
-        m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);
-        //m_objects.at(i)->createDebugDrawer();
-    }
+    //for (size_t i = 0; i < m_objects.size(); i++)
+    //{
+    //    m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);
+    //    //m_objects.at(i)->createDebugDrawer();
+    //}
 
-    if (Client::getInstance()->isInitialized())
-        Client::getInstance()->assignSpellHandler(m_spellHandler);
+    //if (Client::getInstance()->isInitialized())
+    //    Client::getInstance()->assignSpellHandler(m_spellHandler);
 
    /* m_hudHandler.loadPlayStateHUD();
     m_hideHUD = false;*/
@@ -80,16 +80,16 @@ void SpellCreatorState::update(float dt)
     ImGui_ImplGlfwGL3_NewFrame();
     ImGui::ShowDemoWindow();
 
-    m_bPhysics->update(dt);
-    m_player->update(dt);
-    m_spellHandler->spellUpdate(dt);
-    Renderer::getInstance()->updateParticles(dt);
-    auto* clientPtr = Client::getInstance();
+    //m_bPhysics->update(dt);
+    //m_player->update(dt);
+    //m_spellHandler->spellUpdate(dt);
+    //Renderer::getInstance()->updateParticles(dt);
+    //auto* clientPtr = Client::getInstance();
 }
 
 void SpellCreatorState::render()
 {
-    Renderer::getInstance()->render(m_skybox, m_deflectBox, m_spellHandler);
+    //Renderer::getInstance()->render(m_skybox, m_deflectBox, m_spellHandler);
 
     ImGui::Render();
 
