@@ -90,7 +90,7 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase->m_radius = 0.5f;
 	enhanceAtkBase->m_coolDown = 3.0f;
 	enhanceAtkBase->m_lifeTime = 5.0f;
-	enhanceAtkBase->m_maxBounces = 3;
+	enhanceAtkBase->m_maxBounces = 3.0;
 
 	enhanceAtkBase->m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // OLD
 	enhanceAtkBase->m_attenAndRadius = glm::vec4(1.0f, 1.55f, 3.7f, 22.0f);

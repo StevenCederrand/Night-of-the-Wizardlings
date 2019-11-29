@@ -495,6 +495,7 @@ void PlayState::update_isPlaying(const float& dt)
 				logWarning("[Event system] Took a mana potion");
 				m_hudHandler.getHudObject(HUDID::BAR_MANA)->setXClip(static_cast<float>(Client::getInstance()->getMyData().mana) / 100.0f);
 				m_hudHandler.getHudObject(HUDID::CROSSHAIR_MANA)->setYClip(static_cast<float>(Client::getInstance()->getMyData().mana) / 100.0f);
+				m_hudHandler.getHudObject(HUDID::MANA_OVERLAY)->setAlpha(0.75f);
 				break;
 			}
 
@@ -530,6 +531,9 @@ void PlayState::update_isPlaying(const float& dt)
 			case PlayerEvents::Deflected:
 			{
 				m_hudHandler.getHudObject(HUDID::CROSSHAIR_DEFLECT_INDICATOR)->setAlpha(1.0f);
+				m_hudHandler.getHudObject(HUDID::MANA_OVERLAY)->setAlpha(0.75f);
+				//Give the player a boost in mana
+				m_player->increaseMana(10.0f);
 				break;
 			}
 
@@ -694,10 +698,7 @@ void PlayState::update_isSpectating(const float& dt)
 
 void PlayState::render()
 {
-
 	Renderer::getInstance()->render();
-
-	//Renderer::getInstance()->renderDebug();
 }
 
 bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1, const btCollisionObjectWrapper* obj2, int id2, int index2)
@@ -855,6 +856,12 @@ void PlayState::HUDHandler() {
 	{
 		m_hudHandler.getHudObject(DAMAGE_OVERLAY)->setAlpha(m_hudHandler.getHudObject(DAMAGE_OVERLAY)->getAlpha() - DeltaTime);
 	}
+
+	if (m_hudHandler.getHudObject(MANA_OVERLAY)->getAlpha() != 0)
+	{
+		m_hudHandler.getHudObject(MANA_OVERLAY)->setAlpha(m_hudHandler.getHudObject(MANA_OVERLAY)->getAlpha() - DeltaTime);
+	}
+
 
 	if (m_hudHandler.getHudObject(HEAL_OVERLAY)->getAlpha() != 0)
 	{
