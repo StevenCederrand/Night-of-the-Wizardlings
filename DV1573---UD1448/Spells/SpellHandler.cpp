@@ -49,8 +49,8 @@ void SpellHandler::initAttackSpell()
 	attackBase->m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
 	//attackBase->m_material->ambient = glm::vec3(0.5f, 0.0f, 0.9f);
 
-	attackBase->m_lowDamage = 20.0f;
-	attackBase->m_highDamage = 30.0f;
+	attackBase->m_lowDamage = 10.0f;
+	attackBase->m_highDamage = 90.0f;
 	attackBase->m_speed = 70.0f;
 	attackBase->m_radius = 0.25f;
 	attackBase->m_coolDown = 1.0f;
@@ -86,8 +86,8 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase->m_material->diffuse = glm::vec3(0.5f, 0.0f, 0.6f);
 	enhanceAtkBase->m_material->ambient = glm::vec3(0.5f, 0.0f, 0.6f);
 
-	enhanceAtkBase->m_lowDamage = 20.0f;
-	enhanceAtkBase->m_highDamage = 30.0f;
+	enhanceAtkBase->m_lowDamage = 10.0f;
+	enhanceAtkBase->m_highDamage = 90.0f;
 	enhanceAtkBase->m_speed = 70.0f;
 	enhanceAtkBase->m_radius = 0.5f;
 	enhanceAtkBase->m_coolDown = 3.0f;
