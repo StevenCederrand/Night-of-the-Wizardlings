@@ -340,7 +340,9 @@ PlayState::~PlayState()
 	mu.printBoth("Afer deleting playstate:");
 
 }
-	
+
+
+
 void PlayState::update(float dt)
 {
 	//m_firstPerson->playLoopAnimation("Test");
@@ -357,6 +359,15 @@ void PlayState::update(float dt)
 	}
 
 	removeDeadObjects();
+
+	static float t = 0.0f;
+	t += DeltaTime;
+	if (t >= 2.0f)
+	{
+		t = 0.0f;
+		mu.printBoth("Update:");
+	}
+
 }
 
 void PlayState::removeDeadObjects()
