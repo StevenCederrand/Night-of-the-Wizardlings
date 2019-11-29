@@ -6,7 +6,7 @@
 #include <Networking/LocalServer.h>
 #include <Gui/Gui.h>
 #define AUTOSTART false;
-#define FULLSCREEN true;
+#define FULLSCREEN false;
 float DeltaTime = 0.0f;
 
 Application::Application() {
