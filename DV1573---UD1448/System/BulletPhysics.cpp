@@ -164,9 +164,10 @@ btKinematicCharacterController* BulletPhysics::createCharacter(const glm::vec3& 
 {
 	//create the character and add him to the dynamicsWorld
 
-	btScalar capsuleX = m_boxSize.getX();
+	btScalar capsuleX = m_boxSize.getX()*0.8f;
 	btScalar capsuleY = m_boxSize.getY() * 2.0f;
-	btScalar capsuleZ = m_boxSize.getZ() + 0.3f;
+	//btScalar capsuleZ = m_boxSize.getZ() + 0.3f;
+	btScalar capsuleZ = m_boxSize.getZ()*0.9f;
 	//height of capsule is	totalHeight = height + radius * 2
 	//						height = totalHeight - radius * 2
 	btScalar realY = (capsuleY) - (capsuleZ * 2.0f);
@@ -182,9 +183,11 @@ btKinematicCharacterController* BulletPhysics::createCharacter(const glm::vec3& 
 	m_dynamicsWorld->getPairCache()->setInternalGhostPairCallback(m_ghostCallback);
 	m_ghostObject->setCollisionShape(m_playerShape);
 	m_ghostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
-	m_character = new btKinematicCharacterController(m_ghostObject, m_playerShape, 0.5f, btVector3(0.0f, 1.0f, 0.0f));
+	m_character = new btKinematicCharacterController(m_ghostObject, m_playerShape, 1.0f, btVector3(0.0f, 1.0f, 0.0f));
 	m_dynamicsWorld->addCollisionObject(m_ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter | NormalObjects | DestructableObjects);
 
+	//m_character->setStepHeight(10);
+	m_character->setMaxSlope(btRadians(80.0));
 	m_collisionShapes.push_back(m_playerShape);
 	m_dynamicsWorld->addAction(m_character);
 	m_character->setGravity(btVector3(0.0f, 0.0f, 0.0f));
