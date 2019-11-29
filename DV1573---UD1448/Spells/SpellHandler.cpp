@@ -86,13 +86,13 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase->m_material->diffuse = glm::vec3(0.5f, 0.0f, 0.6f);
 	enhanceAtkBase->m_material->ambient = glm::vec3(0.5f, 0.0f, 0.6f);
 
-	enhanceAtkBase->m_lowDamage = 20.0f;
-	enhanceAtkBase->m_highDamage = 30.0f;
+	enhanceAtkBase->m_lowDamage = 10.0f;
+	enhanceAtkBase->m_highDamage = 90.0f;
 	enhanceAtkBase->m_speed = 70.0f;
 	enhanceAtkBase->m_radius = 0.5f;
 	enhanceAtkBase->m_coolDown = 3.0f;
 	enhanceAtkBase->m_lifeTime = 5.0f;
-	enhanceAtkBase->m_maxBounces = 3;
+	enhanceAtkBase->m_maxBounces = 3.0;
 
 	enhanceAtkBase->m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // OLD
 	enhanceAtkBase->m_attenAndRadius = glm::vec4(1.0f, 1.55f, 3.7f, 22.0f);

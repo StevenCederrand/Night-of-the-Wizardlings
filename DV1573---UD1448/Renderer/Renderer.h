@@ -7,7 +7,6 @@
 #define DEPTH_MAP "Depth_Map"
 #define SKYBOX "Skybox_Shader"
 #define ANIMATION "Basic_Animation"
-#define DEBUG_SHADER "Debug_Forward"
 #define FRESNEL "Fresnel_Shader"
 #define ENEMYSHIELD "Enemy_Shield"
 //#define BLOOM "Bloom_Shader"
@@ -188,6 +187,7 @@ public:
 	void renderHUD();
 	void renderWorldHud();
 	void renderDebug();
+
 	void addBigNotification(NotificationText notification);
 	void addKillFeed(NotificationText notification);
 	void addKillNotification(NotificationText notification);
