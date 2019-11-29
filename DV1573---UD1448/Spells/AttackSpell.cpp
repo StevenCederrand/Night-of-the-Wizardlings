@@ -75,6 +75,9 @@ void AttackSpell::updateRigidbody(float deltaTime, btRigidBody* body)
 		body->getLinearVelocity().getY(),
 		body->getLinearVelocity().getZ()));
 
+	// Increase spell speed //
+	body->setLinearVelocity(body->getLinearVelocity() * (1 + 0.5f * deltaTime));
+
 	btVector3 rigidBodyPos = body->getWorldTransform().getOrigin();
 	setWorldPosition(glm::vec3(rigidBodyPos.getX(), rigidBodyPos.getY(), rigidBodyPos.getZ()));	
 }
