@@ -58,7 +58,7 @@ private:
 	Camera* m_camera;
 	SkyBox* m_skybox;
 	BulletPhysics* m_bPhysics;
-
+	MemoryUsage mu;
 	HudHandler m_hudHandler;
 	
 	CEGUI::PushButton* m_mainMenu;

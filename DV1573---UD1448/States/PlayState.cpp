@@ -15,7 +15,7 @@ void logVec3(glm::vec3 vector) {
 
 PlayState::PlayState(bool spectator)
 {
-	MemoryUsage mu;
+
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
 
 	m_camera = new Camera();
@@ -306,6 +306,9 @@ void PlayState::loadDestructables()
 
 PlayState::~PlayState()
 {
+
+	mu.printBoth("Before deleting playstate:");
+
 	for (GameObject* object : m_objects)
 		delete object;
 
@@ -333,6 +336,9 @@ PlayState::~PlayState()
 	}
 
 	MeshMap::getInstance()->cleanUp();
+	
+	mu.printBoth("Afer deleting playstate:");
+
 }
 	
 void PlayState::update(float dt)
