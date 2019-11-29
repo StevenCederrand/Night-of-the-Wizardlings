@@ -47,7 +47,7 @@ void NetworkPlayers::update(const float& dt)
 					//animObj->initAnimations("JumpAnimation", 1.0f, 21.0f);
 
 				}
-				std::cout << "NetworkPlayer @memAddr: " << p.gameobject << "\n";
+				
 				//Submit the player object as a dynamic object
 				Renderer::getInstance()->submit(p.gameobject, ANIMATEDSTATIC);
 			}
@@ -73,9 +73,9 @@ void NetworkPlayers::update(const float& dt)
 			GameObject* shieldObject = new EnemyShieldObject("enemyShield");
 			//logTrace(std::to_string(p.data.position.x) + " " + std::to_string(p.data.position.y) + " " + std::to_string(p.data.position.z));
 			shieldObject->loadMesh("EnemyShieldMesh.mesh");
-
-			glm::vec3 spawnpos = p.data.position + glm::vec3(0.0f, p.data.meshHalfSize.y * 1.6, 0.0f);
-			glm::vec3 newShieldpos = g->getTransform().position + glm::vec3(0.0f, p.data.meshHalfSize.y * 1.6, 0.0f);
+			
+			glm::vec3 spawnpos = p.data.position + glm::vec3(0.0f, p.data.meshHalfSize.y, 0.0f);
+			glm::vec3 newShieldpos = g->getTransform().position + glm::vec3(0.0f, p.data.meshHalfSize.y, 0.0f);
 			glm::vec3 shieldLerp = CustomLerp(newShieldpos, spawnpos, m_lerpSpeed * dt);
 			shieldObject->setTransform(shieldLerp, p.data.rotation, glm::vec3(1.0));
 			Renderer::getInstance()->submit(shieldObject, ENEMY_SHIELD);
@@ -113,7 +113,7 @@ void NetworkPlayers::update(const float& dt)
 			else
 			{
 				shPtr->stopSound(DeflectSound, p.data.guid);
-				p.deflectSoundGain = 1.0f;
+				p.deflectSoundGain = 0.4f;
 				shPtr->setSourceGain(p.deflectSoundGain, DeflectSound, p.data.guid);
 				p.wasDeflecting = false;			
 			}

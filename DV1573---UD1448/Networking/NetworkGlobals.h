@@ -6,7 +6,7 @@ namespace NetGlobals {
 	static glm::vec3 PlayerFirstSpawnPoint = glm::vec3(0.0f, 14.5f, 7.0f);
 
 	constexpr unsigned int MaximumConnections = 12;
-	constexpr unsigned int MaximumPlayingPlayersOnServer = 6;
+	constexpr unsigned int MaximumPlayingPlayersOnServer = 4;
 	constexpr unsigned short MaximumIncomingConnections = 12;
 	constexpr unsigned short ServerPort = 42405;
 	constexpr int TickRate = 128;
@@ -23,7 +23,7 @@ namespace NetGlobals {
 	constexpr uint32_t UpdateClientsWithServerTimeIntervalMS = 250;
 	constexpr float InvulnerabilityTime = 0.25f;
 	constexpr int PlayerMaxHealth = 100;
-
+	 
 	enum THREAD_FLAG {
 		Remove,
 		Add,

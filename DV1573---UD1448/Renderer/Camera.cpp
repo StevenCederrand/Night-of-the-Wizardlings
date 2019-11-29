@@ -124,7 +124,7 @@ void Camera::resetCamera()
 	resetMouseToMiddle();
 	m_camYaw = -90.0f;
 	m_camPitch = 0;
-	m_camFace = glm::vec3(0.0f, 0.0f, -1.0f);
+	m_camFace = glm::vec3(0.0f, m_camPos.y, 0.0f);
 	calcVectors();
 }
 

@@ -52,8 +52,8 @@ private:
 	std::vector<Spell*> spells;
 	std::vector<Spell*> flamestrikeSpells;
 	std::vector<Spell*> fireSpells;
-	float fireDamageCounter = 1.0f;
-	float ownfireDamageCounter = 1.0f;
+	float fireDamageCounter = 0.5f;
+	float ownfireDamageCounter = 0.5f;
 
 	glm::vec3 m_spawnerPos;
 	glm::vec3 m_spawnerDir;

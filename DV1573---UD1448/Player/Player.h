@@ -22,7 +22,8 @@ public:
 	void createRay(); //create ray for spells
 	void spawnPlayer(glm::vec3 pos);
 	void updateMesh();
-
+	void onDead();
+	void onRespawn();
 	bool isDead();
 
 	//-----Get-----//

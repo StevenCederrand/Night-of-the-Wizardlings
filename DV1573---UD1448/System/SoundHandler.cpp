@@ -42,9 +42,9 @@ SoundHandler::SoundHandler()
 	//Set the volume for the client sources. 
 	RakNet::AddressOrGUID myGuid = Client::getInstance()->getMyData().guid;	
 	//setSourceGain(0.8, BasicAttackSound, myGuid);
-	//setSourceGain(0.2, DeflectSound, myGuid);
+	setSourceGain(0.4, DeflectSound, myGuid);
 	
-	setSourceGain(0.6, ThemeSong0);
+	setSourceGain(0.4, ThemeSong0);
 	setSourceGain(0.5, JumpSound, myGuid);
 	setSourceGain(0.5, LandingSound, myGuid);
 	setSourceGain(0.3, StepsSound, myGuid);
@@ -493,11 +493,11 @@ void SoundHandler::setPlayerSourceGains(RakNet::AddressOrGUID guid)
 		if (m_playerSoundInfo.at(i).guid.rakNetGuid == guid.rakNetGuid)
 		{
 			setSourceLooping(true, DeflectSound, guid);			
-			setSourceGain(1.0, DeflectSound, m_playerSoundInfo.at(i).guid);			
+			setSourceGain(0.4, DeflectSound, m_playerSoundInfo.at(i).guid);			
 			setSourceGain(0.3, JumpSound, m_playerSoundInfo.at(i).guid);
 			setSourceGain(0.4, StepsSound, m_playerSoundInfo.at(i).guid);
 			setSourceGain(0.3, FireSound, m_playerSoundInfo.at(i).guid);
-			setSourceGain(0.3, DestructionSound, m_playerSoundInfo.at(i).guid);
+			//setSourceGain(0.3, DestructionSound, m_playerSoundInfo.at(i).guid);
 			
 			found = true;
 		}

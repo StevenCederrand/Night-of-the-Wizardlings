@@ -259,7 +259,15 @@ void LocalServer::processAndHandlePackets()
 		case PLAY_REQUEST:
 		{
 			logTrace("[Server] Got a play request.\n");
-			if (m_connectedPlayers.size() >= NetGlobals::MaximumPlayingPlayersOnServer || m_serverInfo.currentState != NetGlobals::SERVER_STATE::WaitingForPlayers)
+
+			int numPlayersPlaying = 0; // Not counting spectators
+
+			for (int i = 0; i < m_connectedPlayers.size(); i++) {
+				if (m_connectedPlayers[i].Spectator == false)
+					numPlayersPlaying++;
+			}
+
+			if (numPlayersPlaying >= NetGlobals::MaximumPlayingPlayersOnServer || m_serverInfo.currentState != NetGlobals::SERVER_STATE::WaitingForPlayers)
 			{
 				logTrace("[Server] Denied play request.\n");
 				m_serverPeer->CloseConnection(packet->guid, true);
@@ -287,12 +295,6 @@ void LocalServer::processAndHandlePackets()
 			// Send info about all clients to the newly connected one
 			RakNet::BitStream stream_otherPlayers;
 			stream_otherPlayers.Write((RakNet::MessageID)INFO_ABOUT_OTHER_PLAYERS);
-			int numPlayersPlaying = 0; // Not counting spectators
-
-			for (int i = 0; i < m_connectedPlayers.size(); i++) {
-				if (m_connectedPlayers[i].Spectator == false)
-					numPlayersPlaying++;
-			}
 			
 			stream_otherPlayers.Write(numPlayersPlaying);
 
@@ -622,7 +624,7 @@ void LocalServer::processAndHandlePackets()
 			if (target == nullptr || spell == nullptr || shooter == nullptr || target->Spectator || shooter->Spectator)
 				continue;
 			
-			if (target->health == 0.0f)
+			if (target->health == 0.0f || target->invulnerabilityTime > 0.0f)
 				continue;
 
 			
@@ -722,10 +724,16 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 			}
 		}
 
+		//Update the shooter's hitmark
+		RakNet::BitStream hitmarkStream;
+		hitmarkStream.Write((RakNet::MessageID)HITMARK);
+		shooter->Serialize(true, hitmarkStream);
+		m_serverPeer->Send(&hitmarkStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, shooter->guid, false);
+
 		float damageMultiplier = 1.0f;
 
 		if (shooter->hasDamageBuff)
-			damageMultiplier = 2.5f;
+			damageMultiplier = 4.0f;
 
 		float totalDamage = hitpacket->damage * damageMultiplier;
 
@@ -888,8 +896,8 @@ void LocalServer::checkCollisionBetweenPlayersAndPickups()
 			if (isCollidingWithPickup(player, pickup)) {
 				// Give player buffs here
 				if (pickup.type == PickupType::HealthPotion) {
-					if(player.health < 100)
-						player.health = 100;
+					if(player.health < NetGlobals::PlayerMaxHealth)
+						player.health = NetGlobals::PlayerMaxHealth;
 					
 					RakNet::BitStream stream;
 					stream.Write((RakNet::MessageID)HEAL_BUFF);
@@ -902,7 +910,7 @@ void LocalServer::checkCollisionBetweenPlayersAndPickups()
 					player.hasDamageBuff = true;
 					RakNet::BitStream stream;
 					stream.Write((RakNet::MessageID)DAMAGE_BUFF_ACTIVE);
-					player.health = 200;
+					player.health = NetGlobals::PlayerMaxHealth;
 					player.Serialize(true, stream);
 					m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, player.guid, false);
 
@@ -988,8 +996,8 @@ void LocalServer::handleRespawns(const uint32_t& diff)
 			RakNet::BitStream stream;
 			stream.Write((RakNet::MessageID)RESPAWN_PLAYER_DURING_SESSION);
 			rs.player->Serialize(true, stream);
+			// Double send it...
 			m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, rs.player->guid, false);
-
 			m_respawnList.erase(m_respawnList.begin() + i);
 			i--;
 		}
@@ -1237,12 +1245,12 @@ void LocalServer::createPickupSpawnLocations()
 	
 	PickupSpawnLocation spawn_one;
 	copyStringToCharArray(spawn_one.name, "Top");
-	spawn_one.position = glm::vec3(0.0f, 13.45f, 0.0f);
+	spawn_one.position = glm::vec3(1.67f, 33.0f, -7.18f);
 	m_pickupSpawnLocations.emplace_back(spawn_one);
 
 	PickupSpawnLocation spawn_two;
 	copyStringToCharArray(spawn_two.name, "Graveyard");
-	spawn_two.position = glm::vec3(70.0f, 2.3f, 0.67f);
+	spawn_two.position = glm::vec3(78.64f, 2.3f, 16.23f);
 	m_pickupSpawnLocations.emplace_back(spawn_two);
 
 	PickupSpawnLocation spawn_three;
@@ -1259,7 +1267,7 @@ void LocalServer::createPickupSpawnLocations()
 
 void LocalServer::createPlayerSpawnLocations()
 {
-	m_playerSpawnLocations.emplace_back(0.0f, 3.0f, 17.0f);
+	m_playerSpawnLocations.emplace_back(1.0f, 36.0f, -2.73f);
 	m_playerSpawnLocations.emplace_back(59.0f, 3.0f, 6.0f);
 	m_playerSpawnLocations.emplace_back(36.0f, 7.5f, -51.43f);
 
@@ -1345,14 +1353,14 @@ void LocalServer::unreadyEveryPlayer()
 PickupType LocalServer::getRandomPickupType()
 {
 
-	size_t luckyNumber = Randomizer::single(size_t(0), size_t(1));
+	/*size_t luckyNumber = Randomizer::single(size_t(0), size_t(1));
 
 	if (luckyNumber == 0) {
 		return PickupType::HealthPotion;
 	}
 	else if (luckyNumber == 1) {
 		return PickupType::DamageBuff;
-	}
+	}*/
 
 	return PickupType::HealthPotion;
 }

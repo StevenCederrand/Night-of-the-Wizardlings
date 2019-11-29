@@ -289,7 +289,6 @@ void Player::attack()
 			shieldObject->setTransform(m_fpsTrans);
 			Renderer::getInstance()->submit(shieldObject, SHIELD);
 			if (!m_deflecting) {
-				logTrace("HEJSAN hp: " + std::to_string(m_client->getMyData().health));
 				animState.deflecting = true; //Play the animation once
 				m_mana -= 10; //This is the initial manacost for the deflect
 
@@ -325,7 +324,7 @@ void Player::attack()
 		else
 		{
 			shPtr->stopSound(DeflectSound, m_client->getMyData().guid);
-			m_deflectSoundGain = 1.0f;
+			m_deflectSoundGain = 0.4f;
 			shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
 			m_deflecting = false;
 		}		
@@ -435,6 +434,17 @@ void Player::updateMesh()
 
 	m_firstPersonMesh->setTransform(m_fpsTrans);
 
+}
+
+void Player::onDead()
+{
+	animState.deflecting = false;
+	m_deflecting = false;
+}
+
+void Player::onRespawn()
+{
+	m_mana = 100.0f;
 }
 
 void Player::setHealth(int health)

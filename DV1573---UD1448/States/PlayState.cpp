@@ -63,45 +63,57 @@ PlayState::PlayState(bool spectator)
 	renderer->submitSpellhandler(m_spellHandler);
 
 	m_objects.push_back(new MapObject("Academy_Map"));
-	m_objects[m_objects.size() - 1]->loadMesh("Academy.mesh");
+	m_objects[m_objects.size() - 1]->loadMesh("Towermap/Academy_t.mesh");
 	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
 
 	//			TOO LAGGY ATM
 	//LIGHTS
-	// Church tunnel
-	//Pointlight* pointLight = new Pointlight(glm::vec3(30.0f, 14.0f, 14.0f), glm::vec3(0.4, 0.7, 1.0));
-	//pointLight->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 47.0f));
-	//m_pointlights.emplace_back(pointLight);
+	
+	// Church
+	Pointlight* pointLight1 = new Pointlight(glm::vec3(49.0f, 15.0f, 2.0f), glm::vec3(0.3, 0.85, 1.0));
+	pointLight1->setAttenuationAndRadius(glm::vec4(1.0f, 0.07f, 0.017f, 65.0f));
+	m_pointlights.emplace_back(pointLight1);
+	
+	// Middle
+	Pointlight* pointLight2 = new Pointlight(glm::vec3(0.0f, 24.0f, 0.0f), glm::vec3(0.9, 0.17, 0.123));
+	pointLight2->setAttenuationAndRadius(glm::vec4(1.0f, 0.14f, 0.07f, 47.0f));
+	m_pointlights.emplace_back(pointLight2);
+	
+	// Court area
+	Pointlight* pointLight3 = new Pointlight(glm::vec3(-41.0f, 21.0f, 10.0f), glm::vec3(0.9, 0.2, 0.5));
+	pointLight3->setAttenuationAndRadius(glm::vec4(1.0f, 0.045f, 0.0075f, 100.0f));
+	m_pointlights.emplace_back(pointLight3);
+
+	// Back wall platforms M
+	Pointlight* pointLight = new Pointlight(glm::vec3(-2.0f, 19.0f, -31.0f), glm::vec3(0.98, 0.675, 0.084));
+	pointLight->setAttenuationAndRadius(glm::vec4(1.0f, 0.14f, 0.11f, 47.0f));
+	m_pointlights.emplace_back(pointLight);
+	
+	// Back wall platforms R
+	Pointlight* pointLight4 = new Pointlight(glm::vec3(-31.0f, 17.0f, -37.0f), glm::vec3(0.98, 0.675, 0.084));
+	pointLight4->setAttenuationAndRadius(glm::vec4(1.0f, 0.14, 0.11f, 47.0f));
+	m_pointlights.emplace_back(pointLight4);
+	
+	// Back wall platforms L
+	Pointlight* pointLight5 = new Pointlight(glm::vec3(29.0f, 19.0f, -37.0f), glm::vec3(0.98, 0.675, 0.084));
+	pointLight5->setAttenuationAndRadius(glm::vec4(1.0f, 0.14f, 0.11f, 47.0f));
+	m_pointlights.emplace_back(pointLight5);
+	
+	// Maze
+	Pointlight* pointLight6 = new Pointlight(glm::vec3(-100.0f, 13.0f, -4.0f), glm::vec3(0.9, 0.9, 1.0));
+	pointLight6->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 64.0f));
+	m_pointlights.emplace_back(pointLight6);
+
+	// TUNNEL LIGHTS
+	//// Tunnel R
+	//Pointlight* pointLight7 = new Pointlight(glm::vec3(19.0f, 6.0f, 54.0f), glm::vec3(0.97, 0.377, 0.0));
+	//pointLight7->setAttenuationAndRadius(glm::vec4(1.0f, 0.12f, 0.012f, 100.0f));
+	//m_pointlights.emplace_back(pointLight7);
 	//
-	//// Church
-	//Pointlight* pointLight1 = new Pointlight(glm::vec3(62.0f, 14.0f, 0.0f), glm::vec3(0.4, 0.7, 1.0));
-	//pointLight1->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 47.0f));
-	//m_pointlights.emplace_back(pointLight1);
-	//
-	//// Middle
-	//Pointlight* pointLight2 = new Pointlight(glm::vec3(0.0f, 26.0f, 0.0f), glm::vec3(1.0, 0.5, 0.5));
-	//pointLight2->setAttenuationAndRadius(glm::vec4(1.0f, 0.22f, 0.20f, 31.0f));
-	//m_pointlights.emplace_back(pointLight2);
-	//
-	//// Large area
-	//Pointlight* pointLight3 = new Pointlight(glm::vec3(-40.0f, 21.0f, 10.0f), glm::vec3(0.9, 0.4, 1.0));
-	//pointLight3->setAttenuationAndRadius(glm::vec4(1.0f, 0.05f, 0.009f, 47.0f));
-	//m_pointlights.emplace_back(pointLight3);
-	//
-	//// Forward wall platforms R
-	//Pointlight* pointLight4 = new Pointlight(glm::vec3(-27.0f, 19.0f, -37.0f), glm::vec3(0.4, 0.7, 1.0));
-	//pointLight4->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 47.0f));
-	//m_pointlights.emplace_back(pointLight4);
-	//
-	//// Forward wall platforms L
-	//Pointlight* pointLight5 = new Pointlight(glm::vec3(31.0f, 19.0f, -37.0f), glm::vec3(0.4, 0.7, 1.0));
-	//pointLight5->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 47.0f));
-	//m_pointlights.emplace_back(pointLight5);
-	//
-	//// Maze
-	//Pointlight* pointLight6 = new Pointlight(glm::vec3(-100.0f, 12.0f, -3.0f), glm::vec3(0.3, 0.4, 1.0));
-	//pointLight6->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 64.0f));
-	//m_pointlights.emplace_back(pointLight6);
+	//// Tunnel L
+	//Pointlight* pointLight8 = new Pointlight(glm::vec3(-22.0f, 6.0f, 54.0f), glm::vec3(0.97, 0.377, 0.0));
+	//pointLight8->setAttenuationAndRadius(glm::vec4(1.0f, 0.12f, 0.012f, 100.0f));
+	//m_pointlights.emplace_back(pointLight8);
 
 
 
@@ -133,12 +145,12 @@ PlayState::PlayState(bool spectator)
 	// Non dynamic mesh (no rigidbody)
 	// Very big mesh hope not overload gpu XD
 	m_objects.push_back(new MapObject("Academy_Outer"));
-	m_objects[m_objects.size() - 1]->loadMesh("AcademyOuter.mesh");
+	m_objects[m_objects.size() - 1]->loadMesh("ExteriorTest.mesh");
 	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
 
 	startY = SCREEN_HEIGHT / 2;
 
-	// Destuction
+	// Destuction 
 	loadDestructables();
 
 	if(Client::getInstance()->isInitialized())
@@ -167,8 +179,8 @@ void PlayState::loadDestructables()
 
 	// Temporary variables to move later ---
 
-	m_dstr.setBreakSettings(DSTR1, 16, 1.8f, gravityOnImpact);
-	m_dstr_alt1.setBreakSettings(DSTR1, 16, 4.0f, gravityOnImpact);
+	m_dstr.setBreakSettings(DSTR2, 11, 2.8f, gravityOnImpact);
+	m_dstr_alt1.setBreakSettings(DSTR1, 8, 3.4f, gravityOnImpact);
 
 	Renderer* renderer = Renderer::getInstance();
 	for (int i = (int)m_objects.size() - 1; i >= 0; i--)
@@ -184,7 +196,7 @@ void PlayState::loadDestructables()
 
 	BGLoader meshLoader; // The file loader
 	// Wall desctructibles
-	meshLoader.LoadMesh(MESHPATH + "DSTRWalls.mesh");
+	meshLoader.LoadMesh(MESHPATH + "Towermap/DSTRWalls.mesh");
 	for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
 	{
 		m_objects.emplace_back(new DestructibleObject(
@@ -233,7 +245,7 @@ void PlayState::loadDestructables()
 	meshLoader.Unload();
 
 	// Pillar destructibles
-	meshLoader.LoadMesh(MESHPATH + "DSTRPillars.mesh");
+	meshLoader.LoadMesh(MESHPATH + "Towermap/DSTRPillars.mesh");
 	for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
 	{
 		m_objects.emplace_back(new DestructibleObject(
@@ -326,31 +338,6 @@ void PlayState::update(float dt)
 	}
 
 	removeDeadObjects();
-	if (Input::isKeyHeldDown(GLFW_KEY_UP)) {
-		logTrace("UP");
-		glm::vec2 position = m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->getPosition();
-		position.y += 0.01f;
-		logVec3(glm::vec3(position, 0));
-		m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->setPosition(glm::vec2(position.x, position.y));
-	}
-	else if (Input::isKeyHeldDown(GLFW_KEY_DOWN)) {
-		glm::vec2 position = m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->getPosition();
-		position.y -= 0.01f;
-		logVec3(glm::vec3(position, 0));
-		m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->setPosition(glm::vec2(position.x, position.y));
-	}
-	else if (Input::isKeyHeldDown(GLFW_KEY_LEFT)) {
-		glm::vec2 position = m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->getPosition();
-		position.x -= 0.005f;
-		logVec3(glm::vec3(position, 0));
-		m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->setPosition(glm::vec2(position.x, position.y));
-	}
-	else if (Input::isKeyHeldDown(GLFW_KEY_RIGHT)) {
-		glm::vec2 position = m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->getPosition();
-		position.x += 0.005f;
-		logVec3(glm::vec3(position, 0));
-		m_hudHandler.getHudObject(HUDID::SPELL_ARCANE)->setPosition(glm::vec2(position.x, position.y));
-	}
 }
 
 void PlayState::removeDeadObjects()
@@ -375,8 +362,7 @@ void PlayState::removeDeadObjects()
 
 void PlayState::onSpellHit_callback()
 {
-	m_hudHandler.getHudObject(HUDID::CROSSHAIR_HIT)->setAlpha(1.0f);
-	SoundHandler::getInstance()->playSound(HitmarkSound);
+	
 }
 
 void PlayState::update_isPlaying(const float& dt)
@@ -401,13 +387,13 @@ void PlayState::update_isPlaying(const float& dt)
 			{
 				logWarning("[Event system] Died");
 				//Update the HP bar
-				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
-				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100.0f);
+				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100.0f);
 				const PlayerPacket* shooter = clientPtr->getLatestPlayerThatHitMe();
 				if (shooter != nullptr) {
 					m_lastPositionOfMyKiller = shooter->position;
 				}
-
+				m_player->onDead();
 				m_camera->disableCameraMovement(true);
 				break;
 			}
@@ -418,10 +404,11 @@ void PlayState::update_isPlaying(const float& dt)
 				//Update the HP bar
 				m_player->setPlayerPos(Client::getInstance()->getMyData().latestSpawnPosition);
 				m_player->setHealth(NetGlobals::PlayerMaxHealth);
-				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
-				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100.0f);
+				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(1.0f);
 				m_camera->resetCamera();
 				m_camera->disableCameraMovement(false);
+				m_player->onRespawn();
 				break;
 			}
 
@@ -453,6 +440,7 @@ void PlayState::update_isPlaying(const float& dt)
 					HudObject* DmgIndicator = m_hudHandler.getHudObject(HUDID::DAMAGE_INDICATOR);
 					HudObject* DmgOverlay = m_hudHandler.getHudObject(HUDID::DAMAGE_OVERLAY);
 					HudObject* HpBar = m_hudHandler.getHudObject(HUDID::BAR_HP);
+					m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100.0f);
 
 					DmgIndicator->setRotation(glm::quat(glm::vec3(0, 0, glm::radians(indicatorAngle))));
 					DmgIndicator->setAlpha(1.0f);
@@ -464,14 +452,19 @@ void PlayState::update_isPlaying(const float& dt)
 
 				break;
 			}
-
+			case PlayerEvents::Hitmark:
+			{
+				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HIT)->setAlpha(1.0f);
+				shPtr->playSound(HitmarkSound);
+				break;
+			}
 			case PlayerEvents::TookPowerup:
 			{
 				shPtr->playSound(PickupSound);
 				logWarning("[Event system] Took a powerup");
 				m_hudHandler.getHudObject(HUDID::POWERUP)->setAlpha(1.0f);
-				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
-				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100.0f);
+				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100.0f);
 				break;
 			}
 
@@ -479,8 +472,12 @@ void PlayState::update_isPlaying(const float& dt)
 			{
 				shPtr->playSound(PickupSound);
 				logWarning("[Event system] Took a heal");
-				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
-				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100);
+				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100.0f);
+				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100.0f);
+
+				HudObject* DmgOverlay = m_hudHandler.getHudObject(HUDID::HEAL_OVERLAY);
+				DmgOverlay->setAlpha(1.0f);
+
 				break;
 			}
 			case PlayerEvents::PowerupRemoved:
@@ -537,14 +534,19 @@ void PlayState::update_isPlaying(const float& dt)
 			}
 
 			case PlayerEvents::GameStarted:
-			{
+			{	
+				m_hudHandler.getHudObject(HUDID::BAR_MANA)->setYClip(1.0f);
+				m_hudHandler.getHudObject(HUDID::BAR_HP)->setYClip(1.0f);
+				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(1.0f);
 				loadDestructables();
 				break;
 			}
 
 			case PlayerEvents::GameEnded:
 			{
-
+				m_hudHandler.getHudObject(HUDID::BAR_MANA)->setYClip(1.0f);
+				m_hudHandler.getHudObject(HUDID::BAR_HP)->setYClip(1.0f);
+				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(1.0f);
 				break;
 			}
 
@@ -642,6 +644,7 @@ void PlayState::update_isSpectating(const float& dt)
 
 	}
 
+	
 
 	m_camera->update();
 	m_spellHandler->spellUpdate(dt);
@@ -826,6 +829,11 @@ void PlayState::HUDHandler() {
 		m_hudHandler.getHudObject(DAMAGE_OVERLAY)->setAlpha(m_hudHandler.getHudObject(DAMAGE_OVERLAY)->getAlpha() - DeltaTime);
 	}
 
+	if (m_hudHandler.getHudObject(HEAL_OVERLAY)->getAlpha() != 0)
+	{
+		m_hudHandler.getHudObject(HEAL_OVERLAY)->setAlpha(m_hudHandler.getHudObject(HEAL_OVERLAY)->getAlpha() - DeltaTime);
+	}
+
 	if (m_hudHandler.getHudObject(CROSSHAIR_DEFLECT_INDICATOR)->getAlpha() != 0)
 	{
 		m_hudHandler.getHudObject(CROSSHAIR_DEFLECT_INDICATOR)->setAlpha(m_hudHandler.getHudObject(CROSSHAIR_DEFLECT_INDICATOR)->getAlpha() - DeltaTime);
@@ -853,6 +861,9 @@ void PlayState::GUIHandler()
 {
 	//Open the menu
 	if (Input::isKeyPressed(GLFW_KEY_ESCAPE)) {
+	
+		SoundHandler::getInstance()->stopSound(DeflectSound, Client::getInstance()->getMyData().guid);
+		
 		m_GUIOpen = !m_GUIOpen;
 		if (m_GUIOpen) {
 			glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
