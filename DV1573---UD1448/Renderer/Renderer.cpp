@@ -287,6 +287,29 @@ void Renderer::renderKillFeed()
 			i--;
 		}
 	}
+
+	for (size_t i = 0; i < m_killNotification.size(); i++) {
+
+		NotificationText& notification = m_killNotification[i];
+
+		float xPos = (float)((SCREEN_WIDTH / 2) - (notification.width / 2.0f));
+		float yPos = (float)((SCREEN_HEIGHT / 2) - ((90.0f * notification.scale.x) * (i + 1)));
+
+		m_text->RenderText(notification, glm::vec3(xPos, yPos, 0.0f), glm::vec2(notification.scale), notification.useAlpha);
+
+		float lifeTime = notification.lifeTimeInSeconds;
+		if (lifeTime == 0.0f)
+			lifeTime = 1.0f;
+
+
+		notification.alphaColor -= DeltaTime * (1.0f / lifeTime);
+
+		if (notification.alphaColor <= 0.0f) {
+			m_killNotification.erase(m_killNotification.begin() + i);
+			i--;
+		}
+	}
+
 }
 
 void Renderer::createDepthMap() {
@@ -1344,6 +1367,11 @@ void Renderer::addBigNotification(NotificationText notification)
 void Renderer::addKillFeed(NotificationText notification)
 {
 	m_killFeed.push_back(notification);
+}
+
+void Renderer::addKillNotification(NotificationText notification)
+{
+	m_killNotification.push_back(notification);
 }
 
 unsigned int Renderer::getTextWidth(const std::string& text, const glm::vec3& scale)
