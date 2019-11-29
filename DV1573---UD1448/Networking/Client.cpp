@@ -738,6 +738,20 @@ void Client::processAndHandlePackets()
 		}
 		break;
 
+		case ENEMY_DEFLECTED_SPELL:
+		{
+			if (m_spellHandler == nullptr) continue;
+
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			SpellPacket spellPacket;
+			spellPacket.Serialize(false, bsIn);
+			bsIn.SetReadOffset(0);
+
+			int slot = shPtr->playSound(SuccessfulDeflectSound, spellPacket.CreatorGUID);
+			shPtr->setSourcePosition(spellPacket.Position, SuccessfulDeflectSound, spellPacket.CreatorGUID, slot);
+		}
+		break;
+
 		case PICKUP_CREATED:
 		{
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));

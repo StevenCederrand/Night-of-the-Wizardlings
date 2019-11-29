@@ -720,6 +720,11 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 				spell->Serialize(true, spellCreationStream);
 				m_serverPeer->Send(&spellCreationStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, target->guid, false);
 
+				RakNet::BitStream enemyDeflectStream;
+				enemyDeflectStream.Write((RakNet::MessageID)ENEMY_DEFLECTED_SPELL);
+				spell->Serialize(true, enemyDeflectStream);
+				m_serverPeer->Send(&enemyDeflectStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, shooter->guid, false);
+
 				return;
 			}
 		}
