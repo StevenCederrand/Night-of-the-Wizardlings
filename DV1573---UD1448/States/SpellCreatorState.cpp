@@ -7,11 +7,11 @@
 
 
 
-#include <imgui.h>
-#include <imgui_impl_glfw_gl3.h>
-#include <stdio.h>
-#include <GL/glew.h> 
-#include <GLFW/glfw3.h>
+//#include <imgui.h>
+//#include <imgui_impl_glfw_gl3.h>
+//#include <stdio.h>
+//#include <GL/glew.h> 
+//#include <GLFW/glfw3.h>
 
 //#define PLAYSECTION "PLAYSTATE"
 
@@ -31,8 +31,7 @@ SpellCreatorState::SpellCreatorState()
 
     ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
 
-    m_camera = new Camera();
-
+   m_camera = new Camera();
     m_player = new Player(m_bPhysics, "Player", NetGlobals::PlayerFirstSpawnPoint, m_camera, m_spellHandler);
 
     Renderer::getInstance()->setupCamera(m_player->getCamera());
@@ -40,36 +39,20 @@ SpellCreatorState::SpellCreatorState()
     //TODO: organized loading system?
     m_skybox = new SkyBox();
     m_skybox->prepareBuffers();
-
-
     m_player->setHealth(NetGlobals::PlayerMaxHealth);
-
-
     m_objects.push_back(new MapObject("internalTestmap"));
     m_objects[m_objects.size() - 1]->loadMesh("map1.mesh");
     m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, 0.0f));
     Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
 
-    /*m_objects.push_back(new WorldObject("sphere"));
-    m_objects[m_objects.size() - 1]->loadMesh("TestSphere.mesh");
-    m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 2.0f, -20.0f));
-    Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);*/
-
-    m_objects.push_back(new WorldObject("Character"));
-    m_objects[m_objects.size() - 1]->loadMesh("CharacterTest.mesh");
-    m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 1.8f, -24.0f));
-
-    Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);
-
-
-    m_objects.push_back(new Deflect("playerShield"));
-    m_objects[m_objects.size() - 1]->loadMesh("ShieldMesh.mesh");
-    m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(10.0f, 13.0f, 6.0f));
-    Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], SHIELD);
+    //-----Set up IMGUI-----//
+    ImGui::CreateContext();
+    ImGui_ImplGlfwGL3_Init(glfwGetCurrentContext(), true);
+    ImGui::StyleColorsDark();
 
 
 
-    MaterialMap::getInstance();
+    //MaterialMap::getInstance();
     //gContactAddedCallback = callbackFunc;
     // Geneterate bullet objects / hitboxes
     for (size_t i = 0; i < m_objects.size(); i++)
@@ -81,8 +64,9 @@ SpellCreatorState::SpellCreatorState()
     if (Client::getInstance()->isInitialized())
         Client::getInstance()->assignSpellHandler(m_spellHandler);
 
-  //  m_hudHandler.loadPlayStateHUD();
-   // m_hideHUD = false;
+   /* m_hudHandler.loadPlayStateHUD();
+    m_hideHUD = false;*/
+
  
 }
 
@@ -92,16 +76,23 @@ SpellCreatorState::~SpellCreatorState()
 
 void SpellCreatorState::update(float dt)
 {
+
+    ImGui_ImplGlfwGL3_NewFrame();
+    ImGui::ShowDemoWindow();
+
     m_bPhysics->update(dt);
     m_player->update(dt);
     m_spellHandler->spellUpdate(dt);
     Renderer::getInstance()->updateParticles(dt);
-
-    //m_hpBar->setYClip(m_player->getHealth() / 100);
     auto* clientPtr = Client::getInstance();
 }
 
 void SpellCreatorState::render()
 {
     Renderer::getInstance()->render(m_skybox, m_deflectBox, m_spellHandler);
+
+    ImGui::Render();
+
+    ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
+  //  glfwSwapBuffers(glfwGetCurrentContext());
 }

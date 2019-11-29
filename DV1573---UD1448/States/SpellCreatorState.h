@@ -14,6 +14,12 @@
 #include <HUD/HudObject.h>
 #include <HUD/HudHandler.h>
 
+#include <imgui.h>
+#include <imgui_impl_glfw_gl3.h>
+#include <stdio.h>
+#include <GL/glew.h> 
+#include <GLFW/glfw3.h>
+
 
 //bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
 //	const btCollisionObjectWrapper* obj2, int id2, int index2);
