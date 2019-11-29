@@ -170,7 +170,6 @@ PlayState::PlayState(bool spectator)
 
 	
 	mu.printBoth("End of play state init:");
-
 }
 
 // Might change these Pepega constructors later if feeling cute
@@ -338,7 +337,6 @@ PlayState::~PlayState()
 	MeshMap::getInstance()->cleanUp();
 	
 	mu.printBoth("Afer deleting playstate:");
-
 }
 
 

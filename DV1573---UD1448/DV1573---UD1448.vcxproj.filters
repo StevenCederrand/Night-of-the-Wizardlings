@@ -66,6 +66,7 @@
     <ClCompile Include="GFX\Pointlight.cpp" />
     <ClCompile Include="GameObject\EnemyShieldObject.cpp" />
     <ClCompile Include="System\MemoryUsage.cpp" />
+    <ClCompile Include="HUD\WorldHudObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
@@ -158,6 +159,7 @@
     <ClInclude Include="GFX\Pointlight.h" />
     <ClInclude Include="GameObject\EnemyShieldObject.h" />
     <ClInclude Include="System\MemoryUsage.h" />
+    <ClInclude Include="HUD\WorldHudObject.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />
