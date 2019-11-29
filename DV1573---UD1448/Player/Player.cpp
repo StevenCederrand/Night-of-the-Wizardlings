@@ -347,7 +347,7 @@ void Player::attack()
 		{
 			//If we are using the triple spell
 			if (m_usingTripleSpell) {
-				if (m_specialCooldown <= 0)
+				if (m_specialCooldown <= 0 && m_mana > 30)
 				{
 					//Sound for enhance spell is handled in spellhandler
 					//m_specialCooldown = m_spellhandler->getEnhAttackBase()->m_coolDown;
@@ -357,16 +357,20 @@ void Player::attack()
 					animState.casTripple = true;
 					m_usingTripleSpell = false;
 					m_specialCooldown = 3.5f;
+					m_mana -= 30.f;
+
 				}
 			}
 			else { //If our active spell is flamestrike
-				if (m_specialCooldown <= 0)
+				if (m_specialCooldown <= 0 && m_mana > 30)
 				{
 					m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, FLAMESTRIKE); // Put attack on cooldown
 
 					animState.castPotion = true;
 					m_usingTripleSpell = true;
 					m_specialCooldown = 3.5f;
+					m_mana -= 30.f;
+
 				}
 			}
 		}
