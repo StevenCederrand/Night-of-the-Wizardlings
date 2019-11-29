@@ -52,7 +52,6 @@ void HudObject::setGrayscale(const float& grayscale)
 void HudObject::setPosition(const glm::vec2& position)
 {
 	m_position = position;
-	//setCenter();
 	updateModelMatrix();
 }
 
@@ -102,6 +101,7 @@ const float& HudObject::getXClip() const
 	return m_xClip;
 }
 
+
 const float& HudObject::getYClip() const
 {
 	return m_yClip;
@@ -118,6 +118,11 @@ const float& HudObject::getGrayscale() const
 
 const glm::quat& HudObject::getRotation() const {
 	return m_rotation;
+}
+
+const glm::vec2& HudObject::getPosition() const
+{
+	return m_position;
 }
 
 void HudObject::setupBuffers()

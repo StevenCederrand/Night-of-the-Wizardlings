@@ -9,7 +9,7 @@ layout(std430, binding = 0) readonly buffer LightIndexBuffer {
 struct P_LIGHT {
     vec3 position;
     vec3 color; //Light that is sent out from the light
-    float radius;
+    vec4 attenAndRadius;
 };
 
 in vec2 f_UV;
@@ -19,103 +19,153 @@ in vec4 f_position;
 out vec4 color;
 out vec4 brightColor;
 
-vec3 GLOBAL_lightDirection = vec3(0.2f, -0.7f, 0.0f);
-vec3 GLOBAL_lightColor = normalize(vec3(109, 196, 199));
-float ambientStr = 0.3f;
+vec3 GLOBAL_lightDirection = vec3(0.3f, -0.5f, -0.5f);       // 1 Directional light
+vec3 GLOBAL_lightColor = normalize(vec3(1, 1, 1));          // Directional light color (white)
+
+vec3 GLOBAL_lightDirection2 = vec3(0.8f, -0.5f, 0.4f);       // 1 Directional light
+
+float dirlightStr = 0.1f;     // Modifier for brightness (dirlight)
+float ambientStr = 0.1f;      // Global light strength (ambient)
+float brightnessMod = 1.0f;    // Modifier for brightness (textures)
+
+// Modifier for brightness (point light), hardcoded temp needs fix
+float pointLightModP = 68.0f;    //SPELLS
+float pointLightMod1 = 8.8f;      //MAPLIGHT
+float pointLightMod2 = 4.2f;      //MAPLIGHT2
+float pointLightMod3 = 2.5f;      //MAPLIGHT
 
 uniform vec3 CameraPosition;
 
-uniform vec3 Ambient_Color;
-uniform vec3 Diffuse_Color;
-uniform vec3 Specular_Color;
-uniform vec2 TexAndRim = vec2(0, 0);
+uniform vec3 Ambient_Color;             // Change to emmisive
+uniform vec3 Diffuse_Color;             // Material diffuse
+uniform vec3 Specular_Color;            // Material specular
+uniform vec2 TexAndRim;                 // Booleans --- Textures & Rimlighting
 
 uniform int LightCount;
-uniform sampler2D albedoTexture;
+uniform sampler2D albedoTexture;        // Texture diffuse
 
 uniform int grayscale = 0;
 uniform P_LIGHT pLights[LIGHTS_MAX];
 
-vec3 calcPointLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance);
+vec3 calcPointLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance, vec3 diffuse);
 //Calculate the directional light... Returns the diffuse color, post calculations
-vec3 calcDirLight(vec3 normal, vec3 diffuseColor);
+vec3 calcDirLight(vec3 normal, vec3 diffuseColor, vec3 lightDirection);
 // To simulate death
 vec3 grayscaleColour(vec3 col);
 
 void main() {
+    vec3 emissive = Ambient_Color; // Temp used as emmisve, should rename all ambient names to emmisive.
+    //Makes the material full solid color (basically fully lit). Needs bloom for best effect.
+    vec4 finalTexture = texture(albedoTexture, f_UV);
+    // Ambient light
+    vec3 ambientLight = Diffuse_Color * ambientStr;     // Material color
+    if (TexAndRim.x == 1)
+        ambientLight = finalTexture.rgb * ambientStr * brightnessMod; // Texture color    (If there is texture we disregard material color)
 
-    vec3 ambientCol = (Ambient_Color + ambientStr);
-    if (TexAndRim.x == 1) {
-        ambientCol = (Ambient_Color + ambientStr) * texture(albedoTexture, f_UV).rgb;
-    }
-    //vec3 position = vec3(0);
-    vec3 result = ambientCol;
-    //Create the diffuse color once
-    vec3 diffuse = Diffuse_Color;
+    // Create the diffuse color once
+    vec3 diffuseColor = Diffuse_Color;  // Material color
+    if(TexAndRim.x == 1)
+        diffuseColor = finalTexture.rgb * 0.5;   // Texture color
 
-    if(TexAndRim.x == 1) {
-        diffuse = (Diffuse_Color * texture(albedoTexture, f_UV).rgb);
-    }
 
-    result += calcDirLight(f_normal, diffuse);
+    // Directional light
+    vec3 directionalLight = calcDirLight(f_normal, diffuseColor, GLOBAL_lightDirection);
+    directionalLight += calcDirLight(f_normal, diffuseColor, GLOBAL_lightDirection2);
 
     //This is a light accumilation over the point lights
-    for(int i = 0; i < LightCount && lightIndexBuffer.index[i] != -1; i++) {
-        uint lightIndex = lightIndexBuffer.index[i];
+    vec3 pointLights = vec3(0.0f);
+    for(int i = 0; i < LightCount; i++) {
+        //uint lightIndex = lightIndexBuffer.index[i];
         //position += pLights[lightIndex].position;
-        float distance = length(f_position.xyz - pLights[lightIndex].position);
+        float distance = length(f_position.xyz - pLights[i].position);
         //if we are within the light position
-        if(distance > pLights[lightIndex].radius) {
+        if(distance > pLights[i].attenAndRadius.w) {
             continue;
         }
         else {
-            result += calcPointLights(pLights[lightIndex], f_normal, f_position.xyz, distance);
+
+            // Hardcode strength because lights have no input and lazy Xd
+            float str = pointLightModP;
+
+             if(pLights[i].attenAndRadius.w >= 31.0f)
+            {
+                str = pointLightMod1;
+            }
+            if(pLights[i].attenAndRadius.w >= 64.0f)
+            {
+                str = pointLightMod2;
+            }
+            if(pLights[i].attenAndRadius.w >= 99.0f)
+            {
+                str = pointLightMod3;
+            }
+            // Hardcode strength because lights have no input and lazy Xd
+
+
+            pointLights += calcPointLights(pLights[i], f_normal, f_position.xyz, distance, diffuseColor) * str;
         }
     }
 
+
+    // Resulting light
+    vec3 result = ambientLight + directionalLight + pointLights + emissive; // We see light, so add only and all the lights together to get color
     if(grayscale == 1){
     	result = grayscaleColour(result);
     }
+   
     color = vec4(result, 1);
-/* BLOOM STUFF
-    float brightness = dot(result, vec3(0.2126, 0.7152, 0.0722));
-
-    if(brightness > 1.0)
-        brightColor = vec4(ambientCol + result, 1.0);
-    else
-        brightColor = vec4(0.0, 0.0, 0.0, 1.0);*/
 }
-vec3 calcPointLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance) {
+
+vec3 calcPointLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance, vec3 diffuse) {
     vec3 lightDir = normalize(pLight.position - position); //From the surface to the light
     float diff = max(dot(normal, lightDir), 0);
-    vec3 ambient = vec3(0.1f) * pLight.color * ambientStr;
-    vec3 diffuse = Diffuse_Color * diff;
+    vec3 diffuseLight = diffuse * diff * normalize(pLight.color) * 5.0f;
 
-    if(TexAndRim.x == 1) {
-        diffuse = (Diffuse_Color * texture(albedoTexture, f_UV).rgb) * diff * normalize(pLight.color);
-    }
+    vec3 newDiffuse = diffuseLight;
+    float f = 0.15; // desaturate by %
+    float L = 0.3 * newDiffuse.r + 0.6 * newDiffuse.g + 0.1 * newDiffuse.b;
+    float new_r = newDiffuse.r + f * (L - newDiffuse.r);
+    float new_g = newDiffuse.g + f * (L - newDiffuse.g);
+    float new_b = newDiffuse.b + f * (L - newDiffuse.b);
+    newDiffuse = vec3(new_r, new_g, new_b);
+    diffuseLight = newDiffuse;
 
-    return ( diffuse);// * attenuation;
+    float attenuation = 1.0 / (pLight.attenAndRadius.x + pLight.attenAndRadius.y * distance +
+  			     pLight.attenAndRadius.z * (distance * distance));
+
+    return (diffuseLight) * attenuation;
 }
-vec3 calcDirLight(vec3 normal, vec3 diffuseColor) {
+
+vec3 calcDirLight(vec3 normal, vec3 diffuseColor, vec3 lightDirection) {
     /* --- DIFFUSE SHADING --- */
-    float lightStr = 0.5f;
-    vec3 lightDir = normalize(-GLOBAL_lightDirection);
+    float lightStr = dirlightStr;
+    vec3 lightDir = normalize(-lightDirection);
     float nDotL = dot(normal, lightDir);
 
     float diff = smoothstep(0.0, 0.01, (max(dot(normal, lightDir), 0.0)));
-    diffuseColor = (Diffuse_Color * texture(albedoTexture, f_UV).rgb) * diff * lightStr * GLOBAL_lightColor;
+
+    vec3 newDiffuse = diffuseColor;
+
+    float f = 0.0; // desaturate by %
+    float L = 0.3 * newDiffuse.r + 0.6 * newDiffuse.g + 0.1 * newDiffuse.b;
+    float new_r = newDiffuse.r + f * (L - newDiffuse.r);
+    float new_g = newDiffuse.g + f * (L - newDiffuse.g);
+    float new_b = newDiffuse.b + f * (L - newDiffuse.b);
+    newDiffuse = vec3(new_r, new_g, new_b);
+
+    diffuseColor = newDiffuse * (max(dot(normal, lightDir), 0.0)) * lightStr * GLOBAL_lightColor;
+
     /* --- SPECULAR SHADING --- */
-    float specularStr = 0.5f;
-
-    vec3 viewDir = normalize(CameraPosition - f_position.xyz); //normalize(CameraPosition - f_position.xyz);
-    vec3 reflectDir = reflect(-lightDir, f_normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64);
-    //Lock specular
-    spec = smoothstep(0.005, 0.01, spec);
-    vec3 specular = specularStr * spec * GLOBAL_lightColor;
-
     if(TexAndRim.y == 1) {
+        float specularStr = 0.5f;
+
+        vec3 viewDir = normalize(CameraPosition - f_position.xyz); //normalize(CameraPosition - f_position.xyz);
+        vec3 reflectDir = reflect(-lightDir, f_normal);
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64);
+        //Lock specular
+        spec = smoothstep(0.005, 0.01, spec);
+        vec3 specular = specularStr * spec * GLOBAL_lightColor;
+
         vec3 rimColor = vec3(1.0);
         float rimThreshold = 0.1;
         float rimDot = 1 - dot(viewDir, f_normal); //Rim value
@@ -126,7 +176,7 @@ vec3 calcDirLight(vec3 normal, vec3 diffuseColor) {
         return diffuseColor + specular + rimColor;
     }
     else {
-        return diffuseColor + specular;
+        return diffuseColor;
     }
 }
 

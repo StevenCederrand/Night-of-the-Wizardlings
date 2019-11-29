@@ -5,7 +5,6 @@ uniform vec2 clip;
 uniform vec3 fillColor;
 uniform float alphaValue;
 uniform float grayscale;
-
 in vec2 texCoords;
 out vec4 pixelColor;
 
@@ -13,7 +12,6 @@ out vec4 pixelColor;
 
 void main()
 {
-
 	vec2 sampler = vec2(texCoords.x, 1 - texCoords.y);
 
 	if(sampler.x > clip.x)

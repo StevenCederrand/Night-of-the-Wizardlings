@@ -6,7 +6,9 @@
 #include <Networking/Client.h>
 #include <Networking/LocalServer.h>
 #include <Gui/Gui.h>
-
+#include <System/MemoryUsage.h>
+#define AUTOSTART false;
+#define FULLSCREEN false;
 float DeltaTime = 0.0f;
 
 Application::Application() {
@@ -30,13 +32,15 @@ Application::~Application() {
 		LocalServer::getInstance()->destroy();
 
 	Gui::getInstance()->destroy();
+	SoundHandler::getInstance()->destroy();
 
 	glfwTerminate();
+
 
 }
 
 bool Application::init() {
-
+	
 	bool statusOK = false;
 	initialFrame = false;
 	statusOK = glfwInit();
@@ -53,8 +57,11 @@ bool Application::init() {
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
-	m_window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Wizards 'n stuff", NULL, NULL);
-	//m_window = glfwCreateWindow(1280, 720, "Wizards 'n stuff", glfwGetPrimaryMonitor(), NULL); !!! FULLSCREEN!!!
+#if FULLSCREEN
+	m_window = glfwCreateWindow(1280, 720, "Night of the Wizardlings", glfwGetPrimaryMonitor(), NULL);// !!! FULLSCREEN!!!
+#else 
+	m_window = glfwCreateWindow(1280, 720, "Night of the Wizardlings", NULL, NULL);
+#endif
 
 	//glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	
@@ -82,6 +89,7 @@ bool Application::init() {
 	m_input = new Input();
 
 	initGraphics();
+	initSound();
 
 	Gui::getInstance()->init();
 	Gui::getInstance()->loadScheme(CEGUI_TYPE + ".scheme");
@@ -93,7 +101,9 @@ bool Application::init() {
 	unsigned int _time = unsigned int(time(NULL));
 	srand(_time);
 
-	logTrace("Application successfully initialized");
+	MemoryUsage mu;
+	mu.printBoth("End of application init:");
+
 	return statusOK;
 }
 
@@ -119,7 +129,7 @@ void Application::run()
 			glfwSetWindowShouldClose(m_window, true);
 		}
 
-		if (Input::isKeyPressed(GLFW_KEY_F1)) {
+		if (Input::isKeyPressed(GLFW_KEY_F4)) {
 			ShaderMap::getInstance()->reload();
 		}
 
@@ -167,7 +177,15 @@ void Application::initGraphics()
 	m_renderer->init(m_window);
 
 	ShaderMap::getInstance();
+}
 
+void Application::initSound()
+{
+	SoundHandler* m_soundHandler = SoundHandler::getInstance();
+	if (!m_soundHandler)
+	{
+		logError("SoundHandler failed to initialize");
+	}
 }
 
 void Application::centerWindowOnMonitor()
@@ -203,9 +221,9 @@ void Application::calcFPS(const float& dt)
 	if (frameTimer <= 0.0f)
 	{
 		frameTimer = 1.0f;
-		//std::string title = "fps: " + std::to_string(fps);
-		//printf("%s\n", title.c_str());
-		//glfwSetWindowTitle(m_window, title.c_str());
+		std::string title = "Wizards 'n stuff | FPS: " + std::to_string(fps);
+		//printf("%s\n",title.c_str());
+		glfwSetWindowTitle(m_window, title.c_str());
 		fps = 0;
 	}
 

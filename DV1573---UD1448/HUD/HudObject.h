@@ -3,8 +3,6 @@
 #include <Pch/Pch.h>
 
 
-
-
 class HudObject {
 
 public:
@@ -22,7 +20,6 @@ public:
 	void setYClip(const float& yClip);
 	void setFillColor(const glm::vec3& color);
 	void setGrayscale(const float& grayscale);
-
 	/* GET FUNCTIONS */
 	const glm::mat4& getModelMatrix() const;
 	const GLuint& getVAO() const;
@@ -34,7 +31,7 @@ public:
 	const glm::vec3& getFillColor() const;
 	const float& getGrayscale() const;
 	const glm::quat& getRotation() const;
-
+	const glm::vec2& getPosition() const;
 private:
 	void setupBuffers();
 	void loadTexture(const std::string& texturePath);

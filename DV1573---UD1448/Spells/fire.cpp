@@ -4,10 +4,9 @@
 fire::fire(glm::vec3 pos, glm::vec3 direction, const FireSpellBase* spellBase)
 	: Spell(pos, direction)
 {
-	m_type = SPELL_TYPE::FIRE;
+	m_type = OBJECT_TYPE::FIRE;
 	m_spellBase = spellBase;
 	setTravelTime(spellBase->m_lifeTime);
-
 	Transform tempTransform;
 	tempTransform.scale = glm::vec3(8.0f, 8.0f, 8.0f);
 	setTransform(tempTransform);
@@ -19,7 +18,7 @@ fire::fire(glm::vec3 pos, glm::vec3 direction, const FireSpellBase* spellBase)
 fire::fire(glm::vec3 pos)
 	: Spell(pos, glm::vec3(0))
 {
-	m_type = SPELL_TYPE::FIRE;
+	m_type = OBJECT_TYPE::FIRE;
 	m_spellBase = nullptr;
 
 	Transform tempTransform;
@@ -67,4 +66,9 @@ void fire::update(float dt)
 const float fire::getDamage()
 {
 	return m_spellBase->m_damage;
+}
+
+const glm::vec3& fire::getPos() const
+{
+	return glm::vec3(0);
 }

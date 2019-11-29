@@ -3,7 +3,7 @@
 
 
 StateManager::StateManager()
-{
+{	
 }
 
 
@@ -29,8 +29,7 @@ void StateManager::popState()
 void StateManager::pushState(State* newState)
 {
 	newState->assignManager(this);
-	m_states.emplace_back(newState);
-	
+	m_states.emplace_back(newState);	
 }
 
 void StateManager::clearAllAndSetState(State* newState)
@@ -38,8 +37,7 @@ void StateManager::clearAllAndSetState(State* newState)
 	if (newState != nullptr) {
 		clearStates();
 		newState->assignManager(this);
-		m_states.emplace_back(newState);
-		
+		m_states.emplace_back(newState);		
 	}
 	else {
 		logError("Trying to push a new state which is a nullptr!");
@@ -52,9 +50,8 @@ void StateManager::update(float dt)
 	clearKillList();
 
 	if (!m_states.empty()) {
-		m_states.back()->update(dt);
+		m_states.back()->update(dt);		
 	}
-
 }
 
 void StateManager::render()

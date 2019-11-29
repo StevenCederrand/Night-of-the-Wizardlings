@@ -21,11 +21,21 @@
 #include <future>
 #include <functional>
 
+#define WIN32_LEAN_AND_MEAN
+
+#include <d3d11_4.h>
+#include <dxgi1_6.h>
+
+#pragma comment(lib, "dxgi.lib")
+
+#include <psapi.h>
+
 //GL related includes
 #include <GL/glew.h>
 #include <glfw/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
+#include <glm/gtx/rotate_vector.hpp>
 #include <GLM/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/common.hpp>
@@ -65,14 +75,28 @@
 #include <Renderer/Camera.h>
 #include <Renderer/Renderer.h>
 #include <System/Input.h>
+#include <System/SoundHandler.h>
+#include <GameObject/ObjectTypes.h>
+
+// DSTR
+#include <Destruction/TriangleNode.h>
+#include <Destruction/Geometry.h>
+#include <Destruction/DelaunayGenerator.h>
+#include <Destruction/VoroniCalculator.h>
+#include <Destruction/VoroniClipper.h>
+#include <Destruction/DstrGenerator.h>
+
 
 const std::string CEGUI_TYPE = "OgreTray";
 const std::string SHADERPATH = "Assets/Shaders/";
 const std::string TEXTUREPATH = "Assets/Textures/";
 const std::string MESHPATH = "Assets/Meshes/";
+const std::string SOUNDEFFECTPATH = "Assets/SoundEffects/";
+const std::string CHARACTER = "CharacterBody";
 
 const unsigned int SCREEN_WIDTH = 1280;
 const unsigned int SCREEN_HEIGHT = 720;
 const int MAX_BONES = 64;
+
 
 #endif

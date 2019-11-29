@@ -5,11 +5,18 @@ enum PlayerEvents {
 	Died,
 	Respawned,
 	TookDamage,
-	TookPowerup,
-	PowerupRemoved,
+	TookMana,
 	TookHeal,
 	SessionOver,
-	None
+	Deflected,
+	WallGotDestroyed,
+	PlayerReady,
+	GameStarted,
+	GameEnded,
+	Warmup,
+	None,
+	Hitmark
+
 };
 
 #endif

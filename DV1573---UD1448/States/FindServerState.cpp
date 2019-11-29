@@ -8,16 +8,20 @@
 
 FindServerState::FindServerState()
 {
+	HudObject* hudObject = new HudObject("Assets/Textures/title.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(1280, 720));
+	m_hudHandler.insertHUDObject(hudObject, HUDID::TITLE);
+
 	Client::getInstance()->startup();
 	loadGui();
 	
 	m_serverListRefreshing = true;
-	Client::getInstance()->refreshServerList();
+	Client::getInstance()->refreshServerList();	
 }
 
 FindServerState::~FindServerState()
 {
 	removeAllRows();
+	
 	Gui::getInstance()->clearWidgetsInSection(GUI_SECTION);
 }
 
@@ -40,7 +44,7 @@ void FindServerState::update(float dt)
 
 void FindServerState::render()
 {
-
+	Renderer::getInstance()->renderHUD();
 }
 
 void FindServerState::loadGui()
@@ -58,14 +62,19 @@ void FindServerState::loadGui()
 	m_backToMenu->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&FindServerState::onBackToMenuClicked, this));
 
 	//Join server button
-	m_joinServer = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.35f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f), "JoinServer"));
+	m_joinServer = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.25f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f), "JoinServer"));
 	m_joinServer->setText("Join");
 	m_joinServer->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&FindServerState::onJoinServerClicked, this));
 
 	//Refresh server list button
-	m_refreshServerList = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.55f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f), "RefreshServer"));
+	m_refreshServerList = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.45f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f), "RefreshServer"));
 	m_refreshServerList->setText("Refresh");
 	m_refreshServerList->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&FindServerState::onRefreshServerListClicked, this));
+
+	//Spectate server button
+	m_spectateServer = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.65f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f), "SpectateServer"));
+	m_spectateServer->setText("Spectate");
+	m_spectateServer->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&FindServerState::onSpectateServerClicked, this));
 
 	//The button to close the username input window
 	m_backToList = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.55f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f), "Close-username-input"));
@@ -97,6 +106,10 @@ void FindServerState::loadServersIntoList()
 		m_serverList->setItem(itemMultiColumnList, 1, static_cast<CEGUI::uint>(i)); // ColumnID, RowID
 		itemMultiColumnList->setSelectionColours(CEGUI::Colour(0.8f, 0.8f, 0.0f));
 	}
+	m_serverList->setSortColumnByID(1); 
+	m_serverList->setSortDirection(CEGUI::ListHeaderSegment::SortDirection::Descending);
+
+
 }
 
 void FindServerState::removeAllRows()
@@ -112,7 +125,7 @@ void FindServerState::usernameInput()
 	if (!m_inputTextOpen) {
 		m_serverList->hide();
 		m_refreshServerList->hide();
-
+		m_spectateServer->hide();
 		m_usernameBox->show();
 		m_backToList->show();
 
@@ -122,6 +135,7 @@ void FindServerState::usernameInput()
 
 bool FindServerState::onBackToMenuClicked(const CEGUI::EventArgs& e)
 {
+	Renderer::getInstance()->clear();
 	m_stateManager->clearAllAndSetState(new MenuState());
 	return true;
 }
@@ -129,10 +143,9 @@ bool FindServerState::onBackToMenuClicked(const CEGUI::EventArgs& e)
 bool FindServerState::onJoinServerClicked(const CEGUI::EventArgs& e)
 {
 	CEGUI::ListboxItem* item = m_serverList->getFirstSelectedItem();
-	
-	
 	if (item != NULL)
 	{
+		Gui::getInstance()->setWidgetDestRect(m_joinServer, glm::vec4(0.35f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f));
 		usernameInput();
 		if (m_usernameBox->getText() == "Enter Username...") {
 			return false;
@@ -144,7 +157,7 @@ bool FindServerState::onJoinServerClicked(const CEGUI::EventArgs& e)
 		if (Client::getInstance()->doesServerExist(serverID))
 		{
 			const ServerInfo& serverInfo = Client::getInstance()->getServerByID(serverID);
-			Client::getInstance()->connectToAnotherServer(serverInfo);
+			Client::getInstance()->connectToAnotherServer(serverInfo, false);
 			Client::getInstance()->setUsername(m_usernameBox->getText().c_str());
 		}
 
@@ -153,15 +166,16 @@ bool FindServerState::onJoinServerClicked(const CEGUI::EventArgs& e)
 		{
 			if (Client::getInstance()->connectionFailed()) {
 				std::printf("Server is full or in session!\n");
-				m_serverList->removeRow(serverID);
 				return true;
 			}
 		}
+		SoundHandler::getInstance()->stopSound(ThemeSong0);
+		SoundHandler::getInstance()->freeBuffer(ThemeSong0);
 		glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		m_stateManager->clearAllAndSetState(new PlayState());
+		Renderer::getInstance()->clear();
+		m_stateManager->clearAllAndSetState(new PlayState(false));
 	}
 
-	
 	return true;
 }
 
@@ -169,6 +183,42 @@ bool FindServerState::onRefreshServerListClicked(const CEGUI::EventArgs& e)
 {
 	m_serverListRefreshing = true;
 	Client::getInstance()->refreshServerList();
+	return true;
+}
+
+bool FindServerState::onSpectateServerClicked(const CEGUI::EventArgs& e)
+{
+	CEGUI::ListboxItem* item = m_serverList->getFirstSelectedItem();
+
+	if (item != NULL)
+	{
+		std::string serverName = item->getText().c_str();
+		unsigned int serverID = item->getID();
+		item = m_serverList->getNextSelected(item);
+
+		if (Client::getInstance()->doesServerExist(serverID))
+		{
+			const ServerInfo& serverInfo = Client::getInstance()->getServerByID(serverID);
+			Client::getInstance()->connectToAnotherServer(serverInfo, true);
+		}
+
+
+		while (!Client::getInstance()->isConnectedToSever())
+		{
+			
+			if (Client::getInstance()->connectionFailed()) {
+
+				logTrace("Failed to connect as a spectator.. Don't know why this would happen but lets' hope that this never occurs, maybe you have the wrong version of master? :)");
+				return true;
+			}
+		}
+		SoundHandler::getInstance()->stopSound(ThemeSong0);
+		glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		Renderer::getInstance()->clear();
+		m_stateManager->clearAllAndSetState(new PlayState(true));
+	}
+
+
 	return true;
 }
 
@@ -180,7 +230,10 @@ bool FindServerState::onBackToListClicked(const CEGUI::EventArgs& e)
 	//Open up the server list
 	m_serverList->show();
 	m_refreshServerList->show();
+	m_spectateServer->show();
 	m_inputTextOpen = false;
+	Gui::getInstance()->setWidgetDestRect(m_joinServer, glm::vec4(0.25f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f));
+
 
 	m_usernameBox->setText("Enter Username...");
 	m_inputTextSelected = false;

@@ -12,6 +12,8 @@ LobbyState::LobbyState()
 {
 	activeText = -1;
 	loadGui();
+	HudObject* hudObject = new HudObject("Assets/Textures/title.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(1280, 720));
+	m_hudHandler.insertHUDObject(hudObject, HUDID::TITLE);
 }
 
 LobbyState::~LobbyState()
@@ -43,6 +45,8 @@ void LobbyState::inputHandling() {
 	}
 
 	if (Input::isKeyPressed(GLFW_KEY_ENTER)) {
+		SoundHandler::getInstance()->stopSound(ThemeSong0);
+		SoundHandler::getInstance()->freeBuffer(ThemeSong0);
 		bool start = true;
 		for (size_t i = 0; i < m_inputBoxes.size(); i++)
 		{
@@ -60,6 +64,7 @@ void LobbyState::inputHandling() {
 
 void LobbyState::render()
 {
+   	Renderer::getInstance()->renderHUD();
 }
 
 void LobbyState::loadGui()
@@ -94,23 +99,26 @@ void LobbyState::loadGui()
 
 bool LobbyState::onStartSeverClicked(const CEGUI::EventArgs& e)
 {
+	SoundHandler::getInstance()->stopSound(ThemeSong0);
 	startServer();
 	return true;
 }
 
 void LobbyState::startServer()
 {
+	Renderer::getInstance()->clear();
 	LocalServer::getInstance()->startup(getInputBoxByID(SERVERNAME)->getText().c_str());
 	Client::getInstance()->startup();
 	Client::getInstance()->setUsername(getInputBoxByID(USERNAME)->getText().c_str());
 	Client::getInstance()->connectToMyServer();
 
 	glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	m_stateManager->clearAllAndSetState(new PlayState());
+	m_stateManager->clearAllAndSetState(new PlayState(false));
 }
 
 bool LobbyState::onBackToMenuClicked(const CEGUI::EventArgs& e)
 {
+	Renderer::getInstance()->clear();
 	m_stateManager->clearAllAndSetState(new MenuState());
 	return true;
 }

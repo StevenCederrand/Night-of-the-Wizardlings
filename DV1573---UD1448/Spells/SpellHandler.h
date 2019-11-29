@@ -8,7 +8,7 @@
 #include <Spells/AOEAttack.h>
 #include <Spells/fire.h>
 #include <System/BulletPhysics.h>
-#include "SpellTypes.h"
+#include <GameObject/ObjectTypes.h>
 
 
 //enum TYPE { NORMALATTACK, ENHANCEATTACK };
@@ -25,7 +25,7 @@ public:
 	void initFireSpell();
 	~SpellHandler();
 
-	float createSpell(glm::vec3 spellPos, glm::vec3 directionVector, SPELL_TYPE type);
+	float createSpell(glm::vec3 spellPos, glm::vec3 directionVector, OBJECT_TYPE type);
 
 	void spellUpdate(float deltaTime);
 	void setSpawnerPosition(glm::vec3 position);
@@ -46,15 +46,14 @@ public:
 
 private:
 	const uint64_t getUniqueID();
-	bool m_newHit = false;
 	bool m_setcharacter = false;
 	float m_nrSubSteps = 6;
 
 	std::vector<Spell*> spells;
 	std::vector<Spell*> flamestrikeSpells;
 	std::vector<Spell*> fireSpells;
-	float fireDamageCounter = 1.0f;
-	float ownfireDamageCounter = 1.0f;
+	float fireDamageCounter = 0.5f;
+	float ownfireDamageCounter = 0.5f;
 
 	glm::vec3 m_spawnerPos;
 	glm::vec3 m_spawnerDir;
@@ -66,16 +65,13 @@ private:
 	FlamestrikeSpellBase* flamestrikeBase;
 	FireSpellBase* fireBase;
 
-	void spellCollisionCheck(float deltaTime);
-	bool specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis, float scale);
-
-	//glm::vec3 OBBclosestPoint(glm::vec3 &spherePos, std::vector<glm::vec3> &axis, glm::vec3 &playerPos);
+	void spellCollisionCheck();	
+	bool specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis, float radius);
 	float OBBsqDist(glm::vec3& spherePos, std::vector<glm::vec3>& axis, glm::vec3& playerPos);
+	void setCharacter(std::string meshName);
 
 	void REFLECTupdate(float deltaTime, int i);
-	void flamestrikeUpdate(float deltaTime, int i);
 	
-
 	BulletPhysics* m_bp;
 	std::vector<btRigidBody*> m_BulletNormalSpell;
 	std::vector<btRigidBody*> m_BulletEnhanceAttackSpell;
@@ -87,7 +83,16 @@ private:
 	struct deflectSpellData {
 		glm::vec3 direction;
 		glm::vec3 position;
-		SPELL_TYPE type;
+		OBJECT_TYPE type;
+	};
+
+	struct MeshBox //Handles seperate transforms for same mesh
+	{
+		std::string name; //This is kinda useless 
+		Transform transform;
+		Material* material;
+		Mesh* mesh;
+		glm::vec3 btoffset = glm::vec3(0.0f);
 	};
 
 	std::vector<deflectSpellData> m_deflectedSpells;

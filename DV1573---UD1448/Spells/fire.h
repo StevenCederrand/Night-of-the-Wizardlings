@@ -16,12 +16,12 @@ public:
 	virtual void updateRigidbody(float deltaTime, btRigidBody* body);
 	virtual void update(float dt);
 	virtual const float getDamage();
+	virtual const glm::vec3& getPos() const;
 
-	void updateActiveSpell(float deltaTime);
 
 
 private:
 	const FireSpellBase* m_spellBase;
-	float fireTimer = 10;
+	float fireTimer = 8;
 
 };

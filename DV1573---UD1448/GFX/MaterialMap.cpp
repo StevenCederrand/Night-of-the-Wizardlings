@@ -56,6 +56,7 @@ Material* MaterialMap::createMaterial(std::string name, Material material)
 {
 	if (existsWithName(name))
 	{
+		logWarning("Material {0} already exists", name);
 		return nullptr;
 	}
 	Material* newMaterial = new Material();

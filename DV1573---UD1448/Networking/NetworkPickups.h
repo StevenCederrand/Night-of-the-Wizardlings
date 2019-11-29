@@ -22,14 +22,23 @@ public:
 
 private:
 	void setupHealthPickupRenderInformation(BGLoader* loader);
-	void setupDamagePickupRenderInformation(BGLoader* loader);
+	void setupManaPickupRenderInformation(BGLoader* loader);
 	void cleanupRenderInformation(PickupRenderInformation* renderInformation);
 
 private:
 	friend class Client;
 
+	//struct MeshBox //Handles seperate transforms for same mesh
+	//{
+	//	std::string name; //This is kinda useless 
+	//	Transform transform;
+	//	Material* material;
+	//	Mesh* mesh;
+	//	glm::vec3 btoffset = glm::vec3(0.0f);
+	//};
+
 	PickupRenderInformation m_healthRenderInformation;
-	PickupRenderInformation m_damagaRenderInformation;
+	PickupRenderInformation m_ManaRenderInformation;
 	std::vector<PickupProp> m_pickupProps;
 };
 
