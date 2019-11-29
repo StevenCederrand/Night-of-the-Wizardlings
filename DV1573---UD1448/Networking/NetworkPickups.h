@@ -22,7 +22,7 @@ public:
 
 private:
 	void setupHealthPickupRenderInformation(BGLoader* loader);
-	void setupDamagePickupRenderInformation(BGLoader* loader);
+	void setupManaPickupRenderInformation(BGLoader* loader);
 	void cleanupRenderInformation(PickupRenderInformation* renderInformation);
 
 private:
@@ -38,7 +38,7 @@ private:
 	//};
 
 	PickupRenderInformation m_healthRenderInformation;
-	PickupRenderInformation m_damagaRenderInformation;
+	PickupRenderInformation m_ManaRenderInformation;
 	std::vector<PickupProp> m_pickupProps;
 };
 

@@ -4,12 +4,15 @@
 #include "FindServerState.h"
 #include "PlayState.h"
 #include <System/StateManager.h>
+#include <System/MemoryUsage.h>
 
 #define GUI_SECTION "MENUSTATE"
 
 MenuState::MenuState()
 {
-	loadGui();	
+	loadGui();
+	MemoryUsage mu;
+	mu.printBoth("End of menu state init:");
 }
 
 MenuState::~MenuState()

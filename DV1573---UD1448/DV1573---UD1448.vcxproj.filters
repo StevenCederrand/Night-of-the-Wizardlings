@@ -65,6 +65,7 @@
     <ClCompile Include="GameObject\ShieldObject.cpp" />
     <ClCompile Include="GFX\Pointlight.cpp" />
     <ClCompile Include="GameObject\EnemyShieldObject.cpp" />
+    <ClCompile Include="System\MemoryUsage.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
@@ -138,7 +139,6 @@
     <ClInclude Include="GameObject\DestructibleObject.h" />
     <ClInclude Include="Particles\Particles.h" />
     <ClInclude Include="Particles\ParticleBuffers.h" />
-    <ClInclude Include="System\Helper.h" />
     <ClInclude Include="HUD\HudObject.h" />
     <ClInclude Include="HUD\HudTextureMap.h" />
     <ClInclude Include="HUD\HudHandler.h" />
@@ -157,6 +157,7 @@
     <ClInclude Include="Renderer\PickupNotificationStructure.h" />
     <ClInclude Include="GFX\Pointlight.h" />
     <ClInclude Include="GameObject\EnemyShieldObject.h" />
+    <ClInclude Include="System\MemoryUsage.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

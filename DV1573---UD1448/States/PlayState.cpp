@@ -5,6 +5,7 @@
 #include <Networking/Client.h>
 #include <Networking/LocalServer.h>
 
+
 #define PLAYSECTION "PLAYSTATE"
 
 
@@ -19,6 +20,8 @@ PlayState::PlayState(bool spectator)
 
 	m_camera = new Camera();
 	m_bPhysics = new BulletPhysics(-20.0f);
+
+	mu.printBoth("After physics and camera init:");
 
 	if (spectator == false) {
 
@@ -44,7 +47,11 @@ PlayState::PlayState(bool spectator)
 		if (Client::getInstance()->isInitialized())
 			Client::getInstance()->assignSpellHandler(m_spellHandler);
 
+		mu.printBoth("After fps shield, enemy shield and animationMesh:");
+
 		m_hudHandler.loadPlayStateHUD();
+
+		mu.printBoth("After hud:");
 	}
 	else {
 		m_spellHandler = new SpellHandler(nullptr);
@@ -55,17 +62,17 @@ PlayState::PlayState(bool spectator)
 
 	Renderer* renderer = Renderer::getInstance();
 	renderer->setupCamera(m_camera);
-
+	mu.printBoth("After renderer:");
 	m_skybox = new SkyBox();
 	m_skybox->prepareBuffers();
-
+	mu.printBoth("After Skybox:");
 	renderer->submitSkybox(m_skybox);
 	renderer->submitSpellhandler(m_spellHandler);
 
 	m_objects.push_back(new MapObject("Academy_Map"));
 	m_objects[m_objects.size() - 1]->loadMesh("Towermap/Academy_t.mesh");
 	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
-
+	mu.printBoth("After Academy map:");
 	//			TOO LAGGY ATM
 	//LIGHTS
 	
@@ -103,7 +110,7 @@ PlayState::PlayState(bool spectator)
 	Pointlight* pointLight6 = new Pointlight(glm::vec3(-100.0f, 13.0f, -4.0f), glm::vec3(0.9, 0.9, 1.0));
 	pointLight6->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 64.0f));
 	m_pointlights.emplace_back(pointLight6);
-
+	mu.printBoth("After point lights:");
 	// TUNNEL LIGHTS
 	//// Tunnel R
 	//Pointlight* pointLight7 = new Pointlight(glm::vec3(19.0f, 6.0f, 54.0f), glm::vec3(0.97, 0.377, 0.0));
@@ -141,23 +148,29 @@ PlayState::PlayState(bool spectator)
 			//m_objects.at(i)->createDebugDrawer();
 		}
 	//}
-
+		mu.printBoth("After creation of rigidbodies:");
 	// Non dynamic mesh (no rigidbody)
 	// Very big mesh hope not overload gpu XD
 	m_objects.push_back(new MapObject("Academy_Outer"));
 	m_objects[m_objects.size() - 1]->loadMesh("ExteriorTest.mesh");
 	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
-
+	mu.printBoth("After Academy Outer:");
 	startY = SCREEN_HEIGHT / 2;
 
 	// Destuction 
 	loadDestructables();
 
+	mu.printBoth("After destructables:");
+
 	if(Client::getInstance()->isInitialized())
 		Client::getInstance()->assignSpellHandler(m_spellHandler);
 
 	//m_hudHandler.loadPlayStateHUD();
-	m_hideHUD = false;	
+	m_hideHUD = false;
+
+	
+	mu.printBoth("End of play state init:");
+
 }
 
 // Might change these Pepega constructors later if feeling cute
@@ -293,6 +306,9 @@ void PlayState::loadDestructables()
 
 PlayState::~PlayState()
 {
+
+	mu.printBoth("Before deleting playstate:");
+
 	for (GameObject* object : m_objects)
 		delete object;
 
@@ -320,6 +336,9 @@ PlayState::~PlayState()
 	}
 
 	MeshMap::getInstance()->cleanUp();
+	
+	mu.printBoth("Afer deleting playstate:");
+
 }
 	
 void PlayState::update(float dt)
@@ -458,13 +477,13 @@ void PlayState::update_isPlaying(const float& dt)
 				shPtr->playSound(HitmarkSound);
 				break;
 			}
-			case PlayerEvents::TookPowerup:
+			case PlayerEvents::TookMana:
 			{
 				shPtr->playSound(PickupSound);
-				logWarning("[Event system] Took a powerup");
-				m_hudHandler.getHudObject(HUDID::POWERUP)->setAlpha(1.0f);
-				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100.0f);
-				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100.0f);
+				m_player->setMana(NetGlobals::PlayerMaxMana);
+				logWarning("[Event system] Took a mana potion");
+				m_hudHandler.getHudObject(HUDID::BAR_MANA)->setXClip(static_cast<float>(Client::getInstance()->getMyData().mana) / 100.0f);
+				m_hudHandler.getHudObject(HUDID::CROSSHAIR_MANA)->setYClip(static_cast<float>(Client::getInstance()->getMyData().mana) / 100.0f);
 				break;
 			}
 
@@ -480,14 +499,7 @@ void PlayState::update_isPlaying(const float& dt)
 
 				break;
 			}
-			case PlayerEvents::PowerupRemoved:
-			{
-				logWarning("[Event system] Powerup was removed");
-				m_hudHandler.getHudObject(HUDID::POWERUP)->setAlpha(0.0f);
-				break;
-			}
-
-
+			
 			case PlayerEvents::SessionOver:
 			{
 				logWarning("[Event system] Session is over");
@@ -496,6 +508,10 @@ void PlayState::update_isPlaying(const float& dt)
 				float clipPercentage = 1.0f;
 				HpBar->setXClip(clipPercentage);
 				m_player->setHealth(myNewHealth);
+
+				m_player->setMana(NetGlobals::PlayerMaxMana);
+				m_hudHandler.getHudObject(HUDID::BAR_MANA)->setXClip(static_cast<float>(Client::getInstance()->getMyData().mana) / 100.0f);
+				m_hudHandler.getHudObject(HUDID::CROSSHAIR_MANA)->setYClip(static_cast<float>(Client::getInstance()->getMyData().mana) / 100.0f);
 
 				break;
 			}
