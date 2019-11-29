@@ -47,6 +47,7 @@ public:
 	//-----Set-----//
 	void setPlayerPos(glm::vec3 pos);
 	void setHealth(int health);
+	void setMana(int mana);
 	void setSpeed(float speed);
 	void logicStop(const bool& stop);
 	void submitHudHandler(HudHandler* hudHandler);

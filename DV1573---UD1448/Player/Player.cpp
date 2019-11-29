@@ -302,9 +302,9 @@ void Player::attack()
 			
 			//Fade out deflect sound
 			if (m_deflectSoundGain > 0.0f)
-			{
-				m_deflectSoundGain -= 2.0f * DeltaTime;
+			{				
 				shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
+				m_deflectSoundGain -= 2.0f * DeltaTime;
 			}
 			else
 			{
@@ -317,9 +317,9 @@ void Player::attack()
 	{		
 		//Fade out deflect sound
 		if (m_deflectSoundGain > 0.0f)
-		{
-			m_deflectSoundGain -= 2.0f * DeltaTime;
+		{			
 			shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
+			m_deflectSoundGain -= 2.0f * DeltaTime;
 		}
 		else
 		{
@@ -347,7 +347,7 @@ void Player::attack()
 		{
 			//If we are using the triple spell
 			if (m_usingTripleSpell) {
-				if (m_specialCooldown <= 0)
+				if (m_specialCooldown <= 0 && m_mana > 30)
 				{
 					//Sound for enhance spell is handled in spellhandler
 					//m_specialCooldown = m_spellhandler->getEnhAttackBase()->m_coolDown;
@@ -357,16 +357,20 @@ void Player::attack()
 					animState.casTripple = true;
 					m_usingTripleSpell = false;
 					m_specialCooldown = 3.5f;
+					m_mana -= 30.f;
+
 				}
 			}
 			else { //If our active spell is flamestrike
-				if (m_specialCooldown <= 0)
+				if (m_specialCooldown <= 0 && m_mana > 30)
 				{
 					m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, FLAMESTRIKE); // Put attack on cooldown
 
 					animState.castPotion = true;
 					m_usingTripleSpell = true;
 					m_specialCooldown = 3.5f;
+					m_mana -= 30.f;
+
 				}
 			}
 		}
@@ -450,6 +454,11 @@ void Player::onRespawn()
 void Player::setHealth(int health)
 {
 	m_health = health;
+}
+
+void Player::setMana(int mana)
+{
+	m_mana = mana;
 }
 
 void Player::setSpeed(float speed)

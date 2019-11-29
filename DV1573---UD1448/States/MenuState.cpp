@@ -4,12 +4,15 @@
 #include "FindServerState.h"
 #include "PlayState.h"
 #include <System/StateManager.h>
+#include <System/MemoryUsage.h>
 
 #define GUI_SECTION "MENUSTATE"
 
 MenuState::MenuState()
 {
-	loadGui();	
+	loadGui();
+	MemoryUsage mu;
+	mu.printBoth("End of menu state init:");
 }
 
 MenuState::~MenuState()
@@ -55,6 +58,7 @@ void MenuState::loadGui()
 bool MenuState::onStartOfflineClicked(const CEGUI::EventArgs& e)
 {
 	SoundHandler::getInstance()->stopSound(ThemeSong0);	
+	SoundHandler::getInstance()->freeBuffer(ThemeSong0);
 	Renderer::getInstance()->clear();
 	glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	m_stateManager->clearAllAndSetState(new PlayState(false));

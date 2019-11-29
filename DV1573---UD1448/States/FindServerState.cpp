@@ -170,6 +170,7 @@ bool FindServerState::onJoinServerClicked(const CEGUI::EventArgs& e)
 			}
 		}
 		SoundHandler::getInstance()->stopSound(ThemeSong0);
+		SoundHandler::getInstance()->freeBuffer(ThemeSong0);
 		glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		Renderer::getInstance()->clear();
 		m_stateManager->clearAllAndSetState(new PlayState(false));

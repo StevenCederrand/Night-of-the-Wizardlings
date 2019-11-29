@@ -15,7 +15,7 @@
 #include <HUD/HudObject.h>
 #include <HUD/HudHandler.h>
 #include <GFX/Pointlight.h>
-
+#include <System/MemoryUsage.h>
 //bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
 //	const btCollisionObjectWrapper* obj2, int id2, int index2);
 
@@ -58,7 +58,7 @@ private:
 	Camera* m_camera;
 	SkyBox* m_skybox;
 	BulletPhysics* m_bPhysics;
-
+	MemoryUsage mu;
 	HudHandler m_hudHandler;
 	
 	CEGUI::PushButton* m_mainMenu;

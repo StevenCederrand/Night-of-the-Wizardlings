@@ -738,6 +738,20 @@ void Client::processAndHandlePackets()
 		}
 		break;
 
+		case ENEMY_DEFLECTED_SPELL:
+		{
+			if (m_spellHandler == nullptr) continue;
+
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			SpellPacket spellPacket;
+			spellPacket.Serialize(false, bsIn);
+			bsIn.SetReadOffset(0);
+
+			int slot = shPtr->playSound(SuccessfulDeflectSound, spellPacket.CreatorGUID);
+			shPtr->setSourcePosition(spellPacket.Position, SuccessfulDeflectSound, spellPacket.CreatorGUID, slot);
+		}
+		break;
+
 		case PICKUP_CREATED:
 		{
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
@@ -795,10 +809,10 @@ void Client::processAndHandlePackets()
 				t.width += Renderer::getInstance()->getTextWidth(type, t.scale);
 				t.textParts.emplace_back(type, color);					
 			}
-			else if (pickupPacket.type == PickupType::DamageBuff)
+			else if (pickupPacket.type == PickupType::ManaPotion)
 			{
-				std::string type = "Damage potion ";
-				glm::vec3 color = glm::vec3(1.0f, 0.5f, 0.0f);
+				std::string type = "Mana potion ";
+				glm::vec3 color = glm::vec3(0.2f, 0.2f, 1.0f);
 				t.width += Renderer::getInstance()->getTextWidth(type, t.scale);
 				t.textParts.emplace_back(type, color);
 			}
@@ -835,7 +849,7 @@ void Client::processAndHandlePackets()
 		}
 		break;
 
-		case HEAL_BUFF:
+		case HEAL_POTION:
 		{
 			
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
@@ -852,8 +866,9 @@ void Client::processAndHandlePackets()
 		}
 		break;
 
-		case DAMAGE_BUFF_ACTIVE:
+		case MANA_POTION:
 		{
+
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			PlayerPacket pData;
 			pData.Serialize(false, bsIn);
@@ -861,24 +876,10 @@ void Client::processAndHandlePackets()
 			// Add this to the event list
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-				m_playerEvents.push_back(PlayerEvents::TookPowerup);
+				m_playerEvents.push_back(PlayerEvents::TookMana);
 			}
 
-			m_myPlayerDataPacket.hasDamageBuff = pData.hasDamageBuff;
-			m_myPlayerDataPacket.health = pData.health;
-			
-		}
-		break;
-
-		case DAMAGE_BUFF_INACTIVE: 
-		{	
-			// Add this to the event list
-			{
-				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-				m_playerEvents.push_back(PlayerEvents::PowerupRemoved);
-			}
-
-			m_myPlayerDataPacket.hasDamageBuff = false;
+			m_myPlayerDataPacket.mana = pData.mana;
 		}
 		break;
 
@@ -890,9 +891,12 @@ void Client::processAndHandlePackets()
 
 			PlayerPacket* killer;
 			PlayerPacket* dead;
+			bool createPersonalKillFeed = false;
 
-			if (killFeed.killerGuid == m_myPlayerDataPacket.guid)
+			if (killFeed.killerGuid == m_myPlayerDataPacket.guid) {
+				createPersonalKillFeed = true;
 				killer = &m_myPlayerDataPacket;
+			}
 			else
 				killer = findPlayerByGuid(killFeed.killerGuid);
 			
@@ -904,32 +908,71 @@ void Client::processAndHandlePackets()
 
 			if (killer == nullptr || dead == nullptr)
 				return;
-
-			NotificationText t;
-			t.alphaColor = 1.0f;
-			t.width = 0;
-			t.scale = glm::vec3(0.35f);
-			t.useAlpha = false;
-			t.lifeTimeInSeconds = 5.0f;
-
-			glm::vec3 playerColor = glm::vec3(1.0f, 0.5f, 0.0f);
 			
-			std::string killername = std::string(killer->userName);
-			t.width += Renderer::getInstance()->getTextWidth(killername, t.scale);
-			t.textParts.emplace_back(killername, playerColor);
-
-			std::string text = std::string(" killed ");
-			t.width += Renderer::getInstance()->getTextWidth(text, t.scale);
-			t.textParts.emplace_back(text, glm::vec3(1.0f, 1.0f, 1.0f));
-
-			std::string deadguyName = std::string(dead->userName);
-			t.width += Renderer::getInstance()->getTextWidth(deadguyName, t.scale);
-			t.textParts.emplace_back(deadguyName, playerColor);
-
+			
+			
+			
+			
 			{
-				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateKillFeedMutex);
-				Renderer::getInstance()->addKillFeed(t);
+				NotificationText t;
+				t.alphaColor = 1.0f;
+				t.width = 0;
+				t.scale = glm::vec3(0.35f);
+				t.useAlpha = false;
+				t.lifeTimeInSeconds = 5.0f;
+
+				glm::vec3 playerColor = glm::vec3(1.0f, 0.5f, 0.0f);
+
+				std::string killername = std::string(killer->userName);
+				t.width += Renderer::getInstance()->getTextWidth(killername, t.scale);
+				t.textParts.emplace_back(killername, playerColor);
+
+				std::string text = std::string(" killed ");
+				t.width += Renderer::getInstance()->getTextWidth(text, t.scale);
+				t.textParts.emplace_back(text, glm::vec3(1.0f, 1.0f, 1.0f));
+
+				std::string deadguyName = std::string(dead->userName);
+				t.width += Renderer::getInstance()->getTextWidth(deadguyName, t.scale);
+				t.textParts.emplace_back(deadguyName, playerColor);
+
+				{
+					std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateKillFeedMutex);
+					Renderer::getInstance()->addKillFeed(t);
+				}
 			}
+
+
+			if (createPersonalKillFeed) {
+
+				NotificationText t;
+				t.alphaColor = 1.0f;
+				t.width = 0;
+				t.scale = glm::vec3(0.35f);
+				t.useAlpha = true;
+				t.lifeTimeInSeconds = 5.0f;
+
+				glm::vec3 playerColor = glm::vec3(1.0f, 0.5f, 0.0f);
+
+				std::string killername = "You";
+				t.width += Renderer::getInstance()->getTextWidth(killername, t.scale);
+				t.textParts.emplace_back(killername, playerColor);
+
+				std::string text = std::string(" killed ");
+				t.width += Renderer::getInstance()->getTextWidth(text, t.scale);
+				t.textParts.emplace_back(text, glm::vec3(1.0f, 1.0f, 1.0f));
+
+				std::string deadguyName = std::string(dead->userName);
+				t.width += Renderer::getInstance()->getTextWidth(deadguyName, t.scale);
+				t.textParts.emplace_back(deadguyName, playerColor);
+
+				{
+					std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateKillFeedMutex);
+					Renderer::getInstance()->addKillNotification(t);
+				}
+
+
+			}
+
 
 			break;
 		}
@@ -998,7 +1041,7 @@ void Client::processAndHandlePackets()
 void Client::updatePlayerData(Player* player)
 {
 	if (!m_initialized || !m_isConnectedToAnServer) return;
-
+	m_myPlayerDataPacket.mana = player->getMana();
 	m_myPlayerDataPacket.position = player->getPlayerPos();
 	m_myPlayerDataPacket.inDeflectState = player->isDeflecting();
 	m_myPlayerDataPacket.lookDirection = player->getCamera()->getCamFace();

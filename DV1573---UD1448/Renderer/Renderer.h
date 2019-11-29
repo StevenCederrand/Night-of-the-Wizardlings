@@ -76,6 +76,7 @@ class Renderer
 private:
 	std::vector<NotificationText> m_bigNotifications;
 	std::vector<NotificationText> m_killFeed;
+	std::vector<NotificationText> m_killNotification;
 
 private:
 	static Renderer* m_rendererInstance;
@@ -186,6 +187,7 @@ public:
 	void renderDebug();
 	void addBigNotification(NotificationText notification);
 	void addKillFeed(NotificationText notification);
+	void addKillNotification(NotificationText notification);
 	unsigned int getTextWidth(const std::string& text, const glm::vec3& scale);
 
 	void renderSpell(SpellHandler* spellHandler);

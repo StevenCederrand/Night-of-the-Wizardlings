@@ -21,6 +21,15 @@
 #include <future>
 #include <functional>
 
+#define WIN32_LEAN_AND_MEAN
+
+#include <d3d11_4.h>
+#include <dxgi1_6.h>
+
+#pragma comment(lib, "dxgi.lib")
+
+#include <psapi.h>
+
 //GL related includes
 #include <GL/glew.h>
 #include <glfw/glfw3.h>
