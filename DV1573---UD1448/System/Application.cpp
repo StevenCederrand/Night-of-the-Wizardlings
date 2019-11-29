@@ -5,6 +5,7 @@
 #include <Networking/Client.h>
 #include <Networking/LocalServer.h>
 #include <Gui/Gui.h>
+#include <System/MemoryUsage.h>
 #define AUTOSTART false;
 #define FULLSCREEN false;
 float DeltaTime = 0.0f;
@@ -34,10 +35,11 @@ Application::~Application() {
 
 	glfwTerminate();
 
+
 }
 
 bool Application::init() {
-
+	
 	bool statusOK = false;
 	initialFrame = false;
 	statusOK = glfwInit();
@@ -107,7 +109,9 @@ bool Application::init() {
 	unsigned int _time = unsigned int(time(NULL));
 	srand(_time);
 
-	logTrace("Application successfully initialized");
+	MemoryUsage mu;
+	mu.printBoth("End of application init:");
+
 	return statusOK;
 }
 

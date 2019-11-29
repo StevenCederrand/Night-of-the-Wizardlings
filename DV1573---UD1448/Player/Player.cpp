@@ -452,6 +452,11 @@ void Player::setHealth(int health)
 	m_health = health;
 }
 
+void Player::setMana(int mana)
+{
+	m_mana = mana;
+}
+
 void Player::setSpeed(float speed)
 {
 	m_speed = speed;

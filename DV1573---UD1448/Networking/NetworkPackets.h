@@ -29,9 +29,8 @@ enum {
 	PICKUP_CREATED,
 	PICKUP_REMOVED,
 	PICKUP_NOTIFICATION,
-	HEAL_BUFF,
-	DAMAGE_BUFF_ACTIVE,
-	DAMAGE_BUFF_INACTIVE,
+	HEAL_POTION,
+	MANA_POTION,
 	KILL_FEED,
 	SERVER_TIME,
 	SPECTATE_REQUEST,
@@ -67,6 +66,7 @@ struct PlayerPacket {
 
 	bool Spectator = false;
 	int health = NetGlobals::PlayerMaxHealth;
+	int mana = NetGlobals::PlayerMaxMana;
 	glm::vec3 position = glm::vec3(0.0f);
 	glm::vec3 rotation = glm::vec3(0.0f);
 	glm::vec3 lookDirection = glm::vec3(0.0f);
@@ -83,27 +83,10 @@ struct PlayerPacket {
 	bool hasDeflectMana = true;
 
 	AnimationState animStates;
-	bool hasDamageBuff = false;
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream)
 	{
 		stream.Serialize(writeToStream, *this);
-		/*stream.Serialize(writeToStream, guid);
-		stream.Serialize(writeToStream, lastHitByGuid);
-		stream.Serialize(writeToStream, timestamp);
-		stream.Serialize(writeToStream, health);
-		stream.Serialize(writeToStream, position);
-		stream.Serialize(writeToStream, rotation);
-		stream.Serialize(writeToStream, lookDirection);
-		stream.Serialize(writeToStream, latestSpawnPosition);
-		stream.Serialize(writeToStream, meshHalfSize);
-		stream.Serialize(writeToStream, userName);
-		stream.Serialize(writeToStream, numberOfKills);
-		stream.Serialize(writeToStream, numberOfDeaths);
-		stream.Serialize(writeToStream, inDeflectState);
-		stream.Serialize(writeToStream, hasBeenUpdatedOnce);
-		stream.Serialize(writeToStream, animStates);
-		stream.Serialize(writeToStream, hasDamageBuff);*/
 	}
 };
 

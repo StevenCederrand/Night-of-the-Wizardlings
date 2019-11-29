@@ -795,10 +795,10 @@ void Client::processAndHandlePackets()
 				t.width += Renderer::getInstance()->getTextWidth(type, t.scale);
 				t.textParts.emplace_back(type, color);					
 			}
-			else if (pickupPacket.type == PickupType::DamageBuff)
+			else if (pickupPacket.type == PickupType::ManaPotion)
 			{
-				std::string type = "Damage potion ";
-				glm::vec3 color = glm::vec3(1.0f, 0.5f, 0.0f);
+				std::string type = "Mana potion ";
+				glm::vec3 color = glm::vec3(0.2f, 0.2f, 1.0f);
 				t.width += Renderer::getInstance()->getTextWidth(type, t.scale);
 				t.textParts.emplace_back(type, color);
 			}
@@ -835,7 +835,7 @@ void Client::processAndHandlePackets()
 		}
 		break;
 
-		case HEAL_BUFF:
+		case HEAL_POTION:
 		{
 			
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
@@ -852,8 +852,9 @@ void Client::processAndHandlePackets()
 		}
 		break;
 
-		case DAMAGE_BUFF_ACTIVE:
+		case MANA_POTION:
 		{
+
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			PlayerPacket pData;
 			pData.Serialize(false, bsIn);
@@ -861,24 +862,10 @@ void Client::processAndHandlePackets()
 			// Add this to the event list
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-				m_playerEvents.push_back(PlayerEvents::TookPowerup);
+				m_playerEvents.push_back(PlayerEvents::TookMana);
 			}
 
-			m_myPlayerDataPacket.hasDamageBuff = pData.hasDamageBuff;
-			m_myPlayerDataPacket.health = pData.health;
-			
-		}
-		break;
-
-		case DAMAGE_BUFF_INACTIVE: 
-		{	
-			// Add this to the event list
-			{
-				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-				m_playerEvents.push_back(PlayerEvents::PowerupRemoved);
-			}
-
-			m_myPlayerDataPacket.hasDamageBuff = false;
+			m_myPlayerDataPacket.mana = pData.mana;
 		}
 		break;
 
@@ -998,7 +985,7 @@ void Client::processAndHandlePackets()
 void Client::updatePlayerData(Player* player)
 {
 	if (!m_initialized || !m_isConnectedToAnServer) return;
-
+	m_myPlayerDataPacket.mana = player->getMana();
 	m_myPlayerDataPacket.position = player->getPlayerPos();
 	m_myPlayerDataPacket.inDeflectState = player->isDeflecting();
 	m_myPlayerDataPacket.lookDirection = player->getCamera()->getCamFace();
