@@ -350,8 +350,7 @@ void Renderer::initShaders() {
 	ShaderMap::getInstance()->createShader(BASIC_FORWARD, "VertexShader.vert", "FragShader.frag");
 	ShaderMap::getInstance()->createShader(ANIMATION, "Animation.vert", "FragShader.frag");
 	ShaderMap::getInstance()->createShader("Skybox_Shader", "Skybox.vs", "Skybox.fs");
-	ShaderMap::getInstance()->getShader("Skybox_Shader")->setInt("skyBox", 4);
-	ShaderMap::getInstance()->createShader(DEBUG_SHADER, "VertexShader.vert", "DebugFragShader.frag");
+	ShaderMap::getInstance()->getShader("Skybox_Shader")->setInt("skyBox", 4);	
 	ShaderMap::getInstance()->createShader(FRESNEL, "FresnelFX.vert", "FresnelFX.frag");
 	ShaderMap::getInstance()->createShader(ENEMYSHIELD, "FresnelFX.vert", "EnemyShield.frag");
 
@@ -1325,38 +1324,6 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 
 	}
 
-}
-
-void Renderer::renderDebug()
-{
-	glm::mat4 modelMatrix;
-	ShaderMap::getInstance()->useByName(DEBUG_SHADER);
-	//Bind view- and projection matrix
-	bindMatrixes(DEBUG_SHADER);
-
-	//Render Static objects
-	for (size_t i = 0; i < m_staticObjects.size(); i++)
-	{
-		for (size_t j = 0; j < m_staticObjects.at(i)->getDebugDrawers().size(); j++)
-		{
-			modelMatrix = glm::mat4(1.0f);
-			//Bind the modelmatrix
-			//modelMatrix = m_staticObjects.at(i)->getMatrix(j);
-			ShaderMap::getInstance()->getShader(DEBUG_SHADER)->setMat4("modelMatrix", modelMatrix);
-
-			glBindVertexArray(m_staticObjects.at(i)->getDebugDrawers()[j]->getBuffers().vao);
-
-			glDisable(GL_CULL_FACE);
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-			glDrawElements(GL_TRIANGLES, m_staticObjects.at(i)->getDebugDrawers()[j]->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
-			glEnable(GL_CULL_FACE);
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-			glBindVertexArray(0);
-		}
-	}
 }
 
 void Renderer::addBigNotification(NotificationText notification)

@@ -144,8 +144,7 @@ PlayState::PlayState(bool spectator)
 	//if (spectator == false) {
 		for (size_t i = 0; i < m_objects.size(); i++)
 		{
-			m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);
-			//m_objects.at(i)->createDebugDrawer();
+			m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);			
 		}
 	//}
 		mu.printBoth("After creation of rigidbodies:");
@@ -696,8 +695,7 @@ void PlayState::render()
 {
 
 	Renderer::getInstance()->render();
-
-	//Renderer::getInstance()->renderDebug();
+	
 }
 
 bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1, const btCollisionObjectWrapper* obj2, int id2, int index2)
