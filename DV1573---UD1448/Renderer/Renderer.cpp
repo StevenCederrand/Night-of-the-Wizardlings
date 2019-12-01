@@ -89,6 +89,55 @@ void Renderer::renderHUD()
 	glEnable(GL_DEPTH_TEST);
 }
 
+void Renderer::renderWorldHud()
+{
+	glEnable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+	// Get it ONCE instead of every iteration....
+	auto* shader = ShaderMap::getInstance()->getShader(WHUD);
+	shader->use();
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+
+	for (auto& item : m_worldHudMap) {
+
+		auto& vec = item.second;
+
+		if (vec.size() == 0)
+			continue;
+
+		auto* hudObjectDummy = vec[0];
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, hudObjectDummy->getTextureID());
+
+		for (size_t i = 0; i < vec.size(); i++)
+		{
+
+			auto* worldHud = vec[i];
+
+			if (worldHud->getAlpha() == 0.0f || worldHud->getShouldRender() == false)
+				continue;
+
+			shader->setMat4("viewMatrix", m_camera->getViewMat());
+			shader->setMat4("projectionMatrix", m_camera->getProjMat());
+			shader->setFloat("alphaValue", worldHud->getAlpha());
+			shader->setVec2("clip", glm::vec2(worldHud->getXClip(), worldHud->getYClip()));
+			shader->setVec3("center", worldHud->getCenter());
+			shader->setVec2("scale", worldHud->getScale());
+			glBindVertexArray(worldHud->getVAO());
+
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+			glBindVertexArray(0);
+		}
+
+		glBindTexture(GL_TEXTURE_2D, NULL);
+	}
+	m_worldHudMap.clear();
+
+}
+
 void Renderer::renderAndAnimateNetworkingTexts()
 {
 	if (Client::getInstance()->isConnectedToSever() && Client::getInstance()->isInitialized()) {
@@ -350,11 +399,10 @@ void Renderer::initShaders() {
 	ShaderMap::getInstance()->createShader(BASIC_FORWARD, "VertexShader.vert", "FragShader.frag");
 	ShaderMap::getInstance()->createShader(ANIMATION, "Animation.vert", "FragShader.frag");
 	ShaderMap::getInstance()->createShader("Skybox_Shader", "Skybox.vs", "Skybox.fs");
-	ShaderMap::getInstance()->getShader("Skybox_Shader")->setInt("skyBox", 4);
-	ShaderMap::getInstance()->createShader(DEBUG_SHADER, "VertexShader.vert", "DebugFragShader.frag");
+	ShaderMap::getInstance()->getShader("Skybox_Shader")->setInt("skyBox", 4);	
 	ShaderMap::getInstance()->createShader(FRESNEL, "FresnelFX.vert", "FresnelFX.frag");
 	ShaderMap::getInstance()->createShader(ENEMYSHIELD, "FresnelFX.vert", "EnemyShield.frag");
-
+	ShaderMap::getInstance()->createShader(WHUD, "WorldHud.vs", "WorldHud.fs");
 
 	/*=====================================================*/
 	/*ShaderMap::getInstance()->createShader(BLOOM, "Bloom.vs", "Bloom.fs");
@@ -528,6 +576,26 @@ void Renderer::submit2DHUD(HudObject* hud)
 	}
 }
 
+void Renderer::submitWorldHud(WorldHudObject* wHud)
+{
+	auto item = m_worldHudMap.find(wHud->getTextureID());
+
+	if (item != m_worldHudMap.end()) {
+		auto& vec = item._Ptr->_Myval.second;
+
+		vec.emplace_back(wHud);
+		return;
+	}
+	else
+	{
+		std::vector<WorldHudObject*> newVec;
+		newVec.reserve(5);
+		newVec.emplace_back(wHud);
+		m_worldHudMap[wHud->getTextureID()] = newVec;
+		
+	}
+}
+
 void Renderer::submitSkybox(SkyBox* skybox)
 {
 	m_skyBox = skybox;
@@ -550,6 +618,7 @@ void Renderer::clear() {
 	m_spells.clear();
 	m_lights.clear();
 	m_2DHudMap.clear();
+	m_worldHudMap.clear();
 	m_shieldObject.clear();
 	m_enemyShieldObject.clear();
 	m_particleSystems.clear();
@@ -1230,13 +1299,15 @@ void Renderer::render() {
 
 
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	renderWorldHud();
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
 	glDisable(GL_CULL_FACE);
-
+	
 	renderAndAnimateNetworkingTexts();
 	renderBigNotifications();
 	renderKillFeed();
@@ -1325,38 +1396,6 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 
 	}
 
-}
-
-void Renderer::renderDebug()
-{
-	glm::mat4 modelMatrix;
-	ShaderMap::getInstance()->useByName(DEBUG_SHADER);
-	//Bind view- and projection matrix
-	bindMatrixes(DEBUG_SHADER);
-
-	//Render Static objects
-	for (size_t i = 0; i < m_staticObjects.size(); i++)
-	{
-		for (size_t j = 0; j < m_staticObjects.at(i)->getDebugDrawers().size(); j++)
-		{
-			modelMatrix = glm::mat4(1.0f);
-			//Bind the modelmatrix
-			//modelMatrix = m_staticObjects.at(i)->getMatrix(j);
-			ShaderMap::getInstance()->getShader(DEBUG_SHADER)->setMat4("modelMatrix", modelMatrix);
-
-			glBindVertexArray(m_staticObjects.at(i)->getDebugDrawers()[j]->getBuffers().vao);
-
-			glDisable(GL_CULL_FACE);
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-			glDrawElements(GL_TRIANGLES, m_staticObjects.at(i)->getDebugDrawers()[j]->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
-			glEnable(GL_CULL_FACE);
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-			glBindVertexArray(0);
-		}
-	}
 }
 
 void Renderer::addBigNotification(NotificationText notification)

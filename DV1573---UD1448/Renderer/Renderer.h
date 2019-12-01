@@ -7,14 +7,13 @@
 #define DEPTH_MAP "Depth_Map"
 #define SKYBOX "Skybox_Shader"
 #define ANIMATION "Basic_Animation"
-#define DEBUG_SHADER "Debug_Forward"
 #define FRESNEL "Fresnel_Shader"
 #define ENEMYSHIELD "Enemy_Shield"
 //#define BLOOM "Bloom_Shader"
 //#define BLUR "Blur_Shader"
 //#define BLOOM_BLUR "BloomBlur_Shader"
 #define HUD "Hud_Shader"
-
+#define WHUD "wHudShader"
 #define PARTICLES "Particle_Shader"
 
 // Debug define
@@ -30,6 +29,7 @@
 #include <Renderer/BloomBlur.h>
 #include <Spells/SpellHandler.h>
 #include <HUD/HudObject.h>
+#include <HUD/WorldHudObject.h>
 #include "NotificationStructure.h"
 #include <Text/FreeType.h>
 #include <GameObject/ShieldObject.h>
@@ -37,7 +37,6 @@
 #include <GFX/Pointlight.h>
 #include <Particles/Particles.h>
 #include <Particles/ParticleBuffers.h>
-
 
 #define P_LIGHT_COUNT 64
 #define P_LIGHT_RADIUS 5
@@ -99,6 +98,7 @@ private:
 	std::vector<GameObject*> m_enemyShieldObject;
 
 	std::unordered_map<GLuint, std::vector<HudObject*>> m_2DHudMap;
+	std::unordered_map<GLuint, std::vector<WorldHudObject*>> m_worldHudMap;
 
 	//Buffers
 	unsigned int m_depthFBO;
@@ -177,6 +177,7 @@ public:
 	//SUBMIT POINTLIGHTS BY IN THEM HERE
 	void submit(GameObject* gameObject, RENDER_TYPE objType);
 	void submit2DHUD(HudObject* hud);
+	void submitWorldHud(WorldHudObject* wHud);
 	void submitSkybox(SkyBox* skybox);
 	void submitSpellhandler(SpellHandler* spellhandler);
 	void removeRenderObject(GameObject* gameObject, RENDER_TYPE objType); //Remove an object from the dynamic array
@@ -184,7 +185,9 @@ public:
 	void render();
 	//void renderSpell();
 	void renderHUD();
+	void renderWorldHud();
 	void renderDebug();
+
 	void addBigNotification(NotificationText notification);
 	void addKillFeed(NotificationText notification);
 	void addKillNotification(NotificationText notification);

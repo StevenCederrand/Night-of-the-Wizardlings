@@ -182,7 +182,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="DebugDrawer\DebugDrawer.cpp" />
     <ClCompile Include="GameObject\EnemyShieldObject.cpp" />
     <ClCompile Include="GameObject\ShieldObject.cpp" />
     <ClCompile Include="Destruction\DelaunayGenerator.cpp" />
@@ -196,6 +195,7 @@
     <ClCompile Include="GameObject\DestructibleObject.cpp" />
     <ClCompile Include="GFX\Pointlight.cpp" />
     <ClCompile Include="HUD\HudHandler.cpp" />
+    <ClCompile Include="HUD\WorldHudObject.cpp" />
     <ClCompile Include="Mesh\AnimationMap.cpp" />
     <ClCompile Include="Mesh\MeshMap.cpp" />
     <ClCompile Include="Networking\Client.cpp" />
@@ -296,7 +296,6 @@
     <ClCompile Include="Destruction\VoroniCalculator.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DebugDrawer\DebugDrawer.h" />
     <ClInclude Include="GameObject\EnemyShieldObject.h" />
     <ClInclude Include="GameObject\ShieldObject.h" />
     <ClInclude Include="Destruction\DelaunayGenerator.h" />
@@ -312,6 +311,7 @@
     <ClInclude Include="GameObject\MapObject.h" />
     <ClInclude Include="GFX\Pointlight.h" />
     <ClInclude Include="HUD\HudHandler.h" />
+    <ClInclude Include="HUD\WorldHudObject.h" />
     <ClInclude Include="Mesh\AnimationMap.h" />
     <ClInclude Include="Mesh\MeshMap.h" />
     <ClInclude Include="Networking\Client.h" />
