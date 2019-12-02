@@ -112,7 +112,7 @@ void SpellCreatorState::update(float dt)
     Renderer::getInstance()->updateParticles(dt);
 
     ImGui_ImplGlfwGL3_NewFrame();
-    ImGui::ShowDemoWindow();
+    //ImGui::ShowDemoWindow();
 
     ImGui::Begin("Spell Creator", &my_tool_active, ImGuiWindowFlags_MenuBar);// Create a window called "Spell Creator" and append into it.
     ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Select a spell type to create");
@@ -122,6 +122,12 @@ void SpellCreatorState::update(float dt)
     if (isProjectile)
     {
         isAOE = false;
+
+        if (m_spellAlive == true)
+        {
+            m_spellHandler->createSpellForTool(glm::vec3(0, 3, -10), glm::vec3(0, 0, 0), NORMALATTACKTOOL);
+            m_spellAlive = false;
+        }
 
         ImGui::Text("Edit Projectile values");											            // Display some text (you can use a format strings too)
         ImGui::SliderFloat("Spell Damage", &m_ProjectileDmg, 10.0f, 40.0f);
@@ -134,6 +140,7 @@ void SpellCreatorState::update(float dt)
     if (isAOE)
     {
         isProjectile = false;
+  
         ImGui::Text("Here Area of Effect spell data will be edited...");											            // Display some text (you can use a format strings too)
     }
     fileDialog.Display();

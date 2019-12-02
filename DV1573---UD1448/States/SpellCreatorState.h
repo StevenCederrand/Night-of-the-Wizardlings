@@ -68,6 +68,8 @@ private:
     Camera* m_camera;
     std::vector<GameObject*> m_objects;
 
+    bool m_spellAlive = true;
+
 
 
 };
