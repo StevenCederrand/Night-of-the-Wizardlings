@@ -24,7 +24,6 @@ public:
 	void updateMesh();
 	void onDead();
 	void onRespawn();
-	void increaseMana(const float& increase);
 	bool isDead();
 
 	//-----Get-----//

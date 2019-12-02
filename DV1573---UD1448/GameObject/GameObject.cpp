@@ -28,7 +28,11 @@ GameObject::~GameObject()
 		//if (material)
 		//	for (int j = 0; j < (int)material->textureID.size(); j++)
 		//		glDeleteTextures(1, &material->textureID[j]);
-	}	
+	}
+
+	for (DebugDrawer* dd : m_debugDrawers)
+		if(dd != nullptr)
+			delete dd;
 
 	//Deletion of m_body is done in the destructor of BulletPhysics // nah bruh
 	for (int i = 0; i < (int)m_bodies.size(); i++)
@@ -650,6 +654,16 @@ void GameObject::createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp
 	m_transform.rotation = glm::quat();
 
 	setTransformFromRigid(meshIndex);
+}
+
+void GameObject::createDebugDrawer()
+{
+	for (size_t i = 0; i < m_bodies.size(); i++)
+	{
+		// Temporarily off, rotation of drawers do not work
+		//m_debugDrawers.emplace_back(new DebugDrawer());
+		//m_debugDrawers[i]->setUpMesh(*m_bodies[i]);
+	}
 }
 
 void GameObject::updateBulletRigids()

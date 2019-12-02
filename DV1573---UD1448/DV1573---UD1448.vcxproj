@@ -186,6 +186,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DebugDrawer\DebugDrawer.cpp" />
     <ClCompile Include="GameObject\EnemyShieldObject.cpp" />
     <ClCompile Include="GameObject\ShieldObject.cpp" />
     <ClCompile Include="Destruction\DelaunayGenerator.cpp" />
@@ -203,8 +204,6 @@
     <ClCompile Include="imgui_demo.cpp" />
     <ClCompile Include="imgui_draw.cpp" />
     <ClCompile Include="imgui_impl_glfw_gl3.cpp" />
-
-    <ClCompile Include="HUD\WorldHudObject.cpp" />
     <ClCompile Include="Mesh\AnimationMap.cpp" />
     <ClCompile Include="Mesh\MeshMap.cpp" />
     <ClCompile Include="Networking\Client.cpp" />
@@ -307,6 +306,7 @@
     <ClCompile Include="Destruction\VoroniCalculator.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DebugDrawer\DebugDrawer.h" />
     <ClInclude Include="GameObject\EnemyShieldObject.h" />
     <ClInclude Include="GameObject\ShieldObject.h" />
     <ClInclude Include="Destruction\DelaunayGenerator.h" />
@@ -322,14 +322,11 @@
     <ClInclude Include="GameObject\MapObject.h" />
     <ClInclude Include="GFX\Pointlight.h" />
     <ClInclude Include="HUD\HudHandler.h" />
-
     <ClInclude Include="imconfig.h" />
     <ClInclude Include="imgui.h" />
     <ClInclude Include="imgui_impl_glfw_gl3.h" />
     <ClInclude Include="imgui_internal.h" />
     <ClInclude Include="loaderFormat.h" />
-    <ClInclude Include="HUD\WorldHudObject.h" />
-
     <ClInclude Include="Mesh\AnimationMap.h" />
     <ClInclude Include="Mesh\MeshMap.h" />
     <ClInclude Include="Networking\Client.h" />

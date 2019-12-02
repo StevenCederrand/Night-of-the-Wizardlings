@@ -3,15 +3,12 @@
 #include <Pch/Pch.h>
 #include <GameObject/WorldObject.h>
 #include <Renderer/Renderer.h>
-#include <HUD/WorldHudObject.h>
 
 class NetworkPlayers {
 public:
 	struct PlayerEntity {
 		PlayerPacket data;
 		GameObject* gameobject = nullptr;
-		WorldHudObject* healthDisplay = nullptr;
-		WorldHudObject* manaDisplay = nullptr;
 		NetGlobals::THREAD_FLAG flag = NetGlobals::THREAD_FLAG::None;
 		float deflectSoundGain = 1.0f;
 		bool correctPositionOnFirstUpdate = false;	
@@ -31,7 +28,6 @@ private:
 	friend class Client;
 	std::vector<PlayerEntity> m_players;
 	float m_lerpSpeed = 15.f;
-	glm::vec2 m_displayScale;
 
 };
 

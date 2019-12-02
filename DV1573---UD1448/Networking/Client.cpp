@@ -891,12 +891,9 @@ void Client::processAndHandlePackets()
 
 			PlayerPacket* killer;
 			PlayerPacket* dead;
-			bool createPersonalKillFeed = false;
 
-			if (killFeed.killerGuid == m_myPlayerDataPacket.guid) {
-				createPersonalKillFeed = true;
+			if (killFeed.killerGuid == m_myPlayerDataPacket.guid)
 				killer = &m_myPlayerDataPacket;
-			}
 			else
 				killer = findPlayerByGuid(killFeed.killerGuid);
 			
@@ -908,71 +905,32 @@ void Client::processAndHandlePackets()
 
 			if (killer == nullptr || dead == nullptr)
 				return;
+
+			NotificationText t;
+			t.alphaColor = 1.0f;
+			t.width = 0;
+			t.scale = glm::vec3(0.35f);
+			t.useAlpha = false;
+			t.lifeTimeInSeconds = 5.0f;
+
+			glm::vec3 playerColor = glm::vec3(1.0f, 0.5f, 0.0f);
 			
-			
-			
-			
-			
+			std::string killername = std::string(killer->userName);
+			t.width += Renderer::getInstance()->getTextWidth(killername, t.scale);
+			t.textParts.emplace_back(killername, playerColor);
+
+			std::string text = std::string(" killed ");
+			t.width += Renderer::getInstance()->getTextWidth(text, t.scale);
+			t.textParts.emplace_back(text, glm::vec3(1.0f, 1.0f, 1.0f));
+
+			std::string deadguyName = std::string(dead->userName);
+			t.width += Renderer::getInstance()->getTextWidth(deadguyName, t.scale);
+			t.textParts.emplace_back(deadguyName, playerColor);
+
 			{
-				NotificationText t;
-				t.alphaColor = 1.0f;
-				t.width = 0;
-				t.scale = glm::vec3(0.35f);
-				t.useAlpha = false;
-				t.lifeTimeInSeconds = 5.0f;
-
-				glm::vec3 playerColor = glm::vec3(1.0f, 0.5f, 0.0f);
-
-				std::string killername = std::string(killer->userName);
-				t.width += Renderer::getInstance()->getTextWidth(killername, t.scale);
-				t.textParts.emplace_back(killername, playerColor);
-
-				std::string text = std::string(" killed ");
-				t.width += Renderer::getInstance()->getTextWidth(text, t.scale);
-				t.textParts.emplace_back(text, glm::vec3(1.0f, 1.0f, 1.0f));
-
-				std::string deadguyName = std::string(dead->userName);
-				t.width += Renderer::getInstance()->getTextWidth(deadguyName, t.scale);
-				t.textParts.emplace_back(deadguyName, playerColor);
-
-				{
-					std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateKillFeedMutex);
-					Renderer::getInstance()->addKillFeed(t);
-				}
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateKillFeedMutex);
+				Renderer::getInstance()->addKillFeed(t);
 			}
-
-
-			if (createPersonalKillFeed) {
-
-				NotificationText t;
-				t.alphaColor = 1.0f;
-				t.width = 0;
-				t.scale = glm::vec3(0.35f);
-				t.useAlpha = true;
-				t.lifeTimeInSeconds = 5.0f;
-
-				glm::vec3 playerColor = glm::vec3(1.0f, 0.5f, 0.0f);
-
-				std::string killername = "You";
-				t.width += Renderer::getInstance()->getTextWidth(killername, t.scale);
-				t.textParts.emplace_back(killername, playerColor);
-
-				std::string text = std::string(" killed ");
-				t.width += Renderer::getInstance()->getTextWidth(text, t.scale);
-				t.textParts.emplace_back(text, glm::vec3(1.0f, 1.0f, 1.0f));
-
-				std::string deadguyName = std::string(dead->userName);
-				t.width += Renderer::getInstance()->getTextWidth(deadguyName, t.scale);
-				t.textParts.emplace_back(deadguyName, playerColor);
-
-				{
-					std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateKillFeedMutex);
-					Renderer::getInstance()->addKillNotification(t);
-				}
-
-
-			}
-
 
 			break;
 		}

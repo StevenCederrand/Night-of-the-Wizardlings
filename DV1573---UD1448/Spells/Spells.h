@@ -10,8 +10,7 @@ struct AttackSpellBase
 	Mesh* m_mesh;
 	Material* m_material;
 
-	float m_lowDamage;
-	float m_highDamage;
+	float m_damage;
 	float m_speed;
 	float m_coolDown;
 	float m_radius;
@@ -25,8 +24,7 @@ struct AttackSpellBase
 		m_mesh = nullptr;
 		m_material = nullptr;
 		m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 12.0f);
-		m_lowDamage = 0;
-		m_highDamage = 0;
+		m_damage = 0;
 		m_speed = 0;
 		m_radius = 0;
 		m_coolDown = 0;

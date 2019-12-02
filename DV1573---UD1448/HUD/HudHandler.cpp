@@ -66,9 +66,9 @@ void HudHandler::loadPlayStateHUD() {
 
 	
 
-	hudObject = new HudObject("Assets/Textures/hud/PickupOverlayMana.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(static_cast<float>(SCREEN_WIDTH), (static_cast<float>(SCREEN_HEIGHT))));
+	hudObject = new HudObject("Assets/Textures/hud/PickupOverlay.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(static_cast<float>(SCREEN_WIDTH), (static_cast<float>(SCREEN_HEIGHT))));
 	hudObject->setAlpha(0.0f);
-	insertHUDObject(hudObject, HUDID::MANA_OVERLAY);
+	insertHUDObject(hudObject, HUDID::POWERUP);
 
 	hudObject = new HudObject("Assets/Textures/hud/DamageOverlay.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(static_cast<float>(SCREEN_WIDTH), (static_cast<float>(SCREEN_HEIGHT))));
 	hudObject->setAlpha(0.0f);

@@ -252,8 +252,77 @@ void DestructibleObject::loadBasic(std::string name)
 	newFace.resize(4 * count - 4);
 
 
+	int vi = 0;
+	int ni = 0;
+	int ti = 0;
+	m_scale = 1.0f;
+	float scale = m_scale;
 
-	meshFromPolygon(name);
+	// Top
+	for (int i = 0; i < count; i++)
+	{
+		newVertices[vi++].position = glm::vec3(m_polygonFace[i].x, m_polygonFace[i].y, scale);
+		newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, 1.0f);
+	}
+
+	// Bottom
+	for (int i = 0; i < count; i++)
+	{
+		newVertices[vi++].position = glm::vec3(m_polygonFace[i].x, m_polygonFace[i].y, -scale);
+		newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, -1.0f);
+	}
+
+	// Sides
+	for (int i = 0; i < count; i++)
+	{
+		int iNext = i == count - 1 ? 0 : i + 1;
+
+		newVertices[vi++].position = glm::vec3(m_polygonFace[i].x, m_polygonFace[i].y, scale);
+		newVertices[vi++].position = glm::vec3(m_polygonFace[i].x, m_polygonFace[i].y, -scale);
+		newVertices[vi++].position = glm::vec3(m_polygonFace[iNext].x, m_polygonFace[iNext].y, -scale);
+		newVertices[vi++].position = glm::vec3(m_polygonFace[iNext].x, m_polygonFace[iNext].y, scale);
+
+		normal = glm::normalize(glm::cross(glm::vec3(m_polygonFace[iNext] - m_polygonFace[i], 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+
+		newVertices[ni++].Normals = normal;
+		newVertices[ni++].Normals = normal;
+		newVertices[ni++].Normals = normal;
+		newVertices[ni++].Normals = normal;
+	}
+
+	for (int vert = 2; vert < count; vert++)
+	{
+		newFace[ti].indices[0] = 0;
+		newFace[ti].indices[1] = vert - 1;
+		newFace[ti].indices[2] = vert;
+		ti++;
+	}
+
+	for (int vert = 2; vert < count; vert++)
+	{
+		newFace[ti].indices[0] = count;
+		newFace[ti].indices[1] = count + vert;
+		newFace[ti].indices[2] = count + vert - 1;
+		ti++;
+	}
+
+	int si = 0;
+	for (int vert = 0; vert < count; vert++)
+	{
+		si = 2 * count + 4 * vert;
+
+		newFace[ti].indices[0] = si;
+		newFace[ti].indices[1] = si + 1;
+		newFace[ti].indices[2] = si + 2;
+		ti++;
+
+		newFace[ti].indices[0] = si;
+		newFace[ti].indices[1] = si + 2;
+		newFace[ti].indices[2] = si + 3;
+		ti++;
+	}
+
+
 	initMesh(name, newVertices, newFace);
 
 }
@@ -296,7 +365,6 @@ void DestructibleObject::meshFromPolygon(std::string name)
 	{
 		newVertices[vi++].position = glm::vec3(m_polygonFace[i].x, m_polygonFace[i].y, scale);
 		newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, 1.0f);
-
 	}
 
 	// Bottom

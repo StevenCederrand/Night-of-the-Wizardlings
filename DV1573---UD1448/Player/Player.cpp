@@ -91,7 +91,7 @@ void Player::update(float deltaTime)
 
 	//Regenerate mana when we are not deflecting
 	if (!m_rMouse && m_mana < 100 && m_deflectCooldown <= 0) {
-		m_mana += 0.3f * DeltaTime;
+		m_mana += 7.5f * DeltaTime;
 	}
 	else if (m_deflectCooldown > 0 && !m_rMouse) {
 		m_deflectCooldown -= DeltaTime;
@@ -265,6 +265,7 @@ void Player::PlayAnimation(float deltaTime)
 		m_firstPersonMesh->playLoopAnimation("DeflectAnimation");
 		//animState.deflecting = false;
 	}
+
 
 	m_firstPersonMesh->update(deltaTime);
 
@@ -448,15 +449,6 @@ void Player::onDead()
 void Player::onRespawn()
 {
 	m_mana = 100.0f;
-}
-
-void Player::increaseMana(const float& increase)
-{
-	m_mana += increase;
-	// Clamp mana
-	if (m_mana > 100.0f) {
-		m_mana = 100;
-	}
 }
 
 void Player::setHealth(int health)
