@@ -73,7 +73,9 @@ private:
     Camera* m_camera;
     std::vector<GameObject*> m_objects;
 
-    bool m_spellAlive = true;
+    bool m_AttackSpellAlive = true;
+    bool m_FireSpellAlive = true;
+
 
 
 

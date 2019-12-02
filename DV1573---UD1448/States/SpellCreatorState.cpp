@@ -120,6 +120,7 @@ void SpellCreatorState::update(float dt)
     if (isProjectile)
     {
         isAOE = false;
+
         editAttackSpell();
     }
     if (isAOE)
@@ -200,6 +201,14 @@ void SpellCreatorState::chooseSpell()
 
 void SpellCreatorState::editAttackSpell()
 {
+    if (m_AttackSpellAlive == true)
+    {
+        m_spellHandler->changeSpell(0);
+        m_spellHandler->createSpellForTool(glm::vec3(0, 3, -10), glm::vec3(0, 0, 0), NORMALATTACKTOOL);
+        m_AttackSpellAlive = false;
+        m_FireSpellAlive = true;
+    }
+
     ImGui::Text("Edit Projectile values");											            // Display some text (you can use a format strings too)
     ImGui::SliderFloat("Spell Damage", &m_ProjectileDmg, 10.0f, 40.0f);
     ImGui::SliderFloat("Spell Speed", &m_ProjectileSpeed, 0.0f, 200.0f);
@@ -211,5 +220,13 @@ void SpellCreatorState::editAttackSpell()
 
 void SpellCreatorState::editAOEAttackSpell()
 {
+    if (m_FireSpellAlive == true)
+    {
+        m_spellHandler->changeSpell(1);
+        m_spellHandler->createSpellForTool(glm::vec3(0, 3, -20), glm::vec3(0, 0, 0), FIRETOOL);
+        m_FireSpellAlive = false;
+        m_AttackSpellAlive = true;
+    }
+
     ImGui::Text("Here Area of Effect spell data will be edited...");
 }

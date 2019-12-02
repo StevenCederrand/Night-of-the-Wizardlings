@@ -535,12 +535,18 @@ void SpellHandler::createSpellForTool(glm::vec3 spellPos, glm::vec3 directionVec
 
 void SpellHandler::spellToolUpdate(float dt)
 {
+    std::cout << activespell << std::endl;
+
     for (size_t i = 0; i < spells.size(); i++)
     {
         if (spells[i]->getTravelTime() > 0)
         {
+            if (activespell == 1)
+            {
+                spells[i]->setTravelTime(0);
+            }
 
-            //spells[i]->update(dt);
+           // spells[i]->update(dt);
             //spells[i]->updateRigidbody(dt, m_BulletNormalSpell.at(i));
            // Client::getInstance()->updateSpellOnNetwork(*spells[i]);
 
@@ -564,7 +570,13 @@ void SpellHandler::spellToolUpdate(float dt)
     {
         if (fireSpells[i]->getTravelTime() > 0)
         {
-            fireSpells[i]->update(dt);
+
+            if (activespell == 0)
+            {
+                fireSpells[i]->setTravelTime(0);
+            }
+
+            //fireSpells[i]->update(dt);
 
             Client::getInstance()->updateSpellOnNetwork(*fireSpells[i]);
         }
@@ -584,6 +596,11 @@ void SpellHandler::renderSpellTool()
 {
     ShaderMap::getInstance()->useByName(BASIC_FORWARD);
     Renderer::getInstance()->renderSpell(this);
+}
+
+void SpellHandler::changeSpell(int state)
+{
+    activespell = state;
 }
 
 void SpellHandler::spellUpdate(float deltaTime)
@@ -653,7 +670,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 	{
 		if (spells[i]->getTravelTime() > 0)
 		{
-			
+
 			spells[i]->update(deltaTime);
 			spells[i]->updateRigidbody(deltaTime, m_BulletNormalSpell.at(i));
 			Client::getInstance()->updateSpellOnNetwork(*spells[i]);
