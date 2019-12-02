@@ -3,8 +3,7 @@
 
 #include <random>
 
-ParticleSystem::ParticleSystem(PSinfo* psInfo, TextureInfo* txtInfo, glm::vec3 position, GLuint shader,
-	psBuffers psBuffer, std::vector<glm::vec3> vertex, std::vector<glm::vec3> directionVector, std::vector<Particle> particle, std::vector<float> lifetime)
+ParticleSystem::ParticleSystem(PSinfo* psInfo, TextureInfo* txtInfo, ParticleBuffers* particleBuffers)
 {
 	//TextureInfo rings;
 	//rings.name = "Assets/Textures/Spell_1.png";
@@ -14,25 +13,25 @@ ParticleSystem::ParticleSystem(PSinfo* psInfo, TextureInfo* txtInfo, glm::vec3 p
 	m_txtInfo = txtInfo;//&rings;
 	m_psInfo = psInfo;
 	m_position = glm::vec3(0, -100, 0);
-	m_shader = shader;
+	m_shader = particleBuffers->getShader();
 	m_current = psInfo->emission;
 
 	//Instead of 0 this now gets data from the buffer class
-	m_texture = psBuffer.texture;
-	m_vertexBuffer = psBuffer.vertexBuffer;
-	m_directionalBuffer = psBuffer.directionalBuffer;
-	m_lifetimeBuffer = psBuffer.lifetimeBuffer;
-	m_vertexPosition = psBuffer.vertexPosition;
-	m_vertexDirection = psBuffer.vertexDirection;
-	m_vertexLife = psBuffer.vertexLife;
+	m_texture = particleBuffers->getTexture();
+	m_vertexBuffer = particleBuffers->getVertexBuffer();
+	m_directionalBuffer = particleBuffers->getDirectionalBuffer();
+	m_lifetimeBuffer = particleBuffers->getLifetimeBuffer();
+	m_vertexPosition = particleBuffers->getVertexPos();
+	m_vertexDirection = particleBuffers->getVertexDir();
+	m_vertexLife = particleBuffers->getVertexLife();
 
 	//This is for the vector info
-	m_vertex = vertex;
-	m_directionVector = directionVector;
-	m_particle = particle;
-	m_lifetime = lifetime;
-
-	m_vao = psBuffer.vao;
+	m_vertex = particleBuffers->getVertex();
+	m_directionVector = particleBuffers->getDir();
+	m_particle = particleBuffers->getParticle();
+	m_lifetime = particleBuffers->getLifetime();
+	
+	m_vao = particleBuffers->getVAO();
 
 	Initialize();
 }
@@ -387,7 +386,7 @@ void ParticleSystem::TempInit(PSinfo* psInfo)
 {
 }
 
-void ParticleSystem::Render(const Camera* camera, const PSinfo* psInfo)
+void ParticleSystem::Render(const Camera* camera)
 {
 	ShaderMap::getInstance()->useByName(PARTICLES);
 	//glUseProgram(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
@@ -406,13 +405,13 @@ void ParticleSystem::Render(const Camera* camera, const PSinfo* psInfo)
 
 	shader->setMat4("WVP", VP); //Flipped order, check this!
 	shader->setVec3("cam", camera->getCamPos());
-	shader->setVec2("size", (glm::vec2(psInfo->width, psInfo->heigth)));
-	shader->setInt("scaleDirection", psInfo->scaleDirection);
-	shader->setInt("swirl", psInfo->swirl);
-	shader->setFloat("glow", psInfo->glow);
-	shader->setInt("fade", psInfo->fade);
-	shader->setVec3("color", psInfo->color);
-	shader->setVec3("blendColor", psInfo->blendColor);
+	shader->setVec2("size", (glm::vec2(m_psInfo->width, m_psInfo->heigth)));
+	shader->setInt("scaleDirection", m_psInfo->scaleDirection);
+	shader->setInt("swirl", m_psInfo->swirl);
+	shader->setFloat("glow", m_psInfo->glow);
+	shader->setInt("fade", m_psInfo->fade);
+	shader->setVec3("color", m_psInfo->color);
+	shader->setVec3("blendColor", m_psInfo->blendColor);
 
 
 

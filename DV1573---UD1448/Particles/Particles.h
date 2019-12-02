@@ -3,8 +3,11 @@
 
 #include <Pch/Pch.h>
 #include <streambuf>
+//#include <Particles/ParticleBuffers.h>
 
 const int MaxParticles = 100000;
+
+class ParticleBuffers;
 
 
 struct TextureInfo //Information for the texture that we apply to the particles
@@ -94,8 +97,7 @@ private:
 
 public:
 	//unsigned int shader is not used!
-	ParticleSystem(PSinfo* psInfo, TextureInfo* txtInfo, glm::vec3 position, GLuint shader, psBuffers psBuffer,
-		std::vector<glm::vec3> vertex, std::vector<glm::vec3> directionVector, std::vector<Particle> particle, std::vector<float> lifetime);
+	ParticleSystem(PSinfo* psInfo, TextureInfo* txtInfo, ParticleBuffers* particleBuffers);
 	//ParticleSystem();
 	~ParticleSystem();
 
@@ -113,7 +115,7 @@ public:
 
 	void Update(PSinfo* psInfo, glm::vec3 cameraPos, float time);
 	void TempInit(PSinfo* psInfo);
-	void Render(const Camera* camera, const PSinfo* psInfo);
+	void Render(const Camera* camera);
 	void Pause();
 	void Play();
 

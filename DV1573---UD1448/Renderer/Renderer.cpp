@@ -492,16 +492,14 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 		{
 			light.attenAndRadius = m_spellHandler->getAttackBase()->m_attenAndRadius;
 			light.color = m_spellHandler->getAttackBase()->m_material->diffuse;
-			m_particleSystems.emplace_back(ParticleSystem(&m_PSinfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), attackBuffer,
-				attackPS->getVertex(), attackPS->getDir(), attackPS->getParticle(), attackPS->getLifetime()));
+			m_particleSystems.emplace_back(ParticleSystem(&m_PSinfo, &rings, attackPS));
 		}
 
 		else if (spell->getType() == OBJECT_TYPE::ENHANCEATTACK)
 		{
 			light.attenAndRadius = m_spellHandler->getEnhAttackBase()->m_attenAndRadius;
 			light.color = m_spellHandler->getEnhAttackBase()->m_material->diffuse;
-			m_particleSystems.emplace_back(ParticleSystem(&m_enhanceInfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), enhanceBuffer,
-				enhancePS->getVertex(), enhancePS->getDir(), enhancePS->getParticle(), enhancePS->getLifetime()));
+			m_particleSystems.emplace_back(ParticleSystem(&m_enhanceInfo, &rings, enhancePS));
 		}
 
 		else if (spell->getType() == OBJECT_TYPE::FIRE)
@@ -509,16 +507,14 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 			light.position.y += 2.0f;
 			light.attenAndRadius = m_spellHandler->getFireBase()->m_attenAndRadius;
 			light.color = m_spellHandler->getFireBase()->m_material->diffuse;
-			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &smoke, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
-				flamestrikePS->getVertex(), flamestrikePS->getDir(), flamestrikePS->getParticle(), flamestrikePS->getLifetime()));
+			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &smoke, flamestrikePS));
 		}
 
 		else if (spell->getType() == OBJECT_TYPE::FLAMESTRIKE)
 		{
 			light.attenAndRadius = m_spellHandler->getFlamestrikeBase()->m_attenAndRadius;
 			light.color = m_spellHandler->getFlamestrikeBase()->m_material->diffuse;
-			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
-				flamestrikePS->getVertex(), flamestrikePS->getDir(), flamestrikePS->getParticle(), flamestrikePS->getLifetime()));
+			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &rings, flamestrikePS));
 		}
 		
 		m_lights.emplace_back(light);
@@ -1348,7 +1344,7 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 
 			glBindVertexArray(0);
 			m_particleSystems[i].SetPosition(meshTransform.position);
-			m_particleSystems[i].Render(m_camera, &m_PSinfo);
+			m_particleSystems[i].Render(m_camera);
 		}
 		else if (m_spells[i]->getType() == OBJECT_TYPE::ENHANCEATTACK)
 		{
@@ -1358,7 +1354,7 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 			glBindVertexArray(0);
-			m_particleSystems[i].Render(m_camera, &m_enhanceInfo);
+			m_particleSystems[i].Render(m_camera);
 			m_particleSystems[i].SetPosition(meshTransform.position);
 		}
 		else if (m_spells[i]->getType() == OBJECT_TYPE::REFLECT)
@@ -1390,7 +1386,7 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 			//glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 			glBindVertexArray(0);
 
-			m_particleSystems[i].Render(m_camera, &m_flameInfo);
+			m_particleSystems[i].Render(m_camera);
 			m_particleSystems[i].SetPosition(glm::vec3(meshTransform.position.x, meshTransform.position.y - 1, meshTransform.position.z));
 		}
 
@@ -1465,7 +1461,7 @@ void Renderer::initializeParticle()
 	attackPS->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
 	attackPS->bindBuffers();
 
-	attackBuffer = attackPS->getBuffer();
+	//attackBuffer = attackPS->getBuffer();
 
 
 	//------------------------------------------

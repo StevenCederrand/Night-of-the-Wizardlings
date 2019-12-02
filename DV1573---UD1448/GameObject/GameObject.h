@@ -5,6 +5,8 @@
 #include <GFX/MaterialMap.h>
 #include <Mesh/Mesh.h>
 #include <System/BulletPhysics.h>
+#include <Particles/Particles.h>
+#include <Particles/ParticleBuffers.h>
 
 class GameObject {
 public:
@@ -34,6 +36,7 @@ public:
 	void updateBulletRigids();
 
 	void setTransformFromRigid(int i);
+	void addParticle(PSinfo psInfo, TextureInfo txtInfo, ParticleBuffers particleBuffers);
 
 
 	virtual void update(float dt) = 0;
@@ -69,6 +72,7 @@ public:
 	const std::vector<btRigidBody*>& getRigidBodies()  { return m_bodies; }	
 	const bool& getShouldRender() const;
 	const glm::vec3 getLastPosition() const;
+	const std::vector<ParticleSystem>& getParticles() const { return m_particleSystems; } //Get the particle vector so we can render and stuff
 
 private:
 	void updateModelMatrix();
@@ -90,6 +94,8 @@ private:
 
 	// Allocate for later
 	Transform t_transform;
+
+	std::vector<ParticleSystem> m_particleSystems;
 
 protected:
 	std::vector<glm::mat4> m_modelMatrixes;

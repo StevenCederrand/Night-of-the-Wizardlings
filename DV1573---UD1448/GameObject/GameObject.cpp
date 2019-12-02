@@ -683,3 +683,8 @@ void GameObject::setTransformFromRigid(int i)
 
 	setTransform(t_transform, i);
 }
+
+void GameObject::addParticle(PSinfo psInfo, TextureInfo txtInfo, ParticleBuffers particleBuffers)
+{
+	m_particleSystems.emplace_back(ParticleSystem(&psInfo, &txtInfo, &particleBuffers));
+}
