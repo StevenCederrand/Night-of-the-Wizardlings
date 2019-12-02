@@ -153,6 +153,12 @@ PlayState::PlayState(bool spectator)
 	m_objects.push_back(new MapObject("Academy_Outer"));
 	m_objects[m_objects.size() - 1]->loadMesh("ExteriorTest.mesh");
 	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
+
+	m_objects.push_back(new MapObject("Debris1"));
+	m_objects[m_objects.size() - 1]->loadMesh("StonePlane.mesh");
+	m_objects[m_objects.size() - 1]->setTransform(glm::vec3(0.0f, 1000.0f, 0.0f), glm::quat(glm::vec3(0.f, 0.f, 0.f)), glm::vec3(8.f));
+	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::SKYOBJECTS);
+
 	mu.printBoth("After Academy Outer:");
 	startY = SCREEN_HEIGHT / 2;
 
