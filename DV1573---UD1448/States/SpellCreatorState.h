@@ -20,6 +20,10 @@
 #include <stdio.h>
 #include <GL/glew.h> 
 #include <GLFW/glfw3.h>
+#include <imfilebrowser.h>
+
+#include "spellLoader.h"
+
 
 
 //bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
@@ -36,6 +40,23 @@ public:
 	virtual void render() override;
     void chooseSpell();
 
+    //IMGUI
+    bool my_tool_active = true;
+    bool isProjectile = false;
+    bool isAOE = false;
+    bool isEnhanceProjectile = false;
+    SpellLoader myLoader;
+    //-----test data-----//
+    std::string m_name = "fireball";
+    float m_ProjectileDmg = 0;
+    float m_ProjectileSpeed = 0;
+    float m_ProjectileCooldown = 0;
+    float m_ProjectileRadius = 0;
+    float m_ProjectileLifetime = 0;
+    int m_ProjectileMaxBounces = 1;
+    //-----File opener/Path to Exports-----//
+    ImGui::FileBrowser fileDialog;
+
 
 private:
     Player* m_player;
@@ -51,3 +72,9 @@ private:
 
 };
 #endif
+
+
+
+// Notes
+// # Added _CRT_SECURE_NO_WARNINGS in: Properties/ C/C++ / Preprocessor
+// # Changed the language standard in: Properties/ C/C++ / Language
