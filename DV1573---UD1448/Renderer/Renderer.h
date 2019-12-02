@@ -16,8 +16,9 @@
 #define WHUD "wHudShader"
 #define PARTICLES "Particle_Shader"
 
-// Debug define
-//#define DEBUG_WIREFRAME
+//Rendering Options 
+#define FORWARDPLUS true;
+#define SSAO true;
 
 #include <Pch/Pch.h>
 #include <GameObject/GameObject.h>
@@ -54,6 +55,7 @@ struct PLIGHT {
 	glm::vec3 position;
 	glm::vec3 color;
 	glm::vec4 attenAndRadius;
+	float strength;
 	int index;
 };
 
@@ -106,13 +108,14 @@ private:
 	//unsigned int m_hdrFbo;
 	unsigned int m_colourBuffer;
 	unsigned int m_rbo;
-
+	bool m_renderedDepthmap;
 	//Storage Buffer for light indecies
 	unsigned int m_lightIndexSSBO;
 	glm::uvec2 workGroups;
 	void renderAndAnimateNetworkingTexts();
 
 
+#pragma region Particles
 	//Particle variables
 	unsigned int m_matrixID;
 	unsigned int m_cameraID;
@@ -123,7 +126,6 @@ private:
 	unsigned int m_fadeID;
 	unsigned int m_colorID;
 	unsigned int m_blendColorID;
-
 
 	int	thisActive = 0;
 	int	vertexCountDiff = 0;
@@ -154,6 +156,7 @@ private:
 	ParticleBuffers* flamestrikePS;
 	ParticleBuffers* enhancePS;
 	ParticleBuffers* smokePS;
+#pragma endregion
 
 	void renderBigNotifications();
 	void renderKillFeed();
@@ -183,10 +186,10 @@ public:
 	void removeRenderObject(GameObject* gameObject, RENDER_TYPE objType); //Remove an object from the dynamic array
 	void renderSkybox();
 	void render();
-	//void renderSpell();
+	void renderDepthmap(); //Generate a depthmap, this is used for both Forward+ and SSAO
 	void renderHUD();
 	void renderWorldHud();
-	void renderDebug();
+
 
 	void addBigNotification(NotificationText notification);
 	void addKillFeed(NotificationText notification);

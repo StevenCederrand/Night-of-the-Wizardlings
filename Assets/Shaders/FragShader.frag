@@ -10,6 +10,7 @@ struct P_LIGHT {
     vec3 position;
     vec3 color; //Light that is sent out from the light
     vec4 attenAndRadius;
+    float strength;
 };
 
 in vec2 f_UV;
@@ -41,11 +42,14 @@ uniform vec3 Diffuse_Color;             // Material diffuse
 uniform vec3 Specular_Color;            // Material specular
 uniform vec2 TexAndRim;                 // Booleans --- Textures & Rimlighting
 
-uniform int LightCount;
+uniform int LightCount;                 //Used when lightculling. To know how many lights there are in total in the scene
 uniform sampler2D albedoTexture;        // Texture diffuse
+
+uniform sampler2D depthTexture;         //Used for SSAO
 
 uniform int grayscale = 0;
 uniform P_LIGHT pLights[LIGHTS_MAX];
+
 
 vec3 calcPointLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance, vec3 diffuse);
 //Calculate the directional light... Returns the diffuse color, post calculations
@@ -87,7 +91,7 @@ void main() {
             // Hardcode strength because lights have no input and lazy Xd
             float str = pointLightModP;
 
-             if(pLights[i].attenAndRadius.w >= 31.0f)
+            if(pLights[i].attenAndRadius.w >= 31.0f)
             {
                 str = pointLightMod1;
             }
@@ -102,7 +106,7 @@ void main() {
             // Hardcode strength because lights have no input and lazy Xd
 
 
-            pointLights += calcPointLights(pLights[i], f_normal, f_position.xyz, distance, diffuseColor) * str;
+            pointLights += calcPointLights(pLights[i], f_normal, f_position.xyz, distance, diffuseColor) * pLights[i].strength;
         }
     }
 
@@ -112,7 +116,7 @@ void main() {
     if(grayscale == 1){
     	result = grayscaleColour(result);
     }
-   
+
     color = vec4(result, 1);
 }
 

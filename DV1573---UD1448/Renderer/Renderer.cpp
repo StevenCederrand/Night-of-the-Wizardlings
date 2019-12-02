@@ -492,14 +492,17 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 		{
 			light.attenAndRadius = m_spellHandler->getAttackBase()->m_attenAndRadius;
 			light.color = m_spellHandler->getAttackBase()->m_material->diffuse;
+			light.strength = m_spellHandler->getAttackBase()->m_strength;
 			m_particleSystems.emplace_back(ParticleSystem(&m_PSinfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), attackBuffer,
 				attackPS->getVertex(), attackPS->getDir(), attackPS->getParticle(), attackPS->getLifetime()));
+
 		}
 
 		else if (spell->getType() == OBJECT_TYPE::ENHANCEATTACK)
 		{
 			light.attenAndRadius = m_spellHandler->getEnhAttackBase()->m_attenAndRadius;
 			light.color = m_spellHandler->getEnhAttackBase()->m_material->diffuse;
+			light.strength = m_spellHandler->getEnhAttackBase()->m_strength;
 			m_particleSystems.emplace_back(ParticleSystem(&m_enhanceInfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), enhanceBuffer,
 				enhancePS->getVertex(), enhancePS->getDir(), enhancePS->getParticle(), enhancePS->getLifetime()));
 		}
@@ -509,6 +512,7 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 			light.position.y += 2.0f;
 			light.attenAndRadius = m_spellHandler->getFireBase()->m_attenAndRadius;
 			light.color = m_spellHandler->getFireBase()->m_material->diffuse;
+			light.strength = m_spellHandler->getFireBase()->m_strength;
 			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &smoke, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
 				flamestrikePS->getVertex(), flamestrikePS->getDir(), flamestrikePS->getParticle(), flamestrikePS->getLifetime()));
 		}
@@ -517,6 +521,7 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 		{
 			light.attenAndRadius = m_spellHandler->getFlamestrikeBase()->m_attenAndRadius;
 			light.color = m_spellHandler->getFlamestrikeBase()->m_material->diffuse;
+			light.strength = m_spellHandler->getFlamestrikeBase()->m_strength;
 			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
 				flamestrikePS->getVertex(), flamestrikePS->getDir(), flamestrikePS->getParticle(), flamestrikePS->getLifetime()));
 		}
@@ -549,6 +554,7 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 		light.position = gameObject->getTransform().position;
 		light.color = lightRef->getColor();
 		light.attenAndRadius = lightRef->getAttenuationAndRadius(); //First 3 dims are for the attenuation, final 4th is for radius
+		light.strength = lightRef->getStrength();
 		light.index = -2;
 		
 		m_lights.emplace_back(light);
@@ -744,6 +750,50 @@ void Renderer::renderSkybox()
 	glEnable(GL_CULL_FACE);
 }
 
+void Renderer::renderDepthmap() {
+	Shader* shader = ShaderMap::getInstance()->useByName(DEPTH_MAP);
+	glm::mat4 modelMatrix;
+	Mesh* mesh = nullptr;
+	//Bind and draw the objects to the depth-buffer
+	bindMatrixes(shader);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_depthFBO);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	//Loop through all of the static Gameobjects
+	for (GameObject* object : m_staticObjects)
+	{
+		if (object == nullptr) {
+			continue;
+		}
+
+		if (!object->getShouldRender()) {
+			continue;
+		}
+
+		//Then through all of the meshes
+		for (int j = 0; j < object->getMeshesCount(); j++)
+		{
+			glEnableVertexAttribArray(0);
+			modelMatrix = glm::mat4(1.0f);
+			//Fetch the current mesh and its transform
+			mesh = object->getMesh(j);
+
+			modelMatrix = object->getMatrix(j);
+
+			glBindVertexArray(mesh->getBuffers().vao);
+
+			//Bind the modelmatrix
+			shader->setMat4("modelMatrix", modelMatrix);
+
+			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+			glBindVertexArray(0);
+			glDisableVertexAttribArray(0);
+		}
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	m_renderedDepthmap = true; 
+}
+
 void Renderer::render() {
 	Mesh* mesh = nullptr;
 	Transform transform;
@@ -752,122 +802,25 @@ void Renderer::render() {
 	MeshMap* meshMap = MeshMap::getInstance();
 	ShaderMap* shaderMap = ShaderMap::getInstance();
 	Material* material = nullptr;
-	
-	/*
-#pragma region Depth_Render & Light_Cull
+	//We always assume that we haven't rendered a depthmap
+	m_renderedDepthmap = false; //This is set to true in renderDepthmap()
+
+
+#if FORWARDPLUS	
 	if (m_lights.size() > 0) {
-		shader = shaderMap->useByName(DEPTH_MAP);
+		renderDepthmap();
+	}
+#endif
 
-		//Bind and draw the objects to the depth-buffer
-		bindMatrixes(shader);
-		glBindFramebuffer(GL_FRAMEBUFFER, m_depthFBO);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		//Loop through all of the gameobjects
-		for (GameObject* object : m_staticObjects)
-		{
-			if (object == nullptr) {
-				continue;
-			}
+#if SSAO
+	if (!m_renderedDepthmap) {
+		renderDepthmap();
+	} 
+#endif
 
-			if (!object->getShouldRender()) {
-				continue;
-			}
-
-			//Then through all of the meshes
-			for (int j = 0; j < object->getMeshesCount(); j++)
-			{
-				glEnableVertexAttribArray(0);
-				modelMatrix = glm::mat4(1.0f);
-				//Fetch the current mesh and its transform
-				mesh = object->getMesh(j);
-
-				modelMatrix = object->getMatrix(j);
-
-				glBindVertexArray(mesh->getBuffers().vao);
-
-				//Bind the modelmatrix
-				shader->setMat4("modelMatrix", modelMatrix);
-
-				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
-				glBindVertexArray(0);
-				glDisableVertexAttribArray(0);
-			}
-		}
-
-		//Animated static objects
-		//TODO: Consider animation for the depth shader
-		for (GameObject* object : m_anistaticObjects)
-		{
-			if (object == nullptr) {
-				continue;
-			}
-
-			if (!object->getShouldRender()) {
-				continue;
-			}
-
-			//Then through all of the meshes
-			for (int j = 0; j < object->getMeshesCount(); j++)
-			{
-				glEnableVertexAttribArray(0);
-				modelMatrix = glm::mat4(1.0f);
-				//Fetch the current mesh and its transform
-
-				mesh = object->getMesh(j);
-
-				modelMatrix = object->getMatrix(j);
-
-				glBindVertexArray(mesh->getBuffers().vao);
-
-				//Bind the modelmatrix
-				shader->setMat4("modelMatrix", modelMatrix);
-
-				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
-				glBindVertexArray(0);
-				glDisableVertexAttribArray(0);
-			}
-		}
-
-		for (GameObject* object : m_pickups)
-		{
-			if (object == nullptr) {
-				continue;
-			}
-
-			if (!object->getShouldRender()) {
-				continue;
-			}
-
-			Pickup* p = dynamic_cast<Pickup*>(object);
-
-			//Then through all of the meshes
-			for (int j = 0; j < object->getMeshesCount(); j++)
-			{
-				glEnableVertexAttribArray(0);
-				modelMatrix = glm::mat4(1.0f);
-				//Fetch the current mesh and its transform
-
-				mesh = p->getRenderInformation().mesh;
-
-				modelMatrix = object->getMatrix(j);
-
-				glBindVertexArray(mesh->getBuffers().vao);
-
-				//Bind the modelmatrix
-				shader->setMat4("modelMatrix", modelMatrix);
-
-				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
-				glBindVertexArray(0);
-				glDisableVertexAttribArray(0);
-			}
-		}
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-#pragma region Light_Culling
+#if FORWARDPLUS
+	//Light Culling from the compute shader
+	if (m_lights.size() > 0) {
 		shader = shaderMap->useByName(LIGHT_CULL);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
 		bindMatrixes(shader);
@@ -891,28 +844,13 @@ void Renderer::render() {
 		//Unbind the depth
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, 0);
-#pragma endregion
 	}
-
-	*/
-	
-	//BLOOMBLUR MISSION STEP 1: SAMPLE
-	//m_bloom->bindHdrFBO();
-
-	//renderDeflectBox(m_deflectBox);
-
-//#ifdef DEBUG_WIREFRAME
-//	// DEBUG (MOSTLY FOR DSTR)
-//	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_M) == GLFW_PRESS)
-//		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-//	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_N) == GLFW_PRESS)
-//		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-//#endif
+#endif
 
 #pragma region Color_Render
+
 	shader = shaderMap->useByName(BASIC_FORWARD);
 	shader->clearBinding();
-
 	if (Client::getInstance()->getMyData().health <= 0) {
 		shader->setInt("grayscale", 1);
 	}
@@ -938,10 +876,9 @@ void Renderer::render() {
 			else {
 				shader->setVec3("pLights[" + std::to_string(i) + "].position", m_lights[i].position);
 			}
-			
 			shader->setVec3("pLights[" + iConv + "].color", m_lights[i].color);
-
 			shader->setVec4("pLights[" + iConv + "].attenAndRadius", m_lights[i].attenAndRadius);
+			shader->setFloat("pLights[" + iConv + "].strength", m_lights[i].strength);
 		}
 	}
 
@@ -1086,7 +1023,6 @@ void Renderer::render() {
 	shader->clearBinding();
 #pragma endregion
 
-
 #pragma region Animation_Render
 	//TODO: Evaluate this implementation, should be an easier way to bind values to shaders as they're changed
 	// Possibly extract functions. Only difference in rendering is the shader and the binding of bone matrices
@@ -1166,38 +1102,12 @@ void Renderer::render() {
 
 	shader->clearBinding();
 #pragma endregion
+
+
 	renderSkybox();
 	// Spell Rendering
 	m_spellHandler->renderSpell();
-
-#ifdef DEBUG_WIREFRAME
-	// DEBUG (MOSTLY FOR DSTR)
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-#endif
-
-	//ShaderMap::getInstance()->useByName(BLUR);
-	//ShaderMap::getInstance()->getShader(BLUR)->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
-	//m_bloom->blurIteration(0);
-	//for (unsigned int i = 0; i < m_bloom->getAmount() - 1; i++)
-	//{
-	//	ShaderMap::getInstance()->getShader(BLUR)->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
-	//	m_bloom->blurIteration(1);
-	//}
-	//m_bloom->unbindTextures();
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	//ShaderMap::getInstance()->useByName(BLOOM_BLUR);
-	//If the client is dead
-	//
-	//if (Client::getInstance()->getMyData().health <= 0) {
-	//	ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("grayscale", 1);
-	//}
-	//else {
-	//	ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("grayscale", 0);
-	//}
-	//m_bloom->sendTextureLastPass();
-	//m_bloom->renderQuad();
-	//m_bloom->unbindTextures();
-
+	
 #pragma region Enemy_Deflect_Render
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1295,9 +1205,7 @@ void Renderer::render() {
 	m_shieldObject.clear();
 	shader->clearBinding();
 #pragma endregion
-
-
-
+	   
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	renderWorldHud();

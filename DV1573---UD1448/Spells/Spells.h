@@ -19,7 +19,7 @@ struct AttackSpellBase
 	float m_lifeTime;
 	float m_maxBounces;
 	glm::vec4 m_attenAndRadius; //This is important for lights, xyz are attenuation values, while W is radius
-
+	float m_strength;
 	AttackSpellBase()
 	{
 		m_mesh = nullptr;
@@ -30,7 +30,7 @@ struct AttackSpellBase
 		m_speed = 0;
 		m_radius = 0;
 		m_coolDown = 0;
-
+		m_strength = 0;
 		m_lifeTime = 0;
 		m_maxBounces = 0;
 	}
@@ -62,6 +62,7 @@ struct EnhanceAtkSpellBase
 	float m_lifeTime;
 	float m_maxBounces;
 	glm::vec4 m_attenAndRadius; //This is important for lights, xyz are attenuation values, while W is radius
+	float m_strength;
 	EnhanceAtkSpellBase()
 	{
 		m_mesh = nullptr;
@@ -72,6 +73,7 @@ struct EnhanceAtkSpellBase
 		m_radius = 0;
 		m_lifeTime = 0;
 		m_maxBounces = 0;
+		m_strength = 0;
 	}
 	~EnhanceAtkSpellBase()
 	{
@@ -101,6 +103,7 @@ struct ReflectSpellBase
 	float m_coolDown;
 	float m_lifeTime;
 	glm::vec4 m_attenAndRadius; //This is important for lights, xyz are attenuation values, while W is radius
+	float m_strength;
 	ReflectSpellBase()
 	{
 		m_mesh = nullptr;
@@ -109,6 +112,7 @@ struct ReflectSpellBase
 		m_radius = 0;
 		m_coolDown = 0;
 		m_lifeTime = 0;
+		m_strength = 0;
 	}
 	~ReflectSpellBase()
 	{
@@ -142,7 +146,7 @@ struct FlamestrikeSpellBase
 	glm::vec4 m_attenAndRadius; //This is important for lights, xyz are attenuation values, while W is radius
 	float m_lifeTime;
 	float m_maxBounces;
-
+	float m_strength;
 	FlamestrikeSpellBase()
 	{
 		m_mesh = nullptr;
@@ -152,7 +156,7 @@ struct FlamestrikeSpellBase
 		m_speed = 0;
 		m_radius = 0;
 		m_coolDown = 0;
-
+		m_strength = 0;
 		m_lifeTime = 0;
 		m_maxBounces = 0;
 	}
@@ -194,7 +198,7 @@ struct FireSpellBase
 	glm::vec4 m_attenAndRadius; //This is important for lights, xyz are attenuation values, while W is radius
 	float m_lifeTime;
 	float m_maxBounces;
-
+	float m_strength;
 	FireSpellBase()
 	{
 		m_mesh = nullptr;
@@ -204,7 +208,7 @@ struct FireSpellBase
 		m_speed = 0;
 		m_radius = 0;
 		m_coolDown = 0;
-
+		m_strength = 0;
 		m_lifeTime = 0;
 		m_maxBounces = 0;
 	}
