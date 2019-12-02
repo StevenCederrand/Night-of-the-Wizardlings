@@ -9,6 +9,7 @@
 #define ANIMATION "Basic_Animation"
 #define FRESNEL "Fresnel_Shader"
 #define ENEMYSHIELD "Enemy_Shield"
+#define SKYBOX "Skybox_Shader"
 //#define BLOOM "Bloom_Shader"
 //#define BLUR "Blur_Shader"
 //#define BLOOM_BLUR "BloomBlur_Shader"

@@ -13,27 +13,25 @@ struct P_LIGHT {
     float strength;
 };
 
+uniform mat4 modelMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 projMatrix;
+
 in vec2 f_UV;
-in vec3 f_normal; //Comes in normalized
-in vec4 f_position;
+in vec3 f_normal;   //Comes in normalized
+in vec4 f_position; //Comes in in world space
 
 out vec4 color;
 out vec4 brightColor;
 
-vec3 GLOBAL_lightDirection = vec3(0.3f, -0.5f, -0.5f);       // 1 Directional light
+vec3 GLOBAL_lightDirection = vec3(0.3f, -0.5f, -0.5f);      // 1 Directional light
 vec3 GLOBAL_lightColor = normalize(vec3(1, 1, 1));          // Directional light color (white)
 
-vec3 GLOBAL_lightDirection2 = vec3(0.8f, -0.5f, 0.4f);       // 1 Directional light
+vec3 GLOBAL_lightDirection2 = vec3(0.8f, -0.5f, 0.4f);      // 1 Directional light
 
 float dirlightStr = 0.1f;     // Modifier for brightness (dirlight)
 float ambientStr = 0.1f;      // Global light strength (ambient)
-float brightnessMod = 1.0f;    // Modifier for brightness (textures)
-
-// Modifier for brightness (point light), hardcoded temp needs fix
-float pointLightModP = 68.0f;    //SPELLS
-float pointLightMod1 = 8.8f;      //MAPLIGHT
-float pointLightMod2 = 4.2f;      //MAPLIGHT2
-float pointLightMod3 = 2.5f;      //MAPLIGHT
+float brightnessMod = 1.0f;   // Modifier for brightness (textures)
 
 uniform vec3 CameraPosition;
 
@@ -45,7 +43,7 @@ uniform vec2 TexAndRim;                 // Booleans --- Textures & Rimlighting
 uniform int LightCount;                 //Used when lightculling. To know how many lights there are in total in the scene
 uniform sampler2D albedoTexture;        // Texture diffuse
 
-uniform sampler2D depthTexture;         //Used for SSAO
+//uniform sampler2D depthMap;             //Used for SSAO
 
 uniform int grayscale = 0;
 uniform P_LIGHT pLights[LIGHTS_MAX];
@@ -58,6 +56,9 @@ vec3 calcDirLight(vec3 normal, vec3 diffuseColor, vec3 lightDirection);
 vec3 grayscaleColour(vec3 col);
 
 void main() {
+    //vec4 screenPos = projMatrix * viewMatrix * f_position;
+    //float temp = texture(depthMap, vec2(screenPos.xy)).r;
+
     vec3 emissive = Ambient_Color; // Temp used as emmisve, should rename all ambient names to emmisive.
     //Makes the material full solid color (basically fully lit). Needs bloom for best effect.
     vec4 finalTexture = texture(albedoTexture, f_UV);
@@ -70,8 +71,6 @@ void main() {
     vec3 diffuseColor = Diffuse_Color;  // Material color
     if(TexAndRim.x == 1)
         diffuseColor = finalTexture.rgb * 0.5;   // Texture color
-
-
     // Directional light
     vec3 directionalLight = calcDirLight(f_normal, diffuseColor, GLOBAL_lightDirection);
     directionalLight += calcDirLight(f_normal, diffuseColor, GLOBAL_lightDirection2);
@@ -87,29 +86,9 @@ void main() {
             continue;
         }
         else {
-
-            // Hardcode strength because lights have no input and lazy Xd
-            float str = pointLightModP;
-
-            if(pLights[i].attenAndRadius.w >= 31.0f)
-            {
-                str = pointLightMod1;
-            }
-            if(pLights[i].attenAndRadius.w >= 64.0f)
-            {
-                str = pointLightMod2;
-            }
-            if(pLights[i].attenAndRadius.w >= 99.0f)
-            {
-                str = pointLightMod3;
-            }
-            // Hardcode strength because lights have no input and lazy Xd
-
-
             pointLights += calcPointLights(pLights[i], f_normal, f_position.xyz, distance, diffuseColor) * pLights[i].strength;
         }
     }
-
 
     // Resulting light
     vec3 result = ambientLight + directionalLight + pointLights + emissive; // We see light, so add only and all the lights together to get color

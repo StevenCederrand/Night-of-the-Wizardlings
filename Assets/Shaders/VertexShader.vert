@@ -11,7 +11,7 @@ uniform mat4 projMatrix;
 
 out vec2 f_UV;
 out vec3 f_normal;
-out vec4 f_position;
+out vec4 f_position; 
 void main() {
     f_position = modelMatrix * vec4(position, 1.0f);
     gl_Position = projMatrix * viewMatrix * modelMatrix * vec4(position, 1.0f);

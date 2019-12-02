@@ -279,14 +279,10 @@ void Renderer::renderAndAnimateNetworkingTexts()
 				m_text->RenderText(playerName, (SCREEN_WIDTH / 2) - (totalWidth * 0.5f) + spectateTextWidth, (SCREEN_HEIGHT * 0.15f), textScale.x, glm::vec3(1.0f, 0.5f, 0.0f));
 
 			}
-
 		}
-
 	}
 
-
 }
-
 void Renderer::renderBigNotifications()
 {
 	std::lock_guard<std::mutex> lockGuard(NetGlobals::PickupNotificationMutex);
@@ -398,8 +394,8 @@ void Renderer::initShaders() {
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
 	ShaderMap::getInstance()->createShader(BASIC_FORWARD, "VertexShader.vert", "FragShader.frag");
 	ShaderMap::getInstance()->createShader(ANIMATION, "Animation.vert", "FragShader.frag");
-	ShaderMap::getInstance()->createShader("Skybox_Shader", "Skybox.vs", "Skybox.fs");
-	ShaderMap::getInstance()->getShader("Skybox_Shader")->setInt("skyBox", 4);	
+	ShaderMap::getInstance()->createShader(SKYBOX, "Skybox.vs", "Skybox.fs");
+	ShaderMap::getInstance()->getShader(SKYBOX)->setInt("skyBox", 4);
 	ShaderMap::getInstance()->createShader(FRESNEL, "FresnelFX.vert", "FresnelFX.frag");
 	ShaderMap::getInstance()->createShader(ENEMYSHIELD, "FresnelFX.vert", "EnemyShield.frag");
 	ShaderMap::getInstance()->createShader(WHUD, "WorldHud.vs", "WorldHud.fs");
@@ -734,7 +730,7 @@ void Renderer::renderSkybox()
 	
 	//glDepthMask(GL_FALSE);
 	glDepthFunc(GL_LEQUAL);
-	auto* shader = ShaderMap::getInstance()->useByName("Skybox_Shader");
+	auto* shader = ShaderMap::getInstance()->useByName(SKYBOX);
 	shader->setMat4("modelMatrix", m_skyBox->getModelMatrix());
 	shader->setMat4("viewMatrix", glm::mat4(glm::mat3(m_camera->getViewMat())));
 	shader->setMat4("projMatrix", m_camera->getProjMat());
@@ -831,7 +827,7 @@ void Renderer::render() {
 
 		//Bind the depthmap
 		glActiveTexture(GL_TEXTURE0);
-		shader->setInt("depthMap", 0); //Not sure if this has to happen every frame
+		shader->setInt("depthMap", 0);
 		glBindTexture(GL_TEXTURE_2D, m_depthMap);
 
 		//Send all of the light data into the compute shader
@@ -857,7 +853,7 @@ void Renderer::render() {
 	else {
 		shader->setInt("grayscale", 0);
 	}
-
+	
 	//Bind view- and projection matrix
 	bindMatrixes(shader);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
@@ -881,6 +877,12 @@ void Renderer::render() {
 			shader->setFloat("pLights[" + iConv + "].strength", m_lights[i].strength);
 		}
 	}
+
+#if SSAO
+	//glActiveTexture(GL_TEXTURE0); //Set the active texture to 0
+	//shader->setInt("depthMap", 0); 
+	//glBindTexture(GL_TEXTURE_2D, m_depthMap); //Bind the depth texture
+#endif
 
 	//Render Static objects
 	for (GameObject* object : m_staticObjects)
@@ -928,89 +930,46 @@ void Renderer::render() {
 			glDisableVertexAttribArray(2);
 		}
 	}
+#if SSAO 
+	//glBindTexture(GL_TEXTURE_2D, 0); //Bind the depth texture
+#endif
 
 	shader->clearBinding();
 	//Dynamic objects
-	if (m_dynamicObjects.size() > 0) {
-		for (GameObject* object : m_dynamicObjects)
-		{
-			if (object == nullptr) {
-				continue;
-			}
-
-			if (!object->getShouldRender()) {
-				continue;
-			}
-
-			//Then through all of the meshes
-			for (int j = 0; j < object->getMeshesCount(); j++)
-			{
-				glEnableVertexAttribArray(0);
-				glEnableVertexAttribArray(1);
-				glEnableVertexAttribArray(2);
-				mesh = object->getMesh(j);
-				//Bind the material
-				if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
-					object->bindMaterialToShader(shader, mesh->getMaterial());
-				}
-				else {
-					material = object->getMaterial(j);
-					object->bindMaterialToShader(shader, material);
-				}
-
-				modelMatrix = glm::mat4(1.0f);
-				//Apply the transform to the matrix. This should actually be done automatically in the mesh!
-				modelMatrix = object->getMatrix(j);
-
-				//Bind the modelmatrix
-				shader->setMat4("modelMatrix", modelMatrix);
-
-				glBindVertexArray(mesh->getBuffers().vao);
-
-				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
-				glBindVertexArray(0);
-				glDisableVertexAttribArray(0);
-				glDisableVertexAttribArray(1);
-				glDisableVertexAttribArray(2);
-			}
+	for (GameObject* object : m_dynamicObjects)
+	{
+		if (object == nullptr) {
+			continue;
 		}
-	}
-	shader->clearBinding();
 
-	//Pickup objects
-	if (m_pickups.size() > 0) {
-		for (GameObject* object : m_pickups)
+		if (!object->getShouldRender()) {
+			continue;
+		}
+
+		//Then through all of the meshes
+		for (int j = 0; j < object->getMeshesCount(); j++)
 		{
-			if (object == nullptr) {
-				continue;
-			}
-
-			if (!object->getShouldRender()) {
-				continue;
-			}
-
-		
-
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
 			glEnableVertexAttribArray(2);
-
-			Pickup* p = dynamic_cast<Pickup*>(object);
-
-			//Fetch the current mesh and its transform
-			mesh = p->getRenderInformation().mesh;
-			glBindVertexArray(mesh->getBuffers().vao);
+			mesh = object->getMesh(j);
 			//Bind the material
-			object->bindMaterialToShader(shader, p->getRenderInformation().material);
-			//shader->setMaterial(p->getRenderInformation().material);
-			//Bind the modelmatrix
-			glm::mat4 mMatrix = glm::mat4(1.0f);
-			mMatrix = glm::translate(mMatrix, p->getTransform().position);
-			mMatrix *= glm::mat4_cast(p->getTransform().rotation);
-			mMatrix = glm::scale(mMatrix, p->getTransform().scale);
+			if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
+				object->bindMaterialToShader(shader, mesh->getMaterial());
+			}
+			else {
+				material = object->getMaterial(j);
+				object->bindMaterialToShader(shader, material);
+			}
 
-			shader->setMat4("modelMatrix", mMatrix);
+			modelMatrix = glm::mat4(1.0f);
+			//Apply the transform to the matrix. This should actually be done automatically in the mesh!
+			modelMatrix = object->getMatrix(j);
+
+			//Bind the modelmatrix
+			shader->setMat4("modelMatrix", modelMatrix);
+
+			glBindVertexArray(mesh->getBuffers().vao);
 
 			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
@@ -1019,6 +978,48 @@ void Renderer::render() {
 			glDisableVertexAttribArray(1);
 			glDisableVertexAttribArray(2);
 		}
+	}
+	shader->clearBinding();
+
+	//Pickup objects
+	for (GameObject* object : m_pickups)
+	{
+		if (object == nullptr) {
+			continue;
+		}
+
+		if (!object->getShouldRender()) {
+			continue;
+		}
+
+		
+
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(2);
+
+		Pickup* p = dynamic_cast<Pickup*>(object);
+
+		//Fetch the current mesh and its transform
+		mesh = p->getRenderInformation().mesh;
+		glBindVertexArray(mesh->getBuffers().vao);
+		//Bind the material
+		object->bindMaterialToShader(shader, p->getRenderInformation().material);
+		//shader->setMaterial(p->getRenderInformation().material);
+		//Bind the modelmatrix
+		glm::mat4 mMatrix = glm::mat4(1.0f);
+		mMatrix = glm::translate(mMatrix, p->getTransform().position);
+		mMatrix *= glm::mat4_cast(p->getTransform().rotation);
+		mMatrix = glm::scale(mMatrix, p->getTransform().scale);
+
+		shader->setMat4("modelMatrix", mMatrix);
+
+		glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+		glBindVertexArray(0);
+		glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(2);
 	}
 	shader->clearBinding();
 #pragma endregion
