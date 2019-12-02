@@ -705,12 +705,16 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 	GameObject* sp1 = static_cast<GameObject*>(obj1->getCollisionObject()->getUserPointer());
 	GameObject* sp2 = static_cast<GameObject*>(obj2->getCollisionObject()->getUserPointer());
 	if (!sp1 || !sp2)
-	{
 		return false;
-	}
+
+
+	
+
+	
 
 	DestructibleObject* dstrobj = nullptr;
 	Spell* spellobj = nullptr;
+	Player* player = nullptr;
 
 	btVector3 hitpoint;
 
@@ -719,6 +723,7 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 	case (DESTRUCTIBLE):
 		dstrobj = static_cast<DestructibleObject*>(sp1);		
 		hitpoint = cp.m_localPointA;
+		player = static_cast<Player*>(obj2->getCollisionObject()->getUserPointer());
 		break;
 
 	case (NORMALATTACK):
@@ -743,6 +748,7 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 	case (DESTRUCTIBLE):
 		dstrobj = static_cast<DestructibleObject*>(sp2);
 		hitpoint = cp.m_localPointB;
+		player = static_cast<Player*>(obj1->getCollisionObject()->getUserPointer());
 		break;
 
 	case (NORMALATTACK):
@@ -800,6 +806,31 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 		}
 	}
 
+
+
+	/*
+	std::vector<btRigidBody*> rigids1 = sp1->getRigidBodies();
+	std::vector<btRigidBody*> rigids2 = sp2->getRigidBodies();
+	if (rigids1 )
+	{
+
+	}
+
+	for (size_t i = 0; i < rigids1.size(); i++)
+	{
+		if (rigids1.at(i)->getFriction() == 100.0f )
+		{
+
+		}
+	}
+	*/
+
+
+	if (dstrobj && player)
+	{
+		//logTrace("hello player and destruction");
+
+	}
 
 	return false;
 }
