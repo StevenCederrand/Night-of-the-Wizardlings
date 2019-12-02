@@ -31,7 +31,7 @@ public:
     void spellToolUpdate(float dt);
     void renderSpellTool();
 
-
+    void changeSpell(int state);
 	void spellUpdate(float deltaTime);
 	void setSpawnerPosition(glm::vec3 position);
 	void setSpawnerDirection(glm::vec3 direction);
@@ -103,4 +103,8 @@ private:
 
 	std::vector<deflectSpellData> m_deflectedSpells;
 	std::function<void()> m_onHitCallback;
+
+
+    //SpellEditor
+    int activespell;
 };
