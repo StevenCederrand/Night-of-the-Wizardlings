@@ -171,12 +171,12 @@ void SpellCreatorState::update(float dt)
         ImGui::EndMenuBar();
     }
     ImGui::Text("");											            // Display some text (you can use a format strings too)
-    ImGui::Text("");											            // Display some text (you can use a format strings too)
     if (my_tool_active == false)
     {
         ImGui::CloseCurrentPopup();
     }
-    ImGui::InputText("<-- Name your spell", m_spellName, NAME_SIZE);
+    ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Name your spell:");
+    ImGui::InputText("", m_spellName, NAME_SIZE);
     ImGui::End();
 
 }
