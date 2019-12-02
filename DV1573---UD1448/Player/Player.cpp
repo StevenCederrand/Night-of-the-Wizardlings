@@ -38,6 +38,7 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_bp = bp;
 	float temp = 1.0f;
 	m_character = m_bp->createCharacter(playerPosition, temp);
+	m_character->getGhostObject()->setUserPointer(this);
 
 	m_client = Client::getInstance();
 }

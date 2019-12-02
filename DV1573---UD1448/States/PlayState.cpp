@@ -705,7 +705,9 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 	GameObject* sp1 = static_cast<GameObject*>(obj1->getCollisionObject()->getUserPointer());
 	GameObject* sp2 = static_cast<GameObject*>(obj2->getCollisionObject()->getUserPointer());
 	if (!sp1 || !sp2)
+	{
 		return false;
+	}
 
 	DestructibleObject* dstrobj = nullptr;
 	Spell* spellobj = nullptr;
