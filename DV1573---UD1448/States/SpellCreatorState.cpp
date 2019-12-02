@@ -6,13 +6,6 @@
 #include <Networking/LocalServer.h>
 
 
-
-//#include <imgui.h>
-//#include <imgui_impl_glfw_gl3.h>
-//#include <stdio.h>
-//#include <GL/glew.h> 
-//#include <GLFW/glfw3.h>
-
 //#define PLAYSECTION "PLAYSTATE"
 
 
@@ -25,49 +18,16 @@ SpellCreatorState::SpellCreatorState()
 {
 	std::cout << "SpellCreator State Created! Have fun!" << std::endl;
 
-    //m_bPhysics = new BulletPhysics(-20.0f);
-    //m_spellHandler = new SpellHandler(m_bPhysics);
-    //m_spellHandler->setOnHitCallback(std::bind(&PlayState::onSpellHit_callback, this));
-
-    //ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
-
-    //m_camera = new Camera();
-    //m_player = new Player(m_bPhysics, "Player", NetGlobals::PlayerFirstSpawnPoint, m_camera, m_spellHandler);
-
-    /*Renderer::getInstance()->setupCamera(m_player->getCamera());*/
-
-    //TODO: organized loading system?
-   /* m_skybox = new SkyBox();
-    m_skybox->prepareBuffers();
-    m_player->setHealth(NetGlobals::PlayerMaxHealth);
-    m_objects.push_back(new MapObject("internalTestmap"));
-    m_objects[m_objects.size() - 1]->loadMesh("map1.mesh");
-    m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-    Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);*/
-
     //-----Set up IMGUI-----//
     ImGui::CreateContext();
     ImGui_ImplGlfwGL3_Init(glfwGetCurrentContext(), true);
     ImGui::StyleColorsDark();
 
+    fileDialog.SetTitle("Open file(.spell)");
+    fileDialog.SetTypeFilters({ ".spell" });
+    fileDialog.SetPwd("\Exports");
 
 
-    //MaterialMap::getInstance();
-    //gContactAddedCallback = callbackFunc;
-    // Geneterate bullet objects / hitboxes
-    //for (size_t i = 0; i < m_objects.size(); i++)
-    //{
-    //    m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);
-    //    //m_objects.at(i)->createDebugDrawer();
-    //}
-
-    //if (Client::getInstance()->isInitialized())
-    //    Client::getInstance()->assignSpellHandler(m_spellHandler);
-
-   /* m_hudHandler.loadPlayStateHUD();
-    m_hideHUD = false;*/
-
- 
 }
 
 SpellCreatorState::~SpellCreatorState()
@@ -80,19 +40,79 @@ void SpellCreatorState::update(float dt)
     ImGui_ImplGlfwGL3_NewFrame();
     ImGui::ShowDemoWindow();
 
-    //m_bPhysics->update(dt);
-    //m_player->update(dt);
-    //m_spellHandler->spellUpdate(dt);
-    //Renderer::getInstance()->updateParticles(dt);
-    //auto* clientPtr = Client::getInstance();
+    ImGui::Begin("Spell Creator", &my_tool_active, ImGuiWindowFlags_MenuBar);// Create a window called "Spell Creator" and append into it.
+    ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Select a spell type to create");
+    ImGui::Checkbox("Create Projectile", &isProjectile);
+    ImGui::Checkbox("Create AOE", &isAOE);
+
+    if (isProjectile)
+    {
+        isAOE = false;
+
+        ImGui::Text("Edit Projectile values");											            // Display some text (you can use a format strings too)
+        ImGui::SliderFloat("Spell Damage", &m_ProjectileDmg, 10.0f, 40.0f);
+        ImGui::SliderFloat("Spell Speed", &m_ProjectileSpeed, 50.0f, 200.0f);
+        ImGui::SliderFloat("Spell Cooldown", &m_ProjectileCooldown, 0.1f, 10.0f);
+        ImGui::SliderFloat("Spell Radius", &m_ProjectileRadius, 0.1f, 10.0f);
+        ImGui::SliderFloat("Spell Lifetime", &m_ProjectileLifetime, 1.0f, 20.0f);
+        ImGui::SliderInt("Spell Maximum Bounces", &m_ProjectileMaxBounces, 1, 3);
+    }
+    if (isAOE)
+    {
+        isProjectile = false;
+        ImGui::Text("Here Area of Effect spell data will be edited...");											            // Display some text (you can use a format strings too)
+    }
+    fileDialog.Display();
+
+    if (fileDialog.HasSelected())
+    {
+        std::cout << "Selected filename: " << fileDialog.GetSelected().string() << std::endl;
+        myLoader.LoadSpell(m_name);
+
+        //Set the tool values to match the loaded file
+        m_ProjectileDmg = myLoader.getProjectileDmg();
+        m_ProjectileSpeed = myLoader.getProjectileSpeed();
+        m_ProjectileCooldown = myLoader.getProjectileCooldown();
+        m_ProjectileRadius = myLoader.getProjectileRadius();
+        m_ProjectileLifetime = myLoader.getProjectileLifetime();
+        m_ProjectileMaxBounces = myLoader.getProjectileMaxBounces();
+        fileDialog.ClearSelected();
+    }
+
+    if (ImGui::BeginMenuBar())
+    {
+        if (ImGui::BeginMenu("File"))
+        {
+            if (ImGui::MenuItem("Load Spell...", "Ctrl+L"))
+            {
+                // open file dialog when user clicks this button
+                fileDialog.Open();
+            }
+            if (ImGui::MenuItem("Save Spell...", "Ctrl+S"))
+            {
+                myLoader.SaveSpell(m_name, m_ProjectileDmg, m_ProjectileSpeed, m_ProjectileCooldown, m_ProjectileRadius, m_ProjectileLifetime, m_ProjectileMaxBounces);
+            }
+            if (ImGui::MenuItem("Close Window", "Ctrl+W"))
+            {
+                my_tool_active = false;
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenuBar();
+    }
+    ImGui::Text("");											            // Display some text (you can use a format strings too)
+    ImGui::Text("");											            // Display some text (you can use a format strings too)
+    if (my_tool_active == false)
+    {
+        ImGui::CloseCurrentPopup();
+    }
+
+    ImGui::End();
 }
 
 void SpellCreatorState::render()
 {
-    //Renderer::getInstance()->render(m_skybox, m_deflectBox, m_spellHandler);
-
     ImGui::Render();
-
     ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
-  //  glfwSwapBuffers(glfwGetCurrentContext());
+  //glfwSwapBuffers(glfwGetCurrentContext());
 }
