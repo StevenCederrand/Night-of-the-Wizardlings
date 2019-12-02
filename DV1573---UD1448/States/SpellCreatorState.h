@@ -11,6 +11,7 @@
 #include <GameObject/AnimatedObject.h>
 #include <Spells/Spell.h>
 #include <System/BulletPhysics.h>
+#include <System/Input.h>
 #include <HUD/HudObject.h>
 #include <HUD/HudHandler.h>
 
@@ -33,7 +34,7 @@ public:
 	virtual ~SpellCreatorState() override;
 	virtual void update(float dt) override;
 	virtual void render() override;
-
+    void chooseSpell();
 
 
 private:
@@ -41,6 +42,7 @@ private:
     SpellHandler* m_spellHandler;
     BulletPhysics* m_bPhysics;
     //DeflectRender* m_deflectBox;
+    std::vector<Pointlight*> m_pointlights;
     SkyBox* m_skybox;
     Camera* m_camera;
     std::vector<GameObject*> m_objects;

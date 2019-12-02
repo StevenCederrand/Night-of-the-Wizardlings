@@ -17,4 +17,10 @@ enum OBJECT_TYPE {
 	POINTLIGHT,
 };
 
+
+enum SpellCreatorTool_TYPE {
+    NORMALATTACKTOOL,
+    ENHANCEATTACKTOOL,
+    FIRETOOL,
+};
 #endif

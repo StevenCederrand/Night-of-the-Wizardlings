@@ -25,74 +25,111 @@ SpellCreatorState::SpellCreatorState()
 {
 	std::cout << "SpellCreator State Created! Have fun!" << std::endl;
 
-    //m_bPhysics = new BulletPhysics(-20.0f);
-    //m_spellHandler = new SpellHandler(m_bPhysics);
-    //m_spellHandler->setOnHitCallback(std::bind(&PlayState::onSpellHit_callback, this));
+    ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
 
-    //ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
+	m_camera = new Camera();
+	m_bPhysics = new BulletPhysics(-20.0f);
 
-    //m_camera = new Camera();
-    //m_player = new Player(m_bPhysics, "Player", NetGlobals::PlayerFirstSpawnPoint, m_camera, m_spellHandler);
+    GameObject* AnimationMesh = new WorldObject("AnimationMesh");
+    AnimationMesh->loadMesh("NyCharacter.mesh");
+    delete AnimationMesh;
 
-    /*Renderer::getInstance()->setupCamera(m_player->getCamera());*/
+    m_spellHandler = new SpellHandler(m_bPhysics);
 
-    //TODO: organized loading system?
-   /* m_skybox = new SkyBox();
+    Renderer* renderer = Renderer::getInstance();
+    renderer->setupCamera(m_camera);
+
+    m_skybox = new SkyBox();
     m_skybox->prepareBuffers();
-    m_player->setHealth(NetGlobals::PlayerMaxHealth);
-    m_objects.push_back(new MapObject("internalTestmap"));
-    m_objects[m_objects.size() - 1]->loadMesh("map1.mesh");
-    m_objects[m_objects.size() - 1]->setWorldPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-    Renderer::getInstance()->submit(m_objects[m_objects.size() - 1], STATIC);*/
+
+    renderer->submitSkybox(m_skybox);
+    renderer->submitSpellhandler(m_spellHandler);
 
     //-----Set up IMGUI-----//
-    ImGui::CreateContext();
+  /*  ImGui::CreateContext();
     ImGui_ImplGlfwGL3_Init(glfwGetCurrentContext(), true);
-    ImGui::StyleColorsDark();
+    ImGui::StyleColorsDark();*/
 
 
+    MaterialMap::getInstance();
 
-    //MaterialMap::getInstance();
-    //gContactAddedCallback = callbackFunc;
-    // Geneterate bullet objects / hitboxes
-    //for (size_t i = 0; i < m_objects.size(); i++)
-    //{
-    //    m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);
-    //    //m_objects.at(i)->createDebugDrawer();
-    //}
+    for (size_t i = 0; i < m_objects.size(); i++)
+    {
+        m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);
+        //m_objects.at(i)->createDebugDrawer();
+    }
 
-    //if (Client::getInstance()->isInitialized())
-    //    Client::getInstance()->assignSpellHandler(m_spellHandler);
-
-   /* m_hudHandler.loadPlayStateHUD();
-    m_hideHUD = false;*/
-
- 
+    if (Client::getInstance()->isInitialized())
+        Client::getInstance()->assignSpellHandler(m_spellHandler);
 }
 
 SpellCreatorState::~SpellCreatorState()
 {
+
+    for (GameObject* object : m_objects)
+        delete object;
+
+    m_pointlights.clear();
+    m_objects.clear();
+
+    delete m_skybox;
+    delete m_player;
+    delete m_bPhysics;
+    delete m_spellHandler;
+    delete m_camera;
+
+    if (LocalServer::getInstance()->isInitialized()) {
+        LocalServer::getInstance()->destroy();
+    }
+
+    if (Client::getInstance()->isInitialized()) {
+        Client::getInstance()->destroy();
+    }
+
+    MeshMap::getInstance()->cleanUp();
+
+
+ 
 }
 
 void SpellCreatorState::update(float dt)
 {
 
-    ImGui_ImplGlfwGL3_NewFrame();
-    ImGui::ShowDemoWindow();
+    //ImGui_ImplGlfwGL3_NewFrame();
+    //ImGui::ShowDemoWindow();
+    chooseSpell();
 
-    //m_bPhysics->update(dt);
-    //m_player->update(dt);
-    //m_spellHandler->spellUpdate(dt);
-    //Renderer::getInstance()->updateParticles(dt);
-    //auto* clientPtr = Client::getInstance();
+    m_bPhysics->update(dt);
+   // m_player->update(dt);
+    m_spellHandler->spellToolUpdate(dt);
+    Renderer::getInstance()->updateParticles(dt);
+    auto* clientPtr = Client::getInstance();
+
+    for (GameObject* object : m_objects)
+    {
+        object->update(dt);
+    }
+    Renderer::getInstance()->updateParticles(dt);
 }
 
 void SpellCreatorState::render()
 {
-    //Renderer::getInstance()->render(m_skybox, m_deflectBox, m_spellHandler);
+    Renderer::getInstance()->render();
 
-    ImGui::Render();
+    //ImGui::Render();
 
-    ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
+   // ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
   //  glfwSwapBuffers(glfwGetCurrentContext());
+}
+
+void SpellCreatorState::chooseSpell()
+{
+    if (Input::isKeyPressed(GLFW_KEY_Q))
+    {
+        m_spellHandler->createSpellForTool(glm::vec3(0, 3, -10), glm::vec3(0, 0, 0), NORMALATTACKTOOL);
+    }
+    if (Input::isKeyPressed(GLFW_KEY_E))
+    {
+        m_spellHandler->createSpellForTool(glm::vec3(0, 3, -20), glm::vec3(0, 0, 0), FIRETOOL);
+    }
 }

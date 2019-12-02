@@ -490,6 +490,100 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 	return cooldown;
 }
 
+void SpellHandler::createSpellForTool(glm::vec3 spellPos, glm::vec3 directionVector, SpellCreatorTool_TYPE type)
+{
+    float cooldown = 0.0f;
+
+    if (type == NORMALATTACKTOOL)
+    {
+        auto spell = new AttackSpell(spellPos, directionVector, attackBase);
+        spell->setType(NORMALATTACK);
+        cooldown = attackBase->m_coolDown;
+
+        spell->setUniqueID(getUniqueID());
+        Client::getInstance()->createSpellOnNetwork(*spell);
+        spells.emplace_back(spell);
+        Renderer::getInstance()->submit(spells.back(), SPELL);
+
+        //bullet create
+        btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
+        m_BulletNormalSpell.emplace_back(
+            m_bp->createObject(sphere, 20.0f, spellPos + directionVector * 2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
+        spell->setBodyReference(m_BulletNormalSpell.back());
+
+        int size = m_BulletNormalSpell.size();
+        m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
+        m_BulletNormalSpell.at(size - 1)->setUserPointer(spell);
+        m_BulletNormalSpell.at(size - 1)->setLinearVelocity(direction * attackBase->m_speed);
+    }
+
+    if (type == FIRETOOL)
+    {
+        auto fireSpell = new fire(spellPos, directionVector, fireBase);
+        cooldown = fireBase->m_coolDown;
+
+        fireSpell->setUniqueID(getUniqueID());
+        Client::getInstance()->createSpellOnNetwork(*fireSpell);
+        fireSpells.emplace_back(fireSpell);
+        Renderer::getInstance()->submit(fireSpells.back(), SPELL);
+
+    }
+
+}
+
+void SpellHandler::spellToolUpdate(float dt)
+{
+    for (size_t i = 0; i < spells.size(); i++)
+    {
+        if (spells[i]->getTravelTime() > 0)
+        {
+
+            //spells[i]->update(dt);
+            //spells[i]->updateRigidbody(dt, m_BulletNormalSpell.at(i));
+           // Client::getInstance()->updateSpellOnNetwork(*spells[i]);
+
+
+        }
+
+        if (spells[i]->getTravelTime() <= 0)
+        {
+            Renderer::getInstance()->removeRenderObject(spells[i], SPELL);
+
+            Client::getInstance()->destroySpellOnNetwork(*spells[i]);
+            delete spells[i];
+            spells.erase(spells.begin() + i);
+
+            m_bp->removeObject(m_BulletNormalSpell.at(i));
+            m_BulletNormalSpell.erase(m_BulletNormalSpell.begin() + i);
+        }
+    }
+
+    for (size_t i = 0; i < fireSpells.size(); i++)
+    {
+        if (fireSpells[i]->getTravelTime() > 0)
+        {
+            fireSpells[i]->update(dt);
+
+            Client::getInstance()->updateSpellOnNetwork(*fireSpells[i]);
+        }
+
+        if (fireSpells[i]->getTravelTime() <= 0)
+        {
+            Renderer::getInstance()->removeRenderObject(fireSpells[i], SPELL);
+
+            Client::getInstance()->destroySpellOnNetwork(*fireSpells[i]);
+            delete fireSpells[i];
+            fireSpells.erase(fireSpells.begin() + i);
+        }
+    }
+}
+
+void SpellHandler::renderSpellTool()
+{
+    ShaderMap::getInstance()->useByName(BASIC_FORWARD);
+    Renderer::getInstance()->renderSpell(this);
+}
+
 void SpellHandler::spellUpdate(float deltaTime)
 {
 	for (size_t i = 0; i < flamestrikeSpells.size(); i++)
