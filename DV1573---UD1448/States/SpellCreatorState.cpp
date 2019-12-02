@@ -110,7 +110,7 @@ void SpellCreatorState::update(float dt)
     Renderer::getInstance()->updateParticles(dt);
 
     ImGui_ImplGlfwGL3_NewFrame();
-    //ImGui::ShowDemoWindow();
+    ImGui::ShowDemoWindow();
 
     ImGui::Begin("Spell Creator", &my_tool_active, ImGuiWindowFlags_MenuBar);// Create a window called "Spell Creator" and append into it.
     ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Select a spell type to create");
@@ -129,7 +129,7 @@ void SpellCreatorState::update(float dt)
     }
     fileDialog.Display();
 
-    if (fileDialog.HasSelected())
+    if (fileDialog.HasSelected() && loadASpell == true)
     {
         // LOAD AN ATTACKSPELL
         std::cout << "Selected filename: " << fileDialog.GetSelected().string() << std::endl;
@@ -143,6 +143,7 @@ void SpellCreatorState::update(float dt)
         m_ProjectileLifetime = myLoader.getProjectileLifetime();
         m_ProjectileMaxBounces = myLoader.getProjectileMaxBounces();
         fileDialog.ClearSelected();
+        loadASpell = false;
     }
 
     if (ImGui::BeginMenuBar())
@@ -151,11 +152,14 @@ void SpellCreatorState::update(float dt)
         {
             if (ImGui::MenuItem("Load Spell...", "Ctrl+L"))
             {
+                loadASpell = true;
                 // open file dialog when user clicks this button
                 fileDialog.Open();
             }
             if (ImGui::MenuItem("Save Spell...", "Ctrl+S"))
             {
+                loadASpell = false;
+                m_name = m_spellName;
                 myLoader.SaveSpell(m_name, m_ProjectileDmg, m_ProjectileSpeed, m_ProjectileCooldown, m_ProjectileRadius, m_ProjectileLifetime, m_ProjectileMaxBounces);
             }
             if (ImGui::MenuItem("Close Window", "Ctrl+W"))
@@ -172,7 +176,7 @@ void SpellCreatorState::update(float dt)
     {
         ImGui::CloseCurrentPopup();
     }
-
+    ImGui::InputText("<-- Name your spell", m_spellName, NAME_SIZE);
     ImGui::End();
 
 }

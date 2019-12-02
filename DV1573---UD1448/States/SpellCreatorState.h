@@ -51,6 +51,7 @@ public:
     bool isAOE = false;
     bool isEnhanceProjectile = false;
     SpellLoader myLoader;
+    bool loadASpell = false;
     //-----test data-----//
     std::string m_name = "fireball";
     float m_ProjectileDmg = 0;
@@ -62,6 +63,7 @@ public:
     //-----File opener/Path to Exports-----//
     ImGui::FileBrowser fileDialog;
 
+    char m_spellName[NAME_SIZE];
 
 private:
     Player* m_player;

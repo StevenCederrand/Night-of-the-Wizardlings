@@ -490,8 +490,8 @@
        Button("Hello###ID";   // Label = "Hello",  ID = top of id stack + hash of "ID"
        Button("World###ID";   // Label = "World",  ID = top of id stack + hash of "ID" (same as above)
 
-       sprintf(buf, "My game (%f FPS)###MyGame", fps);
-       Begin(buf);            // Variable label,   ID = hash of "MyGame"
+       sprintf(m_spellName, "My game (%f FPS)###MyGame", fps);
+       Begin(m_spellName);            // Variable label,   ID = hash of "MyGame"
 
    - Solving ID conflict in a more general manner:
      Use PushID() / PopID() to create scopes and manipulate the ID stack, as to avoid ID conflicts 
@@ -1087,7 +1087,7 @@ static const char* ImAtoi(const char* src, int* output)
 
 // A) MSVC version appears to return -1 on overflow, whereas glibc appears to return total count (which may be >= buf_size). 
 // Ideally we would test for only one of those limits at runtime depending on the behavior the vsnprintf(), but trying to deduct it at compile time sounds like a pandora can of worm.
-// B) When buf==NULL vsnprintf() will return the output size.
+// B) When m_spellName==NULL vsnprintf() will return the output size.
 #ifndef IMGUI_DISABLE_FORMAT_STRING_FUNCTIONS
 int ImFormatString(char* buf, size_t buf_size, const char* fmt, ...)
 {
@@ -9888,7 +9888,7 @@ static bool InputTextFilterCharacter(unsigned int* p_char, ImGuiInputTextFlags f
 }
 
 // Edit a string of text
-// NB: when active, hold on a privately held copy of the text (and apply back to 'buf'). So changing 'buf' while active has no effect.
+// NB: when active, hold on a privately held copy of the text (and apply back to 'm_spellName'). So changing 'm_spellName' while active has no effect.
 // FIXME: Rather messy function partly because we are doing UTF8 > u16 > UTF8 conversions on the go to more easily handle stb_textedit calls. Ideally we should stay in UTF-8 all the time. See https://github.com/nothings/stb/issues/188
 bool ImGui::InputTextEx(const char* label, char* buf, int buf_size, const ImVec2& size_arg, ImGuiInputTextFlags flags, ImGuiTextEditCallback callback, void* user_data)
 {
@@ -9976,7 +9976,7 @@ bool ImGui::InputTextEx(const char* label, char* buf, int buf_size, const ImVec2
         {
             // Start edition
             // Take a copy of the initial buffer value (both in original UTF-8 format and converted to wchar)
-            // From the moment we focused we are ignoring the content of 'buf' (unless we are in read-only mode)
+            // From the moment we focused we are ignoring the content of 'm_spellName' (unless we are in read-only mode)
             const int prev_len_w = edit_state.CurLenW;
             edit_state.Text.resize(buf_size+1);        // wchar count <= UTF-8 count. we use +1 to make sure that .Data isn't NULL so it doesn't crash.
             edit_state.InitialText.resize(buf_size+1); // UTF-8. we use +1 to make sure that .Data isn't NULL so it doesn't crash.
@@ -9987,7 +9987,7 @@ bool ImGui::InputTextEx(const char* label, char* buf, int buf_size, const ImVec2
             edit_state.CursorAnimReset();
 
             // Preserve cursor position and undo/redo stack if we come back to same widget
-            // FIXME: We should probably compare the whole buffer to be on the safety side. Comparing buf (utf8) and edit_state.Text (wchar).
+            // FIXME: We should probably compare the whole buffer to be on the safety side. Comparing m_spellName (utf8) and edit_state.Text (wchar).
             const bool recycle_state = (edit_state.Id == id) && (prev_len_w == edit_state.CurLenW);
             if (recycle_state)
             {
@@ -10217,7 +10217,7 @@ bool ImGui::InputTextEx(const char* label, char* buf, int buf_size, const ImVec2
         {
             // Apply new value immediately - copy modified buffer back
             // Note that as soon as the input box is active, the in-widget value gets priority over any underlying modification of the input buffer
-            // FIXME: We actually always render 'buf' when calling DrawList->AddText, making the comment above incorrect.
+            // FIXME: We actually always render 'm_spellName' when calling DrawList->AddText, making the comment above incorrect.
             // FIXME-OPT: CPU waste to do this every time the widget is active, should mark dirty state from the stb_textedit callbacks.
             if (is_editable)
             {
@@ -10306,7 +10306,7 @@ bool ImGui::InputTextEx(const char* label, char* buf, int buf_size, const ImVec2
         ClearActiveID();
 
     // Render
-    // Select which buffer we are going to display. When ImGuiInputTextFlags_NoLiveEdit is set 'buf' might still be the old value. We set buf to NULL to prevent accidental usage from now on.
+    // Select which buffer we are going to display. When ImGuiInputTextFlags_NoLiveEdit is set 'm_spellName' might still be the old value. We set m_spellName to NULL to prevent accidental usage from now on.
     const char* buf_display = (g.ActiveId == id && is_editable) ? edit_state.TempTextBuffer.Data : buf; buf = NULL; 
 
     RenderNavHighlight(frame_bb, id);

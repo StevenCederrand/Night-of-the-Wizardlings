@@ -56,7 +56,7 @@ void SpellHandler::initAttackSpell()
 	attackBase->m_radius = mySpellLoader.getProjectileRadius();
 	attackBase->m_coolDown = mySpellLoader.getProjectileCooldown();
 	attackBase->m_lifeTime = mySpellLoader.getProjectileLifetime();
-	attackBase->m_maxBounces = 3.0f;
+    attackBase->m_maxBounces = mySpellLoader.getProjectileMaxBounces();
 
 	attackBase->m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f);// OLD
 	attackBase->m_attenAndRadius = glm::vec4(1.0f, 2.15f, 4.5f, 22.0f);
