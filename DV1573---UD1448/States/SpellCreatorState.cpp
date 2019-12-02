@@ -95,7 +95,6 @@ SpellCreatorState::~SpellCreatorState()
 
 void SpellCreatorState::update(float dt)
 {
-    chooseSpell();
 
     m_bPhysics->update(dt);
    // m_player->update(dt);
@@ -185,18 +184,6 @@ void SpellCreatorState::render()
     ImGui::Render();
     ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
 
-}
-
-void SpellCreatorState::chooseSpell()
-{
-    if (Input::isKeyPressed(GLFW_KEY_Q))
-    {
-        m_spellHandler->createSpellForTool(glm::vec3(0, 3, -10), glm::vec3(0, 0, 0), NORMALATTACKTOOL);
-    }
-    if (Input::isKeyPressed(GLFW_KEY_E))
-    {
-        m_spellHandler->createSpellForTool(glm::vec3(0, 3, -20), glm::vec3(0, 0, 0), FIRETOOL);
-    }
 }
 
 void SpellCreatorState::editAttackSpell()

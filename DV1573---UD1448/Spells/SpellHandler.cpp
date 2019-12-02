@@ -503,7 +503,6 @@ void SpellHandler::createSpellForTool(glm::vec3 spellPos, glm::vec3 directionVec
         cooldown = attackBase->m_coolDown;
 
         spell->setUniqueID(getUniqueID());
-        Client::getInstance()->createSpellOnNetwork(*spell);
         spells.emplace_back(spell);
         Renderer::getInstance()->submit(spells.back(), SPELL);
 
@@ -525,7 +524,6 @@ void SpellHandler::createSpellForTool(glm::vec3 spellPos, glm::vec3 directionVec
         cooldown = fireBase->m_coolDown;
 
         fireSpell->setUniqueID(getUniqueID());
-        Client::getInstance()->createSpellOnNetwork(*fireSpell);
         fireSpells.emplace_back(fireSpell);
         Renderer::getInstance()->submit(fireSpells.back(), SPELL);
 
@@ -539,25 +537,17 @@ void SpellHandler::spellToolUpdate(float dt)
 
     for (size_t i = 0; i < spells.size(); i++)
     {
-        if (spells[i]->getTravelTime() > 0)
+        
+        if (activespell == 1)
         {
-            if (activespell == 1)
-            {
-                spells[i]->setTravelTime(0);
-            }
-
-           // spells[i]->update(dt);
-            //spells[i]->updateRigidbody(dt, m_BulletNormalSpell.at(i));
-           // Client::getInstance()->updateSpellOnNetwork(*spells[i]);
-
-
+            spells[i]->setTravelTime(0);
         }
+        
 
         if (spells[i]->getTravelTime() <= 0)
         {
             Renderer::getInstance()->removeRenderObject(spells[i], SPELL);
 
-            Client::getInstance()->destroySpellOnNetwork(*spells[i]);
             delete spells[i];
             spells.erase(spells.begin() + i);
 
@@ -568,24 +558,16 @@ void SpellHandler::spellToolUpdate(float dt)
 
     for (size_t i = 0; i < fireSpells.size(); i++)
     {
-        if (fireSpells[i]->getTravelTime() > 0)
+        
+        if (activespell == 0)
         {
-
-            if (activespell == 0)
-            {
-                fireSpells[i]->setTravelTime(0);
-            }
-
-            //fireSpells[i]->update(dt);
-
-            Client::getInstance()->updateSpellOnNetwork(*fireSpells[i]);
+            fireSpells[i]->setTravelTime(0);
         }
+        
 
         if (fireSpells[i]->getTravelTime() <= 0)
         {
             Renderer::getInstance()->removeRenderObject(fireSpells[i], SPELL);
-
-            Client::getInstance()->destroySpellOnNetwork(*fireSpells[i]);
             delete fireSpells[i];
             fireSpells.erase(fireSpells.begin() + i);
         }

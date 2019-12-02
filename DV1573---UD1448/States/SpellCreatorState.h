@@ -24,8 +24,6 @@
 
 #include "spellLoader.h"
 
-
-
 //bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
 //	const btCollisionObjectWrapper* obj2, int id2, int index2);
 
@@ -33,13 +31,10 @@ class SpellCreatorState : public State {
 
 public:
 
-
 	SpellCreatorState();
 	virtual ~SpellCreatorState() override;
 	virtual void update(float dt) override;
 	virtual void render() override;
-
-    void chooseSpell();
 
     //-----Edit spell Functions-----//
     void editAttackSpell();
@@ -67,7 +62,6 @@ private:
     Player* m_player;
     SpellHandler* m_spellHandler;
     BulletPhysics* m_bPhysics;
-    //DeflectRender* m_deflectBox;
     std::vector<Pointlight*> m_pointlights;
     SkyBox* m_skybox;
     Camera* m_camera;
@@ -75,9 +69,6 @@ private:
 
     bool m_AttackSpellAlive = true;
     bool m_FireSpellAlive = true;
-
-
-
 
 };
 #endif
