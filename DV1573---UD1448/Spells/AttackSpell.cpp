@@ -75,13 +75,16 @@ void AttackSpell::updateRigidbody(float deltaTime, btRigidBody* body)
 		body->getLinearVelocity().getY(),
 		body->getLinearVelocity().getZ()));
 
+	// Increase spell speed //
+	body->setLinearVelocity(body->getLinearVelocity() * (1 + 0.5f * deltaTime));
+
 	btVector3 rigidBodyPos = body->getWorldTransform().getOrigin();
 	setWorldPosition(glm::vec3(rigidBodyPos.getX(), rigidBodyPos.getY(), rigidBodyPos.getZ()));	
 }
 
 const float AttackSpell::getDamage()
 {
-	return m_spellBase->m_damage;
+	return Randomizer::single(m_spellBase->m_lowDamage, m_spellBase->m_highDamage);;
 }
 
 const glm::vec3& AttackSpell::getPos() const
