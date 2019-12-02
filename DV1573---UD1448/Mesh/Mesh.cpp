@@ -132,6 +132,11 @@ void Mesh::setMaterial(std::string matName)
 	m_materialName = matName;
 }
 
+void Mesh::setUpTangent()
+{
+
+}
+
 void Mesh::addAnimation(std::string name)
 {
 	m_animations.push_back(name);

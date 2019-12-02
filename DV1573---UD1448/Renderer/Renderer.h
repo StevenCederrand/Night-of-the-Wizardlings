@@ -185,8 +185,7 @@ public:
 	void render();
 	//void renderSpell();
 	void renderHUD();
-	void renderWorldHud();
-	void renderDebug();
+	void renderWorldHud();	
 
 	void addBigNotification(NotificationText notification);
 	void addKillFeed(NotificationText notification);

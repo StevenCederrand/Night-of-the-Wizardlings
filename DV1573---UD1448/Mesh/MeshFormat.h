@@ -31,6 +31,14 @@ struct Vertex2
 	glm::vec4 weight;
 };
 
+struct VertexWithTangent
+{
+	glm::vec3 position;
+	glm::vec2 UV;
+	glm::vec3 Normals;
+	glm::vec3 Tangent;
+};
+
 struct Face
 {
 	int indices[3];
