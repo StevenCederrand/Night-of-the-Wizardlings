@@ -88,6 +88,11 @@ SpellCreatorState::~SpellCreatorState()
 
     MeshMap::getInstance()->cleanUp();
 
+    // SHUTDOWN
+    //ImGui_ImplOpenGL3_Shutdown();
+    //ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
 }
 
 void SpellCreatorState::update(float dt)
