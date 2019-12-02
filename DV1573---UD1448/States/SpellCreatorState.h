@@ -38,7 +38,12 @@ public:
 	virtual ~SpellCreatorState() override;
 	virtual void update(float dt) override;
 	virtual void render() override;
+
     void chooseSpell();
+
+    //-----Edit spell Functions-----//
+    void editAttackSpell();
+    void editAOEAttackSpell();
 
     //IMGUI
     bool my_tool_active = true;

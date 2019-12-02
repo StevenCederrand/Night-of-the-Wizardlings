@@ -89,8 +89,6 @@ SpellCreatorState::~SpellCreatorState()
     MeshMap::getInstance()->cleanUp();
 
     // SHUTDOWN
-    //ImGui_ImplOpenGL3_Shutdown();
-    //ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 
 }
@@ -112,7 +110,7 @@ void SpellCreatorState::update(float dt)
     Renderer::getInstance()->updateParticles(dt);
 
     ImGui_ImplGlfwGL3_NewFrame();
-    ImGui::ShowDemoWindow();
+    //ImGui::ShowDemoWindow();
 
     ImGui::Begin("Spell Creator", &my_tool_active, ImGuiWindowFlags_MenuBar);// Create a window called "Spell Creator" and append into it.
     ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Select a spell type to create");
@@ -122,24 +120,18 @@ void SpellCreatorState::update(float dt)
     if (isProjectile)
     {
         isAOE = false;
-
-        ImGui::Text("Edit Projectile values");											            // Display some text (you can use a format strings too)
-        ImGui::SliderFloat("Spell Damage", &m_ProjectileDmg, 10.0f, 40.0f);
-        ImGui::SliderFloat("Spell Speed", &m_ProjectileSpeed, 50.0f, 200.0f);
-        ImGui::SliderFloat("Spell Cooldown", &m_ProjectileCooldown, 0.1f, 10.0f);
-        ImGui::SliderFloat("Spell Radius", &m_ProjectileRadius, 0.1f, 10.0f);
-        ImGui::SliderFloat("Spell Lifetime", &m_ProjectileLifetime, 1.0f, 20.0f);
-        ImGui::SliderInt("Spell Maximum Bounces", &m_ProjectileMaxBounces, 1, 3);
+        editAttackSpell();
     }
     if (isAOE)
     {
         isProjectile = false;
-        ImGui::Text("Here Area of Effect spell data will be edited...");											            // Display some text (you can use a format strings too)
+        editAOEAttackSpell();
     }
     fileDialog.Display();
 
     if (fileDialog.HasSelected())
     {
+        // LOAD AN ATTACKSPELL
         std::cout << "Selected filename: " << fileDialog.GetSelected().string() << std::endl;
         myLoader.LoadSpell(m_name);
 
@@ -204,4 +196,20 @@ void SpellCreatorState::chooseSpell()
     {
         m_spellHandler->createSpellForTool(glm::vec3(0, 3, -20), glm::vec3(0, 0, 0), FIRETOOL);
     }
+}
+
+void SpellCreatorState::editAttackSpell()
+{
+    ImGui::Text("Edit Projectile values");											            // Display some text (you can use a format strings too)
+    ImGui::SliderFloat("Spell Damage", &m_ProjectileDmg, 10.0f, 40.0f);
+    ImGui::SliderFloat("Spell Speed", &m_ProjectileSpeed, 0.0f, 200.0f);
+    ImGui::SliderFloat("Spell Radius", &m_ProjectileRadius, 0.1f, 10.0f);
+    ImGui::SliderFloat("Spell Cooldown", &m_ProjectileCooldown, 0.1f, 10.0f);
+    ImGui::SliderFloat("Spell Lifetime", &m_ProjectileLifetime, 1.0f, 20.0f);
+    ImGui::SliderInt("Spell Maximum Bounces", &m_ProjectileMaxBounces, 1, 3);
+}
+
+void SpellCreatorState::editAOEAttackSpell()
+{
+    ImGui::Text("Here Area of Effect spell data will be edited...");
 }

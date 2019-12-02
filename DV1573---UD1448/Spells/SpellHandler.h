@@ -9,6 +9,7 @@
 #include <Spells/fire.h>
 #include <System/BulletPhysics.h>
 #include <GameObject/ObjectTypes.h>
+#include <spellLoader.h>
 
 
 //enum TYPE { NORMALATTACK, ENHANCEATTACK };
@@ -47,6 +48,7 @@ public:
 
 	void renderSpell();
 
+    SpellLoader mySpellLoader;
 
 private:
 	const uint64_t getUniqueID();
