@@ -19,10 +19,9 @@ SpellLoader::~SpellLoader()
 bool SpellLoader::LoadSpell(std::string file)
 {
 	//unload();
-	//m_fileName = file;
-	//std::ifstream binFile(outputFilepath + m_fileName + ".spell", std::ios::binary);
+	m_fileName = file;
 
-    std::ifstream binFile(file, std::ios::binary);
+	std::ifstream binFile(outputFilepath + m_fileName + ".spell", std::ios::binary);
 	if (!binFile)
 	{
 		return false;
