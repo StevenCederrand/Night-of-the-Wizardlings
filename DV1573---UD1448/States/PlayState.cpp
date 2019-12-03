@@ -838,11 +838,11 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 	GameObject* sp1 = static_cast<GameObject*>(obj1->getCollisionObject()->getUserPointer());
 	GameObject* sp2 = static_cast<GameObject*>(obj2->getCollisionObject()->getUserPointer());
 	if (!sp1 || !sp2)
-		return false;
+		return false;	
 
 	DestructibleObject* dstrobj = nullptr;
 	Spell* spellobj = nullptr;
-
+	
 	btVector3 hitpoint;
 
 	switch (sp1->getType())
@@ -931,7 +931,51 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 		}
 	}
 
+	//pushing destruction out of the way
+	Player* player = nullptr;
+	btScalar friction1 = obj1->getCollisionObject()->getFriction();
+	btScalar friction2 = obj2->getCollisionObject()->getFriction();
+	std::vector<btRigidBody*> rigids;
+	btVector3 collisionPos;
+	
+	//see if first or second item is destruction
+	if (friction1 == 101.0f)
+	{
+		if (obj2->getCollisionObject()->getCollisionShape()->getName() == "CapsuleZ")
+			player = static_cast<Player*>(obj2->getCollisionObject()->getUserPointer());
+		else
+			return false;
 
+		rigids = sp1->getRigidBodies();	
+		collisionPos = cp.getPositionWorldOnA();
+	}
+
+	else if (friction2 == 101.0f)
+	{
+		if (obj1->getCollisionObject()->getCollisionShape()->getName() == "CapsuleZ")
+			player = static_cast<Player*>(obj1->getCollisionObject()->getUserPointer());
+		else
+			return false;
+
+		rigids = sp2->getRigidBodies();
+		collisionPos = cp.getPositionWorldOnB();
+	}
+
+	//if player is null return
+	if (!player)
+		return false;
+
+	//apply a force from the player to the object
+	for (size_t i = 0; i < rigids.size(); i++)
+	{
+		btVector3 btRigPos = rigids.at(i)->getCenterOfMassPosition();
+		glm::vec3 glmPlayerPos =  player->getPlayerPos();
+		btVector3 playerPos = btVector3(glmPlayerPos.x, glmPlayerPos.y, glmPlayerPos.z);
+
+		btVector3 dir = btRigPos - playerPos;
+		dir.normalize();
+		rigids.at(i)->applyCentralImpulse(dir* 5);
+	}
 	return false;
 }
 

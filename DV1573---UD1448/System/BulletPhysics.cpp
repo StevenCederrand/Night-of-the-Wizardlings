@@ -163,9 +163,9 @@ btVector3 BulletPhysics::getCharacterSize() const
 btKinematicCharacterController* BulletPhysics::createCharacter(const glm::vec3& position, float& height)
 {
 	//create the character and add him to the dynamicsWorld
-	btScalar capsuleX = m_boxSize.getX()*0.8f;
+	btScalar capsuleX = m_boxSize.getX() * 0.8f;
 	btScalar capsuleY = m_boxSize.getY() * 2.0f;
-	btScalar capsuleZ = m_boxSize.getZ()*0.9f;
+	btScalar capsuleZ = m_boxSize.getZ() * 0.9f;
 	//height of capsule is	totalHeight = height + radius * 2
 	//						height = totalHeight - radius * 2
 	btScalar realY = (capsuleY) - (capsuleZ * 2.0f);
@@ -173,7 +173,7 @@ btKinematicCharacterController* BulletPhysics::createCharacter(const glm::vec3& 
 
 	btVector3 localInertia(1.0f, 1.0f, 1.0f);
 	m_playerShape->calculateLocalInertia(1001.0f, localInertia);
-
+	
 	m_ghostObject = new btPairCachingGhostObject();
 	btTransform startTransform;
 	startTransform.setIdentity();
@@ -193,6 +193,7 @@ btKinematicCharacterController* BulletPhysics::createCharacter(const glm::vec3& 
 	m_dynamicsWorld->addAction(m_character);
 	m_character->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 	m_character->setMaxPenetrationDepth(0.1f);
+	
 
 	return m_character;
 }
@@ -233,7 +234,7 @@ void BulletPhysics::update(float dt)
 void BulletPhysics::destructionobj(btRigidBody* body)
 {
 	body->setRestitution(0.0f);
-	body->setFriction(100.0f);
+	body->setFriction(101.0f);
 	body->setSpinningFriction(1.0f);
 	body->setAngularFactor(btVector3(1.0f, 1.0f, 1.0f));
 	body->setDamping(0.2f, 0.1f);	// Chaotic

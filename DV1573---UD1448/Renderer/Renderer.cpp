@@ -758,7 +758,7 @@ void Renderer::render() {
 	ShaderMap* shaderMap = ShaderMap::getInstance();
 	Material* material = nullptr;
 	
-	/*
+	
 #pragma region Depth_Render & Light_Cull
 	if (m_lights.size() > 0) {
 		shader = shaderMap->useByName(DEPTH_MAP);
@@ -893,13 +893,15 @@ void Renderer::render() {
 		}
 
 		glDispatchCompute(workGroups.x, workGroups.y, 1);
+
+		glMemoryBarrier(GL_SHADER_STORAGE_BUFFER);
 		//Unbind the depth
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 #pragma endregion
 	}
 
-	*/
+	
 	
 	//BLOOMBLUR MISSION STEP 1: SAMPLE
 	//m_bloom->bindHdrFBO();
