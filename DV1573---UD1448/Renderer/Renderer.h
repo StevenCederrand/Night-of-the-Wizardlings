@@ -94,8 +94,8 @@ private:
 	std::vector<GameObject*> m_spells;
 	std::vector<PLIGHT> m_lights;
 	std::vector<GameObject*> m_pickups;
-	std::vector<GameObject*> m_shieldObject;
 	std::vector<GameObject*> m_enemyShieldObject;
+	GameObject* m_shieldObject;
 
 	std::unordered_map<GLuint, std::vector<HudObject*>> m_2DHudMap;
 	std::unordered_map<GLuint, std::vector<WorldHudObject*>> m_worldHudMap;

@@ -865,9 +865,9 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 			// TODO: Fix this
 			if (spellobj->getRigidBody() != nullptr)
 			{
-				float rndX = rand() % 1999 + 1 - 1000; rndX /= 1000;
-				float rndY = rand() % 1999 + 1 - 1000; rndY /= 1000;
-				float rndZ = rand() % 1999 + 1 - 1000; rndZ /= 1000;
+				float rndX = rand() % 2000 + 1 - 1000; rndX /= 1000;
+				float rndY = rand() % 2000 + 1 - 1000; rndY /= 1000;
+				float rndZ = rand() % 2000 + 1 - 1000; rndZ /= 1000;
 				spellobj->getRigidBody()->setLinearVelocity(btVector3(rndX, rndY, rndZ) * 35);
 			}
 		

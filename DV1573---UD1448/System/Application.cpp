@@ -18,6 +18,7 @@ Application::~Application() {
 	delete m_stateManager;
 	ShaderMap::getInstance()->destroy();
 	Renderer::getInstance()->destroy();
+	BulletPhysics::getInstance()->destroy();
 	MaterialMap::getInstance()->destroy();
 	MeshMap::getInstance()->destroy();
 	AnimationMap::getInstance()->destroy();
@@ -103,8 +104,8 @@ bool Application::init() {
 #endif
 
 	SoundHandler* shPtr = SoundHandler::getInstance();	
-	shPtr->playSound(ThemeSong0);
-	shPtr->setSourceLooping(true, ThemeSong0);
+	//shPtr->playSound(ThemeSong0);
+	//shPtr->setSourceLooping(true, ThemeSong0);
 
 	unsigned int _time = unsigned int(time(NULL));
 	srand(_time);

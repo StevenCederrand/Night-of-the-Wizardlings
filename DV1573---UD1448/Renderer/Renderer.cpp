@@ -534,7 +534,7 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 		m_pickups.emplace_back(gameObject);
 	}
 	else if (objType == RENDER_TYPE::SHIELD) {
-		m_shieldObject.emplace_back(gameObject);
+		m_shieldObject = gameObject;
 	}
 	else if (objType == RENDER_TYPE::ENEMY_SHIELD) {
 		m_enemyShieldObject.emplace_back(gameObject);
@@ -617,7 +617,6 @@ void Renderer::clear() {
 	m_lights.clear();
 	m_2DHudMap.clear();
 	m_worldHudMap.clear();
-	m_shieldObject.clear();
 	m_enemyShieldObject.clear();
 	m_particleSystems.clear();
 }
@@ -1246,55 +1245,31 @@ void Renderer::render() {
 #pragma endregion
 
 #pragma region Deflect_Render
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glDisable(GL_CULL_FACE);
-	glDepthFunc(GL_LEQUAL);
-	shader = shaderMap->useByName(FRESNEL);
-
-	//Bind view- and projection matrix
-	bindMatrixes(shader);
-
-	shader->setVec3("CameraPosition", m_camera->getCamPos());
-	//Add a step where we insert lights into the scene
-	shader->setInt("LightCount", m_spells.size());
-
-	//Render Deflect Objects
-	for (GameObject* object : m_shieldObject)
+	if (m_shieldObject->getShouldRender())
 	{
-		//Then through all of the meshes
-		for (int j = 0; j < object->getMeshesCount(); j++)
-		{
-			//Fetch the current mesh and its transform
-			mesh = meshMap->getMesh(object->getMeshName(j));
-			shader->setFloat("time", glfwGetTime());
-			//Bind the material
-			object->bindMaterialToShader(shader, mesh->getMaterial());
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glDepthFunc(GL_LEQUAL);
+		shader = shaderMap->useByName(FRESNEL);
+		bindMatrixes(shader);
+	
+		mesh = meshMap->getMesh(m_shieldObject->getMeshName());
+		m_shieldObject->bindMaterialToShader(shader, mesh->getMaterial());
 
-			modelMatrix = glm::mat4(1.0f);
+		modelMatrix = glm::mat4(1.0f);
+		modelMatrix = m_shieldObject->getMatrix();
+		shader->setInt("LightCount", m_spells.size());
+		shader->setVec3("CameraPosition", m_camera->getCamPos());
+		shader->setFloat("time", glfwGetTime());
+		shader->setMat4("modelMatrix", modelMatrix);
 
-			modelMatrix = object->getMatrix(j);
-			//Bind the modelmatrix
-			shader->setMat4("modelMatrix", modelMatrix);
+		glBindVertexArray(mesh->getBuffers().vao);
+		glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+		glBindVertexArray(0);
 
-			glBindVertexArray(mesh->getBuffers().vao);
-
-			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
-			glBindVertexArray(0);
-		}
+		shader->clearBinding();
 	}
-
-	for (size_t i = 0; i < m_shieldObject.size(); i++)
-	{
-		delete m_shieldObject[i];
-	}
-
-	m_shieldObject.clear();
-	shader->clearBinding();
 #pragma endregion
-
-
 
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

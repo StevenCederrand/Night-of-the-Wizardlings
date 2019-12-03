@@ -55,9 +55,6 @@ void SpellHandler::initAttackSpell()
 	// Light--
 	attackBase->m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f);// OLD
 	attackBase->m_attenAndRadius = glm::vec4(1.0f, 2.15f, 4.5f, 22.0f);
-
-	PSinfo tempPS;
-	TextureInfo tempTxt;
 }
 
 void SpellHandler::initEnhanceSpell()
@@ -188,22 +185,14 @@ SpellHandler::~SpellHandler()
 		delete element;
 }
 
-float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, OBJECT_TYPE type)
+OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, OBJECT_TYPE type)
 {
 	SoundHandler* shPtr = SoundHandler::getInstance();
 	auto* clientPtr = Client::getInstance();
 
-	// Cooldown of spell cast
-	float cooldown = 0.0f;
-
-	// Player dead case
-	if (Client::getInstance()->getMyData().health <= 0)
-		return cooldown;
-	
 	if (type == NORMALATTACK)
 	{
 		// Generic
-		cooldown = attackBase->m_coolDown;
 		spells.emplace_back(new AttackSpell(spellPos, directionVector, attackBase));
 		auto spell = spells.back();
 		spell->setType(NORMALATTACK);
@@ -230,7 +219,6 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 	if (type == ENHANCEATTACK)
 	{
 		// Generic
-		cooldown = enhanceAtkBase->m_coolDown;
 		spells.emplace_back(new AttackSpell(spellPos, directionVector, enhanceAtkBase));
 		auto spell = spells.back();
 		spell->setType(ENHANCEATTACK);
@@ -261,7 +249,6 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 	if (type == FLAMESTRIKE)
 	{
 		// Generic
-		cooldown = flamestrikeBase->m_coolDown;
 		flamestrikeSpells.emplace_back(new AOEAttack(spellPos, directionVector, flamestrikeBase));
 		auto spell = flamestrikeSpells.back();
 		Renderer::getInstance()->submit(flamestrikeSpells.back(), SPELL);
@@ -284,9 +271,9 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 		));
 
 		spell->getRigidBody()->setGravity(btVector3(0.0f, -60.0f, 0.0f));
-		float rndX = rand() % 1999 + 1 - 1000; rndX /= 100;
-		float rndY = rand() % 1999 + 1 - 1000; rndY /= 100;
-		float rndZ = rand() % 1999 + 1 - 1000; rndZ /= 100;
+		float rndX = rand() % 2000 + 1 - 1000; rndX /= 100;
+		float rndY = rand() % 2000 + 1 - 1000; rndY /= 100;
+		float rndZ = rand() % 2000 + 1 - 1000; rndZ /= 100;
 		spell->getRigidBody()->setAngularVelocity(btVector3(rndX, rndY, rndZ));
 		spell->getRigidBody()->setLinearVelocity(btVector3(direction * flamestrikeBase->m_speed));
 		spell->getRigidBody()->setUserPointer(spell);
@@ -302,7 +289,6 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 	if (type == FIRE)
 	{
 		// Generic
-		cooldown = fireBase->m_coolDown;
 		fireSpells.emplace_back(new fire(spellPos, directionVector, fireBase));
 		auto spell = fireSpells.back();
 		Renderer::getInstance()->submit(fireSpells.back(), SPELL);	
@@ -316,8 +302,18 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 		shPtr->playSound(GlassBreakSound, clientPtr->getMyData().guid);		
 	}
 
-	
-	return cooldown;
+	srand(NULL);
+	int rndType = type;
+	int tries = 0;
+	while (rndType == type && tries != 50)
+	{
+		rndType = NORMALATTACK + (rand() % (FLAMESTRIKE - NORMALATTACK) + 1);
+		if (tries == 50)
+			rndType = NORMALATTACK;
+	}
+
+	OBJECT_TYPE randomSpell = (OBJECT_TYPE)rndType;
+	return randomSpell;
 }
 
 void SpellHandler::spellUpdate(float deltaTime)
