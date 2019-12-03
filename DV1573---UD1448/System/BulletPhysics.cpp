@@ -174,7 +174,6 @@ btKinematicCharacterController* BulletPhysics::createCharacter(const glm::vec3& 
 	btVector3 localInertia(1.0f, 1.0f, 1.0f);
 	m_playerShape->calculateLocalInertia(1001.0f, localInertia);
 	
-
 	m_ghostObject = new btPairCachingGhostObject();
 	btTransform startTransform;
 	startTransform.setIdentity();

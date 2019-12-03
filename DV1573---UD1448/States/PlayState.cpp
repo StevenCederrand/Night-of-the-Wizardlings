@@ -799,48 +799,46 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 	}
 
 
-
-
-	//std::vector<btRigidBody*> rigids1 = sp1->getRigidBodies();
-	//std::vector<btRigidBody*> rigids2 = sp2->getRigidBodies();
-	/*if (rigids1 )
-	{
-
-	}*/
-
 	Player* player = nullptr;
 	btScalar friction1 = obj1->getCollisionObject()->getFriction();
 	btScalar friction2 = obj2->getCollisionObject()->getFriction();
 	std::vector<btRigidBody*> rigids;
 	
+
 	if (friction1 == 101.0f)
 	{
-		rigids = sp1->getRigidBodies();
-		player = static_cast<Player*>(obj2->getCollisionObject()->getUserPointer());
-		logTrace("firc 1");
+		if (obj1->getCollisionObject()->getCollisionShape()->getName() == "CapsuleZ")
+			player = static_cast<Player*>(obj1->getCollisionObject()->getUserPointer());
+		else
+			return false;
+
+		rigids = sp1->getRigidBodies();	
 	}
 
 	else if (friction2 == 101.0f)
 	{
+		if (obj1->getCollisionObject()->getCollisionShape()->getName() == "CapsuleZ")
+			player = static_cast<Player*>(obj1->getCollisionObject()->getUserPointer());
+		else
+			return false;
+
 		rigids = sp2->getRigidBodies();
-		player = static_cast<Player*>(obj1->getCollisionObject()->getUserPointer());
-		
-		logTrace("firc 2");
 	}
 
 	//if player is null return
 	if (!player)
 		return false;
-
-	
-	
 	
 
 	for (size_t i = 0; i < rigids.size(); i++)
 	{
-		rigids.at(i)->activate();
-		rigids.at(i)->applyCentralForce(btVector3(10.0f,-5.0f,0.0f));
-		//logTrace(i);
+		btVector3 btRigPos = rigids.at(i)->getCenterOfMassPosition();
+		glm::vec3 glmPlayerPos =  player->getPlayerPos();
+		btVector3 playerPos = btVector3(glmPlayerPos.x, glmPlayerPos.y, glmPlayerPos.z);
+
+		btVector3 dir = btRigPos - playerPos;
+		dir.normalize();
+		rigids.at(i)->applyCentralForce(dir*100);
 		
 
 	}
