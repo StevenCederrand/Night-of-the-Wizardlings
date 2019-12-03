@@ -70,8 +70,6 @@ private:
 	float OBBsqDist(glm::vec3& spherePos, std::vector<glm::vec3>& axis, glm::vec3& playerPos);
 	void setCharacter(std::string meshName);
 
-	void REFLECTupdate(float deltaTime, int i);
-	
 	BulletPhysics* m_bp;
 	std::vector<btRigidBody*> m_BulletNormalSpell;
 	std::vector<btRigidBody*> m_BulletEnhanceAttackSpell;

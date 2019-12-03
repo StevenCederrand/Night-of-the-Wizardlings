@@ -211,95 +211,6 @@ void SpellHandler::initFireSpell()
 
 	fireBase->m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // Old
 	fireBase->m_attenAndRadius = glm::vec4(1.0f, 0.61f, 0.74f, 22.0f);
-
-	//TODO
-	//Particle code here
-	//Let's just spam out the fking effects now
-	//So I need to hardcopy this for every particle effect in every spell as it is now.
-	//Is this even possible???
-
-	//TextureInfo tempTxt;
-	//tempTxt.name = "Assets/Textures/Spell_2.png";
-	//PSinfo temp;
-
-	//temp.width = 0.3f;
-	//temp.heigth = 0.3f;
-	//temp.lifetime = 1.0f;
-	//temp.maxParticles = 5000; //350
-	//temp.emission = 0.0001f; //0.00001f;
-	//temp.force = -1.0f; //5
-	//temp.drag = -1.0f;
-	//temp.gravity = 0.0f; //Standard is 1
-	//temp.seed = -1;
-	//temp.cont = true;
-	//temp.omnious = true;
-	//temp.spread = 10.0f;
-	//temp.glow = false;
-	//temp.scaleDirection = 0;
-	//temp.fade = 1;
-	//temp.color = glm::vec3(1.0f, 0.5f, 0.0f);
-	//temp.direction = glm::vec3(0.0f, 10.0f, 0.0f);
-	//int tempCount = temp.maxParticles;
-	//float tempDiff = temp.emission;
-
-	//fireBase->vertexCountDiff.push_back(tempCount); //vertexCountDiff
-	//fireBase->emissionDiff.push_back(tempDiff); //emissionDiff
-	//fireBase->m_PSinfo.push_back(temp); //m_PSinfo
-
-	//ParticleBuffers tempBuffer(temp);
-
-	//tempBuffer.setTexture(tempTxt);
-	//tempBuffer.setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
-	//tempBuffer.bindBuffers();
-
-	//psBuffers tempPS;
-
-	//tempPS = tempBuffer.getBuffer();
-
-	//fireBase->m_partBuffers.push_back(tempBuffer); //m_partBuffers
-	//fireBase->m_psBuffers.push_back(tempPS); //m_psBuffers
-	//fireBase->m_txtInfo.push_back(tempTxt); //m_txtInfo
-
-	//TODO
-	//Another one!
-
-	//tempTxt.name = "Assets/Textures/Spell_2.png";
-
-	//temp.width = 0.3f;
-	//temp.heigth = 0.3f;
-	//temp.lifetime = 1.0f;
-	//temp.maxParticles = 5000; //350
-	//temp.emission = 0.0001f; //0.00001f;
-	//temp.force = -1.0f; //5
-	//temp.drag = -1.0f;
-	//temp.gravity = 0.0f; //Standard is 1
-	//temp.seed = -1;
-	//temp.cont = true;
-	//temp.omnious = true;
-	//temp.spread = 10.0f;
-	//temp.glow = false;
-	//temp.scaleDirection = 0;
-	//temp.fade = 1;
-	//temp.color = glm::vec3(1.0f, 0.5f, 0.0f);
-	//temp.direction = glm::vec3(0.0f, 10.0f, 0.0f);
-	//tempCount = temp.maxParticles;
-	//tempDiff = temp.emission;
-
-	//fireBase->vertexCountDiff.push_back(tempCount); //vertexCountDiff
-	//fireBase->emissionDiff.push_back(tempDiff); //emissionDiff
-	//fireBase->m_PSinfo.push_back(temp); //m_PSinfo
-
-	//ParticleBuffers tempBuffer2(temp);
-
-	//tempBuffer2.setTexture(tempTxt);
-	//tempBuffer2.setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
-	//tempBuffer2.bindBuffers();
-
-	//tempPS = tempBuffer2.getBuffer();
-
-	//fireBase->m_partBuffers.push_back(tempBuffer2); //m_partBuffers
-	//fireBase->m_psBuffers.push_back(tempPS); //m_psBuffers
-	//fireBase->m_txtInfo.push_back(tempTxt); //m_txtInfo
 }
 
 void SpellHandler::initReflectSpell()
@@ -379,7 +290,6 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
 		m_BulletNormalSpell.emplace_back(
 			m_bp->createObject(sphere, 10.0f, spellPos+directionVector*2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
-		spell->setBodyReference(m_BulletNormalSpell.back());
 			
 		int size = m_BulletNormalSpell.size();
 		m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
@@ -400,9 +310,11 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 		
 		//bullet create
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
+
+		spell->createRigidBody(m_bp->createObject(sphere, 30.0f, spellPos + directionVector * 2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
+
 		m_BulletNormalSpell.emplace_back(
 			m_bp->createObject(sphere, 30.0f, spellPos + directionVector * 2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
-		spell->setBodyReference(m_BulletNormalSpell.back());
 
 		int size = m_BulletNormalSpell.size();
 		m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
@@ -425,7 +337,6 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.x);
 		m_BulletNormalSpell.emplace_back(
 			m_bp->createObject(sphere, 1.0f, spellPos + directionVector * 2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
-		spell->setBodyReference(m_BulletNormalSpell.back());
 
 		int size = m_BulletNormalSpell.size();
 		m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
@@ -454,7 +365,6 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 			0.15f,
 			1.0f
 		));
-		spell->setBodyReference(m_BulletFlamestrikeSpell.back());
 
 		int size = m_BulletFlamestrikeSpell.size();
 		m_BulletFlamestrikeSpell.back()->setGravity(btVector3(0.0f, -60.0f, 0.0f));
@@ -836,36 +746,4 @@ void SpellHandler::setCharacter(std::string meshName)
 
 	m_bp->setCharacterSize(halfSize);
 	m_setcharacter = true;
-}
-
-void SpellHandler::REFLECTupdate(float deltaTime, int i)
-{
-	ReflectSpell* reflectSpell = static_cast<ReflectSpell*>(spells[i]);
-	reflectSpell->updateReflection(deltaTime, m_BulletNormalSpell.at(i), m_spawnerPos, m_spawnerDir);
-
-	auto spellList = Client::getInstance()->getNetworkSpells();
-	for (size_t i = 0; i < spellList.size(); i++)
-	{
-		float hitboxRadius = 0.0f;
-		OBJECT_TYPE type = spellList[i].SpellType;
-		switch (type)
-		{
-		case NORMALATTACK:
-			hitboxRadius = attackBase->m_radius;
-			break;
-		case ENHANCEATTACK:
-			hitboxRadius = enhanceAtkBase->m_radius;
-			break;
-		case REFLECT:
-			hitboxRadius = reflectBase->m_radius;
-			break; 
-		default:
-			break;
-		}
-
-		if (reflectSpell->checkReflectCollision(spellList[i].Position, spellList[i].Direction, hitboxRadius))
-		{
-			createSpell(m_spawnerPos, m_spawnerDir, spellList[i].SpellType);
-		}
-	}
 }

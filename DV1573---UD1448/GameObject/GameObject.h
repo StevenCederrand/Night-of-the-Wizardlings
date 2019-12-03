@@ -29,6 +29,7 @@ public:
 	
 	//Create a rigid body of the shape of your choice and add it to the collision world
 	void createRigidBody(CollisionObject shape, BulletPhysics* bp);
+	void createRigidBody(btRigidBody* body);
 	void createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp, float weight);
 	void createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp, float weight, int meshIndex, bool recenter = true);	
 	void updateBulletRigids();
@@ -66,9 +67,11 @@ public:
 	const int getMeshesCount() const { return (int)m_meshes.size(); }
 	const glm::mat4& getMatrix(const int& i) const;
 	const int getType() const { return m_type; }
-	const std::vector<btRigidBody*>& getRigidBodies()  { return m_bodies; }	
 	const bool& getShouldRender() const;
 	const glm::vec3 getLastPosition() const;
+
+	const std::vector<btRigidBody*>& getRigidBodies() { return m_bodies; }	
+	btRigidBody* getRigidBody() const { return m_bodies[0]; }	
 
 private:
 	void updateModelMatrix();

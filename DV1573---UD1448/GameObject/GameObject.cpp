@@ -575,6 +575,12 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 	m_transform.rotation = glm::quat();
 }
 
+void GameObject::createRigidBody(btRigidBody* body)
+{
+	m_bodies.emplace_back(body);
+	m_bodies.back()->setUserPointer(this);
+}
+
 void GameObject::createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp, float weight)
 {
 	if (!m_bPhysics)
