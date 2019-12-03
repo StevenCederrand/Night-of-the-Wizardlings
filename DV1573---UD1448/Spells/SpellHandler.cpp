@@ -533,7 +533,6 @@ void SpellHandler::createSpellForTool(glm::vec3 spellPos, glm::vec3 directionVec
 
 void SpellHandler::spellToolUpdate(float dt)
 {
-    std::cout << activespell << std::endl;
 
     for (size_t i = 0; i < spells.size(); i++)
     {
