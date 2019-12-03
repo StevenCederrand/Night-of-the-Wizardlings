@@ -59,6 +59,9 @@ void SpellHandler::initAttackSpell()
 
 	attackBase->m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f);// OLD
 	attackBase->m_attenAndRadius = glm::vec4(1.0f, 2.15f, 4.5f, 22.0f);
+
+	PSinfo tempPS;
+	TextureInfo tempTxt;
 }
 
 void SpellHandler::initEnhanceSpell()

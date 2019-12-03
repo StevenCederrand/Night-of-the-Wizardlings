@@ -1573,7 +1573,7 @@ void Renderer::updateParticles(float dt)
 
 		if (spell->getType() == NORMALATTACK)
 		{
-			if (m_PSinfo.emission != emissionDiff)
+			/*if (m_PSinfo.emission != emissionDiff)
 			{
 				m_particleSystems[i].Build(m_PSinfo);
 			}
@@ -1584,7 +1584,7 @@ void Renderer::updateParticles(float dt)
 			}
 
 			vertexCountDiff = m_PSinfo.maxParticles;
-			emissionDiff = m_PSinfo.emission;
+			emissionDiff = m_PSinfo.emission;*/
 
 			m_PSinfo.direction = glm::clamp(m_PSinfo.direction, -1.0f, 1.0f);
 
