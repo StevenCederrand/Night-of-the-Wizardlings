@@ -474,10 +474,12 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 	TextureInfo smoke;
 	smoke.name = "Assets/Textures/Spell_2.png";
 
-	if (objType == RENDER_TYPE::STATIC) {
+	if (objType == RENDER_TYPE::STATIC) 
+	{
 		m_staticObjects.emplace_back(gameObject);
 	}
-	else if (objType == RENDER_TYPE::SPELL) {
+	else if (objType == RENDER_TYPE::SPELL) 
+	{
 		/* Place the light in the lights list */
 		PLIGHT light;
 		light.position = gameObject->getTransform().position;

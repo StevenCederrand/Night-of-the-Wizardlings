@@ -94,29 +94,38 @@ void Player::update(float deltaTime)
 
 	//Regenerate mana when we are not deflecting
 
-	if (!m_rMouse && m_mana < m_maxMana && m_deflectCooldown <= 0) {
+	if (!m_rMouse && m_mana < m_maxMana && m_deflectCooldown <= 0) 
+	{
 		m_mana += m_manaRegen * DeltaTime;
 
-		if (m_mana > m_maxMana) {
+		if (m_mana > m_maxMana) 
+		{
 			m_mana = m_maxMana;
 		}
 	}
-	else if (m_deflectCooldown > 0 && !m_rMouse) {
+	else if (m_deflectCooldown > 0 && !m_rMouse) 
+	{
 		m_deflectCooldown -= DeltaTime;
 	}
 
 
 
-	if (m_health <= 0) {
-		if (m_firstPersonMesh->getShouldRender() == true) {
+	if (m_health <= 0) 
+	{
+		if (m_firstPersonMesh->getShouldRender() == true) 
+		{
 			m_firstPersonMesh->setShouldRender(false);
 			SoundHandler* shPtr = SoundHandler::getInstance(); //stop Deflect
 			shPtr->stopSound(DeflectSound, m_client->getMyData().guid);
 		}
-	}else{
-		if (m_firstPersonMesh->getShouldRender() == false) {
+	}
+	else
+	{
+		if (m_firstPersonMesh->getShouldRender() == false) 
+		{
 			m_firstPersonMesh->setShouldRender(true);
 		}
+
 		PlayAnimation(deltaTime);
 	}
 
@@ -285,18 +294,20 @@ void Player::attack()
 	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_RIGHT))
 	{
 		//Actually deflecting
-		if (m_mana > m_deflectManaDrain) {
-			GameObject* shieldObject = new ShieldObject("playerShield");
-			shieldObject->loadMesh("ShieldMeshFPS.mesh");
-
+		if (m_mana > m_deflectManaDrain) 
+		{
 			Transform m_fpsTrans;
 			m_fpsTrans.position = m_playerCamera->getCamPos();
 			m_fpsTrans.rotation = glm::quat(glm::vec3(glm::radians(m_playerCamera->getPitch()),
 				-glm::radians(m_playerCamera->getYaw() + 90.0), 0.0));
-
+			
+			GameObject* shieldObject = new ShieldObject("playerShield");
+			shieldObject->loadMesh("ShieldMeshFPS.mesh");
 			shieldObject->setTransform(m_fpsTrans);
 			Renderer::getInstance()->submit(shieldObject, SHIELD);
-			if (!m_deflecting) {
+			
+			if (!m_deflecting) 
+			{
 				animState.deflecting = true; //Play the animation once
 				m_mana -= m_deflectManaDrain; //This is the initial manacost for the deflect
 
@@ -304,9 +315,10 @@ void Player::attack()
 				m_deflecting = true; //So we don't play sound over and over
 			}
 			m_mana -= m_deflectManaDrain * DeltaTime;			
-			m_deflectCooldown =m_maxDeflectCooldown;
+			m_deflectCooldown = m_maxDeflectCooldown;
 		}
-		else { //Player is holding down RM without any mana
+		else 
+		{ //Player is holding down RM without any mana
 			
 			//Fade out deflect sound
 			if (m_deflectSoundGain > 0.0f)
@@ -319,6 +331,7 @@ void Player::attack()
 				shPtr->stopSound(DeflectSound, m_client->getMyData().guid);				
 			}
 		}
+
 		m_rMouse = true;
 	}
 	else if(m_deflecting)
@@ -337,58 +350,47 @@ void Player::attack()
 			m_deflecting = false;
 		}		
 	}
-	else
+
+	if (!m_deflecting && Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_LEFT))
 	{
-		if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_LEFT))
+		if (m_attackCooldown <= 0.0f)
 		{
-			if (m_attackCooldown <= 0.0f)
-			{
 
-				shPtr->playSound(BasicAttackSound, m_client->getMyData().guid);
-				m_attackCooldown = m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, NORMALATTACK); // Put attack on cooldown
-				animState.casting = true;
+			shPtr->playSound(BasicAttackSound, m_client->getMyData().guid);
+			m_attackCooldown = m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, NORMALATTACK); // Put attack on cooldown
+			animState.casting = true;
 
-			}
-		}
-		//Special Abilities are to be placed here
-		if (Input::isKeyPressed(GLFW_KEY_Q))
-		{
-			//If we are using the triple spell
-			if (m_usingTripleSpell) 
-			{
-				if (m_specialCooldown <= 0.0f && m_mana >= m_specialManaDrain)
-				{
-					//Sound for enhance spell is handled in spellhandler
-					//m_specialCooldown = m_spellhandler->getEnhAttackBase()->m_coolDown;
-					/* Because we are swapping spells, we want to keep a more or less uniform cooldown. */
-					// Start loop
-					m_enhanceAttack.start();
-					animState.casTripple = true;
-					m_usingTripleSpell = false;
-					m_specialCooldown = m_maxSpecialCooldown;
-					m_mana -= m_specialManaDrain;
-
-				}
-			}
-			else 
-			{
-				if (m_specialCooldown <= 0.0f && m_mana >= m_specialManaDrain)
-				{
-					m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, FLAMESTRIKE); // Put attack on cooldown
-
-					animState.castPotion = true;
-					m_usingTripleSpell = true;
-					m_specialCooldown = m_maxSpecialCooldown;
-					m_mana -= m_specialManaDrain;
-
-				}
-			}
 		}
 	}
 
+	//Special Abilities are to be placed here
+	if (!m_deflecting && Input::isKeyPressed(GLFW_KEY_Q))
+	{
+		//If we are using the triple spell
+		if (m_usingTripleSpell)
+		{
+			if (m_specialCooldown <= 0.0f && m_mana >= m_specialManaDrain)
+			{
+				m_enhanceAttack.start();
+				animState.casTripple = true;
+				m_usingTripleSpell = false;
+				m_specialCooldown = m_maxSpecialCooldown;
+				m_mana -= m_specialManaDrain;
+			}
+		}
+		else
+		{
+			if (m_specialCooldown <= 0.0f && m_mana >= m_specialManaDrain)
+			{
+				m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, FLAMESTRIKE); // Put attack on cooldown
 
-
-
+				animState.castPotion = true;
+				m_usingTripleSpell = true;
+				m_specialCooldown = m_maxSpecialCooldown;
+				m_mana -= m_specialManaDrain;
+			}
+		}
+	}
 
 
 	if (Input::isMouseReleased(GLFW_MOUSE_BUTTON_RIGHT)) {
