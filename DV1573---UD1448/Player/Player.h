@@ -36,7 +36,6 @@ public:
 
 	const float& getAttackCooldown() const;
 	const float& getSpecialCooldown() const;
-	const float& getDeflectCooldown() const;
 	const float& getMaxAttackCooldown() const;
 	const float& getMaxSpecialCooldown() const;
 	const glm::vec3 getMeshHalfSize() const;
@@ -67,9 +66,13 @@ private:
 	SpellHandler* m_spellhandler;
 	EnhanceAttackSpell m_enhanceAttack;
 	AnimatedObject* m_firstPersonMesh;
-	//This is used for swapping spells. So that we know if we are to swap to flamestrike or triple spell
+	GameObject* m_shieldObject;
+
+	// This is used for swapping spells.
+	// So that we know if we are to swap to flamestrike or triple spell
 	bool m_usingTripleSpell; 
 	HudHandler* m_hudHandler;
+
 	float m_attackCooldown;
 	float m_deflectCooldown;
 	float m_specialCooldown;
@@ -90,6 +93,9 @@ private:
 	float m_maxDeflectCooldown;
 	float m_specialManaDrain;
 	float m_maxSpecialCooldown;
+
+	OBJECT_TYPE m_mainAtkType;
+	OBJECT_TYPE m_specialAtkType;
 	
 	bool m_deflecting;
 	bool m_isWalking;

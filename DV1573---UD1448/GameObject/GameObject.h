@@ -69,7 +69,7 @@ public:
 	const Transform getTransformRigid(int meshIndex) const;
 	const std::string& getMeshName(int meshIndex = 0) const;
 	const int getMeshesCount() const { return (int)m_meshes.size(); }
-	const glm::mat4& getMatrix(const int& i) const;
+	const glm::mat4& getMatrix(const int& i = 0) const;
 	const int getType() const { return m_type; }
 	const bool& getShouldRender() const;
 	const glm::vec3 getLastPosition() const;

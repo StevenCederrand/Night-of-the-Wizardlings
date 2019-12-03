@@ -51,12 +51,12 @@ void DstrGenerator::initPoints(glm::vec2 position)
 	case DSTR2:
 		for (int i = 0; i < m_randomPoints.size(); i++)
 		{
-			rnd = rand() % 999 + 1;
+			rnd = rand() % 1000 + 1;
 			rnd /= 1000;
 			offset = m_breakAreaRadius;
 			offset *= glm::sqrt(rnd);
 
-			rnd = rand() % 999 + 1;
+			rnd = rand() % 1000 + 1;
 			rnd /= 1000;
 			angle = 2.0f * glm::pi<float>() * rnd;
 
@@ -72,12 +72,12 @@ void DstrGenerator::initPoints(glm::vec2 position)
 		m_randomPoints[0] = position;
 		for (int i = 1; i < m_randomPoints.size(); i++)
 		{
-			rnd = rand() % 999 + 1;
+			rnd = rand() % 1000 + 1;
 			rnd /= 1000;
 			offset = m_breakAreaRadius;
 			//offset += (0.05f * m_breakAreaRadius * glm::sqrt(rnd));
 
-			rnd = rand() % 999 + 1;
+			rnd = rand() % 1000 + 1;
 			rnd /= 1000;
 			angle = 2.0f * glm::pi<float>() * rnd;
 
@@ -89,12 +89,12 @@ void DstrGenerator::initPoints(glm::vec2 position)
 		// Creates points in a fine circle slighly larger
 		for (int i = m_randomPoints.size() / 2; i < m_randomPoints.size(); i++)
 		{
-			rnd = rand() % 999 + 1;
+			rnd = rand() % 1000 + 1;
 			rnd /= 1000;
 			offset = m_breakAreaRadius * 1.5;
 			offset += (0.05f * m_breakAreaRadius * glm::sqrt(rnd));
 
-			rnd = rand() % 999 + 1;
+			rnd = rand() % 1000 + 1;
 			rnd /= 1000;
 			angle = 2.0f * glm::pi<float>() * rnd;
 
