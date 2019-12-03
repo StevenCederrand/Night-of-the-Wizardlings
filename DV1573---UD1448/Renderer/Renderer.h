@@ -16,11 +16,19 @@
 #define HUD "Hud_Shader"
 #define WHUD "wHudShader"
 #define PARTICLES "Particle_Shader"
+#define SSAO_COMP "SSAO_Compute"
 
 //Rendering Options 
 #define FORWARDPLUS true;
-#define SSAO true;
+#define SSAO false;
 
+//Number of SSAO kernels allowed in the system
+#define SSAO_KERNELS 64.0f
+//Max number of lights
+#define P_LIGHT_COUNT 64
+
+
+#pragma region Includes
 #include <Pch/Pch.h>
 #include <GameObject/GameObject.h>
 #include <GameObject/AnimatedObject.h>
@@ -39,9 +47,8 @@
 #include <GFX/Pointlight.h>
 #include <Particles/Particles.h>
 #include <Particles/ParticleBuffers.h>
+#pragma endregion
 
-#define P_LIGHT_COUNT 64
-#define P_LIGHT_RADIUS 5
 
 struct ObjectRenderData {
 	Buffers buffer;
@@ -89,6 +96,7 @@ private:
 	Timer m_timer;
 	SpellHandler* m_spellHandler;
 
+	std::vector<glm::vec3> m_SSAOKernels; 
 	//Store gameobjects directly to the renderer
 	std::vector<GameObject*> m_staticObjects;
 	std::vector<GameObject*> m_dynamicObjects;
@@ -106,6 +114,12 @@ private:
 	//Buffers
 	unsigned int m_depthFBO;
 	unsigned int m_depthMap;
+
+#if SSAO
+	unsigned int m_SSAOFBO;
+	unsigned int m_SSAOColourBuffer;
+#endif
+
 	//unsigned int m_hdrFbo;
 	unsigned int m_colourBuffer;
 	unsigned int m_rbo;

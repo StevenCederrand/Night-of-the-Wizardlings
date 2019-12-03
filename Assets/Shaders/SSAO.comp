@@ -1,0 +1,24 @@
+//Compute shader for generating a ssao texture
+#version 430
+#define SSAO_KERNELS 64
+/*
+uniform sampler2D depthMap;
+uniform float sampleRadius;
+
+//Used to place the depthmap value in world space
+uniform mat4 projMatrix;
+uniform mat4 viewMatrix;
+//SSAO kernels
+uniform vec3 kernels[SSAO_KERNELS];
+*/
+//Output image position
+uniform image2D img_output;
+
+//Compute shader layout
+layout(local_size_x = 1, local_size_y = 1) in;
+void main() {
+    vec4 pixel = vec4(1.0, 1.0, 1.0, 1.0);
+    ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
+
+    imageStore(img_output, pixel_coords, pixel);
+}

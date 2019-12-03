@@ -30,6 +30,39 @@ Renderer::Renderer()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	//Initialize everything we need for SSAO
+#if SSAO 
+
+	//Generate SSAO buffers
+	glGenFramebuffers(1, &m_SSAOFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_SSAOFBO);
+	//Generate SSAO Colour buffer
+	glGenTextures(1, &m_SSAOColourBuffer);
+	glBindTexture(GL_TEXTURE_2D, m_SSAOColourBuffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_SSAOColourBuffer, 0);
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "SSAO Framebuffer not complete!" << std::endl;
+
+	//Generete SSAO kernels
+	std::uniform_real_distribution<float> randomFloats(0.0, 1.0);
+	std::default_random_engine generator;
+	for (size_t i = 0; i < SSAO_KERNELS; i++)
+	{
+		glm::vec3 kernelSample(randomFloats(generator) * 2.0 - 1.0, 
+			randomFloats(generator) * 2.0 - 1.0,
+			randomFloats(generator));
+		kernelSample = glm::normalize(kernelSample);
+		kernelSample *= randomFloats(generator);
+		float scale = static_cast<float>(i) / SSAO_KERNELS;
+		m_SSAOKernels.push_back(kernelSample);
+	}
+#endif
+
+
+
 }
 
 Renderer::~Renderer()
@@ -41,6 +74,17 @@ Renderer::~Renderer()
 	delete enhancePS;
 	delete flamestrikePS;
 	delete smokePS;
+
+#if SSAO
+	glDeleteTextures(1, &m_SSAOColourBuffer);
+	glDeleteFramebuffers(1, &m_SSAOFBO);
+#endif
+
+#if FORWARDPLUS
+	glDeleteTextures(1, &m_depthMap);
+	glDeleteFramebuffers(1, &m_depthFBO);
+#endif
+
 }
 
 void Renderer::renderHUD()
@@ -283,6 +327,7 @@ void Renderer::renderAndAnimateNetworkingTexts()
 	}
 
 }
+
 void Renderer::renderBigNotifications()
 {
 	std::lock_guard<std::mutex> lockGuard(NetGlobals::PickupNotificationMutex);
@@ -399,6 +444,10 @@ void Renderer::initShaders() {
 	ShaderMap::getInstance()->createShader(FRESNEL, "FresnelFX.vert", "FresnelFX.frag");
 	ShaderMap::getInstance()->createShader(ENEMYSHIELD, "FresnelFX.vert", "EnemyShield.frag");
 	ShaderMap::getInstance()->createShader(WHUD, "WorldHud.vs", "WorldHud.fs");
+#if SSAO
+	//Init the compute shader
+	ShaderMap::getInstance()->createShader(SSAO_COMP, "SSAO.comp");
+#endif
 
 	/*=====================================================*/
 	/*ShaderMap::getInstance()->createShader(BLOOM, "Bloom.vs", "Bloom.fs");
@@ -717,12 +766,10 @@ void Renderer::removeRenderObject(GameObject* gameObject, RENDER_TYPE objType)
 	}
 }
 
-
 void Renderer::destroy()
 {
 	delete m_rendererInstance;
 }
-
 
 void Renderer::renderSkybox()
 {
@@ -837,13 +884,27 @@ void Renderer::render() {
 		}
 
 		glDispatchCompute(workGroups.x, workGroups.y, 1);
+
+		glMemoryBarrier(GL_SHADER_STORAGE_BUFFER);
 		//Unbind the depth
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 #endif
 
+#if SSAO
+	//Here we dispatch the SSAO compute shader
+	shader = shaderMap->useByName(SSAO_COMP);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_SSAOFBO);
+
+	glBindImageTexture(0, m_SSAOColourBuffer, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+
+	glDispatchCompute(1, 1, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+#endif
+
 #pragma region Color_Render
+
 
 	shader = shaderMap->useByName(BASIC_FORWARD);
 	shader->clearBinding();
@@ -878,11 +939,7 @@ void Renderer::render() {
 		}
 	}
 
-#if SSAO
-	//glActiveTexture(GL_TEXTURE0); //Set the active texture to 0
-	//shader->setInt("depthMap", 0); 
-	//glBindTexture(GL_TEXTURE_2D, m_depthMap); //Bind the depth texture
-#endif
+
 
 	//Render Static objects
 	for (GameObject* object : m_staticObjects)
@@ -931,7 +988,7 @@ void Renderer::render() {
 		}
 	}
 #if SSAO 
-	//glBindTexture(GL_TEXTURE_2D, 0); //Bind the depth texture
+
 #endif
 
 	shader->clearBinding();
@@ -1223,7 +1280,6 @@ void Renderer::render() {
 	renderHUD();
 	m_enemyShieldObject.clear();
 }
-
 
 void Renderer::renderSpell(SpellHandler* spellHandler)
 {

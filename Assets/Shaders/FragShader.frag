@@ -13,10 +13,6 @@ struct P_LIGHT {
     float strength;
 };
 
-uniform mat4 modelMatrix;
-uniform mat4 viewMatrix;
-uniform mat4 projMatrix;
-
 in vec2 f_UV;
 in vec3 f_normal;   //Comes in normalized
 in vec4 f_position; //Comes in in world space
@@ -43,7 +39,7 @@ uniform vec2 TexAndRim;                 // Booleans --- Textures & Rimlighting
 uniform int LightCount;                 //Used when lightculling. To know how many lights there are in total in the scene
 uniform sampler2D albedoTexture;        // Texture diffuse
 
-//uniform sampler2D depthMap;             //Used for SSAO
+uniform sampler2D depthMap;             //Used for SSAO
 
 uniform int grayscale = 0;
 uniform P_LIGHT pLights[LIGHTS_MAX];
@@ -56,8 +52,6 @@ vec3 calcDirLight(vec3 normal, vec3 diffuseColor, vec3 lightDirection);
 vec3 grayscaleColour(vec3 col);
 
 void main() {
-    //vec4 screenPos = projMatrix * viewMatrix * f_position;
-    //float temp = texture(depthMap, vec2(screenPos.xy)).r;
 
     vec3 emissive = Ambient_Color; // Temp used as emmisve, should rename all ambient names to emmisive.
     //Makes the material full solid color (basically fully lit). Needs bloom for best effect.
@@ -95,6 +89,7 @@ void main() {
     if(grayscale == 1){
     	result = grayscaleColour(result);
     }
+
 
     color = vec4(result, 1);
 }
