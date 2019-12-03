@@ -23,7 +23,7 @@ public:
 	void initFireSpell();
 	~SpellHandler();
 
-	float createSpell(glm::vec3 spellPos, glm::vec3 directionVector, OBJECT_TYPE type);
+	OBJECT_TYPE createSpell(glm::vec3 spellPos, glm::vec3 directionVector, OBJECT_TYPE type);
 
 	void spellUpdate(float deltaTime);
 	void setSpawnerPosition(glm::vec3 position);

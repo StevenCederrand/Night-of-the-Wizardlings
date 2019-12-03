@@ -18,6 +18,7 @@ public:
 	BulletPhysics(float gravity);
 	~BulletPhysics();
 	static BulletPhysics* getInstance();
+	void destroy();
 
 	//objects box, sphere, capsule. (Extend.x is radius, Extend.y is height) 
 	btRigidBody* createObject(CollisionObject object, float inMass,
