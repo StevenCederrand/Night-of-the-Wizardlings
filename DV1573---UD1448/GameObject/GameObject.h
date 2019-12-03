@@ -7,6 +7,7 @@
 #include <System/BulletPhysics.h>
 #include <Particles/Particles.h>
 #include <Particles/ParticleBuffers.h>
+#include <Renderer/Camera.h>
 
 class GameObject {
 public:
@@ -37,8 +38,8 @@ public:
 	void updateBulletRigids();
 
 	void setTransformFromRigid(int i);
-	void addParticle(ParticleBuffers particleBuffers);
-
+	void addParticle(ParticleBuffers* particleBuffers);
+	void UpdateParticles(Camera* camera, float dt);
 
 	virtual void update(float dt) = 0;
 	   	

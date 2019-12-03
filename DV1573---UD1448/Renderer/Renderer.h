@@ -137,18 +137,18 @@ private:
 	int	vertexCountDiff3 = 0;
 	float emissionDiff3 = 0.0f;
 
-	TextureInfo m_txtInfo;
-	PSinfo m_PSinfo;
-	PSinfo m_flameInfo;
-	PSinfo m_enhanceInfo;
-	PSinfo m_smoke;
+	//TextureInfo m_txtInfo;
+	//PSinfo m_PSinfo;
+	//PSinfo m_flameInfo;
+	//PSinfo m_enhanceInfo;
+	//PSinfo m_smoke;
 
-	std::vector<ParticleSystem> m_particleSystems;
+	//std::vector<ParticleSystem> m_particleSystems;
 
-	ParticleBuffers* attackPS;
-	ParticleBuffers* flamestrikePS;
-	ParticleBuffers* enhancePS;
-	ParticleBuffers* smokePS;
+	//ParticleBuffers* attackPS;
+	//ParticleBuffers* flamestrikePS;
+	//ParticleBuffers* enhancePS;
+	//ParticleBuffers* smokePS;
 
 	void renderBigNotifications();
 	void renderKillFeed();

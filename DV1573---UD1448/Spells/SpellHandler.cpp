@@ -58,6 +58,31 @@ void SpellHandler::initAttackSpell()
 
 	PSinfo tempPS;
 	TextureInfo tempTxt;
+	tempTxt.name = "Assets/Textures/dots.png";
+	tempPS.width = 0.4f;
+	tempPS.heigth = 0.6f;
+	tempPS.lifetime = 1.5f;
+	tempPS.maxParticles = 1000;
+	tempPS.emission = 0.002f;
+	tempPS.force = -0.2f;
+	tempPS.drag = 0.0f;
+	tempPS.gravity = 0.0f;
+	tempPS.seed = 0;
+	tempPS.cont = true;
+	tempPS.omnious = false;
+	tempPS.spread = 0.0f;
+	tempPS.glow = 2;
+	tempPS.scaleDirection = 0;
+	tempPS.swirl = 0;
+	tempPS.fade = 1;
+	tempPS.color = glm::vec3(0.0f, 0.9f, 0.9f);
+	tempPS.blendColor = glm::vec3(0.8f, 1.0f, 1.0f);
+	tempPS.direction = glm::vec3(1.0f, 0.0f, 0.0f);
+
+	attackPS = new ParticleBuffers(tempPS, tempTxt);
+	attackPS->setTexture(tempTxt);
+	attackPS->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
+	attackPS->bindBuffers();
 }
 
 void SpellHandler::initEnhanceSpell()
@@ -95,6 +120,35 @@ void SpellHandler::initEnhanceSpell()
 	// Light--
 	enhanceAtkBase->m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // OLD
 	enhanceAtkBase->m_attenAndRadius = glm::vec4(1.0f, 1.55f, 3.7f, 22.0f);
+
+	PSinfo tempPS;
+	TextureInfo tempTxt;
+	tempTxt.name = "Assets/Textures/betterStar.png";
+	tempPS.width = 0.3f;
+	tempPS.heigth = 0.3f;
+	tempPS.lifetime = 0.3f;
+	tempPS.maxParticles = 1000;
+	tempPS.emission = 0.001f;
+	tempPS.force = -0.2f;
+	tempPS.drag = 0.0f;
+	tempPS.gravity = 0.0f;
+	tempPS.seed = 0;
+	tempPS.cont = true;
+	tempPS.omnious = false;
+	tempPS.spread = -1.0f;
+	tempPS.glow = 1.3;
+	tempPS.scaleDirection = 0;
+	tempPS.swirl = 0;
+	tempPS.fade = 1;
+	tempPS.color = glm::vec3(0.5f, 1.0f, 0.0f);
+	tempPS.blendColor = glm::vec3(1.0f, 0.0f, 1.0f);
+	tempPS.color = glm::vec3(0.0, 0.0f, 0.0f);
+	tempPS.direction = glm::vec3(1.0f, 0.0f, 0.0f);
+
+	enhancePS = new ParticleBuffers(tempPS, tempTxt);
+	enhancePS->setTexture(tempTxt);
+	enhancePS->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
+	enhancePS->bindBuffers();
 }
 
 void SpellHandler::initFlamestrikeSpell()
@@ -165,6 +219,35 @@ void SpellHandler::initFireSpell()
 	// Light--
 	fireBase->m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // Old
 	fireBase->m_attenAndRadius = glm::vec4(1.0f, 0.61f, 0.74f, 22.0f);
+
+	PSinfo tempPS;
+	TextureInfo tempTxt;
+	tempTxt.name = "Assets/Textures/Spell_2.png";
+	tempPS.width = 1.2f;
+	tempPS.heigth = 1.0f;
+	tempPS.lifetime = 10.0f;
+	tempPS.maxParticles = 1000; //350     
+	tempPS.emission = 0.01f; //0.00001f;     
+	tempPS.force = -0.04f; //5     
+	tempPS.drag = 0.0f;
+	tempPS.gravity = -0.2f; //Standard is 1     
+	tempPS.seed = 1;
+	tempPS.cont = true;
+	tempPS.omnious = true;
+	tempPS.spread = 5.0f;
+	tempPS.glow = 1.3;
+	tempPS.scaleDirection = 0;
+	tempPS.swirl = 1;
+	tempPS.fade = 1;
+	tempPS.color = glm::vec3(1.0f, 0.2f, 0.0f);
+	tempPS.blendColor = glm::vec3(1.0f, 1.0f, 0.1f);
+	tempPS.randomSpawn = true;
+	tempPS.direction = glm::vec3(0.0f, 1.0f, 0.0f);
+
+	flamestrikePS = new ParticleBuffers(tempPS, tempTxt);
+	flamestrikePS->setTexture(tempTxt);
+	flamestrikePS->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
+	flamestrikePS->bindBuffers();
 }
 
 
@@ -186,6 +269,15 @@ SpellHandler::~SpellHandler()
 		delete element;
 	for (Spell* element : fireSpells)
 		delete element;
+
+	if (attackPS)
+		delete attackPS;
+	if (flamestrikePS)
+		delete flamestrikePS;
+	if (smokePS)
+		delete smokePS;
+	if (enhancePS)
+		delete enhancePS;
 }
 
 float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, OBJECT_TYPE type)
@@ -225,6 +317,8 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 		spell->getRigidBody()->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 		spell->getRigidBody()->setUserPointer(spell);
 		spell->getRigidBody()->setLinearVelocity(direction * attackBase->m_speed);
+
+		spell->addParticle(attackPS);
 	}
 
 	if (type == ENHANCEATTACK)
@@ -255,7 +349,9 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 		spell->getRigidBody()->setLinearVelocity(direction * enhanceAtkBase->m_speed);
 
 		// Sound
-		int slot = shPtr->playSound(EnhanceAttackSound, clientPtr->getMyData().guid);		
+		int slot = shPtr->playSound(EnhanceAttackSound, clientPtr->getMyData().guid);	
+
+		spell->addParticle(enhancePS);
 	}
 
 	if (type == FLAMESTRIKE)
@@ -313,7 +409,9 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 
 		// Sound
 		shPtr->setSourcePosition(spellPos, GlassBreakSound, clientPtr->getMyData().guid);
-		shPtr->playSound(GlassBreakSound, clientPtr->getMyData().guid);		
+		shPtr->playSound(GlassBreakSound, clientPtr->getMyData().guid);	
+
+		spell->addParticle(flamestrikePS);
 	}
 
 	

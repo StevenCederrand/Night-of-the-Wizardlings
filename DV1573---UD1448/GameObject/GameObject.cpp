@@ -704,7 +704,15 @@ void GameObject::setTransformFromRigid(int i)
 	setTransform(t_transform, i);
 }
 
-void GameObject::addParticle(ParticleBuffers particleBuffers)
+void GameObject::addParticle(ParticleBuffers* particleBuffers)
 {
-	m_particleSystems.emplace_back(ParticleSystem(&particleBuffers));
+	m_particleSystems.emplace_back(ParticleSystem(particleBuffers));
+}
+
+void GameObject::UpdateParticles(Camera* camera, float dt)
+{
+	for (ParticleSystem system : m_particleSystems)
+	{
+		system.Update(camera->getCamPos(), dt);
+	}
 }

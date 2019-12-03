@@ -695,6 +695,7 @@ void PlayState::update_isPlaying(const float& dt)
 	for (GameObject* object : m_objects)
 	{
 		object->update(dt);
+		object->UpdateParticles(m_camera, dt);
 	}
 	Renderer::getInstance()->updateParticles(dt);
 
@@ -714,8 +715,12 @@ void PlayState::update_isSpectating(const float& dt)
 
 	for (GameObject* object : m_objects)
 	{
-		if(object != nullptr)
+		if (object != nullptr)
+		{
 			object->update(dt);
+			object->UpdateParticles(m_camera, dt);
+		}
+			
 	}
 
 	for (PlayerEvents evnt = clientPtr->readNextEvent(); evnt != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
@@ -777,6 +782,7 @@ void PlayState::update_isSpectating(const float& dt)
 	for (GameObject* object : m_objects)
 	{
 		object->update(dt);
+		object->UpdateParticles(m_camera, dt);
 	}
 
 	GUIHandler();
