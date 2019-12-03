@@ -33,16 +33,14 @@ Renderer::Renderer()
 	//Initialize everything we need for SSAO
 #if SSAO 
 
-	//Generate SSAO buffers
-	glGenFramebuffers(1, &m_SSAOFBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, m_SSAOFBO);
 	//Generate SSAO Colour buffer
 	glGenTextures(1, &m_SSAOColourBuffer);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_SSAOColourBuffer);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_SSAOColourBuffer, 0);
+	glBindImageTexture(0, m_SSAOColourBuffer, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "SSAO Framebuffer not complete!" << std::endl;
 
@@ -59,6 +57,22 @@ Renderer::Renderer()
 		float scale = static_cast<float>(i) / SSAO_KERNELS;
 		m_SSAOKernels.push_back(kernelSample);
 	}
+
+	int work_grp_cnt[3];
+	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &work_grp_cnt[0]);
+	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, &work_grp_cnt[1]);
+	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, &work_grp_cnt[2]);
+
+	printf("max global (total) work group size x:%i y:%i z:%i\n",
+		work_grp_cnt[0], work_grp_cnt[1], work_grp_cnt[2]);
+	int work_grp_size[3];
+
+	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 0, &work_grp_size[0]);
+	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 1, &work_grp_size[1]);
+	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 2, &work_grp_size[2]);
+
+	printf("max local (in one shader) work group sizes x:%i y:%i z:%i\n",
+		work_grp_size[0], work_grp_size[1], work_grp_size[2]);
 #endif
 
 
@@ -434,9 +448,11 @@ void Renderer::createDepthMap() {
 void Renderer::initShaders() {
 	ShaderMap::getInstance()->createShader(DEPTH_MAP, "Depth.vert", "Depth.frag");
 	//Set the light index binding
+#if FORWARDPLUS
 	ShaderMap::getInstance()->createShader(LIGHT_CULL, "LightCullCompute.comp");
 	ShaderMap::getInstance()->useByName(LIGHT_CULL);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
+#endif
 	ShaderMap::getInstance()->createShader(BASIC_FORWARD, "VertexShader.vert", "FragShader.frag");
 	ShaderMap::getInstance()->createShader(ANIMATION, "Animation.vert", "FragShader.frag");
 	ShaderMap::getInstance()->createShader(SKYBOX, "Skybox.vs", "Skybox.fs");
@@ -885,7 +901,7 @@ void Renderer::render() {
 
 		glDispatchCompute(workGroups.x, workGroups.y, 1);
 
-		glMemoryBarrier(GL_SHADER_STORAGE_BUFFER);
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 		//Unbind the depth
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -895,12 +911,16 @@ void Renderer::render() {
 #if SSAO
 	//Here we dispatch the SSAO compute shader
 	shader = shaderMap->useByName(SSAO_COMP);
-	glBindFramebuffer(GL_FRAMEBUFFER, m_SSAOFBO);
+	glActiveTexture(GL_TEXTURE0);
+	shader->setInt("depthMap", 0);
+	glBindTexture(GL_TEXTURE_2D, m_depthMap);
 
-	glBindImageTexture(0, m_SSAOColourBuffer, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+	glBindImageTexture(0, m_SSAOColourBuffer, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F); //Bind the image unit
 
-	glDispatchCompute(1, 1, 0);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glDispatchCompute(SCREEN_WIDTH, SCREEN_HEIGHT, 1);
+	glMemoryBarrier(GL_TEXTURE_UPDATE_BARRIER_BIT);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	
 #endif
 
 #pragma region Color_Render

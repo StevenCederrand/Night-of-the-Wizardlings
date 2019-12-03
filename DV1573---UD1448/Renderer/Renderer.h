@@ -20,7 +20,7 @@
 
 //Rendering Options 
 #define FORWARDPLUS true;
-#define SSAO false;
+#define SSAO true;
 
 //Number of SSAO kernels allowed in the system
 #define SSAO_KERNELS 64.0f
