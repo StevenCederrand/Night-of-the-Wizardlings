@@ -17,15 +17,15 @@ class BulletPhysics
 public:
 	BulletPhysics(float gravity);
 	~BulletPhysics();
+	static BulletPhysics* getInstance();
+
 	//objects box, sphere, capsule. (Extend.x is radius, Extend.y is height) 
 	btRigidBody* createObject(CollisionObject object, float inMass,
 		glm::vec3 position, glm::vec3 extend, glm::quat rotation = glm::quat(),
 		bool destruction = false, float restitution = 1.0f, float friction = 0.2f);
 
+	btKinematicCharacterController* createCharacter(const glm::vec3& position);
 	
-	btKinematicCharacterController* createCharacter(const glm::vec3& position, float& height);
-	
-
 	btDiscreteDynamicsWorld* getDynamicsWorld() const;
 	btVector3 getCharacterSize() const;
 
@@ -34,6 +34,7 @@ public:
 	void update(float dt);
 
 private:
+	static BulletPhysics* m_bpInstance;
 
 	void destructionobj(btRigidBody* body);
 

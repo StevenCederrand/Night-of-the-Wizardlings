@@ -44,9 +44,12 @@ void fire::hasCollided()
 {
 }
 
-void fire::updateRigidbody(float deltaTime, btRigidBody* body)
+void fire::updateRigidbody(float deltaTime)
 {
-	setDirection(glm::vec3(body->getLinearVelocity().getX(),
+	btRigidBody* body = getRigidBody();
+
+	setDirection(glm::vec3(
+		body->getLinearVelocity().getX(),
 		body->getLinearVelocity().getY(),
 		body->getLinearVelocity().getZ()));
 

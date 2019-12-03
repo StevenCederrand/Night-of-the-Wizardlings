@@ -6,7 +6,6 @@ GameObject::GameObject()
 {
 	m_objectName = "Empty";
 	m_type = 0;
-	m_bPhysics = nullptr;
 	m_shouldRender = true;
 }
 
@@ -14,7 +13,6 @@ GameObject::GameObject(std::string objectName)
 {
 	m_objectName = objectName;
 	m_type = 0;
-	m_bPhysics = nullptr;
 	m_shouldRender = true;
 }
 
@@ -312,7 +310,7 @@ void GameObject::removeBody(int bodyIndex)
 {
 	if (m_bodies[bodyIndex])
 	{
-		m_bPhysics->removeObject(m_bodies[bodyIndex]);
+		BulletPhysics::getInstance()->removeObject(m_bodies[bodyIndex]);
 		m_bodies[bodyIndex] = nullptr;
 	}
 }
@@ -493,27 +491,23 @@ void GameObject::bindMaterialToShader(Shader* shader, const std::string& materia
 	shader->setMaterial(materialName);
 }
 
-
 void GameObject::bindMaterialToShader(Shader* shader, Material* material)
 {
 	shader->setMaterial(material);
 }
+
 void GameObject::unbindMaterialFromShader(Shader* shader, const std::string& materialName)
 {
 	shader->unbindMaterial(materialName);
 }
+
 void GameObject::unbindMaterialFromShader(Shader* shader, Material* material)
 {
 	shader->unbindMaterial(material);
 }
-void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
+
+void GameObject::createRigidBody(CollisionObject shape)
 {
-	if (!m_bPhysics)
-		m_bPhysics = bp;
-
-	if (m_bPhysics == nullptr && bp == nullptr)
-		return;
-
 	for (size_t i = 0; i < m_meshes.size(); i++)
 	{
 		
@@ -541,9 +535,13 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 			glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(i).position;
 			glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale;
 
-			m_bodies.emplace_back(m_bPhysics->createObject(shape, 0.0f, center, halfSize));
+			m_bodies.emplace_back(BulletPhysics::getInstance()->createObject(
+				shape,
+				0.0f,
+				center,
+				halfSize)
+			);
 			m_bodies.back()->setUserPointer(this);
-			//setTransformFromRigid(i);
 		}
 		else
 		{
@@ -564,10 +562,14 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 			glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(i).position;
 			glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale;
 
-			m_bodies.emplace_back(m_bPhysics->createObject(shape, 0.0f, center, halfSize, getTransform(i).rotation));
+			m_bodies.emplace_back(BulletPhysics::getInstance()->createObject(
+				shape,
+				0.0f,
+				center,
+				halfSize,
+				getTransform(i).rotation)
+			);
 			m_bodies.back()->setUserPointer(this);
-			//setTransformFromRigid(i);
-
 		}
 	}
 
@@ -575,11 +577,14 @@ void GameObject::createRigidBody(CollisionObject shape, BulletPhysics* bp)
 	m_transform.rotation = glm::quat();
 }
 
-void GameObject::createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp, float weight)
+void GameObject::createRigidBody(btRigidBody* body)
 {
-	if (!m_bPhysics)
-		m_bPhysics = bp;
+	m_bodies.emplace_back(body);
+	m_bodies.back()->setUserPointer(this);
+}
 
+void GameObject::createDynamicRigidBody(CollisionObject shape, float weight)
+{
 	m_bodies.clear();
 	m_bodies.shrink_to_fit();
 	for (size_t i = 0; i < m_meshes.size(); i++)
@@ -604,7 +609,16 @@ void GameObject::createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp
 		glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(i).position;
 		glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale;
 
-		m_bodies.emplace_back(m_bPhysics->createObject(shape, weight, center, halfSize, getTransform(i).rotation, true, 0.1f, 8.0f));
+		m_bodies.emplace_back(BulletPhysics::getInstance()->createObject(
+			shape,
+			weight,
+			center,
+			halfSize,
+			getTransform(i).rotation,
+			true,
+			0.1f,
+			8.0f)
+		);
 		m_bodies.back()->setUserPointer(this);
 		m_bodies.back()->setGravity(btVector3(0.0f, -25.0f, 0.0f));
 		setTransformFromRigid(i);
@@ -614,11 +628,9 @@ void GameObject::createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp
 	m_transform.rotation = glm::quat();
 }
 
-void GameObject::createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp, float weight, int meshIndex, bool recenter)
+void GameObject::createDynamicRigidBody(CollisionObject shape, float weight, int meshIndex, bool recenter)
 {
-	if (!m_bPhysics)
-		m_bPhysics = bp;
-
+	
 	const std::vector<Vertex>& vertices = MeshMap::getInstance()->getMesh(m_meshes[meshIndex].name)->getVertices();
 
 	glm::vec3 min = vertices[0].position;
@@ -641,7 +653,15 @@ void GameObject::createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp
 
 	glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(meshIndex).scale;
 
-	m_bodies.emplace_back(m_bPhysics->createObject(shape, weight, center, halfSize, getTransform(meshIndex).rotation, true, 0.0f, 1.0f));
+	m_bodies.emplace_back(BulletPhysics::getInstance()->createObject(
+		shape,
+		weight,
+		center,
+		halfSize,
+		getTransform(meshIndex).rotation,
+		true,
+		0.0f,
+		1.0f));
 
 	m_bodies.back()->setUserPointer(this);
 	m_bodies.back()->setGravity(btVector3(0.0f, -25.0f, 0.0f));

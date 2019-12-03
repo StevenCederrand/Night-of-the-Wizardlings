@@ -296,7 +296,7 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			//	0.0f);
 			//object->setTransform(newTransform,  mi);
 
-			object->createDynamicRigidBody(CollisionObject::box, NULL, 100.0f * scale, mi, true);
+			object->createDynamicRigidBody(CollisionObject::box, 100.0f * scale, mi, true);
 			
 			// Values for destroyed object
 			// TODO: Move thiss

@@ -13,13 +13,12 @@ class Player
 {
 
 public:
-	Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Camera* camera, SpellHandler* spellHandler);
+	Player(std::string name, glm::vec3 playerPosition, Camera* camera, SpellHandler* spellHandler);
 	~Player();
 
 	void update(float deltaTime);
 	void updateListenerProperties();
 	void attack();
-	void createRay(); //create ray for spells
 	void spawnPlayer(glm::vec3 pos);
 	void updateMesh();
 	void onDead();
@@ -74,16 +73,23 @@ private:
 	float m_attackCooldown;
 	float m_deflectCooldown;
 	float m_specialCooldown;
-	float m_special3Cooldown;
-	float m_maxAttackCooldown, m_maxSpecialCooldown;
 	float m_spellSpeed = 1;
-	float m_speed;
+	float m_maxSpeed;
 	float m_deflectSoundGain = 1.0f;
 	
 	bool m_rMouse; //Right Mouse
 	float m_mana;
 	int m_health;
 	int m_frameCount;
+
+	float m_maxHealth;
+	float m_maxMana; 
+	float m_manaRegen;
+	float m_maxAttackCooldown;
+	float m_deflectManaDrain;
+	float m_maxDeflectCooldown;
+	float m_specialManaDrain;
+	float m_maxSpecialCooldown;
 	
 	bool m_deflecting;
 	bool m_isWalking;
@@ -91,8 +97,7 @@ private:
 	
 	AnimationState animState;
 	void PlayAnimation(float deltaTime);
-	//removed in bulletPhysics.cpp
-	BulletPhysics* m_bp;
+
 	btKinematicCharacterController* m_character;
 	Client* m_client;
 };

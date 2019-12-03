@@ -7,7 +7,6 @@ Spell::Spell(glm::vec3 pos, glm::vec3 m_direction)
 	m_type = -1;
 	m_travelTime = 0.0f;
 	setWorldPosition(pos + m_direction);
-	m_bodyRef = nullptr;
 }
 
 Spell::~Spell()
@@ -42,11 +41,6 @@ void Spell::setDirection(glm::vec3 direction)
 void Spell::setType(int type)
 {
 	m_type = type;
-}
-
-void Spell::setBodyReference(btRigidBody* body)
-{
-	m_bodyRef = body;
 }
 
 void Spell::setSoundSlot(int slot)

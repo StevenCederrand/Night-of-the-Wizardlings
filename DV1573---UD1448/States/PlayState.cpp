@@ -19,7 +19,6 @@ PlayState::PlayState(bool spectator)
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
 
 	m_camera = new Camera();
-	m_bPhysics = new BulletPhysics(-20.0f);
 
 	mu.printBoth("After physics and camera init:");
 
@@ -38,10 +37,10 @@ PlayState::PlayState(bool spectator)
 		enemyShield->loadMesh("EnemyShieldMesh.mesh");
 		delete enemyShield;
 
-		m_spellHandler = new SpellHandler(m_bPhysics);
+		m_spellHandler = new SpellHandler();
 		m_spellHandler->setOnHitCallback(std::bind(&PlayState::onSpellHit_callback, this));
 
-		m_player = new Player(m_bPhysics, "Player", NetGlobals::PlayerFirstSpawnPoint, m_camera, m_spellHandler);
+		m_player = new Player("Player", NetGlobals::PlayerFirstSpawnPoint, m_camera, m_spellHandler);
 		m_player->setHealth(NetGlobals::PlayerMaxHealth);
 
 		if (Client::getInstance()->isInitialized())
@@ -54,7 +53,7 @@ PlayState::PlayState(bool spectator)
 		mu.printBoth("After hud:");
 	}
 	else {
-		m_spellHandler = new SpellHandler(nullptr);
+		m_spellHandler = new SpellHandler();
 		m_spellHandler->setOnHitCallback(std::bind(&PlayState::onSpellHit_callback, this));
 		m_camera->setSpectatorMode(SpectatorMode::FreeCamera);
 	}
@@ -115,7 +114,7 @@ void PlayState::loadMap()
 	// Collision // TODO: Move to object constructor
 	for (GameObject* g : m_objects)
 	{
-		g->createRigidBody(CollisionObject::box, m_bPhysics);
+		g->createRigidBody(CollisionObject::box);
 	}
 	mu.printBoth("After rigidbodies:");
 
@@ -282,7 +281,7 @@ void PlayState::loadDestructables()
 				0.15f
 			);
 
-			m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+			m_objects.back()->createRigidBody(CollisionObject::box);
 			Renderer::getInstance()->submit(m_objects.back(), STATIC);
 		}
 		meshLoader.Unload();
@@ -307,7 +306,7 @@ void PlayState::loadDestructables()
 				0.25f
 			);
 
-			m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+			m_objects.back()->createRigidBody(CollisionObject::box);
 			Renderer::getInstance()->submit(m_objects.back(), STATIC);
 		}
 		meshLoader.Unload();
@@ -332,7 +331,7 @@ void PlayState::loadDestructables()
 				1.0f
 			);
 
-			m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+			m_objects.back()->createRigidBody(CollisionObject::box);
 			Renderer::getInstance()->submit(m_objects.back(), STATIC);
 		}
 		meshLoader.Unload();
@@ -389,7 +388,7 @@ void PlayState::loadDestructables()
 					0.15f
 				);
 
-				m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+				m_objects.back()->createRigidBody(CollisionObject::box);
 				Renderer::getInstance()->submit(m_objects.back(), STATIC);
 			}
 			meshLoader.Unload();
@@ -418,7 +417,6 @@ PlayState::~PlayState()
 
 	delete m_skybox;
 	delete m_player;
-	delete m_bPhysics;
 	delete m_spellHandler;
 	delete m_camera;
 	delete m_firstPerson;
@@ -495,10 +493,10 @@ void PlayState::update_isPlaying(const float& dt)
 	auto* clientPtr = Client::getInstance();
 	clientPtr->updateNetworkEntities(dt);
 
-	m_bPhysics->update(dt);
 	m_player->update(dt);
 	m_spellHandler->spellUpdate(dt);
 
+	BulletPhysics::getInstance()->update(dt);
 	Renderer::getInstance()->updateParticles(dt);
 
 	shPtr->setSourcePosition(m_player->getPlayerPos(), HitmarkSound);
@@ -712,7 +710,7 @@ void PlayState::update_isSpectating(const float& dt)
 {
 	auto* clientPtr = Client::getInstance();
 	clientPtr->updateNetworkEntities(dt);
-	m_bPhysics->update(dt);
+	BulletPhysics::getInstance()->update(dt);
 
 	for (GameObject* object : m_objects)
 	{
@@ -824,10 +822,6 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 		spellobj = static_cast<Spell*>(sp1);
 		break;
 
-	case (REFLECT):
-		spellobj = static_cast<Spell*>(sp1);
-		break;
-
 	case (FLAMESTRIKE):
 		spellobj = static_cast<Spell*>(sp1);
 		break;
@@ -845,10 +839,6 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 		break;
 
 	case (ENHANCEATTACK):
-		spellobj = static_cast<Spell*>(sp2);
-		break;
-
-	case (REFLECT):
 		spellobj = static_cast<Spell*>(sp2);
 		break;
 
@@ -872,12 +862,13 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 
 			m_dstr->Destroy(dstrobj, glm::vec2(hitpoint.getX(), hitpoint.getY()), spellobj->getDirection());
 
-			if (spellobj->getBodyReference() != nullptr)
+			// TODO: Fix this
+			if (spellobj->getRigidBody() != nullptr)
 			{
 				float rndX = rand() % 1999 + 1 - 1000; rndX /= 1000;
 				float rndY = rand() % 1999 + 1 - 1000; rndY /= 1000;
 				float rndZ = rand() % 1999 + 1 - 1000; rndZ /= 1000;
-				spellobj->getBodyReference()->setLinearVelocity(btVector3(rndX, rndY, rndZ) * 35);
+				spellobj->getRigidBody()->setLinearVelocity(btVector3(rndX, rndY, rndZ) * 35);
 			}
 		
 	
