@@ -803,16 +803,18 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 	btScalar friction1 = obj1->getCollisionObject()->getFriction();
 	btScalar friction2 = obj2->getCollisionObject()->getFriction();
 	std::vector<btRigidBody*> rigids;
+	btVector3 collisionPos;
 	
 
 	if (friction1 == 101.0f)
 	{
-		if (obj1->getCollisionObject()->getCollisionShape()->getName() == "CapsuleZ")
-			player = static_cast<Player*>(obj1->getCollisionObject()->getUserPointer());
+		if (obj2->getCollisionObject()->getCollisionShape()->getName() == "CapsuleZ")
+			player = static_cast<Player*>(obj2->getCollisionObject()->getUserPointer());
 		else
 			return false;
 
 		rigids = sp1->getRigidBodies();	
+		collisionPos = cp.getPositionWorldOnA();
 	}
 
 	else if (friction2 == 101.0f)
@@ -823,6 +825,7 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 			return false;
 
 		rigids = sp2->getRigidBodies();
+		collisionPos = cp.getPositionWorldOnB();
 	}
 
 	//if player is null return
@@ -838,9 +841,10 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 
 		btVector3 dir = btRigPos - playerPos;
 		dir.normalize();
-		rigids.at(i)->applyCentralForce(dir*100);
-		
+		//rigids.at(i)->applyCentralForce(dir*100);
+		rigids.at(i)->applyCentralImpulse(dir*5);
 
+		
 	}
 
 	//logTrace("\n ------\n\n");
