@@ -109,7 +109,7 @@ void SpellCreatorState::update(float dt)
     Renderer::getInstance()->updateParticles(dt);
 
     ImGui_ImplGlfwGL3_NewFrame();
-    ImGui::ShowDemoWindow();
+    //ImGui::ShowDemoWindow();
 
     ImGui::Begin("Spell Creator", &my_tool_active, ImGuiWindowFlags_MenuBar);// Create a window called "Spell Creator" and append into it.
     ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Select a spell type to create");
@@ -195,7 +195,7 @@ void SpellCreatorState::editAttackSpell()
     if (m_AttackSpellAlive == true)
     {
         m_spellHandler->changeSpell(0);
-        m_spellHandler->createSpellForTool(glm::vec3(0, 3, -10), glm::vec3(0, 0, 0), NORMALATTACKTOOL);
+        m_spellHandler->createSpellForTool(glm::vec3(3, 3, -10), glm::vec3(0, 0, 0), NORMALATTACKTOOL);
         m_AttackSpellAlive = false;
         m_FireSpellAlive = true;
     }
@@ -214,7 +214,7 @@ void SpellCreatorState::editAOEAttackSpell()
     if (m_FireSpellAlive == true)
     {
         m_spellHandler->changeSpell(1);
-        m_spellHandler->createSpellForTool(glm::vec3(0, 3, -20), glm::vec3(0, 0, 0), FIRETOOL);
+        m_spellHandler->createSpellForTool(glm::vec3(3, 3, -20), glm::vec3(0, 0, 0), FIRETOOL);
         m_FireSpellAlive = false;
         m_AttackSpellAlive = true;
     }
