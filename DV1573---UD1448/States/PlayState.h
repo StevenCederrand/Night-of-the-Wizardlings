@@ -68,7 +68,6 @@ private:
 	Player* m_player;
 	Camera* m_camera;
 	SkyBox* m_skybox;
-	BulletPhysics* m_bPhysics;
 	MemoryUsage mu;
 	HudHandler m_hudHandler;
 	

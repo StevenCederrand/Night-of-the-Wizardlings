@@ -2,7 +2,7 @@
 #include "Player.h"
 #include <Networking/Client.h>
 
-Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Camera *camera, SpellHandler* spellHandler)
+Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera, SpellHandler* spellHandler)
 {
 	m_firstPersonMesh = new AnimatedObject("fpsMesh");
 	m_firstPersonMesh->loadMesh("FPSTESTIGEN.mesh");
@@ -35,9 +35,8 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 
 	m_maxAttackCooldown = m_spellhandler->getAttackBase()->m_coolDown;
 	m_maxSpecialCooldown = m_spellhandler->getEnhAttackBase()->m_coolDown;
-	m_bp = bp;
 	float temp = 1.0f;
-	m_character = m_bp->createCharacter(playerPosition, temp);
+	m_character = BulletPhysics::getInstance()->createCharacter(playerPosition, temp);
 
 	m_client = Client::getInstance();
 }
@@ -217,7 +216,7 @@ void Player::move(float deltaTime)
 
 	//set playerpos from bullet character
 	btVector3 playerPos = m_character->getGhostObject()->getWorldTransform().getOrigin();
-	float characterHalfSize = m_bp->getCharacterSize().getY();
+	float characterHalfSize = BulletPhysics::getInstance()->getCharacterSize().getY();
 
 	m_playerPosition = glm::vec3(playerPos.getX(), playerPos.getY(), playerPos.getZ());
 	m_playerPosition.y -= characterHalfSize;
@@ -230,7 +229,7 @@ void Player::move(float deltaTime)
 
 
 	m_playerCamera->setCameraPos(m_cameraPosition);
-	m_character->updateAction(m_bp->getDynamicsWorld(), deltaTime);
+	m_character->updateAction(BulletPhysics::getInstance()->getDynamicsWorld(), deltaTime);
 }
 
 void Player::PlayAnimation(float deltaTime)
@@ -511,7 +510,7 @@ const float& Player::getMaxSpecialCooldown() const
 
 const glm::vec3 Player::getMeshHalfSize() const
 {
-	return glm::vec3(m_bp->getCharacterSize().getX(), m_bp->getCharacterSize().getY(), m_bp->getCharacterSize().getZ());
+	return glm::vec3(BulletPhysics::getInstance()->getCharacterSize().getX(), BulletPhysics::getInstance()->getCharacterSize().getY(), BulletPhysics::getInstance()->getCharacterSize().getZ());
 }
 
 const float& Player::getMana() const

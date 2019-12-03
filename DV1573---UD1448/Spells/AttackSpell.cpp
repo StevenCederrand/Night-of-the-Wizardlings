@@ -48,8 +48,10 @@ void AttackSpell::update(float deltaTime)
 	setTravelTime(getTravelTime() - deltaTime);
 }
 
-void AttackSpell::updateRigidbody(float deltaTime, btRigidBody* body)
+void AttackSpell::updateRigidbody(float deltaTime)
 {
+	btRigidBody* body = getRigidBody();
+
 	//shouldAddBounce check if 0.2 second have passed since last bounce add
 	if (m_hasCollided && m_shouldAddBounce)
 	{	
@@ -71,7 +73,8 @@ void AttackSpell::updateRigidbody(float deltaTime, btRigidBody* body)
 		m_shouldAddBounce = true;
 	}
 
-	setDirection(glm::vec3(body->getLinearVelocity().getX(),
+	setDirection(glm::vec3(
+		body->getLinearVelocity().getX(),
 		body->getLinearVelocity().getY(),
 		body->getLinearVelocity().getZ()));
 

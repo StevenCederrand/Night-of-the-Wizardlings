@@ -6,6 +6,8 @@ enum {
 	DestructableObjects
 };
 
+BulletPhysics* BulletPhysics::m_bpInstance = 0;
+
 BulletPhysics::BulletPhysics(float gravity)
 {
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -64,6 +66,14 @@ BulletPhysics::~BulletPhysics()
 	delete m_collisionConfiguration;
 
 	m_collisionShapes.clear();
+}
+
+BulletPhysics* BulletPhysics::getInstance()
+{
+	if (m_bpInstance == 0) {
+		m_bpInstance = new BulletPhysics(-19.82);
+	}
+	return m_bpInstance;
 }
 
 btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, glm::vec3 position, glm::vec3 extend, glm::quat rotation, bool destruction, float restitution, float friction)

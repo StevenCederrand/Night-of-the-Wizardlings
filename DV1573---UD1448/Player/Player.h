@@ -13,7 +13,7 @@ class Player
 {
 
 public:
-	Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Camera* camera, SpellHandler* spellHandler);
+	Player(std::string name, glm::vec3 playerPosition, Camera* camera, SpellHandler* spellHandler);
 	~Player();
 
 	void update(float deltaTime);
@@ -91,8 +91,7 @@ private:
 	
 	AnimationState animState;
 	void PlayAnimation(float deltaTime);
-	//removed in bulletPhysics.cpp
-	BulletPhysics* m_bp;
+
 	btKinematicCharacterController* m_character;
 	Client* m_client;
 };

@@ -15,7 +15,7 @@ public:
 	// Virtual functions
 	virtual const bool& getHasCollided() const;	//TODO: Construct this function
 	virtual void hasCollided();					//TODO: Construct this function
-	virtual void updateRigidbody(float deltaTime, btRigidBody* body);
+	virtual void updateRigidbody(float deltaTime);
 	virtual void update(float dt);
 	virtual const float getDamage();
 	virtual const glm::vec3& getPos() const;

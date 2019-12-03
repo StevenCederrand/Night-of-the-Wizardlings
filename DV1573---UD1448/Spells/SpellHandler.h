@@ -4,7 +4,6 @@
 #include <GameObject/GameObject.h>
 #include <Spells/AttackSpell.h>
 #include <Spells/EnhanceAttackSpell.h>
-#include <Spells/ReflectSpell.h>
 #include <Spells/AOEAttack.h>
 #include <Spells/fire.h>
 #include <System/BulletPhysics.h>
@@ -17,11 +16,10 @@ class Client;
 class SpellHandler
 {
 public:
-	SpellHandler(BulletPhysics* bp);
+	SpellHandler();
 	void initAttackSpell();
 	void initEnhanceSpell();
 	void initFlamestrikeSpell();
-	void initReflectSpell();
 	void initFireSpell();
 	~SpellHandler();
 
@@ -37,7 +35,6 @@ public:
 
 	const AttackSpellBase* getAttackBase() { return attackBase; }
 	const AttackSpellBase* getEnhAttackBase() { return enhanceAtkBase; }
-	const ReflectSpellBase* getReflectBase() { return reflectBase; }
 	const FlamestrikeSpellBase* getFlamestrikeBase() { return flamestrikeBase; }
 	const FireSpellBase* getFireBase() { return fireBase; }
 
@@ -61,19 +58,14 @@ private:
 	// The base for all basic attack spells
 	AttackSpellBase* attackBase;
 	AttackSpellBase* enhanceAtkBase;
-	ReflectSpellBase* reflectBase;
 	FlamestrikeSpellBase* flamestrikeBase;
 	FireSpellBase* fireBase;
 
 	void spellCollisionCheck();	
 	bool specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis, float radius);
 	float OBBsqDist(glm::vec3& spherePos, std::vector<glm::vec3>& axis, glm::vec3& playerPos);
-	void setCharacter(std::string meshName);
 
-	BulletPhysics* m_bp;
-	std::vector<btRigidBody*> m_BulletNormalSpell;
-	std::vector<btRigidBody*> m_BulletEnhanceAttackSpell;
-	std::vector<btRigidBody*> m_BulletFlamestrikeSpell;
+	void setCharacter(std::string meshName);
 	
 	// Don't touch if you don't know what you are doing
 	friend class Client;
@@ -82,15 +74,6 @@ private:
 		glm::vec3 direction;
 		glm::vec3 position;
 		OBJECT_TYPE type;
-	};
-
-	struct MeshBox //Handles seperate transforms for same mesh
-	{
-		std::string name; //This is kinda useless 
-		Transform transform;
-		Material* material;
-		Mesh* mesh;
-		glm::vec3 btoffset = glm::vec3(0.0f);
 	};
 
 	std::vector<deflectSpellData> m_deflectedSpells;

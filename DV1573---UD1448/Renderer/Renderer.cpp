@@ -1361,16 +1361,6 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 			m_particleSystems[i].Render(m_camera, &m_enhanceInfo);
 			m_particleSystems[i].SetPosition(meshTransform.position);
 		}
-		else if (m_spells[i]->getType() == OBJECT_TYPE::REFLECT)
-		{
-			meshRef = spellHandler->getReflectBase()->m_mesh;
-			glBindVertexArray(meshRef->getBuffers().vao);
-			shader->setMaterial(spellHandler->getReflectBase()->m_material);
-			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
-			glBindVertexArray(0);
-			//ps[i].SetPosition(meshTransform.position);
-		}
 		else if (m_spells[i]->getType() == OBJECT_TYPE::FLAMESTRIKE)
 		{
 			meshRef = spellHandler->getFlamestrikeBase()->m_mesh;

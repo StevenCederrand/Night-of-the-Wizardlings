@@ -39,9 +39,6 @@ void NetworkSpells::update(const float& dt)
 						int slot = shPtr->playSound(EnhanceAttackSound, e.spellData.CreatorGUID);
 						shPtr->setSourcePosition(e.spellData.Position, EnhanceAttackSound, e.spellData.CreatorGUID, slot);						
 					}
-					else if (e.spellData.SpellType == OBJECT_TYPE::REFLECT) {
-						e.gameobject = new ReflectSpell(e.spellData.Position);
-					}
 					else if (e.spellData.SpellType == OBJECT_TYPE::FLAMESTRIKE) {
 						e.gameobject = new AOEAttack(e.spellData.Position);						
 						

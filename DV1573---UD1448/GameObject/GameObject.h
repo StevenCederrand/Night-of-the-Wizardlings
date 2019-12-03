@@ -28,10 +28,10 @@ public:
 	void unbindMaterialFromShader(Shader* shader, Material* material);
 	
 	//Create a rigid body of the shape of your choice and add it to the collision world
-	void createRigidBody(CollisionObject shape, BulletPhysics* bp);
+	void createRigidBody(CollisionObject shape);
 	void createRigidBody(btRigidBody* body);
-	void createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp, float weight);
-	void createDynamicRigidBody(CollisionObject shape, BulletPhysics* bp, float weight, int meshIndex, bool recenter = true);	
+	void createDynamicRigidBody(CollisionObject shape, float weight);
+	void createDynamicRigidBody(CollisionObject shape, float weight, int meshIndex, bool recenter = true);	
 	void updateBulletRigids();
 
 	void setTransformFromRigid(int i);
@@ -70,7 +70,7 @@ public:
 	const bool& getShouldRender() const;
 	const glm::vec3 getLastPosition() const;
 
-	const std::vector<btRigidBody*>& getRigidBodies() { return m_bodies; }	
+	std::vector<btRigidBody*> getRigidBodies() { return m_bodies; }	
 	btRigidBody* getRigidBody() const { return m_bodies[0]; }	
 
 private:
@@ -87,11 +87,10 @@ private:
 	std::string m_objectName;
 	Transform m_transform;
 	glm::vec3 m_lastPosition;
-	BulletPhysics* m_bPhysics;
 
 	std::vector<btRigidBody*> m_bodies;	
 
-	// Allocate for later
+	// Allocation for perfomance
 	Transform t_transform;
 
 protected:
