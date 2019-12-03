@@ -112,7 +112,7 @@ void SpellCreatorState::update(float dt)
     //ImGui::ShowDemoWindow();
 
     ImGui::Begin("Spell Creator", &my_tool_active, ImGuiWindowFlags_MenuBar);// Create a window called "Spell Creator" and append into it.
-    ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Select a spell type to create");
+    ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Select a spell type to create:");
     ImGui::Checkbox("Create Projectile", &isProjectile);
     ImGui::Checkbox("Create AOE", &isAOE);
 
@@ -132,6 +132,7 @@ void SpellCreatorState::update(float dt)
     {
         // LOAD AN ATTACKSPELL
         std::cout << "Selected filename: " << fileDialog.GetSelected().string() << std::endl;
+        m_name = fileDialog.GetSelected().string();
         myLoader.LoadSpell(m_name);
 
         //Set the tool values to match the loaded file
