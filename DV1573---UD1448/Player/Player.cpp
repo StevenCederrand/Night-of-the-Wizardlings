@@ -351,7 +351,7 @@ void Player::attack()
 	{
 		if (m_attackCooldown <= 0.0f)
 		{
-			m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, ENHANCEATTACK); // Put attack on cooldown
+			m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, FLAMESTRIKE); // Put attack on cooldown
 			m_attackCooldown = m_maxAttackCooldown;
 			animState.casting = true;
 			shPtr->playSound(BasicAttackSound, m_client->getMyData().guid);
