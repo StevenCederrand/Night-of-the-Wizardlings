@@ -74,10 +74,9 @@ void main() {
 
     vec3 viewDir = normalize(cameraHolder - f_position.xyz);
     float fresnel = 1 - dot(viewDir,  f_normal);
-    result += fresnel;
-    if (alphaTexture.a < 0.6)
-      discard;
-    color = vec4(result, alphaTexture.a * 1.8);
+  //  result += fresnel;
+  //
+    color = vec4(result, alphaTexture.a);
 }
 
 vec2 rotate(float magnitude, vec2 p)

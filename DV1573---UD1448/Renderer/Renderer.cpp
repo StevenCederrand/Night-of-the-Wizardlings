@@ -1097,12 +1097,16 @@ void Renderer::render() {
 		shader = shaderMap->useByName(TRANSPARENT);
 		bindMatrixes(shader);
 		//Render objects 
+		float rotValue = 0.0f;
+
 		for (GameObject* object : m_skyObjects)
 		{
 			if (object == nullptr)
 				continue;
 			if (!object->getShouldRender())
 				continue;
+
+			rotValue -= 0.3f;
 
 			for (int j = 0; j < object->getMeshesCount(); j++)
 			{
@@ -1117,7 +1121,7 @@ void Renderer::render() {
 				modelMatrix = glm::mat4(1.0f); //<--- Change this line to apply rotation
 				modelMatrix = object->getMatrix(j);
 
-				float rotValue = -.5f;
+
 				modelMatrix = glm::rotate(modelMatrix, (float)glfwGetTime() * rotValue, glm::vec3(0.0f, 1.0f, 0.0f));
 				shader->setMat4("modelMatrix", modelMatrix);
 
