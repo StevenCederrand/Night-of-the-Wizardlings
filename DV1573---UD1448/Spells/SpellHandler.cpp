@@ -49,15 +49,15 @@ void SpellHandler::initAttackSpell()
 	attackBase->m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
 	//attackBase->m_material->ambient = glm::vec3(0.5f, 0.0f, 0.9f);
 
-    mySpellLoader.LoadSpell("fireball");
+    mySpellLoader.LoadSpell("bestSpell");
 
 	attackBase->m_lowDamage = mySpellLoader.getProjectileLowDmg();
     attackBase->m_highDamage = mySpellLoader.getProjectileHighDmg();
-	attackBase->m_speed = mySpellLoader.getProjectileSpeed();;
-	attackBase->m_radius = mySpellLoader.getProjectileRadius();
-	attackBase->m_coolDown = mySpellLoader.getProjectileCooldown();
-	attackBase->m_lifeTime = mySpellLoader.getProjectileLifetime();
-    attackBase->m_maxBounces = mySpellLoader.getProjectileMaxBounces();
+	attackBase->m_speed = mySpellLoader.getSpeed();;
+	attackBase->m_radius = mySpellLoader.getRadius();
+	attackBase->m_coolDown = mySpellLoader.getCooldown();
+	attackBase->m_lifeTime = mySpellLoader.getLifetime();
+    attackBase->m_maxBounces = mySpellLoader.getMaxBounces();
 
 	attackBase->m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f);// OLD
 	attackBase->m_attenAndRadius = glm::vec4(1.0f, 2.15f, 4.5f, 22.0f);

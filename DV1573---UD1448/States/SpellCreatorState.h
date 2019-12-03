@@ -27,6 +27,27 @@
 //bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
 //	const btCollisionObjectWrapper* obj2, int id2, int index2);
 
+struct Projectiles
+{
+    float m_ProjectileLowDmg = 0;
+    float m_ProjectileHighDmg = 0;
+    float m_ProjectileSpeed = 0;
+    float m_ProjectileCooldown = 0;
+    float m_ProjectileRadius = 0;
+    float m_ProjectileLifetime = 0;
+    int m_ProjectileMaxBounces = 1;
+};
+
+struct AOE
+{
+    int m_damage = 0;
+    int m_AOESpeed = 0;
+    int m_AOECooldown = 0;
+    int m_AOERadius = 0;
+    int m_AOELifetime = 0;
+    int m_AOEMaxBounces = 1;
+};
+
 class SpellCreatorState : public State {
 
 public:
@@ -49,13 +70,8 @@ public:
     bool loadASpell = false;
     //-----test data-----//
     std::string m_name = "fireball";
-    float m_ProjectileLowDmg = 0;
-    float m_ProjectileHighDmg = 0;
-    float m_ProjectileSpeed = 0;
-    float m_ProjectileCooldown = 0;
-    float m_ProjectileRadius = 0;
-    float m_ProjectileLifetime = 0;
-    int m_ProjectileMaxBounces = 1;
+    Projectiles normalSpell;
+    AOE aoeSpell;
     //-----File opener/Path to Exports-----//
     ImGui::FileBrowser fileDialog;
 

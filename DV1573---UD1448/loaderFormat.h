@@ -20,6 +20,17 @@ namespace SpellLoading
 		float m_lifeTime;
 		float m_maxBounces;
 	};
+
+    struct AOESpell
+    {
+        char name[NAME_SIZE];
+        int m_damage;
+        int m_speed;
+        int m_coolDown;
+        int m_radius;
+        int m_lifeTime;
+        int m_maxBounces;
+    };
 }
 
 
