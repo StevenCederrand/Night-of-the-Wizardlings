@@ -78,4 +78,10 @@ private:
 
 	std::vector<deflectSpellData> m_deflectedSpells;
 	std::function<void()> m_onHitCallback;
+
+	//Particle Buffers
+	ParticleBuffers* attackPS;
+	ParticleBuffers* flamestrikePS;
+	ParticleBuffers* smokePS;
+	ParticleBuffers* enhancePS;
 };
