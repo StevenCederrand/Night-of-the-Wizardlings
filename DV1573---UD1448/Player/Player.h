@@ -94,8 +94,8 @@ private:
 	float m_specialManaDrain;
 	float m_maxSpecialCooldown;
 
-	OBJECT_TYPE mainAtkType;
-	OBJECT_TYPE specialAtkType;
+	OBJECT_TYPE m_mainAtkType;
+	OBJECT_TYPE m_specialAtkType;
 	
 	bool m_deflecting;
 	bool m_isWalking;

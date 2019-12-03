@@ -53,8 +53,8 @@ Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera, Spell
 	m_deflectManaDrain = 10.0f;
 	m_specialManaDrain = 30.0f;
 
-	mainAtkType = NORMALATTACK;
-	specialAtkType = ENHANCEATTACK;
+	m_mainAtkType = NORMALATTACK;
+	m_specialAtkType = ENHANCEATTACK;
 
 }
 
@@ -92,7 +92,7 @@ void Player::update(float deltaTime)
 		m_enhanceAttack.update(deltaTime);
 		if (m_enhanceAttack.canAttack()) //CAN ATTACK
 		{
-			m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, ENHANCEATTACK);
+			m_specialAtkType = m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, ENHANCEATTACK);
 			m_enhanceAttack.attacked();
 		}
 	}
@@ -351,7 +351,7 @@ void Player::attack()
 	{
 		if (m_attackCooldown <= 0.0f)
 		{
-			m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, mainAtkType); // Put attack on cooldown
+			m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, ENHANCEATTACK); // Put attack on cooldown
 			m_attackCooldown = m_maxAttackCooldown;
 			animState.casting = true;
 			shPtr->playSound(BasicAttackSound, m_client->getMyData().guid);
@@ -361,8 +361,7 @@ void Player::attack()
 	//Special Abilities are to be placed here
 	if (!m_deflecting && Input::isKeyPressed(GLFW_KEY_Q))
 	{
-		//If we are using the triple spell
-		if (m_usingTripleSpell)
+		if (m_specialAtkType == ENHANCEATTACK)
 		{
 			if (m_specialCooldown <= 0.0f && m_mana >= m_specialManaDrain)
 			{
@@ -378,7 +377,7 @@ void Player::attack()
 		{
 			if (m_specialCooldown <= 0.0f && m_mana >= m_specialManaDrain)
 			{
-				specialAtkType = m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, specialAtkType);
+				m_specialAtkType = m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, m_specialAtkType);
 				m_specialCooldown = m_maxSpecialCooldown;
 				m_mana -= m_specialManaDrain;
 				animState.castPotion = true;
