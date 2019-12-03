@@ -24,8 +24,7 @@ public:
 		glm::vec3 position, glm::vec3 extend, glm::quat rotation = glm::quat(),
 		bool destruction = false, float restitution = 1.0f, float friction = 0.2f);
 
-	
-	btKinematicCharacterController* createCharacter(const glm::vec3& position, float& height);
+	btKinematicCharacterController* createCharacter(const glm::vec3& position);
 	
 	btDiscreteDynamicsWorld* getDynamicsWorld() const;
 	btVector3 getCharacterSize() const;

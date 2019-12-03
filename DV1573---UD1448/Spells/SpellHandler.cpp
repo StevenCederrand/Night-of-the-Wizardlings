@@ -201,14 +201,14 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 	{
 		// Generic
 		cooldown = attackBase->m_coolDown;
-		auto spell = new AttackSpell(spellPos, directionVector, attackBase);
-		spells.emplace_back(spell);
+		spells.emplace_back(new AttackSpell(spellPos, directionVector, attackBase));
+		auto spell = spells.back();
 		spell->setType(NORMALATTACK);
-		Renderer::getInstance()->submit(spells.back(), SPELL);
 
 		// Network
 		spell->setUniqueID(getUniqueID());
 		Client::getInstance()->createSpellOnNetwork(*spell);
+		Renderer::getInstance()->submit(spell, SPELL);
 
 		// Bullet
 		spell->createRigidBody(
@@ -228,16 +228,15 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 	{
 		// Generic
 		cooldown = enhanceAtkBase->m_coolDown;
-		auto spell = new AttackSpell(spellPos, directionVector, enhanceAtkBase);
+		spells.emplace_back(new AttackSpell(spellPos, directionVector, enhanceAtkBase));
+		auto spell = spells.back();
 		spell->setType(ENHANCEATTACK);
-		Renderer::getInstance()->submit(spells.back(), SPELL);
 
 		// Network
 		spell->setUniqueID(getUniqueID());
 		Client::getInstance()->createSpellOnNetwork(*spell);
-		spells.emplace_back(spell);
+		Renderer::getInstance()->submit(spell, SPELL);
 		
-
 		// Bullet
 		spell->createRigidBody(
 			BulletPhysics::getInstance()->createObject(
@@ -260,8 +259,8 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 	{
 		// Generic
 		cooldown = flamestrikeBase->m_coolDown;
-		auto spell = new AOEAttack(spellPos, directionVector, flamestrikeBase);
-		flamestrikeSpells.emplace_back(spell);
+		flamestrikeSpells.emplace_back(new AOEAttack(spellPos, directionVector, flamestrikeBase));
+		auto spell = flamestrikeSpells.back();
 		Renderer::getInstance()->submit(flamestrikeSpells.back(), SPELL);
 
 		// Network
@@ -301,8 +300,8 @@ float SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, O
 	{
 		// Generic
 		cooldown = fireBase->m_coolDown;
-		auto spell = new fire(spellPos, directionVector, fireBase);
-		fireSpells.emplace_back(spell);
+		fireSpells.emplace_back(new fire(spellPos, directionVector, fireBase));
+		auto spell = fireSpells.back();
 		Renderer::getInstance()->submit(fireSpells.back(), SPELL);	
 
 		// Network

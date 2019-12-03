@@ -13,32 +13,38 @@ Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera, Spell
 	m_firstPersonMesh->initAnimations("RunAnimation", 116.0f, 136.0f);
 	m_firstPersonMesh->initAnimations("IdleAnimation", 19.0f, 87.0f);
 	m_firstPersonMesh->initAnimations("DeflectAnimation", 154.0f, 169.0f);
-
-
-
 	Renderer::getInstance()->submit(m_firstPersonMesh, ANIMATEDSTATIC);
 
+	// References
 	m_playerCamera = camera;
+	m_spellhandler = spellHandler;
+	m_client = Client::getInstance();
+	m_character = BulletPhysics::getInstance()->createCharacter(playerPosition);
+
+	// Often moving values 
 	m_playerPosition = playerPosition;
 	m_name = name;
-	m_speed = 15.2f;
-	m_health = 100;
 	m_attackCooldown = 0;
 	m_specialCooldown = 0;
+	m_deflectCooldown = 0;
 	m_directionVector = glm::vec3(0, 0, 0);
 	m_moveDir = glm::vec3(0.0f);
 	m_isWalking = false;
 	m_isJumping = false;
+	m_mana = 100.0f;
+	m_health = 100.0f;
 
-	m_spellhandler = spellHandler;
-	m_mana = 100.0f; //A  players mana pool
-
+	// Somewhat static values
+	m_maxSpeed = 15.2f;
+	m_maxMana = 100.0f;
+	m_maxHealth = 100.0f;
+	m_manaRegen = 100.0f; 
 	m_maxAttackCooldown = m_spellhandler->getAttackBase()->m_coolDown;
-	m_maxSpecialCooldown = m_spellhandler->getEnhAttackBase()->m_coolDown;
-	float temp = 1.0f;
-	m_character = BulletPhysics::getInstance()->createCharacter(playerPosition, temp);
+	m_maxSpecialCooldown = 3.5f;
+	m_maxDeflectCooldown = 0.5f;
+	m_deflectManaDrain = 10.0f;
+	m_specialManaDrain = 30.0f;
 
-	m_client = Client::getInstance();
 }
 
 Player::~Player()
@@ -78,19 +84,22 @@ void Player::update(float deltaTime)
 		}
 	}
 
-	if (m_mana > 100) {
-		m_mana = 100;
-	}
+	// Sound
 	updateListenerProperties();
 
-	m_attackCooldown -= deltaTime; // Cooldown reduces with time
-	m_deflectCooldown -= deltaTime; // Cooldown reduces with time
-	m_specialCooldown -= deltaTime; // Cooldown reduces with time
-	m_special3Cooldown -= deltaTime; // Cooldown reduces with time
+	// Cooldown reduces with time
+	m_attackCooldown -= deltaTime;
+	m_deflectCooldown -= deltaTime;
+	m_specialCooldown -= deltaTime;
 
 	//Regenerate mana when we are not deflecting
-	if (!m_rMouse && m_mana < 100 && m_deflectCooldown <= 0) {
-		m_mana += 0.3f * DeltaTime;
+
+	if (!m_rMouse && m_mana < m_maxMana && m_deflectCooldown <= 0) {
+		m_mana += m_manaRegen * DeltaTime;
+
+		if (m_mana > m_maxMana) {
+			m_mana = m_maxMana;
+		}
 	}
 	else if (m_deflectCooldown > 0 && !m_rMouse) {
 		m_deflectCooldown -= DeltaTime;
@@ -210,7 +219,7 @@ void Player::move(float deltaTime)
 
 	//update player position
 	btScalar yValue = std::ceil(m_character->getLinearVelocity().getY() * 100) / 100;	//Round to two decimals
-	btVector3 bulletVec = btVector3(m_moveDir.x * m_speed, -0.01f, m_moveDir.z * m_speed);
+	btVector3 bulletVec = btVector3(m_moveDir.x * m_maxSpeed, -0.01f, m_moveDir.z * m_maxSpeed);
 
 	m_character->setVelocityForTimeInterval(bulletVec, deltaTime);
 
@@ -272,10 +281,11 @@ void Player::PlayAnimation(float deltaTime)
 void Player::attack()
 {
 	SoundHandler* shPtr = SoundHandler::getInstance();	
+
 	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_RIGHT))
 	{
 		//Actually deflecting
-		if (m_mana > 10) {
+		if (m_mana > m_deflectManaDrain) {
 			GameObject* shieldObject = new ShieldObject("playerShield");
 			shieldObject->loadMesh("ShieldMeshFPS.mesh");
 
@@ -288,13 +298,13 @@ void Player::attack()
 			Renderer::getInstance()->submit(shieldObject, SHIELD);
 			if (!m_deflecting) {
 				animState.deflecting = true; //Play the animation once
-				m_mana -= 10; //This is the initial manacost for the deflect
+				m_mana -= m_deflectManaDrain; //This is the initial manacost for the deflect
 
 				shPtr->playSound(DeflectSound, m_client->getMyData().guid);
 				m_deflecting = true; //So we don't play sound over and over
 			}
-			m_mana -= 10.f * DeltaTime;			
-			m_deflectCooldown = 0.5f;
+			m_mana -= m_deflectManaDrain * DeltaTime;			
+			m_deflectCooldown =m_maxDeflectCooldown;
 		}
 		else { //Player is holding down RM without any mana
 			
@@ -331,7 +341,7 @@ void Player::attack()
 	{
 		if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_LEFT))
 		{
-			if (m_attackCooldown <= 0)
+			if (m_attackCooldown <= 0.0f)
 			{
 
 				shPtr->playSound(BasicAttackSound, m_client->getMyData().guid);
@@ -344,8 +354,9 @@ void Player::attack()
 		if (Input::isKeyPressed(GLFW_KEY_Q))
 		{
 			//If we are using the triple spell
-			if (m_usingTripleSpell) {
-				if (m_specialCooldown <= 0 && m_mana > 30)
+			if (m_usingTripleSpell) 
+			{
+				if (m_specialCooldown <= 0.0f && m_mana >= m_specialManaDrain)
 				{
 					//Sound for enhance spell is handled in spellhandler
 					//m_specialCooldown = m_spellhandler->getEnhAttackBase()->m_coolDown;
@@ -354,46 +365,36 @@ void Player::attack()
 					m_enhanceAttack.start();
 					animState.casTripple = true;
 					m_usingTripleSpell = false;
-					m_specialCooldown = 3.5f;
-					m_mana -= 30.f;
+					m_specialCooldown = m_maxSpecialCooldown;
+					m_mana -= m_specialManaDrain;
 
 				}
 			}
-			else { //If our active spell is flamestrike
-				if (m_specialCooldown <= 0 && m_mana > 30)
+			else 
+			{
+				if (m_specialCooldown <= 0.0f && m_mana >= m_specialManaDrain)
 				{
 					m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, FLAMESTRIKE); // Put attack on cooldown
 
 					animState.castPotion = true;
 					m_usingTripleSpell = true;
-					m_specialCooldown = 3.5f;
-					m_mana -= 30.f;
+					m_specialCooldown = m_maxSpecialCooldown;
+					m_mana -= m_specialManaDrain;
 
 				}
 			}
 		}
 	}
+
+
+
+
+
+
 	if (Input::isMouseReleased(GLFW_MOUSE_BUTTON_RIGHT)) {
 		m_rMouse = false;
 		animState.deflecting = false;
 	}
-	
-}
-
-void Player::createRay()
-{
-	float x = (2.0f * static_cast<float>(m_playerCamera->getXpos())) / SCREEN_WIDTH - 1.0f;
-	float y = 1.0f - (2.0f * static_cast<float>(m_playerCamera->getYpos())) / SCREEN_HEIGHT;
-	float z = 1.0f;
-
-	//-----Spaces-----//
-	glm::vec3 rayNDC = glm::vec3(x, y, z);
-	glm::vec4 rayClip = glm::vec4(rayNDC.x, rayNDC.y, -1.0f, 1.0f);
-	glm::vec4 rayEye = inverse(m_playerCamera->getProjMat()) * rayClip;
-	rayEye = glm::vec4(rayEye.x, rayEye.y, -1.0f, 0.0f);
-	glm::vec4 rayWorldTemp = glm::vec4(inverse(m_playerCamera->getViewMat()) * rayEye);
-
-	m_directionVector = normalize(glm::vec3(rayWorldTemp.x, rayWorldTemp.y, rayWorldTemp.z));
 }
 
 void Player::setPlayerPos(glm::vec3 pos)
@@ -470,7 +471,7 @@ void Player::setMana(int mana)
 
 void Player::setSpeed(float speed)
 {
-	m_speed = speed;
+	m_maxSpeed = speed;
 }
 
 void Player::logicStop(const bool& stop)
