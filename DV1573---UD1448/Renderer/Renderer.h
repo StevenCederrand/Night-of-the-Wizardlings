@@ -144,11 +144,6 @@ private:
 	PSinfo m_smoke;
 
 	std::vector<ParticleSystem> m_particleSystems;
-	//1 for every spelltype
-	psBuffers attackBuffer;
-	psBuffers flameBuffer; //Do I need 1 for every spell?
-	psBuffers enhanceBuffer; // Yes, yes I do
-	psBuffers smokeBuffer;
 
 	ParticleBuffers* attackPS;
 	ParticleBuffers* flamestrikePS;

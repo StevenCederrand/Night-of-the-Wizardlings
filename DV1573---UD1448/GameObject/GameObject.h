@@ -36,7 +36,7 @@ public:
 	void updateBulletRigids();
 
 	void setTransformFromRigid(int i);
-	void addParticle(PSinfo psInfo, TextureInfo txtInfo, ParticleBuffers particleBuffers);
+	void addParticle(ParticleBuffers particleBuffers);
 
 
 	virtual void update(float dt) = 0;

@@ -492,14 +492,14 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 		{
 			light.attenAndRadius = m_spellHandler->getAttackBase()->m_attenAndRadius;
 			light.color = m_spellHandler->getAttackBase()->m_material->diffuse;
-			m_particleSystems.emplace_back(ParticleSystem(&m_PSinfo, &rings, attackPS));
+			m_particleSystems.emplace_back(ParticleSystem(attackPS));
 		}
 
 		else if (spell->getType() == OBJECT_TYPE::ENHANCEATTACK)
 		{
 			light.attenAndRadius = m_spellHandler->getEnhAttackBase()->m_attenAndRadius;
 			light.color = m_spellHandler->getEnhAttackBase()->m_material->diffuse;
-			m_particleSystems.emplace_back(ParticleSystem(&m_enhanceInfo, &rings, enhancePS));
+			m_particleSystems.emplace_back(ParticleSystem(enhancePS));
 		}
 
 		else if (spell->getType() == OBJECT_TYPE::FIRE)
@@ -507,14 +507,14 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 			light.position.y += 2.0f;
 			light.attenAndRadius = m_spellHandler->getFireBase()->m_attenAndRadius;
 			light.color = m_spellHandler->getFireBase()->m_material->diffuse;
-			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &smoke, flamestrikePS));
+			m_particleSystems.emplace_back(ParticleSystem(flamestrikePS));
 		}
 
 		else if (spell->getType() == OBJECT_TYPE::FLAMESTRIKE)
 		{
 			light.attenAndRadius = m_spellHandler->getFlamestrikeBase()->m_attenAndRadius;
 			light.color = m_spellHandler->getFlamestrikeBase()->m_material->diffuse;
-			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &rings, flamestrikePS));
+			m_particleSystems.emplace_back(ParticleSystem(flamestrikePS));
 		}
 		
 		m_lights.emplace_back(light);
@@ -1456,7 +1456,7 @@ void Renderer::initializeParticle()
 	//ps = new ParticleSystem(&m_PSinfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
 
 
-	attackPS = new ParticleBuffers(m_PSinfo);
+	attackPS = new ParticleBuffers(m_PSinfo, m_txtInfo);
 	attackPS->setTexture(m_txtInfo);
 	attackPS->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
 	attackPS->bindBuffers();
@@ -1494,12 +1494,12 @@ void Renderer::initializeParticle()
 	//ps = new ParticleSystem(&m_PSinfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
 
 
-	enhancePS = new ParticleBuffers(m_enhanceInfo);
+	enhancePS = new ParticleBuffers(m_enhanceInfo, m_txtInfo);
 	enhancePS->setTexture(m_txtInfo);
 	enhancePS->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
 	enhancePS->bindBuffers();
 
-	enhanceBuffer = enhancePS->getBuffer();
+	//enhanceBuffer = enhancePS->getBuffer();
 
 	//------------------------------------------
 
@@ -1553,12 +1553,12 @@ void Renderer::initializeParticle()
 	//ps = new ParticleSystem(&m_PSinfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
 
 
-	flamestrikePS = new ParticleBuffers(m_flameInfo);
+	flamestrikePS = new ParticleBuffers(m_flameInfo, m_txtInfo);
 	flamestrikePS->setTexture(m_txtInfo);
 	flamestrikePS->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
 	flamestrikePS->bindBuffers();
 
-	flameBuffer = flamestrikePS->getBuffer();
+	//flameBuffer = flamestrikePS->getBuffer();
 }
 
 void Renderer::updateParticles(float dt)
@@ -1575,12 +1575,12 @@ void Renderer::updateParticles(float dt)
 		{
 			if (m_PSinfo.emission != emissionDiff)
 			{
-				m_particleSystems[i].Build(&m_PSinfo);
+				m_particleSystems[i].Build(m_PSinfo);
 			}
 
 			if (m_PSinfo.maxParticles != vertexCountDiff)
 			{
-				m_particleSystems[i].Build(&m_PSinfo);
+				m_particleSystems[i].Build(m_PSinfo);
 			}
 
 			vertexCountDiff = m_PSinfo.maxParticles;
@@ -1591,7 +1591,7 @@ void Renderer::updateParticles(float dt)
 
 			//Update temp with new values
 
-			m_particleSystems[i].Update(&m_PSinfo, m_camera->getCamPos(), dt);
+			m_particleSystems[i].Update(m_camera->getCamPos(), dt);
 			thisActive = m_particleSystems[i].GetNrOfParticles();
 		}
 
@@ -1599,12 +1599,12 @@ void Renderer::updateParticles(float dt)
 		{
 			if (m_enhanceInfo.emission != emissionDiff2)
 			{
-				m_particleSystems[i].Build(&m_enhanceInfo);
+				m_particleSystems[i].Build(m_enhanceInfo);
 			}
 
 			if (m_enhanceInfo.maxParticles != vertexCountDiff2)
 			{
-				m_particleSystems[i].Build(&m_enhanceInfo);
+				m_particleSystems[i].Build(m_enhanceInfo);
 			}
 
 			vertexCountDiff2 = m_enhanceInfo.maxParticles;
@@ -1615,7 +1615,7 @@ void Renderer::updateParticles(float dt)
 
 			//Update temp with new values
 
-			m_particleSystems[i].Update(&m_enhanceInfo, m_camera->getCamPos(), dt);
+			m_particleSystems[i].Update(m_camera->getCamPos(), dt);
 			thisActive2 = m_particleSystems[i].GetNrOfParticles();
 		}
 
@@ -1623,12 +1623,12 @@ void Renderer::updateParticles(float dt)
 		{
 			if (m_flameInfo.emission != emissionDiff3)
 			{
-				m_particleSystems[i].Build(&m_flameInfo);
+				m_particleSystems[i].Build(m_flameInfo);
 			}
 
 			if (m_flameInfo.maxParticles != vertexCountDiff3)
 			{
-				m_particleSystems[i].Build(&m_flameInfo);
+				m_particleSystems[i].Build(m_flameInfo);
 			}
 
 			vertexCountDiff3 = m_flameInfo.maxParticles;
@@ -1639,7 +1639,7 @@ void Renderer::updateParticles(float dt)
 
 			//Update temp with new values
 
-			m_particleSystems[i].Update(&m_flameInfo, m_camera->getCamPos(), dt);
+			m_particleSystems[i].Update(m_camera->getCamPos(), dt);
 			thisActive3 = m_particleSystems[i].GetNrOfParticles();
 		}
 	}
