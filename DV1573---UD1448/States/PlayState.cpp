@@ -153,6 +153,28 @@ PlayState::PlayState(bool spectator)
 	m_objects.push_back(new MapObject("Academy_Outer"));
 	m_objects[m_objects.size() - 1]->loadMesh("ExteriorTest.mesh");
 	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
+
+#pragma region Sky_Debris
+	
+	m_objects.push_back(new MapObject("Debris_Far"));
+	m_objects[m_objects.size() - 1]->loadMesh("StonePlaneFar.mesh");
+	m_objects[m_objects.size() - 1]->setTransform(glm::vec3(0.0f, 800.0f, 0.0f), glm::quat(glm::vec3(0.f, 0.f, 0.f)), glm::vec3(7.f));
+	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::SKYOBJECTS);
+
+	//Create two or three more planes that are handeld as sky objects, then randomize their rotation speed.
+	m_objects.push_back(new MapObject("Debris_Mid"));
+	m_objects[m_objects.size() - 1]->loadMesh("StonePlaneFar.mesh");
+	m_objects[m_objects.size() - 1]->setTransform(glm::vec3(0.0f, 300.0f, 0.0f), glm::quat(glm::vec3(0.f, 0.f, 0.f)), glm::vec3(2.5f));
+	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::SKYOBJECTS);
+
+	m_objects.push_back(new MapObject("Debris_Near"));
+	m_objects[m_objects.size() - 1]->loadMesh("StonePlaneNear.mesh");
+	m_objects[m_objects.size() - 1]->setTransform(glm::vec3(0.0f, 100.0f, 0.0f), glm::quat(glm::vec3(0.f, 0.f, 0.f)), glm::vec3(2.f));
+	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::SKYOBJECTS);
+
+
+#pragma endregion
+
 	mu.printBoth("After Academy Outer:");
 	startY = SCREEN_HEIGHT / 2;
 
