@@ -915,7 +915,7 @@ void PlayState::HUDHandler() {
 		m_hudHandler.getHudObject(SPELL_TRIPLE)->setGrayscale(0);
 	}
 	//If triple spell is active
-	if (m_player->usingTripleSpell()) {
+	if (m_player->currentSpell() == ENHANCEATTACK) {	// TODO: Make this dymanic, not hardcoded for enhance and flamestrike
 		m_hudHandler.getHudObject(SPELL_TRIPLE)->setAlpha(1.0f);
 		m_hudHandler.getHudObject(SPELL_FLAMESTRIKE)->setAlpha(0.0f);
 	}

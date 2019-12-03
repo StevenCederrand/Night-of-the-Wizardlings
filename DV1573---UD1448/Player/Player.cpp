@@ -351,7 +351,7 @@ void Player::attack()
 	{
 		if (m_attackCooldown <= 0.0f)
 		{
-			m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, FLAMESTRIKE); // Put attack on cooldown
+			m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, NORMALATTACK); // Put attack on cooldown
 			m_attackCooldown = m_maxAttackCooldown;
 			animState.casting = true;
 			shPtr->playSound(BasicAttackSound, m_client->getMyData().guid);
@@ -377,6 +377,7 @@ void Player::attack()
 		{
 			if (m_specialCooldown <= 0.0f && m_mana >= m_specialManaDrain)
 			{
+				// Randomize spell
 				m_specialAtkType = m_spellhandler->createSpell(m_spellSpawnPosition, m_directionVector, m_specialAtkType);
 				m_specialCooldown = m_maxSpecialCooldown;
 				m_mana -= m_specialManaDrain;
@@ -416,7 +417,6 @@ void Player::attack()
 
 void Player::setPlayerPos(glm::vec3 pos)
 {
-
 	m_character->setLinearVelocity(btVector3(0.0f, 0.0f, 0.0f));
 	auto transform = m_character->getGhostObject()->getWorldTransform();
 	transform.setOrigin(btVector3(pos.x, pos.y + 1.0f, pos.z));
@@ -445,12 +445,10 @@ void Player::updateMesh()
 	Transform m_fpsTrans;
 
 	m_fpsTrans.position = m_playerCamera->getCamPos();
-	//m_fpsTrans.position = glm::vec3(0.0f, 0.0f, 0.0f);
 	m_fpsTrans.rotation = glm::quat(glm::vec3(
 		glm::radians(m_playerCamera->getPitch()),
 		-glm::radians(m_playerCamera->getYaw() + 90.0f),
 		0.0f));
-	//m_fpsTrans.scale = glm::vec3(10.0f, 10.0f, 10.0f);
 
 	m_firstPersonMesh->setTransform(m_fpsTrans);
 
@@ -471,8 +469,8 @@ void Player::increaseMana(const float& increase)
 {
 	m_mana += increase;
 	// Clamp mana
-	if (m_mana > 100.0f) {
-		m_mana = 100;
+	if (m_mana > m_maxMana) {
+		m_mana = m_maxMana;
 	}
 }
 
@@ -536,9 +534,9 @@ const bool& Player::onGround() const
 	return m_character->onGround();
 }
 
-const bool& Player::usingTripleSpell() const
+const OBJECT_TYPE& Player::currentSpell() const
 {
-	return m_usingTripleSpell;
+	return m_specialAtkType;
 }
 
 const glm::vec3& Player::getPlayerPos() const

@@ -381,7 +381,6 @@ void SpellHandler::spellUpdate(float deltaTime)
 	{
 		if (spells[i]->getTravelTime() > 0)
 		{
-			
 			spells[i]->update(deltaTime);
 			spells[i]->updateRigidbody(deltaTime);
 			Client::getInstance()->updateSpellOnNetwork(*spells[i]);
