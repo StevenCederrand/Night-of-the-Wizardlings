@@ -49,10 +49,13 @@ void MenuState::loadGui()
 	m_joinServerBtn->setText("Join Server");
 	m_joinServerBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&MenuState::onStartClientClicked, this));
 
-	m_quitBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.05f, 0.85f, 0.1f, 0.05f), glm::vec4(0.0f), "ExitButton"));
+	m_quitBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.05f, 0.95f, 0.1f, 0.05f), glm::vec4(0.0f), "ExitButton"));
 	m_quitBtn->setText("Exit");
 	m_quitBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&MenuState::onExitClicked, this));
 
+	m_startLevelEditorBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.05f, 0.85f, 0.1f, 0.05f), glm::vec4(0.0f), "LevelEditor"));
+	m_startLevelEditorBtn->setText("LevelEditor");
+	m_startLevelEditorBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&MenuState::onLevelEditClicked, this));
 }
 
 bool MenuState::onStartOfflineClicked(const CEGUI::EventArgs& e)
@@ -84,4 +87,10 @@ bool MenuState::onExitClicked(const CEGUI::EventArgs& e)
 	SoundHandler::getInstance()->stopSound(ThemeSong0);
 	glfwSetWindowShouldClose(glfwGetCurrentContext(), true);	
 	return true;
+}
+
+bool MenuState::onLevelEditClicked(const CEGUI::EventArgs& e)
+{
+	Renderer::getInstance()->clear();
+	m_stateManager->clearAllAndSetState(new LevelEditorState)
 }

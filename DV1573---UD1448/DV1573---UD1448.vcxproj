@@ -257,6 +257,7 @@
     <ClCompile Include="Spells\SpellHandler.cpp" />
     <ClCompile Include="Mesh\SkeletonMap.cpp" />
     <ClCompile Include="States\FindServerState.cpp" />
+    <ClCompile Include="States\LevelEditState.cpp" />
     <ClCompile Include="States\LobbyState.cpp" />
     <ClCompile Include="States\MenuState.cpp" />
     <ClCompile Include="States\PlayState.cpp">
@@ -373,6 +374,7 @@
     <ClInclude Include="GameObject\ObjectTypes.h" />
     <ClInclude Include="Spells\Spells.h" />
     <ClInclude Include="States\FindServerState.h" />
+    <ClInclude Include="States\LevelEditState.h" />
     <ClInclude Include="States\LobbyState.h" />
     <ClInclude Include="States\MenuState.h" />
     <ClInclude Include="States\PlayState.h" />
