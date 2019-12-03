@@ -402,6 +402,7 @@ void Renderer::initShaders() {
 	ShaderMap::getInstance()->getShader("Skybox_Shader")->setInt("skyBox", 4);	
 	ShaderMap::getInstance()->createShader(FRESNEL, "FresnelFX.vert", "FresnelFX.frag");
 	ShaderMap::getInstance()->createShader(ENEMYSHIELD, "FresnelFX.vert", "EnemyShield.frag");
+	ShaderMap::getInstance()->createShader(TRANSPARENT, "TransparentRender.vert", "TransparentRender.frag");
 	ShaderMap::getInstance()->createShader(WHUD, "WorldHud.vs", "WorldHud.fs");
 
 	/*=====================================================*/
@@ -541,6 +542,9 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 	else if (objType == RENDER_TYPE::ENEMY_SHIELD) {
 		m_enemyShieldObject.emplace_back(gameObject);
 	}
+	else if (objType == RENDER_TYPE::SKYOBJECTS) {
+		m_skyObjects.emplace_back(gameObject);
+	}
 	else if (objType == RENDER_TYPE::POINTLIGHT_SOURCE) {
 		/* Place the light in the lights list */
 		Pointlight* lightRef = static_cast<Pointlight*>(gameObject);
@@ -622,6 +626,7 @@ void Renderer::clear() {
 	m_shieldObject.clear();
 	m_enemyShieldObject.clear();
 	m_particleSystems.clear();
+	m_skyObjects.clear();
 }
 
 void Renderer::removeRenderObject(GameObject* gameObject, RENDER_TYPE objType)
@@ -1083,6 +1088,53 @@ void Renderer::render() {
 			glDisableVertexAttribArray(0);
 			glDisableVertexAttribArray(1);
 			glDisableVertexAttribArray(2);
+		}
+	}
+	shader->clearBinding();
+
+	if (m_skyObjects.size() > 0)
+	{
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		shader = shaderMap->useByName(TRANSPARENT);
+		bindMatrixes(shader);
+		//Render objects 
+		float rotValue = 0.0f;
+
+		for (GameObject* object : m_skyObjects)
+		{
+			if (object == nullptr)
+				continue;
+			if (!object->getShouldRender())
+				continue;
+
+			rotValue -= 0.3f;
+
+			for (int j = 0; j < object->getMeshesCount(); j++)
+			{
+				glEnableVertexAttribArray(0);
+				glEnableVertexAttribArray(1);
+				glEnableVertexAttribArray(2);
+				mesh = meshMap->getMesh(object->getMeshName(j));
+
+				material = object->getMaterial(j);
+				object->bindMaterialToShader(shader, material);
+
+				modelMatrix = glm::mat4(1.0f); //<--- Change this line to apply rotation
+				modelMatrix = object->getMatrix(j);
+
+
+				modelMatrix = glm::rotate(modelMatrix, (float)glfwGetTime() * rotValue, glm::vec3(0.0f, 1.0f, 0.0f));
+				shader->setMat4("modelMatrix", modelMatrix);
+
+				glBindVertexArray(mesh->getBuffers().vao);
+				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+				glBindVertexArray(0);
+				glDisableVertexAttribArray(0);
+				glDisableVertexAttribArray(1);
+				glDisableVertexAttribArray(2);
+			}
 		}
 	}
 	shader->clearBinding();

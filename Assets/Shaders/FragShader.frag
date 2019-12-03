@@ -30,9 +30,9 @@ float brightnessMod = 1.0f;    // Modifier for brightness (textures)
 
 // Modifier for brightness (point light), hardcoded temp needs fix
 float pointLightModP = 68.0f;    //SPELLS
-float pointLightMod1 = 8.8f;      //MAPLIGHT
-float pointLightMod2 = 4.2f;      //MAPLIGHT2
-float pointLightMod3 = 2.5f;      //MAPLIGHT
+float pointLightMod1 = 25.0f;      //MAPLIGHT
+float pointLightMod2 = 15.0f;      //MAPLIGHT2
+float pointLightMod3 = 6.5f;      //MAPLIGHT
 
 uniform vec3 CameraPosition;
 
@@ -56,7 +56,10 @@ vec3 grayscaleColour(vec3 col);
 void main() {
     vec3 emissive = Ambient_Color; // Temp used as emmisve, should rename all ambient names to emmisive.
     //Makes the material full solid color (basically fully lit). Needs bloom for best effect.
+    
+    // Texture slot
     vec4 finalTexture = texture(albedoTexture, f_UV);
+
     // Ambient light
     vec3 ambientLight = Diffuse_Color * ambientStr;     // Material color
     if (TexAndRim.x == 1)
@@ -65,7 +68,7 @@ void main() {
     // Create the diffuse color once
     vec3 diffuseColor = Diffuse_Color;  // Material color
     if(TexAndRim.x == 1)
-        diffuseColor = finalTexture.rgb * 0.5;   // Texture color
+        diffuseColor = finalTexture.rgb;   // Texture color
 
 
     // Directional light
@@ -87,7 +90,7 @@ void main() {
             // Hardcode strength because lights have no input and lazy Xd
             float str = pointLightModP;
 
-             if(pLights[i].attenAndRadius.w >= 31.0f)
+            if(pLights[i].attenAndRadius.w >= 31.0f)
             {
                 str = pointLightMod1;
             }
@@ -108,18 +111,18 @@ void main() {
 
 
     // Resulting light
-    vec3 result = ambientLight + directionalLight + pointLights + emissive; // We see light, so add only and all the lights together to get color
+    vec4 result = vec4(ambientLight + directionalLight + pointLights + emissive, finalTexture.a); // We see light, so add only and all the lights together to get color
+
     if(grayscale == 1){
-    	result = grayscaleColour(result);
+    	result.xyz = grayscaleColour(result.xyz);
     }
-   
-    color = vec4(result, 1);
+    color = result;
 }
 
 vec3 calcPointLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance, vec3 diffuse) {
     vec3 lightDir = normalize(pLight.position - position); //From the surface to the light
     float diff = max(dot(normal, lightDir), 0);
-    vec3 diffuseLight = diffuse * diff * normalize(pLight.color) * 5.0f;
+    vec3 diffuseLight = diffuse * diff * normalize(pLight.color);
 
     vec3 newDiffuse = diffuseLight;
     float f = 0.15; // desaturate by %
