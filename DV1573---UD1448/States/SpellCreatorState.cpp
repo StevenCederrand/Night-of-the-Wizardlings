@@ -136,7 +136,8 @@ void SpellCreatorState::update(float dt)
         myLoader.LoadSpell(m_name);
 
         //Set the tool values to match the loaded file
-        m_ProjectileDmg = myLoader.getProjectileDmg();
+        m_ProjectileLowDmg = myLoader.getProjectileLowDmg();
+        m_ProjectileHighDmg = myLoader.getProjectileHighDmg();
         m_ProjectileSpeed = myLoader.getProjectileSpeed();
         m_ProjectileCooldown = myLoader.getProjectileCooldown();
         m_ProjectileRadius = myLoader.getProjectileRadius();
@@ -160,7 +161,7 @@ void SpellCreatorState::update(float dt)
             {
                 loadASpell = false;
                 m_name = m_spellName;
-                myLoader.SaveSpell(m_name, m_ProjectileDmg, m_ProjectileSpeed, m_ProjectileCooldown, m_ProjectileRadius, m_ProjectileLifetime, m_ProjectileMaxBounces);
+                myLoader.SaveSpell(m_name, m_ProjectileLowDmg, m_ProjectileHighDmg, m_ProjectileSpeed, m_ProjectileCooldown, m_ProjectileRadius, m_ProjectileLifetime, m_ProjectileMaxBounces);
             }
             if (ImGui::MenuItem("Close Window", "Ctrl+W"))
             {
@@ -201,7 +202,8 @@ void SpellCreatorState::editAttackSpell()
     }
 
     ImGui::Text("Edit Projectile values");											            // Display some text (you can use a format strings too)
-    ImGui::SliderFloat("Spell Damage", &m_ProjectileDmg, 10.0f, 40.0f);
+    ImGui::SliderFloat("Spell low Damage", &m_ProjectileLowDmg, 0.0f, 100.0f);
+    ImGui::SliderFloat("Spell high Damage", &m_ProjectileHighDmg, 0.0f, 100.0f);
     ImGui::SliderFloat("Spell Speed", &m_ProjectileSpeed, 0.0f, 200.0f);
     ImGui::SliderFloat("Spell Radius", &m_ProjectileRadius, 0.1f, 10.0f);
     ImGui::SliderFloat("Spell Cooldown", &m_ProjectileCooldown, 0.1f, 10.0f);
@@ -219,5 +221,12 @@ void SpellCreatorState::editAOEAttackSpell()
         m_AttackSpellAlive = true;
     }
 
-    ImGui::Text("Here Area of Effect spell data will be edited...");
+    ImGui::Text("Edit area of effect values");											            // Display some text (you can use a format strings too)
+    ImGui::SliderFloat("Spell low Damage", &m_ProjectileLowDmg, 0.0f, 100.0f);
+    ImGui::SliderFloat("Spell high Damage", &m_ProjectileHighDmg, 0.0f, 100.0f);
+    ImGui::SliderFloat("Spell Speed", &m_ProjectileSpeed, 0.0f, 200.0f);
+    ImGui::SliderFloat("Spell Radius", &m_ProjectileRadius, 0.1f, 10.0f);
+    ImGui::SliderFloat("Spell Cooldown", &m_ProjectileCooldown, 0.1f, 10.0f);
+    ImGui::SliderFloat("Spell Lifetime", &m_ProjectileLifetime, 1.0f, 20.0f);
+    ImGui::SliderInt("Spell Maximum Bounces", &m_ProjectileMaxBounces, 1, 3);
 }

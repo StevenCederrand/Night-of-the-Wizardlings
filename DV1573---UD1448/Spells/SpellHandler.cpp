@@ -51,7 +51,8 @@ void SpellHandler::initAttackSpell()
 
     mySpellLoader.LoadSpell("fireball");
 
-	attackBase->m_damage = mySpellLoader.getProjectileDmg();
+	attackBase->m_lowDamage = mySpellLoader.getProjectileLowDmg();
+    attackBase->m_highDamage = mySpellLoader.getProjectileHighDmg();
 	attackBase->m_speed = mySpellLoader.getProjectileSpeed();;
 	attackBase->m_radius = mySpellLoader.getProjectileRadius();
 	attackBase->m_coolDown = mySpellLoader.getProjectileCooldown();
@@ -87,7 +88,8 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase->m_material->diffuse = glm::vec3(0.5f, 0.0f, 0.6f);
 	enhanceAtkBase->m_material->ambient = glm::vec3(0.5f, 0.0f, 0.6f);
 
-	enhanceAtkBase->m_damage = 34.0f;
+    enhanceAtkBase->m_lowDamage = 20;
+    enhanceAtkBase->m_highDamage = 70;
 	enhanceAtkBase->m_speed = 70.0f;
 	enhanceAtkBase->m_radius = 0.5f;
 	enhanceAtkBase->m_coolDown = 3.0f;

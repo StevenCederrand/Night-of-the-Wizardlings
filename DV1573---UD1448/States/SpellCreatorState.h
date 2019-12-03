@@ -49,7 +49,8 @@ public:
     bool loadASpell = false;
     //-----test data-----//
     std::string m_name = "fireball";
-    float m_ProjectileDmg = 0;
+    float m_ProjectileLowDmg = 0;
+    float m_ProjectileHighDmg = 0;
     float m_ProjectileSpeed = 0;
     float m_ProjectileCooldown = 0;
     float m_ProjectileRadius = 0;
