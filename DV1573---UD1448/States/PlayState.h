@@ -71,7 +71,7 @@ private:
 
 	glm::vec3 m_lastPositionOfMyKiller;
 
-	float startY;	
+	float startY;
 private: 
 
 	bool onMainMenuClick(const CEGUI::EventArgs& e);

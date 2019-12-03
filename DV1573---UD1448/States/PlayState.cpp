@@ -798,14 +798,14 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 		}
 	}
 
-
+	//pushing destruction out of the way
 	Player* player = nullptr;
 	btScalar friction1 = obj1->getCollisionObject()->getFriction();
 	btScalar friction2 = obj2->getCollisionObject()->getFriction();
 	std::vector<btRigidBody*> rigids;
 	btVector3 collisionPos;
 	
-
+	//see if first or second item is destruction
 	if (friction1 == 101.0f)
 	{
 		if (obj2->getCollisionObject()->getCollisionShape()->getName() == "CapsuleZ")
@@ -831,8 +831,8 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 	//if player is null return
 	if (!player)
 		return false;
-	
 
+	//apply a force from the player to the object
 	for (size_t i = 0; i < rigids.size(); i++)
 	{
 		btVector3 btRigPos = rigids.at(i)->getCenterOfMassPosition();
@@ -841,15 +841,8 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 
 		btVector3 dir = btRigPos - playerPos;
 		dir.normalize();
-		//rigids.at(i)->applyCentralForce(dir*100);
-		rigids.at(i)->applyCentralImpulse(dir*5);
-
-		
+		rigids.at(i)->applyCentralImpulse(dir* 5);
 	}
-
-	//logTrace("\n ------\n\n");
-	
-
 	return false;
 }
 
