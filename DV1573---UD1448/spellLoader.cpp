@@ -38,7 +38,8 @@ bool SpellLoader::LoadSpell(std::string file)
 		
 		// Fill Projectile data
 		m_name                 = m_projectile.name;
-		m_ProjectileDmg        = m_projectile.m_damage;
+        m_ProjectileLowDmg     = m_projectile.m_lowDamage;
+        m_ProjectileHighDmg    = m_projectile.m_highDamage;
 		m_ProjectileSpeed      = m_projectile.m_speed;
 		m_ProjectileCooldown   = m_projectile.m_coolDown;
 		m_ProjectileRadius     = m_projectile.m_radius;
@@ -50,12 +51,13 @@ bool SpellLoader::LoadSpell(std::string file)
 	return true;
 }
 
-void SpellLoader::SaveSpell(std::string m_name, float m_ProjectileDmg, float m_ProjectileSpeed, float m_ProjectileCooldown, float m_ProjectileRadius, float m_ProjectileLifetime, float m_ProjectileMaxBounces)
+void SpellLoader::SaveSpell(std::string m_name, float m_ProjectileLowDmg, float m_ProjectileHighDmg,float m_ProjectileSpeed, float m_ProjectileCooldown, float m_ProjectileRadius, float m_ProjectileLifetime, float m_ProjectileMaxBounces)
 {
 	fileHeader.spellCount = m_nrOfSpells;
 	
 	//-----Assign all the Projectile spell data-----//
-	m_projectile.m_damage = m_ProjectileDmg;
+    m_projectile.m_lowDamage = m_ProjectileLowDmg;
+    m_projectile.m_highDamage = m_ProjectileHighDmg;
 	m_projectile.m_speed = m_ProjectileSpeed;
 	m_projectile.m_coolDown = m_ProjectileCooldown;
 	m_projectile.m_radius = m_ProjectileRadius;
@@ -89,7 +91,8 @@ void SpellLoader::SaveSpell(std::string m_name, float m_ProjectileDmg, float m_P
 	asciiFile << '\0';
 	asciiFile << std::endl;
 
-	asciiFile << m_projectile.m_damage << std::endl;
+    asciiFile << m_projectile.m_lowDamage << std::endl;
+    asciiFile << m_projectile.m_highDamage << std::endl;
 	asciiFile << m_projectile.m_speed << std::endl;
 	asciiFile << m_projectile.m_coolDown << std::endl;
 	asciiFile << m_projectile.m_radius << std::endl;
@@ -111,9 +114,14 @@ void SpellLoader::SaveSpell(std::string m_name, float m_ProjectileDmg, float m_P
 
 }
 
-int SpellLoader::getProjectileDmg()
+int SpellLoader::getProjectileLowDmg()
 {
-	return m_ProjectileDmg;
+	return m_ProjectileLowDmg;
+}
+
+int SpellLoader::getProjectileHighDmg()
+{
+	return m_ProjectileHighDmg;
 }
 
 float SpellLoader::getProjectileSpeed()

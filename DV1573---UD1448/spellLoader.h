@@ -17,8 +17,9 @@ public:
 	~SpellLoader();
 
 	bool LoadSpell(std::string fileName);	// Load a file
-	void SaveSpell(std::string m_name, float m_ProjectileDmg, float m_ProjectileSpeed, float m_ProjectileCooldown, float m_ProjectileRadius, float m_ProjectileLifetime, float m_ProjectileMaxBounces);
-	int getProjectileDmg();
+	void SaveSpell(std::string m_name, float m_ProjectileLowDmg, float m_ProjectileHighDmg,float m_ProjectileSpeed, float m_ProjectileCooldown, float m_ProjectileRadius, float m_ProjectileLifetime, float m_ProjectileMaxBounces);
+    int getProjectileLowDmg();
+    int getProjectileHighDmg();
 	float getProjectileSpeed();
 	float getProjectileCooldown();
 	float getProjectileRadius();
@@ -40,7 +41,8 @@ private:
 
 	//-----Projectile Data-----//
 	std::string m_name;
-	float m_ProjectileDmg;
+    float m_ProjectileLowDmg;
+    float m_ProjectileHighDmg;
 	float m_ProjectileSpeed;								
 	float m_ProjectileCooldown;
 	float m_ProjectileRadius;

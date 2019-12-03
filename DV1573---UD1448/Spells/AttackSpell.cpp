@@ -81,7 +81,7 @@ void AttackSpell::updateRigidbody(float deltaTime, btRigidBody* body)
 
 const float AttackSpell::getDamage()
 {
-	return m_spellBase->m_damage;
+	return Randomizer::single(m_spellBase->m_lowDamage, m_spellBase->m_highDamage);
 }
 
 const glm::vec3& AttackSpell::getPos() const

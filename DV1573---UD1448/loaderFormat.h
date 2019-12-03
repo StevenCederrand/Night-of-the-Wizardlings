@@ -12,7 +12,8 @@ namespace SpellLoading
 	struct Projectile
 	{
 		char name[NAME_SIZE];
-		float m_damage;
+        float m_lowDamage;
+        float m_highDamage;
 		float m_speed;
 		float m_coolDown;
 		float m_radius;
