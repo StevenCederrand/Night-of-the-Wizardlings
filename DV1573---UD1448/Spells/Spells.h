@@ -16,6 +16,7 @@ struct SpellBase
 	float m_radius;
 	float m_lifeTime;
 	float m_maxBounces;
+	std::vector<ParticleBuffers*> m_particleBuffers;
 
 	// Light
 	glm::vec4 m_attenAndRadius; 
@@ -45,6 +46,12 @@ struct SpellBase
 		if (m_material)
 		{
 			delete m_material;
+		}
+
+		for (int i = 0; i < m_particleBuffers.size(); i++)
+		{
+			if (m_particleBuffers[i])
+				delete m_particleBuffers[i];
 		}
 	}
 };

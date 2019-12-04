@@ -46,8 +46,8 @@ void SpellHandler::initAttackSpell()
 	attackBase.m_maxBounces = 3.0f;
 
 	// Light--
-	attackBase->m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f);// OLD
-	attackBase->m_attenAndRadius = glm::vec4(1.0f, 2.15f, 4.5f, 22.0f);
+	attackBase.m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f);// OLD
+	attackBase.m_attenAndRadius = glm::vec4(1.0f, 2.15f, 4.5f, 22.0f);
 
 	PSinfo tempPS;
 	TextureInfo tempTxt;
@@ -72,11 +72,9 @@ void SpellHandler::initAttackSpell()
 	tempPS.blendColor = glm::vec3(0.8f, 1.0f, 1.0f);
 	tempPS.direction = glm::vec3(1.0f, 0.0f, 0.0f);
 
-	attackPS = new ParticleBuffers(tempPS, tempTxt);
-	attackPS->setTexture(tempTxt);
-	attackPS->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
-	attackPS->bindBuffers();
-
+	attackBase.m_particleBuffers.emplace_back(new ParticleBuffers(tempPS, tempTxt));
+	attackBase.m_particleBuffers.back()->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
+	attackBase.m_particleBuffers.back()->bindBuffers();
 }
 
 void SpellHandler::initEnhanceSpell()
@@ -110,8 +108,8 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase.m_maxBounces = 3.0;
 
 	// Light--
-	enhanceAtkBase->m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // OLD
-	enhanceAtkBase->m_attenAndRadius = glm::vec4(1.0f, 1.55f, 3.7f, 22.0f);
+	enhanceAtkBase.m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // OLD
+	enhanceAtkBase.m_attenAndRadius = glm::vec4(1.0f, 1.55f, 3.7f, 22.0f);
 
 	PSinfo tempPS;
 	TextureInfo tempTxt;
@@ -137,10 +135,9 @@ void SpellHandler::initEnhanceSpell()
 	tempPS.color = glm::vec3(0.0, 0.0f, 0.0f);
 	tempPS.direction = glm::vec3(1.0f, 0.0f, 0.0f);
 
-	enhancePS = new ParticleBuffers(tempPS, tempTxt);
-	enhancePS->setTexture(tempTxt);
-	enhancePS->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
-	enhancePS->bindBuffers();
+	enhanceAtkBase.m_particleBuffers.emplace_back(new ParticleBuffers(tempPS, tempTxt));
+	enhanceAtkBase.m_particleBuffers.back()->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
+	enhanceAtkBase.m_particleBuffers.back()->bindBuffers();
 }
 
 void SpellHandler::initFlamestrikeSpell()
@@ -205,38 +202,11 @@ void SpellHandler::initFireSpell()
 	fireBase.m_maxBounces = 0.0f;
 
 	// Light--
-	fireBase->m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // Old
-	fireBase->m_attenAndRadius = glm::vec4(1.0f, 0.61f, 0.74f, 22.0f);
+	fireBase.m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // Old
+	fireBase.m_attenAndRadius = glm::vec4(1.0f, 0.61f, 0.74f, 22.0f);
 
 	PSinfo tempPS;
 	TextureInfo tempTxt;
-	tempTxt.name = "Assets/Textures/Spell_2.png";
-	tempPS.width = 1.2f;
-	tempPS.heigth = 1.0f;
-	tempPS.lifetime = 10.0f;
-	tempPS.maxParticles = 1000; //350     
-	tempPS.emission = 0.01f; //0.00001f;     
-	tempPS.force = -0.04f; //5     
-	tempPS.drag = 0.0f;
-	tempPS.gravity = -0.2f; //Standard is 1     
-	tempPS.seed = 1;
-	tempPS.cont = true;
-	tempPS.omnious = true;
-	tempPS.spread = 5.0f;
-	tempPS.glow = 1.3;
-	tempPS.scaleDirection = 0;
-	tempPS.swirl = 1;
-	tempPS.fade = 1;
-	tempPS.color = glm::vec3(1.0f, 0.2f, 0.0f);
-	tempPS.blendColor = glm::vec3(1.0f, 1.0f, 0.1f);
-	tempPS.randomSpawn = true;
-	tempPS.direction = glm::vec3(0.0f, 1.0f, 0.0f);
-	tempPS.direction = glm::clamp(tempPS.direction, -1.0f, 1.0f);
-
-	flamestrikePS = new ParticleBuffers(tempPS, tempTxt);
-	flamestrikePS->setTexture(tempTxt);
-	flamestrikePS->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
-	flamestrikePS->bindBuffers();
 
 	tempTxt.name = "Assets/Textures/Smoke.png";
 	tempPS.width = 0.4f;
@@ -261,10 +231,38 @@ void SpellHandler::initFireSpell()
 	tempPS.color = glm::vec3(0.0, 0.0f, 0.0f);
 	tempPS.direction = glm::vec3(0.0f, -1.0f, 0.0f);
 
-	smokePS = new ParticleBuffers(tempPS, tempTxt);
-	smokePS->setTexture(tempTxt);
-	smokePS->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
-	smokePS->bindBuffers();
+	fireBase.m_particleBuffers.emplace_back(new ParticleBuffers(tempPS, tempTxt));
+	fireBase.m_particleBuffers.back()->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
+	fireBase.m_particleBuffers.back()->bindBuffers();
+
+	//---------------
+
+	tempTxt.name = "Assets/Textures/Spell_2.png";
+	tempPS.width = 1.2f;
+	tempPS.heigth = 1.0f;
+	tempPS.lifetime = 10.0f;
+	tempPS.maxParticles = 1000; //350     
+	tempPS.emission = 0.01f; //0.00001f;     
+	tempPS.force = -0.04f; //5     
+	tempPS.drag = 0.0f;
+	tempPS.gravity = -0.2f; //Standard is 1     
+	tempPS.seed = 1;
+	tempPS.cont = true;
+	tempPS.omnious = true;
+	tempPS.spread = 5.0f;
+	tempPS.glow = 1.3;
+	tempPS.scaleDirection = 0;
+	tempPS.swirl = 1;
+	tempPS.fade = 1;
+	tempPS.color = glm::vec3(1.0f, 0.2f, 0.0f);
+	tempPS.blendColor = glm::vec3(1.0f, 1.0f, 0.1f);
+	tempPS.randomSpawn = true;
+	tempPS.direction = glm::vec3(0.0f, 1.0f, 0.0f);
+	tempPS.direction = glm::clamp(tempPS.direction, -1.0f, 1.0f);
+
+	fireBase.m_particleBuffers.emplace_back(new ParticleBuffers(tempPS, tempTxt));
+	fireBase.m_particleBuffers.back()->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
+	fireBase.m_particleBuffers.back()->bindBuffers();
 }
 
 SpellHandler::~SpellHandler()
@@ -276,14 +274,6 @@ SpellHandler::~SpellHandler()
 	for (Spell* element : fireSpells)
 		delete element;
 
-	if (attackPS)
-		delete attackPS;
-	if (flamestrikePS)
-		delete flamestrikePS;
-	if (smokePS)
-		delete smokePS;
-	if (enhancePS)
-		delete enhancePS;
 }
 
 OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVector, OBJECT_TYPE type)
@@ -297,7 +287,11 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 		spells.emplace_back(new AttackSpell(spellPos, directionVector, &attackBase));
 		auto spell = spells.back();
 		spell->setType(NORMALATTACK);
-		spell->addParticle(attackPS);
+
+		for (int i = 0; i < attackBase.m_particleBuffers.size(); i++)
+		{
+			spell->addParticle(attackBase.m_particleBuffers[i]);
+		}
 
 		// Network
 		spell->setUniqueID(getUniqueID());
@@ -316,7 +310,7 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
 		spell->getRigidBody()->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 		spell->getRigidBody()->setUserPointer(spell);
-		spell->getRigidBody()->setLinearVelocity(direction * attackBase->m_speed);
+		spell->getRigidBody()->setLinearVelocity(direction * attackBase.m_speed);
 	}
 
 	if (type == ENHANCEATTACK)
@@ -325,7 +319,11 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 		spells.emplace_back(new AttackSpell(spellPos, directionVector, &enhanceAtkBase));
 		auto spell = spells.back();
 		spell->setType(ENHANCEATTACK);
-		spell->addParticle(enhancePS);
+
+		for (int i = 0; i < enhanceAtkBase.m_particleBuffers.size(); i++)
+		{
+			spell->addParticle(enhanceAtkBase.m_particleBuffers[i]);
+		}
 
 		// Network
 		spell->setUniqueID(getUniqueID());
@@ -397,9 +395,12 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 		// Generic
 		fireSpells.emplace_back(new fire(spellPos, directionVector, &fireBase));
 		auto spell = fireSpells.back();
-		Renderer::getInstance()->submit(fireSpells.back(), SPELL);	
-		spell->addParticle(smokePS);
-		spell->addParticle(flamestrikePS);
+		Renderer::getInstance()->submit(fireSpells.back(), SPELL);
+
+		for (int i = 0; i < fireBase.m_particleBuffers.size(); i++)
+		{
+			spell->addParticle(fireBase.m_particleBuffers[i]);
+		}
 
 		// Network
 		spell->setUniqueID(getUniqueID());

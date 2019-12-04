@@ -29,6 +29,11 @@ void NetworkSpells::update(const float& dt)
 					
 					if (e.spellData.SpellType == OBJECT_TYPE::NORMALATTACK || e.spellData.SpellType == OBJECT_TYPE::UNKNOWN) {
 						e.gameobject = new AttackSpell(e.spellData.Position, NORMALATTACK);
+						const SpellBase* b = Client::getInstance()->getSpellhandler()->getSpellBase(NORMALATTACK);
+						for (int j = 0; j < b->m_particleBuffers.size(); j++)
+						{
+							e.gameobject->addParticle(b->m_particleBuffers[j]);
+						}
 
 						int slot = shPtr->playSound(BasicAttackSound, e.spellData.CreatorGUID);							
 						shPtr->setSourcePosition(e.spellData.Position, BasicAttackSound, e.spellData.CreatorGUID, slot);
