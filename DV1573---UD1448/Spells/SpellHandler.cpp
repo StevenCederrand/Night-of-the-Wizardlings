@@ -243,11 +243,40 @@ void SpellHandler::initFireSpell()
 	tempPS.blendColor = glm::vec3(1.0f, 1.0f, 0.1f);
 	tempPS.randomSpawn = true;
 	tempPS.direction = glm::vec3(0.0f, 1.0f, 0.0f);
+	tempPS.direction = glm::clamp(tempPS.direction, -1.0f, 1.0f);
 
 	flamestrikePS = new ParticleBuffers(tempPS, tempTxt);
 	flamestrikePS->setTexture(tempTxt);
 	flamestrikePS->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
 	flamestrikePS->bindBuffers();
+
+	tempTxt.name = "Assets/Textures/Smoke.png";
+	tempPS.width = 0.4f;
+	tempPS.heigth = 0.6f;
+	tempPS.lifetime = 9.0f;
+	tempPS.maxParticles = 300;
+	tempPS.emission = 0.01f;
+	tempPS.force = -0.04f;
+	tempPS.drag = 0.0f;
+	tempPS.gravity = -2.2f;
+	tempPS.seed = 1;
+	tempPS.cont = true;
+	tempPS.omnious = true;
+	tempPS.spread = 5.0f;
+	tempPS.glow = 1.3;
+	tempPS.scaleDirection = 0;
+	tempPS.swirl = 1;
+	tempPS.fade = 1;
+	tempPS.randomSpawn = true;
+	tempPS.color = glm::vec3(0.3f, 0.3f, 0.3f);
+	tempPS.blendColor = glm::vec3(1.0f, 1.0f, 1.0f);
+	tempPS.color = glm::vec3(0.0, 0.0f, 0.0f);
+	tempPS.direction = glm::vec3(0.0f, -1.0f, 0.0f);
+
+	smokePS = new ParticleBuffers(tempPS, tempTxt);
+	smokePS->setTexture(tempTxt);
+	smokePS->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
+	smokePS->bindBuffers();
 }
 
 
@@ -400,6 +429,7 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 		shPtr->setSourcePosition(spellPos, GlassBreakSound, clientPtr->getMyData().guid);
 		shPtr->playSound(GlassBreakSound, clientPtr->getMyData().guid);	
 
+		spell->addParticle(smokePS);
 		spell->addParticle(flamestrikePS);
 	}
 
@@ -464,7 +494,8 @@ void SpellHandler::spellUpdate(float deltaTime)
 		{
 			fireSpells[i]->update(deltaTime);
 
-			Client::getInstance()->updateSpellOnNetwork(*fireSpells[i]);			
+			Client::getInstance()->updateSpellOnNetwork(*fireSpells[i]);
+			fireSpells[i]->UpdateParticles(Renderer::getInstance()->getMainCamera(), deltaTime);
 		}
 
 		if (fireSpells[i]->getTravelTime() <= 0)

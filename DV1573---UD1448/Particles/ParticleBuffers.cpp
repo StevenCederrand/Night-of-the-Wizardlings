@@ -48,9 +48,9 @@ void ParticleBuffers::bindBuffers()
 		float z = dis(gen);
 
 		Particle particles;
-		glm::vec3 v = glm::vec3(0.0f, -100.0f, 0.0f);
+		glm::vec3 v = glm::vec3(0.0f, -1000.0f, 0.0f);
 
-		particles.position = glm::vec3(0.0f, -100.0f, 0.0f);
+		particles.position = glm::vec3(0.0f, -1000.0f, 0.0f);
 		particles.distance = -1.0f;
 		particles.isAlive = false;
 		particles.startLoop = true;

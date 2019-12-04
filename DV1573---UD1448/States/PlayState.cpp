@@ -626,6 +626,8 @@ void PlayState::update_isPlaying(const float& dt)
 				m_hudHandler.getHudObject(HUDID::MANA_OVERLAY)->setAlpha(0.75f);
 				//Give the player a boost in mana
 				m_player->increaseMana(10.0f);
+				//TODO
+				//Implement particles for self deflect here
 				break;
 			}
 

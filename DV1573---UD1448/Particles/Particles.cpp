@@ -12,7 +12,7 @@ ParticleSystem::ParticleSystem(ParticleBuffers* particleBuffers)
 
 	m_txtInfo = particleBuffers->getTxtInfo();//&rings;
 	m_psInfo = particleBuffers->getPSinfo();
-	m_position = glm::vec3(0, -100.0f, -20.0f);
+	m_position = glm::vec3(0, -1000.0f, -20.0f);
 	m_shader = particleBuffers->getShader();
 	m_current = particleBuffers->getPSinfo().emission;
 
