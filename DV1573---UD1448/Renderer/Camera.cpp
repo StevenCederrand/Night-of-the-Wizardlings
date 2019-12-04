@@ -31,6 +31,10 @@ void Camera::freeCameraMode()
 		moveDir += m_camFace;
 	if (Input::isKeyHeldDown(GLFW_KEY_S))
 		moveDir -= m_camFace;
+	if (Input::isKeyHeldDown(GLFW_KEY_R))
+		moveDir += m_worldUp;
+	if (Input::isKeyHeldDown(GLFW_KEY_F))
+		moveDir -= m_worldUp;
 
 	m_camPos += moveDir * DeltaTime * m_spectatorMoveSpeed;
 
@@ -65,6 +69,38 @@ void Camera::thirdPersonCamera()
 }
 
 void Camera::firstPersonCamera()
+{
+}
+
+void Camera::LE_freeCamera()
+{
+	glm::vec3 moveDir = glm::vec3(0.0f);
+	//When alt is held down camera is controllable
+	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_RIGHT))
+	{
+		updateMouseMovement();
+		
+		// Move
+		if (Input::isKeyHeldDown(GLFW_KEY_A))
+			moveDir -= m_camRight;
+		if (Input::isKeyHeldDown(GLFW_KEY_D))
+			moveDir += m_camRight;
+		if (Input::isKeyHeldDown(GLFW_KEY_W))
+			moveDir += m_camFace;
+		if (Input::isKeyHeldDown(GLFW_KEY_S))
+			moveDir -= m_camFace;
+		if (Input::isKeyHeldDown(GLFW_KEY_R))
+			moveDir += m_worldUp;
+		if (Input::isKeyHeldDown(GLFW_KEY_F))
+			moveDir -= m_worldUp;
+
+		m_camPos += moveDir * DeltaTime * m_spectatorMoveSpeed;
+
+		m_viewMatrix = glm::lookAt(m_camPos, m_camPos + m_camFace, m_camUp);
+	}
+}
+
+void Camera::LE_orbitCamera()
 {
 }
 
@@ -372,6 +408,11 @@ void Camera::update()
 	if(!Client::getInstance()->isSpectating())
 		m_viewMatrix = glm::lookAt(m_camPos, m_camPos + m_camFace, m_camUp);
 
+}
+
+void Camera::updateLevelEd()
+{
+	LE_freeCamera();
 }
 
 void Camera::enableFP(const bool& fpEnable) {

@@ -15,6 +15,10 @@ private:
 	void thirdPersonCamera();
 	void firstPersonCamera();
 
+	// Level Edit modes
+	void LE_freeCamera();
+	void LE_orbitCamera();
+
 	void lookForModeChange();
 	void resetMouseToMiddle();
 
@@ -83,6 +87,7 @@ public:
 	const SpectatorMode& getSpectatorMode() const;
 
 	void update();
+	void updateLevelEd();
 	
 };
 
