@@ -320,6 +320,7 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 		spells.emplace_back(new AttackSpell(spellPos, directionVector, attackBase));
 		auto spell = spells.back();
 		spell->setType(NORMALATTACK);
+		spell->addParticle(attackPS);
 
 		// Network
 		spell->setUniqueID(getUniqueID());
@@ -339,7 +340,7 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 		spell->getRigidBody()->setUserPointer(spell);
 		spell->getRigidBody()->setLinearVelocity(direction * attackBase->m_speed);
 
-		spell->addParticle(attackPS);
+		
 	}
 
 	if (type == ENHANCEATTACK)
@@ -348,6 +349,7 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 		spells.emplace_back(new AttackSpell(spellPos, directionVector, enhanceAtkBase));
 		auto spell = spells.back();
 		spell->setType(ENHANCEATTACK);
+		spell->addParticle(enhancePS);
 
 		// Network
 		spell->setUniqueID(getUniqueID());
@@ -371,7 +373,7 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 		// Sound
 		int slot = shPtr->playSound(EnhanceAttackSound, clientPtr->getMyData().guid);	
 
-		spell->addParticle(enhancePS);
+		
 	}
 
 	if (type == FLAMESTRIKE)
@@ -420,6 +422,8 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 		fireSpells.emplace_back(new fire(spellPos, directionVector, fireBase));
 		auto spell = fireSpells.back();
 		Renderer::getInstance()->submit(fireSpells.back(), SPELL);	
+		spell->addParticle(smokePS);
+		spell->addParticle(flamestrikePS);
 
 		// Network
 		spell->setUniqueID(getUniqueID());
@@ -429,8 +433,7 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 		shPtr->setSourcePosition(spellPos, GlassBreakSound, clientPtr->getMyData().guid);
 		shPtr->playSound(GlassBreakSound, clientPtr->getMyData().guid);	
 
-		spell->addParticle(smokePS);
-		spell->addParticle(flamestrikePS);
+
 	}
 
 	// Randomize spell
