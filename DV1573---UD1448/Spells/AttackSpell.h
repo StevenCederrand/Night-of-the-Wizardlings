@@ -2,6 +2,7 @@
 #include <Pch/Pch.h>
 #include <GameObject/GameObject.h>
 #include <Spells/Spell.h>
+#include <spellLoader.h>
 
 class AttackSpell : public Spell
 {
@@ -17,12 +18,16 @@ public:
 	virtual void updateRigidbody(float deltaTime, btRigidBody* body);
 	virtual const float getDamage();
 	virtual const glm::vec3& getPos() const;
-    void setRadius(float radius);
+    void setRadius(float radius, float dt);
 
 	const AttackSpellBase* getBase() { return m_spellBase; }
 
 private:
 	AttackSpellBase* m_spellBase;
+    Transform tempTransformTest;
+    glm::vec3 m_tempScale = glm::vec3(0.2f, 0.2f, 0.2f);
+    float updateScale = 0;
+    SpellLoader mySpellLoader;
 	//int m_localBounce = 0;
 	//int m_nrOfBounce = 0;
 	bool m_hasCollided = false;

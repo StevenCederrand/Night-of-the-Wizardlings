@@ -172,13 +172,13 @@ void SpellHandler::initFlamestrikeSpell()
 	flamestrikeBase->m_mesh->setMaterial(flamestrikeBase->m_material->name);
 	tempLoader.Unload();
 
-    //mySpellLoader.loadAOESpell("fireAoe");
+    mySpellLoader.loadAOESpell("newFireSpell.spell");
 
-    flamestrikeBase->m_damage = 10; 
-	flamestrikeBase->m_speed = 5;
+    flamestrikeBase->m_damage = mySpellLoader.m_AOESpell.m_damage; 
+	flamestrikeBase->m_speed = 50;
 	flamestrikeBase->m_coolDown = 5;
 	flamestrikeBase->m_lifeTime = 5;
-	flamestrikeBase->m_maxBounces = 3;
+	flamestrikeBase->m_maxBounces = mySpellLoader.m_AOESpell.m_maxBounces;
 
 	flamestrikeBase->m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // Old
 	flamestrikeBase->m_attenAndRadius = glm::vec4(1.0f, 0.61f, 0.74f, 22.0f);
@@ -207,21 +207,14 @@ void SpellHandler::initFireSpell()
 	fireBase->m_material->diffuse = glm::vec3(1.0f, 0.5f, 0.0f);
 	fireBase->m_material->ambient = glm::vec3(1.0f, 0.5f, 0.0f);
 
-	/*fireBase->m_damage = 30.0f;
-	fireBase->m_speed = 0.0f;
-	fireBase->m_coolDown = 4.0f;
-	fireBase->m_lifeTime = 5.0f;
+    mySpellLoader.loadAOESpell("newFireSpell.spell");
 
-	fireBase->m_maxBounces = 0.0f;*/
-
-    //mySpellLoader.loadAOESpell("fireAoe");
-
-    fireBase->m_damage = 10;
-    fireBase->m_speed = 0;
-    fireBase->m_radius = 5;
-    fireBase->m_coolDown = 5;
-    fireBase->m_lifeTime = 5;
-    fireBase->m_maxBounces = 0;
+    fireBase->m_damage = mySpellLoader.m_AOESpell.m_damage;
+    fireBase->m_speed = mySpellLoader.m_AOESpell.m_speed;
+    fireBase->m_radius = mySpellLoader.m_AOESpell.m_radius;
+    fireBase->m_coolDown = mySpellLoader.m_AOESpell.m_coolDown;
+    fireBase->m_lifeTime = mySpellLoader.m_AOESpell.m_lifeTime;
+    fireBase->m_maxBounces = mySpellLoader.m_AOESpell.m_maxBounces;
 
 	fireBase->m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // Old
 	fireBase->m_attenAndRadius = glm::vec4(1.0f, 0.61f, 0.74f, 22.0f);
@@ -427,6 +420,7 @@ void SpellHandler::createSpellForTool(glm::vec3 spellPos, glm::vec3 directionVec
         spell->setType(NORMALATTACK);
         cooldown = attackBase->m_coolDown;
 
+
         spell->setUniqueID(getUniqueID());
         spells.emplace_back(spell);
         Renderer::getInstance()->submit(spells.back(), SPELL);
@@ -462,11 +456,12 @@ void SpellHandler::spellToolUpdate(float dt, float radius)
     for (size_t i = 0; i < spells.size(); i++)
     {
 
+        spells[i]->setRadius(radius, dt);
         if (activespell == 1)
         {
             spells[i]->setTravelTime(0);
         }
-        spells[i]->setRadius(radius);
+
 
         if (spells[i]->getTravelTime() <= 0)
         {
@@ -576,7 +571,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 	{
 		if (spells[i]->getTravelTime() > 0)
 		{
-
+            
 			spells[i]->update(deltaTime);
 			spells[i]->updateRigidbody(deltaTime, m_BulletNormalSpell.at(i));
 			Client::getInstance()->updateSpellOnNetwork(*spells[i]);

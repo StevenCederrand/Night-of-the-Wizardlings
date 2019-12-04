@@ -7,9 +7,10 @@ fire::fire(glm::vec3 pos, glm::vec3 direction, const FireSpellBase* spellBase)
 	m_type = OBJECT_TYPE::FIRE;
 	m_spellBase = spellBase;
 	setTravelTime(spellBase->m_lifeTime);
-	Transform tempTransform;
-	tempTransform.scale = glm::vec3(8.0f, 8.0f, 8.0f);
-	setTransform(tempTransform);
+
+    Transform tempTransform;
+    tempTransform.scale = glm::vec3(spellBase->m_radius, spellBase->m_radius, spellBase->m_radius);
+    setTransform(tempTransform);
 
 	setWorldPosition(pos);
 	setDirection(direction);
@@ -21,9 +22,11 @@ fire::fire(glm::vec3 pos)
 	m_type = OBJECT_TYPE::FIRE;
 	m_spellBase = nullptr;
 
-	Transform tempTransform;
-	tempTransform.scale = glm::vec3(8.0f, 8.0f, 8.0f);
-	setTransform(tempTransform);
+    mySpellLoader.loadAOESpell("newFireSpell.spell");
+
+    Transform tempTransform;
+    tempTransform.scale = glm::vec3(mySpellLoader.m_projectile.m_radius, mySpellLoader.m_projectile.m_radius, mySpellLoader.m_projectile.m_radius);
+    setTransform(tempTransform);
 
 	setWorldPosition(pos);
 }

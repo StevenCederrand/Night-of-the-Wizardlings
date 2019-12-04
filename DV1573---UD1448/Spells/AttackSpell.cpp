@@ -23,8 +23,10 @@ AttackSpell::AttackSpell(glm::vec3 pos, OBJECT_TYPE type) : Spell(pos, glm::vec3
 	m_type = type;
 	m_spellBase = nullptr;
 
+    mySpellLoader.LoadProjectileSpell("bestSpell.spell");
+
 	Transform tempTransform;
-	tempTransform.scale = glm::vec3(0.2f, 0.2f, 0.2f);
+	tempTransform.scale = glm::vec3(mySpellLoader.m_projectile.m_radius, mySpellLoader.m_projectile.m_radius, mySpellLoader.m_projectile.m_radius);
 	setTransform(tempTransform);
 	setWorldPosition(pos);
 }
@@ -45,6 +47,9 @@ void AttackSpell::hasCollided()
 
 void AttackSpell::update(float deltaTime)
 {
+    //updateScale += 1 * deltaTime;
+    //tempTransformTest.scale = glm::vec3(m_spellBase->m_radius * updateScale, m_spellBase->m_radius * updateScale, m_spellBase->m_radius * updateScale);
+   // setTransform(tempTransformTest);
 	setTravelTime(getTravelTime() - deltaTime);
 }
 
@@ -89,11 +94,11 @@ const glm::vec3& AttackSpell::getPos() const
 	return glm::vec3(0);
 }
 
-void AttackSpell::setRadius(float radius)
+void AttackSpell::setRadius(float radius, float dt)
 {
-    m_spellBase->m_radius = radius;
+    updateScale = radius;
+    tempTransformTest.rotation = glm::vec3(0,0,0);
+    tempTransformTest.position = glm::vec3(3,3,-10);
+    tempTransformTest.scale = glm::vec3(m_spellBase->m_radius + updateScale, m_spellBase->m_radius + updateScale, m_spellBase->m_radius + updateScale);
+    setTransform(tempTransformTest);
 }
-//const AttackSpellBase* AttackSpell::getSpellBase()
-//{
-//	return m_spellBase;
-//}

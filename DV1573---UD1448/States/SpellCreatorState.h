@@ -14,6 +14,7 @@
 #include <System/Input.h>
 #include <HUD/HudObject.h>
 #include <HUD/HudHandler.h>
+#include <Spells/AttackSpell.h>
 
 #include <imgui.h>
 #include <imgui_impl_glfw_gl3.h>
@@ -43,7 +44,7 @@ struct AOE
     int m_damage = 0;
     int m_AOESpeed = 0;
     int m_AOECooldown = 0;
-    int m_AOERadius = 0;
+    int m_AOERadius = 1;
     int m_AOELifetime = 0;
     int m_AOEMaxBounces = 1;
 };
@@ -102,6 +103,8 @@ private:
     SkyBox* m_skybox;
     Camera* m_camera;
     std::vector<GameObject*> m_objects;
+
+    AttackSpell* normalAttSpell;
 
     bool m_AttackSpellAlive = true;
     bool m_FireSpellAlive = true;

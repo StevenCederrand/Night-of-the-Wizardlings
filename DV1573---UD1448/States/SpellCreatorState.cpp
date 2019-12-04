@@ -96,9 +96,9 @@ SpellCreatorState::~SpellCreatorState()
 void SpellCreatorState::update(float dt)
 {
 
+    m_spellHandler->spellToolUpdate(dt, normalSpell.m_ProjectileRadius);
     m_bPhysics->update(dt);
    // m_player->update(dt);
-    m_spellHandler->spellToolUpdate(dt, normalSpell.m_ProjectileRadius);
     Renderer::getInstance()->updateParticles(dt);
     auto* clientPtr = Client::getInstance();
 
@@ -128,25 +128,28 @@ void SpellCreatorState::update(float dt)
     }
     fileDialog.Display();
 
-    //if (fileDialog.HasSelected() && loadASpell == true)
-    //{
-    //    // LOAD AN ATTACKSPELL
-    //    std::cout << "Selected filename: " << fileDialog.GetSelected().string() << std::endl;
-    //    myLoader.LoadSpell(m_name);
+    if (fileDialog.HasSelected() && loadASpell == true && isAOE == true)
+    {
+        // LOAD AN AOESpell
+        const std::string path = fileDialog.GetSelected().string();
+        auto const pos = path.find_last_of('\\');
+        m_name = path.substr(pos + 1);
 
-    //    //Set the tool values to match the loaded file
-    //    normalSpell.m_ProjectileLowDmg = myLoader.getProjectileLowDmg();
-    //    normalSpell.m_ProjectileHighDmg = myLoader.getProjectileHighDmg();
-    //    normalSpell.m_ProjectileSpeed = myLoader.getSpeed();
-    //    normalSpell.m_ProjectileCooldown = myLoader.getCooldown();
-    //    normalSpell.m_ProjectileRadius = myLoader.getRadius();
-    //    normalSpell.m_ProjectileLifetime = myLoader.getLifetime();
-    //    normalSpell.m_ProjectileMaxBounces = myLoader.getMaxBounces();
-    //    fileDialog.ClearSelected();
-    //    loadASpell = false;
-    //}
+        myLoader.loadAOESpell(m_name);
 
-    if (fileDialog.HasSelected() && loadASpell == true)
+        //Set the tool values to match the loaded file
+        aoeSpell.m_damage = myLoader.m_AOESpell.m_damage;
+        aoeSpell.m_AOESpeed = myLoader.m_AOESpell.m_speed;
+        aoeSpell.m_AOECooldown = myLoader.m_AOESpell.m_coolDown;
+        aoeSpell.m_AOERadius = myLoader.m_AOESpell.m_radius;
+        aoeSpell.m_AOELifetime = myLoader.m_AOESpell.m_lifeTime;
+        aoeSpell.m_AOEMaxBounces = myLoader.m_AOESpell.m_maxBounces;
+  
+        fileDialog.ClearSelected();
+        loadASpell = false;
+    }
+
+    if (fileDialog.HasSelected() && loadASpell == true && isProjectile == true)
     {
         // LOAD AN ATTACKSPELL
         const std::string path = fileDialog.GetSelected().string();
@@ -268,7 +271,7 @@ void SpellCreatorState::editAOEAttackSpell()
     ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Edit area of effect values:");										            // Display some text (you can use a format strings too)
     ImGui::SliderInt("Spell Damage", &aoeSpell.m_damage, 0.0f, 100.0f);
     ImGui::SliderInt("Spell Speed", &aoeSpell.m_AOESpeed, 0.0f, 200.0f);
-    ImGui::SliderInt("Spell Radius", &aoeSpell.m_AOERadius, 0.1f, 10.0f);
+    ImGui::SliderInt("Spell Radius", &aoeSpell.m_AOERadius, 1.0f, 50.0f);
     ImGui::SliderInt("Spell Cooldown", &aoeSpell.m_AOECooldown, 0.1f, 10.0f);
     ImGui::SliderInt("Spell Lifetime", &aoeSpell.m_AOELifetime, 1.0f, 20.0f);
     ImGui::SliderInt("Spell Maximum Bounces", &aoeSpell.m_AOEMaxBounces, 1, 3);

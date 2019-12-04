@@ -9,7 +9,7 @@ AOEAttack::AOEAttack(glm::vec3 pos, glm::vec3 direction, const FlamestrikeSpellB
 	setTravelTime(spellBase->m_lifeTime);
 
 	//Transform tempTransform;
-	//tempTransform.scale = glm::vec3(0.2f, 0.2f, 0.2f);
+	//tempTransform.scale = glm::vec3(spellBase->m_radius, spellBase->m_radius, spellBase->m_radius);
 	//setTransform(tempTransform);
 
 	setWorldPosition(pos);
