@@ -19,8 +19,7 @@ private:
 	int m_faceCount;
 	std::vector<Face> m_faces;
 	std::vector<Vertex> m_vertices;
-	std::vector<Vertex2> m_skeleVertices;		// Animation specific vertices
-	std::vector<VertexWithTangent> m_normalMapVertices; 
+	std::vector<Vertex2> m_skeleVertices;		// Animation specific vertices	
 	Buffers m_vertexBuffer;
 
 public:
@@ -35,8 +34,7 @@ public:
 	void saveFilePath(std::string name, int index);
 	void setUpBuffers();
 	void setUpSkeleBuffers();					// Animation specific buffers
-	void setMaterial(std::string matName);
-	void setUpTangent();
+	void setMaterial(std::string matName);	
 
 	void addAnimation(std::string name);
 	void setSkeleton(std::string name);

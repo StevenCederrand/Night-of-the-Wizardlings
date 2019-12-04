@@ -19,6 +19,7 @@ struct Vertex
 	glm::vec3 position;
 	glm::vec2 UV;
 	glm::vec3 Normals;
+	glm::vec3 Tangent;
 };
 
 struct Vertex2
@@ -29,14 +30,6 @@ struct Vertex2
 
 	glm::ivec4 bone;
 	glm::vec4 weight;
-};
-
-struct VertexWithTangent
-{
-	glm::vec3 position;
-	glm::vec2 UV;
-	glm::vec3 Normals;
-	glm::vec3 Tangent;
 };
 
 struct Face
@@ -51,7 +44,7 @@ struct Material
 	glm::vec3 diffuse;
 	glm::vec3 specular;
 	int rimLighting;
-	bool texture;
+	bool texture;	
 	std::vector<GLuint> textureID;	
 };
 

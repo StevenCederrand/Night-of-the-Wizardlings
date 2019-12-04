@@ -926,6 +926,7 @@ void Renderer::render() {
 	shader->setVec3("CameraPosition", m_camera->getCamPos());
 	//Add a step where we insert lights into the scene
 	shader->setInt("LightCount", m_lights.size());
+	shader->setInt("NormalMapping", false);
 
 	if (m_lights.size() > 0) {
 		std::string iConv = "";
@@ -963,15 +964,17 @@ void Renderer::render() {
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
 			glEnableVertexAttribArray(2);
-			mesh = object->getMesh(j);
+			glEnableVertexAttribArray(3);
+			mesh = object->getMesh(j);			
 
 			//Bind the material
 			if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
 				object->bindMaterialToShader(shader, mesh->getMaterial());
+				
 			}
 			else {
 				material = object->getMaterial(j);
-				object->bindMaterialToShader(shader, material);
+				object->bindMaterialToShader(shader, material);			
 			}
 
 
@@ -989,6 +992,7 @@ void Renderer::render() {
 			glDisableVertexAttribArray(0);
 			glDisableVertexAttribArray(1);
 			glDisableVertexAttribArray(2);
+			glDisableVertexAttribArray(3);
 		}
 	}
 
@@ -1011,6 +1015,7 @@ void Renderer::render() {
 				glEnableVertexAttribArray(0);
 				glEnableVertexAttribArray(1);
 				glEnableVertexAttribArray(2);
+				glEnableVertexAttribArray(3);
 				mesh = object->getMesh(j);
 				//Bind the material
 				if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
@@ -1036,6 +1041,7 @@ void Renderer::render() {
 				glDisableVertexAttribArray(0);
 				glDisableVertexAttribArray(1);
 				glDisableVertexAttribArray(2);
+				glDisableVertexAttribArray(3);
 			}
 		}
 	}
@@ -1058,6 +1064,7 @@ void Renderer::render() {
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
 			glEnableVertexAttribArray(2);
+			glEnableVertexAttribArray(3);
 
 			Pickup* p = dynamic_cast<Pickup*>(object);
 
@@ -1081,6 +1088,7 @@ void Renderer::render() {
 			glDisableVertexAttribArray(0);
 			glDisableVertexAttribArray(1);
 			glDisableVertexAttribArray(2);
+			glDisableVertexAttribArray(3);
 		}
 	}
 	shader->clearBinding();

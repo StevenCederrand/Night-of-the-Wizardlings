@@ -114,6 +114,9 @@ void BGLoader::BGFormatData()
 			vert.Normals[0] = meshVert[meshId][v].normal[0];
 			vert.Normals[1] = meshVert[meshId][v].normal[1];
 			vert.Normals[2] = meshVert[meshId][v].normal[2];
+			vert.Tangent[0] = meshVert[meshId][v].tangent[0];
+			vert.Tangent[1] = meshVert[meshId][v].tangent[1];
+			vert.Tangent[2] = meshVert[meshId][v].tangent[2];
 		}
 		// Faces
 		for (size_t f = 0; f < bggMeshes[meshId].bggFaces.size(); f++)
