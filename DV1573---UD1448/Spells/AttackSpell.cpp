@@ -94,11 +94,19 @@ const glm::vec3& AttackSpell::getPos() const
 	return glm::vec3(0);
 }
 
-void AttackSpell::setRadius(float radius, float dt)
+void AttackSpell::updateTool(float radius, float speed, float dt)
 {
     updateScale = radius;
+    updateSpeed += speed * dt;
     tempTransformTest.rotation = glm::vec3(0,0,0);
-    tempTransformTest.position = glm::vec3(3,3,-10);
+    if (tempTransformTest.position.x > 10)
+    {
+        tempTransformTest.position = glm::vec3(-2, 3, -10);
+        updateSpeed = -2;
+    }
+    else
+        tempTransformTest.position = glm::vec3(updateSpeed,3,-10);
+
     tempTransformTest.scale = glm::vec3(m_spellBase->m_radius + updateScale, m_spellBase->m_radius + updateScale, m_spellBase->m_radius + updateScale);
     setTransform(tempTransformTest);
 }

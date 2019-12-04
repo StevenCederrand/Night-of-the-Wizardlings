@@ -18,7 +18,7 @@ public:
 	virtual void updateRigidbody(float deltaTime, btRigidBody* body);
 	virtual const float getDamage();
 	virtual const glm::vec3& getPos() const;
-    void setRadius(float radius, float dt);
+    void updateTool(float radius, float speed, float dt);
 
 	const AttackSpellBase* getBase() { return m_spellBase; }
 
@@ -27,6 +27,7 @@ private:
     Transform tempTransformTest;
     glm::vec3 m_tempScale = glm::vec3(0.2f, 0.2f, 0.2f);
     float updateScale = 0;
+    float updateSpeed = -2;
     SpellLoader mySpellLoader;
 	//int m_localBounce = 0;
 	//int m_nrOfBounce = 0;
