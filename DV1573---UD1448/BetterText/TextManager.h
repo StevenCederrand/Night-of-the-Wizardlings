@@ -13,6 +13,7 @@ public:
 		ScaleUp_FadeOut,
 		ScaleUp_ScaleDown,
 		FadeIn_FadeOut,
+		Instant_FadOut,
 	};
 
 	struct TextEntity {

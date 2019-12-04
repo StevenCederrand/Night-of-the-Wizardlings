@@ -69,6 +69,20 @@ void TextManager::update()
 				break;
 			}
 
+			case TextBehaviour::Instant_FadOut:
+			{
+				if (endState == false) {
+					t.text->setAlpha(1.0f);
+					
+				}
+				else
+				{
+					t.text->setAlpha(percentage);
+				}
+
+				break;
+			}
+
 		}
 
 		if (t.currentLifeTime >= t.lifeTime) {
@@ -95,7 +109,7 @@ TextManager* TextManager::getInstance()
 GUIText* TextManager::addDynamicText(const std::string& text, const float& fontSize, const glm::vec3& position, const float& lifetime, 
 	TextBehaviour behaviour, const glm::vec3& velocity)
 {
-	GUIText* guiText = new GUIText(text, fontSize, m_fontType, position, 10.0f, false);
+	GUIText* guiText = new GUIText(text, fontSize, m_fontType, position, 1.0f, true);
 	guiText->setInitialScale(1.0f);
 	guiText->setScale(1.0f);
 	TextEntity textEntity;
@@ -105,8 +119,6 @@ GUIText* TextManager::addDynamicText(const std::string& text, const float& fontS
 	textEntity.behaviour = behaviour;
 	textEntity.velocity = velocity;
 	m_textEntities.push_back(textEntity);
-
-
 
 	return guiText;
 }

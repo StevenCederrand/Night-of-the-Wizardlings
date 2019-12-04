@@ -10,7 +10,6 @@ GUIText::GUIText(const std::string& text, float fontSize, FontType* fontType, co
 	m_fontSize = fontSize;
 	m_fontType = fontType;
 	m_position = position;
-	m_position.y *= -1.0f;
 	m_lineMaxSize = maxLineLength;
 	m_centered = centered;
 	m_color = glm::vec4(1.0f);
@@ -19,7 +18,7 @@ GUIText::GUIText(const std::string& text, float fontSize, FontType* fontType, co
 	m_modelMatrix = glm::translate(m_modelMatrix, glm::vec3(m_position));
 
 	createBuffers();
-
+	
 	m_uniqueIndex = UniqueIndex::getUniqueIndex();
 }
 
@@ -67,7 +66,7 @@ void GUIText::setPosition(const glm::vec3 position)
 void GUIText::rotateTowardsCamera(Camera* camera)
 {
 	glm::vec3 dir = glm::normalize(m_position - camera->getCamPos());
-	m_rotationMatrix = glm::inverse(glm::lookAt(m_position, m_position + camera->getCamFace(), glm::vec3(0, 1, 0)));
+	m_rotationMatrix = glm::inverse(glm::lookAt(glm::vec3(0.0f), camera->getCamFace(), glm::vec3(0, 1, 0)));
 }
 
 const unsigned int& GUIText::getUniqueIndex() const
@@ -165,7 +164,7 @@ void GUIText::setToFaceCamera(bool condition)
 
 void GUIText::createBuffers()
 {
-	m_timer.start();
+	//m_timer.start();
 
 	TextMeshData data = m_fontType->loadText(this);
 
@@ -198,10 +197,10 @@ void GUIText::createBuffers()
 
 	m_vertexCount = data.vertexPositions.size();
 	
-	m_timer.stop();
+	//m_timer.stop();
 
-	std::printf("GUIText Creation: \n");
-	m_timer.print();
+	//std::printf("GUIText Creation: \n");
+	//m_timer.print();
 
 }
 

@@ -364,8 +364,6 @@ PlayState::~PlayState()
 
 void PlayState::update(float dt)
 {
-	//m_firstPerson->playLoopAnimation("Test");
-	//m_firstPerson->update(dt);
 	Client::getInstance()->updateNetworkEntities(dt);
 	auto* clientPtr = Client::getInstance();
 	m_dstr.update();
@@ -380,24 +378,6 @@ void PlayState::update(float dt)
 	removeDeadObjects();
 
 	TextManager::getInstance()->update();
-
-	static float t = 0.0f;
-	t += DeltaTime;
-	if (t >= 6.0f)
-	{
-		t = 0.0f;
-		GUIText* t = TextManager::getInstance()->addDynamicText(
-			"Noob",
-			2.0f,
-			glm::vec3(0.0f, 0.0f, 0.0f),
-			6.0f,
-			TextManager::TextBehaviour::FadeIn_FadeOut,
-			glm::vec3(0.0f, 4.0f, 0.0f));
-
-		t->setScale(5.0f);
-		t->setToFaceCamera(true);
-	}
-
 }
 
 void PlayState::removeDeadObjects()
@@ -439,9 +419,13 @@ void PlayState::update_isPlaying(const float& dt)
 
 	shPtr->setSourcePosition(m_player->getPlayerPos(), HitmarkSound);
 
-	for (PlayerEvents evnt = clientPtr->readNextEvent(); evnt != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
+	if (Input::isKeyPressed(GLFW_KEY_U)) {
+		printf("My pos: %f, %f, %f\n", m_player->getPlayerPos().x, m_player->getPlayerPos().y, m_player->getPlayerPos().z);
+	}
 
-		switch (evnt) {
+	for (Evnt evnt = clientPtr->readNextEvent(); evnt.playerEvent != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
+
+		switch (evnt.playerEvent) {
 
 			case PlayerEvents::Died:
 			{
@@ -516,6 +500,33 @@ void PlayState::update_isPlaying(const float& dt)
 			{
 				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HIT)->setAlpha(1.0f);
 				shPtr->playSound(HitmarkSound);
+
+				if (evnt.data == nullptr) continue;
+
+				HitConfirmedPacket pp;
+				memcpy(&pp, evnt.data, sizeof(HitConfirmedPacket));
+				
+				if (&pp != nullptr) {
+					
+					auto txtPos = pp.targetPosition + glm::vec3(0.0f, Client::getInstance()->getMyData().meshHalfSize.y * 2.0f, 0.0f);
+					float dist = glm::distance(m_player->getPlayerPos(), txtPos);
+					
+
+					GUIText* t = TextManager::getInstance()->addDynamicText(
+						std::to_string(pp.damageDone),
+						2.0f,
+						txtPos,
+						2.0f,
+						TextManager::TextBehaviour::Instant_FadOut,
+						glm::vec3(Randomizer::single(-0.5f, 0.5f), 1.5f, Randomizer::single(-0.5f, 0.5f)));
+
+					t->setColor(glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+					t->setScale(fminf(fmaxf(dist / 15.0f, 1.0f), 5.0f));
+					t->setToFaceCamera(true);
+					
+				}
+
+				delete evnt.data;
 				break;
 			}
 			case PlayerEvents::TookMana:
@@ -656,9 +667,9 @@ void PlayState::update_isSpectating(const float& dt)
 			object->update(dt);
 	}
 
-	for (PlayerEvents evnt = clientPtr->readNextEvent(); evnt != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
+	for (Evnt evnt = clientPtr->readNextEvent(); evnt.playerEvent != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
 
-		switch (evnt) {
+		switch (evnt.playerEvent) {
 
 		case PlayerEvents::WallGotDestroyed:
 		{
