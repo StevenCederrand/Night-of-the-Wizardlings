@@ -73,6 +73,8 @@
     <ClCompile Include="BetterText\FontType.cpp" />
     <ClCompile Include="BetterText\TextMeshCreator.cpp" />
     <ClCompile Include="System\UniqueIndex.cpp" />
+    <ClCompile Include="Renderer\TextRenderer.cpp" />
+    <ClCompile Include="BetterText\TextManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameObject\AnimatedObject.h" />
@@ -174,6 +176,8 @@
     <ClInclude Include="BetterText\FontType.h" />
     <ClInclude Include="BetterText\TextMeshCreator.h" />
     <ClInclude Include="System\UniqueIndex.h" />
+    <ClInclude Include="Renderer\TextRenderer.h" />
+    <ClInclude Include="BetterText\TextManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

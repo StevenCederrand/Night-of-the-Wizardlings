@@ -4,6 +4,7 @@
 Word::Word(float fontSize)
 {
 	m_fontSize = fontSize;
+	m_width = 0.0f;
 }
 
 void Word::addCharacter(Character c)

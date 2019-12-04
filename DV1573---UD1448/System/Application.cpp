@@ -6,7 +6,7 @@
 #include <Networking/LocalServer.h>
 #include <Gui/Gui.h>
 #include <System/MemoryUsage.h>
-#define AUTOSTART false;
+#define AUTOSTART true;
 #define FULLSCREEN false;
 float DeltaTime = 0.0f;
 
@@ -83,7 +83,7 @@ bool Application::init() {
 	}
 	
 	// Vsync
-	glfwSwapInterval(1); // Turning this off will cause occasionally freezes, so don't!
+	glfwSwapInterval(0); // Turning this off will cause occasionally freezes, so don't!
 	
 	m_input = new Input();
 
@@ -103,8 +103,8 @@ bool Application::init() {
 #endif
 
 	SoundHandler* shPtr = SoundHandler::getInstance();	
-	shPtr->playSound(ThemeSong0);
-	shPtr->setSourceLooping(true, ThemeSong0);
+	//shPtr->playSound(ThemeSong0);
+	//shPtr->setSourceLooping(true, ThemeSong0);
 
 	unsigned int _time = unsigned int(time(NULL));
 	srand(_time);

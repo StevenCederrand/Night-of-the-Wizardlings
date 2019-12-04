@@ -5,33 +5,15 @@
 #include "PlayState.h"
 #include <System/StateManager.h>
 #include <System/MemoryUsage.h>
-#include <BetterText/FontType.h>
-#include <BetterText/GUIText.h>
+
+
 #define GUI_SECTION "MENUSTATE"
 
 MenuState::MenuState()
 {
 	loadGui();
 	MemoryUsage mu;
-	mu.printBoth("Before Font:");
-	
-	
-	/* Todo:
-		Create the whole render logic, hashmaps 'n stuff.
-		Gui text has a unique index so use that to remove the texts if needed.
-		
-		Font loading resulet in:
-		+ ~ 1MB Ram
-		+ ~ 3MB VRam
-	*/
-
-	FontType fontType("Assets/Fonts/Font.png", "Assets/Fonts/Font.fnt");
-	GUIText text("Hello", 32, &fontType, glm::vec3(1.0f, 2.0f, 0.0f), 150, false);
-	text.setColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-
-	mu.printBoth("After Font:");
-
-	printf("\n");
+	mu.printBoth("After menu state init");
 }
 
 MenuState::~MenuState()

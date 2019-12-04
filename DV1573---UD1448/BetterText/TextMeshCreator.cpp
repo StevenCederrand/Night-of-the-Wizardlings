@@ -17,7 +17,7 @@ TextMeshCreator::~TextMeshCreator()
 
 TextMeshData TextMeshCreator::createTextMesh(GUIText* text)
 {
-	auto lines = createStructure(text);
+	std::vector<Line> lines = createStructure(text);
 	TextMeshData meshData = createQuadVertices(text, lines);
 	return meshData;
 }
@@ -27,15 +27,15 @@ std::vector<Line> TextMeshCreator::createStructure(GUIText* text)
 	std::vector<Line> lines;
 	lines.reserve(10);
 
-	Line currentLine(m_metafile->getSpaceWidth(), text->getFontSize(), text->getMaxLineSize());
-	Word currentWord(text->getFontSize());
+	Line currentLine = Line(m_metafile->getSpaceWidth(), text->getFontSize(), text->getMaxLineSize());
+	Word currentWord = Word(text->getFontSize());
 
 	auto vec = text->getText();
+	
+	for (size_t i = 0; i < vec.size(); i++) {
+		int ascii = (int)vec[i];
 
-	for (char c : vec) {
-		int ascii = (int)c;
-
-		if (c == SPACE_ASCII) {
+		if (ascii == SPACE_ASCII) {
 			boolean added = currentLine.attemptToAddWord(currentWord);
 
 			if (added == false) {
@@ -61,13 +61,14 @@ std::vector<Line> TextMeshCreator::createStructure(GUIText* text)
 void TextMeshCreator::completeStructure(std::vector<Line>& lines, Line currentLine, Word currentWord, GUIText* text)
 {
 	bool added = currentLine.attemptToAddWord(currentWord);
+	Line l = currentLine;
 	if (added == false) {
-		lines.push_back(currentLine);
-		currentLine = Line(m_metafile->getSpaceWidth(), text->getFontSize(), text->getMaxLineSize());
-		currentLine.attemptToAddWord(currentWord);
+		lines.push_back(l);
+		l = Line(m_metafile->getSpaceWidth(), text->getFontSize(), text->getMaxLineSize());
+		l.attemptToAddWord(currentWord);
 	}
 
-	lines.push_back(currentLine);
+	lines.push_back(l);
 
 }
 
@@ -145,3 +146,6 @@ void TextMeshCreator::addUvs(std::vector<glm::vec2>& uvs, float x, float y, floa
 	uvs.emplace_back(maxX, y);
 	uvs.emplace_back(x, y);
 }
+
+
+  

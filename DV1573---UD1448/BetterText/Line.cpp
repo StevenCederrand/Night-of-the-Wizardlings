@@ -1,6 +1,7 @@
 #include <Pch/Pch.h>
 #include "Line.h"
 
+
 Line::Line(float spaceWidth, float fontSize, float maxLength)
 {
 	m_spaceWidth = spaceWidth * fontSize;

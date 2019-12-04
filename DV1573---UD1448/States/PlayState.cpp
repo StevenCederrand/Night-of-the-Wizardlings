@@ -4,8 +4,8 @@
 #include "MenuState.h"
 #include <Networking/Client.h>
 #include <Networking/LocalServer.h>
-
-
+#include <Renderer/TextRenderer.h>
+#include <BetterText/TextManager.h>
 #define PLAYSECTION "PLAYSTATE"
 
 
@@ -20,8 +20,29 @@ PlayState::PlayState(bool spectator)
 
 	m_camera = new Camera();
 	m_bPhysics = new BulletPhysics(-20.0f);
-
 	mu.printBoth("After physics and camera init:");
+
+
+
+	mu.printBoth("Before Font:");
+
+	/* Todo:
+		Create the whole render logic, hashmaps 'n stuff.
+		Gui text has a unique index so use that to remove the texts if needed.
+
+		Font loading resulet in:
+		+ ~ 1MB Ram
+		+ ~ 3MB VRam
+	*/
+
+	
+	//m_text = new GUIText("Yoooo", 2.f, m_fontType, glm::vec3(0.0f, 0.0f, -10.0f), 1.f, true);
+	//m_text->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	TextRenderer::getInstance()->init(m_camera);
+	TextManager::getInstance();
+	/*TextRenderer::getInstance()->submitText(m_text);*/
+
+	mu.printBoth("After Font:");
 
 	if (spectator == false) {
 
@@ -334,7 +355,8 @@ PlayState::~PlayState()
 	}
 
 	MeshMap::getInstance()->cleanUp();
-	
+	TextRenderer::getInstance()->cleanup();
+	TextManager::getInstance()->cleanup();
 	mu.printBoth("Afer deleting playstate:");
 }
 
@@ -357,12 +379,23 @@ void PlayState::update(float dt)
 
 	removeDeadObjects();
 
+	TextManager::getInstance()->update();
+
 	static float t = 0.0f;
 	t += DeltaTime;
-	if (t >= 3.0f)
+	if (t >= 6.0f)
 	{
 		t = 0.0f;
-		mu.printBoth("Update:");
+		GUIText* t = TextManager::getInstance()->addDynamicText(
+			"Noob",
+			2.0f,
+			glm::vec3(0.0f, 0.0f, 0.0f),
+			6.0f,
+			TextManager::TextBehaviour::FadeIn_FadeOut,
+			glm::vec3(0.0f, 4.0f, 0.0f));
+
+		t->setScale(5.0f);
+		t->setToFaceCamera(true);
 	}
 
 }
@@ -696,6 +729,7 @@ void PlayState::update_isSpectating(const float& dt)
 void PlayState::render()
 {
 	Renderer::getInstance()->render();
+	TextRenderer::getInstance()->renderText();
 }
 
 bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1, const btCollisionObjectWrapper* obj2, int id2, int index2)

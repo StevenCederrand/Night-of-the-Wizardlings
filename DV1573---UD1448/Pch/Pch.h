@@ -76,7 +76,7 @@
 #include <Renderer/Renderer.h>
 #include <System/Input.h>
 #include <System/SoundHandler.h>
-#include <GameObject/ObjectTypes.h>
+#include <GameObject/ObjectTypes.h>	
 
 // DSTR
 #include <Destruction/TriangleNode.h>
