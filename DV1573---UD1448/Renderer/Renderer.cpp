@@ -47,14 +47,17 @@ Renderer::Renderer()
 	//Generete SSAO kernels
 	std::uniform_real_distribution<float> randomFloats(0.0, 1.0);
 	std::default_random_engine generator;
-	for (size_t i = 0; i < SSAO_KERNELS; i++)
+	for (size_t i = 0; i < 16; i++)
 	{
+		
 		glm::vec3 kernelSample(randomFloats(generator) * 2.0 - 1.0, 
 			randomFloats(generator) * 2.0 - 1.0,
-			randomFloats(generator));
-		kernelSample = glm::normalize(kernelSample);
+			randomFloats(generator) * 2.0 - 1.0);
+		
 		kernelSample *= randomFloats(generator);
+
 		float scale = static_cast<float>(i) / SSAO_KERNELS;
+		kernelSample *= scale;
 		m_SSAOKernels.push_back(kernelSample);
 	}
 
@@ -914,7 +917,18 @@ void Renderer::render() {
 	glActiveTexture(GL_TEXTURE0);
 	shader->setInt("depthMap", 0);
 	bindMatrixes(shader);	//Bind view and projection matrix
-	glBindTexture(GL_TEXTURE_2D, m_depthMap);
+	glBindTexture(GL_TEXTURE_2D, m_depthMap);	
+	/* Move this to the shader 5head */
+	/*unsigned int kernelLocation = glGetUniformLocation(shader->getShaderID(), "kernels");
+	//unsigned int sampleRadius = glGetUniformLocation(shader->getShaderID(), "sampleRadius");
+
+	if (kernelLocation == -1) {
+		logWarning("Can't find location for 'kernels'");
+	}
+	else {
+		//glUniform1f(sampleRadius, 1.5f);
+		glUniform3fv(kernelLocation, SSAO_KERNELS, (const GLfloat*)& m_SSAOKernels[0]);
+	}*/
 
 	glBindImageTexture(0, m_SSAOColourBuffer, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F); //Bind the image unit
 
@@ -961,6 +975,8 @@ void Renderer::render() {
 	}
 #if SSAO 
 	glBindImageTexture(0, m_SSAOColourBuffer, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+
+
 #endif
 	//Render Static objects
 	for (GameObject* object : m_staticObjects)
@@ -1008,9 +1024,6 @@ void Renderer::render() {
 			glDisableVertexAttribArray(2);
 		}
 	}
-#if SSAO 
-
-#endif
 
 	shader->clearBinding();
 	//Dynamic objects
@@ -1069,8 +1082,6 @@ void Renderer::render() {
 		if (!object->getShouldRender()) {
 			continue;
 		}
-
-		
 
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
