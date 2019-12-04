@@ -691,6 +691,7 @@ void Client::processAndHandlePackets()
 			playerPacket.Serialize(false, bsIn);
 			m_myPlayerDataPacket.numberOfDeaths = playerPacket.numberOfDeaths;
 			m_myPlayerDataPacket.numberOfKills = playerPacket.numberOfKills;
+			m_myPlayerDataPacket.numberOfDamage = playerPacket.numberOfDamage;
 		}
 
 		break;

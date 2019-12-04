@@ -51,6 +51,11 @@ Player::~Player()
 
 void Player::update(float deltaTime)
 {
+	//if the game is not in session, always have 100 mana
+	if (m_client->getServerState().currentState != NetGlobals::SERVER_STATE::GameInSession)
+		m_mana = 100;
+
+
 	if (m_playerCamera->isCameraActive()) {									// IMPORTANT; DOING THESE WRONG WILL CAUSE INPUT LAG
 		move(deltaTime);
 		m_playerCamera->update();											// Update this first so that subsequent uses are synced

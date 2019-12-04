@@ -1111,8 +1111,9 @@ void PlayState::GUILoadScoreboard() {
 		m_scoreBoard = static_cast<CEGUI::MultiColumnList*>(Gui::getInstance()->createWidget(PLAYSECTION, CEGUI_TYPE + "/MultiColumnList", glm::vec4(0.20f, 0.25f, 0.60f, 0.40f), glm::vec4(0.0f), "Scoreboard"));
 
 		m_scoreBoard->addColumn("Players: ", 0, CEGUI::UDim(0.33f, 0));
-		m_scoreBoard->addColumn("Kills: ", 1, CEGUI::UDim(0.33f, 0));
-		m_scoreBoard->addColumn("Deaths: ", 2, CEGUI::UDim(0.34f, 0));
+		m_scoreBoard->addColumn("Kills: ", 1, CEGUI::UDim(0.22f, 0));
+		m_scoreBoard->addColumn("Deaths: ", 2, CEGUI::UDim(0.22f, 0));
+		m_scoreBoard->addColumn("Damage: ", 3, CEGUI::UDim(0.22f, 0));
 
 		int index = 0;
 
@@ -1128,6 +1129,8 @@ void PlayState::GUILoadScoreboard() {
 			m_scoreBoard->setItem(itemMultiColumnList, 1, static_cast<CEGUI::uint>(index)); // ColumnID, RowID
 			itemMultiColumnList = new CEGUI::ListboxTextItem(std::to_string(Client::getInstance()->getMyData().numberOfDeaths));
 			m_scoreBoard->setItem(itemMultiColumnList, 2, static_cast<CEGUI::uint>(index)); // ColumnID, RowID
+			itemMultiColumnList = new CEGUI::ListboxTextItem(std::to_string(Client::getInstance()->getMyData().numberOfDamage));
+			m_scoreBoard->setItem(itemMultiColumnList, 3, static_cast<CEGUI::uint>(index)); // ColumnID, RowID
 			index++;
 		}
 
@@ -1147,6 +1150,8 @@ void PlayState::GUILoadScoreboard() {
 			m_scoreBoard->setItem(itemMultiColumnList, 1, static_cast<CEGUI::uint>(index)); // ColumnID, RowID,
 			itemMultiColumnList = new CEGUI::ListboxTextItem(std::to_string(list.at(i).data.numberOfDeaths));
 			m_scoreBoard->setItem(itemMultiColumnList, 2, static_cast<CEGUI::uint>(index)); // ColumnID, RowID
+			itemMultiColumnList = new CEGUI::ListboxTextItem(std::to_string(list.at(i).data.numberOfDamage));
+			m_scoreBoard->setItem(itemMultiColumnList, 3, static_cast<CEGUI::uint>(index)); // ColumnID, RowID
 			index++;
 		}
 		m_scoreboardExists = true;
