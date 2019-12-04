@@ -29,12 +29,12 @@
 
 struct Projectiles
 {
-    float m_ProjectileLowDmg = 0;
-    float m_ProjectileHighDmg = 0;
-    float m_ProjectileSpeed = 0;
-    float m_ProjectileCooldown = 0;
-    float m_ProjectileRadius = 0;
-    float m_ProjectileLifetime = 0;
+    int m_ProjectileLowDmg = 0;
+    int m_ProjectileHighDmg = 0;
+    int m_ProjectileSpeed = 0;
+    int m_ProjectileCooldown = 0;
+    int m_ProjectileRadius = 0;
+    int m_ProjectileLifetime = 0;
     int m_ProjectileMaxBounces = 1;
 };
 
@@ -48,6 +48,16 @@ struct AOE
     int m_AOEMaxBounces = 1;
 };
 
+struct SpellEvents
+{
+    int m_nrOfEvents = 1;
+    int m_firstEvent = 1;
+    int m_secondEvent = 1;
+    int m_thirdEvent = 1;
+    int m_fourthEvent = 1;
+    int m_fifthEvent = 1;
+};
+
 class SpellCreatorState : public State {
 
 public:
@@ -57,9 +67,15 @@ public:
 	virtual void update(float dt) override;
 	virtual void render() override;
 
+    void updateToolSettings();
+
     //-----Edit spell Functions-----//
     void editAttackSpell();
     void editAOEAttackSpell();
+
+    //-----Edit spell Events function-----//
+    void editSpellEvents();
+    void setSpellEvents(int eventNr);
 
     //IMGUI
     bool my_tool_active = true;
@@ -72,6 +88,7 @@ public:
     std::string m_name = "fireball";
     Projectiles normalSpell;
     AOE aoeSpell;
+    SpellEvents spellEvents;
     //-----File opener/Path to Exports-----//
     ImGui::FileBrowser fileDialog;
 

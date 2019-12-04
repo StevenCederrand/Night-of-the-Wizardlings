@@ -45,6 +45,17 @@ bool SpellLoader::LoadSpell(std::string file)
 		m_radius             = m_projectile.m_radius;
 		m_lifetime           = m_projectile.m_lifeTime;
 		m_maxBounces         = m_projectile.m_maxBounces;
+
+        // Read the Spell Events struct
+        binFile.read((char*)& m_spellEvents, sizeof(SpellLoading::SpellEvents));
+
+        // Fill Spell Event data
+        m_nrOfEvents         = m_spellEvents.m_nrOfEvents;
+        m_firstEvent         = m_spellEvents.m_firstEvent;
+        m_secondEvent        = m_spellEvents.m_secondEvent;
+        m_thirdEvent         = m_spellEvents.m_thirdEvent;
+        m_fourthEvent        = m_spellEvents.m_fourthEvent;
+        m_fifthEvent         = m_spellEvents.m_fifthEvent;
 	}
 	binFile.close();
 
@@ -53,18 +64,27 @@ bool SpellLoader::LoadSpell(std::string file)
 
 
 
-void SpellLoader::SaveProjectileSpell(std::string m_name, float m_ProjectileLowDmg, float m_ProjectileHighDmg,float m_ProjectileSpeed, float m_ProjectileCooldown, float m_ProjectileRadius, float m_ProjectileLifetime, float m_ProjectileMaxBounces)
+void SpellLoader::SaveProjectileSpell(std::string m_name, float m_ProjectileLowDmg, float m_ProjectileHighDmg,float m_ProjectileSpeed, float m_ProjectileCooldown, float m_ProjectileRadius, float m_ProjectileLifetime, float m_ProjectileMaxBounces,
+    int m_nrOfEvents, int m_firstEvent, int m_secondEvent, int m_thirdEvent, int m_fourthEvent, int m_fifthEvent)
 {
 	fileHeader.spellCount = m_nrOfSpells;
 	
 	//-----Assign all the Projectile spell data-----//
-    m_projectile.m_lowDamage = m_ProjectileLowDmg;
-    m_projectile.m_highDamage = m_ProjectileHighDmg;
-	m_projectile.m_speed = m_ProjectileSpeed;
-	m_projectile.m_coolDown = m_ProjectileCooldown;
-	m_projectile.m_radius = m_ProjectileRadius;
-	m_projectile.m_lifeTime = m_ProjectileLifetime;
-	m_projectile.m_maxBounces = m_ProjectileMaxBounces;
+    m_projectile.m_lowDamage    = m_ProjectileLowDmg;
+    m_projectile.m_highDamage   = m_ProjectileHighDmg;
+	m_projectile.m_speed        = m_ProjectileSpeed;
+	m_projectile.m_coolDown     = m_ProjectileCooldown;
+	m_projectile.m_radius       = m_ProjectileRadius;
+	m_projectile.m_lifeTime     = m_ProjectileLifetime;
+	m_projectile.m_maxBounces   = m_ProjectileMaxBounces;
+
+    //-----Assign all the Spell event data-----//
+    m_spellEvents.m_nrOfEvents  = m_nrOfEvents;
+    m_spellEvents.m_firstEvent  = m_firstEvent;
+    m_spellEvents.m_secondEvent = m_secondEvent;
+    m_spellEvents.m_thirdEvent  = m_thirdEvent;
+    m_spellEvents.m_fourthEvent = m_fourthEvent;
+    m_spellEvents.m_fifthEvent  = m_fifthEvent;
 
 	//-----Convert a string to char and assign the char to the struct-----//
 	int stringLength = m_name.length();
@@ -101,6 +121,15 @@ void SpellLoader::SaveProjectileSpell(std::string m_name, float m_ProjectileLowD
 	asciiFile << m_projectile.m_lifeTime << std::endl;
 	asciiFile << m_projectile.m_maxBounces << std::endl;
 
+    asciiFile << "// Events ----------" << std::endl;
+    asciiFile << m_spellEvents.m_nrOfEvents << std::endl;
+    asciiFile << m_spellEvents.m_firstEvent << std::endl;
+    asciiFile << m_spellEvents.m_secondEvent << std::endl;
+    asciiFile << m_spellEvents.m_thirdEvent << std::endl;
+    asciiFile << m_spellEvents.m_fourthEvent << std::endl;
+    asciiFile << m_spellEvents.m_fifthEvent << std::endl;
+
+
 	asciiFile.close();
 	std::cout << "ascii file done!" << std::endl;
 
@@ -109,7 +138,8 @@ void SpellLoader::SaveProjectileSpell(std::string m_name, float m_ProjectileLowD
 	std::ofstream binaryFile(outputFilepath + m_name + ".spell", std::ofstream::binary);	// This is where out the filepath should be added comming in from the CMD
 
 	binaryFile.write((char*)& fileHeader, sizeof(SpellLoading::SpellHeader));
-	binaryFile.write((char*)& m_projectile, sizeof(SpellLoading::Projectile));
+    binaryFile.write((char*)& m_projectile, sizeof(SpellLoading::Projectile));
+    binaryFile.write((char*)& m_spellEvents, sizeof(SpellLoading::SpellEvents));
 
 	binaryFile.close();
 	std::cout << "binary file done!" << std::endl;
@@ -177,47 +207,3 @@ void SpellLoader::saveAOESpell(std::string name, int damage, int speed, int cool
     std::cout << "binary file done!" << std::endl;
 }
 
-//int SpellLoader::getDamange()
-//{
-//    return m_damage;
-//}
-//
-//int SpellLoader::getProjectileLowDmg()
-//{
-//	return m_lowDmg;
-//}
-//
-//int SpellLoader::getProjectileHighDmg()
-//{
-//	return m_highDmg;
-//}
-//
-//float SpellLoader::getSpeed()
-//{
-//	return m_speed;
-//}
-//
-//float SpellLoader::getCooldown()
-//{
-//	return m_cooldown;
-//}
-//
-//float SpellLoader::getRadius()
-//{
-//	return m_radius;
-//}
-//
-//float SpellLoader::getLifetime()
-//{
-//	return m_lifetime;
-//}
-//
-//float SpellLoader::getMaxBounces()
-//{
-//	return m_maxBounces;
-//}
-//
-//std::string SpellLoader::getSpellName()
-//{
-//    return m_name;
-//}

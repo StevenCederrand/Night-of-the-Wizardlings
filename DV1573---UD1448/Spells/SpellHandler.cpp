@@ -51,14 +51,6 @@ void SpellHandler::initAttackSpell()
 
     mySpellLoader.LoadSpell("bestSpell.spell");
 
-	/*attackBase->m_lowDamage = mySpellLoader.getProjectileLowDmg();
-    attackBase->m_highDamage = mySpellLoader.getProjectileHighDmg();
-	attackBase->m_speed = mySpellLoader.getSpeed();
-	attackBase->m_radius = mySpellLoader.getRadius();
-	attackBase->m_coolDown = mySpellLoader.getCooldown();
-	attackBase->m_lifeTime = mySpellLoader.getLifetime();
-    attackBase->m_maxBounces = mySpellLoader.getMaxBounces();*/
-
     attackBase->m_lowDamage = mySpellLoader.m_projectile.m_lowDamage;
     attackBase->m_highDamage = mySpellLoader.m_projectile.m_highDamage;
     attackBase->m_speed = mySpellLoader.m_projectile.m_speed;
