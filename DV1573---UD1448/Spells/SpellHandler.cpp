@@ -450,13 +450,13 @@ void SpellHandler::createSpellForTool(glm::vec3 spellPos, glm::vec3 directionVec
 
 }
 
-void SpellHandler::spellToolUpdate(float dt, float radius)
+void SpellHandler::spellToolUpdate(float dt, float radius, float speed)
 {
 
     for (size_t i = 0; i < spells.size(); i++)
     {
 
-        spells[i]->setRadius(radius, dt);
+        spells[i]->updateTool(radius, speed, dt);
         if (activespell == 1)
         {
             spells[i]->setTravelTime(0);

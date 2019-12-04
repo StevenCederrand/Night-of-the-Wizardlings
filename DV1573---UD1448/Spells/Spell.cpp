@@ -59,6 +59,6 @@ const glm::vec3& Spell::getDirection() const {
 	return m_direction;
 }
 
-void Spell::setRadius(float radius, float dt)
+void Spell::updateTool(float radius, float speed, float dt)
 {
 }

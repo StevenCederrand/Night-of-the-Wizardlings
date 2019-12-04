@@ -31,7 +31,7 @@ public:
 	virtual void updateRigidbody(float deltaTime, btRigidBody* body) = 0;
 	virtual const float getDamage() = 0;
 	virtual const glm::vec3& getPos() const = 0;
-    virtual void setRadius(float radius, float dt);
+    virtual void updateTool(float radius, float speed, float dt);
 
 		
 private:

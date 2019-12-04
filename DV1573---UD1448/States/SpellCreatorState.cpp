@@ -96,7 +96,7 @@ SpellCreatorState::~SpellCreatorState()
 void SpellCreatorState::update(float dt)
 {
 
-    m_spellHandler->spellToolUpdate(dt, normalSpell.m_ProjectileRadius);
+    m_spellHandler->spellToolUpdate(dt, normalSpell.m_ProjectileRadius, normalSpell.m_ProjectileSpeed);
     m_bPhysics->update(dt);
    // m_player->update(dt);
     Renderer::getInstance()->updateParticles(dt);
