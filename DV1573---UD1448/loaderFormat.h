@@ -31,6 +31,16 @@ namespace SpellLoading
         int m_lifeTime;
         int m_maxBounces;
     };
+
+    struct SpellEvents
+    {
+        int m_nrOfEvents;
+        int m_firstEvent;
+        int m_secondEvent;
+        int m_thirdEvent;
+        int m_fourthEvent;
+        int m_fifthEvent;
+    };
 }
 
 
