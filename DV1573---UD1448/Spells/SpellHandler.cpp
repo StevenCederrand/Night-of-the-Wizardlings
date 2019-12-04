@@ -50,7 +50,7 @@ void SpellHandler::initAttackSpell()
 	//attackBase->m_material->ambient = glm::vec3(0.5f, 0.0f, 0.9f);
 
 
-    mySpellLoader.LoadSpell("bestSpell.spell");
+    mySpellLoader.LoadProjectileSpell("bestSpell.spell");
 
 	/*attackBase->m_lowDamage = mySpellLoader.getProjectileLowDmg();
     attackBase->m_highDamage = mySpellLoader.getProjectileHighDmg();
@@ -222,14 +222,14 @@ void SpellHandler::initFireSpell()
 
 	fireBase->m_maxBounces = 0.0f;*/
 
-    mySpellLoader.loadAOESpell("fireAoe");
+    //mySpellLoader.loadAOESpell("fireAoe");
 
-    fireBase->m_damage = mySpellLoader.getDamange();
-    fireBase->m_speed = mySpellLoader.getSpeed();
-    fireBase->m_radius = mySpellLoader.getRadius();
-    fireBase->m_coolDown = mySpellLoader.getCooldown();
-    fireBase->m_lifeTime = mySpellLoader.getLifetime();
-    fireBase->m_maxBounces = mySpellLoader.getMaxBounces();
+    fireBase->m_damage = 10;
+    fireBase->m_speed = 0;
+    fireBase->m_radius = 5;
+    fireBase->m_coolDown = 5;
+    fireBase->m_lifeTime = 5;
+    fireBase->m_maxBounces = 0;
 
 	fireBase->m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // Old
 	fireBase->m_attenAndRadius = glm::vec4(1.0f, 0.61f, 0.74f, 22.0f);

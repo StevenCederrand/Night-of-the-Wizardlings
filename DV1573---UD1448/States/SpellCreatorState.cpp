@@ -156,7 +156,7 @@ void SpellCreatorState::update(float dt)
         m_name = path.substr(pos + 1);
 
        // m_name = std::filesystem::path::filename;
-        myLoader.LoadSpell(m_name);
+        myLoader.LoadProjectileSpell(m_name);
         
         //Set the tool values to match the loaded file
         normalSpell.m_ProjectileLowDmg = myLoader.m_projectile.m_lowDamage;
