@@ -128,20 +128,38 @@ void SpellCreatorState::update(float dt)
     }
     fileDialog.Display();
 
+    //if (fileDialog.HasSelected() && loadASpell == true)
+    //{
+    //    // LOAD AN ATTACKSPELL
+    //    std::cout << "Selected filename: " << fileDialog.GetSelected().string() << std::endl;
+    //    myLoader.LoadSpell(m_name);
+
+    //    //Set the tool values to match the loaded file
+    //    normalSpell.m_ProjectileLowDmg = myLoader.getProjectileLowDmg();
+    //    normalSpell.m_ProjectileHighDmg = myLoader.getProjectileHighDmg();
+    //    normalSpell.m_ProjectileSpeed = myLoader.getSpeed();
+    //    normalSpell.m_ProjectileCooldown = myLoader.getCooldown();
+    //    normalSpell.m_ProjectileRadius = myLoader.getRadius();
+    //    normalSpell.m_ProjectileLifetime = myLoader.getLifetime();
+    //    normalSpell.m_ProjectileMaxBounces = myLoader.getMaxBounces();
+    //    fileDialog.ClearSelected();
+    //    loadASpell = false;
+    //}
+
     if (fileDialog.HasSelected() && loadASpell == true)
     {
         // LOAD AN ATTACKSPELL
         std::cout << "Selected filename: " << fileDialog.GetSelected().string() << std::endl;
-        myLoader.LoadSpell(m_name);
+        myLoader.loadAOESpell(m_name);
 
-        //Set the tool values to match the loaded file
-        normalSpell.m_ProjectileLowDmg = myLoader.getProjectileLowDmg();
-        normalSpell.m_ProjectileHighDmg = myLoader.getProjectileHighDmg();
-        normalSpell.m_ProjectileSpeed = myLoader.getSpeed();
-        normalSpell.m_ProjectileCooldown = myLoader.getCooldown();
-        normalSpell.m_ProjectileRadius = myLoader.getRadius();
-        normalSpell.m_ProjectileLifetime = myLoader.getLifetime();
-        normalSpell.m_ProjectileMaxBounces = myLoader.getMaxBounces();
+       // Set the tool values to match the loaded file
+       
+        aoeSpell.m_damage = myLoader.getDamange();
+        aoeSpell.m_AOESpeed = myLoader.getSpeed();
+        aoeSpell.m_AOECooldown = myLoader.getCooldown();
+        aoeSpell.m_AOERadius = myLoader.getRadius();
+        aoeSpell.m_AOELifetime = myLoader.getLifetime();
+        aoeSpell.m_AOEMaxBounces = myLoader.getMaxBounces();
         fileDialog.ClearSelected();
         loadASpell = false;
     }
@@ -163,8 +181,8 @@ void SpellCreatorState::update(float dt)
                 if(isProjectile)
                     myLoader.SaveProjectileSpell(m_name, normalSpell.m_ProjectileLowDmg, normalSpell.m_ProjectileHighDmg, normalSpell.m_ProjectileSpeed,
                         normalSpell.m_ProjectileCooldown, normalSpell.m_ProjectileRadius, normalSpell.m_ProjectileLifetime, normalSpell.m_ProjectileMaxBounces);
-               // if (isAOE)
-                   // myLoader.saveAOESpell(m_name, );
+                if (isAOE)
+                    myLoader.saveAOESpell(m_name, aoeSpell.m_damage, aoeSpell.m_AOESpeed, aoeSpell.m_AOECooldown, aoeSpell.m_AOERadius, aoeSpell.m_AOELifetime, aoeSpell.m_AOEMaxBounces);
 
 
             }
@@ -227,10 +245,10 @@ void SpellCreatorState::editAOEAttackSpell()
     }
 
     ImGui::Text("Edit area of effect values");											            // Display some text (you can use a format strings too)
-    ImGui::SliderFloat("Spell high Damage", &normalSpell.m_ProjectileHighDmg, 0.0f, 100.0f);
-    ImGui::SliderFloat("Spell Speed", &normalSpell.m_ProjectileSpeed, 0.0f, 200.0f);
-    ImGui::SliderFloat("Spell Radius", &normalSpell.m_ProjectileRadius, 0.1f, 10.0f);
-    ImGui::SliderFloat("Spell Cooldown", &normalSpell.m_ProjectileCooldown, 0.1f, 10.0f);
-    ImGui::SliderFloat("Spell Lifetime", &normalSpell.m_ProjectileLifetime, 1.0f, 20.0f);
-    ImGui::SliderInt("Spell Maximum Bounces", &normalSpell.m_ProjectileMaxBounces, 1, 3);
+    ImGui::SliderInt("Spell Damage", &aoeSpell.m_damage, 0.0f, 100.0f);
+    ImGui::SliderInt("Spell Speed", &aoeSpell.m_AOESpeed, 0.0f, 200.0f);
+    ImGui::SliderInt("Spell Radius", &aoeSpell.m_AOERadius, 0.1f, 10.0f);
+    ImGui::SliderInt("Spell Cooldown", &aoeSpell.m_AOECooldown, 0.1f, 10.0f);
+    ImGui::SliderInt("Spell Lifetime", &aoeSpell.m_AOELifetime, 1.0f, 20.0f);
+    ImGui::SliderInt("Spell Maximum Bounces", &aoeSpell.m_AOEMaxBounces, 1, 3);
 }

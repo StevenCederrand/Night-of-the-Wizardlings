@@ -16,7 +16,8 @@ public:
 	SpellLoader();
 	~SpellLoader();
 
-	bool LoadSpell(std::string fileName);	// Load a file
+    bool LoadProjectileSpell(std::string fileName);	// Load a file
+    bool loadAOESpell(std::string fileName);	// Load a file
     void SaveProjectileSpell(std::string m_name, float m_ProjectileLowDmg, float m_ProjectileHighDmg,float m_ProjectileSpeed,
                     float m_ProjectileCooldown, float m_ProjectileRadius, float m_ProjectileLifetime, float m_ProjectileMaxBounces);
 
