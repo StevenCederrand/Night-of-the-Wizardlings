@@ -26,6 +26,9 @@ class PlayState : public State {
 public:
 	//PlayState(){}
 	PlayState(bool spectator);
+	void loadMap();
+	void loadDecor();
+	void loadLights();
 	void loadDestructables();
 	virtual ~PlayState() override;
 	virtual void update(float dt) override;
@@ -43,7 +46,13 @@ private:
 	void update_isSpectating(const float& dt);
 
 private:
-	int key = 1;
+	int key = 1;	// Delete this??
+
+	// Hardcoded solution for choosing the map
+	// Should probably be changed depending on how we want to handle different maps
+	// 0 is default
+	int m_map = 0;
+
 	float m_rotVal;
 	bool m_GUIOpen;
 	

@@ -781,6 +781,15 @@ void Client::processAndHandlePackets()
 
 			int slot = shPtr->playSound(SuccessfulDeflectSound, spellPacket.CreatorGUID);
 			shPtr->setSourcePosition(spellPacket.Position, SuccessfulDeflectSound, spellPacket.CreatorGUID, slot);
+		
+			Evnt evnt;
+			evnt.playerEvent = PlayerEvents::EnemyDeflected;
+
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+				m_playerEvents.push_back(evnt);
+			}
 		}
 		break;
 
