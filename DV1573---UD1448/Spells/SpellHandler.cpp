@@ -403,6 +403,7 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 		spell->addParticle(flamestrikePS);
 	}
 
+	// Randomize spell
 	srand(NULL);
 	int rndType = type;
 	int tries = 0;
@@ -412,8 +413,8 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 		if (tries == 50)
 			rndType = NORMALATTACK;
 	}
-
 	OBJECT_TYPE randomSpell = (OBJECT_TYPE)rndType;
+
 	return randomSpell;
 }
 
@@ -453,7 +454,6 @@ void SpellHandler::spellUpdate(float deltaTime)
 			Client::getInstance()->destroySpellOnNetwork(*flamestrikeSpells[i]);
 			delete flamestrikeSpells[i];
 			flamestrikeSpells.erase(flamestrikeSpells.begin() + i);
-
 		}
 
 	}
@@ -482,7 +482,6 @@ void SpellHandler::spellUpdate(float deltaTime)
 	{
 		if (spells[i]->getTravelTime() > 0)
 		{
-			
 			spells[i]->update(deltaTime);
 			spells[i]->updateRigidbody(deltaTime);
 			Client::getInstance()->updateSpellOnNetwork(*spells[i]);

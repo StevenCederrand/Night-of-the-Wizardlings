@@ -41,7 +41,7 @@ public:
 	const glm::vec3 getMeshHalfSize() const;
 	const float& getMana() const;
 	const bool& onGround() const;
-	const bool& usingTripleSpell() const; //Get info over what spell should be in use. Either triple or flamestrike
+	const OBJECT_TYPE& currentSpell() const; //Get info over what spell should be in use. Either triple or flamestrike
 
 	//-----Set-----//
 	void setPlayerPos(glm::vec3 pos);
