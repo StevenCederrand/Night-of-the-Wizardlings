@@ -913,6 +913,7 @@ void Renderer::render() {
 	shader = shaderMap->useByName(SSAO_COMP);
 	glActiveTexture(GL_TEXTURE0);
 	shader->setInt("depthMap", 0);
+	bindMatrixes(shader);	//Bind view and projection matrix
 	glBindTexture(GL_TEXTURE_2D, m_depthMap);
 
 	glBindImageTexture(0, m_SSAOColourBuffer, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F); //Bind the image unit
@@ -958,9 +959,9 @@ void Renderer::render() {
 			shader->setFloat("pLights[" + iConv + "].strength", m_lights[i].strength);
 		}
 	}
-
-
-
+#if SSAO 
+	glBindImageTexture(0, m_SSAOColourBuffer, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+#endif
 	//Render Static objects
 	for (GameObject* object : m_staticObjects)
 	{

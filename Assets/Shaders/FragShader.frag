@@ -36,10 +36,9 @@ uniform vec3 Diffuse_Color;             // Material diffuse
 uniform vec3 Specular_Color;            // Material specular
 uniform vec2 TexAndRim;                 // Booleans --- Textures & Rimlighting
 
-uniform int LightCount;                 //Used when lightculling. To know how many lights there are in total in the scene
+uniform int LightCount;                 // Used when lightculling. To know how many lights there are in total in the scene
 uniform sampler2D albedoTexture;        // Texture diffuse
-
-uniform sampler2D depthMap;             //Used for SSAO
+layout(rgba32f, binding = 0) uniform readonly image2D SSAOTexture;   // Texture with SSAO value comoing from the compute shader
 
 uniform int grayscale = 0;
 uniform P_LIGHT pLights[LIGHTS_MAX];
@@ -52,6 +51,7 @@ vec3 calcDirLight(vec3 normal, vec3 diffuseColor, vec3 lightDirection);
 vec3 grayscaleColour(vec3 col);
 
 void main() {
+    vec4 ssaoVal = imageLoad(SSAOTexture, ivec2(gl_FragCoord.xy));
 
     vec3 emissive = Ambient_Color; // Temp used as emmisve, should rename all ambient names to emmisive.
     //Makes the material full solid color (basically fully lit). Needs bloom for best effect.
@@ -91,7 +91,7 @@ void main() {
     }
 
 
-    color = vec4(result, 1);
+    color = ssaoVal;//vec4(result, 1);
 }
 
 vec3 calcPointLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance, vec3 diffuse) {

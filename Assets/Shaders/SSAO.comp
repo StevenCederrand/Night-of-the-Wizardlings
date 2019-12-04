@@ -3,32 +3,36 @@
 #define SSAO_KERNELS 64
 
 uniform sampler2D depthMap;
-/*
-uniform float sampleRadius;
-
 //Used to place the depthmap value in world space
 uniform mat4 projMatrix;
 uniform mat4 viewMatrix;
+
+uniform float sampleRadius;
+
+/*
 //SSAO kernels
 uniform vec3 kernels[SSAO_KERNELS];
 */
 //Output image position
-uniform writeonly image2D img_output;
+layout(rgba32f, binding = 0) uniform writeonly image2D img_output;
 
 //Compute shader layout
 layout(local_size_x = 8, local_size_y = 8) in;
 void main() {
     ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
-    //Workgroup tile
-    ivec2 tileID = ivec2(gl_WorkGroupID.xy);
-    //Total number of work groups
-    ivec2 tileNumber = ivec2(gl_NumWorkGroups.xy);
     vec2 screenSize = vec2(1280.f, 720.f);
     vec2 samplePos = vec2(pixel_coords) / screenSize;
 
     float depth = texture(depthMap, samplePos).r;
-    vec4 pixel = vec4(depth, depth, depth, 1.0);
+    depth = depth * 2.0 - 1.0; //Linearize the depth value
 
+    //Convert a depthmap pixel to a vec3 position
+    //Get the clipspace position
+    //[-1, 1] = X & Y
+    vec4 clipPosition = vec4(samplePos * 2.0 - 1.0, depth, 1.0);
+    vec4 viewPosition = inverse(projMatrix) * clipPosition;
+    viewPosition /= viewPosition.w;
+    vec4 worldPosition = inverse(viewMatrix) * viewPosition;
 
-    imageStore(img_output, ivec2(pixel_coords), pixel);
+    imageStore(img_output, ivec2(pixel_coords), worldPosition);
 }

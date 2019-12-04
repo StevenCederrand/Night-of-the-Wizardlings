@@ -27,6 +27,7 @@ Shader::Shader(std::string compute)
 	}
 	glDetachShader(m_shaderProg, computeShader);
 	glDeleteShader(computeShader);
+	m_valid = true;
 }
 
 Shader::Shader(std::string vertex, std::string fragment)
