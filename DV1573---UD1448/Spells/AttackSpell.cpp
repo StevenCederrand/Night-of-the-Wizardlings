@@ -3,7 +3,7 @@
 #include "AttackSpell.h"
 #include <Spells/SpellHandler.h>
 
-AttackSpell::AttackSpell(glm::vec3 pos, glm::vec3 direction, const AttackSpellBase* spellBase)
+AttackSpell::AttackSpell(glm::vec3 pos, glm::vec3 direction, AttackSpellBase* spellBase)
 	: Spell(pos, direction)
 {
 	m_type = OBJECT_TYPE::NORMALATTACK;
@@ -89,7 +89,10 @@ const glm::vec3& AttackSpell::getPos() const
 	return glm::vec3(0);
 }
 
-
+void AttackSpell::setRadius(float radius)
+{
+    m_spellBase->m_radius = radius;
+}
 //const AttackSpellBase* AttackSpell::getSpellBase()
 //{
 //	return m_spellBase;
