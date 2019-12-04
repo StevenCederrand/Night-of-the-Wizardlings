@@ -54,11 +54,15 @@ void AOEAttack::setSpellBool(bool state)
 	m_fire = state;
 }
 
-void AOEAttack::updateRigidbody(float deltaTime)
+
+
+void AOEAttack::update(float dt)
 {
+	setTravelTime(getTravelTime() - dt);
+
 	btRigidBody* body = getRigidBody();
 
-	m_bounceTime += deltaTime;
+	m_bounceTime += dt;
 	if (m_hasCollided)
 	{
 		m_hasCollided = false;
@@ -90,8 +94,6 @@ void AOEAttack::updateRigidbody(float deltaTime)
 	newTransform.position.y = rigidBodyTransform.getOrigin().getY();
 	newTransform.position.z = rigidBodyTransform.getOrigin().getZ();
 
-	
-	
 	newTransform.rotation.x = rigidBodyTransform.getRotation().getX();
 	newTransform.rotation.y = rigidBodyTransform.getRotation().getY();
 	newTransform.rotation.z = rigidBodyTransform.getRotation().getZ();
@@ -101,13 +103,6 @@ void AOEAttack::updateRigidbody(float deltaTime)
 
 	setTransform(newTransform);
 	m_pos = newTransform.position;
-}
-
-
-void AOEAttack::update(float dt)
-{
-	setTravelTime(getTravelTime() - dt);
-
 }
 
 const float AOEAttack::getDamage()

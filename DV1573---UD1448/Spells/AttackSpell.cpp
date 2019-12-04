@@ -45,19 +45,16 @@ void AttackSpell::hasCollided()
 void AttackSpell::update(float deltaTime)
 {
 	setTravelTime(getTravelTime() - deltaTime);
-}
 
-void AttackSpell::updateRigidbody(float deltaTime)
-{
 	btRigidBody* body = getRigidBody();
 
 	//shouldAddBounce check if 0.2 second have passed since last bounce add
 	if (m_hasCollided && m_shouldAddBounce)
-	{	
+	{
 		m_bounceCounter++;
 		m_shouldAddBounce = false;
 		m_hasCollided = false;
-		
+
 		if (m_bounceCounter > m_spellBase->m_maxBounces)
 		{
 			//logTrace("BOUNCE");
@@ -67,21 +64,23 @@ void AttackSpell::updateRigidbody(float deltaTime)
 	}
 	m_bounceTime += deltaTime;
 	if (m_bounceTime > 0.2)
-	{		
+	{
 		m_bounceTime = 0;
 		m_shouldAddBounce = true;
 	}
 
-	setDirection(glm::vec3(
+	glm::vec3 forceDirection = glm::vec3(
 		body->getLinearVelocity().getX(),
 		body->getLinearVelocity().getY(),
-		body->getLinearVelocity().getZ()));
+		body->getLinearVelocity().getZ());
 
-	// Increase spell speed //
-	body->setLinearVelocity(body->getLinearVelocity() * (1 + 0.5f * deltaTime));
+	setDirection(forceDirection);
+
+	body->applyCentralImpulse(body->getLinearVelocity().normalized() * (1 + m_spellBase->m_acceleration * body->getMass() * deltaTime));
+	std::cout << body->getLinearVelocity().length() << std::endl;
 
 	btVector3 rigidBodyPos = body->getWorldTransform().getOrigin();
-	setWorldPosition(glm::vec3(rigidBodyPos.getX(), rigidBodyPos.getY(), rigidBodyPos.getZ()));	
+	setWorldPosition(glm::vec3(rigidBodyPos.getX(), rigidBodyPos.getY(), rigidBodyPos.getZ()));
 }
 
 const float AttackSpell::getDamage()

@@ -14,7 +14,6 @@ public:
 	virtual const bool& getHasCollided() const;
 	virtual void hasCollided();
 	virtual void update(float deltaTime);
-	virtual void updateRigidbody(float deltaTime);
 	virtual const float getDamage();
 	virtual const glm::vec3& getPos() const;
 

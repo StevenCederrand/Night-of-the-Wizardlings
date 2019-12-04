@@ -896,15 +896,13 @@ void Renderer::render() {
 	//BLOOMBLUR MISSION STEP 1: SAMPLE
 	//m_bloom->bindHdrFBO();
 
-	//renderDeflectBox(m_deflectBox);
-
-//#ifdef DEBUG_WIREFRAME
-//	// DEBUG (MOSTLY FOR DSTR)
-//	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_M) == GLFW_PRESS)
-//		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-//	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_N) == GLFW_PRESS)
-//		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-//#endif
+#ifdef DEBUG_WIREFRAME
+	// DEBUG (MOSTLY FOR DSTR)
+	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_M) == GLFW_PRESS)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_N) == GLFW_PRESS)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
 
 #pragma region Color_Render
 	shader = shaderMap->useByName(BASIC_FORWARD);
@@ -937,7 +935,6 @@ void Renderer::render() {
 			}
 			
 			shader->setVec3("pLights[" + iConv + "].color", m_lights[i].color);
-
 			shader->setVec4("pLights[" + iConv + "].attenAndRadius", m_lights[i].attenAndRadius);
 		}
 	}
@@ -963,23 +960,13 @@ void Renderer::render() {
 			mesh = object->getMesh(j);
 
 			//Bind the material
-			if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
-				object->bindMaterialToShader(shader, mesh->getMaterial());
-			}
-			else {
-				material = object->getMaterial(j);
-				object->bindMaterialToShader(shader, material);
-			}
+			object->bindMaterialToShader(shader, j);
 
-
-			modelMatrix = glm::mat4(1.0f);
-
-			modelMatrix = object->getMatrix(j);
 			//Bind the modelmatrix
+			modelMatrix = object->getMatrix(j);
 			shader->setMat4("modelMatrix", modelMatrix);
 
 			glBindVertexArray(mesh->getBuffers().vao);
-
 			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 			glBindVertexArray(0);
@@ -1010,23 +997,13 @@ void Renderer::render() {
 				glEnableVertexAttribArray(2);
 				mesh = object->getMesh(j);
 				//Bind the material
-				if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
-					object->bindMaterialToShader(shader, mesh->getMaterial());
-				}
-				else {
-					material = object->getMaterial(j);
-					object->bindMaterialToShader(shader, material);
-				}
-
-				modelMatrix = glm::mat4(1.0f);
-				//Apply the transform to the matrix. This should actually be done automatically in the mesh!
-				modelMatrix = object->getMatrix(j);
+				object->bindMaterialToShader(shader, j);
 
 				//Bind the modelmatrix
+				modelMatrix = object->getMatrix(j);
 				shader->setMat4("modelMatrix", modelMatrix);
 
 				glBindVertexArray(mesh->getBuffers().vao);
-
 				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 				glBindVertexArray(0);
@@ -1050,8 +1027,6 @@ void Renderer::render() {
 				continue;
 			}
 
-		
-
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
 			glEnableVertexAttribArray(2);
@@ -1061,9 +1036,10 @@ void Renderer::render() {
 			//Fetch the current mesh and its transform
 			mesh = p->getRenderInformation().mesh;
 			glBindVertexArray(mesh->getBuffers().vao);
+
 			//Bind the material
-			object->bindMaterialToShader(shader, p->getRenderInformation().material);
-			//shader->setMaterial(p->getRenderInformation().material);
+			shader->setMaterial(p->getRenderInformation().material);
+
 			//Bind the modelmatrix
 			glm::mat4 mMatrix = glm::mat4(1.0f);
 			mMatrix = glm::translate(mMatrix, p->getTransform().position);
@@ -1152,7 +1128,6 @@ void Renderer::render() {
 				glBindVertexArray(mesh->getBuffers().vao);
 
 				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-				object->unbindMaterialFromShader(shader, mesh->getMaterial());
 				glBindVertexArray(0);
 				glDisableVertexAttribArray(0);
 				glDisableVertexAttribArray(1);
@@ -1216,10 +1191,10 @@ void Renderer::render() {
 		for (int j = 0; j < object->getMeshesCount(); j++)
 		{
 			//Fetch the current mesh and its transform
-			mesh = meshMap->getMesh(object->getMeshName(j));
+			mesh = object->getMesh(j);
 			shader->setFloat("time", glfwGetTime());
 			//Bind the material
-			object->bindMaterialToShader(shader, mesh->getMaterial());
+			object->bindMaterialToShader(shader, j);
 
 			modelMatrix = glm::mat4(1.0f);
 
@@ -1253,8 +1228,8 @@ void Renderer::render() {
 		shader = shaderMap->useByName(FRESNEL);
 		bindMatrixes(shader);
 	
-		mesh = meshMap->getMesh(m_shieldObject->getMeshName());
-		m_shieldObject->bindMaterialToShader(shader, mesh->getMaterial());
+		mesh = m_shieldObject->getMesh();
+		m_shieldObject->bindMaterialToShader(shader);
 
 		modelMatrix = glm::mat4(1.0f);
 		modelMatrix = m_shieldObject->getMatrix();

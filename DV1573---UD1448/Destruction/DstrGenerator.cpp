@@ -162,7 +162,6 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 	}
 
 	Clear();
-	
 	initPoints(hitPosition);
 
 	m_diagram = m_voroniCalc.CalculateDiagram(m_randomPoints);
@@ -196,7 +195,6 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			vi = 0;
 			ni = 0;
 			ti = 0;
-
 			
 			// Top
 			for (int i = 0; i < count; i++)
@@ -282,7 +280,7 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 				m_newVertices[i].position -= center;
 			}
 
-			object->initMesh(object->getMeshName() + "_" + std::to_string(i), m_newVertices, m_newFace);
+			object->initMesh(object->getMesh()->getName() + "_" + std::to_string(i), m_newVertices, m_newFace);
 
 			Transform newTransform = object->getTransform();
 			newTransform.position += center * glm::inverse(newTransform.rotation);;
@@ -296,7 +294,7 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			//	0.0f);
 			//object->setTransform(newTransform,  mi);
 
-			object->createDynamicRigidBody(CollisionObject::box, 100.0f * scale, mi, true);
+			object->createDynamic(CollisionObject::box, 100.0f * scale, mi, true);
 			
 			// Values for destroyed object
 			// TODO: Move thiss
@@ -316,7 +314,7 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			float dirRndY = 2 * (double)rand() / (double)RAND_MAX - 1;
 			float dirRndZ = 2 * (double)rand() / (double)RAND_MAX - 1;
 			
-			btRigidBody* body = object->getRigidBodies()[mi];
+			btRigidBody* body = object->getRigidBody(mi);
 			body->applyCentralImpulse(btVector3(force.x, force.y, force.z) * 1.4);
 			body->applyTorque(btVector3(force.x * dirRndX, force.y * dirRndY, force.z * dirRndZ) * 15);
 			body->setGravity(m_initGravity);
@@ -325,12 +323,13 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 		}
 	}
 
-	object->setMaterial("", -2);
-	object->setBTWorldPosition(glm::vec3(-999.0f), 0);
-	object->setWorldPosition(glm::vec3(-999.0f), 0);
 	object->set_BtActive(false);
 	object->set_destroyed(true);
 	object->setLifetime(0.0f);
+
+	object->setMaterial(nullptr, -1);
+	object->setBTWorldPosition(glm::vec3(-999.0f), 0);
+	object->setWorldPosition(glm::vec3(-999.0f), 0);
 }
 
 const unsigned int DstrGenerator::seedRand(int seed)

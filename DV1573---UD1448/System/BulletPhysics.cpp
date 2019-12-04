@@ -118,11 +118,9 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	rot.setZ(rotation.z);
 	rot.setW(rotation.w);
 	startTransform.setRotation(rot);
-	
 	startTransform.setOrigin(btVector3(position.x, position.y, position.z));
 
 	btScalar mass(inMass);
-
 	//rigidbody is dynamic if and only if mass is non zero, otherwise static
 	bool isDynamic = (mass != 0.f);
 
@@ -131,17 +129,15 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	if (isDynamic)
 		objectShape->calculateLocalInertia(mass, localInertia);
 
-
 	//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
 	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
 	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, objectShape, localInertia);
 	btRigidBody* body = new btRigidBody(rbInfo);
 
-	
 	//how much bounce and friction a object should have
-	body->setRestitution(restitution);	
+	body->setRestitution(1.0f);	
 	body->setFriction(friction);
-	body->setSpinningFriction(1.0f);
+	body->setSpinningFriction(restitution);
 
 	//groups and mask is for collision, same mask and group to collide with that
 	int myGoup = NormalObjects;

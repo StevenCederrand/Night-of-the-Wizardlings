@@ -40,7 +40,8 @@ void SpellHandler::initAttackSpell()
 	// Gameplay--
 	attackBase.m_lowDamage = 20.0f;
 	attackBase.m_highDamage = 30.0f;
-	attackBase.m_speed = 70.0f;
+	attackBase.m_speed = 40.0f;
+	attackBase.m_acceleration = 40.0f;
 	attackBase.m_radius = 0.25f;
 	attackBase.m_lifeTime = 5.0f;
 	attackBase.m_maxBounces = 3.0f;
@@ -191,6 +192,7 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 		spell->getRigidBody()->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 		spell->getRigidBody()->setUserPointer(spell);
 		spell->getRigidBody()->setLinearVelocity(direction * attackBase.m_speed);
+		spell->getRigidBody()->setDamping(0.0f, 0.0f);
 	}
 
 	if (type == ENHANCEATTACK)
@@ -301,7 +303,6 @@ void SpellHandler::spellUpdate(float deltaTime)
 		if (flamestrikeSpells[i]->getTravelTime() > 0)
 		{			
 			flamestrikeSpells[i]->update(deltaTime);
-			flamestrikeSpells[i]->updateRigidbody(deltaTime);
 			
 			if (flamestrikeSpells[i]->getType() == FLAMESTRIKE)
 			{				
@@ -358,7 +359,6 @@ void SpellHandler::spellUpdate(float deltaTime)
 		if (spells[i]->getTravelTime() > 0)
 		{
 			spells[i]->update(deltaTime);
-			spells[i]->updateRigidbody(deltaTime);
 			Client::getInstance()->updateSpellOnNetwork(*spells[i]);
 		}
 

@@ -42,8 +42,14 @@ void fire::hasCollided()
 {
 }
 
-void fire::updateRigidbody(float deltaTime)
+void fire::update(float dt)
 {
+	fireTimer = fireTimer - dt;
+	if (fireTimer <= 0)
+	{
+		setTravelTime(0);
+	}
+
 	btRigidBody* body = getRigidBody();
 
 	setDirection(glm::vec3(
@@ -53,15 +59,6 @@ void fire::updateRigidbody(float deltaTime)
 
 	btVector3 rigidBodyPos = body->getWorldTransform().getOrigin();
 	setWorldPosition(glm::vec3(rigidBodyPos.getX(), rigidBodyPos.getY(), rigidBodyPos.getZ()));
-}
-
-void fire::update(float dt)
-{
-	fireTimer = fireTimer - dt;
-	if (fireTimer <= 0)
-	{
-		setTravelTime(0);
-	}
 }
 
 const float fire::getDamage()

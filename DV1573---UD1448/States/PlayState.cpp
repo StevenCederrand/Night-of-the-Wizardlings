@@ -114,7 +114,7 @@ void PlayState::loadMap()
 	// Collision // TODO: Move to object constructor
 	for (GameObject* g : m_objects)
 	{
-		g->createRigidBody(CollisionObject::box);
+		g->makeStatic();
 	}
 	mu.printBoth("After rigidbodies:");
 
@@ -246,7 +246,6 @@ void PlayState::loadDestructables()
 	m_dstr.setBreakSettings(DSTR2, 11, 2.8f, gravityOnImpact);
 	m_dstr_alt1.setBreakSettings(DSTR1, 8, 3.4f, gravityOnImpact);
 
-
 	switch (m_map)
 	{
 	case 0:
@@ -281,7 +280,7 @@ void PlayState::loadDestructables()
 				0.15f
 			);
 
-			m_objects.back()->createRigidBody(CollisionObject::box);
+			m_objects.back()->makeStatic();
 			Renderer::getInstance()->submit(m_objects.back(), STATIC);
 		}
 		meshLoader.Unload();
@@ -306,7 +305,7 @@ void PlayState::loadDestructables()
 				0.25f
 			);
 
-			m_objects.back()->createRigidBody(CollisionObject::box);
+			m_objects.back()->makeStatic();
 			Renderer::getInstance()->submit(m_objects.back(), STATIC);
 		}
 		meshLoader.Unload();
@@ -331,7 +330,7 @@ void PlayState::loadDestructables()
 				1.0f
 			);
 
-			m_objects.back()->createRigidBody(CollisionObject::box);
+			m_objects.back()->makeStatic();
 			Renderer::getInstance()->submit(m_objects.back(), STATIC);
 		}
 		meshLoader.Unload();
@@ -388,7 +387,7 @@ void PlayState::loadDestructables()
 					0.15f
 				);
 
-				m_objects.back()->createRigidBody(CollisionObject::box);
+				m_objects.back()->makeStatic();
 				Renderer::getInstance()->submit(m_objects.back(), STATIC);
 			}
 			meshLoader.Unload();
@@ -400,7 +399,6 @@ void PlayState::loadDestructables()
 
 PlayState::~PlayState()
 {
-
 	mu.printBoth("Before deleting playstate:");
 
 	for (GameObject* object : m_objects)
