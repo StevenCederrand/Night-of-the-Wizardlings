@@ -12,7 +12,7 @@ ParticleSystem::ParticleSystem(ParticleBuffers* particleBuffers)
 
 	m_txtInfo = particleBuffers->getTxtInfo();//&rings;
 	m_psInfo = particleBuffers->getPSinfo();
-	m_position = glm::vec3(0, -100, 0);
+	m_position = glm::vec3(0, -100.0f, -20.0f);
 	m_shader = particleBuffers->getShader();
 	m_current = particleBuffers->getPSinfo().emission;
 
@@ -239,6 +239,7 @@ void ParticleSystem::Update(glm::vec3 cameraPos, float time)
 		{
 			Particle& particles = m_particle.at(i);
 
+
 			if (particles.time > 0.0f && particles.isAlive)
 			{
 				particles.time = particles.time - deltaTime;
@@ -370,7 +371,7 @@ void ParticleSystem::Update(glm::vec3 cameraPos, float time)
 			if (particles.isAlive == false)
 			{
 				particles.velocity = glm::vec3(0.0f, 0.0f, 0.0f);
-				particles.position = glm::vec3(0.0f, -1000.0f, 0.0f);
+				particles.position = glm::vec3(0.0f, -1000.0f, -20.0f);
 
 				if (m_psInfo.cont == true)
 					m_nrOfActive -= 1;

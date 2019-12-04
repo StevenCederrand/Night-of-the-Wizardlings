@@ -486,6 +486,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 			spells[i]->update(deltaTime);
 			spells[i]->updateRigidbody(deltaTime);
 			Client::getInstance()->updateSpellOnNetwork(*spells[i]);
+			spells[i]->UpdateParticles(Renderer::getInstance()->getMainCamera(), deltaTime);
 		}
 
 		if (spells[i]->getTravelTime() <= 0)
