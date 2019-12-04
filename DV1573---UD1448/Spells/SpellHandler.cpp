@@ -6,11 +6,6 @@
 
 SpellHandler::SpellHandler()
 {
-	attackBase = nullptr;
-	enhanceAtkBase = nullptr;
-	flamestrikeBase = nullptr;
-	fireBase = nullptr;
-
 	initAttackSpell();
 	initEnhanceSpell();
 	initFlamestrikeSpell();
@@ -22,161 +17,142 @@ SpellHandler::SpellHandler()
 
 void SpellHandler::initAttackSpell()
 {
-	attackBase = new AttackSpellBase();
-	attackBase->m_mesh = new Mesh();
-	attackBase->m_material = new Material();
+	attackBase.m_mesh = new Mesh();
+	attackBase.m_material = new Material();
 
 	// Mesh--
 	BGLoader tempLoader;	// The file loader
 	tempLoader.LoadMesh(MESHPATH + "attackSpell.mesh");
-	attackBase->m_mesh->saveFilePath(tempLoader.GetFileName(), 0);
-	attackBase->m_mesh->nameMesh(tempLoader.GetMeshName());
-	attackBase->m_mesh->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
-	attackBase->m_mesh->setUpBuffers();
+	attackBase.m_mesh->saveFilePath(tempLoader.GetFileName(), 0);
+	attackBase.m_mesh->nameMesh(tempLoader.GetMeshName());
+	attackBase.m_mesh->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
+	attackBase.m_mesh->setUpBuffers();
 
 	// Material--
 	const Material& newMaterial = tempLoader.GetMaterial();
-	attackBase->m_material->ambient = newMaterial.ambient;
-	attackBase->m_material->diffuse = newMaterial.diffuse;
-	attackBase->m_material->name = newMaterial.name;
-	attackBase->m_material->specular = newMaterial.specular;
-	attackBase->m_material->diffuse = glm::vec3(0.65f, 1.0f, 1.0f); // Light blue
-	attackBase->m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
+	attackBase.m_material->ambient = newMaterial.ambient;
+	attackBase.m_material->diffuse = newMaterial.diffuse;
+	attackBase.m_material->name = newMaterial.name;
+	attackBase.m_material->specular = newMaterial.specular;
+	attackBase.m_material->diffuse = glm::vec3(0.65f, 1.0f, 1.0f); // Light blue
+	attackBase.m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
 
 	// Gameplay--
-	attackBase->m_lowDamage = 20.0f;
-	attackBase->m_highDamage = 30.0f;
-	attackBase->m_speed = 70.0f;
-	attackBase->m_radius = 0.25f;
-	attackBase->m_coolDown = 1.0f;
-	attackBase->m_lifeTime = 5.0f;
-	attackBase->m_maxBounces = 3.0f;
+	attackBase.m_lowDamage = 20.0f;
+	attackBase.m_highDamage = 30.0f;
+	attackBase.m_speed = 70.0f;
+	attackBase.m_radius = 0.25f;
+	attackBase.m_lifeTime = 5.0f;
+	attackBase.m_maxBounces = 3.0f;
 
 	// Light--
-	attackBase->m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f);// OLD
-	attackBase->m_attenAndRadius = glm::vec4(1.0f, 2.15f, 4.5f, 22.0f);
+	attackBase.m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f);// OLD
+	attackBase.m_attenAndRadius = glm::vec4(1.0f, 2.15f, 4.5f, 22.0f);
 }
 
 void SpellHandler::initEnhanceSpell()
 {
-	enhanceAtkBase = new AttackSpellBase();
-	enhanceAtkBase->m_mesh = new Mesh();
-	enhanceAtkBase->m_material = new Material();
-	
+	enhanceAtkBase.m_mesh = new Mesh();
+	enhanceAtkBase.m_material = new Material();
+
 	// Mesh--
 	BGLoader tempLoader;	// The file loader
 	tempLoader.LoadMesh(MESHPATH + "enhanceSpell.mesh");
-	enhanceAtkBase->m_mesh->saveFilePath(tempLoader.GetFileName(), 0);
-	enhanceAtkBase->m_mesh->nameMesh(tempLoader.GetMeshName());
-	enhanceAtkBase->m_mesh->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
-	enhanceAtkBase->m_mesh->setUpBuffers();
+	enhanceAtkBase.m_mesh->saveFilePath(tempLoader.GetFileName(), 0);
+	enhanceAtkBase.m_mesh->nameMesh(tempLoader.GetMeshName());
+	enhanceAtkBase.m_mesh->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
+	enhanceAtkBase.m_mesh->setUpBuffers();
 
 	// Material--
 	const Material& newMaterial = tempLoader.GetMaterial();
-	enhanceAtkBase->m_material->ambient = newMaterial.ambient;
-	enhanceAtkBase->m_material->diffuse = newMaterial.diffuse;
-	enhanceAtkBase->m_material->name = newMaterial.name;
-	enhanceAtkBase->m_material->specular = newMaterial.specular;
-	enhanceAtkBase->m_material->diffuse = glm::vec3(0.5f, 0.0f, 0.6f);
-	enhanceAtkBase->m_material->ambient = glm::vec3(0.5f, 0.0f, 0.6f);
+	enhanceAtkBase.m_material->ambient = newMaterial.ambient;
+	enhanceAtkBase.m_material->diffuse = newMaterial.diffuse;
+	enhanceAtkBase.m_material->name = newMaterial.name;
+	enhanceAtkBase.m_material->specular = newMaterial.specular;
+	enhanceAtkBase.m_material->diffuse = glm::vec3(0.5f, 0.0f, 0.6f);
+	enhanceAtkBase.m_material->ambient = glm::vec3(0.5f, 0.0f, 0.6f);
 
 	// Gameplay--
-	enhanceAtkBase->m_lowDamage = 10.0f;
-	enhanceAtkBase->m_highDamage = 90.0f;
-	enhanceAtkBase->m_speed = 70.0f;
-	enhanceAtkBase->m_radius = 0.5f;
-	enhanceAtkBase->m_coolDown = 3.0f;
-	enhanceAtkBase->m_lifeTime = 5.0f;
-	enhanceAtkBase->m_maxBounces = 3.0;
+	enhanceAtkBase.m_lowDamage = 10.0f;
+	enhanceAtkBase.m_highDamage = 90.0f;
+	enhanceAtkBase.m_speed = 70.0f;
+	enhanceAtkBase.m_radius = 0.5f;
+	enhanceAtkBase.m_lifeTime = 5.0f;
+	enhanceAtkBase.m_maxBounces = 3.0;
 
 	// Light--
-	enhanceAtkBase->m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // OLD
-	enhanceAtkBase->m_attenAndRadius = glm::vec4(1.0f, 1.55f, 3.7f, 22.0f);
+	enhanceAtkBase.m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // OLD
+	enhanceAtkBase.m_attenAndRadius = glm::vec4(1.0f, 1.55f, 3.7f, 22.0f);
 }
 
 void SpellHandler::initFlamestrikeSpell()
 {
-	flamestrikeBase = new FlamestrikeSpellBase();
-	flamestrikeBase->m_mesh = new Mesh();
-	flamestrikeBase->m_material = new Material();
+	flamestrikeBase.m_mesh = new Mesh();
+	flamestrikeBase.m_material = new Material();
 
 	// Mesh--
 	BGLoader tempLoader;	// The file loader
 	tempLoader.LoadMesh(MESHPATH + "dragonfirepotion.mesh");
-	flamestrikeBase->m_mesh->saveFilePath(tempLoader.GetFileName(), 0);
-	flamestrikeBase->m_mesh->nameMesh(tempLoader.GetMeshName());
-	flamestrikeBase->m_mesh->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
-	flamestrikeBase->m_mesh->setUpBuffers();
+	flamestrikeBase.m_mesh->saveFilePath(tempLoader.GetFileName(), 0);
+	flamestrikeBase.m_mesh->nameMesh(tempLoader.GetMeshName());
+	flamestrikeBase.m_mesh->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
+	flamestrikeBase.m_mesh->setUpBuffers();
 
 	// Material--
-	const Material & newMaterial = tempLoader.GetMaterial();
-	flamestrikeBase->m_material->ambient = newMaterial.ambient;
-	flamestrikeBase->m_material->diffuse = newMaterial.diffuse;
-	flamestrikeBase->m_material->diffuse = glm::vec3(1.0f, 0.5f, 0.0f);
-	flamestrikeBase->m_material->ambient = glm::vec3(1.0f, 0.5f, 0.0f);
-	flamestrikeBase->m_material->name = newMaterial.name;
-	flamestrikeBase->m_material->specular = newMaterial.specular;
+	const Material& newMaterial = tempLoader.GetMaterial();
+	flamestrikeBase.m_material->ambient = newMaterial.ambient;
+	flamestrikeBase.m_material->diffuse = newMaterial.diffuse;
+	flamestrikeBase.m_material->diffuse = glm::vec3(1.0f, 0.5f, 0.0f);
+	flamestrikeBase.m_material->ambient = glm::vec3(1.0f, 0.5f, 0.0f);
+	flamestrikeBase.m_material->name = newMaterial.name;
+	flamestrikeBase.m_material->specular = newMaterial.specular;
 
 	// Gameplay--
-	flamestrikeBase->m_damage = 10;
-	flamestrikeBase->m_speed = 55.0f;
-	flamestrikeBase->m_coolDown = 5.0f;
-	flamestrikeBase->m_lifeTime = 5;
-	flamestrikeBase->m_maxBounces = 2;
+	flamestrikeBase.m_damage = 10;
+	flamestrikeBase.m_speed = 55.0f;
+	flamestrikeBase.m_lifeTime = 5;
+	flamestrikeBase.m_maxBounces = 2;
 
 	// Light--
-	flamestrikeBase->m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // Old
-	flamestrikeBase->m_attenAndRadius = glm::vec4(1.0f, 0.61f, 0.74f, 22.0f);
+	flamestrikeBase.m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // Old
+	flamestrikeBase.m_attenAndRadius = glm::vec4(1.0f, 0.61f, 0.74f, 22.0f);
 }
 
 void SpellHandler::initFireSpell()
 {
-	fireBase = new FireSpellBase();
-	fireBase->m_mesh = new Mesh();
-	fireBase->m_material = new Material();
+	fireBase.m_mesh = new Mesh();
+	fireBase.m_material = new Material();
 
 	// Mesh--
 	BGLoader tempLoader;	// The file loader
 	tempLoader.LoadMesh(MESHPATH + "TestSphere.mesh");
-	fireBase->m_mesh->saveFilePath(tempLoader.GetFileName(), 0);
-	fireBase->m_mesh->nameMesh(tempLoader.GetMeshName());
-	fireBase->m_mesh->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
-	fireBase->m_mesh->setUpBuffers();
+	fireBase.m_mesh->saveFilePath(tempLoader.GetFileName(), 0);
+	fireBase.m_mesh->nameMesh(tempLoader.GetMeshName());
+	fireBase.m_mesh->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
+	fireBase.m_mesh->setUpBuffers();
 
 	// Material--
-	const Material & newMaterial = tempLoader.GetMaterial();
-	fireBase->m_material->ambient = newMaterial.ambient;
-	fireBase->m_material->diffuse = newMaterial.diffuse;
-	fireBase->m_material->name = newMaterial.name;
-	fireBase->m_material->specular = newMaterial.specular;
-	fireBase->m_material->diffuse = glm::vec3(1.0f, 0.5f, 0.0f);
-	fireBase->m_material->ambient = glm::vec3(1.0f, 0.5f, 0.0f);
+	const Material& newMaterial = tempLoader.GetMaterial();
+	fireBase.m_material->ambient = newMaterial.ambient;
+	fireBase.m_material->diffuse = newMaterial.diffuse;
+	fireBase.m_material->name = newMaterial.name;
+	fireBase.m_material->specular = newMaterial.specular;
+	fireBase.m_material->diffuse = glm::vec3(1.0f, 0.5f, 0.0f);
+	fireBase.m_material->ambient = glm::vec3(1.0f, 0.5f, 0.0f);
 
 	// Gameplay--
-	fireBase->m_damage = 30.0f;
-	fireBase->m_speed = 0.0f;
-	fireBase->m_coolDown = 4.0f;
-	fireBase->m_lifeTime = 5.0f;
-	fireBase->m_maxBounces = 0.0f;
+	fireBase.m_damage = 30.0f;
+	fireBase.m_speed = 0.0f;
+	fireBase.m_lifeTime = 5.0f;
+	fireBase.m_maxBounces = 0.0f;
 
 	// Light--
-	fireBase->m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // Old
-	fireBase->m_attenAndRadius = glm::vec4(1.0f, 0.61f, 0.74f, 22.0f);
+	fireBase.m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // Old
+	fireBase.m_attenAndRadius = glm::vec4(1.0f, 0.61f, 0.74f, 22.0f);
 }
-
-
 
 SpellHandler::~SpellHandler()
 {
-	if (attackBase)
-		delete attackBase;
-	if (enhanceAtkBase)
-		delete enhanceAtkBase;
-	if (flamestrikeBase)
-		delete flamestrikeBase;
-	if (fireBase)
-		delete fireBase;
-
 	for (Spell* element : spells)
 		delete element;
 	for (Spell* element : flamestrikeSpells)
@@ -193,7 +169,7 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 	if (type == NORMALATTACK)
 	{
 		// Generic
-		spells.emplace_back(new AttackSpell(spellPos, directionVector, attackBase));
+		spells.emplace_back(new AttackSpell(spellPos, directionVector, &attackBase));
 		auto spell = spells.back();
 		spell->setType(NORMALATTACK);
 
@@ -205,7 +181,8 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 		// Bullet
 		spell->createRigidBody(
 			BulletPhysics::getInstance()->createObject(
-				sphere, 10.0f,
+				sphere,
+				10.0f,
 				spellPos + directionVector * 2,
 				glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)
 			));
@@ -213,13 +190,13 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
 		spell->getRigidBody()->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 		spell->getRigidBody()->setUserPointer(spell);
-		spell->getRigidBody()->setLinearVelocity(direction * attackBase->m_speed);
+		spell->getRigidBody()->setLinearVelocity(direction * attackBase.m_speed);
 	}
 
 	if (type == ENHANCEATTACK)
 	{
 		// Generic
-		spells.emplace_back(new AttackSpell(spellPos, directionVector, enhanceAtkBase));
+		spells.emplace_back(new AttackSpell(spellPos, directionVector, &enhanceAtkBase));
 		auto spell = spells.back();
 		spell->setType(ENHANCEATTACK);
 
@@ -240,7 +217,7 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
 		spell->getRigidBody()->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 		spell->getRigidBody()->setUserPointer(spell);
-		spell->getRigidBody()->setLinearVelocity(direction * enhanceAtkBase->m_speed);
+		spell->getRigidBody()->setLinearVelocity(direction * enhanceAtkBase.m_speed);
 
 		// Sound
 		int slot = shPtr->playSound(EnhanceAttackSound, clientPtr->getMyData().guid);		
@@ -249,7 +226,7 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 	if (type == FLAMESTRIKE)
 	{
 		// Generic
-		flamestrikeSpells.emplace_back(new AOEAttack(spellPos, directionVector, flamestrikeBase));
+		flamestrikeSpells.emplace_back(new AOEAttack(spellPos, directionVector, &flamestrikeBase));
 		auto spell = flamestrikeSpells.back();
 		Renderer::getInstance()->submit(flamestrikeSpells.back(), SPELL);
 
@@ -275,7 +252,7 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 		float rndY = rand() % 2000 + 1 - 1000; rndY /= 100;
 		float rndZ = rand() % 2000 + 1 - 1000; rndZ /= 100;
 		spell->getRigidBody()->setAngularVelocity(btVector3(rndX, rndY, rndZ));
-		spell->getRigidBody()->setLinearVelocity(btVector3(direction * flamestrikeBase->m_speed));
+		spell->getRigidBody()->setLinearVelocity(btVector3(direction * flamestrikeBase.m_speed));
 		spell->getRigidBody()->setUserPointer(spell);
 
 		// Sound
@@ -289,7 +266,7 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 	if (type == FIRE)
 	{
 		// Generic
-		fireSpells.emplace_back(new fire(spellPos, directionVector, fireBase));
+		fireSpells.emplace_back(new fire(spellPos, directionVector, &fireBase));
 		auto spell = fireSpells.back();
 		Renderer::getInstance()->submit(fireSpells.back(), SPELL);	
 
@@ -354,7 +331,6 @@ void SpellHandler::spellUpdate(float deltaTime)
 			delete flamestrikeSpells[i];
 			flamestrikeSpells.erase(flamestrikeSpells.begin() + i);
 		}
-
 	}
 
 	for (size_t i = 0; i < fireSpells.size(); i++)
@@ -424,6 +400,24 @@ void SpellHandler::setOnHitCallback(std::function<void()> func)
 	m_onHitCallback = func;
 }
 
+
+const SpellBase* SpellHandler::getSpellBase(OBJECT_TYPE type) const
+{
+	switch (type)
+	{
+	case (NORMALATTACK):
+		return &attackBase;
+	case (ENHANCEATTACK):
+		return &enhanceAtkBase;
+	case (FLAMESTRIKE):
+		return &flamestrikeBase;
+	case (FIRE):
+		return &fireBase;
+	}
+
+	return nullptr;
+}
+
 void SpellHandler::renderSpell()
 {
 	ShaderMap::getInstance()->useByName(BASIC_FORWARD);
@@ -443,7 +437,6 @@ const uint64_t SpellHandler::getUniqueID()
 
 void SpellHandler::spellCollisionCheck()
 {
-
 	//get the list of att the players on the network
 
 	auto list = Client::getInstance()->getNetworkPlayersREF().getPlayersREF();
@@ -487,6 +480,7 @@ void SpellHandler::spellCollisionCheck()
 			}
 		}	
 	}
+
 	//move camera and spell collision
 	for (size_t i = 0; i < list.size() && (1 <= spells.size() || 1<= fireSpells.size()); i++)
 	{
@@ -520,10 +514,10 @@ void SpellHandler::spellCollisionCheck()
 			float radius = 0.0f;
 
 			if (spells[j]->getType() == NORMALATTACK) {
-				radius = attackBase->m_radius;
+				radius = attackBase.m_radius;
 			}
 			if (spells[j]->getType() == ENHANCEATTACK) {
-				radius = enhanceAtkBase->m_radius;
+				radius = enhanceAtkBase.m_radius;
 			}
 
 			//line is the walking we will do.
@@ -655,3 +649,6 @@ void SpellHandler::setCharacter(std::string meshName)
 	BulletPhysics::getInstance()->setCharacterSize(halfSize);
 	m_setcharacter = true;
 }
+
+
+

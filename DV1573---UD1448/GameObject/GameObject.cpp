@@ -74,6 +74,7 @@ void GameObject::loadMesh(std::string fileName)
 				tempMesh.setUpMesh(tempLoader.GetVertices(i), tempLoader.GetFaces(i));
 				tempMesh.setUpBuffers();
 			}
+			tempLoader.GetLoaderVertices(0)[0].tangent;
 
 			// other way of getting the meshes transform
 			// Value that may or may not be needed depening on how we want the meshes default position to be

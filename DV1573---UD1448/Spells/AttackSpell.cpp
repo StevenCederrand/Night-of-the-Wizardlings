@@ -3,25 +3,24 @@
 #include "AttackSpell.h"
 #include <Spells/SpellHandler.h>
 
-AttackSpell::AttackSpell(glm::vec3 pos, glm::vec3 direction, const AttackSpellBase* spellBase)
-	: Spell(pos, direction)
+AttackSpell::AttackSpell(glm::vec3 pos, glm::vec3 direction, const SpellBase* spellBase)
+	: Spell(pos, direction, spellBase)
 {
 	m_type = OBJECT_TYPE::NORMALATTACK;
 	m_spellBase = spellBase;
 	setTravelTime(spellBase->m_lifeTime);
 
 	Transform tempTransform;
-
 	tempTransform.scale = glm::vec3(spellBase->m_radius, spellBase->m_radius, spellBase->m_radius);
 	setTransform(tempTransform);
 	setWorldPosition(pos);
 	setDirection(direction);
 }
 
-AttackSpell::AttackSpell(glm::vec3 pos, OBJECT_TYPE type) : Spell(pos, glm::vec3(0))
+AttackSpell::AttackSpell(glm::vec3 pos, OBJECT_TYPE type) 
+	: Spell(pos, glm::vec3(0), nullptr)
 {
 	m_type = type;
-	m_spellBase = nullptr;
 
 	Transform tempTransform;
 	tempTransform.scale = glm::vec3(0.2f, 0.2f, 0.2f);
@@ -94,9 +93,3 @@ const glm::vec3& AttackSpell::getPos() const
 {
 	return glm::vec3(0);
 }
-
-
-//const AttackSpellBase* AttackSpell::getSpellBase()
-//{
-//	return m_spellBase;
-//}

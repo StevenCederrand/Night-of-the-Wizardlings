@@ -17,10 +17,6 @@ class SpellHandler
 {
 public:
 	SpellHandler();
-	void initAttackSpell();
-	void initEnhanceSpell();
-	void initFlamestrikeSpell();
-	void initFireSpell();
 	~SpellHandler();
 
 	OBJECT_TYPE createSpell(glm::vec3 spellPos, glm::vec3 directionVector, OBJECT_TYPE type);
@@ -32,16 +28,16 @@ public:
 
 	const Spell& getSpell(int index) const { return *spells[index]; }
 	const std::vector<Spell*>& getSpells() const { return spells; }
-
-	const AttackSpellBase* getAttackBase() { return attackBase; }
-	const AttackSpellBase* getEnhAttackBase() { return enhanceAtkBase; }
-	const FlamestrikeSpellBase* getFlamestrikeBase() { return flamestrikeBase; }
-	const FireSpellBase* getFireBase() { return fireBase; }
+	const SpellBase* getSpellBase(OBJECT_TYPE type) const;
 
 	void renderSpell();
 
-
 private:
+	void initAttackSpell();
+	void initEnhanceSpell();
+	void initFlamestrikeSpell();
+	void initFireSpell();
+
 	const uint64_t getUniqueID();
 	bool m_setcharacter = false;
 	float m_nrSubSteps = 6;
@@ -56,10 +52,10 @@ private:
 	glm::vec3 m_spawnerDir;
 
 	// The base for all basic attack spells
-	AttackSpellBase* attackBase;
-	AttackSpellBase* enhanceAtkBase;
-	FlamestrikeSpellBase* flamestrikeBase;
-	FireSpellBase* fireBase;
+	SpellBase attackBase;
+	SpellBase enhanceAtkBase;
+	SpellBase flamestrikeBase;
+	SpellBase fireBase;
 
 	void spellCollisionCheck();	
 	bool specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis, float radius);

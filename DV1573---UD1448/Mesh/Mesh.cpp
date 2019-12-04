@@ -91,6 +91,7 @@ void Mesh::setUpBuffers()
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, UV));
 	glBindVertexArray(0);
 
+
 	m_vertexBuffer.nrOfFaces = static_cast<int>(m_faces.size());
 }
 

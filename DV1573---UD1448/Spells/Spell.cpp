@@ -2,8 +2,10 @@
 #include "Spell.h"
 
 //Name, Pos, Direction, Speed, TravelTime
-Spell::Spell(glm::vec3 pos, glm::vec3 m_direction)
+Spell::Spell(glm::vec3 pos, glm::vec3 m_direction, const SpellBase* spellBase)
 {
+	m_spellBase = spellBase;
+
 	m_type = -1;
 	m_travelTime = 0.0f;
 	setWorldPosition(pos + m_direction);
@@ -47,7 +49,6 @@ void Spell::setSoundSlot(int slot)
 {
 	m_soundSlot = slot;
 }
-
 
 const glm::vec3& Spell::getDirection() const {
 	return m_direction;

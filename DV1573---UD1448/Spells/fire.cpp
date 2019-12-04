@@ -1,11 +1,10 @@
 #include "Pch/Pch.h"
 #include "fire.h"
 
-fire::fire(glm::vec3 pos, glm::vec3 direction, const FireSpellBase* spellBase)
-	: Spell(pos, direction)
+fire::fire(glm::vec3 pos, glm::vec3 direction, const SpellBase* spellBase)
+	: Spell(pos, direction, spellBase)
 {
 	m_type = OBJECT_TYPE::FIRE;
-	m_spellBase = spellBase;
 	setTravelTime(spellBase->m_lifeTime);
 	Transform tempTransform;
 	tempTransform.scale = glm::vec3(8.0f, 8.0f, 8.0f);
@@ -16,10 +15,9 @@ fire::fire(glm::vec3 pos, glm::vec3 direction, const FireSpellBase* spellBase)
 }
 
 fire::fire(glm::vec3 pos)
-	: Spell(pos, glm::vec3(0))
+	: Spell(pos, glm::vec3(0), nullptr)
 {
 	m_type = OBJECT_TYPE::FIRE;
-	m_spellBase = nullptr;
 
 	Transform tempTransform;
 	tempTransform.scale = glm::vec3(8.0f, 8.0f, 8.0f);

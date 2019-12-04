@@ -55,7 +55,6 @@ Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera, Spell
 
 	m_mainAtkType = NORMALATTACK;
 	m_specialAtkType = ENHANCEATTACK;
-
 }
 
 Player::~Player()
@@ -281,7 +280,6 @@ void Player::PlayAnimation(float deltaTime)
 	if (animState.deflecting)
 	{
 		m_firstPersonMesh->playLoopAnimation("DeflectAnimation");
-		//animState.deflecting = false;
 	}
 
 	m_firstPersonMesh->update(deltaTime);
