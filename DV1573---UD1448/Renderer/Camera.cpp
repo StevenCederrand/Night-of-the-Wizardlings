@@ -31,6 +31,10 @@ void Camera::freeCameraMode()
 		moveDir += m_camFace;
 	if (Input::isKeyHeldDown(GLFW_KEY_S))
 		moveDir -= m_camFace;
+	if (Input::isKeyHeldDown(GLFW_KEY_SPACE))
+		moveDir.y += 1.0f;
+	if (Input::isKeyHeldDown(GLFW_KEY_LEFT_SHIFT))
+		moveDir.y -= 1.0f;
 
 	m_camPos += moveDir * DeltaTime * m_spectatorMoveSpeed;
 
