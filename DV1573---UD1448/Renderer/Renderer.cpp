@@ -1293,7 +1293,7 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 			meshRef = spellHandler->getFireBase()->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
 			shader->setMaterial(spellHandler->getFireBase()->m_material);
-			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+			//glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 			glBindVertexArray(0);
 
 			m_particleSystems[i].Render(m_camera, &m_flameInfo);
