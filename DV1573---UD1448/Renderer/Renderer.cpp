@@ -925,8 +925,7 @@ void Renderer::render() {
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
 	shader->setVec3("CameraPosition", m_camera->getCamPos());
 	//Add a step where we insert lights into the scene
-	shader->setInt("LightCount", m_lights.size());
-	shader->setInt("NormalMapping", false);
+	shader->setInt("LightCount", m_lights.size());	
 
 	if (m_lights.size() > 0) {
 		std::string iConv = "";
@@ -977,6 +976,18 @@ void Renderer::render() {
 				object->bindMaterialToShader(shader, material);			
 			}
 
+			if (object->getType() == OBJECT_TYPE::NORMAL_MAPPED)
+			{				
+				shader->setInt("normalMap", 8);
+
+				shader->setInt("NormalMapping", true);
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, dynamic_cast<TangentCube*>(object)->getNormalMapTexture());
+			}
+			else
+			{
+				shader->setInt("NormalMapping", true);
+			}
 
 			modelMatrix = glm::mat4(1.0f);
 

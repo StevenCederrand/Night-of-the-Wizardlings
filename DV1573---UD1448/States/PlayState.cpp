@@ -73,6 +73,13 @@ PlayState::PlayState(bool spectator)
 	// Map
 	loadMap();
 
+	//Load test cube for normal mapping
+	GameObject* tangentCube = new TangentCube();
+	dynamic_cast<TangentCube*>(tangentCube)->loadTexture();
+	m_objects.push_back(new TangentCube());
+	m_objects[m_objects.size() - 1]->loadMesh("tangentCube.mesh");
+	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
+
 	// Geneterate bullet objects / hitboxes
 	gContactAddedCallback = callbackFunc;
 

@@ -193,6 +193,7 @@
     </ClCompile>
     <ClCompile Include="GameObject\MapObject.cpp" />
     <ClCompile Include="GameObject\DestructibleObject.cpp" />
+    <ClCompile Include="GameObject\TangentCube.cpp" />
     <ClCompile Include="GFX\Pointlight.cpp" />
     <ClCompile Include="HUD\HudHandler.cpp" />
     <ClCompile Include="HUD\WorldHudObject.cpp" />
@@ -309,6 +310,7 @@
     </ClInclude>
     <ClInclude Include="GameObject\DestructibleObject.h" />
     <ClInclude Include="GameObject\MapObject.h" />
+    <ClInclude Include="GameObject\TangentCube.h" />
     <ClInclude Include="GFX\Pointlight.h" />
     <ClInclude Include="HUD\HudHandler.h" />
     <ClInclude Include="HUD\WorldHudObject.h" />

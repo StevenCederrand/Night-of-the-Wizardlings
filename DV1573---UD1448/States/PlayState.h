@@ -10,6 +10,7 @@
 #include <GameObject/MapObject.h>
 #include <GameObject/AnimatedObject.h>
 #include <GameObject/DestructibleObject.h>
+#include <GameObject/TangentCube.h>
 #include <Spells/Spell.h>
 #include <System/BulletPhysics.h>
 #include <HUD/HudObject.h>

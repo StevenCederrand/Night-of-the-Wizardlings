@@ -65,7 +65,7 @@ void main() {
 	if(NormalMapping == true)
 	{
 		//Obtain normal from normal map in range [0, 1]
-		vec3 normalMapSample = texture(normalMap, f_UV).rgb;
+		vec3 normalMapSample = texture(albedoTexture, f_UV).rgb;
 		finalNormal = normalSampleToWorldSpace(normalMapSample, f_normal, f_tangent);
 	}
 
@@ -73,16 +73,16 @@ void main() {
     //Makes the material full solid color (basically fully lit). Needs bloom for best effect.
     
     // Texture slot
-    vec4 finalTexture = texture(albedoTexture, f_UV);
+    vec4 finalTexture = texture(normalMap, f_UV);
 
     // Ambient light
     vec3 ambientLight = Diffuse_Color * ambientStr;     // Material color
-    if (TexAndRim.x == 1)
+   // if (TexAndRim.x == 1)
         ambientLight = finalTexture.rgb * ambientStr * brightnessMod; // Texture color    (If there is texture we disregard material color)
 
     // Create the diffuse color once
     vec3 diffuseColor = Diffuse_Color;  // Material color
-    if(TexAndRim.x == 1)
+   // if(TexAndRim.x == 1)
         diffuseColor = finalTexture.rgb;   // Texture color
 
 
