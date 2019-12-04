@@ -21,7 +21,8 @@ bool SpellLoader::LoadSpell(std::string file)
 	//unload();
 	m_fileName = file;
 
-	std::ifstream binFile(outputFilepath + m_fileName + ".spell", std::ios::binary);
+    //std::ifstream binFile(outputFilepath + m_fileName + ".spell", std::ios::binary);
+    std::ifstream binFile(outputFilepath + m_fileName, std::ios::binary);
 	if (!binFile)
 	{
 		return false;
@@ -49,6 +50,8 @@ bool SpellLoader::LoadSpell(std::string file)
 
 	return true;
 }
+
+
 
 void SpellLoader::SaveProjectileSpell(std::string m_name, float m_ProjectileLowDmg, float m_ProjectileHighDmg,float m_ProjectileSpeed, float m_ProjectileCooldown, float m_ProjectileRadius, float m_ProjectileLifetime, float m_ProjectileMaxBounces)
 {
@@ -174,42 +177,47 @@ void SpellLoader::saveAOESpell(std::string name, int damage, int speed, int cool
     std::cout << "binary file done!" << std::endl;
 }
 
-int SpellLoader::getDamange()
-{
-    return m_damage;
-}
-
-int SpellLoader::getProjectileLowDmg()
-{
-	return m_lowDmg;
-}
-
-int SpellLoader::getProjectileHighDmg()
-{
-	return m_highDmg;
-}
-
-float SpellLoader::getSpeed()
-{
-	return m_speed;
-}
-
-float SpellLoader::getCooldown()
-{
-	return m_cooldown;
-}
-
-float SpellLoader::getRadius()
-{
-	return m_radius;
-}
-
-float SpellLoader::getLifetime()
-{
-	return m_lifetime;
-}
-
-float SpellLoader::getMaxBounces()
-{
-	return m_maxBounces;
-}
+//int SpellLoader::getDamange()
+//{
+//    return m_damage;
+//}
+//
+//int SpellLoader::getProjectileLowDmg()
+//{
+//	return m_lowDmg;
+//}
+//
+//int SpellLoader::getProjectileHighDmg()
+//{
+//	return m_highDmg;
+//}
+//
+//float SpellLoader::getSpeed()
+//{
+//	return m_speed;
+//}
+//
+//float SpellLoader::getCooldown()
+//{
+//	return m_cooldown;
+//}
+//
+//float SpellLoader::getRadius()
+//{
+//	return m_radius;
+//}
+//
+//float SpellLoader::getLifetime()
+//{
+//	return m_lifetime;
+//}
+//
+//float SpellLoader::getMaxBounces()
+//{
+//	return m_maxBounces;
+//}
+//
+//std::string SpellLoader::getSpellName()
+//{
+//    return m_name;
+//}

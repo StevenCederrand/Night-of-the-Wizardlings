@@ -22,7 +22,7 @@ public:
 
     void saveAOESpell(std::string name, int damage, int speed, int cooldown, int radius, int lifetime, int maxBounces);
 
-    int getDamange();
+    /*int getDamange();
     int getProjectileLowDmg();
     int getProjectileHighDmg();
 	float getSpeed();
@@ -30,6 +30,7 @@ public:
 	float getRadius();
 	float getLifetime();
 	float getMaxBounces();
+    std::string getSpellName();*/
 
 
 	std::string m_fileName;

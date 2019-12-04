@@ -49,15 +49,23 @@ void SpellHandler::initAttackSpell()
 	attackBase->m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
 	//attackBase->m_material->ambient = glm::vec3(0.5f, 0.0f, 0.9f);
 
-    mySpellLoader.LoadSpell("bestSpell");
+    mySpellLoader.LoadSpell("bestSpell.spell");
 
-	attackBase->m_lowDamage = mySpellLoader.getProjectileLowDmg();
+	/*attackBase->m_lowDamage = mySpellLoader.getProjectileLowDmg();
     attackBase->m_highDamage = mySpellLoader.getProjectileHighDmg();
-	attackBase->m_speed = mySpellLoader.getSpeed();;
+	attackBase->m_speed = mySpellLoader.getSpeed();
 	attackBase->m_radius = mySpellLoader.getRadius();
 	attackBase->m_coolDown = mySpellLoader.getCooldown();
 	attackBase->m_lifeTime = mySpellLoader.getLifetime();
-    attackBase->m_maxBounces = mySpellLoader.getMaxBounces();
+    attackBase->m_maxBounces = mySpellLoader.getMaxBounces();*/
+
+    attackBase->m_lowDamage = mySpellLoader.m_projectile.m_lowDamage;
+    attackBase->m_highDamage = mySpellLoader.m_projectile.m_highDamage;
+    attackBase->m_speed = mySpellLoader.m_projectile.m_speed;
+    attackBase->m_radius = mySpellLoader.m_projectile.m_radius;
+    attackBase->m_coolDown = mySpellLoader.m_projectile.m_coolDown;
+    attackBase->m_lifeTime = mySpellLoader.m_projectile.m_lifeTime;
+    attackBase->m_maxBounces = mySpellLoader.m_projectile.m_maxBounces;
 
 	attackBase->m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f);// OLD
 	attackBase->m_attenAndRadius = glm::vec4(1.0f, 2.15f, 4.5f, 22.0f);
@@ -533,18 +541,18 @@ void SpellHandler::createSpellForTool(glm::vec3 spellPos, glm::vec3 directionVec
 
 }
 
-void SpellHandler::spellToolUpdate(float dt)
+void SpellHandler::spellToolUpdate(float dt, float radius)
 {
     std::cout << activespell << std::endl;
 
     for (size_t i = 0; i < spells.size(); i++)
     {
-        
+
         if (activespell == 1)
         {
             spells[i]->setTravelTime(0);
         }
-        
+        spells[i]->setRadius(radius);
 
         if (spells[i]->getTravelTime() <= 0)
         {

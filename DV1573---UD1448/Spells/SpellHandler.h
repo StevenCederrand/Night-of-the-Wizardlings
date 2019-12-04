@@ -28,7 +28,7 @@ public:
 
 	float createSpell(glm::vec3 spellPos, glm::vec3 directionVector, OBJECT_TYPE type);
     void createSpellForTool(glm::vec3 spellPos, glm::vec3 directionVector, SpellCreatorTool_TYPE type);
-    void spellToolUpdate(float dt);
+    void spellToolUpdate(float dt, float radius);
     void renderSpellTool();
 
     void changeSpell(int state);

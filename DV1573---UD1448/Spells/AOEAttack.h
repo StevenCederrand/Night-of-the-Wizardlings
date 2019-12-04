@@ -18,6 +18,7 @@ public:
 	virtual void updateRigidbody(float deltaTime, btRigidBody* body);
 	virtual void update(float dt);
 	virtual const float getDamage();
+ 
 	virtual const glm::vec3& getPos() const;
 
 	bool spellOnGround();
