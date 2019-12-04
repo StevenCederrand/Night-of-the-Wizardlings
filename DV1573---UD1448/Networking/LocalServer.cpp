@@ -731,28 +731,30 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 		//Update the shooter's hitmark
 		RakNet::BitStream hitmarkStream;
 		hitmarkStream.Write((RakNet::MessageID)HITMARK);
-		shooter->Serialize(true, hitmarkStream);
+		HitConfirmedPacket hitConfirmedPacket;
+		hitConfirmedPacket.damageDone = static_cast<int>(hitpacket->damage);
+		hitConfirmedPacket.targetPosition = target->position;
+		hitConfirmedPacket.Serialize(true, hitmarkStream);
 		m_serverPeer->Send(&hitmarkStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, shooter->guid, false);
 
-		float damageMultiplier = 1.0f;
-		float totalDamage = hitpacket->damage * damageMultiplier;
+
+		float totalDamage = hitpacket->damage;
 		
 		//Add the damage done to your total damage if targets health is equal or more 
 		//otherwise add the remaining health. Don't do it if you do dmg to yourself
 		if (target->position != shooter->position)
 		{
-
-		if (target->health < static_cast<int>(totalDamage))
-			shooter->numberOfDamage += target->health;
+			if (target->health < static_cast<int>(totalDamage))
+				shooter->numberOfDamage += target->health;
 		
-		else
-			shooter->numberOfDamage += static_cast<int>(totalDamage);
+			else
+				shooter->numberOfDamage += static_cast<int>(totalDamage);
 
 
-		RakNet::BitStream Damage;
-		Damage.Write((RakNet::MessageID)SCORE_UPDATE);
-		shooter->Serialize(true, Damage);
-		m_serverPeer->Send(&Damage, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, shooter->guid, false);
+			RakNet::BitStream Damage;
+			Damage.Write((RakNet::MessageID)SCORE_UPDATE);
+			shooter->Serialize(true, Damage);
+			m_serverPeer->Send(&Damage, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, shooter->guid, false);
 		}
 
 

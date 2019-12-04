@@ -141,16 +141,6 @@ struct SpellPacket{
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
 		stream.Serialize(writeToStream, *this);
-		/*stream.Serialize(writeToStream, packetType);
-		stream.Serialize(writeToStream, SpellID);
-		stream.Serialize(writeToStream, timestamp);
-		stream.Serialize(writeToStream, CreatorGUID);
-		stream.Serialize(writeToStream, Position);
-		stream.Serialize(writeToStream, LastPosition);
-		stream.Serialize(writeToStream, Rotation);
-		stream.Serialize(writeToStream, Scale);
-		stream.Serialize(writeToStream, Direction);
-		stream.Serialize(writeToStream, SpellType);*/
 	}
 
 
@@ -170,15 +160,6 @@ struct HitPacket {
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
 		stream.Serialize(writeToStream, *this);
-		/*stream.Serialize(writeToStream, SpellID);
-		stream.Serialize(writeToStream, CreatorGUID);
-		stream.Serialize(writeToStream, playerHitGUID);
-		stream.Serialize(writeToStream, Position);
-		stream.Serialize(writeToStream, Scale);
-		stream.Serialize(writeToStream, SpellDirection);
-		stream.Serialize(writeToStream, Rotation);
-		stream.Serialize(writeToStream, damage);
-		stream.Serialize(writeToStream, SpellType);*/
 	}
 
 
@@ -192,10 +173,6 @@ struct PickupPacket {
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
 		stream.Serialize(writeToStream, *this);
-		/*stream.Serialize(writeToStream, locationName);
-		stream.Serialize(writeToStream, uniqueID);
-		stream.Serialize(writeToStream, position);
-		stream.Serialize(writeToStream, type);*/
 	}
 };
 
@@ -204,7 +181,6 @@ struct ServerStateChange {
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
 		stream.Serialize(writeToStream, *this);
-		/*stream.Serialize(writeToStream, currentState);*/
 	}
 };
 
@@ -226,10 +202,6 @@ struct DestructionPacket {
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
 		stream.Serialize(writeToStream, *this);
-		/*stream.Serialize(writeToStream, randomSeed);
-		stream.Serialize(writeToStream, index);
-		stream.Serialize(writeToStream, hitPoint); 
-		stream.Serialize(writeToStream, hitDir);*/
 	}
 
 
@@ -245,6 +217,15 @@ struct ReadyPacket {
 
 struct ReadyPlayersCount {
 	int numberOfReadyPlayers = 0;
+
+	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
+		stream.Serialize(writeToStream, *this);
+	}
+};
+
+struct HitConfirmedPacket {
+	int damageDone;
+	glm::vec3 targetPosition;
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
 		stream.Serialize(writeToStream, *this);

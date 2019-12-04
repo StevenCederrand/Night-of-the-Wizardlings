@@ -4,8 +4,8 @@
 #include "MenuState.h"
 #include <Networking/Client.h>
 #include <Networking/LocalServer.h>
-
-
+#include <Renderer/TextRenderer.h>
+#include <BetterText/TextManager.h>
 #define PLAYSECTION "PLAYSTATE"
 
 
@@ -20,8 +20,29 @@ PlayState::PlayState(bool spectator)
 
 	m_camera = new Camera();
 	m_bPhysics = new BulletPhysics(-20.0f);
-
 	mu.printBoth("After physics and camera init:");
+
+
+
+	mu.printBoth("Before Font:");
+
+	/* Todo:
+		Create the whole render logic, hashmaps 'n stuff.
+		Gui text has a unique index so use that to remove the texts if needed.
+
+		Font loading resulet in:
+		+ ~ 1MB Ram
+		+ ~ 3MB VRam
+	*/
+
+	
+	//m_text = new GUIText("Yoooo", 2.f, m_fontType, glm::vec3(0.0f, 0.0f, -10.0f), 1.f, true);
+	//m_text->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	TextRenderer::getInstance()->init(m_camera);
+	TextManager::getInstance();
+	/*TextRenderer::getInstance()->submitText(m_text);*/
+
+	mu.printBoth("After Font:");
 
 	if (spectator == false) {
 
@@ -468,6 +489,9 @@ PlayState::~PlayState()
 
 	MeshMap::getInstance()->cleanUp();
 
+	TextRenderer::getInstance()->cleanup();
+	TextManager::getInstance()->cleanup();
+
 	mu.printBoth("Afer deleting playstate:");
 }
 
@@ -475,8 +499,6 @@ PlayState::~PlayState()
 
 void PlayState::update(float dt)
 {
-	//m_firstPerson->playLoopAnimation("Test");
-	//m_firstPerson->update(dt);
 	Client::getInstance()->updateNetworkEntities(dt);
 	auto* clientPtr = Client::getInstance();
 	m_dstr.update();
@@ -490,14 +512,7 @@ void PlayState::update(float dt)
 
 	removeDeadObjects();
 
-	static float t = 0.0f;
-	t += DeltaTime;
-	if (t >= 3.0f)
-	{
-		t = 0.0f;
-		mu.printBoth("Update:");
-	}
-
+	TextManager::getInstance()->update();
 }
 
 void PlayState::removeDeadObjects()
@@ -539,9 +554,13 @@ void PlayState::update_isPlaying(const float& dt)
 
 	shPtr->setSourcePosition(m_player->getPlayerPos(), HitmarkSound);
 
-	for (PlayerEvents evnt = clientPtr->readNextEvent(); evnt != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
+	if (Input::isKeyPressed(GLFW_KEY_U)) {
+		printf("My pos: %f, %f, %f\n", m_player->getPlayerPos().x, m_player->getPlayerPos().y, m_player->getPlayerPos().z);
+	}
 
-		switch (evnt) {
+	for (Evnt evnt = clientPtr->readNextEvent(); evnt.playerEvent != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
+
+		switch (evnt.playerEvent) {
 
 			case PlayerEvents::Died:
 			{
@@ -616,6 +635,33 @@ void PlayState::update_isPlaying(const float& dt)
 			{
 				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HIT)->setAlpha(1.0f);
 				shPtr->playSound(HitmarkSound);
+
+				if (evnt.data == nullptr) continue;
+
+				HitConfirmedPacket pp;
+				memcpy(&pp, evnt.data, sizeof(HitConfirmedPacket));
+				
+				if (&pp != nullptr) {
+					
+					auto txtPos = pp.targetPosition + glm::vec3(0.0f, Client::getInstance()->getMyData().meshHalfSize.y * 2.0f, 0.0f);
+					float dist = glm::distance(m_player->getPlayerPos(), txtPos);
+					
+
+					GUIText* t = TextManager::getInstance()->addDynamicText(
+						std::to_string(pp.damageDone),
+						2.0f,
+						txtPos,
+						2.0f,
+						TextManager::TextBehaviour::Instant_FadOut,
+						glm::vec3(Randomizer::single(-0.5f, 0.5f), 1.5f, Randomizer::single(-0.5f, 0.5f)));
+
+					t->setColor(glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+					t->setScale(fminf(fmaxf(dist / 15.0f, 1.0f), 5.0f));
+					t->setToFaceCamera(true);
+					
+				}
+
+				delete evnt.data;
 				break;
 			}
 			case PlayerEvents::TookMana:
@@ -664,6 +710,12 @@ void PlayState::update_isPlaying(const float& dt)
 				m_hudHandler.getHudObject(HUDID::MANA_OVERLAY)->setAlpha(0.75f);
 				//Give the player a boost in mana
 				m_player->increaseMana(10.0f);
+				break;
+			}
+
+			case PlayerEvents::EnemyDeflected:
+			{
+
 				break;
 			}
 
@@ -756,9 +808,9 @@ void PlayState::update_isSpectating(const float& dt)
 			object->update(dt);
 	}
 
-	for (PlayerEvents evnt = clientPtr->readNextEvent(); evnt != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
+	for (Evnt evnt = clientPtr->readNextEvent(); evnt.playerEvent != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
 
-		switch (evnt) {
+		switch (evnt.playerEvent) {
 
 		case PlayerEvents::WallGotDestroyed:
 		{
@@ -829,6 +881,7 @@ void PlayState::update_isSpectating(const float& dt)
 void PlayState::render()
 {
 	Renderer::getInstance()->render();
+	TextRenderer::getInstance()->renderText();
 }
 
 bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1, const btCollisionObjectWrapper* obj2, int id2, int index2)
