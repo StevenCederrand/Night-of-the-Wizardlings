@@ -1,11 +1,10 @@
 #include "Pch/Pch.h"
 #include "AOEAttack.h"
 
-AOEAttack::AOEAttack(glm::vec3 pos, glm::vec3 direction, const FlamestrikeSpellBase* spellBase)
-	: Spell(pos, direction)
+AOEAttack::AOEAttack(glm::vec3 pos, glm::vec3 direction, const SpellBase* spellBase)
+	: Spell(pos, direction, spellBase)
 {
 	m_type = OBJECT_TYPE::FLAMESTRIKE;
-	m_spellBase = spellBase;
 	setTravelTime(spellBase->m_lifeTime);
 
 	//Transform tempTransform;
@@ -17,10 +16,9 @@ AOEAttack::AOEAttack(glm::vec3 pos, glm::vec3 direction, const FlamestrikeSpellB
 }
 
 AOEAttack::AOEAttack(glm::vec3 pos)
-	: Spell(pos, glm::vec3(0))
+	: Spell(pos, glm::vec3(0), nullptr)
 {
 	m_type = OBJECT_TYPE::FLAMESTRIKE;
-	m_spellBase = nullptr;
 
 	//Transform tempTransform;
 	//tempTransform.scale = glm::vec3(0.2f, 0.2f, 0.2f);

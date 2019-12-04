@@ -8,7 +8,7 @@
 class AOEAttack : public Spell
 {
 public:
-	AOEAttack(glm::vec3 pos, glm::vec3 direction, const FlamestrikeSpellBase* spellBase);
+	AOEAttack(glm::vec3 pos, glm::vec3 direction, const SpellBase* spellBase);
 	AOEAttack(glm::vec3 pos);
 	~AOEAttack();
 
@@ -25,6 +25,7 @@ public:
 
 
 private:
+
 	//Transform transform1;
 	glm::vec3 gravityVector = glm::vec3(0,-1,0);
 	glm::vec3 newVer = glm::vec3(0, 0, 0);
@@ -43,5 +44,4 @@ private:
 	bool m_hasCollided = false;
 	int m_bounceCounter = 0;
 	float m_bounceTime = 0.0f;
-	const FlamestrikeSpellBase* m_spellBase;
 };

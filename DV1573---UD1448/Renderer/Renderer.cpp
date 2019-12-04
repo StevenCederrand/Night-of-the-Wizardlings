@@ -492,30 +492,30 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 
 		if (spell->getType() == OBJECT_TYPE::NORMALATTACK)
 		{
-			light.attenAndRadius = m_spellHandler->getAttackBase()->m_attenAndRadius;
-			light.color = m_spellHandler->getAttackBase()->m_material->diffuse;
+			light.attenAndRadius = m_spellHandler->getSpellBase(NORMALATTACK)->m_attenAndRadius;
+			light.color = m_spellHandler->getSpellBase(NORMALATTACK)->m_material->diffuse;
 			m_particleSystems.emplace_back(ParticleSystem(attackPS));
 		}
 
 		else if (spell->getType() == OBJECT_TYPE::ENHANCEATTACK)
 		{
-			light.attenAndRadius = m_spellHandler->getEnhAttackBase()->m_attenAndRadius;
-			light.color = m_spellHandler->getEnhAttackBase()->m_material->diffuse;
+			light.attenAndRadius = m_spellHandler->getSpellBase(ENHANCEATTACK)->m_attenAndRadius;
+			light.color = m_spellHandler->getSpellBase(ENHANCEATTACK)->m_material->diffuse;
 			m_particleSystems.emplace_back(ParticleSystem(enhancePS));
 		}
 
 		else if (spell->getType() == OBJECT_TYPE::FIRE)
 		{
 			light.position.y += 2.0f;
-			light.attenAndRadius = m_spellHandler->getFireBase()->m_attenAndRadius;
-			light.color = m_spellHandler->getFireBase()->m_material->diffuse;
+			light.attenAndRadius = m_spellHandler->getSpellBase(FIRE)->m_attenAndRadius;
+			light.color = m_spellHandler->getSpellBase(FIRE)->m_material->diffuse;
 			m_particleSystems.emplace_back(ParticleSystem(flamestrikePS));
 		}
 
 		else if (spell->getType() == OBJECT_TYPE::FLAMESTRIKE)
 		{
-			light.attenAndRadius = m_spellHandler->getFlamestrikeBase()->m_attenAndRadius;
-			light.color = m_spellHandler->getFlamestrikeBase()->m_material->diffuse;
+			light.attenAndRadius = m_spellHandler->getSpellBase(FLAMESTRIKE)->m_attenAndRadius;
+			light.color = m_spellHandler->getSpellBase(FLAMESTRIKE)->m_material->diffuse;
 			m_particleSystems.emplace_back(ParticleSystem(flamestrikePS));
 		}
 		
@@ -1314,9 +1314,9 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 
 		if (m_spells[i]->getType() == OBJECT_TYPE::NORMALATTACK)
 		{
-			meshRef = spellHandler->getAttackBase()->m_mesh;
+			meshRef = spellHandler->getSpellBase(NORMALATTACK)->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
-			shader->setMaterial(spellHandler->getAttackBase()->m_material);
+			shader->setMaterial(spellHandler->getSpellBase(NORMALATTACK)->m_material);
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 			glBindVertexArray(0);
@@ -1325,9 +1325,9 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 		}
 		else if (m_spells[i]->getType() == OBJECT_TYPE::ENHANCEATTACK)
 		{
-			meshRef = spellHandler->getEnhAttackBase()->m_mesh;
+			meshRef = spellHandler->getSpellBase(ENHANCEATTACK)->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
-			shader->setMaterial(spellHandler->getEnhAttackBase()->m_material);
+			shader->setMaterial(spellHandler->getSpellBase(ENHANCEATTACK)->m_material);
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 			glBindVertexArray(0);
@@ -1336,9 +1336,9 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 		}
 		else if (m_spells[i]->getType() == OBJECT_TYPE::FLAMESTRIKE)
 		{
-			meshRef = spellHandler->getFlamestrikeBase()->m_mesh;
+			meshRef = spellHandler->getSpellBase(FLAMESTRIKE)->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
-			shader->setMaterial(spellHandler->getFlamestrikeBase()->m_material);
+			shader->setMaterial(spellHandler->getSpellBase(FLAMESTRIKE)->m_material);
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 			glBindVertexArray(0);
 			//ps[i].Render(m_camera, &m_flameInfo);
@@ -1347,9 +1347,9 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 
 		else if (m_spells[i]->getType() == OBJECT_TYPE::FIRE)
 		{
-			meshRef = spellHandler->getFireBase()->m_mesh;
+			meshRef = spellHandler->getSpellBase(FIRE)->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
-			shader->setMaterial(spellHandler->getFireBase()->m_material);
+			shader->setMaterial(spellHandler->getSpellBase(FIRE)->m_material);
 			//glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 			glBindVertexArray(0);
 

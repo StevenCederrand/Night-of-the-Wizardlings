@@ -5,8 +5,10 @@
 
 class Spell : public GameObject
 {
+
+
 public:
-	Spell(glm::vec3 pos, glm::vec3 m_direction);
+	Spell(glm::vec3 pos, glm::vec3 m_direction, const SpellBase* spellBase);
 	~Spell();
 
 	float getTravelTime() { return m_travelTime; };
@@ -29,10 +31,16 @@ public:
 	virtual void updateRigidbody(float deltaTime) = 0;
 	virtual const float getDamage() = 0;
 	virtual const glm::vec3& getPos() const = 0;
-		
+
+	const SpellBase* getBase() const { return m_spellBase; }
+
 private:
+
 	uint64_t m_uniqueID = 0;
 	float m_travelTime;
 	glm::vec3 m_direction;
 	int m_soundSlot = 0;
+
+protected:
+	const SpellBase* m_spellBase;
 };
