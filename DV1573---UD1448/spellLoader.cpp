@@ -57,7 +57,7 @@ bool SpellLoader::loadAOESpell(std::string fileName)
     //unload();
     m_fileName = fileName;
 
-    std::ifstream binFile(outputFilepath + m_fileName + ".spell", std::ios::binary);
+    std::ifstream binFile(outputFilepath + m_fileName, std::ios::binary);
     if (!binFile)
     {
         return false;
@@ -69,7 +69,7 @@ bool SpellLoader::loadAOESpell(std::string fileName)
         m_nrOfSpells = fileHeader.spellCount;
 
         // Read the Projectile struct
-        binFile.read((char*)& m_projectile, sizeof(SpellLoading::AOESpell));
+        binFile.read((char*)&m_AOESpell, sizeof(SpellLoading::AOESpell));
 
         // Fill Projectile data
         m_name = m_AOESpell.name;

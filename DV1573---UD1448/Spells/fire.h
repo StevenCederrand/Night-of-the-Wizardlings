@@ -3,6 +3,7 @@
 #include <GameObject/GameObject.h>
 #include <GameObject/WorldObject.h>
 #include <Spells/Spell.h>
+#include <spellLoader.h>
 
 class fire : public Spell
 {
@@ -23,5 +24,7 @@ public:
 private:
 	const FireSpellBase* m_spellBase;
 	float fireTimer = 8;
+    SpellLoader mySpellLoader;
+
 
 };
