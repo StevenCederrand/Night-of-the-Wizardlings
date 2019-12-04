@@ -114,7 +114,7 @@ public:
 
 	int GetNrOfParticles();
 
-	void Update(glm::vec3 cameraPos, float time);
+	void Update(float time); //removed glm::vec3 cameraPos
 	void TempInit(PSinfo* psInfo);
 	void Render(const Camera* camera);
 	void Pause();

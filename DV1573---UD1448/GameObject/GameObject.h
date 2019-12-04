@@ -39,7 +39,7 @@ public:
 
 	void setTransformFromRigid(int i);
 	void addParticle(ParticleBuffers* particleBuffers);
-	void UpdateParticles(Camera* camera, float dt);
+	void UpdateParticles(float dt);
 
 	virtual void update(float dt) = 0;
 	   	

@@ -124,31 +124,10 @@ private:
 	unsigned int m_colorID;
 	unsigned int m_blendColorID;
 
-
-	int	thisActive = 0;
-	int	vertexCountDiff = 0;
-	float emissionDiff = 0.0f;
-
-	int	thisActive2 = 0;
-	int	vertexCountDiff2 = 0;
-	float emissionDiff2 = 0.0f;
-
-	int	thisActive3 = 0;
-	int	vertexCountDiff3 = 0;
-	float emissionDiff3 = 0.0f;
-
 	TextureInfo m_txtInfo;
 	PSinfo m_PSinfo;
-	PSinfo m_flameInfo;
-	PSinfo m_enhanceInfo;
-	PSinfo m_smoke;
 
 	std::vector<ParticleSystem> m_particleSystems;
-
-	ParticleBuffers* attackPS;
-	ParticleBuffers* flamestrikePS;
-	ParticleBuffers* enhancePS;
-	ParticleBuffers* smokePS;
 
 	void renderBigNotifications();
 	void renderKillFeed();

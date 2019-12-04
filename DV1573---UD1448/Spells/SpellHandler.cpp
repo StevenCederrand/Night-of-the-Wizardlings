@@ -208,13 +208,13 @@ void SpellHandler::initFireSpell()
 	PSinfo tempPS;
 	TextureInfo tempTxt;
 
-	tempTxt.name = "Assets/Textures/Smoke.png";
-	tempPS.width = 0.4f;
-	tempPS.heigth = 0.6f;
-	tempPS.lifetime = 9.0f;
+	tempTxt.name = "Assets/Textures/betterSmoke.png";
+	tempPS.width = 0.9f;
+	tempPS.heigth = 1.2f;
+	tempPS.lifetime = 5.0f;
 	tempPS.maxParticles = 300;
-	tempPS.emission = 0.01f;
-	tempPS.force = -0.04f;
+	tempPS.emission = 0.02f;
+	tempPS.force = -0.54f;
 	tempPS.drag = 0.0f;
 	tempPS.gravity = -2.2f;
 	tempPS.seed = 1;
@@ -223,7 +223,7 @@ void SpellHandler::initFireSpell()
 	tempPS.spread = 5.0f;
 	tempPS.glow = 1.3;
 	tempPS.scaleDirection = 0;
-	tempPS.swirl = 1;
+	tempPS.swirl = 0;
 	tempPS.fade = 1;
 	tempPS.randomSpawn = true;
 	tempPS.color = glm::vec3(0.3f, 0.3f, 0.3f);
@@ -474,7 +474,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 			fireSpells[i]->update(deltaTime);
 
 			Client::getInstance()->updateSpellOnNetwork(*fireSpells[i]);
-			fireSpells[i]->UpdateParticles(Renderer::getInstance()->getMainCamera(), deltaTime);
+			fireSpells[i]->UpdateParticles(deltaTime);
 		}
 
 		if (fireSpells[i]->getTravelTime() <= 0)
@@ -495,7 +495,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 			spells[i]->update(deltaTime);
 			spells[i]->updateRigidbody(deltaTime);
 			Client::getInstance()->updateSpellOnNetwork(*spells[i]);
-			spells[i]->UpdateParticles(Renderer::getInstance()->getMainCamera(), deltaTime);
+			spells[i]->UpdateParticles(deltaTime);
 		}
 
 		if (spells[i]->getTravelTime() <= 0)

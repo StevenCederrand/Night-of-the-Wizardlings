@@ -217,7 +217,7 @@ int ParticleSystem::GetNrOfParticles()
 	return m_nrOfActive;
 }
 
-void ParticleSystem::Update(glm::vec3 cameraPos, float time)
+void ParticleSystem::Update(float time) //removed campos
 {
 	if (m_isPlaying == true)
 	{
@@ -278,7 +278,7 @@ void ParticleSystem::Update(glm::vec3 cameraPos, float time)
 				//---
 
 				particles.direction = otherPosition - particles.position;
-				particles.distance = glm::length(particles.position - cameraPos);
+				//particles.distance = glm::length(particles.position - cameraPos);
 				m_vertex.at(i) = particles.position;
 				m_lifetime.at(i) = pStatus;
 			}

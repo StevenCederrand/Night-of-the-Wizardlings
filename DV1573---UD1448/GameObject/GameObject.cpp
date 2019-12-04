@@ -710,7 +710,7 @@ void GameObject::addParticle(ParticleBuffers* particleBuffers)
 	m_particleSystems.emplace_back(ParticleSystem(particleBuffers));
 }
 
-void GameObject::UpdateParticles(Camera* camera, float dt)
+void GameObject::UpdateParticles(float dt)
 {
 	//for (ParticleSystem system : m_particleSystems)
 	//{
@@ -719,6 +719,6 @@ void GameObject::UpdateParticles(Camera* camera, float dt)
 
 	for (int i = 0; i < m_particleSystems.size(); i++)
 	{
-		m_particleSystems[i].Update(camera->getCamPos(), dt);
+		m_particleSystems[i].Update(dt);
 	}
 }

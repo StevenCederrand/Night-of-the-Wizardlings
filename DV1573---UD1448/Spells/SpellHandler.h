@@ -56,6 +56,7 @@ private:
 	SpellBase enhanceAtkBase;
 	SpellBase flamestrikeBase;
 	SpellBase fireBase;
+	SpellBase death;
 
 	void spellCollisionCheck();	
 	bool specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis, float radius);

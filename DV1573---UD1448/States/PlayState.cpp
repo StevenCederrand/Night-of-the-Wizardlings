@@ -517,6 +517,8 @@ void PlayState::update_isPlaying(const float& dt)
 				}
 				m_player->onDead();
 				m_camera->disableCameraMovement(true);
+				//TODO
+				//Here I can implement the poof particles for a dead player
 				break;
 			}
 
@@ -697,7 +699,7 @@ void PlayState::update_isPlaying(const float& dt)
 	for (GameObject* object : m_objects)
 	{
 		object->update(dt);
-		object->UpdateParticles(m_camera, dt);
+		object->UpdateParticles(dt);
 	}
 	Renderer::getInstance()->updateParticles(dt);
 
@@ -720,7 +722,7 @@ void PlayState::update_isSpectating(const float& dt)
 		if (object != nullptr)
 		{
 			object->update(dt);
-			object->UpdateParticles(m_camera, dt);
+			object->UpdateParticles(dt);
 		}
 			
 	}
@@ -784,7 +786,7 @@ void PlayState::update_isSpectating(const float& dt)
 	for (GameObject* object : m_objects)
 	{
 		object->update(dt);
-		object->UpdateParticles(m_camera, dt);
+		object->UpdateParticles(dt);
 	}
 
 	GUIHandler();
