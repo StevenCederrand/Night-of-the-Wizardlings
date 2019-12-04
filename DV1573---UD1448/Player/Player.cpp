@@ -155,9 +155,11 @@ void Player::move(float deltaTime)
 	if (m_frameCount < 5)
 		return;
 
-	m_moveDir = glm::vec3(0.0f);
+	if (m_character->onGround())
+		m_moveDir = glm::vec3(0.0f);
+	
 
-	if (m_playerCamera->isFPEnabled()) {
+	if (m_playerCamera->isFPEnabled() && m_character->onGround()) {
 
 		glm::vec3 lookDirection = m_directionVector;
 		lookDirection.y = 0.0f;

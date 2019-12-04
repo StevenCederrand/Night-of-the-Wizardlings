@@ -738,7 +738,7 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 		float totalDamage = hitpacket->damage * damageMultiplier;
 		
 		//Add the damage done to your total damage if targets health is equal or more 
-		//otherwise add the remaining health. Don't do it if you do dmg to yourself  
+		//otherwise add the remaining health. Don't do it if you do dmg to yourself
 		if (target->position != shooter->position)
 		{
 
