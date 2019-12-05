@@ -60,7 +60,7 @@ public:
 	const CountdownPacket& getCountdownPacket() const;
 	const CountdownPacket& getRespawnTime() const;
 	const RoundTimePacket& getRoundTimePacket() const;
-	const PlayerEvents readNextEvent();
+	const Evnt readNextEvent();
 	const std::vector<DestructionPacket>& getDestructedWalls();
 
 	const int& getNumberOfReadyPlayers() const;
@@ -138,7 +138,7 @@ private:
 	std::vector<SpellPacket> m_removalOfClientSpellsQueue;
 	std::vector<DestructionPacket> m_destructionQueue;
 
-	std::vector<PlayerEvents> m_playerEvents;
+	std::vector<Evnt> m_playerEvents;
 	std::vector<DestructionPacket> m_destroyedWalls;
 
 	TimedCallback m_routineCleanupTimer;

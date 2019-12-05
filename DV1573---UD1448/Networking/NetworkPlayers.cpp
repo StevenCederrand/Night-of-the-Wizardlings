@@ -18,7 +18,6 @@ void NetworkPlayers::cleanUp()
 	{
 		PlayerEntity& p = m_players[i];
 		delete p.healthDisplay;
-		delete p.manaDisplay;
 		delete p.gameobject;
 	}
 	m_players.clear();
@@ -38,7 +37,6 @@ void NetworkPlayers::update(const float& dt)
 			if (p.gameobject == nullptr) {
 
 				p.healthDisplay = new WorldHudObject("Assets/Textures/hud/tmpHP.png", p.data.position, m_displayScale);
-				p.manaDisplay = new WorldHudObject("Assets/Textures/hud/tmpMana.png", p.data.position - m_displayScale.y, m_displayScale);
 				p.gameobject = new AnimatedObject("asd");
 				p.gameobject->loadMesh("NyCharacter.mesh");
 				p.gameobject->setWorldPosition(glm::vec3(0, 0, 0));
@@ -80,7 +78,7 @@ void NetworkPlayers::update(const float& dt)
 			shieldObject->loadMesh("EnemyShieldMesh.mesh");
 			
 			glm::vec3 spawnpos = p.data.position + glm::vec3(0.0f, p.data.meshHalfSize.y, 0.0f);
-			glm::vec3 newShieldpos = g->getTransform().position + glm::vec3(0.0f, p.data.meshHalfSize.y, 0.0f);
+			glm::vec3 newShieldpos = g->getObjectTransform().position + glm::vec3(0.0f, p.data.meshHalfSize.y, 0.0f);
 			glm::vec3 shieldLerp = CustomLerp(newShieldpos, spawnpos, m_lerpSpeed * dt);
 			shieldObject->setTransform(shieldLerp, p.data.rotation, glm::vec3(1.0));
 			Renderer::getInstance()->submit(shieldObject, ENEMY_SHIELD);
@@ -131,17 +129,15 @@ void NetworkPlayers::update(const float& dt)
 			/* Don't render the player if he's dead */
 			if (p.data.health <= 0.0f || p.data.hasBeenUpdatedOnce == false) {
 				p.healthDisplay->setShouldRender(false);
-				p.manaDisplay->setShouldRender(false);
 				g->setShouldRender(false);
 			}
 
 			else {
 				p.healthDisplay->setShouldRender(true);
-				p.manaDisplay->setShouldRender(true);
 				g->setShouldRender(true);
 			}
 
-			glm::vec3 pos = CustomLerp(g->getTransform().position, p.data.position, m_lerpSpeed * dt);
+			glm::vec3 pos = CustomLerp(g->getObjectTransform().position, p.data.position, m_lerpSpeed * dt);
 
 
 			float healthClip = static_cast<float>(p.data.health) / static_cast<float>(NetGlobals::PlayerMaxHealth);
@@ -149,12 +145,8 @@ void NetworkPlayers::update(const float& dt)
 			p.healthDisplay->setXClip(healthClip);
 			p.healthDisplay->setCenter(pos + glm::vec3(0.0f, p.data.meshHalfSize.y * 2.12, 0.0f));
 			
-			p.manaDisplay->setXClip(manaClip);
-			p.manaDisplay->setCenter(pos + glm::vec3(0.0f, p.data.meshHalfSize.y * 2.0, 0.0f));
-
 			Renderer::getInstance()->submitWorldHud(p.healthDisplay);
-			Renderer::getInstance()->submitWorldHud(p.manaDisplay);
-
+			
 			g->setWorldPosition(pos);
 			g->setTransform(pos, glm::quat(p.data.rotation), glm::vec3(1.0f));
 

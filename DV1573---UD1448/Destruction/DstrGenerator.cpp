@@ -21,16 +21,7 @@ DstrGenerator::~DstrGenerator()
 
 void DstrGenerator::initPoints(glm::vec2 position)
 {
-	//if (amount && amount != m_breakPoints)
-	//{
-	//	m_breakPoints = amount;
 	m_randomPoints.resize(m_breakPoints);
-	//}
-	//else if (position != glm::vec2(0))
-	//{
-	//	offsetPoints();
-	//	return;
-	//}
 
 	float rnd = 0;
 	float offset = 0;
@@ -157,12 +148,11 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 	if (m_timeSinceLastDestruction > 0.3f)
 	{
 		int slot = SoundHandler::getInstance()->playSound(DestructionSound, Client::getInstance()->getMyData().guid);
-		SoundHandler::getInstance()->setSourcePosition(object->getTransform().position, DestructionSound, Client::getInstance()->getMyData().guid, slot);
+		SoundHandler::getInstance()->setSourcePosition(object->getObjectTransform().position, DestructionSound, Client::getInstance()->getMyData().guid, slot);
 		m_timeSinceLastDestruction = 0.0f;
 	}
 
 	Clear();
-	
 	initPoints(hitPosition);
 
 	m_diagram = m_voroniCalc.CalculateDiagram(m_randomPoints);
@@ -196,7 +186,6 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			vi = 0;
 			ni = 0;
 			ti = 0;
-
 			
 			// Top
 			for (int i = 0; i < count; i++)
@@ -262,7 +251,6 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 				ti++;
 			}
 
-
 			glm::vec3 min = m_newVertices[0].position;
 			glm::vec3 max = m_newVertices[0].position;
 			for (size_t i = 0; i < m_newVertices.size(); i++)
@@ -282,11 +270,11 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 				m_newVertices[i].position -= center;
 			}
 
-			object->initMesh(object->getMeshName() + "_" + std::to_string(i), m_newVertices, m_newFace);
+			object->initMesh(object->getMesh()->getName() + "_" + std::to_string(i), m_newVertices, m_newFace);
 
-			Transform newTransform = object->getTransform();
+			Transform newTransform = object->getRigidTransform(0);
 			newTransform.position += center * glm::inverse(newTransform.rotation);;
-			object->setTransform(newTransform, mi);
+			object->setMeshOffsetTransform(newTransform, mi);
 
 			// DEBUG PLACEMENT
 			//Transform newTransform = object->getTransform(0);
@@ -296,7 +284,7 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			//	0.0f);
 			//object->setTransform(newTransform,  mi);
 
-			object->createDynamicRigidBody(CollisionObject::box, 100.0f * scale, mi, true);
+			object->createDynamic(CollisionObject::box, 100.0f * scale, mi, true);
 			
 			// Values for destroyed object
 			// TODO: Move thiss
@@ -316,7 +304,7 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			float dirRndY = 2 * (double)rand() / (double)RAND_MAX - 1;
 			float dirRndZ = 2 * (double)rand() / (double)RAND_MAX - 1;
 			
-			btRigidBody* body = object->getRigidBodies()[mi];
+			btRigidBody* body = object->getRigidBody(mi);
 			body->applyCentralImpulse(btVector3(force.x, force.y, force.z) * 1.4);
 			body->applyTorque(btVector3(force.x * dirRndX, force.y * dirRndY, force.z * dirRndZ) * 15);
 			body->setGravity(m_initGravity);
@@ -325,12 +313,12 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 		}
 	}
 
-	object->setMaterial("", -2);
-	object->setBTWorldPosition(glm::vec3(-999.0f), 0);
-	object->setWorldPosition(glm::vec3(-999.0f), 0);
-	object->set_BtActive(false);
+	object->setBodyActive(false);
 	object->set_destroyed(true);
 	object->setLifetime(0.0f);
+
+	object->setMaterial(nullptr, -1);
+	object->setBodyWorldPosition(glm::vec3(-999.0f), 0);
 }
 
 const unsigned int DstrGenerator::seedRand(int seed)
@@ -363,7 +351,6 @@ void DstrGenerator::Clear()
 
 	m_meshResults.clear();
 	m_meshResults.shrink_to_fit();
-
 }
 
 

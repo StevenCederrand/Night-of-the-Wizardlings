@@ -35,7 +35,7 @@ public:
 private:
 	void setupBuffers();
 	void loadTexture(const std::string& texturePath);
-	void updateModelMatrix();
+	void updateTransform();
 	void setCenter();
 
 private:

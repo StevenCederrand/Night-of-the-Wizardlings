@@ -19,8 +19,6 @@ struct Vertex
 	glm::vec3 position;
 	glm::vec2 UV;
 	glm::vec3 Normals;
-
-
 };
 
 struct Vertex2

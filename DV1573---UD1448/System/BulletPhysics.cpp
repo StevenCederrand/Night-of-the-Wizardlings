@@ -112,11 +112,9 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	rot.setZ(rotation.z);
 	rot.setW(rotation.w);
 	startTransform.setRotation(rot);
-	
 	startTransform.setOrigin(btVector3(position.x, position.y, position.z));
 
 	btScalar mass(inMass);
-
 	//rigidbody is dynamic if and only if mass is non zero, otherwise static
 	bool isDynamic = (mass != 0.f);
 
@@ -125,13 +123,11 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	if (isDynamic)
 		objectShape->calculateLocalInertia(mass, localInertia);
 
-
 	//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
 	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
 	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, objectShape, localInertia);
 	btRigidBody* body = new btRigidBody(rbInfo);
 
-	
 	//how much bounce and friction a object should have
 	body->setRestitution(restitution);	
 	body->setFriction(friction);
@@ -176,27 +172,34 @@ btKinematicCharacterController* BulletPhysics::createCharacter(const glm::vec3& 
 	btScalar capsuleX = m_boxSize.getX() * 0.8f;
 	btScalar capsuleY = m_boxSize.getY() * 2.0f;
 	btScalar capsuleZ = m_boxSize.getZ() * 0.9f;
-
+	//height of capsule is	totalHeight = height + radius * 2
+	//						height = totalHeight - radius * 2
 	btScalar realY = (capsuleY) - (capsuleZ * 2.0f);
 	m_playerShape = new btCapsuleShapeZ(capsuleZ, realY);
 
+	btVector3 localInertia(1.0f, 1.0f, 1.0f);
+	m_playerShape->calculateLocalInertia(1001.0f, localInertia);
+	
 	m_ghostObject = new btPairCachingGhostObject();
 	btTransform startTransform;
 	startTransform.setIdentity();
 	startTransform.setOrigin(btVector3(position.x, position.y, position.z));
 	m_ghostObject->setWorldTransform(startTransform);
+	
 
 	m_dynamicsWorld->getPairCache()->setInternalGhostPairCallback(m_ghostCallback);
 	m_ghostObject->setCollisionShape(m_playerShape);
 	m_ghostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
 	m_character = new btKinematicCharacterController(m_ghostObject, m_playerShape, 1.0f, btVector3(0.0f, 1.0f, 0.0f));
 	m_dynamicsWorld->addCollisionObject(m_ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter | NormalObjects | DestructableObjects);
+	
 
 	m_character->setMaxSlope(btRadians(80.0));
 	m_collisionShapes.push_back(m_playerShape);
 	m_dynamicsWorld->addAction(m_character);
 	m_character->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 	m_character->setMaxPenetrationDepth(0.1f);
+	
 
 	return m_character;
 }
@@ -237,7 +240,7 @@ void BulletPhysics::update(float dt)
 void BulletPhysics::destructionobj(btRigidBody* body)
 {
 	body->setRestitution(0.0f);
-	body->setFriction(100.0f);
+	body->setFriction(101.0f);
 	body->setSpinningFriction(1.0f);
 	body->setAngularFactor(btVector3(1.0f, 1.0f, 1.0f));
 	body->setDamping(0.2f, 0.1f);	// Chaotic
