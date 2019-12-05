@@ -34,7 +34,7 @@ struct Projectiles
     int m_ProjectileHighDmg = 0;
     int m_ProjectileSpeed = 0;
     int m_ProjectileCooldown = 0;
-    int m_ProjectileRadius = 0;
+    float m_ProjectileRadius = 0;
     int m_ProjectileLifetime = 0;
     int m_ProjectileMaxBounces = 1;
 };
