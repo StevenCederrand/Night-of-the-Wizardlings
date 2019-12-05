@@ -55,6 +55,7 @@ private:
 	glm::vec2 oldPosition;
 public:
 	Camera();
+	Camera(glm::vec3 pos, float yaw, float pitch);
 	~Camera();
 
 	void fpsControls(const float& dt);

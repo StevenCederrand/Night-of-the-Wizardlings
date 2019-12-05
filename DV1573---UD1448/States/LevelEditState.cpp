@@ -7,8 +7,9 @@ LevelEditState::LevelEditState(bool cameraState)
 {
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
 
-	m_camera = new Camera();
+	m_camera = new Camera(glm::vec3(57.f, 100.f, -78.f), -232.0f, -43.2);
 
+	m_picker = new MousePicker(m_camera, m_camera->getProjMat());
 
 	if (cameraState == true)
 	{
@@ -25,7 +26,7 @@ LevelEditState::LevelEditState(bool cameraState)
 
 	//the load map function might need tweaking in this regard
 	//We also need a save map func.
-	loadMap();
+	//loadMap();
 }
 
 LevelEditState::~LevelEditState()
@@ -58,7 +59,7 @@ void LevelEditState::loadDecor()
 {
 	Renderer* renderer = Renderer::getInstance();
 	m_objects.push_back(new MapObject("Academy_Outer"));
-	m_objects[m_objects.size() - 1]->loadMesh("Towermap/ExteriorTest.mesh");
+	m_objects[m_objects.size() - 1]->loadMesh("ExteriorTest.mesh");
 	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
 }
 
@@ -107,6 +108,14 @@ void LevelEditState::update(float dt)
 
 	static float t = 0.0f;
 	t += DeltaTime;
+	
+	//Check for input
+	if (Input::isKeyPressed(GLFW_KEY_M))
+		loadMap();
+	if (Input::isKeyPressed(GLFW_KEY_L))
+		loadBasicLight();
+	if (Input::isKeyPressed(GLFW_KEY_K))
+		loadDecor();
 }
 
 void LevelEditState::render()
@@ -122,6 +131,8 @@ void LevelEditState::updateState(const float& dt)
 			object->update(dt);
 
 	m_camera->updateLevelEd();
+	m_picker->update();
+	logTrace("MousePicker: ({0}, {1}, {2})", std::to_string(m_picker->getCurrentRay().x), std::to_string(m_picker->getCurrentRay().y), std::to_string(m_picker->getCurrentRay().z));
 	Renderer::getInstance()->updateParticles(dt);
 	for (GameObject* object : m_objects)
 		object->update(dt);

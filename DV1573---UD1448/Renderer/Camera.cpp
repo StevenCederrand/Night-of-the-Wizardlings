@@ -258,6 +258,35 @@ Camera::Camera()
 
 }
 
+Camera::Camera(glm::vec3 pos, float yaw, float pitch)
+{
+	//Initial values (starting point of camera) if nothing else is given
+	m_camPos = pos;
+	m_worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	m_camYaw = yaw;
+	m_camPitch = pitch;//-40.0f;
+
+	m_camFace = glm::vec3(0.0f, 0.0f, -1.0f);
+	m_camSpeed = 10;
+	m_sensitivity = 0.15f;
+
+	m_width = SCREEN_WIDTH;
+	m_height = SCREEN_HEIGHT;
+
+	m_nearPlane = 0.1f;
+	m_farPlane = 1500.0f;
+
+	m_spectatorMoveSpeed = 20.0f;
+	setWindowSize(m_width, m_height);
+	calcVectors();
+	m_viewMatrix = glm::lookAt(m_camPos, m_camPos + m_camFace, m_camUp);
+	m_fpEnabled = true;
+	m_activeCamera = true;
+
+	glfwSetScrollCallback(glfwGetCurrentContext(), scroll_callback);
+
+}
+
 Camera::~Camera()
 {
 

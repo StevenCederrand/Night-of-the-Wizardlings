@@ -17,6 +17,7 @@
 #include <GFX/Pointlight.h>
 #include <System/MemoryUsage.h>
 #include <HUD/WorldHudObject.h>
+#include <LevelEditor/MousePicker.h>
 
 
 class LevelEditState : public State
@@ -43,7 +44,8 @@ private:
 
 	Camera* m_camera;
 	SkyBox* m_skybox;
-	
+	MousePicker* m_picker;
+
 	float m_rotVal;
 	glm::vec3 m_focusPoint;
 };

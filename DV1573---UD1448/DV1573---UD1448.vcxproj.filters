@@ -67,6 +67,7 @@
     <ClCompile Include="System\MemoryUsage.cpp" />
     <ClCompile Include="HUD\WorldHudObject.cpp" />
     <ClCompile Include="States\LevelEditState.cpp" />
+    <ClCompile Include="LevelEditor\MousePicker.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameObject\AnimatedObject.h" />
@@ -160,6 +161,7 @@
     <ClInclude Include="System\MemoryUsage.h" />
     <ClInclude Include="HUD\WorldHudObject.h" />
     <ClInclude Include="States\LevelEditState.h" />
+    <ClInclude Include="LevelEditor\MousePicker.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

@@ -196,6 +196,7 @@
     <ClCompile Include="GFX\Pointlight.cpp" />
     <ClCompile Include="HUD\HudHandler.cpp" />
     <ClCompile Include="HUD\WorldHudObject.cpp" />
+    <ClCompile Include="LevelEditor\MousePicker.cpp" />
     <ClCompile Include="Mesh\AnimationMap.cpp" />
     <ClCompile Include="Mesh\MeshMap.cpp" />
     <ClCompile Include="Networking\Client.cpp" />
@@ -313,6 +314,7 @@
     <ClInclude Include="GFX\Pointlight.h" />
     <ClInclude Include="HUD\HudHandler.h" />
     <ClInclude Include="HUD\WorldHudObject.h" />
+    <ClInclude Include="LevelEditor\MousePicker.h" />
     <ClInclude Include="Mesh\AnimationMap.h" />
     <ClInclude Include="Mesh\MeshMap.h" />
     <ClInclude Include="Networking\Client.h" />
