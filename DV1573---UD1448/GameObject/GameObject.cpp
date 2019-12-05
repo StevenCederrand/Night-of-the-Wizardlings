@@ -252,16 +252,6 @@ const glm::vec3 GameObject::getLastPosition() const
 	return m_lastPosition;
 }
 
-//const GLuint& GameObject::getNormalMap() const
-//{
-//	return m_normalMap;
-//}
-
-//const GLuint& GameObject::getNormalMapTexture() const
-//{
-//	return m_normalMapTexture;
-//}
-
 //Update each individual modelmatrix for the meshes
 void GameObject::updateModelMatrix() {
 	
@@ -755,11 +745,39 @@ void GameObject::setNormalMap(const char* fileName)
 	}
 	else
 	{
-		std::cout << "Failed to load texture" << std::endl;
+		std::cout << "Failed to load normal map texture" << std::endl;
 	}
 	stbi_image_free(data);
 }
 
-//void GameObject::loadNormalMap()
-//{
-//}
+void GameObject::setTexture(const char* fileName)
+{
+	std::string albedoFile = TEXTUREPATH + fileName;
+	GLuint texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	// set the texture wrapping/filtering options (on the currently bound texture object)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// load and generate the texture
+	int width, height, nrChannels;
+	unsigned char* data = stbi_load(albedoFile.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		for (int i = 0; i < m_meshes.size(); i++)
+		{
+			m_meshes.at(i).material->texture = true;
+			m_meshes.at(i).material->textureID.push_back(texture);
+		}
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data);			
+}
