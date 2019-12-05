@@ -77,7 +77,6 @@ void AttackSpell::update(float deltaTime)
 	setDirection(forceDirection);
 
 	body->applyCentralImpulse(body->getLinearVelocity().normalized() * (1 + m_spellBase->m_acceleration * body->getMass() * deltaTime));
-	std::cout << body->getLinearVelocity().length() << std::endl;
 
 	btVector3 rigidBodyPos = body->getWorldTransform().getOrigin();
 	setWorldPosition(glm::vec3(rigidBodyPos.getX(), rigidBodyPos.getY(), rigidBodyPos.getZ()));

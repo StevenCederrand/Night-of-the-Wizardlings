@@ -148,7 +148,7 @@ void GameObject::loadMesh(std::string fileName)
 	}
 
 	tempLoader.Unload();
-	updateModelMatrix();
+	updateTransform();
 }
 
 void GameObject::initMesh(Mesh mesh)
@@ -163,7 +163,7 @@ void GameObject::initMesh(Mesh mesh)
 
 	//Allocate all of the model matrixes
 	m_modelMatrixes.resize(m_meshes.size());
-	updateModelMatrix();
+	updateTransform();
 }
 
 void GameObject::initMesh(std::string name, std::vector<Vertex> vertices, std::vector<Face> faces)
@@ -188,7 +188,7 @@ void GameObject::initMesh(std::string name, std::vector<Vertex> vertices, std::v
 	m_meshes.push_back(tempMeshBox);
 	//Allocate all of the model matrixes
 	m_modelMatrixes.resize(m_meshes.size());
-	updateModelMatrix();
+	updateTransform();
 }
 
 const bool& GameObject::getShouldRender() const
@@ -202,7 +202,7 @@ const glm::vec3 GameObject::getLastPosition() const
 }
 
 //Update each individual modelmatrix for the meshes
-void GameObject::updateModelMatrix() {
+void GameObject::updateTransform() {
 	
 	Transform transform;
 	for (size_t i = 0; i < m_modelMatrixes.size(); i++)
@@ -214,72 +214,71 @@ void GameObject::updateModelMatrix() {
 		m_modelMatrixes[i] *= glm::mat4_cast(transform.rotation);
 		m_modelMatrixes[i] = glm::scale(m_modelMatrixes[i], transform.scale);
 	}
+
+	m_lastPosition = m_transform.position;
 }
 
 void GameObject::setTransform(Transform transform)
 {
 	m_transform = transform;
-	updateModelMatrix();
+	updateTransform();
 }
 
-void GameObject::setTransform(Transform transform, int meshIndex)
-{
-	m_meshes[meshIndex].transform = transform;
-	updateModelMatrix();
-}
-
-void GameObject::setTransform(glm::vec3 worldPosition = glm::vec3(.0f), glm::quat worldRot = glm::quat(), glm::vec3 worldScale = glm::vec3(1.0f))
+void GameObject::setTransform(glm::vec3 worldPosition, glm::quat worldRot, glm::vec3 worldScale)
 {
 	m_transform.position = worldPosition;
 	m_transform.scale = worldScale;
 	m_transform.rotation = worldRot;
-	updateModelMatrix();
+	updateTransform();
+}
+
+void GameObject::setMeshOffsetTransform(Transform transform, int meshIndex)
+{
+	m_meshes[meshIndex].transform = transform;
+	updateTransform();
 }
 
 void GameObject::setWorldPosition(glm::vec3 worldPosition)
 {
-	m_lastPosition = m_transform.position;
-	m_transform.position = worldPosition;
-	updateModelMatrix();
+	if (m_meshes[0].body)
+	{
+		btTransform newTransform = m_meshes[0].body->getWorldTransform();
+		newTransform.setOrigin(btVector3(worldPosition.x, worldPosition.y, worldPosition.z));
+		m_meshes[0].body->setWorldTransform(newTransform);
+	}
+	else
+	{
+		m_transform.position = worldPosition;
+	}
+
+	updateTransform();
 }
 
-void GameObject::setWorldPosition(glm::vec3 worldPosition, int meshIndex)
+void GameObject::setMeshOffsetPosition(glm::vec3 worldPosition, int meshIndex)
 {
 	m_meshes[meshIndex].transform.position = worldPosition;
-	updateModelMatrix();
+	updateTransform();
 }
 
-void GameObject::offsetMesh(glm::vec3 position, int meshIndex)
-{
-	m_meshes[meshIndex].mesh->setPos(position);
-	updateModelMatrix();
-}
-
-void GameObject::setBTWorldPosition(glm::vec3 worldPosition, int meshIndex)
+void GameObject::setBodyWorldPosition(glm::vec3 worldPosition, int meshIndex)
 {
 	if (m_meshes[meshIndex].body)
 	{
 		btTransform newTransform = m_meshes[meshIndex].body->getWorldTransform();
 		newTransform.setOrigin(btVector3(worldPosition.x, worldPosition.y, worldPosition.z));
 		m_meshes[meshIndex].body->setWorldTransform(newTransform);
+
 		updateBulletRigids();
-		updateModelMatrix();
+		updateTransform();
 	}
 }
 
-void GameObject::setBTTransform(Transform transform, int meshIndex)
+void GameObject::setBodyActive(bool state, int meshIndex)
 {
-	btTransform newTransform = m_meshes[meshIndex].body->getWorldTransform();
-	newTransform.setOrigin(btVector3(transform.position.x, transform.position.y, transform.position.z));
-	newTransform.setRotation(btQuaternion(transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w));
-	m_meshes[meshIndex].body->setWorldTransform(newTransform);
-	updateBulletRigids();
-	updateModelMatrix();
-}
-
-void GameObject::set_BtActive(bool state, int meshIndex)
-{
-	m_meshes[meshIndex].body->setActivationState(state);
+	if (m_meshes[meshIndex].body)
+	{
+		m_meshes[meshIndex].body->setActivationState(state);
+	}
 }
 
 void GameObject::removeBody(int meshIndex)
@@ -291,12 +290,6 @@ void GameObject::removeBody(int meshIndex)
 	}
 }
 
-void GameObject::translate(const glm::vec3& translationVector)
-{
-	m_transform.position += translationVector;
-	updateModelMatrix();
-}
-
 void GameObject::setShouldRender(bool condition)
 {
 	m_shouldRender = condition;
@@ -306,6 +299,7 @@ void GameObject::setMaterial(Material* material, int meshIndex)
 {
 	if (meshIndex == -1)
 	{
+		// Special case to make all models use material of the first mesh
 		for (int i = 0; i < (int)m_meshes.size(); i++)
 		{
 			if (m_meshes[i].mesh)
@@ -320,34 +314,14 @@ void GameObject::setMaterial(Material* material, int meshIndex)
 
 }
 
-const Transform GameObject::getTransform() const
+Mesh* GameObject::getMesh(const int& meshIndex)
 {
-	// Adds the inherited transforms together to get the world position of a mesh
-	Transform world_transform;
-	if (m_meshes.size() > 0)
-	{
-		world_transform.position = m_transform.position + m_meshes[0].transform.position;
-		world_transform.rotation = m_transform.rotation * m_meshes[0].transform.rotation;
-		world_transform.scale = m_transform.scale * m_meshes[0].transform.scale;
-	}
-	else
-	{
-		world_transform.position = m_transform.position;
-		world_transform.rotation = m_transform.rotation;
-		world_transform.scale = m_transform.scale;
-	}
-
-	return world_transform;
+	return m_meshes[meshIndex].mesh;
 }
 
 Material* GameObject::getMaterial(const int& meshIndex)
 {
 	return m_meshes[meshIndex].material;
-}
-
-Mesh* GameObject::getMesh(const int& meshIndex)
-{
-	return m_meshes[meshIndex].mesh;
 }
 
 const Transform GameObject::getTransform(int meshIndex) const
@@ -361,31 +335,17 @@ const Transform GameObject::getTransform(int meshIndex) const
 	return world_transform;
 }
 
-const Transform& GameObject::getTransform(Mesh* mesh, const int& meshIndex) const
+const Transform GameObject::getObjectTransform() const
 {
-	// Adds the inherited transforms together to get the world position of a mesh
-	Transform world_transform;
-	world_transform.position = m_transform.position + m_meshes[meshIndex].transform.position + mesh->getTransform().position;
-	world_transform.rotation = m_transform.rotation * m_meshes[meshIndex].transform.rotation * mesh->getTransform().rotation;
-	world_transform.scale = m_transform.scale * m_meshes[meshIndex].transform.scale * mesh->getTransform().scale;
-
-	return world_transform;
+	return m_transform;
 }
 
-const Transform GameObject::getTransformMesh(int meshIndex) const
+const Transform GameObject::getLocalTransform(int meshIndex) const
 {
-	Mesh* mesh = m_meshes[meshIndex].mesh;
-
-	// Adds the inherited transforms together to get the world position of a mesh
-	Transform world_transform;
-	world_transform.position = m_meshes[meshIndex].transform.position + mesh->getTransform().position;
-	world_transform.rotation = m_meshes[meshIndex].transform.rotation * mesh->getTransform().rotation;
-	world_transform.scale = m_meshes[meshIndex].transform.scale * mesh->getTransform().scale;
-
-	return world_transform;
+	return m_meshes[meshIndex].transform;
 }
 
-const Transform GameObject::getTransformRigid(int meshIndex) const
+const Transform GameObject::getRigidTransform(int meshIndex) const
 {
 	if (!m_meshes[meshIndex].body)
 		Transform newTransform;
@@ -403,7 +363,7 @@ const Transform GameObject::getTransformRigid(int meshIndex) const
 	newTransform.rotation.z = rigidBodyTransform.getRotation().getZ();
 	newTransform.rotation.w = rigidBodyTransform.getRotation().getW();
 
-	newTransform.scale = getTransformMesh(meshIndex).scale;
+	newTransform.scale = getLocalTransform(meshIndex).scale;
 
 	return newTransform;
 }
@@ -582,9 +542,9 @@ void GameObject::setTransformFromRigid(int meshIndex)
 	t_transform.rotation.z = btRotation.getZ();
 	t_transform.rotation.w = btRotation.getW();
 
-	t_transform.scale = getTransformMesh(meshIndex).scale;
+	t_transform.scale = getLocalTransform(meshIndex).scale;
 
-	setTransform(t_transform, meshIndex);
+	setMeshOffsetTransform(t_transform, meshIndex);
 }
 
 void GameObject::addParticle(ParticleBuffers particleBuffers)

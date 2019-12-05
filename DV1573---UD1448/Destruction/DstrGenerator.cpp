@@ -21,16 +21,7 @@ DstrGenerator::~DstrGenerator()
 
 void DstrGenerator::initPoints(glm::vec2 position)
 {
-	//if (amount && amount != m_breakPoints)
-	//{
-	//	m_breakPoints = amount;
 	m_randomPoints.resize(m_breakPoints);
-	//}
-	//else if (position != glm::vec2(0))
-	//{
-	//	offsetPoints();
-	//	return;
-	//}
 
 	float rnd = 0;
 	float offset = 0;
@@ -157,7 +148,7 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 	if (m_timeSinceLastDestruction > 0.3f)
 	{
 		int slot = SoundHandler::getInstance()->playSound(DestructionSound, Client::getInstance()->getMyData().guid);
-		SoundHandler::getInstance()->setSourcePosition(object->getTransform().position, DestructionSound, Client::getInstance()->getMyData().guid, slot);
+		SoundHandler::getInstance()->setSourcePosition(object->getObjectTransform().position, DestructionSound, Client::getInstance()->getMyData().guid, slot);
 		m_timeSinceLastDestruction = 0.0f;
 	}
 
@@ -260,7 +251,6 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 				ti++;
 			}
 
-
 			glm::vec3 min = m_newVertices[0].position;
 			glm::vec3 max = m_newVertices[0].position;
 			for (size_t i = 0; i < m_newVertices.size(); i++)
@@ -282,9 +272,9 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 
 			object->initMesh(object->getMesh()->getName() + "_" + std::to_string(i), m_newVertices, m_newFace);
 
-			Transform newTransform = object->getTransform();
+			Transform newTransform = object->getObjectTransform();
 			newTransform.position += center * glm::inverse(newTransform.rotation);;
-			object->setTransform(newTransform, mi);
+			object->setMeshOffsetTransform(newTransform, mi);
 
 			// DEBUG PLACEMENT
 			//Transform newTransform = object->getTransform(0);
@@ -323,13 +313,12 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 		}
 	}
 
-	object->set_BtActive(false);
+	object->setBodyActive(false);
 	object->set_destroyed(true);
 	object->setLifetime(0.0f);
 
 	object->setMaterial(nullptr, -1);
-	object->setBTWorldPosition(glm::vec3(-999.0f), 0);
-	object->setWorldPosition(glm::vec3(-999.0f), 0);
+	object->setBodyWorldPosition(glm::vec3(-999.0f), 0);
 }
 
 const unsigned int DstrGenerator::seedRand(int seed)
@@ -362,7 +351,6 @@ void DstrGenerator::Clear()
 
 	m_meshResults.clear();
 	m_meshResults.shrink_to_fit();
-
 }
 
 

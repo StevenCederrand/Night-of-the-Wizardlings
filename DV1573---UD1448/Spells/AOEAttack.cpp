@@ -99,7 +99,7 @@ void AOEAttack::update(float dt)
 	newTransform.rotation.z = rigidBodyTransform.getRotation().getZ();
 	newTransform.rotation.w = rigidBodyTransform.getRotation().getW();
 
-	newTransform.scale = getTransform().scale;
+	newTransform.scale = getObjectTransform().scale;
 
 	setTransform(newTransform);
 	m_pos = newTransform.position;

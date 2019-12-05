@@ -185,7 +185,7 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 				sphere,
 				10.0f,
 				spellPos + directionVector * 2,
-				glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)
+				glm::vec3(spell->getObjectTransform().scale.x, 0.0f, 0.0f)
 			));
 			
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
@@ -213,7 +213,7 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 				sphere,
 				30.0f,
 				spellPos + directionVector * 2,
-				glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)
+				glm::vec3(spell->getObjectTransform().scale.x, 0.0f, 0.0f)
 			));
 
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
@@ -242,7 +242,7 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 			sphere,
 			1.0f,
 			spellPos + directionVector * 2,
-			glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f),
+			glm::vec3(spell->getObjectTransform().scale.x, 0.0f, 0.0f),
 			glm::quat(),
 			false,
 			0.15f,
@@ -317,7 +317,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 
 				if (flamestrike->spellOnGround())
 				{
-					createSpell(flamestrike->getTransform().position, glm::vec3(0, 0, 0), FIRE);
+					createSpell(flamestrike->getObjectTransform().position, glm::vec3(0, 0, 0), FIRE);
 					flamestrike->setSpellBool(false);
 				}
 			}
@@ -466,9 +466,9 @@ void SpellHandler::spellCollisionCheck()
 		//Me and fire spell
 		for (size_t j = 0; j < fireSpells.size(); j++)
 		{
-			glm::vec3 spellPos = fireSpells.at(j)->getTransform().position;
+			glm::vec3 spellPos = fireSpells.at(j)->getObjectTransform().position;
 
-			float scale = fireSpells.at(j)->getTransform().scale.x;
+			float scale = fireSpells.at(j)->getObjectTransform().scale.x;
 			
 			if (specificSpellCollision(spellPos, ownPlayerPos, axis1, scale))
 			{
@@ -508,7 +508,7 @@ void SpellHandler::spellCollisionCheck()
 		for (size_t j = 0; j < spells.size(); j++)
 		{
 			glm::vec3 lastSpellPos = spells.at(j)->getLastPosition();
-			glm::vec3 spellPos = spells.at(j)->getTransform().position;
+			glm::vec3 spellPos = spells.at(j)->getObjectTransform().position;
 
 			//get the radius from the spelltype
 			float radius = 0.0f;
@@ -543,9 +543,9 @@ void SpellHandler::spellCollisionCheck()
 
 		for (size_t j = 0; j < fireSpells.size(); j++)
 		{
-			glm::vec3 spellPos = fireSpells.at(j)->getTransform().position;
+			glm::vec3 spellPos = fireSpells.at(j)->getObjectTransform().position;
 
-			float scale = fireSpells.at(j)->getTransform().scale.x;
+			float scale = fireSpells.at(j)->getObjectTransform().scale.x;
 
 			if (specificSpellCollision(spellPos, playerPos, axis, scale))
 			{

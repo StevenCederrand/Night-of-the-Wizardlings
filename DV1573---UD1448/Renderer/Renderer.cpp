@@ -482,7 +482,7 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 	{
 		/* Place the light in the lights list */
 		PLIGHT light;
-		light.position = gameObject->getTransform().position;
+		light.position = gameObject->getObjectTransform().position;
 		light.color = glm::vec3(1.0f);
 		light.index = m_spells.size();
 		m_spells.emplace_back(gameObject);
@@ -544,7 +544,7 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 		Pointlight* lightRef = static_cast<Pointlight*>(gameObject);
 
 		PLIGHT light;
-		light.position = gameObject->getTransform().position;
+		light.position = gameObject->getObjectTransform().position;
 		light.color = lightRef->getColor();
 		light.attenAndRadius = lightRef->getAttenuationAndRadius(); //First 3 dims are for the attenuation, final 4th is for radius
 		light.index = -2;
@@ -928,7 +928,7 @@ void Renderer::render() {
 			iConv = std::to_string(i);
 			
 			if (m_lights[i].index != -2) {
-				shader->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[m_lights[i].index]->getTransform().position);
+				shader->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[m_lights[i].index]->getObjectTransform().position);
 			}
 			else {
 				shader->setVec3("pLights[" + std::to_string(i) + "].position", m_lights[i].position);
@@ -1042,9 +1042,9 @@ void Renderer::render() {
 
 			//Bind the modelmatrix
 			glm::mat4 mMatrix = glm::mat4(1.0f);
-			mMatrix = glm::translate(mMatrix, p->getTransform().position);
-			mMatrix *= glm::mat4_cast(p->getTransform().rotation);
-			mMatrix = glm::scale(mMatrix, p->getTransform().scale);
+			mMatrix = glm::translate(mMatrix, p->getObjectTransform().position);
+			mMatrix *= glm::mat4_cast(p->getObjectTransform().rotation);
+			mMatrix = glm::scale(mMatrix, p->getObjectTransform().scale);
 
 			shader->setMat4("modelMatrix", mMatrix);
 
@@ -1078,7 +1078,7 @@ void Renderer::render() {
 				iConv = std::to_string(i);
 
 				if (m_lights[i].index != -2) {
-					shader->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[m_lights[i].index]->getTransform().position);
+					shader->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[m_lights[i].index]->getObjectTransform().position);
 				}
 				else {
 					shader->setVec3("pLights[" + std::to_string(i) + "].position", m_lights[i].position);
@@ -1111,7 +1111,7 @@ void Renderer::render() {
 				glEnableVertexAttribArray(2);
 				//Fetch the current mesh and its transform
 				mesh = object->getMesh(j);
-				transform = object->getTransform(mesh, j);
+				transform = object->getTransform(j);
 
 				//Bind calculated bone matrices
 				animObj->BindAnimation(j);
@@ -1278,7 +1278,7 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 		}
 
 		ShaderMap::getInstance()->useByName(BASIC_FORWARD);
-		meshTransform = m_spells[i]->getTransform();
+		meshTransform = m_spells[i]->getObjectTransform();
 
 		glm::mat4 modelMatrix = glm::mat4(1.0f);
 		modelMatrix = glm::translate(modelMatrix, meshTransform.position);
