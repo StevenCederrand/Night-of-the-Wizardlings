@@ -1088,10 +1088,10 @@ void Renderer::render() {
 				glEnableVertexAttribArray(0);
 				glEnableVertexAttribArray(1);
 				glEnableVertexAttribArray(2);
-				mesh = meshMap->getMesh(object->getMeshName(j));
+				mesh = object->getMesh(j);
 
 				material = object->getMaterial(j);
-				object->bindMaterialToShader(shader, material);
+				object->bindMaterialToShader(shader, j);
 
 				modelMatrix = glm::mat4(1.0f); //<--- Change this line to apply rotation
 				modelMatrix = object->getMatrix(j);
