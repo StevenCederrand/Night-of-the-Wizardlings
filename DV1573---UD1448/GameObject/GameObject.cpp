@@ -218,6 +218,16 @@ const glm::vec3 GameObject::getLastPosition() const
 	return m_lastPosition;
 }
 
+const GLuint& GameObject::getNormalMap() const
+{
+	return m_normalMap;
+}
+
+const GLuint& GameObject::getNormalMapTexture() const
+{
+	return m_normalMapTexture;
+}
+
 //Update each individual modelmatrix for the meshes
 void GameObject::updateModelMatrix() {
 	
@@ -682,4 +692,8 @@ void GameObject::setTransformFromRigid(int i)
 	t_transform.scale = getTransformMesh(i).scale;
 
 	setTransform(t_transform, i);
+}
+
+void GameObject::loadNormalMap()
+{
 }

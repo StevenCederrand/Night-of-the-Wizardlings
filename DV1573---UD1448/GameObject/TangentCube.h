@@ -8,13 +8,11 @@ public:
 	TangentCube();
 	~TangentCube();
 
-	void loadTexture();
-
-	const GLuint& getNormalMapTexture() const;
+	void loadNormalMap();	
 
 	void update(float dt);
 private:
-	GLuint m_normalMap;
+	
 };
 
 #endif

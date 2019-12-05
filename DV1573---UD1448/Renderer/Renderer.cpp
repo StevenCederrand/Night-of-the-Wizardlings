@@ -978,15 +978,18 @@ void Renderer::render() {
 
 			if (object->getType() == OBJECT_TYPE::NORMAL_MAPPED)
 			{				
-				shader->setInt("normalMap", 8);
-
+				shader->setInt("normalMap", 1);
+				shader->setVec2("TexAndRim", glm::vec2(1));
 				shader->setInt("NormalMapping", true);
 				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, dynamic_cast<TangentCube*>(object)->getNormalMapTexture());
+				glBindTexture(GL_TEXTURE_2D, object->getNormalMapTexture());
+
+				glActiveTexture(GL_TEXTURE0 + 1);
+				glBindTexture(GL_TEXTURE_2D, object->getNormalMap());
 			}
 			else
 			{
-				shader->setInt("NormalMapping", true);
+				shader->setInt("NormalMapping", false);
 			}
 
 			modelMatrix = glm::mat4(1.0f);
@@ -1004,6 +1007,8 @@ void Renderer::render() {
 			glDisableVertexAttribArray(1);
 			glDisableVertexAttribArray(2);
 			glDisableVertexAttribArray(3);
+
+			//glBindTexture(GL_TEXTURE_2D, NULL);
 		}
 	}
 
