@@ -36,7 +36,7 @@ public:
 	void setTransformFromRigid(int i);
 
 	//virtual void loadNormalMap();
-
+	void setNormalMap(const char* fileName);
 
 	virtual void update(float dt) = 0;
 	   	

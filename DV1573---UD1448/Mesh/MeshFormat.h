@@ -47,7 +47,7 @@ struct Material
 	bool texture;
 	bool normalMap;
 	std::vector<GLuint> textureID;	
-	std::vector<GLuint> normalMapID;
+	GLuint normalMapID;
 };
 
 struct Buffers

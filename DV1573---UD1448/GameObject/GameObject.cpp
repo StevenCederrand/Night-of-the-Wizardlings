@@ -164,13 +164,17 @@ void GameObject::loadMesh(std::string fileName)
 					glGenerateMipmap(GL_TEXTURE_2D);
 
 					tempMaterial.normalMap = true;
-					tempMaterial.normalMapID.push_back(normalMap);
+					tempMaterial.normalMapID = normalMap;
 				}
 				else
 				{
 					std::cout << "Failed to load texture" << std::endl;
 				}
 				stbi_image_free(data);
+			}
+			else
+			{
+				tempMaterial.normalMap = false;
 			}
 
 			//Get the material pointer so that we don't have to always search through the MatMap, when rendering
@@ -722,6 +726,38 @@ void GameObject::setTransformFromRigid(int i)
 	t_transform.scale = getTransformMesh(i).scale;
 
 	setTransform(t_transform, i);
+}
+
+void GameObject::setNormalMap(const char* fileName)
+{
+	std::string normalFile = TEXTUREPATH + fileName;
+	GLuint normalMap;
+	glGenTextures(1, &normalMap);
+	glBindTexture(GL_TEXTURE_2D, normalMap);
+	// set the texture wrapping/filtering options (on the currently bound texture object)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// load and generate the texture
+	int width, height, nrChannels;
+	unsigned char* data = stbi_load(normalFile.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		for (int i = 0; i < m_meshes.size(); i++)
+		{
+			m_meshes.at(i).material->normalMap = true;
+			m_meshes.at(i).material->normalMapID = normalMap;
+		}		
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data);
 }
 
 //void GameObject::loadNormalMap()

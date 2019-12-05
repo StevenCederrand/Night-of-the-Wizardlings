@@ -238,21 +238,19 @@ void Shader::setMaterial(const std::string& materialName) {
 		setVec3("Diffuse_Color", mat->diffuse);
 		//setVec3("Specular_Color", mat->specular);
 		setVec2("TexAndRim", glm::vec2(mat->texture, mat->rimLighting));	
-		setInt("NormalMapping", mat->normalMap);
-
-		//Set normal map position after diffuse textures
-		setInt("normalMap", mat->textureID.size()); 
+		setInt("NormalMapping", mat->normalMap);		 
 
 		for (size_t i = 0; i < mat->textureID.size(); i++) {
 			glActiveTexture(GL_TEXTURE0 + i);
 			glBindTexture(GL_TEXTURE_2D, mat->textureID.at(i));
 		}
-
-		for (size_t i = 0; i < mat->normalMapID.size(); i++)
+		
+		if (mat->normalMap == true)
 		{
-			glActiveTexture(GL_TEXTURE0 + mat->textureID.size() + i);
-			glBindTexture(GL_TEXTURE_2D, mat->normalMapID.at(i));
+			glActiveTexture(GL_TEXTURE0 + 1);
+			glBindTexture(GL_TEXTURE_2D, mat->normalMapID);
 		}
+		
 	}
 	else
 	{
@@ -286,6 +284,12 @@ void Shader::setMaterial(Material* material)
 		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D, material->textureID.at(i));
 	}
+
+	if (material->normalMap == true)
+	{
+		glActiveTexture(GL_TEXTURE0 + 1);
+		glBindTexture(GL_TEXTURE_2D, material->normalMapID);
+	}
 }
 
 void Shader::unbindMaterial(const std::string& materialName)
@@ -301,6 +305,10 @@ void Shader::unbindMaterial(const std::string& materialName)
 		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
+
+	//Unbind normal map texture
+	glActiveTexture(GL_TEXTURE0 + 1);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Shader::unbindMaterial(Material* material)
@@ -314,6 +322,10 @@ void Shader::unbindMaterial(Material* material)
 		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
+
+	//Unbind normal map texture
+	glActiveTexture(GL_TEXTURE0 + 1);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 
