@@ -979,41 +979,6 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 		}
 	}
 
-	////pushing destruction out of the way
-
-	//btScalar friction1 = obj1->getCollisionObject()->getFriction();
-	//btScalar friction2 = obj2->getCollisionObject()->getFriction();
-	//std::vector<btRigidBody*> rigids;
-	//btVector3 collisionPos;
-	//
-	////see if first or second item is destruction
-	//if (friction1 == 101.0f)
-	//{
-	//	if (obj2->getCollisionObject()->getCollisionShape()->getName() == "CapsuleZ")
-	//		playerObj = static_cast<Player*>(obj2->getCollisionObject()->getUserPointer());
-	//	else
-	//		return false;
-
-	//	rigids = sp1->getRigidBody();	
-	//	collisionPos = cp.getPositionWorldOnA();
-	//}
-	//else if (friction2 == 101.0f)
-	//{
-	//	if (obj1->getCollisionObject()->getCollisionShape()->getName() == "CapsuleZ")
-	//		playerObj = static_cast<Player*>(obj1->getCollisionObject()->getUserPointer());
-	//	else
-	//		return false;
-
-	//	rigids = sp2->getRigidBodies();
-	//	collisionPos = cp.getPositionWorldOnB();
-	//}
-
-	////if player is null return
-	//if (!playerObj)
-	//	return false;
-
-	
-
 
 	return false;
 }
