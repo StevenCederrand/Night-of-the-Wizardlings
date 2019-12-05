@@ -37,6 +37,7 @@ public:
 
 	//virtual void loadNormalMap();
 	void setNormalMap(const char* fileName);
+	void setTexture(const char* fileName);
 
 	virtual void update(float dt) = 0;
 	   	
@@ -70,9 +71,7 @@ public:
 	const int getType() const { return m_type; }
 	const std::vector<btRigidBody*>& getRigidBodies()  { return m_bodies; }	
 	const bool& getShouldRender() const;
-	const glm::vec3 getLastPosition() const;
-	/*const GLuint& getNormalMap() const;
-	const GLuint& getNormalMapTexture() const;*/
+	const glm::vec3 getLastPosition() const;	
 
 private:
 	void updateModelMatrix();
@@ -99,9 +98,7 @@ protected:
 	std::vector<glm::mat4> m_modelMatrixes;
 	std::vector<MeshBox> m_meshes;
 	bool m_shouldRender;
-	int m_type;
-	/*GLuint m_normalMap;
-	GLuint m_normalMapTexture;*/
+	int m_type;	
 };
 
 
