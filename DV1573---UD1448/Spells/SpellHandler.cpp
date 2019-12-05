@@ -46,6 +46,16 @@ void SpellHandler::initAttackSpell()
 	attackBase.m_lifeTime = 5.0f;
 	attackBase.m_maxBounces = 3.0f;
 
+	/*myLoader.LoadProjectileSpell("fireball.spell");
+
+	attackBase.m_lowDamage = myLoader.m_projectile.m_lowDamage;
+	attackBase.m_highDamage = myLoader.m_projectile.m_highDamage;
+	attackBase.m_speed = myLoader.m_projectile.m_speed;
+	attackBase.m_acceleration = 40.0f;
+	attackBase.m_radius = myLoader.m_projectile.m_radius;
+	attackBase.m_lifeTime = myLoader.m_projectile.m_lifeTime;
+	attackBase.m_maxBounces = myLoader.m_projectile.m_maxBounces;*/
+
 	// Light--
 	attackBase.m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f);// OLD
 	attackBase.m_attenAndRadius = glm::vec4(1.0f, 2.15f, 4.5f, 22.0f);
@@ -264,6 +274,74 @@ void SpellHandler::initFireSpell()
 	fireBase.m_particleBuffers.emplace_back(new ParticleBuffers(tempPS, tempTxt));
 	fireBase.m_particleBuffers.back()->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
 	fireBase.m_particleBuffers.back()->bindBuffers();
+}
+
+void SpellHandler::initDynamicSpellBase()
+{
+	dynamicSpellBase.m_mesh = new Mesh();
+	dynamicSpellBase.m_material = new Material();
+
+	// Mesh--
+	BGLoader tempLoader;	// The file loader
+	tempLoader.LoadMesh(MESHPATH + "attackSpell.mesh");
+	dynamicSpellBase.m_mesh->saveFilePath(tempLoader.GetFileName(), 0);
+	dynamicSpellBase.m_mesh->nameMesh(tempLoader.GetMeshName());
+	dynamicSpellBase.m_mesh->setUpMesh(tempLoader.GetVertices(), tempLoader.GetFaces());
+	dynamicSpellBase.m_mesh->setUpBuffers();
+
+	// Material--
+	const Material& newMaterial = tempLoader.GetMaterial();
+	dynamicSpellBase.m_material->ambient = newMaterial.ambient;
+	dynamicSpellBase.m_material->diffuse = newMaterial.diffuse;
+	dynamicSpellBase.m_material->name = newMaterial.name;
+	dynamicSpellBase.m_material->specular = newMaterial.specular;
+	dynamicSpellBase.m_material->diffuse = glm::vec3(0.65f, 1.0f, 1.0f); // Light blue
+	dynamicSpellBase.m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
+
+	// Load a spell--
+	myLoader.LoadProjectileSpell("fireball.spell");
+
+	// Gameplay--
+
+	// Add a function to check if the loaded file has a projectile inside of it (Like a file header)
+	dynamicSpellBase.m_lowDamage = myLoader.m_projectile.m_lowDamage;
+	dynamicSpellBase.m_highDamage = myLoader.m_projectile.m_highDamage;
+	dynamicSpellBase.m_speed = myLoader.m_projectile.m_speed;
+	dynamicSpellBase.m_acceleration = 40.0f;
+	dynamicSpellBase.m_radius = myLoader.m_projectile.m_radius;
+	dynamicSpellBase.m_lifeTime = myLoader.m_projectile.m_lifeTime;
+	dynamicSpellBase.m_maxBounces = myLoader.m_projectile.m_maxBounces;
+
+	// Light--
+	dynamicSpellBase.m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f);// OLD
+	dynamicSpellBase.m_attenAndRadius = glm::vec4(1.0f, 2.15f, 4.5f, 22.0f);
+
+	PSinfo tempPS;
+	TextureInfo tempTxt;
+	tempTxt.name = "Assets/Textures/dots.png";
+	tempPS.width = 0.4f;
+	tempPS.heigth = 0.6f;
+	tempPS.lifetime = 1.5f;
+	tempPS.maxParticles = 1000;
+	tempPS.emission = 0.002f;
+	tempPS.force = -0.2f;
+	tempPS.drag = 0.0f;
+	tempPS.gravity = 0.0f;
+	tempPS.seed = 0;
+	tempPS.cont = true;
+	tempPS.omnious = false;
+	tempPS.spread = 0.0f;
+	tempPS.glow = 2;
+	tempPS.scaleDirection = 0;
+	tempPS.swirl = 0;
+	tempPS.fade = 1;
+	tempPS.color = glm::vec3(0.0f, 0.9f, 0.9f);
+	tempPS.blendColor = glm::vec3(0.8f, 1.0f, 1.0f);
+	tempPS.direction = glm::vec3(1.0f, 0.0f, 0.0f);
+
+	dynamicSpellBase.m_particleBuffers.emplace_back(new ParticleBuffers(tempPS, tempTxt));
+	dynamicSpellBase.m_particleBuffers.back()->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
+	dynamicSpellBase.m_particleBuffers.back()->bindBuffers();
 }
 
 SpellHandler::~SpellHandler()
