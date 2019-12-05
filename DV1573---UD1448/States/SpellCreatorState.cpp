@@ -246,7 +246,7 @@ void SpellCreatorState::editAttackSpell()
     ImGui::SliderInt("Spell low Damage", &normalSpell.m_ProjectileLowDmg, 0.0f, 100.0f);
     ImGui::SliderInt("Spell high Damage", &normalSpell.m_ProjectileHighDmg, 0.0f, 100.0f);
     ImGui::SliderInt("Spell Speed", &normalSpell.m_ProjectileSpeed, 0.0f, 200.0f);
-    ImGui::SliderInt("Spell Radius", &normalSpell.m_ProjectileRadius, 0.1f, 10.0f);
+    ImGui::SliderFloat("Spell Radius", &normalSpell.m_ProjectileRadius, 0.1f, 5.0f);
     ImGui::SliderInt("Spell Cooldown", &normalSpell.m_ProjectileCooldown, 0.1f, 10.0f);
     ImGui::SliderInt("Spell Lifetime", &normalSpell.m_ProjectileLifetime, 1.0f, 20.0f);
     ImGui::SliderInt("Spell Maximum Bounces", &normalSpell.m_ProjectileMaxBounces, 0, 5);
@@ -285,7 +285,7 @@ void SpellCreatorState::editSpellEvents()
     if (spellEvents.m_nrOfEvents >= 1.0f)
     {
         setSpellEvents(spellEvents.m_firstEvent);
-        ImGui::SliderInt("Event one", &spellEvents.m_firstEvent, 1.0f, 2.0f);
+        ImGui::SliderInt("Start Event", &spellEvents.m_firstEvent, 1.0f, 2.0f);
     }
     if (spellEvents.m_nrOfEvents >= 2.0f)
     {

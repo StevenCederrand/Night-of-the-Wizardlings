@@ -97,8 +97,9 @@ bool Application::init() {
 
 	m_stateManager = new StateManager();
     m_stateManager->pushState(new SpellCreatorState());
+    //m_stateManager->pushState(new PlayState(false));
     //m_stateManager->pushState(new MenuState());
-   // m_stateManager->pushState(new PlayState());
+
 
 	unsigned int _time = unsigned int(time(NULL));
 	srand(_time);
