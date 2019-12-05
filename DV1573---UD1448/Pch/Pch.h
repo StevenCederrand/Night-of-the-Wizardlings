@@ -99,7 +99,7 @@ const unsigned int SCREEN_HEIGHT = 720;
 const int MAX_BONES = 64;
 
 constexpr int SPACE_ASCII = 32;
-constexpr int DESIRED_PADDING = 3;
+constexpr int DESIRED_PADDING = 6;
 constexpr float LINE_HEIGHT = 0.3f;
 
 #endif
