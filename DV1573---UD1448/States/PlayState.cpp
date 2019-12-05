@@ -558,20 +558,70 @@ void PlayState::update_isPlaying(const float& dt)
 
 		GUIText* t = TextManager::getInstance()->addDynamicText(
 			"HELLOOOO",
-			2.0f,
+			1.0f,
 			glm::vec3(0.0f, 0.0f, 0.0f),
 			6.0f,
-			TextManager::TextBehaviour::Instant_FadOut,
-			glm::vec3(Randomizer::single(-0.5f, 0.5f), 1.5f, Randomizer::single(-0.5f, 0.5f)));
+			TextManager::TextBehaviour::FadeIn_FadeOut,
+			glm::vec3(0.0f), true);
 
 		t->setColor(glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
-		t->setScale(5.0f);
-		t->setToFaceCamera(true);
+		t->setScale(1.0f);
+		
 	}*/
 
 	for (Evnt evnt = clientPtr->readNextEvent(); evnt.playerEvent != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
 
 		switch (evnt.playerEvent) {
+
+			case PlayerEvents::GameCountdown:
+			{
+				static int lastNumber = 0;
+				CountdownPacket pp;
+				memcpy(&pp, evnt.data, sizeof(CountdownPacket));
+
+				if (&pp != nullptr) {
+
+					if (lastNumber == (pp.timeLeft / 1000)){
+						delete evnt.data;
+						break;
+					}
+
+					lastNumber = pp.timeLeft / 1000;
+
+					if (lastNumber == 0) {
+						GUIText* t = TextManager::getInstance()->addDynamicText(
+							"Game has begun!",
+							0.25f,
+							glm::vec3(0.0f, -0.25f, 0.0f),
+							2.5f,
+							TextManager::TextBehaviour::Instant_FadOut,
+							glm::vec3(0.0f, 0.0f, 0.0f), true);
+
+						t->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+						t->setScale(1.0f);
+					}
+					else {
+						GUIText* t = TextManager::getInstance()->addDynamicText(
+							"Game Starting in: " + std::to_string(lastNumber),
+							0.25f,
+							glm::vec3(0.0f, -0.25f, 0.0f),
+							1.f,
+							TextManager::TextBehaviour::ScaleUp_FadeOut,
+							glm::vec3(0.0f, 0.0f, 0.0f), true);
+
+						t->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+						t->setScale(1.0f);
+					}
+
+					
+
+
+
+					delete evnt.data;
+				}
+
+				break;
+			}
 
 			case PlayerEvents::Died:
 			{
@@ -664,12 +714,12 @@ void PlayState::update_isPlaying(const float& dt)
 						txtPos,
 						2.0f,
 						TextManager::TextBehaviour::Instant_FadOut,
-						glm::vec3(Randomizer::single(-0.5f, 0.5f), 1.5f, Randomizer::single(-0.5f, 0.5f)));
+						glm::vec3(Randomizer::single(-0.5f, 0.5f), 1.5f, Randomizer::single(-0.5f, 0.5f)), true, 1.0f);
 
 					t->setColor(glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
 					t->setScale(fminf(fmaxf(dist / 15.0f, 1.0f), 5.0f));
 					t->setToFaceCamera(true);
-					
+					t->setIgnoreDepthTest(true);
 				}
 
 				delete evnt.data;
@@ -890,9 +940,8 @@ void PlayState::update_isSpectating(const float& dt)
 }
 
 void PlayState::render()
-{
+{	
 	Renderer::getInstance()->render();
-	TextRenderer::getInstance()->renderText();
 }
 
 bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1, const btCollisionObjectWrapper* obj2, int id2, int index2)

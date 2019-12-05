@@ -21,6 +21,9 @@ public:
 	
 	void renderText();
 
+private:
+	void renderWorldText(GUIText* text);
+	void renderScreenText(GUIText* text);
 
 private:
 	std::map <FontType*, std::vector<GUIText*>> m_textMap;
