@@ -4,7 +4,7 @@
 
 TextManager::TextManager()
 {
-	m_fontType = new FontType("Assets/Fonts/Font.png", "Assets/Fonts/Font.fnt");
+	m_fontType = new FontType("Assets/Fonts/DistFont.png", "Assets/Fonts/DistFont.fnt");
 }
 
 TextManager::~TextManager()
@@ -109,7 +109,7 @@ TextManager* TextManager::getInstance()
 GUIText* TextManager::addDynamicText(const std::string& text, const float& fontSize, const glm::vec3& position, const float& lifetime, 
 	TextBehaviour behaviour, const glm::vec3& velocity)
 {
-	GUIText* guiText = new GUIText(text, fontSize, m_fontType, position, 1.0f, true);
+	GUIText* guiText = new GUIText(text, fontSize, m_fontType, position, 100.0f, false);
 	guiText->setInitialScale(1.0f);
 	guiText->setScale(1.0f);
 	TextEntity textEntity;

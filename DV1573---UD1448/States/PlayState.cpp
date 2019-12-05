@@ -554,9 +554,20 @@ void PlayState::update_isPlaying(const float& dt)
 
 	shPtr->setSourcePosition(m_player->getPlayerPos(), HitmarkSound);
 
-	if (Input::isKeyPressed(GLFW_KEY_U)) {
-		printf("My pos: %f, %f, %f\n", m_player->getPlayerPos().x, m_player->getPlayerPos().y, m_player->getPlayerPos().z);
-	}
+	/*if (Input::isKeyPressed(GLFW_KEY_U)) {
+
+		GUIText* t = TextManager::getInstance()->addDynamicText(
+			"HELLOOOO",
+			2.0f,
+			glm::vec3(0.0f, 0.0f, 0.0f),
+			6.0f,
+			TextManager::TextBehaviour::Instant_FadOut,
+			glm::vec3(Randomizer::single(-0.5f, 0.5f), 1.5f, Randomizer::single(-0.5f, 0.5f)));
+
+		t->setColor(glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+		t->setScale(5.0f);
+		t->setToFaceCamera(true);
+	}*/
 
 	for (Evnt evnt = clientPtr->readNextEvent(); evnt.playerEvent != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
 
