@@ -155,12 +155,16 @@ void Player::move(float deltaTime)
 	if (m_frameCount < 5)
 		return;
 
+	if (Input::isKeyPressed(GLFW_KEY_KP_ENTER))
+		m_enter = !m_enter;
+
+
 	//can't move in the air
-	if (m_character->onGround())
+	if (m_character->onGround() || m_enter)
 		m_moveDir = glm::vec3(0.0f);
 	
 
-	if (m_playerCamera->isFPEnabled() && m_character->onGround()) {
+	if (m_playerCamera->isFPEnabled() && (m_character->onGround() || m_enter)) {
 
 		glm::vec3 lookDirection = m_directionVector;
 		lookDirection.y = 0.0f;
