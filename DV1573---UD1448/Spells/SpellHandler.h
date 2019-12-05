@@ -20,7 +20,10 @@ public:
 	~SpellHandler();
 
 	OBJECT_TYPE createSpell(glm::vec3 spellPos, glm::vec3 directionVector, OBJECT_TYPE type);
+	void createSpellForTool(glm::vec3 spellPos, glm::vec3 directionVector, SpellCreatorTool_TYPE type);
+	void spellToolUpdate(float dt, float radius, float speed);
 
+	void changeSpell(int state);
 	void spellUpdate(float deltaTime);
 	void setSpawnerPosition(glm::vec3 position);
 	void setSpawnerDirection(glm::vec3 direction);
@@ -72,6 +75,9 @@ private:
 		glm::vec3 position;
 		OBJECT_TYPE type;
 	};
+
+	//SpellEditor
+	int activespell;
 
 	std::vector<deflectSpellData> m_deflectedSpells;
 	std::function<void()> m_onHitCallback;
