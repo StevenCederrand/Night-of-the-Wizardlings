@@ -285,29 +285,30 @@ void SpellCreatorState::editSpellEvents()
     if (spellEvents.m_nrOfEvents >= 1.0f)
     {
         setSpellEvents(spellEvents.m_firstEvent);
-        ImGui::SliderInt("Start Event", &spellEvents.m_firstEvent, 1.0f, 2.0f);
+        ImGui::SliderInt("Start Event", &spellEvents.m_firstEvent, 1.0f, 3.0f);
     }
     if (spellEvents.m_nrOfEvents >= 2.0f)
     {
+
         setSpellEvents(spellEvents.m_secondEvent);
-        ImGui::SliderInt("Event two", &spellEvents.m_secondEvent, 1.0f, 5.0f);
+        ImGui::SliderInt("  ", &spellEvents.m_secondEvent, 1.0f, 5.0f);
     }
     if (spellEvents.m_nrOfEvents >= 3.0f)
     {
         setSpellEvents(spellEvents.m_thirdEvent);
-        ImGui::SliderInt("Event three", &spellEvents.m_thirdEvent, 1.0f, 5.0f);
+        ImGui::SliderInt("   ", &spellEvents.m_thirdEvent, 1.0f, 5.0f);
 
     }
     if (spellEvents.m_nrOfEvents >= 4.0f)
     {
         setSpellEvents(spellEvents.m_fourthEvent);
-        ImGui::SliderInt("Event four", &spellEvents.m_fourthEvent, 1.0f, 5.0f);
+        ImGui::SliderInt("    ", &spellEvents.m_fourthEvent, 1.0f, 5.0f);
 
     }
     if (spellEvents.m_nrOfEvents >= 5.0f)
     {
         setSpellEvents(spellEvents.m_fifthEvent);
-        ImGui::SliderInt("Event five", &spellEvents.m_fifthEvent, 1.0f, 5.0f);
+        ImGui::SliderInt("     ", &spellEvents.m_fifthEvent, 1.0f, 5.0f);
     }
 }
 
@@ -323,14 +324,34 @@ void SpellCreatorState::setSpellEvents(int eventNr)
     }
     if (eventNr == 3.0f)
     {
-        ImGui::Text("Spawn AOE (Area only)");
+        ImGui::Text("Spawn Tripleattack-Spell");
     }
     if (eventNr == 4.0f)
     {
-        ImGui::Text("Bounce");
+        ImGui::Text("Spawn AOE (Area only)");
     }
     if (eventNr == 5.0f)
     {
+        ImGui::Text("Bounce");
+    }
+    if (eventNr == 6.0f)
+    {
         ImGui::Text("Change Attribute of the next Projectile-Spell");
+    }
+    if (eventNr == 7.0f)
+    {
+        ImGui::Text("event7");
+    }
+    if (eventNr == 8.0f)
+    {
+        ImGui::Text("event8");
+    }
+    if (eventNr == 9.0f)
+    {
+        ImGui::Text("event9");
+    }
+    if (eventNr == 10.0f)
+    {
+        ImGui::Text("event10");
     }
 }
