@@ -160,11 +160,11 @@ void Player::move(float deltaTime)
 
 
 	//can't move in the air
-	if (m_character->onGround() || m_enter)
+	if (m_character->onGround() || !m_enter)
 		m_moveDir = glm::vec3(0.0f);
 	
 
-	if (m_playerCamera->isFPEnabled() && (m_character->onGround() || m_enter)) {
+	if (m_playerCamera->isFPEnabled() && (m_character->onGround() || !m_enter)) {
 
 		glm::vec3 lookDirection = m_directionVector;
 		lookDirection.y = 0.0f;
