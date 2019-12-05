@@ -74,6 +74,12 @@
     <ClCompile Include="System\UniqueIndex.cpp" />
     <ClCompile Include="Renderer\TextRenderer.cpp" />
     <ClCompile Include="BetterText\TextManager.cpp" />
+    <ClCompile Include="imgui\imgui.cpp" />
+    <ClCompile Include="imgui\imgui_demo.cpp" />
+    <ClCompile Include="imgui\imgui_draw.cpp" />
+    <ClCompile Include="imgui\imgui_impl_glfw_gl3.cpp" />
+    <ClCompile Include="SpellLoader\spellLoader.cpp" />
+    <ClCompile Include="States\SpellCreatorState.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameObject\AnimatedObject.h" />
@@ -176,6 +182,18 @@
     <ClInclude Include="System\UniqueIndex.h" />
     <ClInclude Include="Renderer\TextRenderer.h" />
     <ClInclude Include="BetterText\TextManager.h" />
+    <ClInclude Include="imgui\imconfig.h" />
+    <ClInclude Include="imgui\imfilebrowser.h" />
+    <ClInclude Include="imgui\imgui.h" />
+    <ClInclude Include="imgui\imgui_impl_glfw_gl3.h" />
+    <ClInclude Include="imgui\imgui_internal.h" />
+    <ClInclude Include="imgui\loaderFormat.h" />
+    <ClInclude Include="imgui\stb_rect_pack.h" />
+    <ClInclude Include="imgui\stb_textedit.h" />
+    <ClInclude Include="imgui\stb_truetype.h" />
+    <ClInclude Include="SpellLoader\loaderFormat.h" />
+    <ClInclude Include="SpellLoader\spellLoader.h" />
+    <ClInclude Include="States\SpellCreatorState.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

@@ -1264,7 +1264,7 @@ void Renderer::render() {
 #pragma endregion
 
 #pragma region Deflect_Render
-	if (m_shieldObject->getShouldRender())
+	if (m_shieldObject && m_shieldObject->getShouldRender())
 	{
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
