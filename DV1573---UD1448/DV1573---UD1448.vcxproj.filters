@@ -31,7 +31,6 @@
     <ClCompile Include="Spells\AttackSpell.cpp" />
     <ClCompile Include="Spells\EnhanceAttackSpell.cpp" />
     <ClCompile Include="Spells\fire.cpp" />
-    <ClCompile Include="Spells\ReflectSpell.cpp" />
     <ClCompile Include="Spells\Spell.cpp" />
     <ClCompile Include="Renderer\SkyBox.cpp" />
     <ClCompile Include="Spells\SpellHandler.cpp" />
@@ -67,6 +66,15 @@
     <ClCompile Include="System\MemoryUsage.cpp" />
     <ClCompile Include="HUD\WorldHudObject.cpp" />
     <ClCompile Include="GameObject\TangentCube.cpp" />
+    <ClCompile Include="BetterText\Metafile.cpp" />
+    <ClCompile Include="BetterText\Line.cpp" />
+    <ClCompile Include="BetterText\Word.cpp" />
+    <ClCompile Include="BetterText\GUIText.cpp" />
+    <ClCompile Include="BetterText\FontType.cpp" />
+    <ClCompile Include="BetterText\TextMeshCreator.cpp" />
+    <ClCompile Include="System\UniqueIndex.cpp" />
+    <ClCompile Include="Renderer\TextRenderer.cpp" />
+    <ClCompile Include="BetterText\TextManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameObject\AnimatedObject.h" />
@@ -93,7 +101,6 @@
     <ClInclude Include="Networking\NetworkPickups.h" />
     <ClInclude Include="Pickups\PickupTypes.h" />
     <ClInclude Include="Player\Player.h" />
-    <ClInclude Include="Spells\ReflectSpell.h" />
     <ClInclude Include="Renderer\BloomBlur.h" />
     <ClInclude Include="Renderer\Camera.h" />
     <ClInclude Include="HUD\HudObject.h" />
@@ -160,6 +167,17 @@
     <ClInclude Include="System\MemoryUsage.h" />
     <ClInclude Include="HUD\WorldHudObject.h" />
     <ClInclude Include="GameObject\TangentCube.h" />
+    <ClInclude Include="BetterText\Character.h" />
+    <ClInclude Include="BetterText\Metafile.h" />
+    <ClInclude Include="BetterText\Line.h" />
+    <ClInclude Include="BetterText\Word.h" />
+    <ClInclude Include="BetterText\TextMeshData.h" />
+    <ClInclude Include="BetterText\GUIText.h" />
+    <ClInclude Include="BetterText\FontType.h" />
+    <ClInclude Include="BetterText\TextMeshCreator.h" />
+    <ClInclude Include="System\UniqueIndex.h" />
+    <ClInclude Include="Renderer\TextRenderer.h" />
+    <ClInclude Include="BetterText\TextManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

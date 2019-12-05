@@ -51,6 +51,7 @@ void AnimationMap::destroy()
 {
 	cleanUp();
 	delete m_animMapInstance;
+	m_animMapInstance = nullptr;
 }
 
 

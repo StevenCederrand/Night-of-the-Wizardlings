@@ -231,16 +231,3 @@ struct VoroniDiagram
 
 
 };
-
-struct psBuffers
-{
-	unsigned int texture;
-	unsigned int vao;
-	unsigned int vertexBuffer;
-	unsigned int directionalBuffer;
-	unsigned int lifetimeBuffer;
-	unsigned int shader;
-	unsigned int vertexPosition;
-	unsigned int vertexDirection;
-	unsigned int vertexLife;
-};

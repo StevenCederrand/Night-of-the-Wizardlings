@@ -69,4 +69,5 @@ void MaterialMap::destroy()
 {
 	cleanUp();
 	delete m_materialMapInstance;
+	m_materialMapInstance = nullptr;
 }

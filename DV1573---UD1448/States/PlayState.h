@@ -18,6 +18,7 @@
 #include <GFX/Pointlight.h>
 #include <System/MemoryUsage.h>
 #include <HUD/WorldHudObject.h>
+
 //bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
 //	const btCollisionObjectWrapper* obj2, int id2, int index2);
 
@@ -27,6 +28,7 @@ public:
 	//PlayState(){}
 	PlayState(bool spectator);
 	void loadMap();
+	void loadSkyDebris(Renderer* renderer);
 	void loadDecor();
 	void loadLights();
 	void loadDestructables();
@@ -51,6 +53,7 @@ private:
 	// Hardcoded solution for choosing the map
 	// Should probably be changed depending on how we want to handle different maps
 	// 0 is default
+	// 1 is debug
 	int m_map = 0;
 
 	float m_rotVal;
@@ -68,7 +71,6 @@ private:
 	Player* m_player;
 	Camera* m_camera;
 	SkyBox* m_skybox;
-	BulletPhysics* m_bPhysics;
 	MemoryUsage mu;
 	HudHandler m_hudHandler;
 	
@@ -81,7 +83,7 @@ private:
 
 	glm::vec3 m_lastPositionOfMyKiller;
 
-	float startY;	
+	float startY;
 private: 
 
 	bool onMainMenuClick(const CEGUI::EventArgs& e);

@@ -21,7 +21,7 @@ HudObject::HudObject(const std::string& texturePath, const glm::vec2& position, 
 	m_xClip = 1.0f;
 	m_yClip = 1.0f; 
 	m_grayscale = 0;
-	updateModelMatrix();
+	updateTransform();
 }
 
 HudObject::~HudObject()
@@ -52,18 +52,18 @@ void HudObject::setGrayscale(const float& grayscale)
 void HudObject::setPosition(const glm::vec2& position)
 {
 	m_position = position;
-	updateModelMatrix();
+	updateTransform();
 }
 
 void HudObject::setScale(const glm::vec2& scale)
 {
 	m_size = scale;
-	updateModelMatrix();
+	updateTransform();
 }
 
 void HudObject::setRotation(const glm::quat& rotation) {
 	m_rotation = rotation;
-	updateModelMatrix();
+	updateTransform();
 }
 
 void HudObject::setAlpha(const float& alpha)
@@ -187,7 +187,7 @@ void HudObject::loadTexture(const std::string& texturePath)
 	stbi_image_free(data);
 }
 
-void HudObject::updateModelMatrix()
+void HudObject::updateTransform()
 {
 	m_modelMatrix = glm::mat4(1.0f);
 	m_modelMatrix = glm::translate(m_modelMatrix, glm::vec3(m_position, 0.0f));

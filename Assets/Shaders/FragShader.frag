@@ -126,12 +126,12 @@ void main() {
 
 
     // Resulting light
-    vec3 result = ambientLight + directionalLight + pointLights + emissive; // We see light, so add only and all the lights together to get color
+    vec4 result = vec4(ambientLight + directionalLight + pointLights + emissive, finalTexture.a); // We see light, so add only and all the lights together to get color
+
     if(grayscale == 1){
-    	result = grayscaleColour(result);
+    	result.xyz = grayscaleColour(result.xyz);
     }
-   
-    color = vec4(result, 1);
+    color = result;
 }
 
 vec3 normalSampleToWorldSpace(vec3 normalMapSample, vec3 normal, vec3 tangent) {

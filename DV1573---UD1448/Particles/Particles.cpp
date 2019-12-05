@@ -3,36 +3,35 @@
 
 #include <random>
 
-ParticleSystem::ParticleSystem(PSinfo* psInfo, TextureInfo* txtInfo, glm::vec3 position, GLuint shader,
-	psBuffers psBuffer, std::vector<glm::vec3> vertex, std::vector<glm::vec3> directionVector, std::vector<Particle> particle, std::vector<float> lifetime)
+ParticleSystem::ParticleSystem(ParticleBuffers* particleBuffers)
 {
 	//TextureInfo rings;
 	//rings.name = "Assets/Textures/Spell_1.png";
 	//rings.width = 64;
 	//rings.height = 64;
 
-	m_txtInfo = txtInfo;//&rings;
-	m_psInfo = psInfo;
-	m_position = glm::vec3(0, -100, 0);
-	m_shader = shader;
-	m_current = psInfo->emission;
+	m_txtInfo = particleBuffers->getTxtInfo();//&rings;
+	m_psInfo = particleBuffers->getPSinfo();
+	m_position = glm::vec3(0, -1000.0f, -20.0f);
+	m_shader = particleBuffers->getShader();
+	m_current = particleBuffers->getPSinfo().emission;
 
 	//Instead of 0 this now gets data from the buffer class
-	m_texture = psBuffer.texture;
-	m_vertexBuffer = psBuffer.vertexBuffer;
-	m_directionalBuffer = psBuffer.directionalBuffer;
-	m_lifetimeBuffer = psBuffer.lifetimeBuffer;
-	m_vertexPosition = psBuffer.vertexPosition;
-	m_vertexDirection = psBuffer.vertexDirection;
-	m_vertexLife = psBuffer.vertexLife;
+	m_texture = particleBuffers->getTexture();
+	m_vertexBuffer = particleBuffers->getVertexBuffer();
+	m_directionalBuffer = particleBuffers->getDirectionalBuffer();
+	m_lifetimeBuffer = particleBuffers->getLifetimeBuffer();
+	m_vertexPosition = particleBuffers->getVertexPos();
+	m_vertexDirection = particleBuffers->getVertexDir();
+	m_vertexLife = particleBuffers->getVertexLife();
 
 	//This is for the vector info
-	m_vertex = vertex;
-	m_directionVector = directionVector;
-	m_particle = particle;
-	m_lifetime = lifetime;
-
-	m_vao = psBuffer.vao;
+	m_vertex = particleBuffers->getVertex();
+	m_directionVector = particleBuffers->getDir();
+	m_particle = particleBuffers->getParticle();
+	m_lifetime = particleBuffers->getLifetime();
+	
+	m_vao = particleBuffers->getVAO();
 
 	Initialize();
 }
@@ -63,8 +62,8 @@ ParticleSystem::ParticleSystem(PSinfo* psInfo, TextureInfo* txtInfo, glm::vec3 p
 
 ParticleSystem::~ParticleSystem()
 {
-	m_psInfo = NULL;
-	m_txtInfo = NULL;
+	//m_psInfo = NULL;
+	//m_txtInfo = NULL;
 	//For GPU leaks
 	//glDeleteVertexArrays(1, &m_vao);
 	//glDeleteTextures(1, &m_texture);
@@ -81,12 +80,12 @@ ParticleSystem::~ParticleSystem()
 	m_shader = 0;
 }
 
-PSinfo* ParticleSystem::GetParticleInfo()
+PSinfo ParticleSystem::GetParticleInfo()
 {
 	return m_psInfo;
 }
 
-TextureInfo* ParticleSystem::GetTextureInfo()
+TextureInfo ParticleSystem::GetTextureInfo()
 {
 	return m_txtInfo;
 }
@@ -183,24 +182,24 @@ bool ParticleSystem::Initialize()
 	return true;
 }
 
-bool ParticleSystem::Build(PSinfo* psInfo)
+bool ParticleSystem::Build(PSinfo psInfo)
 {
 	m_psInfo = psInfo;
-	m_vertex.resize(m_psInfo->maxParticles);
-	m_particle.resize(m_psInfo->maxParticles);
-	m_directionVector.resize(m_psInfo->maxParticles);
-	m_lifetime.resize(m_psInfo->maxParticles);
+	m_vertex.resize(m_psInfo.maxParticles);
+	m_particle.resize(m_psInfo.maxParticles);
+	m_directionVector.resize(m_psInfo.maxParticles);
+	m_lifetime.resize(m_psInfo.maxParticles);
 	return true;
 }
 
-bool ParticleSystem::Texture(TextureInfo* txtInfo)
+bool ParticleSystem::Texture(TextureInfo txtInfo)
 {
 	m_texture = 0;
 	m_txtInfo = txtInfo;
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
-	unsigned char* imageData = stbi_load(m_txtInfo->name.c_str(), &m_txtInfo->width, &m_txtInfo->height, &m_txtInfo->nrChannels, 0); //String to const char, might need a check if problemo
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_txtInfo->width, m_txtInfo->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
+	unsigned char* imageData = stbi_load(m_txtInfo.name.c_str(), &m_txtInfo.width, &m_txtInfo.height, &m_txtInfo.nrChannels, 0); //String to const char, might need a check if problemo
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_txtInfo.width, m_txtInfo.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
 	stbi_image_free(imageData);
 	glUniform1i(glGetUniformLocation(m_shader, "ps_texture"), 0);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -218,13 +217,13 @@ int ParticleSystem::GetNrOfParticles()
 	return m_nrOfActive;
 }
 
-void ParticleSystem::Update(PSinfo* psInfo, glm::vec3 cameraPos, float time)
+void ParticleSystem::Update(float time) //removed campos
 {
 	if (m_isPlaying == true)
 	{
 		float deltaTime = time;
-		m_nrOfActive = m_psInfo->maxParticles;
-		m_psInfo = psInfo;
+		m_nrOfActive = m_psInfo.maxParticles;
+		//m_psInfo = psInfo;
 
 		if (m_current > 0.0f)
 		{
@@ -240,16 +239,17 @@ void ParticleSystem::Update(PSinfo* psInfo, glm::vec3 cameraPos, float time)
 		{
 			Particle& particles = m_particle.at(i);
 
+
 			if (particles.time > 0.0f && particles.isAlive)
 			{
 				particles.time = particles.time - deltaTime;
-				float pStatus = particles.time / m_psInfo->lifetime;
-				float dragForce = pStatus / m_psInfo->drag;
+				float pStatus = particles.time / m_psInfo.lifetime;
+				float dragForce = pStatus / m_psInfo.drag;
 
-				if (m_psInfo->omnious)
+				if (m_psInfo.omnious)
 				{
 					m_directionVector.at(i) = glm::normalize(particles.direction);
-					particles.velocity = deltaTime * (m_psInfo->direction + (particles.rotation * m_psInfo->spread));
+					particles.velocity = deltaTime * (m_psInfo.direction + (particles.rotation * m_psInfo.spread));
 				}
 
 				else
@@ -258,27 +258,27 @@ void ParticleSystem::Update(PSinfo* psInfo, glm::vec3 cameraPos, float time)
 					particles.velocity = deltaTime * particles.rotation;
 				}
 				glm::vec3 otherPosition = particles.position;
-				particles.position.y = particles.position.y + deltaTime * -m_psInfo->gravity;
+				particles.position.y = particles.position.y + deltaTime * -m_psInfo.gravity;
 
-				if (m_psInfo->drag != 0.0f)
+				if (m_psInfo.drag != 0.0f)
 				{
-					particles.position.x = particles.position.x - (particles.velocity.x * dragForce * m_psInfo->force);
-					particles.position.y = particles.position.y + (particles.velocity.y * dragForce * m_psInfo->force);
-					particles.position.z = particles.position.z - (particles.velocity.z * dragForce * m_psInfo->force);
+					particles.position.x = particles.position.x - (particles.velocity.x * dragForce * m_psInfo.force);
+					particles.position.y = particles.position.y + (particles.velocity.y * dragForce * m_psInfo.force);
+					particles.position.z = particles.position.z - (particles.velocity.z * dragForce * m_psInfo.force);
 				}
 
 				else
 				{
-					particles.position.x = particles.position.x - (particles.velocity.x * m_psInfo->force);
-					particles.position.y = particles.position.y + (particles.velocity.y * m_psInfo->force);
-					particles.position.z = particles.position.z - (particles.velocity.z * m_psInfo->force);
+					particles.position.x = particles.position.x - (particles.velocity.x * m_psInfo.force);
+					particles.position.y = particles.position.y + (particles.velocity.y * m_psInfo.force);
+					particles.position.z = particles.position.z - (particles.velocity.z * m_psInfo.force);
 				}
 
 
 				//---
 
 				particles.direction = otherPosition - particles.position;
-				particles.distance = glm::length(particles.position - cameraPos);
+				//particles.distance = glm::length(particles.position - cameraPos);
 				m_vertex.at(i) = particles.position;
 				m_lifetime.at(i) = pStatus;
 			}
@@ -286,10 +286,10 @@ void ParticleSystem::Update(PSinfo* psInfo, glm::vec3 cameraPos, float time)
 			{
 				particles.startLoop = false;
 				particles.isAlive = false;
-				if (m_psInfo->cont)
+				if (m_psInfo.cont)
 				{
-					particles.time = m_psInfo->lifetime;
-					m_lifetime.at(i) = particles.time / m_psInfo->lifetime;
+					particles.time = m_psInfo.lifetime;
+					m_lifetime.at(i) = particles.time / m_psInfo.lifetime;
 				}
 				//Reset variables
 				particles.distance = -1.0f;
@@ -298,7 +298,7 @@ void ParticleSystem::Update(PSinfo* psInfo, glm::vec3 cameraPos, float time)
 
 				//---
 
-				particles.direction = m_psInfo->direction;
+				particles.direction = m_psInfo.direction;
 				m_vertex.at(i) = particles.position;
 				m_directionVector.at(i) = particles.direction;
 			}
@@ -306,29 +306,29 @@ void ParticleSystem::Update(PSinfo* psInfo, glm::vec3 cameraPos, float time)
 			{
 
 
-				if (m_psInfo->cont == true)
+				if (m_psInfo.cont == true)
 				{
 					m_nrOfActive += 1;
-					particles.time = m_psInfo->lifetime;
-					m_lifetime.at(i) = particles.time / m_psInfo->lifetime;
+					particles.time = m_psInfo.lifetime;
+					m_lifetime.at(i) = particles.time / m_psInfo.lifetime;
 					particles.position = m_position;
 
-					if (m_psInfo->randomSpawn == true)
+					if (m_psInfo.randomSpawn == true)
 					{
 						float offsetX;
 						float offsetY;
 						float offsetZ;
 						//particles.position.x += static_cast<float>(rand()) / static_cast <float> (RAND_MAX) * 1 - 0.2;
-						offsetX = rand() % 1999 + 1 - 1000;
+						offsetX = rand() % 2000 + 1 - 1000;
 						offsetX /= 1000;
 						offsetX *= 4;
 						particles.position.x += offsetX;
 						//particles.position.y += static_cast<float>(rand()) / static_cast <float> (RAND_MAX) * 1 - 0.2;
-						offsetY = rand() % 1999 + 1 - 1000;
+						offsetY = rand() % 2000 + 1 - 1000;
 						offsetY /= 2000;
 						particles.position.y += offsetY;
 						//particles.position.z += static_cast<float>(rand()) / static_cast <float> (RAND_MAX) * 1 - 0.2;
-						offsetZ = rand() % 1999 + 1 - 1000;
+						offsetZ = rand() % 2000 + 1 - 1000;
 						offsetZ /= 1000;
 						offsetZ *= 4;
 						particles.position.z += offsetZ;
@@ -343,7 +343,7 @@ void ParticleSystem::Update(PSinfo* psInfo, glm::vec3 cameraPos, float time)
 
 					//---
 
-					m_current += m_psInfo->emission * 2;
+					m_current += m_psInfo.emission * 2;
 					m_vertex.at(i) = particles.position;
 				}
 
@@ -352,8 +352,8 @@ void ParticleSystem::Update(PSinfo* psInfo, glm::vec3 cameraPos, float time)
 					if (particles.startLoop)
 					{
 						m_nrOfActive += 1;
-						particles.time = m_psInfo->lifetime;
-						m_lifetime.at(i) = particles.time / m_psInfo->lifetime;
+						particles.time = m_psInfo.lifetime;
+						m_lifetime.at(i) = particles.time / m_psInfo.lifetime;
 						particles.position = m_position;
 
 
@@ -362,7 +362,7 @@ void ParticleSystem::Update(PSinfo* psInfo, glm::vec3 cameraPos, float time)
 						particles.distance = -1.0f;
 						particles.velocity = glm::vec3(0.0f, 0.0f, 0.0f);
 						particles.isAlive = true;
-						m_current += m_psInfo->emission;
+						m_current += m_psInfo.emission;
 						m_vertex.at(i) = particles.position;
 					}
 				}
@@ -371,9 +371,9 @@ void ParticleSystem::Update(PSinfo* psInfo, glm::vec3 cameraPos, float time)
 			if (particles.isAlive == false)
 			{
 				particles.velocity = glm::vec3(0.0f, 0.0f, 0.0f);
-				particles.position = glm::vec3(0.0f, -1000.0f, 0.0f);
+				particles.position = glm::vec3(0.0f, -1000.0f, -20.0f);
 
-				if (m_psInfo->cont == true)
+				if (m_psInfo.cont == true)
 					m_nrOfActive -= 1;
 				m_vertex.at(i) = particles.position;
 				m_lifetime.at(i) = 0.0f;
@@ -387,7 +387,7 @@ void ParticleSystem::TempInit(PSinfo* psInfo)
 {
 }
 
-void ParticleSystem::Render(const Camera* camera, const PSinfo* psInfo)
+void ParticleSystem::Render(const Camera* camera)
 {
 	ShaderMap::getInstance()->useByName(PARTICLES);
 	//glUseProgram(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
@@ -406,13 +406,13 @@ void ParticleSystem::Render(const Camera* camera, const PSinfo* psInfo)
 
 	shader->setMat4("WVP", VP); //Flipped order, check this!
 	shader->setVec3("cam", camera->getCamPos());
-	shader->setVec2("size", (glm::vec2(psInfo->width, psInfo->heigth)));
-	shader->setInt("scaleDirection", psInfo->scaleDirection);
-	shader->setInt("swirl", psInfo->swirl);
-	shader->setFloat("glow", psInfo->glow);
-	shader->setInt("fade", psInfo->fade);
-	shader->setVec3("color", psInfo->color);
-	shader->setVec3("blendColor", psInfo->blendColor);
+	shader->setVec2("size", (glm::vec2(m_psInfo.width, m_psInfo.heigth)));
+	shader->setInt("scaleDirection", m_psInfo.scaleDirection);
+	shader->setInt("swirl", m_psInfo.swirl);
+	shader->setFloat("glow", m_psInfo.glow);
+	shader->setInt("fade", m_psInfo.fade);
+	shader->setVec3("color", m_psInfo.color);
+	shader->setVec3("blendColor", m_psInfo.blendColor);
 
 
 
@@ -461,39 +461,6 @@ void ParticleSystem::Pause()
 void ParticleSystem::Play()
 {
 	m_isPlaying = true;
-}
-
-//void ParticleSystem::LoadInfo(unsigned int texture, unsigned int vao, unsigned int vertexBuffer, unsigned int directionalBuffer, 
-//	unsigned int lifetimeBuffer, unsigned int vertexPos, unsigned int vertexDir, unsigned int vertexLife, 
-//	std::vector<glm::vec3> vertex, std::vector<glm::vec3> directionVector, std::vector<Particle> particle, std::vector<float> lifetime)
-//{
-//	m_texture = texture;
-//	m_vertexBuffer = vertexBuffer;
-//	m_directionalBuffer = directionalBuffer;
-//	m_lifetimeBuffer = lifetimeBuffer;
-//	m_vertexPosition = vertexPos;
-//	m_vertexDirection = vertexDir;
-//	m_vertexLife = vertexLife;
-//
-//	//This is for the vector info
-//	m_vertex = vertex;
-//	m_directionVector = directionVector;
-//	m_particle = particle;
-//	m_lifetime = lifetime;
-//
-//	m_vao = vao;
-//}
-
-void ParticleSystem::LoadInfo(psBuffers psBuffer)
-{
-	m_texture = psBuffer.texture;
-	m_vertexBuffer = psBuffer.vertexBuffer;
-	m_directionalBuffer = psBuffer.directionalBuffer;
-	m_lifetimeBuffer = psBuffer.lifetimeBuffer;
-	m_vertexPosition = psBuffer.vertexPosition;
-	m_vertexDirection = psBuffer.vertexDirection;
-	m_vertexLife = psBuffer.vertexLife;
-	m_vao = psBuffer.vao;
 }
 
 void ParticleSystem::SetPosition(glm::vec3 position)
