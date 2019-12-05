@@ -705,6 +705,7 @@ void Renderer::removeRenderObject(GameObject* gameObject, RENDER_TYPE objType)
 void Renderer::destroy()
 {
 	delete m_rendererInstance;
+	m_rendererInstance = nullptr;
 }
 
 

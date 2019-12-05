@@ -17,6 +17,7 @@ PlayState::PlayState(bool spectator)
 {
 	
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
+	//BulletPhysics::getInstance()->setGra
 
 	m_camera = new Camera();
 
@@ -428,6 +429,7 @@ PlayState::~PlayState()
 		Client::getInstance()->destroy();
 	}
 
+	BulletPhysics::getInstance()->destroy();
 	MeshMap::getInstance()->cleanUp();
 	
 	mu.printBoth("Afer deleting playstate:");

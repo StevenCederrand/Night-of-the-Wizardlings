@@ -61,4 +61,5 @@ void MeshMap::destroy()
 {
 	cleanUp();
 	delete m_meshMapInstance;
+	m_meshMapInstance = nullptr;
 }

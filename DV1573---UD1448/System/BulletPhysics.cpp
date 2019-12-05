@@ -11,18 +11,11 @@ BulletPhysics* BulletPhysics::m_bpInstance = 0;
 BulletPhysics::BulletPhysics(float gravity)
 {
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
-
 	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
-
 	m_overlappingPairCache = new btDbvtBroadphase();
-
 	m_solver = new btSequentialImpulseConstraintSolver;
-
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher, m_overlappingPairCache,
-		m_solver, m_collisionConfiguration);
-
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher, m_overlappingPairCache, m_solver, m_collisionConfiguration);
 	m_dynamicsWorld->setGravity(btVector3(0, gravity, 0));
-
 	m_ghostCallback = new btGhostPairCallback();
 }
 
@@ -80,6 +73,7 @@ BulletPhysics* BulletPhysics::getInstance()
 void BulletPhysics::destroy()
 {
 	delete m_bpInstance;
+	m_bpInstance = nullptr;
 }
 
 btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, glm::vec3 position, glm::vec3 extend, glm::quat rotation, bool destruction, float restitution, float friction)
@@ -179,9 +173,9 @@ btVector3 BulletPhysics::getCharacterSize() const
 btKinematicCharacterController* BulletPhysics::createCharacter(const glm::vec3& position)
 {
 	//create the character and add him to the dynamicsWorld
-	btScalar capsuleX = m_boxSize.getX()*0.8f;
+	btScalar capsuleX = m_boxSize.getX() * 0.8f;
 	btScalar capsuleY = m_boxSize.getY() * 2.0f;
-	btScalar capsuleZ = m_boxSize.getZ()*0.9f;
+	btScalar capsuleZ = m_boxSize.getZ() * 0.9f;
 
 	btScalar realY = (capsuleY) - (capsuleZ * 2.0f);
 	m_playerShape = new btCapsuleShapeZ(capsuleZ, realY);
