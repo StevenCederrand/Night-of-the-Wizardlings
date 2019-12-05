@@ -96,9 +96,9 @@ private:
 	std::vector<GameObject*> m_spells;
 	std::vector<PLIGHT> m_lights;
 	std::vector<GameObject*> m_pickups;
-	std::vector<GameObject*> m_shieldObject;
 	std::vector<GameObject*> m_enemyShieldObject;
 	std::vector<GameObject*> m_skyObjects;
+	GameObject* m_shieldObject;
 
 	std::unordered_map<GLuint, std::vector<HudObject*>> m_2DHudMap;
 	std::unordered_map<GLuint, std::vector<WorldHudObject*>> m_worldHudMap;
@@ -127,36 +127,10 @@ private:
 	unsigned int m_colorID;
 	unsigned int m_blendColorID;
 
-
-	int	thisActive = 0;
-	int	vertexCountDiff = 0;
-	float emissionDiff = 0.0f;
-
-	int	thisActive2 = 0;
-	int	vertexCountDiff2 = 0;
-	float emissionDiff2 = 0.0f;
-
-	int	thisActive3 = 0;
-	int	vertexCountDiff3 = 0;
-	float emissionDiff3 = 0.0f;
-
 	TextureInfo m_txtInfo;
 	PSinfo m_PSinfo;
-	PSinfo m_flameInfo;
-	PSinfo m_enhanceInfo;
-	PSinfo m_smoke;
 
 	std::vector<ParticleSystem> m_particleSystems;
-	//1 for every spelltype
-	psBuffers attackBuffer;
-	psBuffers flameBuffer; //Do I need 1 for every spell?
-	psBuffers enhanceBuffer; // Yes, yes I do
-	psBuffers smokeBuffer;
-
-	ParticleBuffers* attackPS;
-	ParticleBuffers* flamestrikePS;
-	ParticleBuffers* enhancePS;
-	ParticleBuffers* smokePS;
 
 	void renderBigNotifications();
 	void renderKillFeed();

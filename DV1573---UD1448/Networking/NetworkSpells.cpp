@@ -29,18 +29,25 @@ void NetworkSpells::update(const float& dt)
 					
 					if (e.spellData.SpellType == OBJECT_TYPE::NORMALATTACK || e.spellData.SpellType == OBJECT_TYPE::UNKNOWN) {
 						e.gameobject = new AttackSpell(e.spellData.Position, NORMALATTACK);
+						const SpellBase* b = Client::getInstance()->getSpellhandler()->getSpellBase(NORMALATTACK);
+						for (int j = 0; j < b->m_particleBuffers.size(); j++)
+						{
+							e.gameobject->addParticle(b->m_particleBuffers[j]);
+						}
 
 						int slot = shPtr->playSound(BasicAttackSound, e.spellData.CreatorGUID);							
 						shPtr->setSourcePosition(e.spellData.Position, BasicAttackSound, e.spellData.CreatorGUID, slot);
 					}
 					else if (e.spellData.SpellType == OBJECT_TYPE::ENHANCEATTACK) {
 						e.gameobject = new AttackSpell(e.spellData.Position, ENHANCEATTACK);
+						const SpellBase* b = Client::getInstance()->getSpellhandler()->getSpellBase(ENHANCEATTACK);
+						for (int j = 0; j < b->m_particleBuffers.size(); j++)
+						{
+							e.gameobject->addParticle(b->m_particleBuffers[j]);
+						}
 						
 						int slot = shPtr->playSound(EnhanceAttackSound, e.spellData.CreatorGUID);
 						shPtr->setSourcePosition(e.spellData.Position, EnhanceAttackSound, e.spellData.CreatorGUID, slot);						
-					}
-					else if (e.spellData.SpellType == OBJECT_TYPE::REFLECT) {
-						e.gameobject = new ReflectSpell(e.spellData.Position);
 					}
 					else if (e.spellData.SpellType == OBJECT_TYPE::FLAMESTRIKE) {
 						e.gameobject = new AOEAttack(e.spellData.Position);						
@@ -50,6 +57,12 @@ void NetworkSpells::update(const float& dt)
 					}
 					else if (e.spellData.SpellType == OBJECT_TYPE::FIRE) {
 						e.gameobject = new fire(e.spellData.Position);
+
+						const SpellBase* b = Client::getInstance()->getSpellhandler()->getSpellBase(FIRE);
+						for (int j = 0; j < b->m_particleBuffers.size(); j++)
+						{
+							e.gameobject->addParticle(b->m_particleBuffers[j]);
+						}
 						
 						shPtr->setSourcePosition(e.spellData.Position, GlassBreakSound, e.spellData.CreatorGUID);
 						shPtr->playSound(GlassBreakSound, e.spellData.CreatorGUID);
@@ -85,8 +98,9 @@ void NetworkSpells::update(const float& dt)
 
 			if (g != nullptr) {
 				
-				glm::vec3 pos = CustomLerp(g->getTransform().position, e.spellData.Position, m_lerpSpeed * dt);
+				glm::vec3 pos = CustomLerp(g->getObjectTransform().position, e.spellData.Position, m_lerpSpeed * dt);
 				g->setWorldPosition(pos);
+				g->UpdateParticles(dt);
 
 			}
 		}

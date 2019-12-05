@@ -3,8 +3,11 @@
 
 #include <Pch/Pch.h>
 #include <streambuf>
+//#include <Particles/ParticleBuffers.h>
 
 const int MaxParticles = 100000;
+
+class ParticleBuffers;
 
 
 struct TextureInfo //Information for the texture that we apply to the particles
@@ -58,9 +61,10 @@ struct PSinfo //All the fun particle information values
 class ParticleSystem
 {
 private:
+	Camera* m_camera;
 
-	TextureInfo* m_txtInfo;
-	PSinfo* m_psInfo;
+	TextureInfo m_txtInfo;
+	PSinfo m_psInfo;
 
 	glm::vec3 m_position;
 	glm::vec3 m_direction;
@@ -94,34 +98,28 @@ private:
 
 public:
 	//unsigned int shader is not used!
-	ParticleSystem(PSinfo* psInfo, TextureInfo* txtInfo, glm::vec3 position, GLuint shader, psBuffers psBuffer,
-		std::vector<glm::vec3> vertex, std::vector<glm::vec3> directionVector, std::vector<Particle> particle, std::vector<float> lifetime);
+	ParticleSystem(ParticleBuffers* particleBuffers);
 	//ParticleSystem();
 	~ParticleSystem();
 
-	PSinfo* GetParticleInfo();
-	TextureInfo* GetTextureInfo();
+	PSinfo GetParticleInfo();
+	TextureInfo GetTextureInfo();
 
 	glm::mat4 GetQuad();
 
 	bool Initialize();
-	bool Build(PSinfo* psInfo);
-	bool Texture(TextureInfo* txtInfo);
+	bool Build(PSinfo psInfo);
+	bool Texture(TextureInfo txtInfo);
 	bool Plays();
 
 	int GetNrOfParticles();
 
-	void Update(PSinfo* psInfo, glm::vec3 cameraPos, float time);
+	void Update(float time); //removed glm::vec3 cameraPos
 	void TempInit(PSinfo* psInfo);
-	void Render(const Camera* camera, const PSinfo* psInfo);
+	void Render(const Camera* camera);
 	void Pause();
 	void Play();
 
-	//void LoadInfo(unsigned int texture, unsigned int vao, unsigned int vertexBuffer, unsigned int directionalBuffer,
-	//	unsigned int lifetimeBuffer, unsigned int vertexPos, unsigned int vertexDir, unsigned int vertexLife,
-	//	std::vector<glm::vec3> vertex, std::vector<glm::vec3> directionVector, std::vector<Particle> particle, std::vector<float> lifetime);
-
-	void LoadInfo(psBuffers psBuffer);
 
 	void SetPosition(glm::vec3 pos);
 };

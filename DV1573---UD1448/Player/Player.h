@@ -13,13 +13,12 @@ class Player
 {
 
 public:
-	Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Camera* camera, SpellHandler* spellHandler);
+	Player(std::string name, glm::vec3 playerPosition, Camera* camera, SpellHandler* spellHandler);
 	~Player();
 
 	void update(float deltaTime);
 	void updateListenerProperties();
 	void attack();
-	void createRay(); //create ray for spells
 	void spawnPlayer(glm::vec3 pos);
 	void updateMesh();
 	void onDead();
@@ -37,13 +36,12 @@ public:
 
 	const float& getAttackCooldown() const;
 	const float& getSpecialCooldown() const;
-	const float& getDeflectCooldown() const;
 	const float& getMaxAttackCooldown() const;
 	const float& getMaxSpecialCooldown() const;
 	const glm::vec3 getMeshHalfSize() const;
 	const float& getMana() const;
 	const bool& onGround() const;
-	const bool& usingTripleSpell() const; //Get info over what spell should be in use. Either triple or flamestrike
+	const OBJECT_TYPE& currentSpell() const; //Get info over what spell should be in use. Either triple or flamestrike
 
 	//-----Set-----//
 	void setPlayerPos(glm::vec3 pos);
@@ -68,22 +66,36 @@ private:
 	SpellHandler* m_spellhandler;
 	EnhanceAttackSpell m_enhanceAttack;
 	AnimatedObject* m_firstPersonMesh;
-	//This is used for swapping spells. So that we know if we are to swap to flamestrike or triple spell
+	GameObject* m_shieldObject;
+
+	// This is used for swapping spells.
+	// So that we know if we are to swap to flamestrike or triple spell
 	bool m_usingTripleSpell; 
 	HudHandler* m_hudHandler;
+
 	float m_attackCooldown;
 	float m_deflectCooldown;
 	float m_specialCooldown;
-	float m_special3Cooldown;
-	float m_maxAttackCooldown, m_maxSpecialCooldown;
 	float m_spellSpeed = 1;
-	float m_speed;
+	float m_maxSpeed;
 	float m_deflectSoundGain = 1.0f;
 	
-	bool m_rMouse; //Right Mouse
 	float m_mana;
 	int m_health;
 	int m_frameCount;
+	bool m_rMouse; //Right Mouse
+
+	float m_maxHealth;
+	float m_maxMana; 
+	float m_manaRegen;
+	float m_maxAttackCooldown;
+	float m_deflectManaDrain;
+	float m_maxDeflectCooldown;
+	float m_specialManaDrain;
+	float m_maxSpecialCooldown;
+
+	OBJECT_TYPE m_mainAtkType;
+	OBJECT_TYPE m_specialAtkType;
 	
 	bool m_deflecting;
 	bool m_isWalking;
@@ -91,8 +103,7 @@ private:
 	
 	AnimationState animState;
 	void PlayAnimation(float deltaTime);
-	//removed in bulletPhysics.cpp
-	BulletPhysics* m_bp;
+
 	btKinematicCharacterController* m_character;
 	Client* m_client;
 };

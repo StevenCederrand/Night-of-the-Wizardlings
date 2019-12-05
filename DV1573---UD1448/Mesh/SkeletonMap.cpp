@@ -51,6 +51,7 @@ void SkeletonMap::destroy()
 {
 	cleanUp();
 	delete m_skeletonMapInstance;
+	m_skeletonMapInstance = nullptr;
 }
 
 

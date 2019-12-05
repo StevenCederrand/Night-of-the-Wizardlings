@@ -1151,12 +1151,12 @@ void Client::createSpellOnNetwork(const Spell& spell)
 	spellPacket.packetType = SPELL_CREATED;
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
 	spellPacket.timestamp = RakNet::GetTimeMS();
-	spellPacket.Position = spell.getTransform().position;
+	spellPacket.Position = spell.getObjectTransform().position;
 	spellPacket.LastPosition = spell.getLastPosition();
 	spellPacket.Direction = spell.getDirection();
 	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Rotation = glm::vec3(0.0f);
-	spellPacket.Scale = spell.getTransform().scale;
+	spellPacket.Scale = spell.getObjectTransform().scale;
 	spellPacket.SpellType = (OBJECT_TYPE)spell.getType();
 
 	m_removeOrAddSpellQueue.emplace_back(spellPacket);
@@ -1170,12 +1170,12 @@ void Client::updateSpellOnNetwork(const Spell& spell)
 	SpellPacket spellPacket;
 	spellPacket.packetType = SPELL_UPDATE;
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
-	spellPacket.Position = spell.getTransform().position;
+	spellPacket.Position = spell.getObjectTransform().position;
 	spellPacket.LastPosition = spell.getLastPosition();
 	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Direction = spell.getDirection();
 	spellPacket.Rotation = glm::vec3(0.0f);
-	spellPacket.Scale = spell.getTransform().scale;
+	spellPacket.Scale = spell.getObjectTransform().scale;
 	spellPacket.SpellType = (OBJECT_TYPE)spell.getType(); 
 
 	m_updateSpellQueue.emplace_back(spellPacket);
@@ -1189,12 +1189,12 @@ void Client::destroySpellOnNetwork(const Spell& spell)
 	spellPacket.packetType = SPELL_DESTROY;
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
 	spellPacket.timestamp = RakNet::GetTimeMS();
-	spellPacket.Position = spell.getTransform().position;
+	spellPacket.Position = spell.getObjectTransform().position;
 	spellPacket.LastPosition = spell.getLastPosition();
 	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Direction = spell.getDirection();
 	spellPacket.Rotation = glm::vec3(0.0f);
-	spellPacket.Scale = spell.getTransform().scale;
+	spellPacket.Scale = spell.getObjectTransform().scale;
 	spellPacket.SpellType = (OBJECT_TYPE)spell.getType();
 
 	m_removeOrAddSpellQueue.emplace_back(spellPacket);
@@ -1213,9 +1213,9 @@ void Client::sendHitRequest(Spell& spell, NetworkPlayers::PlayerEntity& playerTh
 	hitPacket.SpellID = spell.getUniqueID();
 	hitPacket.CreatorGUID = m_clientPeer->GetMyGUID();
 	hitPacket.playerHitGUID = playerThatWasHit.data.guid.rakNetGuid;
-	hitPacket.Position = spell.getTransform().position;
-	hitPacket.Rotation = spell.getTransform().rotation;
-	hitPacket.Scale = spell.getTransform().scale;
+	hitPacket.Position = spell.getObjectTransform().position;
+	hitPacket.Rotation = spell.getObjectTransform().rotation;
+	hitPacket.Scale = spell.getObjectTransform().scale;
 	hitPacket.damage = spell.getDamage();
 	hitPacket.SpellDirection = spell.getDirection();
 
@@ -1230,9 +1230,9 @@ void Client::sendHitRequest(Spell& spell, const PlayerPacket& playerThatWasHit)
 	hitPacket.SpellID = spell.getUniqueID();
 	hitPacket.CreatorGUID = m_clientPeer->GetMyGUID();
 	hitPacket.playerHitGUID = playerThatWasHit.guid.rakNetGuid;
-	hitPacket.Position = spell.getTransform().position;
-	hitPacket.Rotation = spell.getTransform().rotation;
-	hitPacket.Scale = spell.getTransform().scale;
+	hitPacket.Position = spell.getObjectTransform().position;
+	hitPacket.Rotation = spell.getObjectTransform().rotation;
+	hitPacket.Scale = spell.getObjectTransform().scale;
 	hitPacket.damage = spell.getDamage();
 	hitPacket.SpellDirection = spell.getDirection();
 

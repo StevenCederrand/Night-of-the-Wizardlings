@@ -85,7 +85,7 @@ void NetworkPlayers::update(const float& dt)
 			shieldObject->loadMesh("EnemyShieldMesh.mesh");
 			
 			glm::vec3 spawnpos = p.data.position + glm::vec3(0.0f, p.data.meshHalfSize.y, 0.0f);
-			glm::vec3 newShieldpos = g->getTransform().position + glm::vec3(0.0f, p.data.meshHalfSize.y, 0.0f);
+			glm::vec3 newShieldpos = g->getObjectTransform().position + glm::vec3(0.0f, p.data.meshHalfSize.y, 0.0f);
 			glm::vec3 shieldLerp = CustomLerp(newShieldpos, spawnpos, m_lerpSpeed * dt);
 			shieldObject->setTransform(shieldLerp, p.data.rotation, glm::vec3(1.0));
 			Renderer::getInstance()->submit(shieldObject, ENEMY_SHIELD);
@@ -161,7 +161,7 @@ void NetworkPlayers::update(const float& dt)
 				p.playerFlag == NetGlobals::THREAD_PLAYER_FLAG::AlreadyAdded;
 			}
 
-			glm::vec3 pos = CustomLerp(g->getTransform().position, p.data.position, m_lerpSpeed * dt);
+			glm::vec3 pos = CustomLerp(g->getObjectTransform().position, p.data.position, m_lerpSpeed * dt);
 
 
 			float healthClip = static_cast<float>(p.data.health) / static_cast<float>(NetGlobals::PlayerMaxHealth);

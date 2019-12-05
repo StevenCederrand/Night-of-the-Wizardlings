@@ -1,7 +1,7 @@
 #include "Pch/Pch.h"
 #include "ParticleBuffers.h"
 
-ParticleBuffers::ParticleBuffers(PSinfo psInfo)
+ParticleBuffers::ParticleBuffers(PSinfo psInfo, TextureInfo txtInfo)
 {
 	//No way this is gonna work
 
@@ -15,6 +15,7 @@ ParticleBuffers::ParticleBuffers(PSinfo psInfo)
 	m_vertexDirection = 0;
 	m_vertexLife = 0;
 	m_psInfo = psInfo;
+	m_txtInfo = txtInfo;
 }
 
 ParticleBuffers::~ParticleBuffers()
@@ -47,9 +48,9 @@ void ParticleBuffers::bindBuffers()
 		float z = dis(gen);
 
 		Particle particles;
-		glm::vec3 v = glm::vec3(0.0f, 0.0f, 0.0f);
+		glm::vec3 v = glm::vec3(0.0f, -1000.0f, 0.0f);
 
-		particles.position = glm::vec3(0.0f, 0.0f, 0.0f);
+		particles.position = glm::vec3(0.0f, -1000.0f, 0.0f);
 		particles.distance = -1.0f;
 		particles.isAlive = false;
 		particles.startLoop = true;
@@ -160,17 +161,12 @@ std::vector<float> ParticleBuffers::getLifetime()
 	return m_lifetime;
 }
 
-psBuffers ParticleBuffers::getBuffer()
+PSinfo ParticleBuffers::getPSinfo()
 {
-	psBuffer.texture = m_texture;
-	psBuffer.vao = m_vao;
-	psBuffer.vertexBuffer = m_vertexBuffer;
-	psBuffer.directionalBuffer = m_directionalBuffer;
-	psBuffer.lifetimeBuffer = m_lifetimeBuffer;
-	psBuffer.shader = m_shader;
-	psBuffer.vertexPosition = m_vertexPosition;
-	psBuffer.vertexDirection = m_vertexDirection;
-	psBuffer.vertexLife = m_vertexLife;
+	return m_psInfo;
+}
 
-	return psBuffer;
+TextureInfo ParticleBuffers::getTxtInfo()
+{
+	return m_txtInfo;
 }
