@@ -17,6 +17,9 @@ LevelEditState::LevelEditState(bool cameraState)
 	}
 
 	Renderer* renderer = Renderer::getInstance();
+	
+	ImGui::CreateContext();
+
 	renderer->setupCamera(m_camera);
 
 	m_skybox = new SkyBox();
@@ -33,6 +36,8 @@ LevelEditState::~LevelEditState()
 {
 	for (GameObject* object : m_objects)
 		delete object;
+	for (GameObject* object : m_models)
+		delete object;
 	for (Pointlight* light : m_pointlights)
 		delete light;
 
@@ -40,6 +45,7 @@ LevelEditState::~LevelEditState()
 
 	m_pointlights.clear();
 	m_objects.clear();
+	m_models.clear();
 
 	delete m_camera;
 	delete m_skybox;
@@ -58,9 +64,10 @@ void LevelEditState::loadMap()
 void LevelEditState::loadCanvas()
 {
 	Renderer* renderer = Renderer::getInstance();
-	m_objects.push_back(new MapObject("Canvas"));
-	m_objects[m_objects.size() - 1]->loadMesh("canvas.mesh");
-	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
+	m_models.push_back(new MapObject("Canvas"));
+	m_models[m_models.size() - 1]->loadMesh("canvas.mesh");
+	m_models[m_models.size() - 1]->setTransform(glm::vec3(0.f), glm::quat(glm::vec3(0.0f)), glm::vec3(4.0f));
+	renderer->submit(m_models[m_models.size() - 1], RENDER_TYPE::STATIC);
 }
 
 void LevelEditState::loadDecor()
@@ -110,6 +117,15 @@ void LevelEditState::loadBasicLight()
 		renderer->submit(p, RENDER_TYPE::POINTLIGHT_SOURCE);
 }
 
+void LevelEditState::deleteMesh()
+{
+	//This should change so that we can choose the selected object(s)
+	for (size_t i = 0; i < m_models.size(); i++)
+		delete m_models[i];
+
+	m_models.clear();
+}
+
 void LevelEditState::update(float dt)
 {
 	updateState(dt);
@@ -126,6 +142,8 @@ void LevelEditState::update(float dt)
 		loadDecor();
 	if (Input::isKeyPressed(GLFW_KEY_1))
 		loadCanvas();
+	if (Input::isKeyPressed(GLFW_KEY_2))
+		deleteMesh();
 }
 
 void LevelEditState::render()
@@ -142,7 +160,7 @@ void LevelEditState::updateState(const float& dt)
 
 	m_camera->updateLevelEd();
 	m_picker->update();
-	logTrace("MousePicker: ({0}, {1}, {2})", std::to_string(m_picker->getCurrentRay().x), std::to_string(m_picker->getCurrentRay().y), std::to_string(m_picker->getCurrentRay().z));
+	//logTrace("MousePicker: ({0}, {1}, {2})", std::to_string(m_picker->getCurrentRay().x), std::to_string(m_picker->getCurrentRay().y), std::to_string(m_picker->getCurrentRay().z));
 	Renderer::getInstance()->updateParticles(dt);
 	for (GameObject* object : m_objects)
 		object->update(dt);

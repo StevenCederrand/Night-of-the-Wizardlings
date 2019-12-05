@@ -31,6 +31,7 @@ public:
 	void loadDecor();
 	void saveMap();
 	void loadBasicLight();
+	void deleteMesh();
 
 	virtual void update(float dt) override;
 	virtual void render() override;
@@ -41,6 +42,7 @@ private:
 private:
 	//Any inherited GameObject class added to this vector will support basic rendering
 	std::vector<GameObject*> m_objects;
+	std::vector<GameObject*> m_models;
 	std::vector<Pointlight*> m_pointlights;
 
 	Camera* m_camera;

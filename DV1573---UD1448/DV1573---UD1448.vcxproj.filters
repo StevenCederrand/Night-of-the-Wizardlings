@@ -68,6 +68,11 @@
     <ClCompile Include="HUD\WorldHudObject.cpp" />
     <ClCompile Include="States\LevelEditState.cpp" />
     <ClCompile Include="LevelEditor\MousePicker.cpp" />
+    <ClCompile Include="LevelEditor\IMGUI\imgui.cpp" />
+    <ClCompile Include="LevelEditor\IMGUI\imgui_demo.cpp" />
+    <ClCompile Include="LevelEditor\IMGUI\imgui_draw.cpp" />
+    <ClCompile Include="LevelEditor\IMGUI\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="LevelEditor\IMGUI\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameObject\AnimatedObject.h" />
@@ -162,6 +167,13 @@
     <ClInclude Include="HUD\WorldHudObject.h" />
     <ClInclude Include="States\LevelEditState.h" />
     <ClInclude Include="LevelEditor\MousePicker.h" />
+    <ClInclude Include="LevelEditor\IMGUI\imconfig.h" />
+    <ClInclude Include="LevelEditor\IMGUI\imgui.h" />
+    <ClInclude Include="LevelEditor\IMGUI\imgui_impl_opengl3.h" />
+    <ClInclude Include="LevelEditor\IMGUI\imgui_internal.h" />
+    <ClInclude Include="LevelEditor\IMGUI\imstb_rectpack.h" />
+    <ClInclude Include="LevelEditor\IMGUI\imstb_textedit.h" />
+    <ClInclude Include="LevelEditor\IMGUI\imstb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />
