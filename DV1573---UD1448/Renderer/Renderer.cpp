@@ -976,21 +976,22 @@ void Renderer::render() {
 				object->bindMaterialToShader(shader, material);			
 			}
 
-			if (object->getType() == OBJECT_TYPE::NORMAL_MAPPED)
-			{				
-				shader->setInt("normalMap", 1);
-				shader->setVec2("TexAndRim", glm::vec2(1));
-				shader->setInt("NormalMapping", true);
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, object->getNormalMapTexture());
+			//if (object->getType() == OBJECT_TYPE::NORMAL_MAPPED)
+			//{				
+			//	//shader->setInt("normalMap", 1);
+			//	//shader->setVec2("TexAndRim", glm::vec2(1));
+			//	//shader->setInt("NormalMapping", true);
+			//	/*glActiveTexture(GL_TEXTURE0);
+			//	glBindTexture(GL_TEXTURE_2D, object->getNormalMapTexture());
 
-				glActiveTexture(GL_TEXTURE0 + 1);
-				glBindTexture(GL_TEXTURE_2D, object->getNormalMap());
-			}
-			else
-			{
-				shader->setInt("NormalMapping", false);
-			}
+			//	glActiveTexture(GL_TEXTURE0 + 1);
+			//	glBindTexture(GL_TEXTURE_2D, object->getNormalMap());*/
+
+			//}
+			//else
+			//{
+			//	shader->setInt("NormalMapping", false);
+			//}
 
 			modelMatrix = glm::mat4(1.0f);
 

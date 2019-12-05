@@ -35,7 +35,7 @@ public:
 
 	void setTransformFromRigid(int i);
 
-	virtual void loadNormalMap();
+	//virtual void loadNormalMap();
 
 
 	virtual void update(float dt) = 0;
@@ -71,8 +71,8 @@ public:
 	const std::vector<btRigidBody*>& getRigidBodies()  { return m_bodies; }	
 	const bool& getShouldRender() const;
 	const glm::vec3 getLastPosition() const;
-	const GLuint& getNormalMap() const;
-	const GLuint& getNormalMapTexture() const;
+	/*const GLuint& getNormalMap() const;
+	const GLuint& getNormalMapTexture() const;*/
 
 private:
 	void updateModelMatrix();
@@ -100,8 +100,8 @@ protected:
 	std::vector<MeshBox> m_meshes;
 	bool m_shouldRender;
 	int m_type;
-	GLuint m_normalMap;
-	GLuint m_normalMapTexture;
+	/*GLuint m_normalMap;
+	GLuint m_normalMapTexture;*/
 };
 
 

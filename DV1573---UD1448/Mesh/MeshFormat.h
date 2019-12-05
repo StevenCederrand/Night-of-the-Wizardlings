@@ -44,8 +44,10 @@ struct Material
 	glm::vec3 diffuse;
 	glm::vec3 specular;
 	int rimLighting;
-	bool texture;	
+	bool texture;
+	bool normalMap;
 	std::vector<GLuint> textureID;	
+	std::vector<GLuint> normalMapID;
 };
 
 struct Buffers

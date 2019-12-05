@@ -16,7 +16,7 @@ void logVec3(glm::vec3 vector) {
 PlayState::PlayState(bool spectator)
 {
 	
-	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
+	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);	
 
 	m_camera = new Camera();
 	m_bPhysics = new BulletPhysics(-20.0f);
@@ -75,7 +75,7 @@ PlayState::PlayState(bool spectator)
 
 	//Load test cube for normal mapping
 	GameObject* tangentCube = new TangentCube();
-	tangentCube->loadNormalMap();
+	//tangentCube->loadNormalMap();
 	m_objects.push_back(tangentCube);
 	m_objects[m_objects.size() - 1]->loadMesh("tangentCube.mesh");
 	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);

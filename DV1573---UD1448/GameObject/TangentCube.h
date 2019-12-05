@@ -8,7 +8,7 @@ public:
 	TangentCube();
 	~TangentCube();
 
-	void loadNormalMap();	
+	//void loadNormalMap();	
 
 	void update(float dt);
 private:
