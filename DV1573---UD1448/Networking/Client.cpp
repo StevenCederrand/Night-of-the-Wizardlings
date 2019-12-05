@@ -1,7 +1,6 @@
 #include <Pch/Pch.h>
 #include "Client.h"
 #include <Player/Player.h>
-#include <BetterText/TextManager.h>
 
 Client::Client()
 {
@@ -476,25 +475,21 @@ void Client::processAndHandlePackets()
 			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GameInSession) {
 				logTrace("[Client]******** GAME HAS STARTED ********");
 
-				Evnt evnt;
-				evnt.playerEvent = PlayerEvents::GameStarted;
-
 				// Add this to the event list
 				{
 					std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-					m_playerEvents.push_back(evnt);
+					m_playerEvents.push_back(PlayerEvents::GameStarted);
 				}
 
 			}
 			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GameFinished) {
 			
 				logTrace("[Client]******** GAME HAS ENDED ********");
-				Evnt evnt;
-				evnt.playerEvent = PlayerEvents::GameEnded;
+
 				// Add this to the event list
 				{
 					std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-					m_playerEvents.push_back(evnt);
+					m_playerEvents.push_back(PlayerEvents::GameEnded);
 				}
 
 
@@ -611,18 +606,13 @@ void Client::processAndHandlePackets()
 				m_latestPlayerThatHitMe = findPlayerByGuid(playerPacket.lastHitByGuid);
 			}
 			
-			Evnt dmgEvnt;
-			Evnt deathEvnt;
-			dmgEvnt.playerEvent = PlayerEvents::TookDamage;
-			deathEvnt.playerEvent = PlayerEvents::Died;
-
 			// Add this to the event list
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-				m_playerEvents.push_back(dmgEvnt);
+				m_playerEvents.push_back(PlayerEvents::TookDamage);
 
 				if (m_myPlayerDataPacket.health <= 0) {
-					m_playerEvents.push_back(deathEvnt);
+					m_playerEvents.push_back(PlayerEvents::Died);
 					
 				}
 			}
@@ -660,13 +650,10 @@ void Client::processAndHandlePackets()
 			m_myPlayerDataPacket.latestSpawnPosition = playerPacket.latestSpawnPosition;
 			m_myPlayerDataPacket.health = playerPacket.health;
 
-			Evnt evnt;
-			evnt.playerEvent = PlayerEvents::Respawned;
-
 			// Add this to the event list
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-				m_playerEvents.push_back(evnt);
+				m_playerEvents.push_back(PlayerEvents::Respawned);
 			}
 
 
@@ -677,13 +664,10 @@ void Client::processAndHandlePackets()
 			m_myPlayerDataPacket.health = NetGlobals::PlayerMaxHealth;
 			m_myPlayerDataPacket.latestSpawnPosition = NetGlobals::PlayerFirstSpawnPoint;
 
-			Evnt evnt;
-			evnt.playerEvent = PlayerEvents::Respawned;
-
 			// Add this to the event list
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-				m_playerEvents.push_back(evnt);
+				m_playerEvents.push_back(PlayerEvents::Respawned);
 			}
 			break;
 		}
@@ -691,13 +675,10 @@ void Client::processAndHandlePackets()
 		case GIVE_PLAYER_FULL_HEALTH:
 		{
 			m_myPlayerDataPacket.health = NetGlobals::PlayerMaxHealth;
-			Evnt evnt;
-			evnt.playerEvent = PlayerEvents::SessionOver;
-
 			// Add this to the event list
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-				m_playerEvents.push_back(evnt);
+				m_playerEvents.push_back(PlayerEvents::SessionOver);
 			}
 			break;
 		}
@@ -716,20 +697,10 @@ void Client::processAndHandlePackets()
 
 		case HITMARK:
 		{
-			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
-			HitConfirmedPacket hitConfirmedPacket;
-			hitConfirmedPacket.Serialize(false, bsIn);
-			Evnt evnt = Evnt();
-			evnt.playerEvent = PlayerEvents::Hitmark;
-			evnt.data = (void*)malloc(sizeof(HitConfirmedPacket));
-			memcpy(evnt.data, &hitConfirmedPacket, sizeof(HitConfirmedPacket));
-
-			//evnt.data = (void*)&hitConfirmedPacket;
-
 			// Add this to the event list
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-				m_playerEvents.push_back(evnt);
+				m_playerEvents.push_back(PlayerEvents::Hitmark);
 			}			
 		}
 		break;
@@ -753,13 +724,10 @@ void Client::processAndHandlePackets()
 			int slot = shPtr->playSound(SuccessfulDeflectSound, spellPacket.CreatorGUID);
 			shPtr->setSourcePosition(spellPacket.Position, SuccessfulDeflectSound, spellPacket.CreatorGUID, slot);
 			
-			Evnt evnt;
-			evnt.playerEvent = PlayerEvents::Deflected;
-
 			// Add this to the event list
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-				m_playerEvents.push_back(evnt);
+				m_playerEvents.push_back(PlayerEvents::Deflected);
 			}
 
 			// scope
@@ -781,15 +749,6 @@ void Client::processAndHandlePackets()
 
 			int slot = shPtr->playSound(SuccessfulDeflectSound, spellPacket.CreatorGUID);
 			shPtr->setSourcePosition(spellPacket.Position, SuccessfulDeflectSound, spellPacket.CreatorGUID, slot);
-		
-			Evnt evnt;
-			evnt.playerEvent = PlayerEvents::EnemyDeflected;
-
-			// Add this to the event list
-			{
-				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-				m_playerEvents.push_back(evnt);
-			}
 		}
 		break;
 
@@ -897,14 +856,10 @@ void Client::processAndHandlePackets()
 			PlayerPacket pData;
 			pData.Serialize(false, bsIn);
 
-			Evnt evnt;
-			evnt.playerEvent = PlayerEvents::TookHeal;
-
-
 			// Add this to the event list
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-				m_playerEvents.push_back(evnt);
+				m_playerEvents.push_back(PlayerEvents::TookHeal);
 			}
 
 			m_myPlayerDataPacket.health = pData.health;
@@ -918,13 +873,10 @@ void Client::processAndHandlePackets()
 			PlayerPacket pData;
 			pData.Serialize(false, bsIn);
 
-			Evnt evnt;
-			evnt.playerEvent = PlayerEvents::TookMana;
-
 			// Add this to the event list
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-				m_playerEvents.push_back(evnt);
+				m_playerEvents.push_back(PlayerEvents::TookMana);
 			}
 
 			m_myPlayerDataPacket.mana = pData.mana;
@@ -1001,13 +953,10 @@ void Client::processAndHandlePackets()
 				m_destroyedWalls.push_back(destpacket);
 			}
 
-			Evnt evnt;
-			evnt.playerEvent = PlayerEvents::WallGotDestroyed;
-
 			// Add this to the event list
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-				m_playerEvents.push_back(evnt);
+				m_playerEvents.push_back(PlayerEvents::WallGotDestroyed);
 			}
 
 			break;
@@ -1018,13 +967,10 @@ void Client::processAndHandlePackets()
 			ReadyPlayersCount readyPlayersCount;
 			readyPlayersCount.Serialize(false, bsIn);
 
-			Evnt evnt;
-			evnt.playerEvent = PlayerEvents::PlayerReady;
-
 			// Add this to the event list
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-				m_playerEvents.push_back(evnt);
+				m_playerEvents.push_back(PlayerEvents::PlayerReady);
 			}
 
 			m_numberOfReadyPlayers = readyPlayersCount.numberOfReadyPlayers;
@@ -1345,16 +1291,13 @@ const RoundTimePacket& Client::getRoundTimePacket() const
 	return m_roundTimePacket;
 }
 
-const Evnt Client::readNextEvent()
+const PlayerEvents Client::readNextEvent()
 {
-	if (m_playerEvents.size() == 0){
-		Evnt evnt;
-		evnt.playerEvent = PlayerEvents::None;
-		return evnt;
-	}
+	if (m_playerEvents.size() == 0)
+		return PlayerEvents::None;
 
 	// Save it
-	Evnt evnt = m_playerEvents[0];
+	PlayerEvents evnt = m_playerEvents[0];
 
 	// Remove it so that the next time this function is called the next event will be shown
 	{

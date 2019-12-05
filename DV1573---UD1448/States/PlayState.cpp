@@ -19,6 +19,7 @@ PlayState::PlayState(bool spectator)
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
 
 	m_camera = new Camera();
+	m_bPhysics = new BulletPhysics(-20.0f);
 
 	mu.printBoth("After physics and camera init:");
 
@@ -37,10 +38,10 @@ PlayState::PlayState(bool spectator)
 		enemyShield->loadMesh("EnemyShieldMesh.mesh");
 		delete enemyShield;
 
-		m_spellHandler = new SpellHandler();
+		m_spellHandler = new SpellHandler(m_bPhysics);
 		m_spellHandler->setOnHitCallback(std::bind(&PlayState::onSpellHit_callback, this));
 
-		m_player = new Player("Player", NetGlobals::PlayerFirstSpawnPoint, m_camera, m_spellHandler);
+		m_player = new Player(m_bPhysics, "Player", NetGlobals::PlayerFirstSpawnPoint, m_camera, m_spellHandler);
 		m_player->setHealth(NetGlobals::PlayerMaxHealth);
 
 		if (Client::getInstance()->isInitialized())
@@ -53,7 +54,7 @@ PlayState::PlayState(bool spectator)
 		mu.printBoth("After hud:");
 	}
 	else {
-		m_spellHandler = new SpellHandler();
+		m_spellHandler = new SpellHandler(nullptr);
 		m_spellHandler->setOnHitCallback(std::bind(&PlayState::onSpellHit_callback, this));
 		m_camera->setSpectatorMode(SpectatorMode::FreeCamera);
 	}
@@ -129,12 +130,6 @@ PlayState::PlayState(bool spectator)
 		renderer->submit(m_pointlights.at(i), RENDER_TYPE::POINTLIGHT_SOURCE);
 	}
 
-	// Collision // TODO: Move to object constructor
-	for (GameObject* g : m_objects)
-	{
-		g->createRigidBody(CollisionObject::box);
-	}
-	mu.printBoth("After rigidbodies:");
 
 	//m_firstPerson = new AnimatedObject("NyCharacter");
 	//m_firstPerson->loadMesh("NyCharacter.mesh");
@@ -203,115 +198,14 @@ void PlayState::loadDestructables()
 	Renderer* renderer = Renderer::getInstance();
 	for (int i = (int)m_objects.size() - 1; i >= 0; i--)
 	{
-	case 0:
-		
-
-		for (int i = (int)m_objects.size() - 1; i >= 0; i--)
+		if (m_objects[i]->getType() == DESTRUCTIBLE)
 		{
-			if (m_objects[i]->getType() == DESTRUCTIBLE)
-			{
-				renderer->removeRenderObject(m_objects[i], STATIC);
-				delete m_objects[i];
-				m_objects.erase(m_objects.begin() + i);
-			}
-		}
-		
-		// Wall desctructibles
-		meshLoader.LoadMesh(MESHPATH + "Towermap/DSTRWalls.mesh");
-		for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
-		{
-			m_objects.emplace_back(new DestructibleObject(
-				&m_dstr,
-				m_objects.size(),
-				gravityAfterTime,
-				timeToChange));
-
-			static_cast<DestructibleObject*>(m_objects.back())->loadDestructible(
-				meshLoader.GetVertices(i),
-				meshLoader.GetMeshName(i),
-				meshLoader.GetMaterial(i),
-				meshLoader.GetAlbedo(i),
-				meshLoader.GetTransform(i),
-				0.15f
-			);
-
-			m_objects.back()->createRigidBody(CollisionObject::box);
-			Renderer::getInstance()->submit(m_objects.back(), STATIC);
-		}
-		meshLoader.Unload();
-
-		// Maze desctructibles
-		meshLoader.LoadMesh(MESHPATH + "DSTRMaze.mesh");
-		for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
-		{
-			m_objects.emplace_back(new DestructibleObject(
-				&m_dstr,
-				m_objects.size(),
-				gravityAfterTime,
-				timeToChange
-			));
-
-			static_cast<DestructibleObject*>(m_objects.back())->loadDestructible(
-				meshLoader.GetVertices(i),
-				meshLoader.GetMeshName(i),
-				meshLoader.GetMaterial(i),
-				meshLoader.GetAlbedo(i),
-				meshLoader.GetTransform(i),
-				0.25f
-			);
-
-			m_objects.back()->createRigidBody(CollisionObject::box);
-			Renderer::getInstance()->submit(m_objects.back(), STATIC);
-		}
-		meshLoader.Unload();
-
-		// Pillar destructibles
-		meshLoader.LoadMesh(MESHPATH + "Towermap/DSTRPillars.mesh");
-		for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
-		{
-			m_objects.emplace_back(new DestructibleObject(
-				&m_dstr_alt1,
-				m_objects.size(),
-				gravityAfterTime,
-				timeToChange
-			));
-
-			static_cast<DestructibleObject*>(m_objects.back())->loadDestructible(
-				meshLoader.GetVertices(i),
-				meshLoader.GetMeshName(i),
-				meshLoader.GetMaterial(i),
-				meshLoader.GetAlbedo(i),
-				meshLoader.GetTransform(i),
-				1.0f
-			);
-
-			m_objects.back()->createRigidBody(CollisionObject::box);
-			Renderer::getInstance()->submit(m_objects.back(), STATIC);
+			renderer->removeRenderObject(m_objects[i], STATIC);
+			delete m_objects[i];
+			m_objects.erase(m_objects.begin() + i);
 		}
 	}
 
-			meshLoader.LoadMesh(MESHPATH + "Debug_DSTR.mesh");
-			for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
-			{
-				m_objects.emplace_back(new DestructibleObject(
-					&m_dstr,
-					m_objects.size(),
-					gravityAfterTime,
-					timeToChange));
-
-				static_cast<DestructibleObject*>(m_objects.back())->loadDestructible(
-					meshLoader.GetVertices(i),
-					meshLoader.GetMeshName(i),
-					meshLoader.GetMaterial(i),
-					meshLoader.GetAlbedo(i),
-					meshLoader.GetTransform(i),
-					0.15f
-				);
-
-				m_objects.back()->createRigidBody(CollisionObject::box);
-				Renderer::getInstance()->submit(m_objects.back(), STATIC);
-			}
-			meshLoader.Unload();
 
 	BGLoader meshLoader; // The file loader
 	// Wall desctructibles
@@ -429,6 +323,7 @@ PlayState::~PlayState()
 
 	delete m_skybox;
 	delete m_player;
+	delete m_bPhysics;
 	delete m_spellHandler;
 	delete m_camera;
 	delete m_firstPerson;
@@ -506,10 +401,10 @@ void PlayState::update_isPlaying(const float& dt)
 	auto* clientPtr = Client::getInstance();
 	clientPtr->updateNetworkEntities(dt);
 
+	m_bPhysics->update(dt);
 	m_player->update(dt);
 	m_spellHandler->spellUpdate(dt);
 
-	BulletPhysics::getInstance()->update(dt);
 	Renderer::getInstance()->updateParticles(dt);
 
 	shPtr->setSourcePosition(m_player->getPlayerPos(), HitmarkSound);
@@ -719,7 +614,7 @@ void PlayState::update_isSpectating(const float& dt)
 {
 	auto* clientPtr = Client::getInstance();
 	clientPtr->updateNetworkEntities(dt);
-	BulletPhysics::getInstance()->update(dt);
+	m_bPhysics->update(dt);
 
 	for (GameObject* object : m_objects)
 	{
@@ -834,6 +729,10 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 		spellobj = static_cast<Spell*>(sp1);
 		break;
 
+	case (REFLECT):
+		spellobj = static_cast<Spell*>(sp1);
+		break;
+
 	case (FLAMESTRIKE):
 		spellobj = static_cast<Spell*>(sp1);
 		break;
@@ -851,6 +750,10 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 		break;
 
 	case (ENHANCEATTACK):
+		spellobj = static_cast<Spell*>(sp2);
+		break;
+
+	case (REFLECT):
 		spellobj = static_cast<Spell*>(sp2);
 		break;
 
@@ -874,13 +777,12 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 
 			m_dstr->Destroy(dstrobj, glm::vec2(hitpoint.getX(), hitpoint.getY()), spellobj->getDirection());
 
-			// TODO: Fix this
-			if (spellobj->getRigidBody() != nullptr)
+			if (spellobj->getBodyReference() != nullptr)
 			{
-				float rndX = rand() % 2000 + 1 - 1000; rndX /= 1000;
-				float rndY = rand() % 2000 + 1 - 1000; rndY /= 1000;
-				float rndZ = rand() % 2000 + 1 - 1000; rndZ /= 1000;
-				spellobj->getRigidBody()->setLinearVelocity(btVector3(rndX, rndY, rndZ) * 35);
+				float rndX = rand() % 1999 + 1 - 1000; rndX /= 1000;
+				float rndY = rand() % 1999 + 1 - 1000; rndY /= 1000;
+				float rndZ = rand() % 1999 + 1 - 1000; rndZ /= 1000;
+				spellobj->getBodyReference()->setLinearVelocity(btVector3(rndX, rndY, rndZ) * 35);
 			}
 		
 	
@@ -911,6 +813,7 @@ void PlayState::HUDHandler() {
 	m_hudHandler.getHudObject(BAR_MANA)->setXClip(m_player->getMana() / 100.0f);
 	m_hudHandler.getHudObject(CROSSHAIR_MANA)->setYClip(m_player->getMana() / 100.0f);
 
+
 	if (m_player->getAttackCooldown() > 0) {
 		m_hudHandler.getHudObject(SPELL_ARCANE)->setGrayscale(m_player->getAttackCooldown() / m_player->getMaxAttackCooldown());
 	}
@@ -926,7 +829,7 @@ void PlayState::HUDHandler() {
 		m_hudHandler.getHudObject(SPELL_TRIPLE)->setGrayscale(0);
 	}
 	//If triple spell is active
-	if (m_player->currentSpell() == ENHANCEATTACK) {	// TODO: Make this dymanic, not hardcoded for enhance and flamestrike
+	if (m_player->usingTripleSpell()) {
 		m_hudHandler.getHudObject(SPELL_TRIPLE)->setAlpha(1.0f);
 		m_hudHandler.getHudObject(SPELL_FLAMESTRIKE)->setAlpha(0.0f);
 	}

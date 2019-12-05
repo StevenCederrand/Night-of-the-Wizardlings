@@ -10,7 +10,6 @@
 #define DEBUG_SHADER "Debug_Forward"
 #define FRESNEL "Fresnel_Shader"
 #define ENEMYSHIELD "Enemy_Shield"
-#define TRANSPARENT "Transparent_Render"
 //#define BLOOM "Bloom_Shader"
 //#define BLUR "Blur_Shader"
 //#define BLOOM_BLUR "BloomBlur_Shader"
@@ -69,8 +68,7 @@ enum RENDER_TYPE {
 	SHIELD,
 	FIRESPELL,
 	POINTLIGHT_SOURCE,
-	ENEMY_SHIELD,
-	SKYOBJECTS
+	ENEMY_SHIELD
 };
 
 class Renderer
@@ -98,7 +96,6 @@ private:
 	std::vector<GameObject*> m_pickups;
 	std::vector<GameObject*> m_shieldObject;
 	std::vector<GameObject*> m_enemyShieldObject;
-	std::vector<GameObject*> m_skyObjects;
 
 	std::unordered_map<GLuint, std::vector<HudObject*>> m_2DHudMap;
 

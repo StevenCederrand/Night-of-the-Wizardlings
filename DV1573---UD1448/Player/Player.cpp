@@ -38,8 +38,6 @@ Player::Player(BulletPhysics* bp, std::string name, glm::vec3 playerPosition, Ca
 	m_bp = bp;
 	float temp = 1.0f;
 	m_character = m_bp->createCharacter(playerPosition, temp);
-	m_character->getGhostObject()->setUserPointer(this);
-	
 
 	m_client = Client::getInstance();
 }
@@ -275,7 +273,7 @@ void Player::PlayAnimation(float deltaTime)
 
 void Player::attack()
 {
-	SoundHandler* shPtr = SoundHandler::getInstance();
+	SoundHandler* shPtr = SoundHandler::getInstance();	
 	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_RIGHT))
 	{
 		//Actually deflecting
@@ -297,29 +295,29 @@ void Player::attack()
 				shPtr->playSound(DeflectSound, m_client->getMyData().guid);
 				m_deflecting = true; //So we don't play sound over and over
 			}
-			m_mana -= 10.f * DeltaTime;
+			m_mana -= 10.f * DeltaTime;			
 			m_deflectCooldown = 0.5f;
 		}
 		else { //Player is holding down RM without any mana
-
+			
 			//Fade out deflect sound
 			if (m_deflectSoundGain > 0.0f)
-			{
+			{				
 				shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
 				m_deflectSoundGain -= 2.0f * DeltaTime;
 			}
 			else
 			{
-				shPtr->stopSound(DeflectSound, m_client->getMyData().guid);
+				shPtr->stopSound(DeflectSound, m_client->getMyData().guid);				
 			}
 		}
 		m_rMouse = true;
 	}
 	else if(m_deflecting)
-	{
+	{		
 		//Fade out deflect sound
 		if (m_deflectSoundGain > 0.0f)
-		{
+		{			
 			shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
 			m_deflectSoundGain -= 2.0f * DeltaTime;
 		}
@@ -329,7 +327,7 @@ void Player::attack()
 			m_deflectSoundGain = 0.4f;
 			shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
 			m_deflecting = false;
-		}
+		}		
 	}
 	else
 	{
@@ -381,7 +379,7 @@ void Player::attack()
 		m_rMouse = false;
 		animState.deflecting = false;
 	}
-
+	
 }
 
 void Player::createRay()

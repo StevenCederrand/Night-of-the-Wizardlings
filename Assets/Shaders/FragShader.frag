@@ -108,12 +108,12 @@ void main() {
 
 
     // Resulting light
-    vec4 result = vec4(ambientLight + directionalLight + pointLights + emissive, finalTexture.a); // We see light, so add only and all the lights together to get color
-
+    vec3 result = ambientLight + directionalLight + pointLights + emissive; // We see light, so add only and all the lights together to get color
     if(grayscale == 1){
-    	result.xyz = grayscaleColour(result.xyz);
+    	result = grayscaleColour(result);
     }
-    color = result;
+   
+    color = vec4(result, 1);
 }
 
 vec3 calcPointLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance, vec3 diffuse) {

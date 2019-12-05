@@ -9,7 +9,6 @@ public:
 	struct PlayerEntity {
 		PlayerPacket data;
 		GameObject* gameobject = nullptr;
-		WorldHudObject* healthDisplay = nullptr;
 		NetGlobals::THREAD_FLAG flag = NetGlobals::THREAD_FLAG::None;
 		float deflectSoundGain = 1.0f;
 		bool correctPositionOnFirstUpdate = false;	

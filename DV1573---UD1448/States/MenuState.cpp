@@ -6,14 +6,13 @@
 #include <System/StateManager.h>
 #include <System/MemoryUsage.h>
 
-
 #define GUI_SECTION "MENUSTATE"
 
 MenuState::MenuState()
 {
 	loadGui();
 	MemoryUsage mu;
-	mu.printBoth("After menu state init");
+	mu.printBoth("End of menu state init:");
 }
 
 MenuState::~MenuState()

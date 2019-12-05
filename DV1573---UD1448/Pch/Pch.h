@@ -76,7 +76,7 @@
 #include <Renderer/Renderer.h>
 #include <System/Input.h>
 #include <System/SoundHandler.h>
-#include <GameObject/ObjectTypes.h>	
+#include <GameObject/ObjectTypes.h>
 
 // DSTR
 #include <Destruction/TriangleNode.h>
@@ -98,8 +98,5 @@ const unsigned int SCREEN_WIDTH = 1280;
 const unsigned int SCREEN_HEIGHT = 720;
 const int MAX_BONES = 64;
 
-constexpr int SPACE_ASCII = 32;
-constexpr int DESIRED_PADDING = 3;
-constexpr float LINE_HEIGHT = 0.3f;
 
 #endif

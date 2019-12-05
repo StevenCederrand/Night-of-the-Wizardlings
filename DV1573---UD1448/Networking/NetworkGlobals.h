@@ -37,7 +37,6 @@ namespace NetGlobals {
 		GameFinished
 	};
 
-	static std::mutex DynamicTextMutex;
 	static std::mutex ClientCleanupMutex;
 	static std::mutex UpdatePickupsMutex;
 	static std::mutex UpdatePlayersMutex;

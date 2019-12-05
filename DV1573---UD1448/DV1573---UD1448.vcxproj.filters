@@ -72,17 +72,6 @@
     <ClCompile Include="GameObject\EnemyShieldObject.cpp" />
     <ClCompile Include="System\MemoryUsage.cpp" />
     <ClCompile Include="spellLoader.cpp" />
-    <ClCompile Include="HUD\WorldHudObject.cpp" />
-    <ClCompile Include="BetterText\Metafile.cpp" />
-    <ClCompile Include="BetterText\Line.cpp" />
-    <ClCompile Include="BetterText\Word.cpp" />
-    <ClCompile Include="BetterText\GUIText.cpp" />
-    <ClCompile Include="BetterText\FontType.cpp" />
-    <ClCompile Include="BetterText\TextMeshCreator.cpp" />
-    <ClCompile Include="System\UniqueIndex.cpp" />
-    <ClCompile Include="Renderer\TextRenderer.cpp" />
-    <ClCompile Include="BetterText\TextManager.cpp" />
-
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
@@ -185,18 +174,6 @@
     <ClInclude Include="System\MemoryUsage.h" />
     <ClInclude Include="spellLoader.h" />
     <ClInclude Include="loaderFormat.h" />
-    <ClInclude Include="HUD\WorldHudObject.h" />
-    <ClInclude Include="BetterText\Character.h" />
-    <ClInclude Include="BetterText\Metafile.h" />
-    <ClInclude Include="BetterText\Line.h" />
-    <ClInclude Include="BetterText\Word.h" />
-    <ClInclude Include="BetterText\TextMeshData.h" />
-    <ClInclude Include="BetterText\GUIText.h" />
-    <ClInclude Include="BetterText\FontType.h" />
-    <ClInclude Include="BetterText\TextMeshCreator.h" />
-    <ClInclude Include="System\UniqueIndex.h" />
-    <ClInclude Include="Renderer\TextRenderer.h" />
-    <ClInclude Include="BetterText\TextManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

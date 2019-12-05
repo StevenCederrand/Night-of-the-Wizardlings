@@ -100,16 +100,6 @@ bool Application::init() {
     //m_stateManager->pushState(new PlayState(false));
     //m_stateManager->pushState(new MenuState());
 
-#if AUTOSTART
-	m_stateManager->pushState(new PlayState(false));
-#else 
-	m_stateManager->pushState(new MenuState());	
-#endif
-
-	SoundHandler* shPtr = SoundHandler::getInstance();	
-	//shPtr->playSound(ThemeSong0);
-	//shPtr->setSourceLooping(true, ThemeSong0);
-
 
 	unsigned int _time = unsigned int(time(NULL));
 	srand(_time);

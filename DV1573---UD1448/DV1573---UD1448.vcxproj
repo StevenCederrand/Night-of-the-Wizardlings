@@ -186,13 +186,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BetterText\FontType.cpp" />
-    <ClCompile Include="BetterText\GUIText.cpp" />
-    <ClCompile Include="BetterText\Line.cpp" />
-    <ClCompile Include="BetterText\Metafile.cpp" />
-    <ClCompile Include="BetterText\TextManager.cpp" />
-    <ClCompile Include="BetterText\TextMeshCreator.cpp" />
-    <ClCompile Include="BetterText\Word.cpp" />
+    <ClCompile Include="DebugDrawer\DebugDrawer.cpp" />
     <ClCompile Include="GameObject\EnemyShieldObject.cpp" />
     <ClCompile Include="GameObject\ShieldObject.cpp" />
     <ClCompile Include="Destruction\DelaunayGenerator.cpp" />
@@ -250,7 +244,6 @@
     <ClCompile Include="Renderer\Shader.cpp" />
     <ClCompile Include="Renderer\ShaderMap.cpp" />
     <ClCompile Include="spellLoader.cpp" />
-    <ClCompile Include="Renderer\TextRenderer.cpp" />
     <ClCompile Include="Spells\AOEAttack.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
@@ -302,7 +295,6 @@
     <ClCompile Include="System\StateManager.cpp" />
     <ClCompile Include="System\TimedCallback.cpp" />
     <ClCompile Include="System\Timer.cpp" />
-    <ClCompile Include="System\UniqueIndex.cpp" />
     <ClCompile Include="Texture\stb_image.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -315,15 +307,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugDrawer\DebugDrawer.h" />
-    <ClInclude Include="BetterText\Character.h" />
-    <ClInclude Include="BetterText\FontType.h" />
-    <ClInclude Include="BetterText\GUIText.h" />
-    <ClInclude Include="BetterText\Line.h" />
-    <ClInclude Include="BetterText\Metafile.h" />
-    <ClInclude Include="BetterText\TextManager.h" />
-    <ClInclude Include="BetterText\TextMeshCreator.h" />
-    <ClInclude Include="BetterText\TextMeshData.h" />
-    <ClInclude Include="BetterText\Word.h" />
     <ClInclude Include="GameObject\EnemyShieldObject.h" />
     <ClInclude Include="GameObject\ShieldObject.h" />
     <ClInclude Include="Destruction\DelaunayGenerator.h" />
@@ -371,7 +354,6 @@
     <ClInclude Include="Renderer\PickupNotificationStructure.h" />
     <ClInclude Include="Renderer\NotificationStructure.h" />
     <ClInclude Include="spellLoader.h" />
-    <ClInclude Include="Renderer\TextRenderer.h" />
     <ClInclude Include="Spells\ReflectSpell.h" />
     <ClInclude Include="Renderer\BloomBlur.h" />
     <ClInclude Include="Renderer\Camera.h">
@@ -432,7 +414,6 @@
     <ClInclude Include="System\StateManager.h" />
     <ClInclude Include="System\TimedCallback.h" />
     <ClInclude Include="System\Timer.h" />
-    <ClInclude Include="System\UniqueIndex.h" />
     <ClInclude Include="Texture\stb_image.h" />
     <ClInclude Include="Text\FreeType.h" />
     <ClInclude Include="Text\HUDShader.h" />

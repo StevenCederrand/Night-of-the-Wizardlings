@@ -15,15 +15,8 @@ enum PlayerEvents {
 	GameEnded,
 	Warmup,
 	None,
-	Hitmark,
-	EnemyDeflected
+	Hitmark
 
-};
-
-struct Evnt
-{
-	PlayerEvents playerEvent;
-	void* data;
 };
 
 #endif
