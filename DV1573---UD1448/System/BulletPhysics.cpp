@@ -135,9 +135,9 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	btRigidBody* body = new btRigidBody(rbInfo);
 
 	//how much bounce and friction a object should have
-	body->setRestitution(1.0f);	
+	body->setRestitution(restitution);	
 	body->setFriction(friction);
-	body->setSpinningFriction(restitution);
+	body->setSpinningFriction(1.0f);
 
 	//groups and mask is for collision, same mask and group to collide with that
 	int myGoup = NormalObjects;

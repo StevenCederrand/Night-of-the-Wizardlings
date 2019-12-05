@@ -38,10 +38,12 @@ public:
 
 	void setTransform(Transform transform);
 	void setTransform(glm::vec3 worldPosition = glm::vec3(), glm::quat worldRot = glm::quat(), glm::vec3 worldScale = glm::vec3(1.0f));
-	void setMeshOffsetTransform(Transform transform, int meshIndex);
+	void setMeshOffsetTransform(Transform transform, int meshIndex = 0);
 	void setWorldPosition(glm::vec3 worldPosition);
-	void setMeshOffsetPosition(glm::vec3 worldPosition, int meshIndex);
-	void setBodyWorldPosition(glm::vec3 worldPosition, int meshIndex);
+	void setWorldRotation(glm::quat worldRotation);
+	void setMeshOffsetPosition(glm::vec3 position, int meshIndex = 0);
+	void setMeshOffsetRotation(glm::quat rotation, int meshIndex = 0);
+	void setBodyWorldPosition(glm::vec3 worldPosition, int meshIndex = 0);
 
 	void setShouldRender(bool condition);
 	void setMaterial(Material* material, int meshIndex = 0);
@@ -52,8 +54,8 @@ public:
 
 	const Transform getTransform(int meshIndex) const;
 	const Transform getObjectTransform() const;
-	const Transform getLocalTransform(int meshIndex) const;
-	const Transform getRigidTransform(int meshIndex) const;
+	const Transform getLocalTransform(int meshIndex = 0) const;
+	const Transform getRigidTransform(int meshIndex = 0) const;
 	const int getMeshesCount() const { return (int)m_meshes.size(); }
 	const glm::mat4& getMatrix(const int& i = 0) const;
 	const int getType() const { return m_type; }

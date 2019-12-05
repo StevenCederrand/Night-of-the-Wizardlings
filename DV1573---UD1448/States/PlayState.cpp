@@ -144,7 +144,7 @@ void PlayState::loadDecor()
 		break;
 
 	case 1:
-		
+		break;
 
 	default:
 		break;

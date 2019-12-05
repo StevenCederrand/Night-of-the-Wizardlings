@@ -272,7 +272,7 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 
 			object->initMesh(object->getMesh()->getName() + "_" + std::to_string(i), m_newVertices, m_newFace);
 
-			Transform newTransform = object->getObjectTransform();
+			Transform newTransform = object->getRigidTransform(0);
 			newTransform.position += center * glm::inverse(newTransform.rotation);;
 			object->setMeshOffsetTransform(newTransform, mi);
 

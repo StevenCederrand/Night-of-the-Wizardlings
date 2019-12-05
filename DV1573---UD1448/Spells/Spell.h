@@ -29,7 +29,6 @@ public:
 	virtual void hasCollided() = 0;
 	virtual void update(float dt) = 0;
 	virtual const float getDamage() = 0;
-	virtual const glm::vec3& getPos() const = 0;
 
 	const SpellBase* getBase() const { return m_spellBase; }
 

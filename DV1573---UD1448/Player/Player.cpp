@@ -252,7 +252,6 @@ void Player::move(float deltaTime)
 
 void Player::PlayAnimation(float deltaTime)
 {
-
 	if (animState.running){
 		m_firstPersonMesh->playLoopAnimation("RunAnimation");
 		animState.running = false;
@@ -283,7 +282,6 @@ void Player::PlayAnimation(float deltaTime)
 	}
 
 	m_firstPersonMesh->update(deltaTime);
-
 }
 
 void Player::attack()
@@ -466,8 +464,9 @@ void Player::onRespawn()
 void Player::increaseMana(const float& increase)
 {
 	m_mana += increase;
-	// Clamp mana
+	
 	if (m_mana > m_maxMana) {
+		// Clamp mana
 		m_mana = m_maxMana;
 	}
 }

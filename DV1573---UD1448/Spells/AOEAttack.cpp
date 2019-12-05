@@ -84,33 +84,11 @@ void AOEAttack::update(float dt)
 		getDirection().x,
 		getDirection().y,
 		getDirection().z) * m_spellBase->m_speed;
-	//body->setLinearVelocity(pos2);
 
-	btVector3 rigidBodyPos = body->getWorldTransform().getOrigin();
-
-	btTransform rigidBodyTransform = body->getWorldTransform();
-	Transform newTransform;
-	newTransform.position.x = rigidBodyTransform.getOrigin().getX();
-	newTransform.position.y = rigidBodyTransform.getOrigin().getY();
-	newTransform.position.z = rigidBodyTransform.getOrigin().getZ();
-
-	newTransform.rotation.x = rigidBodyTransform.getRotation().getX();
-	newTransform.rotation.y = rigidBodyTransform.getRotation().getY();
-	newTransform.rotation.z = rigidBodyTransform.getRotation().getZ();
-	newTransform.rotation.w = rigidBodyTransform.getRotation().getW();
-
-	newTransform.scale = getObjectTransform().scale;
-
-	setTransform(newTransform);
-	m_pos = newTransform.position;
+	setTransform(getRigidTransform());
 }
 
 const float AOEAttack::getDamage()
 {
 	return m_spellBase->m_damage;
-}
-
-const glm::vec3& AOEAttack::getPos() const
-{
-	return m_pos;
 }

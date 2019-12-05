@@ -261,7 +261,7 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 		spell->setSoundSlot(shPtr->playSound(FireSound, clientPtr->getMyData().guid));
 		if (spell->getSoundSlot() != -1) //out of slots
 		{
-			shPtr->setSourcePosition(spell->getPos(), FireSound, clientPtr->getMyData().guid, spell->getSoundSlot());
+			shPtr->setSourcePosition(spell->getObjectTransform().position, FireSound, clientPtr->getMyData().guid, spell->getSoundSlot());
 		}		
 	}
 
@@ -310,7 +310,7 @@ void SpellHandler::spellUpdate(float deltaTime)
 				
 				if (flamestrikeSpells[i]->getSoundSlot() != -1)
 				{
-					SoundHandler::getInstance()->setSourcePosition(flamestrike->getPos(),
+					SoundHandler::getInstance()->setSourcePosition(flamestrike->getObjectTransform().position,
 						FireSound, Client::getInstance()->getMyData().guid,
 						flamestrikeSpells[i]->getSoundSlot());	
 				}

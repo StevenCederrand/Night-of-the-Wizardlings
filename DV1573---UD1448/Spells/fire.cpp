@@ -49,16 +49,6 @@ void fire::update(float dt)
 	{
 		setTravelTime(0);
 	}
-
-	btRigidBody* body = getRigidBody();
-
-	setDirection(glm::vec3(
-		body->getLinearVelocity().getX(),
-		body->getLinearVelocity().getY(),
-		body->getLinearVelocity().getZ()));
-
-	btVector3 rigidBodyPos = body->getWorldTransform().getOrigin();
-	setWorldPosition(glm::vec3(rigidBodyPos.getX(), rigidBodyPos.getY(), rigidBodyPos.getZ()));
 }
 
 const float fire::getDamage()

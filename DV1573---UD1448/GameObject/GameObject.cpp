@@ -240,23 +240,25 @@ void GameObject::setMeshOffsetTransform(Transform transform, int meshIndex)
 
 void GameObject::setWorldPosition(glm::vec3 worldPosition)
 {
-	if (m_meshes[0].body)
-	{
-		btTransform newTransform = m_meshes[0].body->getWorldTransform();
-		newTransform.setOrigin(btVector3(worldPosition.x, worldPosition.y, worldPosition.z));
-		m_meshes[0].body->setWorldTransform(newTransform);
-	}
-	else
-	{
-		m_transform.position = worldPosition;
-	}
-
+	m_transform.position = worldPosition;
 	updateTransform();
 }
 
-void GameObject::setMeshOffsetPosition(glm::vec3 worldPosition, int meshIndex)
+void GameObject::setWorldRotation(glm::quat worldRotation)
 {
-	m_meshes[meshIndex].transform.position = worldPosition;
+	m_transform.rotation = worldRotation;
+	updateTransform();
+}
+
+void GameObject::setMeshOffsetPosition(glm::vec3 position, int meshIndex)
+{
+	m_meshes[meshIndex].transform.position = position;
+	updateTransform();
+}
+
+void GameObject::setMeshOffsetRotation(glm::quat rotation, int meshIndex)
+{
+	m_meshes[meshIndex].transform.rotation = rotation;
 	updateTransform();
 }
 
@@ -347,8 +349,8 @@ const Transform GameObject::getLocalTransform(int meshIndex) const
 
 const Transform GameObject::getRigidTransform(int meshIndex) const
 {
-	if (!m_meshes[meshIndex].body)
-		Transform newTransform;
+	if (m_meshes.size() == 0 || !m_meshes[meshIndex].body)
+		return getObjectTransform();
 
 	btVector3 rigidBodyPos = m_meshes[meshIndex].body->getWorldTransform().getOrigin();
 
@@ -363,7 +365,7 @@ const Transform GameObject::getRigidTransform(int meshIndex) const
 	newTransform.rotation.z = rigidBodyTransform.getRotation().getZ();
 	newTransform.rotation.w = rigidBodyTransform.getRotation().getW();
 
-	newTransform.scale = getLocalTransform(meshIndex).scale;
+	newTransform.scale = getTransform(meshIndex).scale;
 
 	return newTransform;
 }
@@ -465,10 +467,19 @@ void GameObject::makeStatic()
 void GameObject::createRigidBody(btRigidBody* body, int meshIndex)
 {
 	if (m_meshes.size() <= meshIndex)
-		m_meshes.resize(meshIndex + 1);
+	{
+		MeshBox newBox;
+		newBox.body = body;
+		newBox.body->setUserPointer(this);
 
-	m_meshes[meshIndex].body = body;
-	m_meshes[meshIndex].body->setUserPointer(this);
+		m_meshes.emplace_back(newBox);
+	}
+	else
+	{
+		m_meshes[meshIndex].body = body;
+		m_meshes[meshIndex].body->setUserPointer(this);
+	}
+
 }
 
 void GameObject::createDynamic(CollisionObject shape, float weight, int meshIndex, bool recenter)
@@ -528,23 +539,21 @@ void GameObject::setTransformFromRigid(int meshIndex)
 	if (!m_meshes[meshIndex].body)
 		return;
 
-	btVector3& rigidBodyPos = m_meshes[meshIndex].body->getWorldTransform().getOrigin();
-
 	const btTransform& rigidBodyTransform = m_meshes[meshIndex].body->getWorldTransform();
-	const btVector3& btOrigin = rigidBodyTransform.getOrigin();
-	t_transform.position.x = btOrigin.getX();
-	t_transform.position.y = btOrigin.getY();
-	t_transform.position.z = btOrigin.getZ();
-
+	const btVector3& btPos = rigidBodyTransform.getOrigin();
 	const btQuaternion& btRotation = rigidBodyTransform.getRotation();
+
+	t_transform.position.x = btPos.getX();
+	t_transform.position.y = btPos.getY();
+	t_transform.position.z = btPos.getZ();
+
 	t_transform.rotation.x = btRotation.getX();
 	t_transform.rotation.y = btRotation.getY();
 	t_transform.rotation.z = btRotation.getZ();
 	t_transform.rotation.w = btRotation.getW();
 
-	t_transform.scale = getLocalTransform(meshIndex).scale;
-
-	setMeshOffsetTransform(t_transform, meshIndex);
+	setMeshOffsetPosition(t_transform.position, meshIndex);
+	setMeshOffsetRotation(t_transform.rotation, meshIndex);
 }
 
 void GameObject::addParticle(ParticleBuffers particleBuffers)
