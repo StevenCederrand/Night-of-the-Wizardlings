@@ -155,6 +155,7 @@ void Player::move(float deltaTime)
 	if (m_frameCount < 5)
 		return;
 
+	//can't move in the air
 	if (m_character->onGround())
 		m_moveDir = glm::vec3(0.0f);
 	
