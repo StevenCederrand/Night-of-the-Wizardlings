@@ -1049,6 +1049,7 @@ void LocalServer::resetScores()
 	{
 		m_connectedPlayers[i].numberOfDeaths = 0;
 		m_connectedPlayers[i].numberOfKills = 0;
+		m_connectedPlayers[i].numberOfDamage = 0;
 
 		RakNet::BitStream stream;
 		stream.Write((RakNet::MessageID)SCORE_UPDATE);
