@@ -34,11 +34,8 @@ public:
 	void removeBody(int bodyIndex);
 	void setBodyActive(bool state = false, int meshIndex = 0);
 
-	void setTransformFromRigid(int i);
 	void addParticle(ParticleBuffers* particleBuffers);
 	void UpdateParticles(float dt);
-
-	virtual void update(float dt) = 0;
 	   	
 	//Set functions
 	void setTransform(Transform transform);
