@@ -55,6 +55,14 @@ void LevelEditState::loadMap()
 	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
 }
 
+void LevelEditState::loadCanvas()
+{
+	Renderer* renderer = Renderer::getInstance();
+	m_objects.push_back(new MapObject("Canvas"));
+	m_objects[m_objects.size() - 1]->loadMesh("canvas.mesh");
+	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
+}
+
 void LevelEditState::loadDecor()
 {
 	Renderer* renderer = Renderer::getInstance();
@@ -116,6 +124,8 @@ void LevelEditState::update(float dt)
 		loadBasicLight();
 	if (Input::isKeyPressed(GLFW_KEY_K))
 		loadDecor();
+	if (Input::isKeyPressed(GLFW_KEY_1))
+		loadCanvas();
 }
 
 void LevelEditState::render()

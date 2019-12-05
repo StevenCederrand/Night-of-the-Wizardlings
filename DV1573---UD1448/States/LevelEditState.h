@@ -27,6 +27,7 @@ public:
 	~LevelEditState();
 
 	void loadMap(); 
+	void loadCanvas();
 	void loadDecor();
 	void saveMap();
 	void loadBasicLight();
