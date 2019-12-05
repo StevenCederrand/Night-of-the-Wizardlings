@@ -130,38 +130,40 @@ void GameObject::loadMesh(std::string fileName)
 				tempMaterial.texture = false;
 			}
 
-			if (tempLoader.GetNormalMap(i) != "-1")
-			{
-				std::string normalFile = TEXTUREPATH + tempLoader.GetNormalMap(i);
-				GLuint normalMap;
-				glGenTextures(1, &normalMap);
-				glBindTexture(GL_TEXTURE_2D, normalMap);
-				// set the texture wrapping/filtering options (on the currently bound texture object)
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-				// load and generate the texture
-				int width, height, nrChannels;
-				unsigned char* data = stbi_load(normalFile.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
-				if (data)
-				{
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-					glGenerateMipmap(GL_TEXTURE_2D);
+			//if (tempLoader.GetNormalMap(i) != "-1")
+			//{
+			//	std::string normalFile = TEXTUREPATH + tempLoader.GetNormalMap(i);
+			//	GLuint normalMap;
+			//	glGenTextures(1, &normalMap);
+			//	glBindTexture(GL_TEXTURE_2D, normalMap);
+			//	// set the texture wrapping/filtering options (on the currently bound texture object)
+			//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			//	// load and generate the texture
+			//	int width, height, nrChannels;
+			//	unsigned char* data = stbi_load(normalFile.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
+			//	if (data)
+			//	{
+			//		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+			//		glGenerateMipmap(GL_TEXTURE_2D);
 
-					tempMaterial.normalMap = true;
-					tempMaterial.normalMapID = normalMap;
-				}
-				else
-				{
-					std::cout << "Failed to load texture" << std::endl;
-				}
-				stbi_image_free(data);
-			}
-			else
-			{
-				tempMaterial.normalMap = false;
-			}
+			//		tempMaterial.normalMap = true;
+			//		tempMaterial.normalMapID = normalMap;
+			//	}
+			//	else
+			//	{
+			//		std::cout << "Failed to load texture" << std::endl;
+			//	}
+			//	stbi_image_free(data);
+			//}
+			//else
+			//{
+			//	tempMaterial.normalMap = false;
+			//}
+
+			tempMaterial.normalMap = false;
 
 			//Get the material pointer so that we don't have to always search through the MatMap, when rendering
 			tempMeshBox.material = MaterialMap::getInstance()->createMaterial(materialName, tempMaterial);

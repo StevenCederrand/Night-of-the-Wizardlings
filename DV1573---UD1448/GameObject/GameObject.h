@@ -36,8 +36,7 @@ public:
 	
 	void setNormalMap(const char* fileName);
 	void setTexture(const char* fileName);
-
-	virtual void update(float dt) = 0;
+	
 	void addParticle(ParticleBuffers* particleBuffers);
 	void UpdateParticles(float dt);
 	   	
