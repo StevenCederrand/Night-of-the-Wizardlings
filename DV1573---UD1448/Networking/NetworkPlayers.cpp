@@ -16,6 +16,7 @@ void NetworkPlayers::cleanUp()
 	for (size_t i = 0; i < m_players.size(); i++)
 	{
 		PlayerEntity& p = m_players[i];
+		delete p.healthDisplay;
 		delete p.gameobject;
 	}
 	m_players.clear();
@@ -34,6 +35,7 @@ void NetworkPlayers::update(const float& dt)
 
 			if (p.gameobject == nullptr) {
 
+				p.healthDisplay = new WorldHudObject("Assets/Textures/hud/tmpHP.png", p.data.position, m_displayScale);
 				p.gameobject = new AnimatedObject("asd");
 				p.gameobject->loadMesh("NyCharacter.mesh");
 				p.gameobject->setWorldPosition(glm::vec3(0, 0, 0));
@@ -124,14 +126,24 @@ void NetworkPlayers::update(const float& dt)
 		if (g != nullptr) {
 
 			/* Don't render the player if he's dead */
-			if (p.data.health <= 0.0f || p.data.hasBeenUpdatedOnce == false)
+			if (p.data.health <= 0.0f || p.data.hasBeenUpdatedOnce == false) {
+				p.healthDisplay->setShouldRender(false);
 				g->setShouldRender(false);
+			}
 			else {
+				p.healthDisplay->setShouldRender(true);
 				g->setShouldRender(true);
 			}
 
 			glm::vec3 pos = CustomLerp(g->getTransform().position, p.data.position, m_lerpSpeed * dt);
 
+			float healthClip = static_cast<float>(p.data.health) / static_cast<float>(NetGlobals::PlayerMaxHealth);
+			float manaClip = static_cast<float>(p.data.mana) / static_cast<float>(NetGlobals::PlayerMaxMana);
+			p.healthDisplay->setXClip(healthClip);
+			p.healthDisplay->setCenter(pos + glm::vec3(0.0f, p.data.meshHalfSize.y * 2.12, 0.0f));
+			
+			Renderer::getInstance()->submitWorldHud(p.healthDisplay);
+			
 			g->setWorldPosition(pos);
 			g->setTransform(pos, glm::quat(p.data.rotation), glm::vec3(1.0f));
 
