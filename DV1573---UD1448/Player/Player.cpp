@@ -329,9 +329,11 @@ void Player::attack()
 
 			//Fade out deflect sound
 			if (m_deflectSoundGain > 0.0f)
-			{				
-				m_deflectSoundGain -= 2.0f * DeltaTime;
+			{			
+				//We have to set the gain before m_deflecSoundGain is below zero
+				//so don't switch these around
 				shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
+				m_deflectSoundGain -= 2.0f * DeltaTime;
 			}
 			else
 			{
@@ -389,7 +391,7 @@ void Player::attack()
 	if (Input::isMouseReleased(GLFW_MOUSE_BUTTON_RIGHT)) {
 		animState.deflecting = false;
 		m_rMouse = false;
-		//m_deflecting = false;
+		m_deflecting = false;
 	}
 
 	if (!m_deflecting)
@@ -397,8 +399,10 @@ void Player::attack()
 		//Fade out deflect sound
 		if (m_deflectSoundGain > 0.0f)
 		{
-			m_deflectSoundGain -= 2.0f * DeltaTime;
+			//We have to set the gain before m_deflecSoundGain is below zero
+			//so don't switch these around
 			shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
+			m_deflectSoundGain -= 2.0f * DeltaTime;
 		}
 		else
 		{

@@ -17,7 +17,8 @@ PlayState::PlayState(bool spectator)
 {
 	
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);	
-	
+	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("normalMap", 2);
+
 	m_camera = new Camera();
 	mu.printBoth("After physics and camera init:");
 	mu.printBoth("Before Font:");

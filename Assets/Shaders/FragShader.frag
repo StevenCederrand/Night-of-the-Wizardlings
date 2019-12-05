@@ -41,11 +41,11 @@ uniform vec3 Ambient_Color;             // Change to emmisive
 uniform vec3 Diffuse_Color;             // Material diffuse
 uniform vec3 Specular_Color;            // Material specular
 uniform vec2 TexAndRim;                 // Booleans --- Textures & Rimlighting
-uniform bool NormalMapping;				// Use normal mapping or not
 
 uniform int LightCount;
 uniform sampler2D albedoTexture;        // Texture diffuse
 
+uniform bool NormalMapping;				// Use normal mapping or not
 uniform sampler2D normalMap;
 
 uniform int grayscale = 0;

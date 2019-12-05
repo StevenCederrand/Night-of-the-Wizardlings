@@ -277,7 +277,7 @@ void Shader::setMaterial(Material* material)
 	setVec3("Diffuse_Color", material->diffuse);
 	setVec2("TexAndRim", glm::vec2(material->texture, material->rimLighting));	
 	setInt("NormalMapping", material->normalMap);
-	setInt("normalMap", 1);	
+	//setInt("normalMap", 1);	
 	
 	//setVec3("Specular_Color", mat->specular);
 
@@ -288,7 +288,7 @@ void Shader::setMaterial(Material* material)
 
 	if (material->normalMap == true)
 	{		
-		glActiveTexture(GL_TEXTURE0 + 1);
+		glActiveTexture(GL_TEXTURE0 + 2);
 		glBindTexture(GL_TEXTURE_2D, material->normalMapID);
 	}	
 }

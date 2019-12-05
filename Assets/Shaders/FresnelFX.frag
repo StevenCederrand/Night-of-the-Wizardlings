@@ -30,6 +30,7 @@ uniform vec3 Ambient_Color;
 uniform vec3 Diffuse_Color;
 uniform vec3 Specular_Color;
 uniform vec2 TexAndRim;
+uniform bool NormalMapping;
 uniform float time;
 
 uniform int LightCount;
@@ -68,6 +69,7 @@ void main() {
     vec3 ambientHolder = Ambient_Color;
     int lightHolder = LightCount;
     vec3 cameraHolder = CameraPosition;
+	bool normalMapHolder = NormalMapping;
     //-------------------------
 
     vec3 viewDir = normalize(cameraHolder - f_position.xyz);
