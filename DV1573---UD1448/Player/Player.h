@@ -63,6 +63,7 @@ private:
 	glm::vec3 m_spellSpawnPosition;
 	
 	glm::vec3 m_moveDir;
+	glm::vec3 m_oldMoveDir;
 	Camera* m_playerCamera;
 	bool m_logicStop;
 	SpellHandler* m_spellhandler;
@@ -95,6 +96,4 @@ private:
 	BulletPhysics* m_bp;
 	btKinematicCharacterController* m_character;
 	Client* m_client;
-
-	bool m_enter = false;
 };
