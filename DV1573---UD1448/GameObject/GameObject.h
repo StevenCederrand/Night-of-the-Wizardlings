@@ -50,6 +50,7 @@ public:
 	void setShouldRender(bool condition);
 	void setMaterial(Material* material, int meshIndex = 0);
 
+
 	//Get functions
 	Mesh* getMesh(const int& meshIndex = 0); //Get a mesh from the meshbox
 	Material* getMaterial(const int& meshIndex = 0); //Get a material from the meshbox

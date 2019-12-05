@@ -68,7 +68,7 @@ PlayState::PlayState(bool spectator)
 		if (Client::getInstance()->isInitialized())
 			Client::getInstance()->assignSpellHandler(m_spellHandler);
 
-		mu.printBoth("After fps shield, enemy shield and animationMesh:");
+		mu.printBoth("After fps shield, enemy shield, and animationMesh:");
 
 		m_hudHandler.loadPlayStateHUD();
 
