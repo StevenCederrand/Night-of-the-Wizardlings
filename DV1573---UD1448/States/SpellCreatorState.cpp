@@ -285,7 +285,7 @@ void SpellCreatorState::editSpellEvents()
     if (spellEvents.m_nrOfEvents >= 1.0f)
     {
         setSpellEvents(spellEvents.m_firstEvent);
-        ImGui::SliderInt("Event one", &spellEvents.m_firstEvent, 1.0f, 2.0f);
+        ImGui::SliderInt("Start Event", &spellEvents.m_firstEvent, 1.0f, 2.0f);
     }
     if (spellEvents.m_nrOfEvents >= 2.0f)
     {
