@@ -18,6 +18,7 @@ Renderer::Renderer()
 	//Define Work Groups
 	workGroups.x = (SCREEN_WIDTH + (SCREEN_WIDTH % TILE_SIZE)) / TILE_SIZE;
 	workGroups.y = (SCREEN_HEIGHT + (SCREEN_HEIGHT % TILE_SIZE)) / TILE_SIZE;
+	printf("Workgroups on X: %i, | Y: %i\n", workGroups.x, workGroups.y);
 	//INIT SHADER_STORAGE_BUFFER_OBJECT
 	glGenBuffers(1, &m_lightIndexSSBO);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_lightIndexSSBO);
@@ -47,16 +48,15 @@ Renderer::Renderer()
 	//Generete SSAO kernels
 	std::uniform_real_distribution<float> randomFloats(0.0, 1.0);
 	std::default_random_engine generator;
-	for (size_t i = 0; i < 16; i++)
+	for (size_t i = 0; i < SSAO_KERNELS; i++)
 	{
-		
-		glm::vec3 kernelSample(randomFloats(generator) * 2.0 - 1.0, 
-			randomFloats(generator) * 2.0 - 1.0,
-			randomFloats(generator) * 2.0 - 1.0);
-		
+		float scale = static_cast<float>(i) / SSAO_KERNELS;
+		glm::vec3 kernelSample(randomFloats(generator) * 2.0f - 1.0f, 
+			randomFloats(generator) * 2.0f - 1.0f,
+			randomFloats(generator) * 2.0f - 1.0f);
+				
 		kernelSample *= randomFloats(generator);
 
-		float scale = static_cast<float>(i) / SSAO_KERNELS;
 		kernelSample *= scale;
 		m_SSAOKernels.push_back(kernelSample);
 	}
@@ -915,24 +915,23 @@ void Renderer::render() {
 	//Here we dispatch the SSAO compute shader
 	shader = shaderMap->useByName(SSAO_COMP);
 	glActiveTexture(GL_TEXTURE0);
-	shader->setInt("depthMap", 0);
 	bindMatrixes(shader);	//Bind view and projection matrix
 	glBindTexture(GL_TEXTURE_2D, m_depthMap);	
 	/* Move this to the shader 5head */
-	/*unsigned int kernelLocation = glGetUniformLocation(shader->getShaderID(), "kernels");
-	//unsigned int sampleRadius = glGetUniformLocation(shader->getShaderID(), "sampleRadius");
+	unsigned int kernelLocation = glGetUniformLocation(shader->getShaderID(), "kernels");
+	unsigned int sampleRadius = glGetUniformLocation(shader->getShaderID(), "sampleRadius");
 
 	if (kernelLocation == -1) {
 		logWarning("Can't find location for 'kernels'");
 	}
 	else {
-		//glUniform1f(sampleRadius, 1.5f);
+		glUniform1f(sampleRadius, 1.5f);
 		glUniform3fv(kernelLocation, SSAO_KERNELS, (const GLfloat*)& m_SSAOKernels[0]);
-	}*/
+	}
 
 	glBindImageTexture(0, m_SSAOColourBuffer, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F); //Bind the image unit
 
-	glDispatchCompute(SCREEN_WIDTH, SCREEN_HEIGHT, 1);
+	glDispatchCompute(workGroups.x, workGroups.y, 1);
 	glMemoryBarrier(GL_TEXTURE_UPDATE_BARRIER_BIT);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	

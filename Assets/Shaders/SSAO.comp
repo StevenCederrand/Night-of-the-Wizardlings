@@ -1,6 +1,6 @@
 //Compute shader for generating a ssao texture
 #version 430
-#define SSAO_KERNELS 16
+#define SSAO_KERNELS 64
 
 uniform sampler2D depthMap;
 //Used to place the depthmap value in world space
@@ -8,7 +8,10 @@ uniform mat4 projMatrix;
 uniform mat4 viewMatrix;
 
 //SSAO kernels
-//uniform vec3 kernels[SSAO_KERNELS];
+uniform vec3 kernels[SSAO_KERNELS];
+
+//Radius of the SSAO sphere
+uniform float sampleRadius;
 
 //Generalize this
 vec2 screenSize = vec2(1280.f, 720.f);
@@ -19,30 +22,47 @@ layout(rgba32f, binding = 0) uniform writeonly image2D img_output;
 vec3 normalFromDepth(float depth, vec2 coordinate);
 vec4 positionFromDepth(float depth, vec2 samplePos);
 //Compute shader layout
-layout(local_size_x = 8, local_size_y = 8) in;
+layout(local_size_x = 16, local_size_y = 16) in;
 void main() {
     ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
     vec2 samplePos = vec2(pixel_coords) / screenSize;
     float depth = texture(depthMap, samplePos).r;
     depth = depth * 2 - 1; //Get a depth value from -1 to 1
+
+    vec3 viewPosition = positionFromDepth(depth, samplePos).xyz;//Viewspace position
+
+    float AO = 0.0f;
+
+    for(int i = 0; i < SSAO_KERNELS; ++)
+    {
+        vec4 samplePos = vec4(viewPosition + kernels[i], 1); //Get a random point as a vec4
+        vec4 offset = projMatrix * samplePos; //Place the random point into clipspace
+        offset.xy /= offset.w; //Perspective divide
+        offset.xy = offset.xy * 0.5 + vec2(0.5); //[0, 1]
+
+    }
+
+
     vec4 data = positionFromDepth(depth, samplePos);
 
 
     imageStore(img_output, ivec2(pixel_coords), data);
 }
 
-vec3 normalFromDepth(float depth, vec2 coordinate)  {
+vec3 normalFromDepth(float depth, vec2 uv)
+{
+    vec2 offset1 = vec2( 0.0, 1.0 / screenSize.y);
+    vec2 offset2 = vec2( 1.0 / screenSize.x, 0.0);
 
-    const vec2 offsetA = vec2(0.0, 0.0001);
-    const vec2 offsetB = vec2(0.0001, 0.0);
-    float depthA = texture(depthMap, coordinate + offsetA).r;
-    float depthB = texture(depthMap, coordinate + offsetB).r;
+    float depth1 = texture(depthMap, uv + offset1).r;
+    float depth2 = texture(depthMap, uv + offset2).r;
 
-    vec3 lineA = vec3(offsetA, depthA - depth);
-    vec3 lineB = vec3(offsetB, depthB - depth);
+    vec3 p1 = vec3(offset1, depth1 - depth);
+    vec3 p2 = vec3(offset2, depth2 - depth);
 
-    vec3 normal = cross(lineA, lineB);
+    vec3 normal = cross(p1, p2);
     normal.z = -normal.z;
+
     return normalize(normal);
 }
 
@@ -53,7 +73,7 @@ vec4 positionFromDepth(float depth, vec2 samplePos) {
     vec4 viewPosition = inverse(projMatrix) * clipPosition;
     viewPosition /= viewPosition.w;
     vec4 worldPosition = inverse(viewMatrix) * viewPosition;
-    return worldPosition;
+    return viewPosition;
 }
 //Some old shit
 /*
