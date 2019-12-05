@@ -3,6 +3,10 @@ layout(std140, binding  = 1) uniform SkinDataBlock
 {
 	mat4 boneMat[64];
 };
+layout(std140, binding  = 2) uniform SkinDataBlockBlend
+{
+	mat4 boneMatBlend[64];
+};
 
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
@@ -13,6 +17,7 @@ layout(location = 4) in vec4 weight;
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projMatrix;
+uniform int shouldBlend;
 
 out vec2 f_UV;
 out vec3 f_normal;
@@ -35,6 +40,24 @@ void main() {
     f_normal += vec3((transpose(inverse(mat3(boneMat[bone[3]]))) * normal) * weight.w);
     f_normal =  normalize(transpose(inverse(mat3(modelMatrix))) * f_normal);
 
+    if (shouldBlend == 0)
+    {
+        gl_Position  = vec4(position, 1.0f);
+        gl_Position  = (boneMatBlend[bone[0]] * vec4(position, 1.0f)) * weight.x;
+        gl_Position += (boneMatBlend[bone[1]] * vec4(position, 1.0f)) * weight.y;
+        gl_Position += (boneMatBlend[bone[2]] * vec4(position, 1.0f)) * weight.z;
+        gl_Position += (boneMatBlend[bone[3]] * vec4(position, 1.0f)) * weight.w;
+        f_position = modelMatrix * gl_Position;
+        gl_Position = projMatrix * viewMatrix * modelMatrix * gl_Position;
+        
+        
+        f_normal  = normal;
+        f_normal  = vec3((transpose(inverse(mat3(boneMatBlend[bone[0]]))) * normal) * weight.x);
+        f_normal += vec3((transpose(inverse(mat3(boneMatBlend[bone[1]]))) * normal) * weight.y);
+        f_normal += vec3((transpose(inverse(mat3(boneMatBlend[bone[2]]))) * normal) * weight.z);
+        f_normal += vec3((transpose(inverse(mat3(boneMatBlend[bone[3]]))) * normal) * weight.w);
+        f_normal =  normalize(transpose(inverse(mat3(modelMatrix))) * f_normal);
+    }
 
 
 

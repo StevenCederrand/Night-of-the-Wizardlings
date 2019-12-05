@@ -1,6 +1,7 @@
 #ifndef _ANIMATEDOBJECT_h
 #define _ANIMATEDOBJECT_h
 #include <GameObject/GameObject.h>
+
 class AnimatedObject : public GameObject
 {
 private:
@@ -18,6 +19,7 @@ private:
 		}
 	};
 
+
 public:
 	AnimatedObject(std::string name);
 	virtual ~AnimatedObject();
@@ -25,7 +27,7 @@ public:
 	void update(float dt);
 
 	//Calculates the transforms of a joint at a specific time, also interpolates.
-	void ComputeMatrix(int meshId, std::string meshn, std::string animation);
+	void ComputeMatrix(int meshId, std::string meshn, std::string animation, BonePalleteBuffer* bonePallete);
 
 	//Binds the transforms to the shader
 	void BindAnimation(int meshId);
@@ -43,8 +45,12 @@ private:
 	std::vector<frameAnimation> animations;
 
 	//The bone pallete holds the calculated transforms for a specific joint (bone)
-	BonePalleteBuffer bonePallete;
-	GLuint boneBuffer;
+	BonePalleteBuffer m_bonePallete;
+	BonePalleteBuffer m_bonePalleteBlend;
+
+	GLuint m_boneBuffer;
+	GLuint m_boneBufferBlend;
+
 	float m_stopTime;
 	float m_startTime;
 	float currentTime;

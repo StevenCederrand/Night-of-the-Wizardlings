@@ -5,19 +5,30 @@ AnimatedObject::AnimatedObject(std::string name) : GameObject(name)
 {
 	m_type = 1;
 	currentTime = 0;
-	boneBuffer = 0;
+	m_boneBuffer = 0;
+	m_boneBufferBlend = 0;
+
+
+
 
 
 	//Binds buffer for the bone matrices on the gpu
-	glGenBuffers(1, &boneBuffer);
-	glBindBuffer(GL_UNIFORM_BUFFER, boneBuffer);
+
+	glGenBuffers(1, &m_boneBuffer);
+	glBindBuffer(GL_UNIFORM_BUFFER, m_boneBuffer);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 64, NULL, GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	glGenBuffers(2, &m_boneBufferBlend);
+	glBindBuffer(GL_UNIFORM_BUFFER, m_boneBufferBlend);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 64, NULL, GL_DYNAMIC_DRAW);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 AnimatedObject::~AnimatedObject()
 {
-	glDeleteBuffers(1, &boneBuffer);
+	glDeleteBuffers(1, &m_boneBuffer);
+	glDeleteBuffers(1, &m_boneBufferBlend);
 }
 
 void AnimatedObject::update(float dt)
@@ -38,7 +49,7 @@ void AnimatedObject::update(float dt)
 			for (size_t a = 0; a < animSize; a++)
 			{
 				std::string animName = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations()[a];
-				ComputeMatrix((int)i, m_meshes[i].name, animName);
+				ComputeMatrix((int)i, m_meshes[i].name, animName, &m_bonePallete);
 			}
 		}
 	}
@@ -56,7 +67,7 @@ void AnimatedObject::update(float dt)
 				for (size_t a = 0; a < animSize; a++)
 				{
 					std::string animName = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations()[a];
-					ComputeMatrix((int)i, m_meshes[i].name, animName);
+					ComputeMatrix((int)i, m_meshes[i].name, animName, &m_bonePallete);
 				}
 			}
 		}
@@ -76,7 +87,7 @@ void AnimatedObject::update(float dt)
 
 //TODO: Optimize if laggy, possibly move to GPU
 //Less allocations will speed up the algorithm
-void AnimatedObject::ComputeMatrix(int meshId, std::string meshn, std::string animation)
+void AnimatedObject::ComputeMatrix(int meshId, std::string meshn, std::string animation, BonePalleteBuffer* bonePallete)
 {
 	// Mesh, animation, and skeleton
 	const Animation& anim = *AnimationMap::getInstance()->getAnimation(animation);
@@ -115,7 +126,7 @@ void AnimatedObject::ComputeMatrix(int meshId, std::string meshn, std::string an
 	glm::mat4 local_r				= translationMatrix_r * rotationMatrix_r * scaleMatrix_r;
 
 	bones_global_pose[0] = local_r;
-	bonePallete.bones[0] = bones_global_pose[0] * skeleton.joints[0].invBindPose;
+	bonePallete->bones[0] = bones_global_pose[0] * skeleton.joints[0].invBindPose;
 
 	int boneCount = (int)skeleton.joints.size();
 	int transformCount = (int)anim.keyframes[0].local_joint_t.size();	// Assuming same size for all
@@ -142,7 +153,7 @@ void AnimatedObject::ComputeMatrix(int meshId, std::string meshn, std::string an
 
 		if (i < transformCount)
 			bones_global_pose[i] = bones_global_pose[skeleton.joints[i].parentIndex] * localTransform;
-		bonePallete.bones[i] = bones_global_pose[i] * skeleton.joints[i].invBindPose;
+		bonePallete->bones[i] = bones_global_pose[i] * skeleton.joints[i].invBindPose;
 
 	}
 }
@@ -152,8 +163,13 @@ void AnimatedObject::BindAnimation(int meshId)
 	GLint aniShader = ShaderMap::getInstance()->getShader(ANIMATION)->getShaderID();
 	unsigned int boneDataIndex = glGetUniformBlockIndex(aniShader, "SkinDataBlock");
 	glUniformBlockBinding(aniShader, boneDataIndex, 1);
-	glBindBufferBase(GL_UNIFORM_BUFFER, 1, boneBuffer);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(BonePalleteBuffer), &bonePallete, GL_STATIC_DRAW);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 1, m_boneBuffer);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(BonePalleteBuffer), &m_bonePallete, GL_STATIC_DRAW);
+	ShaderMap::getInstance()->getShader(ANIMATION)->setInt("shouldBlend", 1);
+	boneDataIndex = glGetUniformBlockIndex(aniShader, "SkinDataBlockBlend");
+	glUniformBlockBinding(aniShader, boneDataIndex, 2);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 2, m_boneBufferBlend);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(BonePalleteBuffer), &m_bonePalleteBlend, GL_STATIC_DRAW);
 }
 
 
