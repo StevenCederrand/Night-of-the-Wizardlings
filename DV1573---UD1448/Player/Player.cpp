@@ -27,6 +27,7 @@ Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera, Spell
 	m_spellhandler = spellHandler;
 	m_client = Client::getInstance();
 	m_character = BulletPhysics::getInstance()->createCharacter(playerPosition);
+	m_character->getGhostObject()->setUserPointer(this);
 
 	// Often moving values 
 	m_playerPosition = playerPosition;
@@ -47,6 +48,7 @@ Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera, Spell
 	m_maxHealth = 100.0f;
 	m_manaRegen = 100.0f; 
 
+	
 	m_maxAttackCooldown = 1.0f;
 	m_maxSpecialCooldown = 1.5f;
 

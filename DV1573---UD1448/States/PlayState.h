@@ -17,6 +17,7 @@
 #include <GFX/Pointlight.h>
 #include <System/MemoryUsage.h>
 #include <HUD/WorldHudObject.h>
+
 //bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
 //	const btCollisionObjectWrapper* obj2, int id2, int index2);
 
@@ -80,7 +81,7 @@ private:
 
 	glm::vec3 m_lastPositionOfMyKiller;
 
-	float startY;	
+	float startY;
 private: 
 
 	bool onMainMenuClick(const CEGUI::EventArgs& e);

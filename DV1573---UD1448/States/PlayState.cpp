@@ -4,8 +4,8 @@
 #include "MenuState.h"
 #include <Networking/Client.h>
 #include <Networking/LocalServer.h>
-
-
+#include <Renderer/TextRenderer.h>
+#include <BetterText/TextManager.h>
 #define PLAYSECTION "PLAYSTATE"
 
 
@@ -15,12 +15,34 @@ void logVec3(glm::vec3 vector) {
 
 PlayState::PlayState(bool spectator)
 {
-	
+
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
 
 	m_camera = new Camera();
-
+	m_bPhysics = new BulletPhysics(-20.0f);
 	mu.printBoth("After physics and camera init:");
+
+
+
+	mu.printBoth("Before Font:");
+
+	/* Todo:
+		Create the whole render logic, hashmaps 'n stuff.
+		Gui text has a unique index so use that to remove the texts if needed.
+
+		Font loading resulet in:
+		+ ~ 1MB Ram
+		+ ~ 3MB VRam
+	*/
+
+	
+	//m_text = new GUIText("Yoooo", 2.f, m_fontType, glm::vec3(0.0f, 0.0f, -10.0f), 1.f, true);
+	//m_text->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	TextRenderer::getInstance()->init(m_camera);
+	TextManager::getInstance();
+	/*TextRenderer::getInstance()->submitText(m_text);*/
+
+	mu.printBoth("After Font:");
 
 	if (spectator == false) {
 
@@ -81,7 +103,7 @@ PlayState::PlayState(bool spectator)
 	//m_hudHandler.loadPlayStateHUD();
 	m_hideHUD = false;
 
-	
+
 	mu.printBoth("End of play state init:");
 }
 
@@ -118,6 +140,42 @@ void PlayState::loadMap()
 	}
 	mu.printBoth("After rigidbodies:");
 
+	//if (spectator == false) {
+		for (size_t i = 0; i < m_objects.size(); i++)
+		{
+			m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);
+		}
+	//}
+		mu.printBoth("After creation of rigidbodies:");
+	// Non dynamic mesh (no rigidbody)
+	// Very big mesh hope not overload gpu XD
+	m_objects.push_back(new MapObject("Academy_Outer"));
+	m_objects[m_objects.size() - 1]->loadMesh("ExteriorTest.mesh");
+	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
+
+#pragma region Sky_Debris
+
+	m_objects.push_back(new MapObject("Debris_Far"));
+	m_objects[m_objects.size() - 1]->loadMesh("StonePlaneFar.mesh");
+	m_objects[m_objects.size() - 1]->setTransform(glm::vec3(0.0f, 800.0f, 0.0f), glm::quat(glm::vec3(0.f, 0.f, 0.f)), glm::vec3(7.f));
+	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::SKYOBJECTS);
+
+	//Create two or three more planes that are handeld as sky objects, then randomize their rotation speed.
+	m_objects.push_back(new MapObject("Debris_Mid"));
+	m_objects[m_objects.size() - 1]->loadMesh("StonePlaneFar.mesh");
+	m_objects[m_objects.size() - 1]->setTransform(glm::vec3(0.0f, 300.0f, 0.0f), glm::quat(glm::vec3(0.f, 0.f, 0.f)), glm::vec3(2.5f));
+	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::SKYOBJECTS);
+
+	m_objects.push_back(new MapObject("Debris_Near"));
+	m_objects[m_objects.size() - 1]->loadMesh("StonePlaneNear.mesh");
+	m_objects[m_objects.size() - 1]->setTransform(glm::vec3(0.0f, 100.0f, 0.0f), glm::quat(glm::vec3(0.f, 0.f, 0.f)), glm::vec3(2.f));
+	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::SKYOBJECTS);
+
+
+#pragma endregion
+
+	mu.printBoth("After Academy Outer:");
+	startY = SCREEN_HEIGHT / 2;
 	// Non-hitbox decoraction
 	loadDecor();
 	mu.printBoth("After decor objects:");
@@ -126,7 +184,7 @@ void PlayState::loadMap()
 	loadLights();
 	mu.printBoth("After point lights:");
 
-	// Destuction 
+	// Destuction
 	loadDestructables();
 	mu.printBoth("After destructables:");
 
@@ -249,7 +307,7 @@ void PlayState::loadDestructables()
 	switch (m_map)
 	{
 	case 0:
-		
+
 
 		for (int i = (int)m_objects.size() - 1; i >= 0; i--)
 		{
@@ -260,7 +318,7 @@ void PlayState::loadDestructables()
 				m_objects.erase(m_objects.begin() + i);
 			}
 		}
-		
+
 		// Wall desctructibles
 		meshLoader.LoadMesh(MESHPATH + "Towermap/DSTRWalls.mesh");
 		for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
@@ -427,7 +485,10 @@ PlayState::~PlayState()
 	}
 
 	MeshMap::getInstance()->cleanUp();
-	
+
+	TextRenderer::getInstance()->cleanup();
+	TextManager::getInstance()->cleanup();
+
 	mu.printBoth("Afer deleting playstate:");
 }
 
@@ -435,8 +496,6 @@ PlayState::~PlayState()
 
 void PlayState::update(float dt)
 {
-	//m_firstPerson->playLoopAnimation("Test");
-	//m_firstPerson->update(dt);
 	Client::getInstance()->updateNetworkEntities(dt);
 	auto* clientPtr = Client::getInstance();
 	m_dstr.update();
@@ -450,14 +509,7 @@ void PlayState::update(float dt)
 
 	removeDeadObjects();
 
-	static float t = 0.0f;
-	t += DeltaTime;
-	if (t >= 3.0f)
-	{
-		t = 0.0f;
-		mu.printBoth("Update:");
-	}
-
+	TextManager::getInstance()->update();
 }
 
 void PlayState::removeDeadObjects()
@@ -482,7 +534,7 @@ void PlayState::removeDeadObjects()
 
 void PlayState::onSpellHit_callback()
 {
-	
+
 }
 
 void PlayState::update_isPlaying(const float& dt)
@@ -499,9 +551,13 @@ void PlayState::update_isPlaying(const float& dt)
 
 	shPtr->setSourcePosition(m_player->getPlayerPos(), HitmarkSound);
 
-	for (PlayerEvents evnt = clientPtr->readNextEvent(); evnt != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
+	if (Input::isKeyPressed(GLFW_KEY_U)) {
+		printf("My pos: %f, %f, %f\n", m_player->getPlayerPos().x, m_player->getPlayerPos().y, m_player->getPlayerPos().z);
+	}
 
-		switch (evnt) {
+	for (Evnt evnt = clientPtr->readNextEvent(); evnt.playerEvent != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
+
+		switch (evnt.playerEvent) {
 
 			case PlayerEvents::Died:
 			{
@@ -576,6 +632,33 @@ void PlayState::update_isPlaying(const float& dt)
 			{
 				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HIT)->setAlpha(1.0f);
 				shPtr->playSound(HitmarkSound);
+
+				if (evnt.data == nullptr) continue;
+
+				HitConfirmedPacket pp;
+				memcpy(&pp, evnt.data, sizeof(HitConfirmedPacket));
+				
+				if (&pp != nullptr) {
+					
+					auto txtPos = pp.targetPosition + glm::vec3(0.0f, Client::getInstance()->getMyData().meshHalfSize.y * 2.0f, 0.0f);
+					float dist = glm::distance(m_player->getPlayerPos(), txtPos);
+					
+
+					GUIText* t = TextManager::getInstance()->addDynamicText(
+						std::to_string(pp.damageDone),
+						2.0f,
+						txtPos,
+						2.0f,
+						TextManager::TextBehaviour::Instant_FadOut,
+						glm::vec3(Randomizer::single(-0.5f, 0.5f), 1.5f, Randomizer::single(-0.5f, 0.5f)));
+
+					t->setColor(glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+					t->setScale(fminf(fmaxf(dist / 15.0f, 1.0f), 5.0f));
+					t->setToFaceCamera(true);
+					
+				}
+
+				delete evnt.data;
 				break;
 			}
 			case PlayerEvents::TookMana:
@@ -601,7 +684,7 @@ void PlayState::update_isPlaying(const float& dt)
 
 				break;
 			}
-			
+
 			case PlayerEvents::SessionOver:
 			{
 				logWarning("[Event system] Session is over");
@@ -627,10 +710,16 @@ void PlayState::update_isPlaying(const float& dt)
 				break;
 			}
 
+			case PlayerEvents::EnemyDeflected:
+			{
+
+				break;
+			}
+
 			case PlayerEvents::WallGotDestroyed:
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::ReadDestructableWallsMutex); // Thread safe
-								
+
 				auto& vec = Client::getInstance()->getDestructedWalls();
 				for (size_t i = 0; i < vec.size(); i++) {
 					const DestructionPacket& p = vec[i];
@@ -655,7 +744,7 @@ void PlayState::update_isPlaying(const float& dt)
 			}
 
 			case PlayerEvents::GameStarted:
-			{	
+			{
 				m_hudHandler.getHudObject(HUDID::BAR_MANA)->setYClip(1.0f);
 				m_hudHandler.getHudObject(HUDID::BAR_HP)->setYClip(1.0f);
 				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(1.0f);
@@ -716,9 +805,9 @@ void PlayState::update_isSpectating(const float& dt)
 			object->update(dt);
 	}
 
-	for (PlayerEvents evnt = clientPtr->readNextEvent(); evnt != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
+	for (Evnt evnt = clientPtr->readNextEvent(); evnt.playerEvent != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
 
-		switch (evnt) {
+		switch (evnt.playerEvent) {
 
 		case PlayerEvents::WallGotDestroyed:
 		{
@@ -765,7 +854,7 @@ void PlayState::update_isSpectating(const float& dt)
 
 	}
 
-	
+
 
 	m_camera->update();
 	m_spellHandler->spellUpdate(dt);
@@ -789,6 +878,7 @@ void PlayState::update_isSpectating(const float& dt)
 void PlayState::render()
 {
 	Renderer::getInstance()->render();
+	TextRenderer::getInstance()->renderText();
 }
 
 bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1, const btCollisionObjectWrapper* obj2, int id2, int index2)
@@ -798,17 +888,17 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 	GameObject* sp1 = static_cast<GameObject*>(obj1->getCollisionObject()->getUserPointer());
 	GameObject* sp2 = static_cast<GameObject*>(obj2->getCollisionObject()->getUserPointer());
 	if (!sp1 || !sp2)
-		return false;
+		return false;	
 
 	DestructibleObject* dstrobj = nullptr;
 	Spell* spellobj = nullptr;
-
+	
 	btVector3 hitpoint;
 
 	switch (sp1->getType())
 	{
 	case (DESTRUCTIBLE):
-		dstrobj = static_cast<DestructibleObject*>(sp1);		
+		dstrobj = static_cast<DestructibleObject*>(sp1);
 		hitpoint = cp.m_localPointA;
 		break;
 
@@ -868,8 +958,8 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 				float rndZ = rand() % 2000 + 1 - 1000; rndZ /= 1000;
 				spellobj->getRigidBody()->setLinearVelocity(btVector3(rndX, rndY, rndZ) * 35);
 			}
-		
-	
+
+
 			//if (spellobj->getType() != FLAMESTRIKE)
 			//	spellobj->setTravelTime(0.0f);
 
@@ -884,7 +974,51 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 		}
 	}
 
+	//pushing destruction out of the way
+	Player* player = nullptr;
+	btScalar friction1 = obj1->getCollisionObject()->getFriction();
+	btScalar friction2 = obj2->getCollisionObject()->getFriction();
+	std::vector<btRigidBody*> rigids;
+	btVector3 collisionPos;
+	
+	//see if first or second item is destruction
+	if (friction1 == 101.0f)
+	{
+		if (obj2->getCollisionObject()->getCollisionShape()->getName() == "CapsuleZ")
+			player = static_cast<Player*>(obj2->getCollisionObject()->getUserPointer());
+		else
+			return false;
 
+		rigids = sp1->getRigidBodies();	
+		collisionPos = cp.getPositionWorldOnA();
+	}
+
+	else if (friction2 == 101.0f)
+	{
+		if (obj1->getCollisionObject()->getCollisionShape()->getName() == "CapsuleZ")
+			player = static_cast<Player*>(obj1->getCollisionObject()->getUserPointer());
+		else
+			return false;
+
+		rigids = sp2->getRigidBodies();
+		collisionPos = cp.getPositionWorldOnB();
+	}
+
+	//if player is null return
+	if (!player)
+		return false;
+
+	//apply a force from the player to the object
+	for (size_t i = 0; i < rigids.size(); i++)
+	{
+		btVector3 btRigPos = rigids.at(i)->getCenterOfMassPosition();
+		glm::vec3 glmPlayerPos =  player->getPlayerPos();
+		btVector3 playerPos = btVector3(glmPlayerPos.x, glmPlayerPos.y, glmPlayerPos.z);
+
+		btVector3 dir = btRigPos - playerPos;
+		dir.normalize();
+		rigids.at(i)->applyCentralImpulse(dir* 5);
+	}
 	return false;
 }
 
@@ -977,9 +1111,9 @@ void PlayState::GUIHandler()
 {
 	//Open the menu
 	if (Input::isKeyPressed(GLFW_KEY_ESCAPE)) {
-	
+
 		SoundHandler::getInstance()->stopSound(DeflectSound, Client::getInstance()->getMyData().guid);
-		
+
 		m_GUIOpen = !m_GUIOpen;
 		if (m_GUIOpen) {
 			glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);

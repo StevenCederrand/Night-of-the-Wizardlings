@@ -23,6 +23,7 @@ private:
 	CEGUI::PushButton* m_startServerBtn; 
 	CEGUI::PushButton* m_startWithoutServerBtn;
 	HudHandler m_hudHandler; //Basic HUD objects
+
 private:
 	bool onStartOfflineClicked(const CEGUI::EventArgs& e);
 	bool onStartServerClicked(const CEGUI::EventArgs& e);

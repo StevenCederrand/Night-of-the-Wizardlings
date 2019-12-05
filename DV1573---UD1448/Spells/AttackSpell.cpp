@@ -1,4 +1,4 @@
-#pragma once
+ #pragma once
 #include <Pch/Pch.h>
 #include "AttackSpell.h"
 #include <Spells/SpellHandler.h>
@@ -81,7 +81,7 @@ void AttackSpell::update(float deltaTime)
 
 const float AttackSpell::getDamage()
 {
-	return Randomizer::single(m_spellBase->m_lowDamage, m_spellBase->m_highDamage);;
+	return (Randomizer::single(m_spellBase->m_lowDamage, m_spellBase->m_highDamage));
 }
 
 const glm::vec3& AttackSpell::getPos() const

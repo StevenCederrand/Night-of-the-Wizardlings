@@ -731,11 +731,13 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 		//Update the shooter's hitmark
 		RakNet::BitStream hitmarkStream;
 		hitmarkStream.Write((RakNet::MessageID)HITMARK);
-		shooter->Serialize(true, hitmarkStream);
+		HitConfirmedPacket hitConfirmedPacket;
+		hitConfirmedPacket.damageDone = static_cast<int>(hitpacket->damage);
+		hitConfirmedPacket.targetPosition = target->position;
+		hitConfirmedPacket.Serialize(true, hitmarkStream);
 		m_serverPeer->Send(&hitmarkStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, shooter->guid, false);
 
-		float damageMultiplier = 1.0f;
-		float totalDamage = hitpacket->damage * damageMultiplier;
+		float totalDamage = hitpacket->damage;
 
 		target->health -= static_cast<int>(totalDamage);
 
