@@ -36,7 +36,7 @@ public:
 
 	void addParticle(ParticleBuffers* particleBuffers);
 	void UpdateParticles(float dt);
-	void RenderParticles();
+	void RenderParticles(glm::vec3 pos, Camera *camera);
 	   	
 	//Set functions
 	void setTransform(Transform transform);

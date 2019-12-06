@@ -573,3 +573,12 @@ void GameObject::UpdateParticles(float dt)
 		m_particleSystems[i].Update(dt);
 	}
 }
+
+void GameObject::RenderParticles(glm::vec3 pos, Camera* camera)
+{
+	for (int i = 0; i < m_particleSystems.size(); i++)
+	{
+		m_particleSystems[i].SetPosition(pos);
+		m_particleSystems[i].Render(camera);
+	}
+}
