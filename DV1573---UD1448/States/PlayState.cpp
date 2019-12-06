@@ -519,6 +519,7 @@ void PlayState::update_isPlaying(const float& dt)
 				m_camera->disableCameraMovement(true);
 				//TODO
 				//Here I can implement the poof particles for a dead player
+				Renderer::getInstance()->death();
 				break;
 			}
 
