@@ -75,6 +75,7 @@
     <ClCompile Include="System\UniqueIndex.cpp" />
     <ClCompile Include="Renderer\TextRenderer.cpp" />
     <ClCompile Include="BetterText\TextManager.cpp" />
+    <ClCompile Include="States\SettingState.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameObject\AnimatedObject.h" />
@@ -178,6 +179,7 @@
     <ClInclude Include="System\UniqueIndex.h" />
     <ClInclude Include="Renderer\TextRenderer.h" />
     <ClInclude Include="BetterText\TextManager.h" />
+    <ClInclude Include="States\SettingState.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />
