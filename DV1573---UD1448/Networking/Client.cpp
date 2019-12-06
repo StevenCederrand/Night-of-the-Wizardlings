@@ -265,7 +265,7 @@ void Client::processAndHandlePackets()
 				pE.data = player;
 				pE.flag = NetGlobals::THREAD_FLAG::Add;
 				pE.gameobject = nullptr;
-
+				pE.playerFlag = NetGlobals::THREAD_PLAYER_FLAG::SafeToAddNameplate;
 				/* Thread lock guard because this needs to be synced with the main game thread because
 				   this thread will add data to a list that is created and present in the main thread.
 
@@ -428,6 +428,13 @@ void Client::processAndHandlePackets()
 							Renderer::getInstance()->addBigNotification(t);
 						}
 
+
+						{
+							std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayersMutex);
+							NetworkPlayers::PlayerEntity* pEntity = findPlayerEntityInNetworkPlayers(pData.guid);
+							pEntity->playerFlag = NetGlobals::THREAD_PLAYER_FLAG::SafeToAddNameplate;
+						}
+
 					}
 
 					m_connectedPlayers[i] = pData;
@@ -468,10 +475,27 @@ void Client::processAndHandlePackets()
 			m_serverState.Serialize(false, bsIn);
 			if (m_serverState.currentState == NetGlobals::SERVER_STATE::WaitingForPlayers) {
 				logTrace("[Client]******** WARMUP ********");
+				Evnt evnt;
+				evnt.playerEvent = PlayerEvents::WaitingForPlayers;
+
+				// Add this to the event list
+				{
+					std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+					m_playerEvents.push_back(evnt);
+				}
+
+
 			}
 			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GameIsStarting) {
-				
 				logTrace("[Client]******** GAME IS STARTING ********");
+				Evnt evnt;
+				evnt.playerEvent = PlayerEvents::GameIsAboutToStart;
+
+				// Add this to the event list
+				{
+					std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+					m_playerEvents.push_back(evnt);
+				}
 			}
 			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GameInSession) {
 				logTrace("[Client]******** GAME HAS STARTED ********");
@@ -634,6 +658,18 @@ void Client::processAndHandlePackets()
 		{
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			m_countDownPacket.Serialize(false, bsIn);
+			Evnt evnt;
+			evnt.playerEvent = PlayerEvents::GameCountdown;
+			evnt.data = (void*)malloc(sizeof(CountdownPacket));
+			memcpy(evnt.data, &m_countDownPacket, sizeof(CountdownPacket));
+
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+				m_playerEvents.push_back(evnt);
+			}
+
+
 			m_inGame = true;
 		}
 		break;
@@ -649,6 +685,16 @@ void Client::processAndHandlePackets()
 		{
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			m_roundTimePacket.Serialize(false, bsIn);
+			Evnt evnt;
+			evnt.playerEvent = PlayerEvents::RoundTimer;
+			evnt.data = (void*)malloc(sizeof(RoundTimePacket));
+			memcpy(evnt.data, &m_roundTimePacket, sizeof(RoundTimePacket));
+
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+				m_playerEvents.push_back(evnt);
+			}
 		}
 		break;
 
@@ -1133,12 +1179,12 @@ void Client::createSpellOnNetwork(const Spell& spell)
 	spellPacket.packetType = SPELL_CREATED;
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
 	spellPacket.timestamp = RakNet::GetTimeMS();
-	spellPacket.Position = spell.getTransform().position;
+	spellPacket.Position = spell.getObjectTransform().position;
 	spellPacket.LastPosition = spell.getLastPosition();
 	spellPacket.Direction = spell.getDirection();
 	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Rotation = glm::vec3(0.0f);
-	spellPacket.Scale = spell.getTransform().scale;
+	spellPacket.Scale = spell.getObjectTransform().scale;
 	spellPacket.SpellType = (OBJECT_TYPE)spell.getType();
 
 	m_removeOrAddSpellQueue.emplace_back(spellPacket);
@@ -1152,12 +1198,12 @@ void Client::updateSpellOnNetwork(const Spell& spell)
 	SpellPacket spellPacket;
 	spellPacket.packetType = SPELL_UPDATE;
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
-	spellPacket.Position = spell.getTransform().position;
+	spellPacket.Position = spell.getObjectTransform().position;
 	spellPacket.LastPosition = spell.getLastPosition();
 	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Direction = spell.getDirection();
 	spellPacket.Rotation = glm::vec3(0.0f);
-	spellPacket.Scale = spell.getTransform().scale;
+	spellPacket.Scale = spell.getObjectTransform().scale;
 	spellPacket.SpellType = (OBJECT_TYPE)spell.getType(); 
 
 	m_updateSpellQueue.emplace_back(spellPacket);
@@ -1171,12 +1217,12 @@ void Client::destroySpellOnNetwork(const Spell& spell)
 	spellPacket.packetType = SPELL_DESTROY;
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
 	spellPacket.timestamp = RakNet::GetTimeMS();
-	spellPacket.Position = spell.getTransform().position;
+	spellPacket.Position = spell.getObjectTransform().position;
 	spellPacket.LastPosition = spell.getLastPosition();
 	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Direction = spell.getDirection();
 	spellPacket.Rotation = glm::vec3(0.0f);
-	spellPacket.Scale = spell.getTransform().scale;
+	spellPacket.Scale = spell.getObjectTransform().scale;
 	spellPacket.SpellType = (OBJECT_TYPE)spell.getType();
 
 	m_removeOrAddSpellQueue.emplace_back(spellPacket);
@@ -1195,9 +1241,9 @@ void Client::sendHitRequest(Spell& spell, NetworkPlayers::PlayerEntity& playerTh
 	hitPacket.SpellID = spell.getUniqueID();
 	hitPacket.CreatorGUID = m_clientPeer->GetMyGUID();
 	hitPacket.playerHitGUID = playerThatWasHit.data.guid.rakNetGuid;
-	hitPacket.Position = spell.getTransform().position;
-	hitPacket.Rotation = spell.getTransform().rotation;
-	hitPacket.Scale = spell.getTransform().scale;
+	hitPacket.Position = spell.getObjectTransform().position;
+	hitPacket.Rotation = spell.getObjectTransform().rotation;
+	hitPacket.Scale = spell.getObjectTransform().scale;
 	hitPacket.damage = spell.getDamage();
 	hitPacket.SpellDirection = spell.getDirection();
 
@@ -1212,9 +1258,9 @@ void Client::sendHitRequest(Spell& spell, const PlayerPacket& playerThatWasHit)
 	hitPacket.SpellID = spell.getUniqueID();
 	hitPacket.CreatorGUID = m_clientPeer->GetMyGUID();
 	hitPacket.playerHitGUID = playerThatWasHit.guid.rakNetGuid;
-	hitPacket.Position = spell.getTransform().position;
-	hitPacket.Rotation = spell.getTransform().rotation;
-	hitPacket.Scale = spell.getTransform().scale;
+	hitPacket.Position = spell.getObjectTransform().position;
+	hitPacket.Rotation = spell.getObjectTransform().rotation;
+	hitPacket.Scale = spell.getObjectTransform().scale;
 	hitPacket.damage = spell.getDamage();
 	hitPacket.SpellDirection = spell.getDirection();
 

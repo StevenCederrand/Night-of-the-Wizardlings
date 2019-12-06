@@ -5,6 +5,7 @@
 struct TextMeshData {
 	std::vector<glm::vec3> vertexPositions;
 	std::vector<glm::vec2> textureCoords;
+	float totalWordWith;
 };
 
 

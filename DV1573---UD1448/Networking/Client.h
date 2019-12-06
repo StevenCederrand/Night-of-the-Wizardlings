@@ -73,6 +73,8 @@ public:
 	const bool& connectionFailed() const;
 	const bool& isServerOwner() const;
 	const bool& isSpectating() const;
+
+	SpellHandler* getSpellhandler() const { return m_spellHandler;} // TODO: Delete later
 private:
 
 	unsigned char getPacketID(RakNet::Packet* p);

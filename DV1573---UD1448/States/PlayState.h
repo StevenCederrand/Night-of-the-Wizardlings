@@ -27,6 +27,7 @@ public:
 	//PlayState(){}
 	PlayState(bool spectator);
 	void loadMap();
+	void loadSkyDebris(Renderer* renderer);
 	void loadDecor();
 	void loadLights();
 	void loadDestructables();
@@ -51,6 +52,7 @@ private:
 	// Hardcoded solution for choosing the map
 	// Should probably be changed depending on how we want to handle different maps
 	// 0 is default
+	// 1 is debug
 	int m_map = 0;
 
 	float m_rotVal;
@@ -68,7 +70,6 @@ private:
 	Player* m_player;
 	Camera* m_camera;
 	SkyBox* m_skybox;
-	BulletPhysics* m_bPhysics;
 	MemoryUsage mu;
 	HudHandler m_hudHandler;
 	
@@ -80,7 +81,10 @@ private:
 	bool m_hideHUD;
 
 	glm::vec3 m_lastPositionOfMyKiller;
-
+	GUIText* m_gameTimeText;
+	GUIText* m_readyText;
+	GUIText* m_killNotification;
+	GUIText* m_memoryText;
 	float startY;
 private: 
 

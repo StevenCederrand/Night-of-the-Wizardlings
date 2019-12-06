@@ -15,33 +15,12 @@ void logVec3(glm::vec3 vector) {
 
 PlayState::PlayState(bool spectator)
 {
-
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
-
 	m_camera = new Camera();
-	m_bPhysics = new BulletPhysics(-20.0f);
 	mu.printBoth("After physics and camera init:");
 
-
-
-	mu.printBoth("Before Font:");
-
-	/* Todo:
-		Create the whole render logic, hashmaps 'n stuff.
-		Gui text has a unique index so use that to remove the texts if needed.
-
-		Font loading resulet in:
-		+ ~ 1MB Ram
-		+ ~ 3MB VRam
-	*/
-
-	
-	//m_text = new GUIText("Yoooo", 2.f, m_fontType, glm::vec3(0.0f, 0.0f, -10.0f), 1.f, true);
-	//m_text->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	TextRenderer::getInstance()->init(m_camera);
 	TextManager::getInstance();
-	/*TextRenderer::getInstance()->submitText(m_text);*/
-
 	mu.printBoth("After Font:");
 
 	if (spectator == false) {
@@ -59,10 +38,10 @@ PlayState::PlayState(bool spectator)
 		enemyShield->loadMesh("EnemyShieldMesh.mesh");
 		delete enemyShield;
 
-		m_spellHandler = new SpellHandler(m_bPhysics);
+		m_spellHandler = new SpellHandler();
 		m_spellHandler->setOnHitCallback(std::bind(&PlayState::onSpellHit_callback, this));
 
-		m_player = new Player(m_bPhysics, "Player", NetGlobals::PlayerFirstSpawnPoint, m_camera, m_spellHandler);
+		m_player = new Player("Player", NetGlobals::PlayerFirstSpawnPoint, m_camera, m_spellHandler);
 		m_player->setHealth(NetGlobals::PlayerMaxHealth);
 
 		if (Client::getInstance()->isInitialized())
@@ -75,11 +54,10 @@ PlayState::PlayState(bool spectator)
 		mu.printBoth("After hud:");
 	}
 	else {
-		m_spellHandler = new SpellHandler(nullptr);
+		m_spellHandler = new SpellHandler();
 		m_spellHandler->setOnHitCallback(std::bind(&PlayState::onSpellHit_callback, this));
 		m_camera->setSpectatorMode(SpectatorMode::FreeCamera);
 	}
-
 
 	Renderer* renderer = Renderer::getInstance();
 	renderer->setupCamera(m_camera);
@@ -100,14 +78,22 @@ PlayState::PlayState(bool spectator)
 	if(Client::getInstance()->isInitialized())
 		Client::getInstance()->assignSpellHandler(m_spellHandler);
 
-	//m_hudHandler.loadPlayStateHUD();
 	m_hideHUD = false;
 
+	std::string memTex = "Ram: " + std::to_string(mu.getCurrentRamUsage()) + " | VRam: " + std::to_string(mu.getCurrentVramUsage()) +
+		" | Highest Ram: " + std::to_string(mu.getHighestRamUsage()) + " | Highest VRam: " + std::to_string(mu.getHighestVramUsage());
+	
+	m_memoryText = TextManager::getInstance()->addDynamicText(
+		memTex,
+		0.09f,
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		1.f,
+		TextManager::TextBehaviour::StayForever,
+		glm::vec3(0.0f, 0.0f, 0.0f), true);
 
 	mu.printBoth("End of play state init:");
+
 }
-
-
 
 void PlayState::loadMap()
 {
@@ -135,26 +121,28 @@ void PlayState::loadMap()
 
 	// Collision // TODO: Move to object constructor
 	for (GameObject* g : m_objects)
-	{
-		g->createRigidBody(CollisionObject::box, m_bPhysics);
-	}
+		g->makeStatic();
 	mu.printBoth("After rigidbodies:");
 
-	//if (spectator == false) {
-		for (size_t i = 0; i < m_objects.size(); i++)
-		{
-			m_objects.at(i)->createRigidBody(CollisionObject::box, m_bPhysics);
-		}
-	//}
-		mu.printBoth("After creation of rigidbodies:");
-	// Non dynamic mesh (no rigidbody)
-	// Very big mesh hope not overload gpu XD
-	m_objects.push_back(new MapObject("Academy_Outer"));
-	m_objects[m_objects.size() - 1]->loadMesh("ExteriorTest.mesh");
-	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
+	loadSkyDebris(renderer);
+	mu.printBoth("After sky debris objects:");
 
-#pragma region Sky_Debris
+	// Non-hitbox decoraction
+	loadDecor();
+	mu.printBoth("After decor objects:");
 
+	// Lights
+	loadLights();
+	mu.printBoth("After point lights:");
+
+	// Destuction
+	loadDestructables();
+	mu.printBoth("After destructables:");
+
+}
+
+void PlayState::loadSkyDebris(Renderer* renderer)
+{
 	m_objects.push_back(new MapObject("Debris_Far"));
 	m_objects[m_objects.size() - 1]->loadMesh("StonePlaneFar.mesh");
 	m_objects[m_objects.size() - 1]->setTransform(glm::vec3(0.0f, 800.0f, 0.0f), glm::quat(glm::vec3(0.f, 0.f, 0.f)), glm::vec3(7.f));
@@ -170,24 +158,6 @@ void PlayState::loadMap()
 	m_objects[m_objects.size() - 1]->loadMesh("StonePlaneNear.mesh");
 	m_objects[m_objects.size() - 1]->setTransform(glm::vec3(0.0f, 100.0f, 0.0f), glm::quat(glm::vec3(0.f, 0.f, 0.f)), glm::vec3(2.f));
 	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::SKYOBJECTS);
-
-
-#pragma endregion
-
-	mu.printBoth("After Academy Outer:");
-	startY = SCREEN_HEIGHT / 2;
-	// Non-hitbox decoraction
-	loadDecor();
-	mu.printBoth("After decor objects:");
-
-	// Lights
-	loadLights();
-	mu.printBoth("After point lights:");
-
-	// Destuction
-	loadDestructables();
-	mu.printBoth("After destructables:");
-
 }
 
 void PlayState::loadDecor()
@@ -202,7 +172,7 @@ void PlayState::loadDecor()
 		break;
 
 	case 1:
-
+		break;
 
 	default:
 		break;
@@ -304,7 +274,6 @@ void PlayState::loadDestructables()
 	m_dstr.setBreakSettings(DSTR2, 11, 2.8f, gravityOnImpact);
 	m_dstr_alt1.setBreakSettings(DSTR1, 8, 3.4f, gravityOnImpact);
 
-
 	switch (m_map)
 	{
 	case 0:
@@ -339,7 +308,7 @@ void PlayState::loadDestructables()
 				0.15f
 			);
 
-			m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+			m_objects.back()->makeStatic();
 			Renderer::getInstance()->submit(m_objects.back(), STATIC);
 		}
 		meshLoader.Unload();
@@ -364,7 +333,7 @@ void PlayState::loadDestructables()
 				0.25f
 			);
 
-			m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+			m_objects.back()->makeStatic();
 			Renderer::getInstance()->submit(m_objects.back(), STATIC);
 		}
 		meshLoader.Unload();
@@ -389,7 +358,7 @@ void PlayState::loadDestructables()
 				1.0f
 			);
 
-			m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+			m_objects.back()->makeStatic();
 			Renderer::getInstance()->submit(m_objects.back(), STATIC);
 		}
 		meshLoader.Unload();
@@ -446,7 +415,7 @@ void PlayState::loadDestructables()
 					0.15f
 				);
 
-				m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
+				m_objects.back()->makeStatic();
 				Renderer::getInstance()->submit(m_objects.back(), STATIC);
 			}
 			meshLoader.Unload();
@@ -458,7 +427,6 @@ void PlayState::loadDestructables()
 
 PlayState::~PlayState()
 {
-
 	mu.printBoth("Before deleting playstate:");
 
 	for (GameObject* object : m_objects)
@@ -475,7 +443,6 @@ PlayState::~PlayState()
 
 	delete m_skybox;
 	delete m_player;
-	delete m_bPhysics;
 	delete m_spellHandler;
 	delete m_camera;
 	delete m_firstPerson;
@@ -487,16 +454,18 @@ PlayState::~PlayState()
 		Client::getInstance()->destroy();
 	}
 
+	BulletPhysics::getInstance()->destroy();
 	MeshMap::getInstance()->cleanUp();
 
 	TextRenderer::getInstance()->cleanup();
 	TextManager::getInstance()->cleanup();
 
 	mu.printBoth("Afer deleting playstate:");
+	
 }
 
 
-
+static float memTimer = 0.0f;
 void PlayState::update(float dt)
 {
 	Client::getInstance()->updateNetworkEntities(dt);
@@ -511,6 +480,16 @@ void PlayState::update(float dt)
 	}
 
 	removeDeadObjects();
+
+	memTimer += DeltaTime;
+
+	if (memTimer >= 0.5f) {
+		memTimer = 0.0f;
+		mu.updateBoth();
+		std::string memTex = "Ram: " + std::to_string(mu.getCurrentRamUsage()) + " | VRam: " + std::to_string(mu.getCurrentVramUsage()) +
+			" | Highest Ram: " + std::to_string(mu.getHighestRamUsage()) + " | Highest VRam: " + std::to_string(mu.getHighestVramUsage());
+		m_memoryText->changeText(memTex);
+	}
 
 	TextManager::getInstance()->update();
 }
@@ -546,21 +525,113 @@ void PlayState::update_isPlaying(const float& dt)
 	auto* clientPtr = Client::getInstance();
 	clientPtr->updateNetworkEntities(dt);
 
-	m_bPhysics->update(dt);
 	m_player->update(dt);
 	m_spellHandler->spellUpdate(dt);
 
+	BulletPhysics::getInstance()->update(dt);
 	Renderer::getInstance()->updateParticles(dt);
 
 	shPtr->setSourcePosition(m_player->getPlayerPos(), HitmarkSound);
 
-	if (Input::isKeyPressed(GLFW_KEY_U)) {
-		printf("My pos: %f, %f, %f\n", m_player->getPlayerPos().x, m_player->getPlayerPos().y, m_player->getPlayerPos().z);
-	}
-
 	for (Evnt evnt = clientPtr->readNextEvent(); evnt.playerEvent != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
 
 		switch (evnt.playerEvent) {
+
+			case PlayerEvents::GameCountdown:
+			{
+				static int lastNumber = 0;
+				CountdownPacket pp;
+				memcpy(&pp, evnt.data, sizeof(CountdownPacket));
+
+				if (&pp != nullptr) {
+
+					if (lastNumber == (pp.timeLeft / 1000)){
+						delete evnt.data;
+						break;
+					}
+
+					lastNumber = pp.timeLeft / 1000;
+
+					if (lastNumber == 0) {
+						GUIText* t = TextManager::getInstance()->addDynamicText(
+							"Game has begun!",
+							0.25f,
+							glm::vec3(0.0f, -0.25f, 0.0f),
+							2.5f,
+							TextManager::TextBehaviour::Instant_FadOut,
+							glm::vec3(0.0f, 0.0f, 0.0f), true);
+
+						t->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+						t->setScale(1.0f);
+					}
+					else {
+						GUIText* t = TextManager::getInstance()->addDynamicText(
+							"Game Starting in: " + std::to_string(lastNumber),
+							0.25f,
+							glm::vec3(0.0f, -0.25f, 0.0f),
+							1.f,
+							TextManager::TextBehaviour::ScaleUp_FadeOut,
+							glm::vec3(0.0f, 0.0f, 0.0f), true);
+
+						t->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+						t->setScale(1.0f);
+					}
+
+					
+
+
+
+					delete evnt.data;
+				}
+
+				break;
+			}
+
+			case PlayerEvents::RoundTimer:
+			{
+				static int lastSecond = 0;
+				RoundTimePacket rp;
+				memcpy(&rp, evnt.data, sizeof(RoundTimePacket));
+
+				if (&rp != nullptr) {
+
+					if (lastSecond == rp.seconds) {
+						delete evnt.data;
+						break;
+					}
+
+					lastSecond = rp.seconds;
+
+					if (m_gameTimeText == nullptr) {
+						m_gameTimeText = TextManager::getInstance()->addDynamicText(
+							std::to_string(rp.minutes) + ":" + std::to_string(lastSecond),
+							0.25f,
+							glm::vec3(0.0f, -0.035f, 0.0f),
+							1.f,
+							TextManager::TextBehaviour::StayForever,
+							glm::vec3(0.0f, 0.0f, 0.0f), true);
+					}
+					else {
+
+						std::string secondsText = (rp.seconds <= 9 ? "0" : "") + std::to_string(rp.seconds);
+						std::string preText = "";
+						
+						if (Client::getInstance()->getServerState().currentState == NetGlobals::SERVER_STATE::GameFinished)
+							preText = "End of round ";
+
+						m_gameTimeText->changeText(preText + std::to_string(rp.minutes) + ":" + secondsText);
+
+					}
+
+					m_gameTimeText->setShouldRender(true);
+
+				}
+
+
+
+				delete evnt.data;
+				break;
+			}
 
 			case PlayerEvents::Died:
 			{
@@ -574,6 +645,8 @@ void PlayState::update_isPlaying(const float& dt)
 				}
 				m_player->onDead();
 				m_camera->disableCameraMovement(true);
+				//TODO
+				//Here I can implement the poof particles for a dead player
 				break;
 			}
 
@@ -653,12 +726,12 @@ void PlayState::update_isPlaying(const float& dt)
 						txtPos,
 						2.0f,
 						TextManager::TextBehaviour::Instant_FadOut,
-						glm::vec3(Randomizer::single(-0.5f, 0.5f), 1.5f, Randomizer::single(-0.5f, 0.5f)));
+						glm::vec3(Randomizer::single(-0.5f, 0.5f), 1.5f, Randomizer::single(-0.5f, 0.5f)), true, 1.0f);
 
 					t->setColor(glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
 					t->setScale(fminf(fmaxf(dist / 15.0f, 1.0f), 5.0f));
 					t->setToFaceCamera(true);
-					
+					t->setIgnoreDepthTest(true);
 				}
 
 				delete evnt.data;
@@ -710,6 +783,8 @@ void PlayState::update_isPlaying(const float& dt)
 				m_hudHandler.getHudObject(HUDID::MANA_OVERLAY)->setAlpha(0.75f);
 				//Give the player a boost in mana
 				m_player->increaseMana(10.0f);
+				//TODO
+				//Implement particles for self deflect here
 				break;
 			}
 
@@ -755,6 +830,22 @@ void PlayState::update_isPlaying(const float& dt)
 				break;
 			}
 
+			case PlayerEvents::GameIsAboutToStart:
+			{
+				if (m_gameTimeText != nullptr) {
+					m_gameTimeText->setShouldRender(false);
+				}
+				break;
+			}
+
+			case PlayerEvents::WaitingForPlayers:
+			{
+				if (m_gameTimeText != nullptr) {
+					m_gameTimeText->setShouldRender(false);
+				}
+				break;
+			}
+
 			case PlayerEvents::GameEnded:
 			{
 				m_hudHandler.getHudObject(HUDID::BAR_MANA)->setYClip(1.0f);
@@ -785,6 +876,7 @@ void PlayState::update_isPlaying(const float& dt)
 	for (GameObject* object : m_objects)
 	{
 		object->update(dt);
+		object->UpdateParticles(dt);
 	}
 	Renderer::getInstance()->updateParticles(dt);
 
@@ -800,12 +892,16 @@ void PlayState::update_isSpectating(const float& dt)
 {
 	auto* clientPtr = Client::getInstance();
 	clientPtr->updateNetworkEntities(dt);
-	m_bPhysics->update(dt);
+	BulletPhysics::getInstance()->update(dt);
 
 	for (GameObject* object : m_objects)
 	{
-		if(object != nullptr)
+		if (object != nullptr)
+		{
 			object->update(dt);
+			object->UpdateParticles(dt);
+		}
+			
 	}
 
 	for (Evnt evnt = clientPtr->readNextEvent(); evnt.playerEvent != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
@@ -867,6 +963,7 @@ void PlayState::update_isSpectating(const float& dt)
 	for (GameObject* object : m_objects)
 	{
 		object->update(dt);
+		object->UpdateParticles(dt);
 	}
 
 	GUIHandler();
@@ -879,9 +976,8 @@ void PlayState::update_isSpectating(const float& dt)
 }
 
 void PlayState::render()
-{
+{	
 	Renderer::getInstance()->render();
-	TextRenderer::getInstance()->renderText();
 }
 
 bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1, const btCollisionObjectWrapper* obj2, int id2, int index2)
@@ -893,142 +989,114 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 	if (!sp1 || !sp2)
 		return false;	
 
-	DestructibleObject* dstrobj = nullptr;
-	Spell* spellobj = nullptr;
-	
+	DestructibleObject* dstrObj = nullptr;
+	Spell* spellObj = nullptr;
+	Player* playerObj = nullptr;
+
 	btVector3 hitpoint;
 
 	switch (sp1->getType())
 	{
 	case (DESTRUCTIBLE):
-		dstrobj = static_cast<DestructibleObject*>(sp1);
+		dstrObj = static_cast<DestructibleObject*>(sp1);
 		hitpoint = cp.m_localPointA;
 		break;
 
 	case (NORMALATTACK):
-		spellobj = static_cast<Spell*>(sp1);
+		spellObj = static_cast<Spell*>(sp1);
 		break;
 
 	case (ENHANCEATTACK):
-		spellobj = static_cast<Spell*>(sp1);
-		break;
-
-	case (REFLECT):
-		spellobj = static_cast<Spell*>(sp1);
+		spellObj = static_cast<Spell*>(sp1);
 		break;
 
 	case (FLAMESTRIKE):
-		spellobj = static_cast<Spell*>(sp1);
+		spellObj = static_cast<Spell*>(sp1);
 		break;
 	}
 
 	switch (sp2->getType())
 	{
 	case (DESTRUCTIBLE):
-		dstrobj = static_cast<DestructibleObject*>(sp2);
+		dstrObj = static_cast<DestructibleObject*>(sp2);
 		hitpoint = cp.m_localPointB;
 		break;
 
 	case (NORMALATTACK):
-		spellobj = static_cast<Spell*>(sp2);
+		spellObj = static_cast<Spell*>(sp2);
 		break;
 
 	case (ENHANCEATTACK):
-		spellobj = static_cast<Spell*>(sp2);
-		break;
-
-	case (REFLECT):
-		spellobj = static_cast<Spell*>(sp2);
+		spellObj = static_cast<Spell*>(sp2);
 		break;
 
 	case (FLAMESTRIKE):
-		spellobj = static_cast<Spell*>(sp2);
+		spellObj = static_cast<Spell*>(sp2);
 		break;
 	}
 
-	if (spellobj)
+	if (spellObj)
 	{
-		if (!spellobj->getHasCollided())
-			spellobj->hasCollided();
+		if (!spellObj->getHasCollided())
+			spellObj->hasCollided();
 	}
 
-	if (dstrobj && spellobj)
+	if (dstrObj && spellObj)
 	{
-		if (!dstrobj->is_destroyed())
+		if (!dstrObj->is_destroyed())
 		{
-			DstrGenerator* m_dstr = dstrobj->getDstr();
+			DstrGenerator* m_dstr = dstrObj->getDstr();
 			int seed = m_dstr->seedRand();
 
-			m_dstr->Destroy(dstrobj, glm::vec2(hitpoint.getX(), hitpoint.getY()), spellobj->getDirection());
+			m_dstr->Destroy(dstrObj, glm::vec2(hitpoint.getX(), hitpoint.getY()), spellObj->getDirection());
 
-			if (spellobj->getBodyReference() != nullptr)
+			// TODO: Fix this
+			if (spellObj->getRigidBody() != nullptr)
 			{
-				float rndX = rand() % 1999 + 1 - 1000; rndX /= 1000;
-				float rndY = rand() % 1999 + 1 - 1000; rndY /= 1000;
-				float rndZ = rand() % 1999 + 1 - 1000; rndZ /= 1000;
-				spellobj->getBodyReference()->setLinearVelocity(btVector3(rndX, rndY, rndZ) * 35);
+				float rndX = rand() % 2000 + 1 - 1000; rndX /= 1000;
+				float rndY = rand() % 2000 + 1 - 1000; rndY /= 1000;
+				float rndZ = rand() % 2000 + 1 - 1000; rndZ /= 1000;
+				spellObj->getRigidBody()->setLinearVelocity(btVector3(rndX, rndY, rndZ) * 35);
 			}
 
 
-			//if (spellobj->getType() != FLAMESTRIKE)
-			//	spellobj->setTravelTime(0.0f);
+			//if (spellObj->getType() != FLAMESTRIKE)
+			//	spellObj->setTravelTime(0.0f);
 
 			// Network packet
 			DestructionPacket dstrPacket;
 			dstrPacket.hitPoint = glm::vec2(hitpoint.getX(), hitpoint.getY());
-			dstrPacket.hitDir = spellobj->getDirection();
-			dstrPacket.index = dstrobj->getIndex();
+			dstrPacket.hitDir = spellObj->getDirection();
+			dstrPacket.index = dstrObj->getIndex();
 			dstrPacket.randomSeed = seed;
 
 			Client::getInstance()->sendDestructionPacket(dstrPacket);
 		}
 	}
 
-	//pushing destruction out of the way
-	Player* player = nullptr;
-	btScalar friction1 = obj1->getCollisionObject()->getFriction();
-	btScalar friction2 = obj2->getCollisionObject()->getFriction();
-	std::vector<btRigidBody*> rigids;
-	btVector3 collisionPos;
-	
-	//see if first or second item is destruction
-	if (friction1 == 101.0f)
-	{
-		if (obj2->getCollisionObject()->getCollisionShape()->getName() == "CapsuleZ")
-			player = static_cast<Player*>(obj2->getCollisionObject()->getUserPointer());
-		else
-			return false;
-
-		rigids = sp1->getRigidBodies();	
-		collisionPos = cp.getPositionWorldOnA();
-	}
-
-	else if (friction2 == 101.0f)
+	if (dstrObj)
 	{
 		if (obj1->getCollisionObject()->getCollisionShape()->getName() == "CapsuleZ")
-			player = static_cast<Player*>(obj1->getCollisionObject()->getUserPointer());
-		else
+			playerObj = static_cast<Player*>(obj1->getCollisionObject()->getUserPointer());
+		else if (obj2->getCollisionObject()->getCollisionShape()->getName() == "CapsuleZ")
+			playerObj = static_cast<Player*>(obj2->getCollisionObject()->getUserPointer());
+		if (!playerObj)
 			return false;
 
-		rigids = sp2->getRigidBodies();
-		collisionPos = cp.getPositionWorldOnB();
+		//apply a force from the player to the object
+		for (size_t i = 0; i < dstrObj->getMeshesCount(); i++)
+		{
+			btVector3 btRigPos = dstrObj->getRigidBody(i)->getCenterOfMassPosition();
+			glm::vec3 glmPlayerPos = playerObj->getPlayerPos();
+			btVector3 playerPos = btVector3(glmPlayerPos.x, glmPlayerPos.y, glmPlayerPos.z);
+
+			btVector3 dir = btRigPos - playerPos;
+			dir.normalize();
+			dstrObj->getRigidBody(i)->applyCentralImpulse(dir * 5);
+		}
 	}
 
-	//if player is null return
-	if (!player)
-		return false;
 
-	//apply a force from the player to the object
-	for (size_t i = 0; i < rigids.size(); i++)
-	{
-		btVector3 btRigPos = rigids.at(i)->getCenterOfMassPosition();
-		glm::vec3 glmPlayerPos =  player->getPlayerPos();
-		btVector3 playerPos = btVector3(glmPlayerPos.x, glmPlayerPos.y, glmPlayerPos.z);
-
-		btVector3 dir = btRigPos - playerPos;
-		dir.normalize();
-		rigids.at(i)->applyCentralImpulse(dir* 5);
-	}
 	return false;
 }
 
@@ -1040,7 +1108,6 @@ void PlayState::HUDHandler() {
 	//Mana bar
 	m_hudHandler.getHudObject(BAR_MANA)->setXClip(m_player->getMana() / 100.0f);
 	m_hudHandler.getHudObject(CROSSHAIR_MANA)->setYClip(m_player->getMana() / 100.0f);
-
 
 	if (m_player->getAttackCooldown() > 0) {
 		m_hudHandler.getHudObject(SPELL_ARCANE)->setGrayscale(m_player->getAttackCooldown() / m_player->getMaxAttackCooldown());
@@ -1057,7 +1124,7 @@ void PlayState::HUDHandler() {
 		m_hudHandler.getHudObject(SPELL_TRIPLE)->setGrayscale(0);
 	}
 	//If triple spell is active
-	if (m_player->usingTripleSpell()) {
+	if (m_player->currentSpell() == ENHANCEATTACK) {	// TODO: Make this dymanic, not hardcoded for enhance and flamestrike
 		m_hudHandler.getHudObject(SPELL_TRIPLE)->setAlpha(1.0f);
 		m_hudHandler.getHudObject(SPELL_FLAMESTRIKE)->setAlpha(0.0f);
 	}

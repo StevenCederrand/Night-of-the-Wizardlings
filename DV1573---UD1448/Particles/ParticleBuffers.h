@@ -30,11 +30,11 @@ private:
 	std::vector<Particle> m_particle;
 	std::vector<float> m_lifetime;
 
-	psBuffers psBuffer;
+	//psBuffers psBuffer;
 
 public:
 	ParticleBuffers();
-	ParticleBuffers(PSinfo psInfo);
+	ParticleBuffers(PSinfo psInfo, TextureInfo txtInfo);
 	~ParticleBuffers();
 
 	//Do I need to set more things here?
@@ -59,7 +59,8 @@ public:
 	std::vector<Particle> getParticle();
 	std::vector<float> getLifetime();
 
-	psBuffers getBuffer();
+	PSinfo getPSinfo();
+	TextureInfo getTxtInfo();
 };
 
 
