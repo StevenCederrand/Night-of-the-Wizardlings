@@ -30,12 +30,11 @@ glm::vec3 MousePicker::calculateMouseRay()
 	return worldRay;
 }
 
-glm::vec3 MousePicker::getNormalizedDeviceCoords(float mouseX, float mouseY)
+glm::vec2 MousePicker::getNormalizedDeviceCoords(float mouseX, float mouseY)
 {
 	float x = (2.0f * mouseX) / SCREEN_WIDTH - 1.0f;
 	float y = 1.0f - (2.0f * mouseY) / SCREEN_HEIGHT;
-	float z = 1.0f;
-	return glm::vec3(x, y, z);
+	return glm::vec2(x, y);
 }
 
 glm::vec4 MousePicker::toEyeCoords(glm::vec4 clipCoords)

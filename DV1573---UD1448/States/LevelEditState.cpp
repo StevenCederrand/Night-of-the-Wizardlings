@@ -11,14 +11,14 @@ LevelEditState::LevelEditState(bool cameraState)
 
 	m_picker = new MousePicker(m_camera, m_camera->getProjMat());
 
-	if (cameraState == true)
+	/*if (cameraState == true)
 	{
 		m_camera->setSpectatorMode(SpectatorMode::FreeCamera);
-	}
+	}*/
 
 	Renderer* renderer = Renderer::getInstance();
 	
-	ImGui::CreateContext();
+	//ImGui::CreateContext();
 
 	renderer->setupCamera(m_camera);
 
@@ -49,6 +49,7 @@ LevelEditState::~LevelEditState()
 
 	delete m_camera;
 	delete m_skybox;
+	delete m_picker;
 	
 	MeshMap::getInstance()->cleanUp();
 }
@@ -160,7 +161,7 @@ void LevelEditState::updateState(const float& dt)
 
 	m_camera->updateLevelEd();
 	m_picker->update();
-	//logTrace("MousePicker: ({0}, {1}, {2})", std::to_string(m_picker->getCurrentRay().x), std::to_string(m_picker->getCurrentRay().y), std::to_string(m_picker->getCurrentRay().z));
+	logTrace("MousePicker: ({0}, {1}, {2})", std::to_string(m_picker->getCurrentRay().x), std::to_string(m_picker->getCurrentRay().y), std::to_string(m_picker->getCurrentRay().z));
 	Renderer::getInstance()->updateParticles(dt);
 	for (GameObject* object : m_objects)
 		object->update(dt);
