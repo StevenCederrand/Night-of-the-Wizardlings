@@ -44,6 +44,7 @@ void NetworkPlayers::update(const float& dt)
 					animObj->initAnimations("RunAnimation", 2.0f, 22.0f);
 					animObj->initAnimations("IdleAnimation", 25.0f, 93.0f);
 					animObj->initAnimations("CastAnimation", 95.0f, 109.0f);
+					//animObj->blendIdentity(95.0f, 109.0f, 47);
 					//animObj->initAnimations("JumpAnimation", 1.0f, 21.0f);
 
 				}
@@ -159,7 +160,7 @@ void NetworkPlayers::update(const float& dt)
 
 				if (p.data.animStates.casting == true)
 				{
-					animObj->playAnimation("CastAnimation");
+					animObj->playLoopAnimation("RunAnimation");
 				}
 				//if (p.data.animStates.deflecting == true)
 				//{

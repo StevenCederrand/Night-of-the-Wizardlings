@@ -24,23 +24,25 @@ out vec3 f_normal;
 out vec4 f_position;
 void main() {
 
-    gl_Position  = vec4(position, 1.0f);
-    gl_Position  = (boneMat[bone[0]] * vec4(position, 1.0f)) * weight.x;
-	gl_Position += (boneMat[bone[1]] * vec4(position, 1.0f)) * weight.y;
-	gl_Position += (boneMat[bone[2]] * vec4(position, 1.0f)) * weight.z;
-	gl_Position += (boneMat[bone[3]] * vec4(position, 1.0f)) * weight.w;
-    f_position = modelMatrix * gl_Position;
-    gl_Position = projMatrix * viewMatrix * modelMatrix * gl_Position;
-    
-    
-    f_normal  = normal;
-    f_normal  = vec3((transpose(inverse(mat3(boneMat[bone[0]]))) * normal) * weight.x);
-    f_normal += vec3((transpose(inverse(mat3(boneMat[bone[1]]))) * normal) * weight.y);
-    f_normal += vec3((transpose(inverse(mat3(boneMat[bone[2]]))) * normal) * weight.z);
-    f_normal += vec3((transpose(inverse(mat3(boneMat[bone[3]]))) * normal) * weight.w);
-    f_normal =  normalize(transpose(inverse(mat3(modelMatrix))) * f_normal);
-
     if (shouldBlend == 0)
+    {
+        gl_Position  = vec4(position, 1.0f);
+        gl_Position  = ((boneMat[bone[0]] * vec4(position, 1.0f)) * weight.x) *((boneMatBlend[bone[0]] * vec4(position, 1.0f)) * weight.x);
+        gl_Position += ((boneMat[bone[0]] * vec4(position, 1.0f)) * weight.y) *((boneMatBlend[bone[0]] * vec4(position, 1.0f)) * weight.y);
+        gl_Position += ((boneMat[bone[0]] * vec4(position, 1.0f)) * weight.z) *((boneMatBlend[bone[0]] * vec4(position, 1.0f)) * weight.z);
+        gl_Position += ((boneMat[bone[0]] * vec4(position, 1.0f)) * weight.w) *((boneMatBlend[bone[0]] * vec4(position, 1.0f)) * weight.w);
+        f_position = modelMatrix * gl_Position;
+        gl_Position = projMatrix * viewMatrix * modelMatrix * gl_Position;
+        
+        
+        f_normal  = normal;
+        f_normal  = (vec3((transpose(inverse(mat3(boneMat[bone[0]]))) * normal) * weight.x)) * ( vec3((transpose(inverse(mat3(boneMatBlend[bone[0]]))) * normal) * weight.x));
+        f_normal += (vec3((transpose(inverse(mat3(boneMat[bone[0]]))) * normal) * weight.y)) * ( vec3((transpose(inverse(mat3(boneMatBlend[bone[0]]))) * normal) * weight.y));
+        f_normal += (vec3((transpose(inverse(mat3(boneMat[bone[0]]))) * normal) * weight.z)) * ( vec3((transpose(inverse(mat3(boneMatBlend[bone[0]]))) * normal) * weight.z));
+        f_normal += (vec3((transpose(inverse(mat3(boneMat[bone[0]]))) * normal) * weight.w)) * ( vec3((transpose(inverse(mat3(boneMatBlend[bone[0]]))) * normal) * weight.w));
+        f_normal =  normalize(transpose(inverse(mat3(modelMatrix))) * f_normal);
+    }
+    if (shouldBlend == 1)
     {
         gl_Position  = vec4(position, 1.0f);
         gl_Position  = (boneMatBlend[bone[0]] * vec4(position, 1.0f)) * weight.x;

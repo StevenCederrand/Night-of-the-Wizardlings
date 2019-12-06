@@ -27,7 +27,9 @@ public:
 	void update(float dt);
 
 	//Calculates the transforms of a joint at a specific time, also interpolates.
-	void ComputeMatrix(int meshId, std::string meshn, std::string animation, BonePalleteBuffer* bonePallete);
+	void ComputeMatrix(int meshId, std::string meshn, std::string animation, BonePalleteBuffer* bonePallete, float currentTime);
+	void ComputeMatrixUpper(int meshId, std::string meshn, std::string animation, BonePalleteBuffer* bonePallete, float currentTime);
+	void ComputeMatrixLower(int meshId, std::string meshn, std::string animation, BonePalleteBuffer* bonePallete, float currentTime);
 
 	//Binds the transforms to the shader
 	void BindAnimation(int meshId);
@@ -35,13 +37,17 @@ public:
 	void initAnimations(std::string name, float startTime, float stopTime);
 
 	void playAnimation(std::string name);
-
 	void playLoopAnimation(std::string name);
+	void playUpperAnimation(std::string name);
+	void playLowerAnimation(std::string name);
 
+	void blendIdentity(float startTime, float stopTime, int index);
+
+	void splitSkeleton(int upper);
 
 private:
 
-
+	int upperIndex;
 	std::vector<frameAnimation> animations;
 
 	//The bone pallete holds the calculated transforms for a specific joint (bone)
@@ -53,12 +59,24 @@ private:
 
 	float m_stopTime;
 	float m_startTime;
-	float currentTime;
-	float tempTime;
-	std::string currentAnimation;
+	float m_currentTime;
+	float m_tempTime;
+	std::string m_currentAnimation;
+	std::string m_currentAnimationLower;
 
-	bool isLooping = false;
-	bool isDone = false;
+
+	float m_stopTimeUpper;
+	float m_startTimeUpper;
+	float m_currentTimeUpper;
+
+	float m_stopTimeLower;
+	float m_startTimeLower;
+	float m_currentTimeLower;
+
+	bool m_isLooping = false;
+	bool m_isDone = true;
+	bool m_upper = false;//CREATE A BOOL FOR BOTH UPPER AND LOWER? (put compute matrix for upper and lower in same function?)
+	bool m_lower = false;
 	
 };
 
