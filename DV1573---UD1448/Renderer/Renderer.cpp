@@ -475,7 +475,7 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 
 	if (objType == RENDER_TYPE::STATIC) 
 	{
-		gameObject->addParticle(deathBuffer);
+		//gameObject->addParticle(deathBuffer);
 		m_staticObjects.emplace_back(gameObject);
 		//m_staticObjects[0]->addParticle(deathBuffer);
 		//gameObject->addParticle(deathBuffer);
@@ -894,6 +894,7 @@ void Renderer::render() {
 #pragma endregion
 	}
 
+	renderSkybox();
 	
 	
 	//BLOOMBLUR MISSION STEP 1: SAMPLE
@@ -982,8 +983,8 @@ void Renderer::render() {
 			glDisableVertexAttribArray(2);
 
 		}
-
-		object->RenderParticles(glm::vec3(0), m_camera);
+		object->RenderParticles(m_camera);
+		//object->getTransform().position
 	}
 
 	shader->clearBinding();
@@ -1195,7 +1196,7 @@ void Renderer::render() {
 
 	shader->clearBinding();
 #pragma endregion
-	renderSkybox();
+	//renderSkybox();
 	// Spell Rendering
 	m_spellHandler->renderSpell();
 

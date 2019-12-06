@@ -102,6 +102,7 @@ PlayState::PlayState(bool spectator)
 	//m_hudHandler.loadPlayStateHUD();
 	m_hideHUD = false;
 
+	InitParticle();
 
 	mu.printBoth("End of play state init:");
 }
@@ -449,6 +450,9 @@ PlayState::~PlayState()
 		if (light)
 			delete light;
 
+	if (deathBuffer)
+		delete deathBuffer;
+
 	GUIclear();
 
 	m_pointlights.clear();
@@ -557,7 +561,12 @@ void PlayState::update_isPlaying(const float& dt)
 				m_camera->disableCameraMovement(true);
 				//TODO
 				//Here I can implement the poof particles for a dead player
-				Renderer::getInstance()->death();
+
+				m_objects.push_back(new WorldObject("Death"));
+				m_objects.back()->setWorldPosition(m_player->getPlayerPos());
+				m_objects.back()->addParticle(deathBuffer);
+				Renderer::getInstance()->submit(m_objects.back(), STATIC);
+
 				break;
 			}
 
@@ -994,6 +1003,39 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 
 
 	return false;
+}
+
+void PlayState::InitParticle()
+{
+	PSinfo tempPS;
+	TextureInfo tempTxt;
+
+	tempTxt.name = "Assets/Textures/betterStar.png";
+	tempPS.width = 0.9f;
+	tempPS.heigth = 1.2f;
+	tempPS.lifetime = 5.0f;
+	tempPS.maxParticles = 300;
+	tempPS.emission = 0.02f;
+	tempPS.force = -0.54f;
+	tempPS.drag = 0.0f;
+	tempPS.gravity = -2.2f;
+	tempPS.seed = 1;
+	tempPS.cont = true;
+	tempPS.omnious = true;
+	tempPS.spread = 5.0f;
+	tempPS.glow = 1.3;
+	tempPS.scaleDirection = 0;
+	tempPS.swirl = 0;
+	tempPS.fade = 1;
+	tempPS.randomSpawn = true;
+	tempPS.color = glm::vec3(0.3f, 0.3f, 0.3f);
+	tempPS.blendColor = glm::vec3(1.0f, 1.0f, 1.0f);
+	tempPS.color = glm::vec3(0.0, 0.0f, 0.0f);
+	tempPS.direction = glm::vec3(0.0f, -1.0f, 0.0f);
+
+	deathBuffer = new ParticleBuffers(tempPS, tempTxt);
+	deathBuffer->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
+	deathBuffer->bindBuffers();
 }
 
 void PlayState::HUDHandler() {
