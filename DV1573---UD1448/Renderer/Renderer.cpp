@@ -142,7 +142,7 @@ void Renderer::renderAndAnimateNetworkingTexts()
 
 		if (state == NetGlobals::SERVER_STATE::GameInSession) {
 
-			uint32_t minutes = Client::getInstance()->getRoundTimePacket().minutes;
+		/*	uint32_t minutes = Client::getInstance()->getRoundTimePacket().minutes;
 			uint32_t seconds = Client::getInstance()->getRoundTimePacket().seconds;
 			std::string timeText = std::to_string(minutes) + ":";
 
@@ -158,7 +158,7 @@ void Renderer::renderAndAnimateNetworkingTexts()
 			glm::vec3 scale = glm::vec3(0.5f, 0.5f, 0.5f);
 			float width = m_text->getTotalWidth(timeText, scale);
 
-			m_text->RenderText(timeText, (SCREEN_WIDTH / 2) - width * 0.5f, (SCREEN_HEIGHT * 0.95f), scale.x, glm::vec3(1.0f, 1.0f, 1.0f));
+			m_text->RenderText(timeText, (SCREEN_WIDTH / 2) - width * 0.5f, (SCREEN_HEIGHT * 0.95f), scale.x, glm::vec3(1.0f, 1.0f, 1.0f));*/
 		}
 		else if (state == NetGlobals::SERVER_STATE::WaitingForPlayers) {
 
@@ -197,7 +197,7 @@ void Renderer::renderAndAnimateNetworkingTexts()
 
 		}
 		else if (state == NetGlobals::SERVER_STATE::GameFinished) {
-			uint32_t minutes = Client::getInstance()->getRoundTimePacket().minutes;
+			/*uint32_t minutes = Client::getInstance()->getRoundTimePacket().minutes;
 			uint32_t seconds = Client::getInstance()->getRoundTimePacket().seconds;
 			std::string timeText = std::to_string(minutes) + ":";
 
@@ -210,7 +210,7 @@ void Renderer::renderAndAnimateNetworkingTexts()
 
 			timeText = "End of round: " + timeText;
 			unsigned int width = m_text->getTotalWidth(timeText, glm::vec3(0.5f));
-			m_text->RenderText(timeText, SCREEN_WIDTH / 2 - 135.0f, 680.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+			m_text->RenderText(timeText, SCREEN_WIDTH / 2 - 135.0f, 680.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));*/
 		}
 
 		if (Client::getInstance()->isSpectating() == false) {

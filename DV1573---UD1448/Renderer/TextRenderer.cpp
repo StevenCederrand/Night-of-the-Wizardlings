@@ -86,6 +86,10 @@ void TextRenderer::renderText()
 
 		for (auto* text : item.second) {
 			
+			if (text->shouldRender() == false)
+				continue;
+
+
 			if (text->isScreenText()) {
 				renderScreenText(text);
 			}

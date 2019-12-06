@@ -13,7 +13,8 @@ public:
 
 	void setColor(const glm::vec4& color);
 	void remove();
-
+	/*This is a expensive operation!*/
+	void changeText(const std::string& text);
 	void setMeshInfo(int vao, int verticesCount);
 	void setNumberOfLines(int number);
 	void setScale(const float& scale);

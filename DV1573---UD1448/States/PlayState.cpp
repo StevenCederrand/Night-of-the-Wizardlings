@@ -15,33 +15,12 @@ void logVec3(glm::vec3 vector) {
 
 PlayState::PlayState(bool spectator)
 {
-
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
-	//BulletPhysics::getInstance()->setGra
-
 	m_camera = new Camera();
 	mu.printBoth("After physics and camera init:");
 
-
-
-	mu.printBoth("Before Font:");
-
-	/* Todo:
-		Create the whole render logic, hashmaps 'n stuff.
-		Gui text has a unique index so use that to remove the texts if needed.
-
-		Font loading resulet in:
-		+ ~ 1MB Ram
-		+ ~ 3MB VRam
-	*/
-
-	
-	//m_text = new GUIText("Yoooo", 2.f, m_fontType, glm::vec3(0.0f, 0.0f, -10.0f), 1.f, true);
-	//m_text->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	TextRenderer::getInstance()->init(m_camera);
 	TextManager::getInstance();
-	/*TextRenderer::getInstance()->submitText(m_text);*/
-
 	mu.printBoth("After Font:");
 
 	if (spectator == false) {
@@ -99,14 +78,22 @@ PlayState::PlayState(bool spectator)
 	if(Client::getInstance()->isInitialized())
 		Client::getInstance()->assignSpellHandler(m_spellHandler);
 
-	//m_hudHandler.loadPlayStateHUD();
 	m_hideHUD = false;
 
+	std::string memTex = "Ram: " + std::to_string(mu.getCurrentRamUsage()) + " | VRam: " + std::to_string(mu.getCurrentVramUsage()) +
+		" | Highest Ram: " + std::to_string(mu.getHighestRamUsage()) + " | Highest VRam: " + std::to_string(mu.getHighestVramUsage());
+	
+	m_memoryText = TextManager::getInstance()->addDynamicText(
+		memTex,
+		0.09f,
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		1.f,
+		TextManager::TextBehaviour::StayForever,
+		glm::vec3(0.0f, 0.0f, 0.0f), true);
 
 	mu.printBoth("End of play state init:");
+
 }
-
-
 
 void PlayState::loadMap()
 {
@@ -474,10 +461,11 @@ PlayState::~PlayState()
 	TextManager::getInstance()->cleanup();
 
 	mu.printBoth("Afer deleting playstate:");
+	
 }
 
 
-
+static float memTimer = 0.0f;
 void PlayState::update(float dt)
 {
 	Client::getInstance()->updateNetworkEntities(dt);
@@ -492,6 +480,16 @@ void PlayState::update(float dt)
 	}
 
 	removeDeadObjects();
+
+	memTimer += DeltaTime;
+
+	if (memTimer >= 0.5f) {
+		memTimer = 0.0f;
+		mu.updateBoth();
+		std::string memTex = "Ram: " + std::to_string(mu.getCurrentRamUsage()) + " | VRam: " + std::to_string(mu.getCurrentVramUsage()) +
+			" | Highest Ram: " + std::to_string(mu.getHighestRamUsage()) + " | Highest VRam: " + std::to_string(mu.getHighestVramUsage());
+		m_memoryText->changeText(memTex);
+	}
 
 	TextManager::getInstance()->update();
 }
@@ -534,21 +532,6 @@ void PlayState::update_isPlaying(const float& dt)
 	Renderer::getInstance()->updateParticles(dt);
 
 	shPtr->setSourcePosition(m_player->getPlayerPos(), HitmarkSound);
-
-	/*if (Input::isKeyPressed(GLFW_KEY_U)) {
-
-		GUIText* t = TextManager::getInstance()->addDynamicText(
-			"HELLOOOO",
-			1.0f,
-			glm::vec3(0.0f, 0.0f, 0.0f),
-			6.0f,
-			TextManager::TextBehaviour::FadeIn_FadeOut,
-			glm::vec3(0.0f), true);
-
-		t->setColor(glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
-		t->setScale(1.0f);
-		
-	}*/
 
 	for (Evnt evnt = clientPtr->readNextEvent(); evnt.playerEvent != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
 
@@ -601,6 +584,52 @@ void PlayState::update_isPlaying(const float& dt)
 					delete evnt.data;
 				}
 
+				break;
+			}
+
+			case PlayerEvents::RoundTimer:
+			{
+				static int lastSecond = 0;
+				RoundTimePacket rp;
+				memcpy(&rp, evnt.data, sizeof(RoundTimePacket));
+
+				if (&rp != nullptr) {
+
+					if (lastSecond == rp.seconds) {
+						delete evnt.data;
+						break;
+					}
+
+					lastSecond = rp.seconds;
+
+					if (m_gameTimeText == nullptr) {
+						m_gameTimeText = TextManager::getInstance()->addDynamicText(
+							std::to_string(rp.minutes) + ":" + std::to_string(lastSecond),
+							0.25f,
+							glm::vec3(0.0f, -0.035f, 0.0f),
+							1.f,
+							TextManager::TextBehaviour::StayForever,
+							glm::vec3(0.0f, 0.0f, 0.0f), true);
+					}
+					else {
+
+						std::string secondsText = (rp.seconds <= 9 ? "0" : "") + std::to_string(rp.seconds);
+						std::string preText = "";
+						
+						if (Client::getInstance()->getServerState().currentState == NetGlobals::SERVER_STATE::GameFinished)
+							preText = "End of round ";
+
+						m_gameTimeText->changeText(preText + std::to_string(rp.minutes) + ":" + secondsText);
+
+					}
+
+					m_gameTimeText->setShouldRender(true);
+
+				}
+
+
+
+				delete evnt.data;
 				break;
 			}
 
@@ -798,6 +827,22 @@ void PlayState::update_isPlaying(const float& dt)
 				m_hudHandler.getHudObject(HUDID::BAR_HP)->setYClip(1.0f);
 				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(1.0f);
 				loadDestructables();
+				break;
+			}
+
+			case PlayerEvents::GameIsAboutToStart:
+			{
+				if (m_gameTimeText != nullptr) {
+					m_gameTimeText->setShouldRender(false);
+				}
+				break;
+			}
+
+			case PlayerEvents::WaitingForPlayers:
+			{
+				if (m_gameTimeText != nullptr) {
+					m_gameTimeText->setShouldRender(false);
+				}
 				break;
 			}
 

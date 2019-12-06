@@ -81,7 +81,10 @@ private:
 	bool m_hideHUD;
 
 	glm::vec3 m_lastPositionOfMyKiller;
-
+	GUIText* m_gameTimeText;
+	GUIText* m_readyText;
+	GUIText* m_killNotification;
+	GUIText* m_memoryText;
 	float startY;
 private: 
 

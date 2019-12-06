@@ -17,7 +17,10 @@ enum PlayerEvents {
 	None,
 	Hitmark,
 	EnemyDeflected,
-	GameCountdown
+	GameCountdown,
+	RoundTimer,
+	GameIsAboutToStart,
+	WaitingForPlayers
 
 };
 
