@@ -17,8 +17,8 @@ const float base = 0.2;
 const float area = 0.0075;
 const float falloff = 0.000001;
 const float intensity = 1.0f;
-const float radius = 0.0002;
-const float m_base = 0.2;
+const float radius = 0.07;
+const float m_base = 0.15;
 
 //SSAO kernels
 uniform vec3 kernels[SSAO_KERNELS];
@@ -41,14 +41,9 @@ void main() {
     ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
     vec2 samplePos = vec2(pixel_coords) / screenSize;
     float depth = texture(depthMap, samplePos).r;
-    //Workgroup tile
-    ivec2 tileID = ivec2(gl_WorkGroupID.xy);
-    //Total number of work groups
-    ivec2 tileNumber = ivec2(gl_NumWorkGroups.xy);
-    uint tileIndex = tileID.y * tileNumber.x + tileID.x;
-    depth = (2.0 * 0.1f) / (far + near - depth * (far - near));
+    //depth = (2.0 * 0.1f) / (far + near - depth * (far - near));
 
-    vec3 viewPosition = positionFromDepth(depth, samplePos).xyz;        //Viewspace position
+    vec3 viewPosition = vec3(samplePos, depth);//positionFromDepth(depth, samplePos).xyz;        //Viewspace position
     vec3 random = normalize(texture(noiseMap, samplePos).xyz);    //Random noise direction
     vec3 normal = normalFromDepth(depth, samplePos).xyz;                //Estimated normal
 
@@ -56,7 +51,7 @@ void main() {
     float radiusDepth = radius / depth;
 
     for(int i = 0; i < SSAO_KERNELS; i++) {
-        vec3 ray = radiusDepth * reflection(kernels[i], random);
+        vec3 ray = radius * reflection(kernels[i], random);
         vec3 hemiRay = viewPosition + sign(dot(ray, normal)) * ray;
         float occDepth = texture(depthMap, clamp(hemiRay.xy,0.0,1.0)).r;
         float difference = depth - occDepth;
@@ -67,22 +62,22 @@ void main() {
     float AO = 1.0 - intensity * occlusion * (1.0 / SSAO_KERNELS);
   	float final = clamp(AO + base,0.0,1.0);
 
-    vec4 data = vec4(normal, 1.0);//vec4(final, final, final, 1.0);//vec4(kernels[tileIndex % SSAO_KERNELS], 1);
+    vec4 data = vec4(final, final, final, 1.0);//vec4(kernels[tileIndex % SSAO_KERNELS], 1);
     //vec4(normalFromDepth(depth, samplePos), 1);
     imageStore(img_output, ivec2(pixel_coords), data);
 }
 
 vec3 reflection(vec3 v1,vec3 v2)
 {
-    vec3 result= 2.0 * dot(v2, v1) * v2;
-    result=v1-result;
+    vec3 result = 2.0 * dot(v2, v1) * v2;
+    result = v1-result;
     return result;
 }
 
 vec3 normalFromDepth(float depth, vec2 uv)
 {
-    vec2 offset1 = vec2( 0.0, 1.0 / screenSize.y);
-    vec2 offset2 = vec2( 1.0 / screenSize.x, 0.0);
+    vec2 offset1 = vec2( 0.0, 1.0 / screenSize.y) * 0.5;
+    vec2 offset2 = vec2( 1.0 / screenSize.x, 0.0) * 0.5;
 
     float depth1 = texture(depthMap, uv + offset1).r;
     float depth2 = texture(depthMap, uv + offset2).r;
@@ -97,7 +92,7 @@ vec3 normalFromDepth(float depth, vec2 uv)
     vec3 v2 = p2 - p;*/
 
     vec3 normal = cross(p1, p2);
-    normal.z = -normal.z;
+    normal.z = normal.z;
 
     return normalize(normal) * 0.5 + 0.5;
 }
