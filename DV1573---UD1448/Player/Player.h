@@ -84,6 +84,7 @@ private:
 	int m_health;
 	bool m_rMouse; //Right Mouse
 	int m_frameCount;
+	bool m_rMouse; //Right Mouse
 
 	float m_maxHealth;
 	float m_maxMana; 

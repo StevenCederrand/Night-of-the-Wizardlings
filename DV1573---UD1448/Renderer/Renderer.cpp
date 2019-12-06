@@ -1,6 +1,7 @@
 #include <Pch/Pch.h>
 #include "Renderer.h"
 #include <Networking/Client.h>
+#include "TextRenderer.h"
 
 #define TILE_SIZE 16
 
@@ -139,15 +140,7 @@ void Renderer::renderAndAnimateNetworkingTexts()
 
 		NetGlobals::SERVER_STATE state = Client::getInstance()->getServerState().currentState;
 
-		if (state == NetGlobals::SERVER_STATE::GameIsStarting) {
-			std::string timeText = "Deathmatch starts in: " + std::to_string(Client::getInstance()->getCountdownPacket().timeLeft / 1000);
-			glm::vec3 scale = glm::vec3(1.05f, 1.0f, 1.0f);
-			glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
-			float width = m_text->getTotalWidth(timeText, scale);
-
-			m_text->RenderText(timeText, (SCREEN_WIDTH * 0.5f) - width * 0.5f, (SCREEN_HEIGHT * 0.80), scale.x, color);
-		}
-		else if (state == NetGlobals::SERVER_STATE::GameInSession) {
+		if (state == NetGlobals::SERVER_STATE::GameInSession) {
 
 			uint32_t minutes = Client::getInstance()->getRoundTimePacket().minutes;
 			uint32_t seconds = Client::getInstance()->getRoundTimePacket().seconds;
@@ -1300,6 +1293,8 @@ void Renderer::render() {
 
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	TextRenderer::getInstance()->renderText();
+
 	renderWorldHud();
 
 	glClear(GL_DEPTH_BUFFER_BIT);

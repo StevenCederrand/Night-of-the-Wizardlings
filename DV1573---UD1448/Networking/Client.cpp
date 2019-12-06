@@ -265,7 +265,7 @@ void Client::processAndHandlePackets()
 				pE.data = player;
 				pE.flag = NetGlobals::THREAD_FLAG::Add;
 				pE.gameobject = nullptr;
-
+				pE.playerFlag = NetGlobals::THREAD_PLAYER_FLAG::SafeToAddNameplate;
 				/* Thread lock guard because this needs to be synced with the main game thread because
 				   this thread will add data to a list that is created and present in the main thread.
 
@@ -426,6 +426,13 @@ void Client::processAndHandlePackets()
 						{
 							std::lock_guard<std::mutex> lockGuard(NetGlobals::PickupNotificationMutex);
 							Renderer::getInstance()->addBigNotification(t);
+						}
+
+
+						{
+							std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayersMutex);
+							NetworkPlayers::PlayerEntity* pEntity = findPlayerEntityInNetworkPlayers(pData.guid);
+							pEntity->playerFlag = NetGlobals::THREAD_PLAYER_FLAG::SafeToAddNameplate;
 						}
 
 					}
@@ -634,6 +641,18 @@ void Client::processAndHandlePackets()
 		{
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			m_countDownPacket.Serialize(false, bsIn);
+			Evnt evnt;
+			evnt.playerEvent = PlayerEvents::GameCountdown;
+			evnt.data = (void*)malloc(sizeof(CountdownPacket));
+			memcpy(evnt.data, &m_countDownPacket, sizeof(CountdownPacket));
+
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+				m_playerEvents.push_back(evnt);
+			}
+
+
 			m_inGame = true;
 		}
 		break;
