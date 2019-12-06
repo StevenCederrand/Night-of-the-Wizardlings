@@ -6,21 +6,16 @@ enum {
 	DestructableObjects
 };
 
+BulletPhysics* BulletPhysics::m_bpInstance = 0;
+
 BulletPhysics::BulletPhysics(float gravity)
 {
 	m_collisionConfiguration = new btDefaultCollisionConfiguration();
-
 	m_dispatcher = new btCollisionDispatcher(m_collisionConfiguration);
-
 	m_overlappingPairCache = new btDbvtBroadphase();
-
 	m_solver = new btSequentialImpulseConstraintSolver;
-
-	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher, m_overlappingPairCache,
-		m_solver, m_collisionConfiguration);
-
+	m_dynamicsWorld = new btDiscreteDynamicsWorld(m_dispatcher, m_overlappingPairCache, m_solver, m_collisionConfiguration);
 	m_dynamicsWorld->setGravity(btVector3(0, gravity, 0));
-
 	m_ghostCallback = new btGhostPairCallback();
 }
 
@@ -64,6 +59,21 @@ BulletPhysics::~BulletPhysics()
 	delete m_collisionConfiguration;
 
 	m_collisionShapes.clear();
+
+}
+
+BulletPhysics* BulletPhysics::getInstance()
+{
+	if (m_bpInstance == 0) {
+		m_bpInstance = new BulletPhysics(-19.82);
+	}
+	return m_bpInstance;
+}
+
+void BulletPhysics::destroy()
+{
+	delete m_bpInstance;
+	m_bpInstance = nullptr;
 }
 
 btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, glm::vec3 position, glm::vec3 extend, glm::quat rotation, bool destruction, float restitution, float friction)
@@ -102,11 +112,9 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	rot.setZ(rotation.z);
 	rot.setW(rotation.w);
 	startTransform.setRotation(rot);
-	
 	startTransform.setOrigin(btVector3(position.x, position.y, position.z));
 
 	btScalar mass(inMass);
-
 	//rigidbody is dynamic if and only if mass is non zero, otherwise static
 	bool isDynamic = (mass != 0.f);
 
@@ -115,13 +123,11 @@ btRigidBody* BulletPhysics::createObject(CollisionObject object, float inMass, g
 	if (isDynamic)
 		objectShape->calculateLocalInertia(mass, localInertia);
 
-
 	//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
 	btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
 	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, objectShape, localInertia);
 	btRigidBody* body = new btRigidBody(rbInfo);
 
-	
 	//how much bounce and friction a object should have
 	body->setRestitution(restitution);	
 	body->setFriction(friction);
@@ -160,7 +166,7 @@ btVector3 BulletPhysics::getCharacterSize() const
 	return m_boxSize;
 }
 
-btKinematicCharacterController* BulletPhysics::createCharacter(const glm::vec3& position, float& height)
+btKinematicCharacterController* BulletPhysics::createCharacter(const glm::vec3& position)
 {
 	//create the character and add him to the dynamicsWorld
 	btScalar capsuleX = m_boxSize.getX() * 0.8f;

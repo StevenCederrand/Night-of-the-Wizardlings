@@ -20,4 +20,10 @@ enum PlayerEvents {
 
 };
 
+struct Evnt
+{
+	PlayerEvents playerEvent;
+	void* data;
+};
+
 #endif

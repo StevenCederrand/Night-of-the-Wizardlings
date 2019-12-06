@@ -36,11 +36,6 @@ Renderer::~Renderer()
 {
 	//delete m_bloom;
 	delete m_text;
-
-	delete attackPS;
-	delete enhancePS;
-	delete flamestrikePS;
-	delete smokePS;
 }
 
 void Renderer::renderHUD()
@@ -475,13 +470,15 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 	TextureInfo smoke;
 	smoke.name = "Assets/Textures/Spell_2.png";
 
-	if (objType == RENDER_TYPE::STATIC) {
+	if (objType == RENDER_TYPE::STATIC) 
+	{
 		m_staticObjects.emplace_back(gameObject);
 	}
-	else if (objType == RENDER_TYPE::SPELL) {
+	else if (objType == RENDER_TYPE::SPELL) 
+	{
 		/* Place the light in the lights list */
 		PLIGHT light;
-		light.position = gameObject->getTransform().position;
+		light.position = gameObject->getObjectTransform().position;
 		light.color = glm::vec3(1.0f);
 		light.index = m_spells.size();
 		m_spells.emplace_back(gameObject);
@@ -491,35 +488,27 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 
 		if (spell->getType() == OBJECT_TYPE::NORMALATTACK)
 		{
-			light.attenAndRadius = m_spellHandler->getAttackBase()->m_attenAndRadius;
-			light.color = m_spellHandler->getAttackBase()->m_material->diffuse;
-			m_particleSystems.emplace_back(ParticleSystem(&m_PSinfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), attackBuffer,
-				attackPS->getVertex(), attackPS->getDir(), attackPS->getParticle(), attackPS->getLifetime()));
+			light.attenAndRadius = m_spellHandler->getSpellBase(NORMALATTACK)->m_attenAndRadius;
+			light.color = m_spellHandler->getSpellBase(NORMALATTACK)->m_material->diffuse;
 		}
 
 		else if (spell->getType() == OBJECT_TYPE::ENHANCEATTACK)
 		{
-			light.attenAndRadius = m_spellHandler->getEnhAttackBase()->m_attenAndRadius;
-			light.color = m_spellHandler->getEnhAttackBase()->m_material->diffuse;
-			m_particleSystems.emplace_back(ParticleSystem(&m_enhanceInfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), enhanceBuffer,
-				enhancePS->getVertex(), enhancePS->getDir(), enhancePS->getParticle(), enhancePS->getLifetime()));
+			light.attenAndRadius = m_spellHandler->getSpellBase(ENHANCEATTACK)->m_attenAndRadius;
+			light.color = m_spellHandler->getSpellBase(ENHANCEATTACK)->m_material->diffuse;
 		}
 
 		else if (spell->getType() == OBJECT_TYPE::FIRE)
 		{
 			light.position.y += 2.0f;
-			light.attenAndRadius = m_spellHandler->getFireBase()->m_attenAndRadius;
-			light.color = m_spellHandler->getFireBase()->m_material->diffuse;
-			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &smoke, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
-				flamestrikePS->getVertex(), flamestrikePS->getDir(), flamestrikePS->getParticle(), flamestrikePS->getLifetime()));
+			light.attenAndRadius = m_spellHandler->getSpellBase(FIRE)->m_attenAndRadius;
+			light.color = m_spellHandler->getSpellBase(FIRE)->m_material->diffuse;
 		}
 
 		else if (spell->getType() == OBJECT_TYPE::FLAMESTRIKE)
 		{
-			light.attenAndRadius = m_spellHandler->getFlamestrikeBase()->m_attenAndRadius;
-			light.color = m_spellHandler->getFlamestrikeBase()->m_material->diffuse;
-			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
-				flamestrikePS->getVertex(), flamestrikePS->getDir(), flamestrikePS->getParticle(), flamestrikePS->getLifetime()));
+			light.attenAndRadius = m_spellHandler->getSpellBase(FLAMESTRIKE)->m_attenAndRadius;
+			light.color = m_spellHandler->getSpellBase(FLAMESTRIKE)->m_material->diffuse;
 		}
 		
 		m_lights.emplace_back(light);
@@ -537,7 +526,7 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 		m_pickups.emplace_back(gameObject);
 	}
 	else if (objType == RENDER_TYPE::SHIELD) {
-		m_shieldObject.emplace_back(gameObject);
+		m_shieldObject = gameObject;
 	}
 	else if (objType == RENDER_TYPE::ENEMY_SHIELD) {
 		m_enemyShieldObject.emplace_back(gameObject);
@@ -550,7 +539,7 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 		Pointlight* lightRef = static_cast<Pointlight*>(gameObject);
 
 		PLIGHT light;
-		light.position = gameObject->getTransform().position;
+		light.position = gameObject->getObjectTransform().position;
 		light.color = lightRef->getColor();
 		light.attenAndRadius = lightRef->getAttenuationAndRadius(); //First 3 dims are for the attenuation, final 4th is for radius
 		light.index = -2;
@@ -623,9 +612,7 @@ void Renderer::clear() {
 	m_lights.clear();
 	m_2DHudMap.clear();
 	m_worldHudMap.clear();
-	m_shieldObject.clear();
 	m_enemyShieldObject.clear();
-	m_particleSystems.clear();
 	m_skyObjects.clear();
 }
 
@@ -665,7 +652,6 @@ void Renderer::removeRenderObject(GameObject* gameObject, RENDER_TYPE objType)
 			}
 			m_lights.erase(m_lights.begin() + lightIndex);
 			m_spells.erase(m_spells.begin() + index);
-			m_particleSystems.erase(m_particleSystems.begin() + index);
 
 			int index = 0;
 			for (size_t i = 0; i < m_lights.size(); i++) {
@@ -724,6 +710,7 @@ void Renderer::removeRenderObject(GameObject* gameObject, RENDER_TYPE objType)
 void Renderer::destroy()
 {
 	delete m_rendererInstance;
+	m_rendererInstance = nullptr;
 }
 
 
@@ -906,15 +893,13 @@ void Renderer::render() {
 	//BLOOMBLUR MISSION STEP 1: SAMPLE
 	//m_bloom->bindHdrFBO();
 
-	//renderDeflectBox(m_deflectBox);
-
-//#ifdef DEBUG_WIREFRAME
-//	// DEBUG (MOSTLY FOR DSTR)
-//	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_M) == GLFW_PRESS)
-//		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-//	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_N) == GLFW_PRESS)
-//		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-//#endif
+#ifdef DEBUG_WIREFRAME
+	// DEBUG (MOSTLY FOR DSTR)
+	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_M) == GLFW_PRESS)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_N) == GLFW_PRESS)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
 
 #pragma region Color_Render
 	shader = shaderMap->useByName(BASIC_FORWARD);
@@ -940,14 +925,13 @@ void Renderer::render() {
 			iConv = std::to_string(i);
 			
 			if (m_lights[i].index != -2) {
-				shader->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[m_lights[i].index]->getTransform().position);
+				shader->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[m_lights[i].index]->getObjectTransform().position);
 			}
 			else {
 				shader->setVec3("pLights[" + std::to_string(i) + "].position", m_lights[i].position);
 			}
 			
 			shader->setVec3("pLights[" + iConv + "].color", m_lights[i].color);
-
 			shader->setVec4("pLights[" + iConv + "].attenAndRadius", m_lights[i].attenAndRadius);
 		}
 	}
@@ -973,23 +957,13 @@ void Renderer::render() {
 			mesh = object->getMesh(j);
 
 			//Bind the material
-			if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
-				object->bindMaterialToShader(shader, mesh->getMaterial());
-			}
-			else {
-				material = object->getMaterial(j);
-				object->bindMaterialToShader(shader, material);
-			}
+			object->bindMaterialToShader(shader, j);
 
-
-			modelMatrix = glm::mat4(1.0f);
-
-			modelMatrix = object->getMatrix(j);
 			//Bind the modelmatrix
+			modelMatrix = object->getMatrix(j);
 			shader->setMat4("modelMatrix", modelMatrix);
 
 			glBindVertexArray(mesh->getBuffers().vao);
-
 			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 			glBindVertexArray(0);
@@ -1020,23 +994,13 @@ void Renderer::render() {
 				glEnableVertexAttribArray(2);
 				mesh = object->getMesh(j);
 				//Bind the material
-				if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
-					object->bindMaterialToShader(shader, mesh->getMaterial());
-				}
-				else {
-					material = object->getMaterial(j);
-					object->bindMaterialToShader(shader, material);
-				}
-
-				modelMatrix = glm::mat4(1.0f);
-				//Apply the transform to the matrix. This should actually be done automatically in the mesh!
-				modelMatrix = object->getMatrix(j);
+				object->bindMaterialToShader(shader, j);
 
 				//Bind the modelmatrix
+				modelMatrix = object->getMatrix(j);
 				shader->setMat4("modelMatrix", modelMatrix);
 
 				glBindVertexArray(mesh->getBuffers().vao);
-
 				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 				glBindVertexArray(0);
@@ -1060,8 +1024,6 @@ void Renderer::render() {
 				continue;
 			}
 
-		
-
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
 			glEnableVertexAttribArray(2);
@@ -1071,14 +1033,15 @@ void Renderer::render() {
 			//Fetch the current mesh and its transform
 			mesh = p->getRenderInformation().mesh;
 			glBindVertexArray(mesh->getBuffers().vao);
+
 			//Bind the material
-			object->bindMaterialToShader(shader, p->getRenderInformation().material);
-			//shader->setMaterial(p->getRenderInformation().material);
+			shader->setMaterial(p->getRenderInformation().material);
+
 			//Bind the modelmatrix
 			glm::mat4 mMatrix = glm::mat4(1.0f);
-			mMatrix = glm::translate(mMatrix, p->getTransform().position);
-			mMatrix *= glm::mat4_cast(p->getTransform().rotation);
-			mMatrix = glm::scale(mMatrix, p->getTransform().scale);
+			mMatrix = glm::translate(mMatrix, p->getObjectTransform().position);
+			mMatrix *= glm::mat4_cast(p->getObjectTransform().rotation);
+			mMatrix = glm::scale(mMatrix, p->getObjectTransform().scale);
 
 			shader->setMat4("modelMatrix", mMatrix);
 
@@ -1115,10 +1078,10 @@ void Renderer::render() {
 				glEnableVertexAttribArray(0);
 				glEnableVertexAttribArray(1);
 				glEnableVertexAttribArray(2);
-				mesh = meshMap->getMesh(object->getMeshName(j));
+				mesh = object->getMesh(j);
 
 				material = object->getMaterial(j);
-				object->bindMaterialToShader(shader, material);
+				object->bindMaterialToShader(shader, j);
 
 				modelMatrix = glm::mat4(1.0f); //<--- Change this line to apply rotation
 				modelMatrix = object->getMatrix(j);
@@ -1159,7 +1122,7 @@ void Renderer::render() {
 				iConv = std::to_string(i);
 
 				if (m_lights[i].index != -2) {
-					shader->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[m_lights[i].index]->getTransform().position);
+					shader->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[m_lights[i].index]->getObjectTransform().position);
 				}
 				else {
 					shader->setVec3("pLights[" + std::to_string(i) + "].position", m_lights[i].position);
@@ -1192,7 +1155,7 @@ void Renderer::render() {
 				glEnableVertexAttribArray(2);
 				//Fetch the current mesh and its transform
 				mesh = object->getMesh(j);
-				transform = object->getTransform(mesh, j);
+				transform = object->getTransform(j);
 
 				//Bind calculated bone matrices
 				animObj->BindAnimation(j);
@@ -1209,7 +1172,6 @@ void Renderer::render() {
 				glBindVertexArray(mesh->getBuffers().vao);
 
 				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-				object->unbindMaterialFromShader(shader, mesh->getMaterial());
 				glBindVertexArray(0);
 				glDisableVertexAttribArray(0);
 				glDisableVertexAttribArray(1);
@@ -1273,10 +1235,10 @@ void Renderer::render() {
 		for (int j = 0; j < object->getMeshesCount(); j++)
 		{
 			//Fetch the current mesh and its transform
-			mesh = meshMap->getMesh(object->getMeshName(j));
+			mesh = object->getMesh(j);
 			shader->setFloat("time", glfwGetTime());
 			//Bind the material
-			object->bindMaterialToShader(shader, mesh->getMaterial());
+			object->bindMaterialToShader(shader, j);
 
 			modelMatrix = glm::mat4(1.0f);
 
@@ -1302,55 +1264,31 @@ void Renderer::render() {
 #pragma endregion
 
 #pragma region Deflect_Render
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glDisable(GL_CULL_FACE);
-	glDepthFunc(GL_LEQUAL);
-	shader = shaderMap->useByName(FRESNEL);
-
-	//Bind view- and projection matrix
-	bindMatrixes(shader);
-
-	shader->setVec3("CameraPosition", m_camera->getCamPos());
-	//Add a step where we insert lights into the scene
-	shader->setInt("LightCount", m_spells.size());
-
-	//Render Deflect Objects
-	for (GameObject* object : m_shieldObject)
+	if (m_shieldObject && m_shieldObject->getShouldRender())
 	{
-		//Then through all of the meshes
-		for (int j = 0; j < object->getMeshesCount(); j++)
-		{
-			//Fetch the current mesh and its transform
-			mesh = meshMap->getMesh(object->getMeshName(j));
-			shader->setFloat("time", glfwGetTime());
-			//Bind the material
-			object->bindMaterialToShader(shader, mesh->getMaterial());
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glDepthFunc(GL_LEQUAL);
+		shader = shaderMap->useByName(FRESNEL);
+		bindMatrixes(shader);
+	
+		mesh = m_shieldObject->getMesh();
+		m_shieldObject->bindMaterialToShader(shader);
 
-			modelMatrix = glm::mat4(1.0f);
+		modelMatrix = glm::mat4(1.0f);
+		modelMatrix = m_shieldObject->getMatrix();
+		shader->setInt("LightCount", m_spells.size());
+		shader->setVec3("CameraPosition", m_camera->getCamPos());
+		shader->setFloat("time", glfwGetTime());
+		shader->setMat4("modelMatrix", modelMatrix);
 
-			modelMatrix = object->getMatrix(j);
-			//Bind the modelmatrix
-			shader->setMat4("modelMatrix", modelMatrix);
+		glBindVertexArray(mesh->getBuffers().vao);
+		glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+		glBindVertexArray(0);
 
-			glBindVertexArray(mesh->getBuffers().vao);
-
-			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
-			glBindVertexArray(0);
-		}
+		shader->clearBinding();
 	}
-
-	for (size_t i = 0; i < m_shieldObject.size(); i++)
-	{
-		delete m_shieldObject[i];
-	}
-
-	m_shieldObject.clear();
-	shader->clearBinding();
 #pragma endregion
-
-
 
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1384,7 +1322,7 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 		}
 
 		ShaderMap::getInstance()->useByName(BASIC_FORWARD);
-		meshTransform = m_spells[i]->getTransform();
+		meshTransform = m_spells[i]->getObjectTransform();
 
 		glm::mat4 modelMatrix = glm::mat4(1.0f);
 		modelMatrix = glm::translate(modelMatrix, meshTransform.position);
@@ -1395,59 +1333,46 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 
 		if (m_spells[i]->getType() == OBJECT_TYPE::NORMALATTACK)
 		{
-			meshRef = spellHandler->getAttackBase()->m_mesh;
+			meshRef = spellHandler->getSpellBase(NORMALATTACK)->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
-			shader->setMaterial(spellHandler->getAttackBase()->m_material);
+			shader->setMaterial(spellHandler->getSpellBase(NORMALATTACK)->m_material);
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 			glBindVertexArray(0);
-			m_particleSystems[i].SetPosition(meshTransform.position);
-			m_particleSystems[i].Render(m_camera, &m_PSinfo);
 		}
 		else if (m_spells[i]->getType() == OBJECT_TYPE::ENHANCEATTACK)
 		{
-			meshRef = spellHandler->getEnhAttackBase()->m_mesh;
+			meshRef = spellHandler->getSpellBase(ENHANCEATTACK)->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
-			shader->setMaterial(spellHandler->getEnhAttackBase()->m_material);
+			shader->setMaterial(spellHandler->getSpellBase(ENHANCEATTACK)->m_material);
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 			glBindVertexArray(0);
-			m_particleSystems[i].Render(m_camera, &m_enhanceInfo);
-			m_particleSystems[i].SetPosition(meshTransform.position);
-		}
-		else if (m_spells[i]->getType() == OBJECT_TYPE::REFLECT)
-		{
-			meshRef = spellHandler->getReflectBase()->m_mesh;
-			glBindVertexArray(meshRef->getBuffers().vao);
-			shader->setMaterial(spellHandler->getReflectBase()->m_material);
-			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
-			glBindVertexArray(0);
-			//ps[i].SetPosition(meshTransform.position);
 		}
 		else if (m_spells[i]->getType() == OBJECT_TYPE::FLAMESTRIKE)
 		{
-			meshRef = spellHandler->getFlamestrikeBase()->m_mesh;
+			meshRef = spellHandler->getSpellBase(FLAMESTRIKE)->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
-			shader->setMaterial(spellHandler->getFlamestrikeBase()->m_material);
+			shader->setMaterial(spellHandler->getSpellBase(FLAMESTRIKE)->m_material);
 			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 			glBindVertexArray(0);
-			//ps[i].Render(m_camera, &m_flameInfo);
-			//ps[i].SetPosition(meshTransform.position);
 		}
 
 		else if (m_spells[i]->getType() == OBJECT_TYPE::FIRE)
 		{
-			meshRef = spellHandler->getFireBase()->m_mesh;
+			meshRef = spellHandler->getSpellBase(FIRE)->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
-			shader->setMaterial(spellHandler->getFireBase()->m_material);
+			shader->setMaterial(spellHandler->getSpellBase(FIRE)->m_material);
 			//glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 			glBindVertexArray(0);
-
-			m_particleSystems[i].Render(m_camera, &m_flameInfo);
-			m_particleSystems[i].SetPosition(glm::vec3(meshTransform.position.x, meshTransform.position.y - 1, meshTransform.position.z));
 		}
 
+
+		for (int j = 0; j < m_spells[i]->getParticles().size(); j++)
+		{
+			m_spells[i]->getParticles()[j].Render(m_camera);
+			m_spells[i]->getParticles()[j].SetPosition(meshTransform.position);
+		}
 	}
 
 }
@@ -1479,226 +1404,10 @@ Camera* Renderer::getMainCamera() const
 
 void Renderer::initializeParticle()
 {
-	//Particle stuff
-	//TextureInfo rings;
 
-	//
-	//rings.name = "Assets/Textures/Spell_1.png";
-	m_txtInfo.name = "Assets/Textures/dots.png";
-
-	m_PSinfo.width = 0.4f;
-	m_PSinfo.heigth = 0.6f;
-	m_PSinfo.lifetime = 1.5f;
-	m_PSinfo.maxParticles = 1000; //350
-	m_PSinfo.emission = 0.002f; //0.00001f;
-	m_PSinfo.force = -0.2f; //5
-	m_PSinfo.drag = 0.0f;
-	m_PSinfo.gravity = 0.0f; //Standard is 1
-	m_PSinfo.seed = 0;
-	m_PSinfo.cont = true;
-	m_PSinfo.omnious = false;
-	m_PSinfo.spread = 0.0f;
-	m_PSinfo.glow = 2;
-	m_PSinfo.scaleDirection = 0;
-	m_PSinfo.swirl = 0;
-	m_PSinfo.fade = 1;
-
-	m_PSinfo.color = glm::vec3(0.0f, 0.9f, 0.9f); //frosty 0.0f, 0.5f, 0.9f
-	m_PSinfo.blendColor = glm::vec3(0.8f, 1.0f, 1.0f);
-
-	//m_PSinfo.color = glm::vec3(0.65f, 1.0f, 1.0f); //jerrys färg
-
-	m_PSinfo.direction = glm::vec3(1.0f, 0.0f, 0.0f);
-	vertexCountDiff = m_PSinfo.maxParticles;
-	emissionDiff = m_PSinfo.emission;
-	//ps = new ParticleSystem(&m_PSinfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
-
-
-	attackPS = new ParticleBuffers(m_PSinfo);
-	attackPS->setTexture(m_txtInfo);
-	attackPS->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
-	attackPS->bindBuffers();
-
-	attackBuffer = attackPS->getBuffer();
-
-
-	//------------------------------------------
-	m_txtInfo.name = "Assets/Textures/betterStar.png";
-
-	m_enhanceInfo.width = 0.3f;
-	m_enhanceInfo.heigth = 0.3f;
-	m_enhanceInfo.lifetime = 0.3f;
-	m_enhanceInfo.maxParticles = 1000; //350
-	m_enhanceInfo.emission = 0.001f; //0.00001f;
-	m_enhanceInfo.force = -0.2f; //5
-	m_enhanceInfo.drag = 0.0f;
-	m_enhanceInfo.gravity = 0.0f; //Standard is 1
-	m_enhanceInfo.seed = 0;
-	m_enhanceInfo.cont = true;
-	m_enhanceInfo.omnious = false;
-	m_enhanceInfo.spread = -1.0f;
-	m_enhanceInfo.glow = 1.3;
-	m_enhanceInfo.scaleDirection = 0;
-	m_enhanceInfo.swirl = 0;
-	m_enhanceInfo.fade = 1;
-
-	m_enhanceInfo.color = glm::vec3(0.5f, 1.0f, 0.0f);
-	m_enhanceInfo.blendColor = glm::vec3(1.0f, 0.0f, 1.0f);
-
-	m_enhanceInfo.color = glm::vec3(0.0, 0.0f, 0.0f); //jerrys färg
-	m_enhanceInfo.direction = glm::vec3(1.0f, 0.0f, 0.0f);
-	vertexCountDiff2 = m_enhanceInfo.maxParticles;
-	emissionDiff2 = m_enhanceInfo.emission;
-	//ps = new ParticleSystem(&m_PSinfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
-
-
-	enhancePS = new ParticleBuffers(m_enhanceInfo);
-	enhancePS->setTexture(m_txtInfo);
-	enhancePS->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
-	enhancePS->bindBuffers();
-
-	enhanceBuffer = enhancePS->getBuffer();
-
-	//------------------------------------------
-
-	m_txtInfo.name = "Assets/Textures/Spell_2.png";
-
-	//m_flameInfo.width = 0.3f;
-	//m_flameInfo.heigth = 0.3f;
-	//m_flameInfo.lifetime = 1.0f;
-	//m_flameInfo.maxParticles = 5000; //350
-	//m_flameInfo.emission = 0.0005f; //0.00001f;
-	//m_flameInfo.force = -1.0f; //5
-	//m_flameInfo.drag = -1.0f;
-	//m_flameInfo.gravity = 0.0f; //Standard is 1
-	//m_flameInfo.seed = -1;
-	//m_flameInfo.cont = true;
-	//m_flameInfo.omnious = true;
-	//m_flameInfo.spread = 10.0f;
-	//m_flameInfo.glow = false;
-	//m_flameInfo.scaleDirection = 0;
-	//m_flameInfo.fade = 0;
-	//m_flameInfo.color = glm::vec3(1.0f, 0.5f, 0.0f);
-	//m_flameInfo.direction = glm::vec3(0.0f, 10.0f, 0.0f);
-	//vertexCountDiff3 = m_flameInfo.maxParticles;
-	//emissionDiff3 = m_flameInfo.emission;
-	m_flameInfo.width = 1.2f;     
-	m_flameInfo.heigth = 1.0f;     
-	m_flameInfo.lifetime = 10.0f;     
-	m_flameInfo.maxParticles = 1000; //350     
-	m_flameInfo.emission = 0.01f; //0.00001f;     
-	m_flameInfo.force = -0.04f; //5     
-	m_flameInfo.drag = 0.0f;     
-	m_flameInfo.gravity = -0.2f; //Standard is 1     
-	m_flameInfo.seed = 1;     
-	m_flameInfo.cont = true;     
-	m_flameInfo.omnious = true;     
-	m_flameInfo.spread = 5.0f;     
-	m_flameInfo.glow = 1.3;     
-	m_flameInfo.scaleDirection = 0; 
-	m_flameInfo.swirl = 1;
-	m_flameInfo.fade = 1;
-	m_flameInfo.color = glm::vec3(1.0f, 0.2f, 0.0f);
-	m_flameInfo.blendColor = glm::vec3(1.0f, 1.0f, 0.1f);
-	m_flameInfo.randomSpawn = true;
-	//m_flameInfo.color = glm::vec3(0.8f, 0.4f, 0.0f);     
-	//m_flameInfo.blendColor = glm::vec3(1.0f, 1.0f, 1.0f);
-	m_flameInfo.direction = glm::vec3(0.0f, 1.0f, 0.0f);     
-	vertexCountDiff3 = m_flameInfo.maxParticles;     
-
-	emissionDiff3 = m_flameInfo.emission;
-
-	//ps = new ParticleSystem(&m_PSinfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
-
-
-	flamestrikePS = new ParticleBuffers(m_flameInfo);
-	flamestrikePS->setTexture(m_txtInfo);
-	flamestrikePS->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
-	flamestrikePS->bindBuffers();
-
-	flameBuffer = flamestrikePS->getBuffer();
 }
 
 void Renderer::updateParticles(float dt)
 {
-	for (int i = 0; i < m_particleSystems.size(); i++)
-	{
-		if (i >= m_spells.size()) continue;
 
-		Spell* spell = dynamic_cast <Spell*>(m_spells[i]);
-
-		if (spell == nullptr) continue;
-
-		if (spell->getType() == NORMALATTACK)
-		{
-			if (m_PSinfo.emission != emissionDiff)
-			{
-				m_particleSystems[i].Build(&m_PSinfo);
-			}
-
-			if (m_PSinfo.maxParticles != vertexCountDiff)
-			{
-				m_particleSystems[i].Build(&m_PSinfo);
-			}
-
-			vertexCountDiff = m_PSinfo.maxParticles;
-			emissionDiff = m_PSinfo.emission;
-
-			m_PSinfo.direction = glm::clamp(m_PSinfo.direction, -1.0f, 1.0f);
-
-
-			//Update temp with new values
-
-			m_particleSystems[i].Update(&m_PSinfo, m_camera->getCamPos(), dt);
-			thisActive = m_particleSystems[i].GetNrOfParticles();
-		}
-
-		if (spell->getType() == ENHANCEATTACK)
-		{
-			if (m_enhanceInfo.emission != emissionDiff2)
-			{
-				m_particleSystems[i].Build(&m_enhanceInfo);
-			}
-
-			if (m_enhanceInfo.maxParticles != vertexCountDiff2)
-			{
-				m_particleSystems[i].Build(&m_enhanceInfo);
-			}
-
-			vertexCountDiff2 = m_enhanceInfo.maxParticles;
-			emissionDiff2 = m_enhanceInfo.emission;
-
-			m_enhanceInfo.direction = glm::clamp(m_enhanceInfo.direction, -1.0f, 1.0f);
-
-
-			//Update temp with new values
-
-			m_particleSystems[i].Update(&m_enhanceInfo, m_camera->getCamPos(), dt);
-			thisActive2 = m_particleSystems[i].GetNrOfParticles();
-		}
-
-		if (spell->getType() == FIRE)
-		{
-			if (m_flameInfo.emission != emissionDiff3)
-			{
-				m_particleSystems[i].Build(&m_flameInfo);
-			}
-
-			if (m_flameInfo.maxParticles != vertexCountDiff3)
-			{
-				m_particleSystems[i].Build(&m_flameInfo);
-			}
-
-			vertexCountDiff3 = m_flameInfo.maxParticles;
-			emissionDiff3 = m_flameInfo.emission;
-
-			m_flameInfo.direction = glm::clamp(m_flameInfo.direction, -1.0f, 1.0f);
-
-
-			//Update temp with new values
-
-			m_particleSystems[i].Update(&m_flameInfo, m_camera->getCamPos(), dt);
-			thisActive3 = m_particleSystems[i].GetNrOfParticles();
-		}
-	}
 }

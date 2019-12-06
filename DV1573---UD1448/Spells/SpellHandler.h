@@ -4,11 +4,11 @@
 #include <GameObject/GameObject.h>
 #include <Spells/AttackSpell.h>
 #include <Spells/EnhanceAttackSpell.h>
-#include <Spells/ReflectSpell.h>
 #include <Spells/AOEAttack.h>
 #include <Spells/fire.h>
 #include <System/BulletPhysics.h>
 #include <GameObject/ObjectTypes.h>
+#include <SpellLoader/spellLoader.h>
 
 
 //enum TYPE { NORMALATTACK, ENHANCEATTACK };
@@ -17,16 +17,14 @@ class Client;
 class SpellHandler
 {
 public:
-	SpellHandler(BulletPhysics* bp);
-	void initAttackSpell();
-	void initEnhanceSpell();
-	void initFlamestrikeSpell();
-	void initReflectSpell();
-	void initFireSpell();
+	SpellHandler();
 	~SpellHandler();
 
-	float createSpell(glm::vec3 spellPos, glm::vec3 directionVector, OBJECT_TYPE type);
+	OBJECT_TYPE createSpell(glm::vec3 spellPos, glm::vec3 directionVector, OBJECT_TYPE type);
+	void createSpellForTool(glm::vec3 spellPos, glm::vec3 directionVector, SpellCreatorTool_TYPE type);
+	void spellToolUpdate(float dt, float radius, float speed);
 
+	void changeSpell(int state);
 	void spellUpdate(float deltaTime);
 	void setSpawnerPosition(glm::vec3 position);
 	void setSpawnerDirection(glm::vec3 direction);
@@ -34,17 +32,17 @@ public:
 
 	const Spell& getSpell(int index) const { return *spells[index]; }
 	const std::vector<Spell*>& getSpells() const { return spells; }
-
-	const AttackSpellBase* getAttackBase() { return attackBase; }
-	const AttackSpellBase* getEnhAttackBase() { return enhanceAtkBase; }
-	const ReflectSpellBase* getReflectBase() { return reflectBase; }
-	const FlamestrikeSpellBase* getFlamestrikeBase() { return flamestrikeBase; }
-	const FireSpellBase* getFireBase() { return fireBase; }
+	const SpellBase* getSpellBase(OBJECT_TYPE type) const;
 
 	void renderSpell();
 
-
 private:
+	void initAttackSpell();
+	void initEnhanceSpell();
+	void initFlamestrikeSpell();
+	void initFireSpell();
+	void initDynamicSpellBase();
+
 	const uint64_t getUniqueID();
 	bool m_setcharacter = false;
 	float m_nrSubSteps = 6;
@@ -59,23 +57,21 @@ private:
 	glm::vec3 m_spawnerDir;
 
 	// The base for all basic attack spells
-	AttackSpellBase* attackBase;
-	AttackSpellBase* enhanceAtkBase;
-	ReflectSpellBase* reflectBase;
-	FlamestrikeSpellBase* flamestrikeBase;
-	FireSpellBase* fireBase;
+	SpellBase attackBase;
+	SpellBase enhanceAtkBase;
+	SpellBase flamestrikeBase;
+	SpellBase fireBase;
+	SpellBase death;
+
+	// Dynamic spell base (Spell Creator tool)
+	SpellBase dynamicSpellBase;
+	SpellLoader myLoader;
 
 	void spellCollisionCheck();	
 	bool specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis, float radius);
 	float OBBsqDist(glm::vec3& spherePos, std::vector<glm::vec3>& axis, glm::vec3& playerPos);
-	void setCharacter(std::string meshName);
 
-	void REFLECTupdate(float deltaTime, int i);
-	
-	BulletPhysics* m_bp;
-	std::vector<btRigidBody*> m_BulletNormalSpell;
-	std::vector<btRigidBody*> m_BulletEnhanceAttackSpell;
-	std::vector<btRigidBody*> m_BulletFlamestrikeSpell;
+	void setCharacter(std::string meshName);
 	
 	// Don't touch if you don't know what you are doing
 	friend class Client;
@@ -86,14 +82,8 @@ private:
 		OBJECT_TYPE type;
 	};
 
-	struct MeshBox //Handles seperate transforms for same mesh
-	{
-		std::string name; //This is kinda useless 
-		Transform transform;
-		Material* material;
-		Mesh* mesh;
-		glm::vec3 btoffset = glm::vec3(0.0f);
-	};
+	//SpellEditor
+	int activespell;
 
 	std::vector<deflectSpellData> m_deflectedSpells;
 	std::function<void()> m_onHitCallback;

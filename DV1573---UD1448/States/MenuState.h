@@ -24,6 +24,7 @@ private:
 	CEGUI::PushButton* m_startWithoutServerBtn;
 	CEGUI::PushButton* m_startLevelEditorBtn;
 	HudHandler m_hudHandler; //Basic HUD objects
+
 private:
 	bool onStartOfflineClicked(const CEGUI::EventArgs& e);
 	bool onStartServerClicked(const CEGUI::EventArgs& e);

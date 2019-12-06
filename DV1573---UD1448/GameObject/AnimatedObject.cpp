@@ -34,11 +34,11 @@ void AnimatedObject::update(float dt)
 		}
 		for (size_t i = 0; i < m_meshes.size(); i++)
 		{
-			size_t animSize = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations().size();
+			size_t animSize = m_meshes[i].mesh->getAnimations().size();
 			for (size_t a = 0; a < animSize; a++)
 			{
-				std::string animName = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations()[a];
-				ComputeMatrix((int)i, m_meshes[i].name, animName);
+				std::string animName = MeshMap::getInstance()->getMesh(m_meshes[i].mesh->getName())->getAnimations()[a];
+				ComputeMatrix((int)i, m_meshes[i].mesh->getName(), animName);
 			}
 		}
 	}
@@ -52,11 +52,11 @@ void AnimatedObject::update(float dt)
 		{
 			for (size_t i = 0; i < m_meshes.size(); i++)
 			{
-				size_t animSize = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations().size();
+				size_t animSize = MeshMap::getInstance()->getMesh(m_meshes[i].mesh->getName())->getAnimations().size();
 				for (size_t a = 0; a < animSize; a++)
 				{
-					std::string animName = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations()[a];
-					ComputeMatrix((int)i, m_meshes[i].name, animName);
+					std::string animName = MeshMap::getInstance()->getMesh(m_meshes[i].mesh->getName())->getAnimations()[a];
+					ComputeMatrix((int)i, m_meshes[i].mesh->getName(), animName);
 				}
 			}
 		}
