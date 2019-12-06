@@ -475,7 +475,10 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 
 	if (objType == RENDER_TYPE::STATIC) 
 	{
+		gameObject->addParticle(deathBuffer);
 		m_staticObjects.emplace_back(gameObject);
+		//m_staticObjects[0]->addParticle(deathBuffer);
+		//gameObject->addParticle(deathBuffer);
 	}
 	else if (objType == RENDER_TYPE::SPELL) 
 	{
@@ -949,6 +952,10 @@ void Renderer::render() {
 		if (!object->getShouldRender()) {
 			continue;
 		}
+		//TODO
+		//object->UpdateParticles(dt);
+		//object->UpdateParticles(dt);
+		//object->RenderParticles(glm::vec3(0), m_camera);
 
 		//Then through all of the meshes
 		for (int j = 0; j < object->getMeshesCount(); j++)
@@ -973,7 +980,10 @@ void Renderer::render() {
 			glDisableVertexAttribArray(0);
 			glDisableVertexAttribArray(1);
 			glDisableVertexAttribArray(2);
+
 		}
+
+		object->RenderParticles(glm::vec3(0), m_camera);
 	}
 
 	shader->clearBinding();
@@ -1441,10 +1451,17 @@ void Renderer::initializeParticle()
 	deathBuffer = new ParticleBuffers(tempPS, tempTxt);
 	deathBuffer->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
 	deathBuffer->bindBuffers();
+
+	//m_staticObjects.back()->addParticle(deathBuffer);
 }
 
 void Renderer::updateParticles(float dt)
 {
+	for (GameObject* object : m_staticObjects)
+	{
+		object->UpdateParticles(dt);
+	}
+
 	for (int i = 0; i < m_particleSystems.size(); i++)
 	{
 		m_particleSystems[i].Update(dt);
@@ -1458,5 +1475,5 @@ void Renderer::removePoof()
 
 void Renderer::death()
 {
-	m_particleSystems.emplace_back(deathBuffer);
+	//m_particleSystems.emplace_back(deathBuffer);
 }
