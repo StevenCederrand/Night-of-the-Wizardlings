@@ -945,7 +945,7 @@ void Renderer::render() {
 	glBindTexture(GL_TEXTURE_2D, m_depthMap);	
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, m_SSAONoiseTexture);
-	shader->setFloat("sampleRadius", 1.5f);
+	//shader->setFloat("sampleRadius", 1.5f);
 	shader->setMat4("projMatrix", m_camera->getProjMat());
 
 	for (size_t i = 0; i < m_SSAOKernels.size(); i++)
