@@ -19,6 +19,13 @@
 #include <HUD/WorldHudObject.h>
 #include <LevelEditor/MousePicker.h>
 
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw_gl3.h>
+#include <stdio.h>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <imgui/imfilebrowser.h>
+
 
 
 
@@ -53,6 +60,9 @@ private:
 
 	float m_rotVal;
 	glm::vec3 m_focusPoint;
+	ImGui::FileBrowser fileDialog;
+
+	bool my_tool_active = true;
 };
 
 
