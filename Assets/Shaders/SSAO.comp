@@ -3,6 +3,8 @@
 #define SSAO_KERNELS 128
 
 uniform sampler2D depthMap;
+uniform sampler2D noiseMap;
+
 //Used to place the depthmap value in world space
 uniform mat4 projMatrix;
 
@@ -56,14 +58,14 @@ void main() {
     AO = 1.0 - AO/128.0;
 
     vec4 data = vec4(pow(AO, 2));//vec4(kernels[tileIndex % SSAO_KERNELS], 1);
-    data  = vec4(normalFromDepth(depth, samplePos), 1);
+    data = texture(noiseMap, samplePos);//vec4(normalFromDepth(depth, samplePos), 1);
     imageStore(img_output, ivec2(pixel_coords), data);
 }
 
 vec3 normalFromDepth(float depth, vec2 uv)
 {
-    vec2 offset1 = vec2( 0.0, 1.0 / screenSize.y);
-    vec2 offset2 = vec2( 1.0 / screenSize.x, 0.0);
+    vec2 offset1 = vec2( 0.0, 1.0 / screenSize.y) / 2;
+    vec2 offset2 = vec2( 1.0 / screenSize.x, 0.0) / 2;
 
     float depth1 = texture(depthMap, uv + offset1).r;
     float depth2 = texture(depthMap, uv + offset2).r;

@@ -48,6 +48,7 @@ Renderer::Renderer()
 	//Generete SSAO kernels
 	std::uniform_real_distribution<float> randomFloats(0.0, 1.0);
 	std::default_random_engine generator;
+
 	for (int i = 0; i < SSAO_KERNELS; i++) {
 		float scale = (float)i / (float)(SSAO_KERNELS);
 		glm::vec3 v;
@@ -61,6 +62,21 @@ Renderer::Renderer()
 		m_SSAOKernels.push_back(v);
 	}
 
+	//Generate a noise texture
+	for (size_t i = 0; i < 256; i++)
+	{
+		glm::vec3 noise(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0, 0.0f);
+		m_SSAONoise.push_back(noise);
+	}
+
+	glGenTextures(1, &m_SSAONoiseTexture);
+	glBindTexture(GL_TEXTURE_2D, m_SSAONoiseTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, 16, 16, 0, GL_RGB, GL_FLOAT, &m_SSAONoise[0]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	
 	int work_grp_cnt[3];
 	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &work_grp_cnt[0]);
 	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, &work_grp_cnt[1]);
@@ -94,7 +110,9 @@ Renderer::~Renderer()
 
 #if SSAO
 	glDeleteTextures(1, &m_SSAOColourBuffer);
+	glDeleteTextures(1, &m_SSAONoiseTexture); 
 	glDeleteFramebuffers(1, &m_SSAOFBO);
+
 #endif
 
 #if FORWARDPLUS
@@ -449,25 +467,31 @@ void Renderer::createDepthMap() {
 }
 
 void Renderer::initShaders() {
-	ShaderMap::getInstance()->createShader(DEPTH_MAP, "Depth.vert", "Depth.frag");
+	ShaderMap* shaderMap = ShaderMap::getInstance();
+	Shader* shader;
+	shaderMap->createShader(DEPTH_MAP, "Depth.vert", "Depth.frag");
 	//Set the light index binding
 #if FORWARDPLUS
-	ShaderMap::getInstance()->createShader(LIGHT_CULL, "LightCullCompute.comp");
-	ShaderMap::getInstance()->useByName(LIGHT_CULL);
+	shaderMap->createShader(LIGHT_CULL, "LightCullCompute.comp");
+	shaderMap->useByName(LIGHT_CULL);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
 #endif
-	ShaderMap::getInstance()->createShader(BASIC_FORWARD, "VertexShader.vert", "FragShader.frag");
-	ShaderMap::getInstance()->createShader(ANIMATION, "Animation.vert", "FragShader.frag");
-	ShaderMap::getInstance()->createShader(SKYBOX, "Skybox.vs", "Skybox.fs");
-	ShaderMap::getInstance()->getShader(SKYBOX)->setInt("skyBox", 4);
-	ShaderMap::getInstance()->createShader(FRESNEL, "FresnelFX.vert", "FresnelFX.frag");
-	ShaderMap::getInstance()->createShader(ENEMYSHIELD, "FresnelFX.vert", "EnemyShield.frag");
-	ShaderMap::getInstance()->createShader(WHUD, "WorldHud.vs", "WorldHud.fs");
+
 #if SSAO
 	//Init the compute shader
-	ShaderMap::getInstance()->createShader(SSAO_COMP, "SSAO.comp");
+	shader = shaderMap->createShader(SSAO_COMP, "SSAO.comp");
+	shader->use();
+	shader->setInt("depthMap", 0);
+	shader->setInt("noiseMap", 1);
 #endif
 
+	shaderMap->createShader(BASIC_FORWARD, "VertexShader.vert", "FragShader.frag");
+	shaderMap->createShader(ANIMATION, "Animation.vert", "FragShader.frag");
+	shaderMap->createShader(SKYBOX, "Skybox.vs", "Skybox.fs");
+	shaderMap->getShader(SKYBOX)->setInt("skyBox", 4);
+	shaderMap->createShader(FRESNEL, "FresnelFX.vert", "FresnelFX.frag");
+	shaderMap->createShader(ENEMYSHIELD, "FresnelFX.vert", "EnemyShield.frag");
+	shaderMap->createShader(WHUD, "WorldHud.vs", "WorldHud.fs");
 	/*=====================================================*/
 	/*ShaderMap::getInstance()->createShader(BLOOM, "Bloom.vs", "Bloom.fs");
 	ShaderMap::getInstance()->useByName(BLOOM);
@@ -489,11 +513,11 @@ void Renderer::initShaders() {
 	/*=====================================================*/
 
 	/* Hud */
-	auto* shader = ShaderMap::getInstance()->createShader(HUD, "HUD.vs", "HUD.fs");
+	shader = shaderMap->createShader(HUD, "HUD.vs", "HUD.fs");
 	shader->use();
 	shader->setInt("textureSampler", 0);
 
-	ShaderMap::getInstance()->createShader(PARTICLES, "Particles.vs", "Particles.gs", "Particles.fs");
+	shaderMap->createShader(PARTICLES, "Particles.vs", "Particles.gs", "Particles.fs");
 
 	initializeParticle();
 }
@@ -905,8 +929,10 @@ void Renderer::render() {
 		glDispatchCompute(workGroups.x, workGroups.y, 1);
 
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-		//Unbind the depth
+		//Unbind the depth & noise
 		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 #endif
@@ -917,9 +943,11 @@ void Renderer::render() {
 	glActiveTexture(GL_TEXTURE0);
 	//bindMatrixes(shader);	//Bind view and projection matrix
 	glBindTexture(GL_TEXTURE_2D, m_depthMap);	
-	
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, m_SSAONoiseTexture);
 	shader->setFloat("sampleRadius", 1.5f);
 	shader->setMat4("projMatrix", m_camera->getProjMat());
+
 	for (size_t i = 0; i < m_SSAOKernels.size(); i++)
 	{
 		//Assign the kernels

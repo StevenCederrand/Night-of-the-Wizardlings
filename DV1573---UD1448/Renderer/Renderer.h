@@ -96,7 +96,8 @@ private:
 	Timer m_timer;
 	SpellHandler* m_spellHandler;
 
-	std::vector<glm::vec3> m_SSAOKernels; 
+	
+
 	//Store gameobjects directly to the renderer
 	std::vector<GameObject*> m_staticObjects;
 	std::vector<GameObject*> m_dynamicObjects;
@@ -116,8 +117,12 @@ private:
 	unsigned int m_depthMap;
 
 #if SSAO
+	std::vector<glm::vec3> m_SSAOKernels;
+	std::vector<glm::vec3> m_SSAONoise;
+
 	unsigned int m_SSAOFBO;
 	unsigned int m_SSAOColourBuffer;
+	unsigned int m_SSAONoiseTexture;	//SSAO noise texture
 #endif
 
 	//unsigned int m_hdrFbo;
