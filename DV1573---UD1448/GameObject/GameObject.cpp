@@ -7,6 +7,8 @@ GameObject::GameObject()
 	m_objectName = "Empty";
 	m_type = 0;
 	m_shouldRender = true;
+
+	removeParticle = false;
 }
 
 GameObject::GameObject(std::string objectName)
@@ -14,6 +16,8 @@ GameObject::GameObject(std::string objectName)
 	m_objectName = objectName;
 	m_type = 0;
 	m_shouldRender = true;
+
+	removeParticle = false;
 }
 
 GameObject::~GameObject()
@@ -581,4 +585,14 @@ void GameObject::RenderParticles(Camera* camera)
 		m_particleSystems[i].SetPosition(m_transform.position);
 		m_particleSystems[i].Render(camera);
 	}
+}
+
+void GameObject::RemoveParticle()
+{
+	removeParticle = true;
+}
+
+bool GameObject::ShouldDie()
+{
+	return removeParticle;
 }

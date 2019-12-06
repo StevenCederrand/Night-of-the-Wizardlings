@@ -565,7 +565,9 @@ void PlayState::update_isPlaying(const float& dt)
 				m_objects.push_back(new WorldObject("Death"));
 				m_objects.back()->setWorldPosition(m_player->getPlayerPos());
 				m_objects.back()->addParticle(deathBuffer);
+				m_objects.back()->RemoveParticle(); //Set remove to true, it will now die when the player has respawned
 				Renderer::getInstance()->submit(m_objects.back(), STATIC);
+
 
 				break;
 			}
@@ -581,6 +583,18 @@ void PlayState::update_isPlaying(const float& dt)
 				m_camera->resetCamera();
 				m_camera->disableCameraMovement(false);
 				m_player->onRespawn();
+				
+				for (int i = 0; i < m_objects.size(); i++)
+				{
+					if (m_objects[i]->ShouldDie())
+					{
+						Renderer::getInstance()->removeRenderObject(m_objects[i], STATIC);
+						// Might fuck up destruction!!!1
+						delete m_objects[i];
+						m_objects.erase(m_objects.begin() + i);
+					}
+				}
+
 				break;
 			}
 
