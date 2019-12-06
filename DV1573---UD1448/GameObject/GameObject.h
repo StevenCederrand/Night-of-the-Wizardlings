@@ -36,6 +36,7 @@ public:
 
 	void addParticle(ParticleBuffers* particleBuffers);
 	void UpdateParticles(float dt);
+	void RenderParticles();
 	   	
 	//Set functions
 	void setTransform(Transform transform);
