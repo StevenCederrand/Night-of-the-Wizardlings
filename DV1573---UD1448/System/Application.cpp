@@ -18,7 +18,6 @@ Application::~Application() {
 	delete m_stateManager;
 	ShaderMap::getInstance()->destroy();
 	Renderer::getInstance()->destroy();
-	BulletPhysics::getInstance()->destroy();
 	MaterialMap::getInstance()->destroy();
 	MeshMap::getInstance()->destroy();
 	AnimationMap::getInstance()->destroy();

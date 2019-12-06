@@ -44,10 +44,10 @@ void DestructibleObject::update(float dt)
 		// Freezes object after time
 		if (m_lifetime >= m_ev1Time && m_dstrState == 0)
 		{
-			for (int i = 0; i < (int)getRigidBodies().size(); i++)
+			for (int i = 0; i < (int)m_meshes.size(); i++)
 			{
-				getRigidBodies()[i]->setGravity(m_fallGravity);
-				getRigidBodies()[i]->setDamping(dampingEv1, dampingSpinEv1);
+				m_meshes[i].body->setGravity(m_fallGravity);
+				m_meshes[i].body->setDamping(dampingEv1, dampingSpinEv1);
 			}
 
 			m_dstrState = 1;
@@ -56,10 +56,10 @@ void DestructibleObject::update(float dt)
 		// Changes gravity after time
 		if (m_lifetime >= m_ev2Time && m_dstrState == 1)
 		{
-			for (int i = 0; i < (int)getRigidBodies().size(); i++)
+			for (int i = 0; i < (int)m_meshes.size(); i++)
 			{
-				getRigidBodies()[i]->setGravity(m_fallGravity);
-				getRigidBodies()[i]->setDamping(dampingEv2, dampingSpinEv2);
+				m_meshes[i].body->setGravity(m_fallGravity);
+				m_meshes[i].body->setDamping(dampingEv2, dampingSpinEv2);
 			}
 
 			m_dstrState = 2;
@@ -68,7 +68,7 @@ void DestructibleObject::update(float dt)
 		// Removes the object after time
 		if (m_lifetime >= 17.0f && m_dstrState == 2)
 		{
-			for (int i = 0; i < (int)getRigidBodies().size(); i++)
+			for (int i = 0; i < (int)m_meshes.size(); i++)
 			{
 				removeBody(i);
 				setWorldPosition(glm::vec3(-999));
@@ -115,7 +115,6 @@ void DestructibleObject::loadDestructible(std::string fileName, float size)
 	// Load material
 	Material newMaterial = meshLoader.GetMaterial();
 	std::string materialName = newMaterial.name;
-	setMaterial(materialName);
 	if (!MaterialMap::getInstance()->existsWithName(materialName)) 	// This creates the material if it does not exist (by name)
 	{
 		if (meshLoader.GetAlbedo() != "-1")
@@ -145,17 +144,19 @@ void DestructibleObject::loadDestructible(std::string fileName, float size)
 				std::cout << "Failed to load texture" << std::endl;
 			}
 			stbi_image_free(data);
-
 		}
 		else
 		{
 			newMaterial.texture = false;
 		}
 
-		MaterialMap::getInstance()->createMaterial(materialName, newMaterial);
+		setMaterial(MaterialMap::getInstance()->createMaterial(materialName, newMaterial));
 		logTrace("Material created: {0}", materialName);
 	}
-
+	else
+	{
+		setMaterial(MaterialMap::getInstance()->getMaterial(materialName));
+	}
 
 	setTransform(meshLoader.GetTransform());
 	meshLoader.Unload();
@@ -187,7 +188,6 @@ void DestructibleObject::loadDestructible(std::vector<Vertex> vertices_in, std::
 	// Load material
 	Material newMaterial = newMaterial_in;
 	std::string materialName = newMaterial_in.name;
-	setMaterial(materialName);
 	if (!MaterialMap::getInstance()->existsWithName(materialName)) 	// This creates the material if it does not exist (by name)
 	{
 		if (albedo_in != "-1")
@@ -224,8 +224,12 @@ void DestructibleObject::loadDestructible(std::vector<Vertex> vertices_in, std::
 			newMaterial.texture = false;
 		}
 
-		MaterialMap::getInstance()->createMaterial(materialName, newMaterial);
+		setMaterial(MaterialMap::getInstance()->createMaterial(materialName, newMaterial));
 		logTrace("Material created: {0}", materialName);
+	}
+	else
+	{
+		setMaterial(MaterialMap::getInstance()->getMaterial(materialName));
 	}
 
 
@@ -242,8 +246,6 @@ void DestructibleObject::loadBasic(std::string name)
 	m_scale = 0.05f;
 
 	int count = 0;
-	glm::vec3 normal = glm::vec3();
-
 	count = m_polygonFace.size();
 
 	std::vector<Vertex> newVertices;
@@ -251,11 +253,8 @@ void DestructibleObject::loadBasic(std::string name)
 	std::vector<Face> newFace;
 	newFace.resize(4 * count - 4);
 
-
-
 	meshFromPolygon(name);
 	initMesh(name, newVertices, newFace);
-
 }
 
 void DestructibleObject::loadDefined(std::string name, std::vector<glm::vec2> polygon)
@@ -283,7 +282,6 @@ void DestructibleObject::meshFromPolygon(std::string name)
 	newVertices.resize(6 * count);
 	std::vector<Face> newFace;
 	newFace.resize(4 * count - 4);
-
 
 	int vi = 0;
 	int ni = 0;

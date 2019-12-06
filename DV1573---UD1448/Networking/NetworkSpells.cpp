@@ -98,7 +98,7 @@ void NetworkSpells::update(const float& dt)
 
 			if (g != nullptr) {
 				
-				glm::vec3 pos = CustomLerp(g->getTransform().position, e.spellData.Position, m_lerpSpeed * dt);
+				glm::vec3 pos = CustomLerp(g->getObjectTransform().position, e.spellData.Position, m_lerpSpeed * dt);
 				g->setWorldPosition(pos);
 				g->UpdateParticles(dt);
 

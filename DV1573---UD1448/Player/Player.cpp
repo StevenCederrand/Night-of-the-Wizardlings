@@ -27,6 +27,7 @@ Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera, Spell
 	m_spellhandler = spellHandler;
 	m_client = Client::getInstance();
 	m_character = BulletPhysics::getInstance()->createCharacter(playerPosition);
+	m_character->getGhostObject()->setUserPointer(this);
 
 	// Often moving values 
 	m_playerPosition = playerPosition;
@@ -47,6 +48,7 @@ Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera, Spell
 	m_maxHealth = 100.0f;
 	m_manaRegen = 100.0f; 
 
+	
 	m_maxAttackCooldown = 1.0f;
 	m_maxSpecialCooldown = 1.5f;
 
@@ -252,7 +254,6 @@ void Player::move(float deltaTime)
 
 void Player::PlayAnimation(float deltaTime)
 {
-
 	if (animState.running){
 		m_firstPersonMesh->playLoopAnimation("RunAnimation");
 		animState.running = false;
@@ -283,7 +284,6 @@ void Player::PlayAnimation(float deltaTime)
 	}
 
 	m_firstPersonMesh->update(deltaTime);
-
 }
 
 void Player::attack()
@@ -466,8 +466,9 @@ void Player::onRespawn()
 void Player::increaseMana(const float& increase)
 {
 	m_mana += increase;
-	// Clamp mana
+	
 	if (m_mana > m_maxMana) {
+		// Clamp mana
 		m_mana = m_maxMana;
 	}
 }

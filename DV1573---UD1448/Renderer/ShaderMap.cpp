@@ -120,4 +120,5 @@ void ShaderMap::destroy()
 {
 	cleanUp();
 	delete m_shaderMapInstance;
+	m_shaderMapInstance = nullptr;
 }

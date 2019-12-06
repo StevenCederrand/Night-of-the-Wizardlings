@@ -400,6 +400,7 @@ void Renderer::initShaders() {
 	ShaderMap::getInstance()->getShader("Skybox_Shader")->setInt("skyBox", 4);	
 	ShaderMap::getInstance()->createShader(FRESNEL, "FresnelFX.vert", "FresnelFX.frag");
 	ShaderMap::getInstance()->createShader(ENEMYSHIELD, "FresnelFX.vert", "EnemyShield.frag");
+	ShaderMap::getInstance()->createShader(TRANSPARENT, "TransparentRender.vert", "TransparentRender.frag");
 	ShaderMap::getInstance()->createShader(WHUD, "WorldHud.vs", "WorldHud.fs");
 
 	/*=====================================================*/
@@ -480,7 +481,7 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 	{
 		/* Place the light in the lights list */
 		PLIGHT light;
-		light.position = gameObject->getTransform().position;
+		light.position = gameObject->getObjectTransform().position;
 		light.color = glm::vec3(1.0f);
 		light.index = m_spells.size();
 		m_spells.emplace_back(gameObject);
@@ -533,12 +534,15 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 	else if (objType == RENDER_TYPE::ENEMY_SHIELD) {
 		m_enemyShieldObject.emplace_back(gameObject);
 	}
+	else if (objType == RENDER_TYPE::SKYOBJECTS) {
+		m_skyObjects.emplace_back(gameObject);
+	}
 	else if (objType == RENDER_TYPE::POINTLIGHT_SOURCE) {
 		/* Place the light in the lights list */
 		Pointlight* lightRef = static_cast<Pointlight*>(gameObject);
 
 		PLIGHT light;
-		light.position = gameObject->getTransform().position;
+		light.position = gameObject->getObjectTransform().position;
 		light.color = lightRef->getColor();
 		light.attenAndRadius = lightRef->getAttenuationAndRadius(); //First 3 dims are for the attenuation, final 4th is for radius
 		light.index = -2;
@@ -612,6 +616,7 @@ void Renderer::clear() {
 	m_2DHudMap.clear();
 	m_worldHudMap.clear();
 	m_enemyShieldObject.clear();
+	m_skyObjects.clear();
 }
 
 void Renderer::removeRenderObject(GameObject* gameObject, RENDER_TYPE objType)
@@ -708,6 +713,7 @@ void Renderer::removeRenderObject(GameObject* gameObject, RENDER_TYPE objType)
 void Renderer::destroy()
 {
 	delete m_rendererInstance;
+	m_rendererInstance = nullptr;
 }
 
 
@@ -742,7 +748,7 @@ void Renderer::render() {
 	ShaderMap* shaderMap = ShaderMap::getInstance();
 	Material* material = nullptr;
 	
-	/*
+	
 #pragma region Depth_Render & Light_Cull
 	if (m_lights.size() > 0) {
 		shader = shaderMap->useByName(DEPTH_MAP);
@@ -877,26 +883,26 @@ void Renderer::render() {
 		}
 
 		glDispatchCompute(workGroups.x, workGroups.y, 1);
+
+		glMemoryBarrier(GL_SHADER_STORAGE_BUFFER);
 		//Unbind the depth
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 #pragma endregion
 	}
 
-	*/
+	
 	
 	//BLOOMBLUR MISSION STEP 1: SAMPLE
 	//m_bloom->bindHdrFBO();
 
-	//renderDeflectBox(m_deflectBox);
-
-//#ifdef DEBUG_WIREFRAME
-//	// DEBUG (MOSTLY FOR DSTR)
-//	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_M) == GLFW_PRESS)
-//		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-//	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_N) == GLFW_PRESS)
-//		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-//#endif
+#ifdef DEBUG_WIREFRAME
+	// DEBUG (MOSTLY FOR DSTR)
+	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_M) == GLFW_PRESS)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_N) == GLFW_PRESS)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
 
 #pragma region Color_Render
 	shader = shaderMap->useByName(BASIC_FORWARD);
@@ -922,14 +928,13 @@ void Renderer::render() {
 			iConv = std::to_string(i);
 			
 			if (m_lights[i].index != -2) {
-				shader->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[m_lights[i].index]->getTransform().position);
+				shader->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[m_lights[i].index]->getObjectTransform().position);
 			}
 			else {
 				shader->setVec3("pLights[" + std::to_string(i) + "].position", m_lights[i].position);
 			}
 			
 			shader->setVec3("pLights[" + iConv + "].color", m_lights[i].color);
-
 			shader->setVec4("pLights[" + iConv + "].attenAndRadius", m_lights[i].attenAndRadius);
 		}
 	}
@@ -955,23 +960,13 @@ void Renderer::render() {
 			mesh = object->getMesh(j);
 
 			//Bind the material
-			if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
-				object->bindMaterialToShader(shader, mesh->getMaterial());
-			}
-			else {
-				material = object->getMaterial(j);
-				object->bindMaterialToShader(shader, material);
-			}
+			object->bindMaterialToShader(shader, j);
 
-
-			modelMatrix = glm::mat4(1.0f);
-
-			modelMatrix = object->getMatrix(j);
 			//Bind the modelmatrix
+			modelMatrix = object->getMatrix(j);
 			shader->setMat4("modelMatrix", modelMatrix);
 
 			glBindVertexArray(mesh->getBuffers().vao);
-
 			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 			glBindVertexArray(0);
@@ -1002,23 +997,13 @@ void Renderer::render() {
 				glEnableVertexAttribArray(2);
 				mesh = object->getMesh(j);
 				//Bind the material
-				if (object->getType() == OBJECT_TYPE::DESTRUCTIBLE) {
-					object->bindMaterialToShader(shader, mesh->getMaterial());
-				}
-				else {
-					material = object->getMaterial(j);
-					object->bindMaterialToShader(shader, material);
-				}
-
-				modelMatrix = glm::mat4(1.0f);
-				//Apply the transform to the matrix. This should actually be done automatically in the mesh!
-				modelMatrix = object->getMatrix(j);
+				object->bindMaterialToShader(shader, j);
 
 				//Bind the modelmatrix
+				modelMatrix = object->getMatrix(j);
 				shader->setMat4("modelMatrix", modelMatrix);
 
 				glBindVertexArray(mesh->getBuffers().vao);
-
 				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 				glBindVertexArray(0);
@@ -1042,8 +1027,6 @@ void Renderer::render() {
 				continue;
 			}
 
-		
-
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
 			glEnableVertexAttribArray(2);
@@ -1053,14 +1036,15 @@ void Renderer::render() {
 			//Fetch the current mesh and its transform
 			mesh = p->getRenderInformation().mesh;
 			glBindVertexArray(mesh->getBuffers().vao);
+
 			//Bind the material
-			object->bindMaterialToShader(shader, p->getRenderInformation().material);
-			//shader->setMaterial(p->getRenderInformation().material);
+			shader->setMaterial(p->getRenderInformation().material);
+
 			//Bind the modelmatrix
 			glm::mat4 mMatrix = glm::mat4(1.0f);
-			mMatrix = glm::translate(mMatrix, p->getTransform().position);
-			mMatrix *= glm::mat4_cast(p->getTransform().rotation);
-			mMatrix = glm::scale(mMatrix, p->getTransform().scale);
+			mMatrix = glm::translate(mMatrix, p->getObjectTransform().position);
+			mMatrix *= glm::mat4_cast(p->getObjectTransform().rotation);
+			mMatrix = glm::scale(mMatrix, p->getObjectTransform().scale);
 
 			shader->setMat4("modelMatrix", mMatrix);
 
@@ -1070,6 +1054,53 @@ void Renderer::render() {
 			glDisableVertexAttribArray(0);
 			glDisableVertexAttribArray(1);
 			glDisableVertexAttribArray(2);
+		}
+	}
+	shader->clearBinding();
+
+	if (m_skyObjects.size() > 0)
+	{
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		shader = shaderMap->useByName(TRANSPARENT);
+		bindMatrixes(shader);
+		//Render objects 
+		float rotValue = 0.0f;
+
+		for (GameObject* object : m_skyObjects)
+		{
+			if (object == nullptr)
+				continue;
+			if (!object->getShouldRender())
+				continue;
+
+			rotValue -= 0.3f;
+
+			for (int j = 0; j < object->getMeshesCount(); j++)
+			{
+				glEnableVertexAttribArray(0);
+				glEnableVertexAttribArray(1);
+				glEnableVertexAttribArray(2);
+				mesh = object->getMesh(j);
+
+				material = object->getMaterial(j);
+				object->bindMaterialToShader(shader, j);
+
+				modelMatrix = glm::mat4(1.0f); //<--- Change this line to apply rotation
+				modelMatrix = object->getMatrix(j);
+
+
+				modelMatrix = glm::rotate(modelMatrix, (float)glfwGetTime() * rotValue, glm::vec3(0.0f, 1.0f, 0.0f));
+				shader->setMat4("modelMatrix", modelMatrix);
+
+				glBindVertexArray(mesh->getBuffers().vao);
+				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+				glBindVertexArray(0);
+				glDisableVertexAttribArray(0);
+				glDisableVertexAttribArray(1);
+				glDisableVertexAttribArray(2);
+			}
 		}
 	}
 	shader->clearBinding();
@@ -1094,7 +1125,7 @@ void Renderer::render() {
 				iConv = std::to_string(i);
 
 				if (m_lights[i].index != -2) {
-					shader->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[m_lights[i].index]->getTransform().position);
+					shader->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[m_lights[i].index]->getObjectTransform().position);
 				}
 				else {
 					shader->setVec3("pLights[" + std::to_string(i) + "].position", m_lights[i].position);
@@ -1127,7 +1158,7 @@ void Renderer::render() {
 				glEnableVertexAttribArray(2);
 				//Fetch the current mesh and its transform
 				mesh = object->getMesh(j);
-				transform = object->getTransform(mesh, j);
+				transform = object->getTransform(j);
 
 				//Bind calculated bone matrices
 				animObj->BindAnimation(j);
@@ -1144,7 +1175,6 @@ void Renderer::render() {
 				glBindVertexArray(mesh->getBuffers().vao);
 
 				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-				object->unbindMaterialFromShader(shader, mesh->getMaterial());
 				glBindVertexArray(0);
 				glDisableVertexAttribArray(0);
 				glDisableVertexAttribArray(1);
@@ -1208,10 +1238,10 @@ void Renderer::render() {
 		for (int j = 0; j < object->getMeshesCount(); j++)
 		{
 			//Fetch the current mesh and its transform
-			mesh = meshMap->getMesh(object->getMeshName(j));
+			mesh = object->getMesh(j);
 			shader->setFloat("time", glfwGetTime());
 			//Bind the material
-			object->bindMaterialToShader(shader, mesh->getMaterial());
+			object->bindMaterialToShader(shader, j);
 
 			modelMatrix = glm::mat4(1.0f);
 
@@ -1245,8 +1275,8 @@ void Renderer::render() {
 		shader = shaderMap->useByName(FRESNEL);
 		bindMatrixes(shader);
 	
-		mesh = meshMap->getMesh(m_shieldObject->getMeshName());
-		m_shieldObject->bindMaterialToShader(shader, mesh->getMaterial());
+		mesh = m_shieldObject->getMesh();
+		m_shieldObject->bindMaterialToShader(shader);
 
 		modelMatrix = glm::mat4(1.0f);
 		modelMatrix = m_shieldObject->getMatrix();
@@ -1295,7 +1325,7 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 		}
 
 		ShaderMap::getInstance()->useByName(BASIC_FORWARD);
-		meshTransform = m_spells[i]->getTransform();
+		meshTransform = m_spells[i]->getObjectTransform();
 
 		glm::mat4 modelMatrix = glm::mat4(1.0f);
 		modelMatrix = glm::translate(modelMatrix, meshTransform.position);

@@ -13,6 +13,7 @@ struct SpellBase
 	float m_lowDamage;
 	float m_highDamage;
 	float m_speed;
+	float m_acceleration;
 	float m_radius;
 	float m_lifeTime;
 	float m_maxBounces;

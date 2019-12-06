@@ -143,26 +143,6 @@ void Mesh::setSkeleton(std::string name)
 	m_skeleton = name;
 }
 
-void Mesh::setPos(glm::vec3 pos)
-{
-	m_transform.position = pos;
-}
-
-void Mesh::setRot(glm::quat quat)
-{
-	m_transform.rotation = quat;
-}
-
-void Mesh::setScale(glm::vec3 scale)
-{
-	m_transform.scale = scale;
-}
-
-void Mesh::setTransform(Transform transform)
-{
-	m_transform = transform;
-}
-
 const std::string& Mesh::getMaterial() const
 {
 	return m_materialName;
