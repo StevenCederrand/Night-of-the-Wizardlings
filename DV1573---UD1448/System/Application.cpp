@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "States/PlayState.h"
 #include "States/MenuState.h"
+#include <States/LevelEditState.h>
 #include <Networking/Client.h>
 #include <Networking/LocalServer.h>
 #include <Gui/Gui.h>
@@ -96,16 +97,12 @@ bool Application::init() {
 	Gui::getInstance()->setFont("DejaVuSans-10");
 
 	m_stateManager = new StateManager();
-	m_stateManager->pushState(new SpellCreatorState());
 
-
-
-
-//#if AUTOSTART
-	//m_stateManager->pushState(new PlayState(false));
-//#else 
-//	m_stateManager->pushState(new MenuState());	
-//#endif
+#if AUTOSTART
+	m_stateManager->pushState(new LevelEditState(true));
+#else 
+	m_stateManager->pushState(new MenuState());	
+#endif
 
 	SoundHandler* shPtr = SoundHandler::getInstance();	
 	//shPtr->playSound(ThemeSong0);
