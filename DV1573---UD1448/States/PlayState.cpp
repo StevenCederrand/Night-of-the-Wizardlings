@@ -15,9 +15,10 @@ void logVec3(glm::vec3 vector) {
 
 PlayState::PlayState(bool spectator)
 {
-	
-	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);	
-	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("normalMap", 2);
+	Shader* basicTempShader = ShaderMap::getInstance()->getShader(BASIC_FORWARD);
+	basicTempShader->use();
+	basicTempShader->setInt("albedoTexture", 0);
+	basicTempShader->setInt("normalMap", 1);
 
 	m_camera = new Camera();
 	mu.printBoth("After physics and camera init:");
@@ -91,7 +92,7 @@ PlayState::PlayState(bool spectator)
 	loadMap();
 
 	//Load test cube for normal mapping
-	GameObject* tangentCube = new TangentCube();
+	GameObject* tangentCube = new WorldObject();
 	tangentCube->loadMesh("tangentCube.mesh");
 	tangentCube->setTexture("NormalMap/Bricks01.jpg");
 	tangentCube->setNormalMap("NormalMap/BricksNRM.jpg");

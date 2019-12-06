@@ -38,7 +38,6 @@
 #include <GFX/Pointlight.h>
 #include <Particles/Particles.h>
 #include <Particles/ParticleBuffers.h>
-#include <GameObject/TangentCube.h>
 
 #define P_LIGHT_COUNT 64
 #define P_LIGHT_RADIUS 5
