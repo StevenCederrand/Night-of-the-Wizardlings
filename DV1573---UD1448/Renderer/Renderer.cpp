@@ -37,6 +37,9 @@ Renderer::~Renderer()
 {
 	//delete m_bloom;
 	delete m_text;
+
+	if (deathBuffer)
+		delete deathBuffer;
 }
 
 void Renderer::renderHUD()
@@ -140,77 +143,42 @@ void Renderer::renderAndAnimateNetworkingTexts()
 
 		NetGlobals::SERVER_STATE state = Client::getInstance()->getServerState().currentState;
 
-		if (state == NetGlobals::SERVER_STATE::GameInSession) {
+		
+		if (state == NetGlobals::SERVER_STATE::WaitingForPlayers) {
 
-			uint32_t minutes = Client::getInstance()->getRoundTimePacket().minutes;
-			uint32_t seconds = Client::getInstance()->getRoundTimePacket().seconds;
-			std::string timeText = std::to_string(minutes) + ":";
+			//int numberOfPlayersReady = Client::getInstance()->getNumberOfReadyPlayers();
+			//int numberOfPlayers = Client::getInstance()->getNumberOfPlayers();
+			//glm::vec3 scale = glm::vec3(0.55f);
+			//glm::vec3 baseColor = glm::vec3(1.0f);
+			//std::string numberOfReadyPlayersText = std::to_string(numberOfPlayersReady) + "/" + std::to_string(numberOfPlayers) + " players ready";
+			//if (!Client::getInstance()->isSpectating()) {
+			//	bool meReady = Client::getInstance()->getMyData().isReady;
 
-			if (seconds >= 10) {
-				timeText += std::to_string(seconds);
-			}
-
-			else {
-				timeText += "0" + std::to_string(seconds);
-			}
-
-			timeText = "Time Left: " + timeText;
-			glm::vec3 scale = glm::vec3(0.5f, 0.5f, 0.5f);
-			float width = m_text->getTotalWidth(timeText, scale);
-
-			m_text->RenderText(timeText, (SCREEN_WIDTH / 2) - width * 0.5f, (SCREEN_HEIGHT * 0.95f), scale.x, glm::vec3(1.0f, 1.0f, 1.0f));
-		}
-		else if (state == NetGlobals::SERVER_STATE::WaitingForPlayers) {
-
-			int numberOfPlayersReady = Client::getInstance()->getNumberOfReadyPlayers();
-			int numberOfPlayers = Client::getInstance()->getNumberOfPlayers();
-			glm::vec3 scale = glm::vec3(0.55f);
-			glm::vec3 baseColor = glm::vec3(1.0f);
-			std::string numberOfReadyPlayersText = std::to_string(numberOfPlayersReady) + "/" + std::to_string(numberOfPlayers) + " players ready";
-			if (!Client::getInstance()->isSpectating()) {
-				bool meReady = Client::getInstance()->getMyData().isReady;
-
-				std::string readyBase = "You are ";
-				std::string readyText = meReady ? "Ready" : "Not Ready";
-				glm::vec3 readyColor = meReady ? glm::vec3(0.0f, 1.0f, 0.0f) : glm::vec3(1.0f, 0.0f, 0.0f);
+			//	std::string readyBase = "You are ";
+			//	std::string readyText = meReady ? "Ready" : "Not Ready";
+			//	glm::vec3 readyColor = meReady ? glm::vec3(0.0f, 1.0f, 0.0f) : glm::vec3(1.0f, 0.0f, 0.0f);
 
 
-				unsigned int readyBaseWidth = m_text->getTotalWidth(readyBase, scale);
-				unsigned int readyWidth = m_text->getTotalWidth(readyText, scale);
-				unsigned int totalWidth = readyBaseWidth + readyWidth;
+			//	unsigned int readyBaseWidth = m_text->getTotalWidth(readyBase, scale);
+			//	unsigned int readyWidth = m_text->getTotalWidth(readyText, scale);
+			//	unsigned int totalWidth = readyBaseWidth + readyWidth;
 
-				m_text->RenderText(readyBase, (SCREEN_WIDTH / 2) - totalWidth * 0.5f, SCREEN_HEIGHT * 0.35f, scale.x, baseColor);
-				m_text->RenderText(readyText, (SCREEN_WIDTH / 2) - totalWidth * 0.5f + readyBaseWidth, SCREEN_HEIGHT * 0.35f, scale.x, readyColor);
+			//	m_text->RenderText(readyBase, (SCREEN_WIDTH / 2) - totalWidth * 0.5f, SCREEN_HEIGHT * 0.35f, scale.x, baseColor);
+			//	m_text->RenderText(readyText, (SCREEN_WIDTH / 2) - totalWidth * 0.5f + readyBaseWidth, SCREEN_HEIGHT * 0.35f, scale.x, readyColor);
 
-				if (meReady == false) {
-					glm::vec3 howtoScale = glm::vec3(0.35f);
-					std::string howToReadyText = "Press F1 to ready";
-					unsigned int width = m_text->getTotalWidth(howToReadyText, howtoScale);
+			//	if (meReady == false) {
+			//		glm::vec3 howtoScale = glm::vec3(0.35f);
+			//		std::string howToReadyText = "Press F1 to ready";
+			//		unsigned int width = m_text->getTotalWidth(howToReadyText, howtoScale);
 
-					m_text->RenderText(howToReadyText, (SCREEN_WIDTH / 2) - width * 0.5f, SCREEN_HEIGHT * 0.30f, howtoScale.x, baseColor);
-				}
+			//		m_text->RenderText(howToReadyText, (SCREEN_WIDTH / 2) - width * 0.5f, SCREEN_HEIGHT * 0.30f, howtoScale.x, baseColor);
+			//	}
 
-			}
+			//}
 
-			unsigned int playersThatAreReadyWidth = m_text->getTotalWidth(numberOfReadyPlayersText, glm::vec3(0.40f));
-			m_text->RenderText(numberOfReadyPlayersText, (SCREEN_WIDTH / 2) - playersThatAreReadyWidth * 0.5f, SCREEN_HEIGHT * 0.92f, 0.40f, baseColor);
+			//unsigned int playersThatAreReadyWidth = m_text->getTotalWidth(numberOfReadyPlayersText, glm::vec3(0.40f));
+			////m_text->RenderText(numberOfReadyPlayersText, (SCREEN_WIDTH / 2) - playersThatAreReadyWidth * 0.5f, SCREEN_HEIGHT * 0.92f, 0.40f, baseColor);
 
-		}
-		else if (state == NetGlobals::SERVER_STATE::GameFinished) {
-			uint32_t minutes = Client::getInstance()->getRoundTimePacket().minutes;
-			uint32_t seconds = Client::getInstance()->getRoundTimePacket().seconds;
-			std::string timeText = std::to_string(minutes) + ":";
-
-			if (seconds >= 10) {
-				timeText += std::to_string(seconds);
-			}
-			else {
-				timeText += "0" + std::to_string(seconds);
-			}
-
-			timeText = "End of round: " + timeText;
-			unsigned int width = m_text->getTotalWidth(timeText, glm::vec3(0.5f));
-			m_text->RenderText(timeText, SCREEN_WIDTH / 2 - 135.0f, 680.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
 		}
 
 		if (Client::getInstance()->isSpectating() == false) {
@@ -219,7 +187,7 @@ void Renderer::renderAndAnimateNetworkingTexts()
 				std::string timeText = "Respawn in " + std::to_string(Client::getInstance()->getRespawnTime().timeLeft / 1000) + " seconds";
 				unsigned int width = m_text->getTotalWidth(timeText, glm::vec3(0.8f));
 				m_text->RenderText(timeText, (SCREEN_WIDTH / 2) - width * 0.5f, 480.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
-			}
+			}  
 
 		}
 		else {
@@ -465,7 +433,10 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 
 	if (objType == RENDER_TYPE::STATIC) 
 	{
+		//gameObject->addParticle(deathBuffer);
 		m_staticObjects.emplace_back(gameObject);
+		//m_staticObjects[0]->addParticle(deathBuffer);
+		//gameObject->addParticle(deathBuffer);
 	}
 	else if (objType == RENDER_TYPE::SPELL) 
 	{
@@ -881,6 +852,7 @@ void Renderer::render() {
 #pragma endregion
 	}
 
+	renderSkybox();
 	
 	
 	//BLOOMBLUR MISSION STEP 1: SAMPLE
@@ -939,6 +911,10 @@ void Renderer::render() {
 		if (!object->getShouldRender()) {
 			continue;
 		}
+		//TODO
+		//object->UpdateParticles(dt);
+		//object->UpdateParticles(dt);
+		//object->RenderParticles(glm::vec3(0), m_camera);
 
 		//Then through all of the meshes
 		for (int j = 0; j < object->getMeshesCount(); j++)
@@ -963,7 +939,10 @@ void Renderer::render() {
 			glDisableVertexAttribArray(0);
 			glDisableVertexAttribArray(1);
 			glDisableVertexAttribArray(2);
+
 		}
+		object->RenderParticles(m_camera);
+		//object->getTransform().position
 	}
 
 	shader->clearBinding();
@@ -1175,7 +1154,7 @@ void Renderer::render() {
 
 	shader->clearBinding();
 #pragma endregion
-	renderSkybox();
+	//renderSkybox();
 	// Spell Rendering
 	m_spellHandler->renderSpell();
 
@@ -1370,6 +1349,11 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 		}
 	}
 
+	for (int i = 0; i < m_particleSystems.size(); i++)
+	{
+		m_particleSystems[i].Render(m_camera);
+		m_particleSystems[i].SetPosition(glm::vec3(0));
+	}
 }
 
 void Renderer::addBigNotification(NotificationText notification)
@@ -1399,10 +1383,58 @@ Camera* Renderer::getMainCamera() const
 
 void Renderer::initializeParticle()
 {
+	PSinfo tempPS;
+	TextureInfo tempTxt;
 
+	tempTxt.name = "Assets/Textures/betterSmoke.png";
+	tempPS.width = 0.9f;
+	tempPS.heigth = 1.2f;
+	tempPS.lifetime = 5.0f;
+	tempPS.maxParticles = 300;
+	tempPS.emission = 0.02f;
+	tempPS.force = -0.54f;
+	tempPS.drag = 0.0f;
+	tempPS.gravity = -2.2f;
+	tempPS.seed = 1;
+	tempPS.cont = true;
+	tempPS.omnious = true;
+	tempPS.spread = 5.0f;
+	tempPS.glow = 1.3;
+	tempPS.scaleDirection = 0;
+	tempPS.swirl = 0;
+	tempPS.fade = 1;
+	tempPS.randomSpawn = true;
+	tempPS.color = glm::vec3(0.3f, 0.3f, 0.3f);
+	tempPS.blendColor = glm::vec3(1.0f, 1.0f, 1.0f);
+	tempPS.color = glm::vec3(0.0, 0.0f, 0.0f);
+	tempPS.direction = glm::vec3(0.0f, -1.0f, 0.0f);
+
+	deathBuffer = new ParticleBuffers(tempPS, tempTxt);
+	deathBuffer->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
+	deathBuffer->bindBuffers();
+
+	//m_staticObjects.back()->addParticle(deathBuffer);
 }
 
 void Renderer::updateParticles(float dt)
 {
+	for (GameObject* object : m_staticObjects)
+	{
+		object->UpdateParticles(dt);
+	}
 
+	for (int i = 0; i < m_particleSystems.size(); i++)
+	{
+		m_particleSystems[i].Update(dt);
+	}
+}
+
+void Renderer::removePoof()
+{
+	//m_particleSystems.erase(m_particleSystems[0]);
+}
+
+void Renderer::death()
+{
+	//m_particleSystems.emplace_back(deathBuffer);
 }

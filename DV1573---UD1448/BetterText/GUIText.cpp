@@ -39,6 +39,13 @@ void GUIText::remove()
 	deleteBuffers();
 }
 
+void GUIText::changeText(const std::string& text)
+{
+	m_text = text;
+	deleteBuffers();
+	createBuffers();
+}
+
 void GUIText::setMeshInfo(int vao, int verticesCount)
 {
 	m_textMeshVao = vao;
