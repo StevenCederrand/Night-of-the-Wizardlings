@@ -6,12 +6,20 @@
 
 Renderer* Renderer::m_rendererInstance = 0;
 
+Renderer* Renderer::getInstance()
+{
+	if (m_rendererInstance == 0) {
+		m_rendererInstance = new Renderer();
+	}
+	return m_rendererInstance;
+}
+
 Renderer::Renderer()
 {
 	m_gWindow = nullptr;
 	m_camera = nullptr;
 	glEnable(GL_MULTISAMPLE);
-	createDepthMap();
+	
 	int x = -10;
 	int z = -40;
 
@@ -93,9 +101,11 @@ Renderer::Renderer()
 	printf("max local (in one shader) work group sizes x:%i y:%i z:%i\n",
 		work_grp_size[0], work_grp_size[1], work_grp_size[2]);
 #endif
-
-
-
+	
+#if FORWARDPLUS
+	createDepthMap();
+#endif
+	initShaders();
 }
 
 Renderer::~Renderer()
@@ -120,6 +130,357 @@ Renderer::~Renderer()
 	glDeleteFramebuffers(1, &m_depthFBO);
 #endif
 
+}
+
+void Renderer::destroy()
+{
+	delete m_rendererInstance;
+}
+
+void Renderer::init(GLFWwindow* window)
+{
+	m_gWindow = window;
+}
+
+void Renderer::initShaders() {
+	ShaderMap* shaderMap = ShaderMap::getInstance();
+	Shader* shader;
+	shaderMap->createShader(DEPTH_MAP, "Depth.vert", "Depth.frag");
+	//Set the light index binding
+#if FORWARDPLUS
+	shaderMap->createShader(LIGHT_CULL, "LightCullCompute.comp");
+	shaderMap->useByName(LIGHT_CULL);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
+#endif
+
+#if SSAO
+	//Init the compute shader
+	shader = shaderMap->createShader(SSAO_RAW, "SSAO.comp");
+	shader->use();
+	shader->setInt("depthMap", 0);
+	shader->setInt("noiseMap", 1);
+	shader = shaderMap->createShader(BLUR, "Blur.comp");
+#endif
+
+	shaderMap->createShader(BASIC_FORWARD, "VertexShader.vert", "FragShader.frag");
+	shaderMap->createShader(ANIMATION, "Animation.vert", "FragShader.frag");
+	shaderMap->createShader(SKYBOX, "Skybox.vs", "Skybox.fs");
+	shaderMap->getShader(SKYBOX)->setInt("skyBox", 4);
+	shaderMap->createShader(FRESNEL, "FresnelFX.vert", "FresnelFX.frag");
+	shaderMap->createShader(ENEMYSHIELD, "FresnelFX.vert", "EnemyShield.frag");
+	shaderMap->createShader(WHUD, "WorldHud.vs", "WorldHud.fs");
+
+	m_text = new FreeType();
+	m_text->BindTexture();
+
+	/* Hud */
+	shader = shaderMap->createShader(HUD, "HUD.vs", "HUD.fs");
+	shader->use();
+	shader->setInt("textureSampler", 0);
+
+	shaderMap->createShader(PARTICLES, "Particles.vs", "Particles.gs", "Particles.fs");
+
+	initializeParticle();
+}
+
+void Renderer::createDepthMap() {
+
+	//Create a depth map texture for the rendering system
+	glGenFramebuffers(1, &m_depthFBO);
+
+	glGenTextures(1, &m_depthMap);
+	glBindTexture(GL_TEXTURE_2D, m_depthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	float borderColor[] = { 1, 1, 1, 1 };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, m_depthFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depthMap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	glGenRenderbuffers(1, &m_rbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, m_rbo);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCREEN_WIDTH, SCREEN_HEIGHT);
+}
+
+void Renderer::clear() {
+
+	m_staticObjects.clear();
+	m_dynamicObjects.clear();
+	m_anistaticObjects.clear();
+	m_anidynamicObjects.clear();
+	m_pickups.clear();
+	m_killFeed.clear();
+	m_bigNotifications.clear();
+	m_spells.clear();
+	m_lights.clear();
+	m_2DHudMap.clear();
+	m_worldHudMap.clear();
+	m_shieldObject.clear();
+	m_enemyShieldObject.clear();
+	m_particleSystems.clear();
+}
+
+void Renderer::bindMatrixes(const std::string& shaderName) {
+	ShaderMap::getInstance()->getShader(shaderName)->setMat4("viewMatrix", m_camera->getViewMat());
+	ShaderMap::getInstance()->getShader(shaderName)->setMat4("projMatrix", m_camera->getProjMat());
+}
+
+void Renderer::bindMatrixes(Shader* shader)
+{
+	shader->setMat4("viewMatrix", m_camera->getViewMat());
+	shader->setMat4("projMatrix", m_camera->getProjMat());
+}
+
+void Renderer::setupCamera(Camera* camera)
+{
+	if (camera == nullptr) {
+		return;
+	}
+	m_camera = camera;
+}
+
+void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
+{
+	TextureInfo rings;
+	rings.name = "Assets/Textures/Spell_1.png";
+
+	TextureInfo smoke;
+	smoke.name = "Assets/Textures/Spell_2.png";
+
+	if (objType == RENDER_TYPE::STATIC) {
+		m_staticObjects.emplace_back(gameObject);
+	}
+	else if (objType == RENDER_TYPE::SPELL) {
+		/* Place the light in the lights list */
+		PLIGHT light;
+		light.position = gameObject->getTransform().position;
+		light.color = glm::vec3(1.0f);
+		light.index = m_spells.size();
+		m_spells.emplace_back(gameObject);
+	
+		Spell* spell = dynamic_cast<Spell*>(gameObject);
+		if (spell == nullptr) return;
+
+		if (spell->getType() == OBJECT_TYPE::NORMALATTACK)
+		{
+			light.attenAndRadius = m_spellHandler->getAttackBase()->m_attenAndRadius;
+			light.color = m_spellHandler->getAttackBase()->m_material->diffuse;
+			light.strength = m_spellHandler->getAttackBase()->m_strength;
+			m_particleSystems.emplace_back(ParticleSystem(&m_PSinfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), attackBuffer,
+				attackPS->getVertex(), attackPS->getDir(), attackPS->getParticle(), attackPS->getLifetime()));
+
+		}
+
+		else if (spell->getType() == OBJECT_TYPE::ENHANCEATTACK)
+		{
+			light.attenAndRadius = m_spellHandler->getEnhAttackBase()->m_attenAndRadius;
+			light.color = m_spellHandler->getEnhAttackBase()->m_material->diffuse;
+			light.strength = m_spellHandler->getEnhAttackBase()->m_strength;
+			m_particleSystems.emplace_back(ParticleSystem(&m_enhanceInfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), enhanceBuffer,
+				enhancePS->getVertex(), enhancePS->getDir(), enhancePS->getParticle(), enhancePS->getLifetime()));
+		}
+
+		else if (spell->getType() == OBJECT_TYPE::FIRE)
+		{
+			light.position.y += 2.0f;
+			light.attenAndRadius = m_spellHandler->getFireBase()->m_attenAndRadius;
+			light.color = m_spellHandler->getFireBase()->m_material->diffuse;
+			light.strength = m_spellHandler->getFireBase()->m_strength;
+			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &smoke, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
+				flamestrikePS->getVertex(), flamestrikePS->getDir(), flamestrikePS->getParticle(), flamestrikePS->getLifetime()));
+		}
+
+		else if (spell->getType() == OBJECT_TYPE::FLAMESTRIKE)
+		{
+			light.attenAndRadius = m_spellHandler->getFlamestrikeBase()->m_attenAndRadius;
+			light.color = m_spellHandler->getFlamestrikeBase()->m_material->diffuse;
+			light.strength = m_spellHandler->getFlamestrikeBase()->m_strength;
+			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
+				flamestrikePS->getVertex(), flamestrikePS->getDir(), flamestrikePS->getParticle(), flamestrikePS->getLifetime()));
+		}
+		
+		m_lights.emplace_back(light);
+	}
+	else if (objType == RENDER_TYPE::DYNAMIC) {
+		m_dynamicObjects.emplace_back(gameObject);
+	}
+	else if (objType == RENDER_TYPE::ANIMATEDSTATIC) {
+		m_anistaticObjects.emplace_back(gameObject);
+	}
+	else if (objType == RENDER_TYPE::ANIMATEDDYNAMIC) {
+		m_anidynamicObjects.emplace_back(gameObject);
+	}
+	else if (objType == RENDER_TYPE::PICKUP) {
+		m_pickups.emplace_back(gameObject);
+	}
+	else if (objType == RENDER_TYPE::SHIELD) {
+		m_shieldObject.emplace_back(gameObject);
+	}
+	else if (objType == RENDER_TYPE::ENEMY_SHIELD) {
+		m_enemyShieldObject.emplace_back(gameObject);
+	}
+	else if (objType == RENDER_TYPE::POINTLIGHT_SOURCE) {
+		/* Place the light in the lights list */
+		Pointlight* lightRef = static_cast<Pointlight*>(gameObject);
+
+		PLIGHT light;
+		light.position = gameObject->getTransform().position;
+		light.color = lightRef->getColor();
+		light.attenAndRadius = lightRef->getAttenuationAndRadius(); //First 3 dims are for the attenuation, final 4th is for radius
+		light.strength = lightRef->getStrength();
+		light.index = -2;
+		
+		m_lights.emplace_back(light);
+	}
+}
+
+void Renderer::submit2DHUD(HudObject* hud)
+{
+	auto item = m_2DHudMap.find(hud->getTextureID());
+
+	if (item != m_2DHudMap.end()) {
+		auto& vec = item._Ptr->_Myval.second;
+
+		vec.emplace_back(hud);
+		logTrace("Placed a hud object in an existing vector");
+		return;
+	}
+	else
+	{
+		std::vector<HudObject*> newVec;
+		newVec.reserve(5);
+		newVec.emplace_back(hud);
+		m_2DHudMap[hud->getTextureID()] = newVec;
+		logTrace("Made a new vector for an hud object");
+	}
+}
+
+void Renderer::submitWorldHud(WorldHudObject* wHud)
+{
+	auto item = m_worldHudMap.find(wHud->getTextureID());
+
+	if (item != m_worldHudMap.end()) {
+		auto& vec = item._Ptr->_Myval.second;
+
+		vec.emplace_back(wHud);
+		return;
+	}
+	else
+	{
+		std::vector<WorldHudObject*> newVec;
+		newVec.reserve(5);
+		newVec.emplace_back(wHud);
+		m_worldHudMap[wHud->getTextureID()] = newVec;
+		
+	}
+}
+
+void Renderer::submitSkybox(SkyBox* skybox)
+{
+	m_skyBox = skybox;
+}
+
+void Renderer::submitSpellhandler(SpellHandler* spellhandler)
+{
+	m_spellHandler = spellhandler;
+}
+
+void Renderer::removeRenderObject(GameObject* gameObject, RENDER_TYPE objType)
+{
+	int index = -1;
+
+	if (objType == RENDER_TYPE::DYNAMIC) { //Remove dynamic objet from the dynamic objet vector
+		//Find the index of the object
+		for (size_t i = 0; i < m_dynamicObjects.size(); i++)
+		{
+			if (m_dynamicObjects[i] == gameObject) {
+				index = i;
+				break;
+			}
+		}
+		if (index > -1) {
+			m_dynamicObjects.erase(m_dynamicObjects.begin() + index);
+		}
+	}
+	else if (objType == RENDER_TYPE::SPELL) { //remove spells from the spell vector!!
+		int lightIndex = -1;
+		//Find the index of the object
+		for (size_t i = 0; i < m_spells.size(); i++)
+		{
+			if (m_spells[i] == gameObject) {
+				index = i;
+				break;
+			}
+		}
+		if (index > -1) {
+			for (size_t i = 0; i < m_lights.size(); i++) {
+				if (m_lights[i].index == index) {
+					lightIndex = i;
+					break;
+				}
+			}
+			m_lights.erase(m_lights.begin() + lightIndex);
+			m_spells.erase(m_spells.begin() + index);
+			m_particleSystems.erase(m_particleSystems.begin() + index);
+
+			int index = 0;
+			for (size_t i = 0; i < m_lights.size(); i++) {
+				if (m_lights[i].index != -2) { //If we are not looking at a static pointlight
+					if (m_spells[index] == nullptr) {
+						return;
+					}
+					m_lights[i].index = index;
+					index++;
+				}
+			}
+		}
+	}
+	else if (objType == RENDER_TYPE::PICKUP) { //remove spells from the spell vector!!
+	   //Find the index of the object
+		for (size_t i = 0; i < m_pickups.size(); i++)
+		{
+			if (m_pickups[i] == gameObject) {
+				index = i;
+				break;
+			}
+		}
+		if (index > -1) {
+			m_pickups.erase(m_pickups.begin() + index);
+		}
+	}
+	else if (objType == STATIC) {
+		//Find the index of the object
+		for (size_t i = 0; i < m_staticObjects.size(); i++)
+		{
+			if (m_staticObjects[i] == gameObject) {
+				index = i;
+				break;
+			}
+		}
+		if (index > -1) {
+			m_staticObjects.erase(m_staticObjects.begin() + index);
+		}
+	}
+	else if (objType == RENDER_TYPE::ANIMATEDSTATIC) { //remove PICKUP from the spell PICKUP!!
+	   //Find the index of the object
+		for (size_t i = 0; i < m_anistaticObjects.size(); i++)
+		{
+			if (m_anistaticObjects[i] == gameObject) {
+				index = i;
+				break;
+			}
+		}
+		if (index > -1) {
+			m_anistaticObjects.erase(m_anistaticObjects.begin() + index);
+		}
+	}
 }
 
 void Renderer::renderHUD()
@@ -395,7 +756,7 @@ void Renderer::renderKillFeed()
 
 		NotificationText& notification = m_killFeed[i];
 
-		float xPos = (float)((SCREEN_WIDTH) - notification.width - 25.0f);
+		float xPos = (float)((SCREEN_WIDTH)-notification.width - 25.0f);
 		float yPos = (float)(SCREEN_HEIGHT - ((60.0f * notification.scale.x) * (i + 1)));
 
 		m_text->RenderText(notification, glm::vec3(xPos, yPos, 0.0f), glm::vec2(notification.scale), notification.useAlpha);
@@ -435,383 +796,6 @@ void Renderer::renderKillFeed()
 		}
 	}
 
-}
-
-void Renderer::createDepthMap() {
-
-	//Create a depth map texture for the rendering system
-	glGenFramebuffers(1, &m_depthFBO);
-
-	glGenTextures(1, &m_depthMap);
-	glBindTexture(GL_TEXTURE_2D, m_depthMap);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	float borderColor[] = { 1, 1, 1, 1 };
-	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, m_depthFBO);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depthMap, 0);
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	glGenRenderbuffers(1, &m_rbo);
-	glBindRenderbuffer(GL_RENDERBUFFER, m_rbo);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCREEN_WIDTH, SCREEN_HEIGHT);
-
-	//Inits the shaders for forward+
-	initShaders();
-}
-
-void Renderer::initShaders() {
-	ShaderMap* shaderMap = ShaderMap::getInstance();
-	Shader* shader;
-	shaderMap->createShader(DEPTH_MAP, "Depth.vert", "Depth.frag");
-	//Set the light index binding
-#if FORWARDPLUS
-	shaderMap->createShader(LIGHT_CULL, "LightCullCompute.comp");
-	shaderMap->useByName(LIGHT_CULL);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
-#endif
-
-#if SSAO
-	//Init the compute shader
-	shader = shaderMap->createShader(SSAO_COMP, "SSAO.comp");
-	shader->use();
-	shader->setInt("depthMap", 0);
-	shader->setInt("noiseMap", 1);
-#endif
-
-	shaderMap->createShader(BASIC_FORWARD, "VertexShader.vert", "FragShader.frag");
-	shaderMap->createShader(ANIMATION, "Animation.vert", "FragShader.frag");
-	shaderMap->createShader(SKYBOX, "Skybox.vs", "Skybox.fs");
-	shaderMap->getShader(SKYBOX)->setInt("skyBox", 4);
-	shaderMap->createShader(FRESNEL, "FresnelFX.vert", "FresnelFX.frag");
-	shaderMap->createShader(ENEMYSHIELD, "FresnelFX.vert", "EnemyShield.frag");
-	shaderMap->createShader(WHUD, "WorldHud.vs", "WorldHud.fs");
-	/*=====================================================*/
-	/*ShaderMap::getInstance()->createShader(BLOOM, "Bloom.vs", "Bloom.fs");
-	ShaderMap::getInstance()->useByName(BLOOM);
-	ShaderMap::getInstance()->getShader(BLOOM)->setInt("albedoTexture", 0);
-
-	ShaderMap::getInstance()->createShader(BLUR, "Blur.vs", "Blur.fs");
-	ShaderMap::getInstance()->useByName(BLUR);
-	ShaderMap::getInstance()->getShader(BLUR)->setInt("brightImage", 0);
-
-	ShaderMap::getInstance()->createShader(BLOOM_BLUR, "BloomBlur.vs", "BloomBlur.fs");
-	ShaderMap::getInstance()->useByName(BLOOM_BLUR);
-	ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("sceneImage", 0);
-	ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("bloomImage", 1);*/
-	m_text = new FreeType();
-	m_text->BindTexture();
-	//m_bloom = new BloomBlur;
-	//m_bloom->createHdrFBO();
-	//m_bloom->createPingPingFBO();
-	/*=====================================================*/
-
-	/* Hud */
-	shader = shaderMap->createShader(HUD, "HUD.vs", "HUD.fs");
-	shader->use();
-	shader->setInt("textureSampler", 0);
-
-	shaderMap->createShader(PARTICLES, "Particles.vs", "Particles.gs", "Particles.fs");
-
-	initializeParticle();
-}
-
-void Renderer::bindMatrixes(const std::string& shaderName) {
-	ShaderMap::getInstance()->getShader(shaderName)->setMat4("viewMatrix", m_camera->getViewMat());
-	ShaderMap::getInstance()->getShader(shaderName)->setMat4("projMatrix", m_camera->getProjMat());
-}
-
-void Renderer::bindMatrixes(Shader* shader)
-{
-	shader->setMat4("viewMatrix", m_camera->getViewMat());
-	shader->setMat4("projMatrix", m_camera->getProjMat());
-}
-
-Renderer* Renderer::getInstance()
-{
-	if (m_rendererInstance == 0) {
-		m_rendererInstance = new Renderer();
-	}
-	return m_rendererInstance;
-}
-
-void Renderer::init(GLFWwindow* window)
-{
-	m_gWindow = window;
-}
-
-void Renderer::setupCamera(Camera* camera)
-{
-	if (camera == nullptr) {
-		return;
-	}
-	m_camera = camera;
-}
-
-void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
-{
-	TextureInfo rings;
-	rings.name = "Assets/Textures/Spell_1.png";
-
-	TextureInfo smoke;
-	smoke.name = "Assets/Textures/Spell_2.png";
-
-	if (objType == RENDER_TYPE::STATIC) {
-		m_staticObjects.emplace_back(gameObject);
-	}
-	else if (objType == RENDER_TYPE::SPELL) {
-		/* Place the light in the lights list */
-		PLIGHT light;
-		light.position = gameObject->getTransform().position;
-		light.color = glm::vec3(1.0f);
-		light.index = m_spells.size();
-		m_spells.emplace_back(gameObject);
-	
-		Spell* spell = dynamic_cast<Spell*>(gameObject);
-		if (spell == nullptr) return;
-
-		if (spell->getType() == OBJECT_TYPE::NORMALATTACK)
-		{
-			light.attenAndRadius = m_spellHandler->getAttackBase()->m_attenAndRadius;
-			light.color = m_spellHandler->getAttackBase()->m_material->diffuse;
-			light.strength = m_spellHandler->getAttackBase()->m_strength;
-			m_particleSystems.emplace_back(ParticleSystem(&m_PSinfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), attackBuffer,
-				attackPS->getVertex(), attackPS->getDir(), attackPS->getParticle(), attackPS->getLifetime()));
-
-		}
-
-		else if (spell->getType() == OBJECT_TYPE::ENHANCEATTACK)
-		{
-			light.attenAndRadius = m_spellHandler->getEnhAttackBase()->m_attenAndRadius;
-			light.color = m_spellHandler->getEnhAttackBase()->m_material->diffuse;
-			light.strength = m_spellHandler->getEnhAttackBase()->m_strength;
-			m_particleSystems.emplace_back(ParticleSystem(&m_enhanceInfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), enhanceBuffer,
-				enhancePS->getVertex(), enhancePS->getDir(), enhancePS->getParticle(), enhancePS->getLifetime()));
-		}
-
-		else if (spell->getType() == OBJECT_TYPE::FIRE)
-		{
-			light.position.y += 2.0f;
-			light.attenAndRadius = m_spellHandler->getFireBase()->m_attenAndRadius;
-			light.color = m_spellHandler->getFireBase()->m_material->diffuse;
-			light.strength = m_spellHandler->getFireBase()->m_strength;
-			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &smoke, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
-				flamestrikePS->getVertex(), flamestrikePS->getDir(), flamestrikePS->getParticle(), flamestrikePS->getLifetime()));
-		}
-
-		else if (spell->getType() == OBJECT_TYPE::FLAMESTRIKE)
-		{
-			light.attenAndRadius = m_spellHandler->getFlamestrikeBase()->m_attenAndRadius;
-			light.color = m_spellHandler->getFlamestrikeBase()->m_material->diffuse;
-			light.strength = m_spellHandler->getFlamestrikeBase()->m_strength;
-			m_particleSystems.emplace_back(ParticleSystem(&m_flameInfo, &rings, glm::vec3(0.0f, 0.0f, 0.0f), ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID(), flameBuffer,
-				flamestrikePS->getVertex(), flamestrikePS->getDir(), flamestrikePS->getParticle(), flamestrikePS->getLifetime()));
-		}
-		
-		m_lights.emplace_back(light);
-	}
-	else if (objType == RENDER_TYPE::DYNAMIC) {
-		m_dynamicObjects.emplace_back(gameObject);
-	}
-	else if (objType == RENDER_TYPE::ANIMATEDSTATIC) {
-		m_anistaticObjects.emplace_back(gameObject);
-	}
-	else if (objType == RENDER_TYPE::ANIMATEDDYNAMIC) {
-		m_anidynamicObjects.emplace_back(gameObject);
-	}
-	else if (objType == RENDER_TYPE::PICKUP) {
-		m_pickups.emplace_back(gameObject);
-	}
-	else if (objType == RENDER_TYPE::SHIELD) {
-		m_shieldObject.emplace_back(gameObject);
-	}
-	else if (objType == RENDER_TYPE::ENEMY_SHIELD) {
-		m_enemyShieldObject.emplace_back(gameObject);
-	}
-	else if (objType == RENDER_TYPE::POINTLIGHT_SOURCE) {
-		/* Place the light in the lights list */
-		Pointlight* lightRef = static_cast<Pointlight*>(gameObject);
-
-		PLIGHT light;
-		light.position = gameObject->getTransform().position;
-		light.color = lightRef->getColor();
-		light.attenAndRadius = lightRef->getAttenuationAndRadius(); //First 3 dims are for the attenuation, final 4th is for radius
-		light.strength = lightRef->getStrength();
-		light.index = -2;
-		
-		m_lights.emplace_back(light);
-	}
-}
-
-void Renderer::submit2DHUD(HudObject* hud)
-{
-	auto item = m_2DHudMap.find(hud->getTextureID());
-
-	if (item != m_2DHudMap.end()) {
-		auto& vec = item._Ptr->_Myval.second;
-
-		vec.emplace_back(hud);
-		logTrace("Placed a hud object in an existing vector");
-		return;
-	}
-	else
-	{
-		std::vector<HudObject*> newVec;
-		newVec.reserve(5);
-		newVec.emplace_back(hud);
-		m_2DHudMap[hud->getTextureID()] = newVec;
-		logTrace("Made a new vector for an hud object");
-	}
-}
-
-void Renderer::submitWorldHud(WorldHudObject* wHud)
-{
-	auto item = m_worldHudMap.find(wHud->getTextureID());
-
-	if (item != m_worldHudMap.end()) {
-		auto& vec = item._Ptr->_Myval.second;
-
-		vec.emplace_back(wHud);
-		return;
-	}
-	else
-	{
-		std::vector<WorldHudObject*> newVec;
-		newVec.reserve(5);
-		newVec.emplace_back(wHud);
-		m_worldHudMap[wHud->getTextureID()] = newVec;
-		
-	}
-}
-
-void Renderer::submitSkybox(SkyBox* skybox)
-{
-	m_skyBox = skybox;
-}
-
-void Renderer::submitSpellhandler(SpellHandler* spellhandler)
-{
-	m_spellHandler = spellhandler;
-}
-
-void Renderer::clear() {
-
-	m_staticObjects.clear();
-	m_dynamicObjects.clear();
-	m_anistaticObjects.clear();
-	m_anidynamicObjects.clear();
-	m_pickups.clear();
-	m_killFeed.clear();
-	m_bigNotifications.clear();
-	m_spells.clear();
-	m_lights.clear();
-	m_2DHudMap.clear();
-	m_worldHudMap.clear();
-	m_shieldObject.clear();
-	m_enemyShieldObject.clear();
-	m_particleSystems.clear();
-}
-
-void Renderer::removeRenderObject(GameObject* gameObject, RENDER_TYPE objType)
-{
-	int index = -1;
-
-	if (objType == RENDER_TYPE::DYNAMIC) { //Remove dynamic objet from the dynamic objet vector
-		//Find the index of the object
-		for (size_t i = 0; i < m_dynamicObjects.size(); i++)
-		{
-			if (m_dynamicObjects[i] == gameObject) {
-				index = i;
-				break;
-			}
-		}
-		if (index > -1) {
-			m_dynamicObjects.erase(m_dynamicObjects.begin() + index);
-		}
-	}
-	else if (objType == RENDER_TYPE::SPELL) { //remove spells from the spell vector!!
-		int lightIndex = -1;
-		//Find the index of the object
-		for (size_t i = 0; i < m_spells.size(); i++)
-		{
-			if (m_spells[i] == gameObject) {
-				index = i;
-				break;
-			}
-		}
-		if (index > -1) {
-			for (size_t i = 0; i < m_lights.size(); i++) {
-				if (m_lights[i].index == index) {
-					lightIndex = i;
-					break;
-				}
-			}
-			m_lights.erase(m_lights.begin() + lightIndex);
-			m_spells.erase(m_spells.begin() + index);
-			m_particleSystems.erase(m_particleSystems.begin() + index);
-
-			int index = 0;
-			for (size_t i = 0; i < m_lights.size(); i++) {
-				if (m_lights[i].index != -2) { //If we are not looking at a static pointlight
-					if (m_spells[index] == nullptr) {
-						return;
-					}
-					m_lights[i].index = index;
-					index++;
-				}
-			}
-		}
-	}
-	else if (objType == RENDER_TYPE::PICKUP) { //remove spells from the spell vector!!
-	   //Find the index of the object
-		for (size_t i = 0; i < m_pickups.size(); i++)
-		{
-			if (m_pickups[i] == gameObject) {
-				index = i;
-				break;
-			}
-		}
-		if (index > -1) {
-			m_pickups.erase(m_pickups.begin() + index);
-		}
-	}
-	else if (objType == STATIC) {
-		//Find the index of the object
-		for (size_t i = 0; i < m_staticObjects.size(); i++)
-		{
-			if (m_staticObjects[i] == gameObject) {
-				index = i;
-				break;
-			}
-		}
-		if (index > -1) {
-			m_staticObjects.erase(m_staticObjects.begin() + index);
-		}
-	}
-	else if (objType == RENDER_TYPE::ANIMATEDSTATIC) { //remove PICKUP from the spell PICKUP!!
-	   //Find the index of the object
-		for (size_t i = 0; i < m_anistaticObjects.size(); i++)
-		{
-			if (m_anistaticObjects[i] == gameObject) {
-				index = i;
-				break;
-			}
-		}
-		if (index > -1) {
-			m_anistaticObjects.erase(m_anistaticObjects.begin() + index);
-		}
-	}
-}
-
-void Renderer::destroy()
-{
-	delete m_rendererInstance;
 }
 
 void Renderer::renderSkybox()
@@ -939,7 +923,7 @@ void Renderer::render() {
 
 #if SSAO
 	//Here we dispatch the SSAO compute shader
-	shader = shaderMap->useByName(SSAO_COMP);
+	shader = shaderMap->useByName(SSAO_RAW);
 	glActiveTexture(GL_TEXTURE0);
 	//bindMatrixes(shader);	//Bind view and projection matrix
 	glBindTexture(GL_TEXTURE_2D, m_depthMap);	
@@ -959,7 +943,13 @@ void Renderer::render() {
 	glDispatchCompute(workGroups.x, workGroups.y, 1);
 	glMemoryBarrier(GL_TEXTURE_UPDATE_BARRIER_BIT);
 	glBindTexture(GL_TEXTURE_2D, 0);
-	
+
+	//Blur pass 
+	shader = shaderMap->useByName(BLUR);
+	glBindImageTexture(0, m_SSAOColourBuffer, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+	glDispatchCompute(workGroups.x, workGroups.y, 1);
+	glMemoryBarrier(GL_TEXTURE_UPDATE_BARRIER_BIT);
+
 #endif
 
 #pragma region Color_Render

@@ -10,14 +10,11 @@
 #define FRESNEL "Fresnel_Shader"
 #define ENEMYSHIELD "Enemy_Shield"
 #define SKYBOX "Skybox_Shader"
-//#define BLOOM "Bloom_Shader"
-//#define BLUR "Blur_Shader"
-//#define BLOOM_BLUR "BloomBlur_Shader"
 #define HUD "Hud_Shader"
 #define WHUD "wHudShader"
 #define PARTICLES "Particle_Shader"
-#define SSAO_COMP "SSAO_Compute"
-
+#define SSAO_RAW "SSAO_Compute"
+#define BLUR "Blur"
 //Rendering Options 
 #define FORWARDPLUS true;
 #define SSAO true;
