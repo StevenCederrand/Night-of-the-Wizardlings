@@ -30,6 +30,10 @@ namespace NetGlobals {
 		None
 	};
 
+	enum THREAD_PLAYER_FLAG {
+		SafeToAddNameplate, AlreadyAdded, NotAdded
+	};
+
 	enum SERVER_STATE {
 		WaitingForPlayers = 0,
 		GameIsStarting,

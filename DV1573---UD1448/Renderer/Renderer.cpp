@@ -1,6 +1,7 @@
 #include <Pch/Pch.h>
 #include "Renderer.h"
 #include <Networking/Client.h>
+#include "TextRenderer.h"
 
 #define TILE_SIZE 16
 
@@ -139,85 +140,42 @@ void Renderer::renderAndAnimateNetworkingTexts()
 
 		NetGlobals::SERVER_STATE state = Client::getInstance()->getServerState().currentState;
 
-		if (state == NetGlobals::SERVER_STATE::GameIsStarting) {
-			std::string timeText = "Deathmatch starts in: " + std::to_string(Client::getInstance()->getCountdownPacket().timeLeft / 1000);
-			glm::vec3 scale = glm::vec3(1.05f, 1.0f, 1.0f);
-			glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
-			float width = m_text->getTotalWidth(timeText, scale);
+		
+		if (state == NetGlobals::SERVER_STATE::WaitingForPlayers) {
 
-			m_text->RenderText(timeText, (SCREEN_WIDTH * 0.5f) - width * 0.5f, (SCREEN_HEIGHT * 0.80), scale.x, color);
-		}
-		else if (state == NetGlobals::SERVER_STATE::GameInSession) {
+			//int numberOfPlayersReady = Client::getInstance()->getNumberOfReadyPlayers();
+			//int numberOfPlayers = Client::getInstance()->getNumberOfPlayers();
+			//glm::vec3 scale = glm::vec3(0.55f);
+			//glm::vec3 baseColor = glm::vec3(1.0f);
+			//std::string numberOfReadyPlayersText = std::to_string(numberOfPlayersReady) + "/" + std::to_string(numberOfPlayers) + " players ready";
+			//if (!Client::getInstance()->isSpectating()) {
+			//	bool meReady = Client::getInstance()->getMyData().isReady;
 
-			uint32_t minutes = Client::getInstance()->getRoundTimePacket().minutes;
-			uint32_t seconds = Client::getInstance()->getRoundTimePacket().seconds;
-			std::string timeText = std::to_string(minutes) + ":";
-
-			if (seconds >= 10) {
-				timeText += std::to_string(seconds);
-			}
-
-			else {
-				timeText += "0" + std::to_string(seconds);
-			}
-
-			timeText = "Time Left: " + timeText;
-			glm::vec3 scale = glm::vec3(0.5f, 0.5f, 0.5f);
-			float width = m_text->getTotalWidth(timeText, scale);
-
-			m_text->RenderText(timeText, (SCREEN_WIDTH / 2) - width * 0.5f, (SCREEN_HEIGHT * 0.95f), scale.x, glm::vec3(1.0f, 1.0f, 1.0f));
-		}
-		else if (state == NetGlobals::SERVER_STATE::WaitingForPlayers) {
-
-			int numberOfPlayersReady = Client::getInstance()->getNumberOfReadyPlayers();
-			int numberOfPlayers = Client::getInstance()->getNumberOfPlayers();
-			glm::vec3 scale = glm::vec3(0.55f);
-			glm::vec3 baseColor = glm::vec3(1.0f);
-			std::string numberOfReadyPlayersText = std::to_string(numberOfPlayersReady) + "/" + std::to_string(numberOfPlayers) + " players ready";
-			if (!Client::getInstance()->isSpectating()) {
-				bool meReady = Client::getInstance()->getMyData().isReady;
-
-				std::string readyBase = "You are ";
-				std::string readyText = meReady ? "Ready" : "Not Ready";
-				glm::vec3 readyColor = meReady ? glm::vec3(0.0f, 1.0f, 0.0f) : glm::vec3(1.0f, 0.0f, 0.0f);
+			//	std::string readyBase = "You are ";
+			//	std::string readyText = meReady ? "Ready" : "Not Ready";
+			//	glm::vec3 readyColor = meReady ? glm::vec3(0.0f, 1.0f, 0.0f) : glm::vec3(1.0f, 0.0f, 0.0f);
 
 
-				unsigned int readyBaseWidth = m_text->getTotalWidth(readyBase, scale);
-				unsigned int readyWidth = m_text->getTotalWidth(readyText, scale);
-				unsigned int totalWidth = readyBaseWidth + readyWidth;
+			//	unsigned int readyBaseWidth = m_text->getTotalWidth(readyBase, scale);
+			//	unsigned int readyWidth = m_text->getTotalWidth(readyText, scale);
+			//	unsigned int totalWidth = readyBaseWidth + readyWidth;
 
-				m_text->RenderText(readyBase, (SCREEN_WIDTH / 2) - totalWidth * 0.5f, SCREEN_HEIGHT * 0.35f, scale.x, baseColor);
-				m_text->RenderText(readyText, (SCREEN_WIDTH / 2) - totalWidth * 0.5f + readyBaseWidth, SCREEN_HEIGHT * 0.35f, scale.x, readyColor);
+			//	m_text->RenderText(readyBase, (SCREEN_WIDTH / 2) - totalWidth * 0.5f, SCREEN_HEIGHT * 0.35f, scale.x, baseColor);
+			//	m_text->RenderText(readyText, (SCREEN_WIDTH / 2) - totalWidth * 0.5f + readyBaseWidth, SCREEN_HEIGHT * 0.35f, scale.x, readyColor);
 
-				if (meReady == false) {
-					glm::vec3 howtoScale = glm::vec3(0.35f);
-					std::string howToReadyText = "Press F1 to ready";
-					unsigned int width = m_text->getTotalWidth(howToReadyText, howtoScale);
+			//	if (meReady == false) {
+			//		glm::vec3 howtoScale = glm::vec3(0.35f);
+			//		std::string howToReadyText = "Press F1 to ready";
+			//		unsigned int width = m_text->getTotalWidth(howToReadyText, howtoScale);
 
-					m_text->RenderText(howToReadyText, (SCREEN_WIDTH / 2) - width * 0.5f, SCREEN_HEIGHT * 0.30f, howtoScale.x, baseColor);
-				}
+			//		m_text->RenderText(howToReadyText, (SCREEN_WIDTH / 2) - width * 0.5f, SCREEN_HEIGHT * 0.30f, howtoScale.x, baseColor);
+			//	}
 
-			}
+			//}
 
-			unsigned int playersThatAreReadyWidth = m_text->getTotalWidth(numberOfReadyPlayersText, glm::vec3(0.40f));
-			m_text->RenderText(numberOfReadyPlayersText, (SCREEN_WIDTH / 2) - playersThatAreReadyWidth * 0.5f, SCREEN_HEIGHT * 0.92f, 0.40f, baseColor);
+			//unsigned int playersThatAreReadyWidth = m_text->getTotalWidth(numberOfReadyPlayersText, glm::vec3(0.40f));
+			////m_text->RenderText(numberOfReadyPlayersText, (SCREEN_WIDTH / 2) - playersThatAreReadyWidth * 0.5f, SCREEN_HEIGHT * 0.92f, 0.40f, baseColor);
 
-		}
-		else if (state == NetGlobals::SERVER_STATE::GameFinished) {
-			uint32_t minutes = Client::getInstance()->getRoundTimePacket().minutes;
-			uint32_t seconds = Client::getInstance()->getRoundTimePacket().seconds;
-			std::string timeText = std::to_string(minutes) + ":";
-
-			if (seconds >= 10) {
-				timeText += std::to_string(seconds);
-			}
-			else {
-				timeText += "0" + std::to_string(seconds);
-			}
-
-			timeText = "End of round: " + timeText;
-			unsigned int width = m_text->getTotalWidth(timeText, glm::vec3(0.5f));
-			m_text->RenderText(timeText, SCREEN_WIDTH / 2 - 135.0f, 680.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
 		}
 
 		if (Client::getInstance()->isSpectating() == false) {
@@ -226,7 +184,7 @@ void Renderer::renderAndAnimateNetworkingTexts()
 				std::string timeText = "Respawn in " + std::to_string(Client::getInstance()->getRespawnTime().timeLeft / 1000) + " seconds";
 				unsigned int width = m_text->getTotalWidth(timeText, glm::vec3(0.8f));
 				m_text->RenderText(timeText, (SCREEN_WIDTH / 2) - width * 0.5f, 480.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
-			}
+			}  
 
 		}
 		else {
@@ -1292,6 +1250,8 @@ void Renderer::render() {
 
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	TextRenderer::getInstance()->renderText();
+
 	renderWorldHud();
 
 	glClear(GL_DEPTH_BUFFER_BIT);

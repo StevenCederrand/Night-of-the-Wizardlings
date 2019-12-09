@@ -328,9 +328,9 @@ void Player::attack()
 			m_deflecting = false;
 
 			//Fade out deflect sound
+			m_deflectSoundGain -= 2.0f * DeltaTime;
 			if (m_deflectSoundGain > 0.0f)
 			{				
-				m_deflectSoundGain -= 2.0f * DeltaTime;
 				shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
 			}
 			else
@@ -343,6 +343,23 @@ void Player::attack()
 	else if(m_deflecting) // Not holding RMB but in deflect state
 	{		
 		m_deflecting = false;
+	}
+
+	if (!m_deflecting)
+	{
+		//Fade out deflect sound
+		m_deflectSoundGain -= 2.0f * DeltaTime;
+		if (m_deflectSoundGain > 0.0f)
+		{
+			shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
+		}
+		else
+		{
+			shPtr->stopSound(DeflectSound, m_client->getMyData().guid);
+			m_deflectSoundGain = 0.4f;
+			shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
+			m_deflecting = false;
+		}
 	}
 
 	if (!m_deflecting && Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_LEFT))
@@ -392,22 +409,6 @@ void Player::attack()
 		//m_deflecting = false;
 	}
 
-	if (!m_deflecting)
-	{
-		//Fade out deflect sound
-		if (m_deflectSoundGain > 0.0f)
-		{
-			m_deflectSoundGain -= 2.0f * DeltaTime;
-			shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
-		}
-		else
-		{
-			shPtr->stopSound(DeflectSound, m_client->getMyData().guid);
-			m_deflectSoundGain = 0.4f;
-			shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
-			m_deflecting = false;
-		}
-	}
 
 	// Update our shield for the renderer
 	m_shieldObject->setShouldRender(m_deflecting);

@@ -28,6 +28,6 @@ void main(){
 	
 	vec3 overallColor = mix(outlineColor, pixelColor.xyz, alpha / overallAlpha);
 
-	pixelColor = vec4(overallColor, overallAlpha);
+	pixelColor = vec4(overallColor, overallAlpha * color.a);
 	
 }

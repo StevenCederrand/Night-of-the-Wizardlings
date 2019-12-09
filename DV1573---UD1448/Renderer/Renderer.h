@@ -39,6 +39,8 @@
 #include <Particles/Particles.h>
 #include <Particles/ParticleBuffers.h>
 
+#include <System/MemoryUsage.h>
+
 #define P_LIGHT_COUNT 64
 #define P_LIGHT_RADIUS 5
 
@@ -131,7 +133,6 @@ private:
 	PSinfo m_PSinfo;
 
 	std::vector<ParticleSystem> m_particleSystems;
-
 	void renderBigNotifications();
 	void renderKillFeed();
 	void createDepthMap();
@@ -163,8 +164,7 @@ public:
 	//void renderSpell();
 	void renderHUD();
 	void renderWorldHud();
-	void renderDebug();
-
+	
 	void addBigNotification(NotificationText notification);
 	void addKillFeed(NotificationText notification);
 	void addKillNotification(NotificationText notification);
