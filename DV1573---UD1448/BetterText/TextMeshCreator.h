@@ -17,9 +17,9 @@ public:
 	TextMeshData createTextMesh(GUIText* text);
 
 private:
-	std::vector<Line> createStructure(GUIText* text);
-	void completeStructure(std::vector<Line>& lines, Line currentLine, Word currentWord, GUIText* text);
-	TextMeshData createQuadVertices(GUIText* text, const std::vector<Line>& lines);
+	//std::vector<Line> createStructure(GUIText* text);
+	//void completeStructure(std::vector<Line>& lines, Line currentLine, Word currentWord, GUIText* text);
+	TextMeshData createQuadVertices(GUIText* text);
 	void addVerticesForCharacter(float cursorX, float cursorY, Character c, float fontSize, std::vector<glm::vec3>& vertices);
 
 	void addVertices(std::vector<glm::vec3>& vertices, float x, float y, float maxX, float maxY);

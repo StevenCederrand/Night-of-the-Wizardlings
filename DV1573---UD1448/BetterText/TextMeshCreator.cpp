@@ -17,66 +17,13 @@ TextMeshCreator::~TextMeshCreator()
 
 TextMeshData TextMeshCreator::createTextMesh(GUIText* text)
 {
-	std::vector<Line> lines = createStructure(text);
-	TextMeshData meshData = createQuadVertices(text, lines);
+	TextMeshData meshData = createQuadVertices(text);
 	return meshData;
 }
 
-std::vector<Line> TextMeshCreator::createStructure(GUIText* text)
+
+TextMeshData TextMeshCreator::createQuadVertices(GUIText* text)
 {
-	std::vector<Line> lines;
-	lines.reserve(10);
-
-	Line currentLine = Line(m_metafile->getSpaceWidth(), text->getFontSize(), text->getMaxLineSize());
-	Word currentWord = Word(text->getFontSize());
-
-	auto vec = text->getText();
-	
-	for (size_t i = 0; i < vec.size(); i++) {
-		int ascii = (int)vec[i];
-
-		if (ascii == SPACE_ASCII) {
-			boolean added = currentLine.attemptToAddWord(currentWord);
-
-			if (added == false) {
-				lines.push_back(currentLine);
-				currentLine = Line(m_metafile->getSpaceWidth(), text->getFontSize(), text->getMaxLineSize());
-				currentLine.attemptToAddWord(currentWord);
-
-			}
-
-			currentWord = Word(text->getFontSize());
-			continue;
-		}
-
-		Character c = m_metafile->getCharacter(ascii);
-		currentWord.addCharacter(c);
-	}
-
-	completeStructure(lines, currentLine, currentWord, text);
-
-	return lines;
-}
-
-void TextMeshCreator::completeStructure(std::vector<Line>& lines, Line currentLine, Word currentWord, GUIText* text)
-{
-	bool added = currentLine.attemptToAddWord(currentWord);
-	Line l = currentLine;
-	if (added == false) {
-		lines.push_back(l);
-		l = Line(m_metafile->getSpaceWidth(), text->getFontSize(), text->getMaxLineSize());
-		l.attemptToAddWord(currentWord);
-	}
-
-	lines.push_back(l);
-
-}
-
-TextMeshData TextMeshCreator::createQuadVertices(GUIText* text, const std::vector<Line>& lines)
-{
-	text->setNumberOfLines(lines.size());
-	float cursorX = 0;
-	float cursorY = 0;
 
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec2> uvs;
@@ -84,32 +31,35 @@ TextMeshData TextMeshCreator::createQuadVertices(GUIText* text, const std::vecto
 	vertices.reserve(100);
 	uvs.reserve(100);
 
-	for (const Line& line : lines) {
-		if (text->isCentered()) {
-			cursorX = (line.getMaxLength() - line.getCurrentLength()) * 0.5f;
+	Word currentWord = Word(text->getFontSize());
+	for (size_t i = 0; i < text->getText().size(); i++) {
+		int ascii = (int)text->getText()[i];
+		if (ascii == SPACE_ASCII) {
+			Character c;
+			c.id = ascii;
+			currentWord.addCharacter(c);
+			continue;
 		}
-
-		for (const Word& word : line.getWords()) {
-			for (const Character& c : word.getCharacters()) {
-
-				addVerticesForCharacter(cursorX, cursorY, c, text->getFontSize(), vertices);
-				addUvs(uvs, c.textureCoord.x, c.textureCoord.y, c.textureCoord.z, c.textureCoord.w);
-				cursorX += c.xAdvance * text->getFontSize();
-			}
-
-			cursorX += m_metafile->getSpaceWidth() * text->getFontSize();
-
-		}
-
-		cursorX = 0;
-		cursorY += LINE_HEIGHT * text->getFontSize();
+		currentWord.addCharacter(m_metafile->getCharacter(ascii));
 	}
+	float cursorX = 0.5f - currentWord.getWordWidth() * 0.5f;
+	
+	for (const Character& c : currentWord.getCharacters()) {
+		if (c.id == SPACE_ASCII) {
+			cursorX += m_metafile->getSpaceWidth() * text->getFontSize();
+			continue;
+		}
 
+		addVerticesForCharacter(cursorX, 0.0f, c, text->getFontSize(), vertices);
+		addUvs(uvs, c.textureCoord.x, c.textureCoord.y, c.textureCoord.z, c.textureCoord.w);
+		cursorX += c.xAdvance * text->getFontSize();
+	}
+		
 
 	TextMeshData tMesh;
 	tMesh.vertexPositions = vertices;
 	tMesh.textureCoords = uvs;
-
+	tMesh.totalWordWith = currentWord.getWordWidth();
 	return tMesh;
 }
 

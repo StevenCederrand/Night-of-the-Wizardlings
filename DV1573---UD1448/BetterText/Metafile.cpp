@@ -133,7 +133,7 @@ Character Metafile::loadCharacter(int imageSize)
 	float yTexSize = (float)height / (float)imageSize;
 	float xOff = (getValueOfVariable("xoffset") + m_padding[PAD_LEFT] - DESIRED_PADDING) * m_horizontalPerPixelSize;
 	float yOff = (getValueOfVariable("yoffset") + (m_padding[PAD_TOP] - DESIRED_PADDING)) * m_verticalPerPixelSize;
-	float xAdvance = (getValueOfVariable("xadvance") - m_paddingWidth) * m_horizontalPerPixelSize;
+	float xAdvance = (getValueOfVariable("xadvance") - m_paddingWidth + DESIRED_PADDING) * m_horizontalPerPixelSize;
 
 	c.id = id;
 	c.textureCoord = glm::vec4(xTex, yTex, xTexSize + xTex, yTexSize + yTex);

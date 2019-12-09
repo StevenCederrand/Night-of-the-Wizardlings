@@ -4,6 +4,7 @@
 #include <GameObject/WorldObject.h>
 #include <Renderer/Renderer.h>
 #include <HUD/WorldHudObject.h>
+#include <BetterText/TextManager.h>
 
 class NetworkPlayers {
 public:
@@ -11,7 +12,9 @@ public:
 		PlayerPacket data;
 		GameObject* gameobject = nullptr;
 		WorldHudObject* healthDisplay = nullptr;
+		GUIText* nameplate = nullptr;
 		NetGlobals::THREAD_FLAG flag = NetGlobals::THREAD_FLAG::None;
+		NetGlobals::THREAD_PLAYER_FLAG playerFlag = NetGlobals::THREAD_PLAYER_FLAG::NotAdded;
 		float deflectSoundGain = 1.0f;
 		bool correctPositionOnFirstUpdate = false;	
 		bool wasRunning = false;		

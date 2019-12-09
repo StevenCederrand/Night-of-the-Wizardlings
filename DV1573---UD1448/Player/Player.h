@@ -80,9 +80,9 @@ private:
 	float m_maxSpeed;
 	float m_deflectSoundGain = 1.0f;
 	
-	bool m_rMouse; //Right Mouse
 	float m_mana;
 	int m_health;
+	bool m_rMouse; //Right Mouse
 	int m_frameCount;
 
 	float m_maxHealth;
