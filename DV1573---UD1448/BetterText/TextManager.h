@@ -15,6 +15,8 @@ public:
 		FadeIn_FadeOut,
 		Instant_FadOut,
 		StayForever,
+		StayForeverAndScale,
+
 	};
 
 	struct TextEntity {

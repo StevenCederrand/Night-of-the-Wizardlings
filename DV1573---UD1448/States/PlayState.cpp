@@ -570,7 +570,7 @@ void PlayState::update_isPlaying(const float& dt)
 							0.25f,
 							glm::vec3(0.0f, -0.25f, 0.0f),
 							1.f,
-							TextManager::TextBehaviour::ScaleUp_FadeOut,
+							TextManager::TextBehaviour::Instant_FadOut,
 							glm::vec3(0.0f, 0.0f, 0.0f), true);
 
 						t->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -586,7 +586,6 @@ void PlayState::update_isPlaying(const float& dt)
 
 				break;
 			}
-
 			case PlayerEvents::RoundTimer:
 			{
 				static int lastSecond = 0;
@@ -632,7 +631,6 @@ void PlayState::update_isPlaying(const float& dt)
 				delete evnt.data;
 				break;
 			}
-
 			case PlayerEvents::Died:
 			{
 				logWarning("[Event system] Died");
@@ -649,7 +647,6 @@ void PlayState::update_isPlaying(const float& dt)
 				//Here I can implement the poof particles for a dead player
 				break;
 			}
-
 			case PlayerEvents::Respawned:
 			{
 				logWarning("[Event system] Respawned");
@@ -663,7 +660,6 @@ void PlayState::update_isPlaying(const float& dt)
 				m_player->onRespawn();
 				break;
 			}
-
 			case PlayerEvents::TookDamage:
 			{
 				logWarning("[Event system] Took damage");
@@ -747,7 +743,6 @@ void PlayState::update_isPlaying(const float& dt)
 				m_hudHandler.getHudObject(HUDID::MANA_OVERLAY)->setAlpha(0.75f);
 				break;
 			}
-
 			case PlayerEvents::TookHeal:
 			{
 				shPtr->playSound(PickupSound);
@@ -760,7 +755,6 @@ void PlayState::update_isPlaying(const float& dt)
 
 				break;
 			}
-
 			case PlayerEvents::SessionOver:
 			{
 				logWarning("[Event system] Session is over");
@@ -776,7 +770,6 @@ void PlayState::update_isPlaying(const float& dt)
 
 				break;
 			}
-
 			case PlayerEvents::Deflected:
 			{
 				m_hudHandler.getHudObject(HUDID::CROSSHAIR_DEFLECT_INDICATOR)->setAlpha(1.0f);
@@ -787,13 +780,11 @@ void PlayState::update_isPlaying(const float& dt)
 				//Implement particles for self deflect here
 				break;
 			}
-
 			case PlayerEvents::EnemyDeflected:
 			{
 
 				break;
 			}
-
 			case PlayerEvents::WallGotDestroyed:
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::ReadDestructableWallsMutex); // Thread safe
@@ -812,11 +803,40 @@ void PlayState::update_isPlaying(const float& dt)
 
 				break;
 			}
-
 			case PlayerEvents::PlayerReady:
-			{
-				// Play sound?
-				logTrace("Player ready");
+			{	
+
+				if (m_readyText == nullptr) {
+					m_readyText = TextManager::getInstance()->addDynamicText("Press F1 to ready up!",
+						0.20f,
+						glm::vec3(0.0f, -1.35f, 0.0f),
+						2.5f,
+						TextManager::TextBehaviour::StayForeverAndScale,
+						glm::vec3(0.0f, 0.0f, 0.0f), true);
+
+					m_readyText->setColor(glm::vec4(1.0f, 0.75f, 0.75f, 1.0f));
+					m_readyText->setScale(1.0f);
+				}
+
+				if (m_numberOfPlayersReadyText == nullptr) {
+					m_numberOfPlayersReadyText = TextManager::getInstance()->addDynamicText(
+						"Players ready: " + std::to_string(Client::getInstance()->getNumberOfReadyPlayers()) 
+						+ "/" +std::to_string(Client::getInstance()->getNumberOfPlayers()),
+						0.25f,
+						glm::vec3(0.0f, -0.15f, 0.0f),
+						2.5f,
+						TextManager::TextBehaviour::StayForever,
+						glm::vec3(0.0f, 0.0f, 0.0f), true);
+
+					m_numberOfPlayersReadyText->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+					m_numberOfPlayersReadyText->setScale(1.0f);
+				}
+				else {
+					m_numberOfPlayersReadyText->changeText("Players ready: " + std::to_string(Client::getInstance()->getNumberOfReadyPlayers())
+						+ "/" + std::to_string(Client::getInstance()->getNumberOfPlayers()));
+
+				}
+
 
 				break;
 			}
@@ -835,6 +855,11 @@ void PlayState::update_isPlaying(const float& dt)
 				if (m_gameTimeText != nullptr) {
 					m_gameTimeText->setShouldRender(false);
 				}
+
+				if (m_numberOfPlayersReadyText != nullptr) {
+					m_numberOfPlayersReadyText->setShouldRender(false);
+				}
+
 				break;
 			}
 
@@ -842,6 +867,14 @@ void PlayState::update_isPlaying(const float& dt)
 			{
 				if (m_gameTimeText != nullptr) {
 					m_gameTimeText->setShouldRender(false);
+				}
+
+				if (m_numberOfPlayersReadyText != nullptr) {
+					m_numberOfPlayersReadyText->setShouldRender(true);
+				}
+
+				if (m_readyText != nullptr) {
+					m_readyText->setShouldRender(true);
 				}
 				break;
 			}
@@ -855,17 +888,22 @@ void PlayState::update_isPlaying(const float& dt)
 			}
 
 
-
 		}
 
 	}
+
+	if (clientPtr->getMyData().isReady && m_readyText != nullptr && m_readyText->shouldRender() == true)
+	{
+		m_readyText->setShouldRender(false);
+	}
+
 	// Look at the killer when dead ( If he exist )
 	if (!m_camera->isCameraActive() && clientPtr->getMyData().health <= 0)
 	{
 		const PlayerPacket* myKiller = clientPtr->getLatestPlayerThatHitMe();
 
 		if (myKiller != nullptr) {
-			glm::vec3 lookPos = CustomLerp(m_lastPositionOfMyKiller, myKiller->position + myKiller->meshHalfSize * 1.75f, DeltaTime);
+			glm::vec3 lookPos = CustomLerp(m_lastPositionOfMyKiller, myKiller->position + glm::vec3(0.0f,myKiller->meshHalfSize.y * 1.75f, 0.0f), DeltaTime);
 			m_camera->lookAt(lookPos);
 
 			m_lastPositionOfMyKiller = lookPos;

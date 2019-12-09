@@ -30,7 +30,9 @@ void TextManager::update()
 			continue;
 		}
 
-		
+		static float internalTimer = 0.0f;
+		internalTimer += DeltaTime;
+
 		t.currentLifeTime += DeltaTime;
 		t.text->setPosition(t.text->getPosition() + t.velocity * DeltaTime);
 		
@@ -86,6 +88,17 @@ void TextManager::update()
 				{
 					t.text->setAlpha(percentage);
 				}
+
+				break;
+			}
+
+			case TextBehaviour::StayForeverAndScale:
+			{
+				
+				float scale = (cosf(internalTimer) + 1.0f) / 2.0f; // 0. - 1.
+				scale = (scale / 4.0f) + 0.9f;
+				t.currentLifeTime = 0.0f,
+				t.text->setScale(scale);
 
 				break;
 			}

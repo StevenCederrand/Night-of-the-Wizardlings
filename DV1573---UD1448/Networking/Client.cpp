@@ -1108,6 +1108,7 @@ void Client::processAndHandlePackets()
 
 			Evnt evnt;
 			evnt.playerEvent = PlayerEvents::PlayerReady;
+			m_numberOfReadyPlayers = readyPlayersCount.numberOfReadyPlayers;
 
 			// Add this to the event list
 			{
@@ -1115,7 +1116,6 @@ void Client::processAndHandlePackets()
 				m_playerEvents.push_back(evnt);
 			}
 
-			m_numberOfReadyPlayers = readyPlayersCount.numberOfReadyPlayers;
 
 			break;
 		}
@@ -1124,6 +1124,16 @@ void Client::processAndHandlePackets()
 		{
 			m_myPlayerDataPacket.isReady = false;
 			m_numberOfReadyPlayers = 0;
+
+			Evnt evnt;
+			evnt.playerEvent = PlayerEvents::PlayerReady;
+
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+				m_playerEvents.push_back(evnt);
+			}
+
 			break;
 		}
 
