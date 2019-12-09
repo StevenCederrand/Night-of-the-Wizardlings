@@ -120,7 +120,7 @@ void SpellEditor::initFireSpell()
 	PSinfo tempPS;
 	TextureInfo tempTxt;
 
-	tempTxt.name = "Assets/Textures/betterSmoke.png";
+	tempTxt.name = "Assets/Textures/betterSmoke2.png";
 	tempPS.width = 0.9f;
 	tempPS.heigth = 1.2f;
 	tempPS.lifetime = 5.0f;
@@ -133,7 +133,7 @@ void SpellEditor::initFireSpell()
 	tempPS.cont = true;
 	tempPS.omnious = true;
 	tempPS.randomSpawn = false;
-	tempPS.spread = 5.0f;
+	tempPS.spread = 3.0f;
 	tempPS.glow = 1.3;
 	tempPS.scaleDirection = 0;
 	tempPS.swirl = 0;
@@ -143,6 +143,7 @@ void SpellEditor::initFireSpell()
 	tempPS.blendColor = glm::vec3(1.0f, 1.0f, 1.0f);
 	tempPS.color = glm::vec3(0.0, 0.0f, 0.0f);
 	tempPS.direction = glm::vec3(0.0f, -1.0f, 0.0f);
+	tempPS.direction = glm::clamp(tempPS.direction, -1.0f, 1.0f); //Do i need this???
 
 	fireBase.m_particleBuffers.emplace_back(new ParticleBuffers(tempPS, tempTxt));
 	fireBase.m_particleBuffers.back()->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
