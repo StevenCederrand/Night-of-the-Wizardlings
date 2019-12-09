@@ -3,18 +3,13 @@
 #include <System/StateManager.h>
 #include "MenuState.h"
 
-LevelEditState::LevelEditState(bool cameraState)
+LevelEditState::LevelEditState()
 {
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
 
 	m_camera = new Camera(glm::vec3(57.f, 100.f, -78.f), -232.0f, -43.2);
 
 	m_picker = new MousePicker(m_camera, m_camera->getProjMat());
-
-	/*if (cameraState == true)
-	{
-		m_camera->setSpectatorMode(SpectatorMode::FreeCamera);
-	}*/
 
 	Renderer* renderer = Renderer::getInstance();
 	
@@ -151,7 +146,6 @@ void LevelEditState::render()
 {
 	Renderer::getInstance()->render();
 }
-
 
 void LevelEditState::updateState(const float& dt)
 {

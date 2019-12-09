@@ -27,6 +27,8 @@ public:
 		Read what persistenData is in the PersistentData.h
 	*/
 
+	virtual bool is_ImGui() { return false; }
+
 protected:
 	StateManager* m_stateManager;	
 };

@@ -19,13 +19,14 @@
 #include <HUD/WorldHudObject.h>
 #include <LevelEditor/MousePicker.h>
 
-
+#include <imgui/imgui.h>
+#include <imgui/imfilebrowser.h>
 
 
 class LevelEditState : public State
 {
 public:
-	LevelEditState(bool cameraState);
+	LevelEditState();
 	~LevelEditState();
 
 	void loadMap(); 
@@ -37,6 +38,7 @@ public:
 
 	virtual void update(float dt) override;
 	virtual void render() override;
+	bool is_ImGui() { return true; }
 
 private:
 	void updateState(const float& dt);
@@ -46,6 +48,7 @@ private:
 	std::vector<GameObject*> m_objects;
 	std::vector<GameObject*> m_models;
 	std::vector<Pointlight*> m_pointlights;
+
 
 	Camera* m_camera;
 	SkyBox* m_skybox;

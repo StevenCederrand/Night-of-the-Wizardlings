@@ -95,6 +95,6 @@ bool MenuState::onExitClicked(const CEGUI::EventArgs& e)
 bool MenuState::onLevelEditClicked(const CEGUI::EventArgs& e)
 {
 	Renderer::getInstance()->clear();
-	m_stateManager->clearAllAndSetState(new LevelEditState(true));
+	m_stateManager->clearAllAndSetState(new LevelEditState());
 	return true;
 }

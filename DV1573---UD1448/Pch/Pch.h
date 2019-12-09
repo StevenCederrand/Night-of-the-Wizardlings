@@ -89,6 +89,14 @@
 #include <Destruction/VoroniClipper.h>
 #include <Destruction/DstrGenerator.h>
 
+// ImGui
+//#include <imgui/imgui.h>
+//#include <imgui/imgui_impl_glfw_gl3.h>
+//#include <stdio.h>
+//#include <GL/glew.h> 
+//#include <GLFW/glfw3.h>
+//#include <imgui/imfilebrowser.h>
+
 
 const std::string CEGUI_TYPE = "OgreTray";
 const std::string SHADERPATH = "Assets/Shaders/";

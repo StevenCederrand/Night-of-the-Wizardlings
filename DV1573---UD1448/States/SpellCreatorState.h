@@ -17,10 +17,6 @@
 #include <Spells/AttackSpell.h>
 
 #include <imgui/imgui.h>
-#include <imgui/imgui_impl_glfw_gl3.h>
-#include <stdio.h>
-#include <GL/glew.h> 
-#include <GLFW/glfw3.h>
 #include <imgui/imfilebrowser.h>
 
 #include "SpellLoader/spellLoader.h"
@@ -94,6 +90,8 @@ public:
     ImGui::FileBrowser fileDialog;
 
     char m_spellName[NAME_SIZE];
+
+	bool is_ImGui() { return true; }
 
 private:
     Player* m_player;

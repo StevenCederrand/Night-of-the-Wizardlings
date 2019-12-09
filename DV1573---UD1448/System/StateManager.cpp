@@ -1,6 +1,6 @@
 #include <Pch/Pch.h>
 #include "StateManager.h"
-
+#include <imgui/imgui.h>
 
 StateManager::StateManager()
 {	
@@ -37,11 +37,16 @@ void StateManager::clearAllAndSetState(State* newState)
 	if (newState != nullptr) {
 		clearStates();
 		newState->assignManager(this);
-		m_states.emplace_back(newState);		
+		m_states.emplace_back(newState);	
 	}
 	else {
 		logError("Trying to push a new state which is a nullptr!");
 	}
+}
+
+bool StateManager::getImGuiState()
+{
+	return m_states.back()->is_ImGui();
 }
 
 void StateManager::update(float dt)
@@ -56,6 +61,10 @@ void StateManager::update(float dt)
 
 void StateManager::render()
 {
+
+	ImGui::Begin("Level Editor");
+	ImGui::End();
+	ImGui::Render();
 	if (!m_states.empty()) {
 		m_states.back()->render();
 	}
