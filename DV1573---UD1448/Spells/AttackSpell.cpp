@@ -21,9 +21,10 @@ AttackSpell::AttackSpell(glm::vec3 pos, OBJECT_TYPE type)
 	: Spell(pos, glm::vec3(0), nullptr)
 {
 	m_type = type;
+	mySpellLoader.LoadProjectileSpell("normalSpell.spell");
 
 	Transform tempTransform;
-	tempTransform.scale = glm::vec3(0.2f, 0.2f, 0.2f);
+	tempTransform.scale = glm::vec3(mySpellLoader.m_projectile.m_radius, mySpellLoader.m_projectile.m_radius, mySpellLoader.m_projectile.m_radius);
 	setTransform(tempTransform);
 	setWorldPosition(pos);
 }
@@ -87,4 +88,21 @@ const float AttackSpell::getDamage()
 const glm::vec3& AttackSpell::getPos() const
 {
 	return glm::vec3(0);
+}
+
+void AttackSpell::updateTool(float radius, float speed, float dt)
+{
+	updateScale = radius;
+	updateSpeed += speed * dt;
+	tempTransformTest.rotation = glm::vec3(0, 0, 0);
+	if (tempTransformTest.position.x > 10)
+	{
+		tempTransformTest.position = glm::vec3(-2, 3, -10);
+		updateSpeed = -2;
+	}
+	else
+		tempTransformTest.position = glm::vec3(updateSpeed, 3, -10);
+
+	tempTransformTest.scale = glm::vec3(m_spellBase->m_radius + updateScale, m_spellBase->m_radius + updateScale, m_spellBase->m_radius + updateScale);
+	setTransform(tempTransformTest);
 }

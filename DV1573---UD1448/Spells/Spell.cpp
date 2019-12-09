@@ -50,6 +50,10 @@ void Spell::setSoundSlot(int slot)
 	m_soundSlot = slot;
 }
 
+void Spell::updateTool(float radius, float speed, float dt)
+{
+}
+
 const glm::vec3& Spell::getDirection() const {
 	return m_direction;
 }

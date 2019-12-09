@@ -37,14 +37,16 @@ void SpellHandler::initAttackSpell()
 	attackBase.m_material->diffuse = glm::vec3(0.65f, 1.0f, 1.0f); // Light blue
 	attackBase.m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
 
+	myLoader.LoadProjectileSpell("normalSpell.spell");
+
 	// Gameplay--
-	attackBase.m_lowDamage = 20.0f;
-	attackBase.m_highDamage = 30.0f;
-	attackBase.m_speed = 40.0f;
+	attackBase.m_lowDamage = myLoader.m_projectile.m_lowDamage;
+	attackBase.m_highDamage = myLoader.m_projectile.m_highDamage;
+	attackBase.m_speed = myLoader.m_projectile.m_speed;
 	attackBase.m_acceleration = 40.0f;
-	attackBase.m_radius = 0.25f;
-	attackBase.m_lifeTime = 5.0f;
-	attackBase.m_maxBounces = 3.0f;
+	attackBase.m_radius = myLoader.m_projectile.m_radius;
+	attackBase.m_lifeTime = myLoader.m_projectile.m_lifeTime;
+	attackBase.m_maxBounces = myLoader.m_projectile.m_maxBounces;
 
 	// Light--
 	attackBase.m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f);// OLD
@@ -64,6 +66,7 @@ void SpellHandler::initAttackSpell()
 	tempPS.seed = 0;
 	tempPS.cont = true;
 	tempPS.omnious = false;
+	tempPS.randomSpawn = false;
 	tempPS.spread = 0.0f;
 	tempPS.glow = 2;
 	tempPS.scaleDirection = 0;
@@ -126,6 +129,7 @@ void SpellHandler::initEnhanceSpell()
 	tempPS.seed = 0;
 	tempPS.cont = true;
 	tempPS.omnious = false;
+	tempPS.randomSpawn = false;
 	tempPS.spread = -1.0f;
 	tempPS.glow = 1.3;
 	tempPS.scaleDirection = 0;
@@ -221,6 +225,7 @@ void SpellHandler::initFireSpell()
 	tempPS.seed = 1;
 	tempPS.cont = true;
 	tempPS.omnious = true;
+	tempPS.randomSpawn = false;
 	tempPS.spread = 5.0f;
 	tempPS.glow = 1.3;
 	tempPS.scaleDirection = 0;
@@ -430,34 +435,66 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 	return randomSpell;
 }
 
-void SpellHandler::createSpellForTool(glm::vec3 spellPos, glm::vec3 directionVector, SpellCreatorTool_TYPE type)
+void SpellHandler::createSpellForTool(glm::vec3 spellPos, glm::vec3 directionVector, OBJECT_TYPE type)
 {
-	float cooldown = 0.0f;
+	//float cooldown = 0.0f;
+
+	////if (type == NORMALATTACKTOOL)
+	////{
+	////    auto spell = new AttackSpell(spellPos, directionVector, attackBase);
+	////    spell->setType(NORMALATTACK);
+	////    cooldown = attackBase->m_coolDown;
+
+
+	////    spell->setUniqueID(getUniqueID());
+	////    spells.emplace_back(spell);
+	////    Renderer::getInstance()->submit(spells.back(), SPELL);
+
+	////    //bullet create
+	////    btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
+	////    m_BulletNormalSpell.emplace_back(
+	////        m_bp->createObject(sphere, 20.0f, spellPos + directionVector * 2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
+	////    spell->setBodyReference(m_BulletNormalSpell.back());
+
+	////    int size = m_BulletNormalSpell.size();
+	////    m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
+	////    m_BulletNormalSpell.at(size - 1)->setUserPointer(spell);
+	////    m_BulletNormalSpell.at(size - 1)->setLinearVelocity(direction * attackBase->m_speed);
+	////}
 
 	//if (type == NORMALATTACKTOOL)
 	//{
-	//    auto spell = new AttackSpell(spellPos, directionVector, attackBase);
-	//    spell->setType(NORMALATTACK);
-	//    cooldown = attackBase->m_coolDown;
+	//	// Generic
+	//	spells.emplace_back(new AttackSpell(spellPos, directionVector, &attackBase));
+	//	auto spell = spells.back();
+	//	spell->setType(NORMALATTACK);
 
+	//	for (int i = 0; i < attackBase.m_particleBuffers.size(); i++)
+	//	{
+	//		spell->addParticle(attackBase.m_particleBuffers[i]);
+	//	}
 
-	//    spell->setUniqueID(getUniqueID());
-	//    spells.emplace_back(spell);
-	//    Renderer::getInstance()->submit(spells.back(), SPELL);
+	//	// Network
+	//	spell->setUniqueID(getUniqueID());
+	//	Renderer::getInstance()->submit(spell, SPELL);
 
-	//    //bullet create
-	//    btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
-	//    m_BulletNormalSpell.emplace_back(
-	//        m_bp->createObject(sphere, 20.0f, spellPos + directionVector * 2, glm::vec3(spell->getTransform().scale.x, 0.0f, 0.0f)));
-	//    spell->setBodyReference(m_BulletNormalSpell.back());
+	//	// Bullet
+	//	spell->createRigidBody(
+	//		BulletPhysics::getInstance()->createObject(
+	//			sphere,
+	//			10.0f,
+	//			spellPos + directionVector * 2,
+	//			glm::vec3(spell->getObjectTransform().scale.x, 0.0f, 0.0f)
+	//		));
 
-	//    int size = m_BulletNormalSpell.size();
-	//    m_BulletNormalSpell.at(size - 1)->setGravity(btVector3(0.0f, 0.0f, 0.0f));
-	//    m_BulletNormalSpell.at(size - 1)->setUserPointer(spell);
-	//    m_BulletNormalSpell.at(size - 1)->setLinearVelocity(direction * attackBase->m_speed);
+	//	btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
+	//	spell->getRigidBody()->setGravity(btVector3(0.0f, 0.0f, 0.0f));
+	//	spell->getRigidBody()->setUserPointer(spell);
+	//	spell->getRigidBody()->setLinearVelocity(direction * attackBase.m_speed);
+	//	spell->getRigidBody()->setDamping(0.0f, 0.0f);
 	//}
 
-	//if (type == FIRETOOL)
+	///*if (type == FIRETOOL)
 	//{
 	//    auto fireSpell = new fire(spellPos, directionVector, fireBase);
 	//    cooldown = fireBase->m_coolDown;
@@ -466,42 +503,54 @@ void SpellHandler::createSpellForTool(glm::vec3 spellPos, glm::vec3 directionVec
 	//    fireSpells.emplace_back(fireSpell);
 	//    Renderer::getInstance()->submit(fireSpells.back(), SPELL);
 
+	//}*/
+
+	//if (type == FIRETOOL)
+	//{
+	//	// Generic
+	//	fireSpells.emplace_back(new fire(spellPos, directionVector, &fireBase));
+	//	auto spell = fireSpells.back();
+	//	Renderer::getInstance()->submit(fireSpells.back(), SPELL);
+
+	//	for (int i = 0; i < fireBase.m_particleBuffers.size(); i++)
+	//	{
+	//		spell->addParticle(fireBase.m_particleBuffers[i]);
+	//	}
 	//}
 }
 
 void SpellHandler::spellToolUpdate(float dt, float radius, float speed)
 {
 
-	/* for (size_t i = 0; i < spells.size(); i++)
-	 {
+	/*for (size_t i = 0; i < spells.size(); i++)
+	{
+		spells[i]->updateTool(radius, speed, dt);
+		spells[i]->UpdateParticles(dt);
 
-		 spells[i]->updateTool(radius, speed, dt);
-		 if (activespell == 1)
-		 {
-			 spells[i]->setTravelTime(0);
-		 }
+		if (activespell == 1)
+		{
+			spells[i]->setTravelTime(0);
+		}
+		
 
+		if (spells[i]->getTravelTime() <= 0)
+		{
+			Renderer::getInstance()->removeRenderObject(spells[i], SPELL);
 
-		 if (spells[i]->getTravelTime() <= 0)
-		 {
-			 Renderer::getInstance()->removeRenderObject(spells[i], SPELL);
-
-			 delete spells[i];
-			 spells.erase(spells.begin() + i);
-
-			 m_bp->removeObject(m_BulletNormalSpell.at(i));
-			 m_BulletNormalSpell.erase(m_BulletNormalSpell.begin() + i);
-		 }
-	 }
+			Client::getInstance()->destroySpellOnNetwork(*spells[i]);
+			delete spells[i];
+			spells.erase(spells.begin() + i);
+		}
+	}
 
 	 for (size_t i = 0; i < fireSpells.size(); i++)
 	 {
+		 fireSpells[i]->UpdateParticles(dt);
 
 		 if (activespell == 0)
 		 {
 			 fireSpells[i]->setTravelTime(0);
 		 }
-
 
 		 if (fireSpells[i]->getTravelTime() <= 0)
 		 {
@@ -514,7 +563,7 @@ void SpellHandler::spellToolUpdate(float dt, float radius, float speed)
 
 void SpellHandler::changeSpell(int state)
 {
-	activespell = state;
+	/*activespell = state;*/
 }
 
 void SpellHandler::spellUpdate(float deltaTime)

@@ -60,3 +60,7 @@ const glm::vec3& fire::getPos() const
 {
 	return glm::vec3(0);
 }
+
+void fire::updateTool(float radius, float speed, float dt)
+{
+}

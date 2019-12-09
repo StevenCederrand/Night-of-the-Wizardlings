@@ -17,6 +17,7 @@ public:
 	virtual void hasCollided();					//TODO: Construct this function
 	virtual void update(float dt);
 	virtual const float getDamage();
+	void updateTool(float radius, float speed, float dt);
 
 	bool spellOnGround();
 	void setSpellBool(bool state);

@@ -80,6 +80,7 @@
     <ClCompile Include="imgui\imgui_impl_glfw_gl3.cpp" />
     <ClCompile Include="SpellLoader\spellLoader.cpp" />
     <ClCompile Include="States\SpellCreatorState.cpp" />
+    <ClCompile Include="Spells\SpellEditor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameObject\AnimatedObject.h" />
@@ -194,6 +195,7 @@
     <ClInclude Include="SpellLoader\loaderFormat.h" />
     <ClInclude Include="SpellLoader\spellLoader.h" />
     <ClInclude Include="States\SpellCreatorState.h" />
+    <ClInclude Include="Spells\SpellEditor.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

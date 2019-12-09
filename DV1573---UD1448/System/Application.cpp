@@ -100,7 +100,7 @@ bool Application::init() {
 
 
 
-
+//
 //#if AUTOSTART
 //	m_stateManager->pushState(new PlayState(false));
 //#else 

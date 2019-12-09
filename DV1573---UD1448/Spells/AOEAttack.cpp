@@ -92,3 +92,7 @@ const float AOEAttack::getDamage()
 {
 	return m_spellBase->m_damage;
 }
+
+void AOEAttack::updateTool(float radius, float speed, float dt)
+{
+}

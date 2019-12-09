@@ -510,6 +510,16 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 			light.attenAndRadius = m_spellHandler->getSpellBase(FLAMESTRIKE)->m_attenAndRadius;
 			light.color = m_spellHandler->getSpellBase(FLAMESTRIKE)->m_material->diffuse;
 		}
+		else if (spell->getType() == OBJECT_TYPE::NORMALATTACKTOOL)
+		{
+			light.attenAndRadius = m_spellEditor->getSpellBase(NORMALATTACKTOOL)->m_attenAndRadius;
+			light.color = m_spellEditor->getSpellBase(NORMALATTACKTOOL)->m_material->diffuse;
+		}
+		else if (spell->getType() == OBJECT_TYPE::FIRETOOL)
+		{
+			light.attenAndRadius = m_spellEditor->getSpellBase(FIRETOOL)->m_attenAndRadius;
+			light.color = m_spellEditor->getSpellBase(FIRETOOL)->m_material->diffuse;
+		}
 		
 		m_lights.emplace_back(light);
 	}
@@ -597,6 +607,11 @@ void Renderer::submitSkybox(SkyBox* skybox)
 void Renderer::submitSpellhandler(SpellHandler* spellhandler)
 {
 	m_spellHandler = spellhandler;
+}
+
+void Renderer::submitSpellEditor(SpellEditor* SpellEditor)
+{
+	m_spellEditor = SpellEditor;
 }
 
 void Renderer::clear() {
@@ -1185,6 +1200,7 @@ void Renderer::render() {
 	renderSkybox();
 	// Spell Rendering
 	m_spellHandler->renderSpell();
+	m_spellEditor->renderSpell();
 
 #ifdef DEBUG_WIREFRAME
 	// DEBUG (MOSTLY FOR DSTR)
@@ -1363,6 +1379,75 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 			meshRef = spellHandler->getSpellBase(FIRE)->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
 			shader->setMaterial(spellHandler->getSpellBase(FIRE)->m_material);
+			//glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+			glBindVertexArray(0);
+		}
+
+
+		for (int j = 0; j < m_spells[i]->getParticles().size(); j++)
+		{
+			m_spells[i]->getParticles()[j].Render(m_camera);
+			m_spells[i]->getParticles()[j].SetPosition(meshTransform.position);
+		}
+	}
+
+}
+
+void Renderer::renderSpell(SpellEditor* SpellEditor)
+{
+	Mesh* meshRef;
+	Shader* shader = ShaderMap::getInstance()->getShader(BASIC_FORWARD);
+	Transform meshTransform;
+	bindMatrixes(shader); //We only need to bind this once, seeing as though we are using only one shader
+	int psSelector = 0;
+	for (size_t i = 0; i < m_spells.size(); i++)
+	{
+		if (m_spells[i]->getType() == OBJECT_TYPE::POINTLIGHT) {
+			continue;
+		}
+
+		ShaderMap::getInstance()->useByName(BASIC_FORWARD);
+		meshTransform = m_spells[i]->getObjectTransform();
+
+		glm::mat4 modelMatrix = glm::mat4(1.0f);
+		modelMatrix = glm::translate(modelMatrix, meshTransform.position);
+		modelMatrix = glm::scale(modelMatrix, meshTransform.scale);
+		modelMatrix *= glm::mat4_cast(meshTransform.rotation);
+
+		shader->setMat4("modelMatrix", modelMatrix);
+
+		if (m_spells[i]->getType() == OBJECT_TYPE::NORMALATTACKTOOL)
+		{
+			meshRef = SpellEditor->getSpellBase(NORMALATTACKTOOL)->m_mesh;
+			glBindVertexArray(meshRef->getBuffers().vao);
+			shader->setMaterial(SpellEditor->getSpellBase(NORMALATTACKTOOL)->m_material);
+			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+			glBindVertexArray(0);
+		}
+		else if (m_spells[i]->getType() == OBJECT_TYPE::ENHANCEATTACKTOOL)
+		{
+			meshRef = SpellEditor->getSpellBase(ENHANCEATTACKTOOL)->m_mesh;
+			glBindVertexArray(meshRef->getBuffers().vao);
+			shader->setMaterial(SpellEditor->getSpellBase(ENHANCEATTACKTOOL)->m_material);
+			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+			glBindVertexArray(0);
+		}
+		else if (m_spells[i]->getType() == OBJECT_TYPE::FLAMESTRIKETOOL)
+		{
+			meshRef = SpellEditor->getSpellBase(FLAMESTRIKETOOL)->m_mesh;
+			glBindVertexArray(meshRef->getBuffers().vao);
+			shader->setMaterial(SpellEditor->getSpellBase(FLAMESTRIKETOOL)->m_material);
+			glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+			glBindVertexArray(0);
+		}
+
+		else if (m_spells[i]->getType() == OBJECT_TYPE::FIRETOOL)
+		{
+			meshRef = SpellEditor->getSpellBase(FIRETOOL)->m_mesh;
+			glBindVertexArray(meshRef->getBuffers().vao);
+			shader->setMaterial(SpellEditor->getSpellBase(FIRETOOL)->m_material);
 			//glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 			glBindVertexArray(0);
 		}

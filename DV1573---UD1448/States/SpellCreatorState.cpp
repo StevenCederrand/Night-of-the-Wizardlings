@@ -26,7 +26,8 @@ SpellCreatorState::SpellCreatorState()
     AnimationMesh->loadMesh("NyCharacter.mesh");
     delete AnimationMesh;
 
-    m_spellHandler = new SpellHandler();
+    //m_spellHandler = new SpellHandler();
+	m_spellEditor = new SpellEditor();
 
     Renderer* renderer = Renderer::getInstance();
     renderer->setupCamera(m_camera);
@@ -35,7 +36,7 @@ SpellCreatorState::SpellCreatorState()
     m_skybox->prepareBuffers();
 
     renderer->submitSkybox(m_skybox);
-    renderer->submitSpellhandler(m_spellHandler);
+    renderer->submitSpellEditor(m_spellEditor);
 
 
     //-----Set up IMGUI-----//
@@ -52,8 +53,7 @@ SpellCreatorState::SpellCreatorState()
     //    //m_objects.at(i)->createDebugDrawer();
     //}
 
-    if (Client::getInstance()->isInitialized())
-        Client::getInstance()->assignSpellHandler(m_spellHandler);
+   
 
 
     fileDialog.SetTitle("Open file(.spell)");
@@ -74,7 +74,7 @@ SpellCreatorState::~SpellCreatorState()
     delete m_skybox;
     delete m_player;
     delete m_bPhysics;
-    delete m_spellHandler;
+    delete m_spellEditor;
     delete m_camera;
 
     if (LocalServer::getInstance()->isInitialized()) {
@@ -95,7 +95,7 @@ SpellCreatorState::~SpellCreatorState()
 void SpellCreatorState::update(float dt)
 {
 
-    m_spellHandler->spellToolUpdate(dt, normalSpell.m_ProjectileRadius, normalSpell.m_ProjectileSpeed);
+	m_spellEditor->spellToolUpdate(dt, normalSpell.m_ProjectileRadius, normalSpell.m_ProjectileSpeed);
     m_bPhysics->update(dt);
    // m_player->update(dt);
     Renderer::getInstance()->updateParticles(dt);
@@ -113,7 +113,7 @@ void SpellCreatorState::update(float dt)
     ImGui::Begin("Spell Creator", &my_tool_active, ImGuiWindowFlags_MenuBar);// Create a window called "Spell Creator" and append into it.
     ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Select a spell type to create");
     ImGui::Checkbox("Create Projectile", &isProjectile);
-    ImGui::Checkbox("Create AOE", &isAOE);
+	ImGui::Checkbox("Create AOE", &isAOE);
 
     if (isProjectile)
     {
@@ -251,8 +251,8 @@ void SpellCreatorState::editAttackSpell()
     ImGui::SliderInt("Spell Maximum Bounces", &normalSpell.m_ProjectileMaxBounces, 0, 5);
     if (m_AttackSpellAlive == true)
     {
-        m_spellHandler->changeSpell(0);
-        m_spellHandler->createSpellForTool(glm::vec3(3, 3, -10), glm::vec3(0, 0, 0), NORMALATTACKTOOL);
+		m_spellEditor->changeSpell(0);
+		m_spellEditor->createSpellForTool(glm::vec3(3, 3, -10), glm::vec3(0, 0, 0), NORMALATTACKTOOL);
         m_AttackSpellAlive = false;
         m_FireSpellAlive = true;
     }
@@ -262,17 +262,19 @@ void SpellCreatorState::editAOEAttackSpell()
 {
     if (m_FireSpellAlive == true)
     {
-        m_spellHandler->changeSpell(1);
-        m_spellHandler->createSpellForTool(glm::vec3(3, 3, -20), glm::vec3(0, 0, 0), FIRETOOL);
+		m_spellEditor->changeSpell(1);
+		m_spellEditor->createSpellForTool(glm::vec3(3, 1, -20), glm::vec3(0, 0, 0), FIRETOOL);
         m_FireSpellAlive = false;
         m_AttackSpellAlive = true;
     }
     ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Edit area of effect values:");										            // Display some text (you can use a format strings too)
     ImGui::SliderInt("Spell Damage", &aoeSpell.m_damage, 0.0f, 100.0f);
-    ImGui::SliderInt("Spell Speed", &aoeSpell.m_AOESpeed, 0.0f, 200.0f);
     ImGui::SliderInt("Spell Radius", &aoeSpell.m_AOERadius, 1.0f, 50.0f);
-    ImGui::SliderInt("Spell Cooldown", &aoeSpell.m_AOECooldown, 0.1f, 10.0f);
     ImGui::SliderInt("Spell Lifetime", &aoeSpell.m_AOELifetime, 1.0f, 20.0f);
+
+	ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Edit potion values:");										            // Display some text (you can use a format strings too)
+    ImGui::SliderInt("Spell Speed", &aoeSpell.m_AOESpeed, 0.0f, 200.0f);
+    ImGui::SliderInt("Spell Cooldown", &aoeSpell.m_AOECooldown, 0.1f, 10.0f);
     ImGui::SliderInt("Spell Maximum Bounces", &aoeSpell.m_AOEMaxBounces, 1, 3);
 }
 

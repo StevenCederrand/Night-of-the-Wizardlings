@@ -270,6 +270,7 @@
     </ClCompile>
     <ClCompile Include="Spells\Spell.cpp" />
     <ClCompile Include="Renderer\SkyBox.cpp" />
+    <ClCompile Include="Spells\SpellEditor.cpp" />
     <ClCompile Include="Spells\SpellHandler.cpp" />
     <ClCompile Include="Mesh\SkeletonMap.cpp" />
     <ClCompile Include="States\FindServerState.cpp" />
@@ -407,6 +408,7 @@
     <ClInclude Include="Spells\Spell.h" />
     <ClInclude Include="Renderer\SkyBox.h" />
     <ClInclude Include="Mesh\SkeletonMap.h" />
+    <ClInclude Include="Spells\SpellEditor.h" />
     <ClInclude Include="Spells\SpellHandler.h" />
     <ClInclude Include="GameObject\ObjectTypes.h" />
     <ClInclude Include="Spells\Spells.h" />

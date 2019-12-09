@@ -15,6 +15,7 @@
 #include <HUD/HudObject.h>
 #include <HUD/HudHandler.h>
 #include <Spells/AttackSpell.h>
+#include <Spells/SpellEditor.h>
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw_gl3.h>
@@ -72,7 +73,7 @@ public:
 
     //-----Edit spell Functions-----//
     void editAttackSpell();
-    void editAOEAttackSpell();
+	void editAOEAttackSpell();
 
     //-----Edit spell Events function-----//
     void editSpellEvents();
@@ -81,7 +82,7 @@ public:
     //IMGUI
     bool my_tool_active = true;
     bool isProjectile = false;
-    bool isAOE = false;
+	bool isAOE = false;
     bool isEnhanceProjectile = false;
     SpellLoader myLoader;
     bool loadASpell = false;
@@ -98,6 +99,7 @@ public:
 private:
     Player* m_player;
     SpellHandler* m_spellHandler;
+	SpellEditor* m_spellEditor;
     BulletPhysics* m_bPhysics;
     std::vector<Pointlight*> m_pointlights;
     SkyBox* m_skybox;

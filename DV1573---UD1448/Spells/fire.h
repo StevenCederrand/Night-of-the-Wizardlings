@@ -16,6 +16,9 @@ public:
 	virtual void update(float dt);
 	virtual const float getDamage();
 	virtual const glm::vec3& getPos() const;
+	void updateTool(float radius, float speed, float dt);
+
+
 
 private:
 	float fireTimer = 8;
