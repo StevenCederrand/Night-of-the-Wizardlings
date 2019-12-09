@@ -20,19 +20,34 @@ private:
 	bool onBackClicked(const CEGUI::EventArgs& e);
 	bool OnSaveClicked(const CEGUI::EventArgs& e);
 	bool onVolymChange(const CEGUI::EventArgs& e);
+	bool onMouseSensChange(const CEGUI::EventArgs& e);
+	bool onFOVChange(const CEGUI::EventArgs& e);
 
 
 
 	
 	CEGUI::PushButton* m_BackBth;
 	CEGUI::PushButton* m_SaveBtn;
-	CEGUI::Slider* m_slider;
-	CEGUI::Editbox* m_editBox;
+
+	CEGUI::Slider* m_sliderVolym;
+	CEGUI::Slider* m_sliderMouseSens;
+	CEGUI::Slider* m_sliderFOV;
+
+
+	CEGUI::Editbox* m_editBoxVolym;
+	CEGUI::Editbox* m_editBoxMouseSens;
+	CEGUI::Editbox* m_editBoxFOV;
 
 	HudHandler m_hudHandler; //Basic HUD objects
 
 	int m_volymCurrent;
+	int m_MouseSensCurrent;
+	int m_FOVCurrent;
+	int m_FOVBase;
+
 	float m_volymMax;
+	float m_MouseSensMax;
+	float m_FOVMax;
 };
 
 
