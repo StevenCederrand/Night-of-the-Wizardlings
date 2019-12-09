@@ -278,7 +278,10 @@ void ParticleSystem::Update(float time) //removed campos
 				//---
 
 				particles.direction = otherPosition - particles.position;
-				//particles.distance = glm::length(particles.position - cameraPos);
+
+				//if(m_camera != nullptr)
+					//particles.distance = glm::length(particles.position - m_camera->getCamPos());
+
 				m_vertex.at(i) = particles.position;
 				m_lifetime.at(i) = pStatus;
 			}
@@ -387,7 +390,7 @@ void ParticleSystem::TempInit(PSinfo* psInfo)
 {
 }
 
-void ParticleSystem::Render(const Camera* camera)
+void ParticleSystem::Render(Camera* camera)
 {
 	ShaderMap::getInstance()->useByName(PARTICLES);
 	//glUseProgram(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
@@ -395,7 +398,7 @@ void ParticleSystem::Render(const Camera* camera)
 	//glDepthFunc(GL_LESS);
 	//bindPS(PARTICLES);
 
-
+	m_camera = camera;
 	//glUseProgram(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
 
 	glm::mat4 VP = glm::mat4(1.0f);

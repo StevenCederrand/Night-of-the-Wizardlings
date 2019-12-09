@@ -38,6 +38,8 @@ public:
 
 	static bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
 		const btCollisionObjectWrapper* obj2, int id2, int index2);	
+
+	void InitParticle();
 private:
 	/* Callbacks */
 	void onSpellHit_callback();
@@ -88,6 +90,8 @@ private:
 	GUIText* m_memoryText;
 	GUIText* m_fpsText;
 	float startY;
+
+	ParticleBuffers* deathBuffer;
 private: 
 
 	bool onMainMenuClick(const CEGUI::EventArgs& e);

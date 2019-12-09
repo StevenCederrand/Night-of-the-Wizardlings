@@ -1136,6 +1136,28 @@ void Client::processAndHandlePackets()
 
 			break;
 		}
+		case ENEMY_DIED:
+		{	
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			EnemyDiedPacket enemyDiedPacket;
+			enemyDiedPacket.Serialize(false, bsIn);
+			
+			if (enemyDiedPacket.guidOfDeadPlayer == m_myPlayerDataPacket.guid.rakNetGuid)
+				continue;
+			
+			Evnt evnt = Evnt();
+			evnt.playerEvent = PlayerEvents::EnemyDied;
+			evnt.data = (void*)malloc(sizeof(EnemyDiedPacket));
+			memcpy(evnt.data, &enemyDiedPacket, sizeof(EnemyDiedPacket));
+
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+				m_playerEvents.push_back(evnt);
+			}
+
+			break;
+		}
 
 		default:
 		{
