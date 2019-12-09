@@ -13,7 +13,10 @@ LevelEditState::LevelEditState()
 
 	Renderer* renderer = Renderer::getInstance();
 	
-	//ImGui::CreateContext();
+	ImGui::CreateContext();
+	ImGui_ImplGlfwGL3_Init(glfwGetCurrentContext(), true);
+	ImGui::StyleColorsDark();
+
 
 	renderer->setupCamera(m_camera);
 
@@ -21,7 +24,9 @@ LevelEditState::LevelEditState()
 	m_skybox->prepareBuffers();
 	renderer->submitSkybox(m_skybox);
 	
-
+	fileDialog.SetTitle("Open file(.mesh)");
+	fileDialog.SetTypeFilters({ ".mesh" });
+	fileDialog.SetPwd("\Assets\Meshes");
 	//the load map function might need tweaking in this regard
 	//We also need a save map func.
 	//loadMap();
@@ -126,6 +131,13 @@ void LevelEditState::update(float dt)
 {
 	updateState(dt);
 
+	ImGui_ImplGlfwGL3_NewFrame();
+
+	ImGui::Begin("Level Editor", &my_tool_active, ImGuiWindowFlags_MenuBar);
+	ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Select a mesh");
+	fileDialog.Display();
+	ImGui::End();
+
 	static float t = 0.0f;
 	t += DeltaTime;
 	
@@ -145,6 +157,8 @@ void LevelEditState::update(float dt)
 void LevelEditState::render()
 {
 	Renderer::getInstance()->render();
+	ImGui::Render();
+	ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void LevelEditState::updateState(const float& dt)
