@@ -8,6 +8,7 @@
 #include <BetterText/TextManager.h>
 #define PLAYSECTION "PLAYSTATE"
 
+#define SHOW_MEMORY_INFO true
 
 void logVec3(glm::vec3 vector) {
 	logTrace("Vector: ({0}, {1}, {2})", std::to_string(vector.x), std::to_string(vector.y), std::to_string(vector.z));
@@ -80,6 +81,7 @@ PlayState::PlayState(bool spectator)
 
 	m_hideHUD = false;
 
+#if SHOW_MEMORY_INFO
 	std::string memTex = "Ram: " + std::to_string(mu.getCurrentRamUsage()) + " | VRam: " + std::to_string(mu.getCurrentVramUsage()) +
 		" | Highest Ram: " + std::to_string(mu.getHighestRamUsage()) + " | Highest VRam: " + std::to_string(mu.getHighestVramUsage());
 	
@@ -90,7 +92,7 @@ PlayState::PlayState(bool spectator)
 		1.f,
 		TextManager::TextBehaviour::StayForever,
 		glm::vec3(0.0f, 0.0f, 0.0f), true);
-
+#endif
 	mu.printBoth("End of play state init:");
 
 }
@@ -481,8 +483,8 @@ void PlayState::update(float dt)
 
 	removeDeadObjects();
 
+#if SHOW_MEMORY_INFO
 	memTimer += DeltaTime;
-
 	if (memTimer >= 0.5f) {
 		memTimer = 0.0f;
 		mu.updateBoth();
@@ -490,6 +492,7 @@ void PlayState::update(float dt)
 			" | Highest Ram: " + std::to_string(mu.getHighestRamUsage()) + " | Highest VRam: " + std::to_string(mu.getHighestVramUsage());
 		m_memoryText->changeText(memTex);
 	}
+#endif
 
 	TextManager::getInstance()->update();
 }
@@ -822,8 +825,8 @@ void PlayState::update_isPlaying(const float& dt)
 					m_numberOfPlayersReadyText = TextManager::getInstance()->addDynamicText(
 						"Players ready: " + std::to_string(Client::getInstance()->getNumberOfReadyPlayers()) 
 						+ "/" +std::to_string(Client::getInstance()->getNumberOfPlayers()),
-						0.25f,
-						glm::vec3(0.0f, -0.15f, 0.0f),
+						0.15f,
+						glm::vec3(0.0f, -0.05f, 0.0f),
 						2.5f,
 						TextManager::TextBehaviour::StayForever,
 						glm::vec3(0.0f, 0.0f, 0.0f), true);
