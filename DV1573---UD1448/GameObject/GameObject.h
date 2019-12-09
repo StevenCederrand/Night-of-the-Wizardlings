@@ -55,7 +55,7 @@ public:
 	Mesh* getMesh(const int& meshIndex = 0); //Get a mesh from the meshbox
 	Material* getMaterial(const int& meshIndex = 0); //Get a material from the meshbox
 
-	const Transform getTransform(int meshIndex) const;
+	const Transform getTransform(int meshIndex = 0) const;
 	const Transform getObjectTransform() const;
 	const Transform getLocalTransform(int meshIndex = 0) const;
 	const Transform getRigidTransform(int meshIndex = 0) const;

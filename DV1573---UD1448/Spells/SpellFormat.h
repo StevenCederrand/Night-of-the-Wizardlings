@@ -1,9 +1,9 @@
-#ifndef	_SPELLS_h
-#define _SPELLS_h
+#ifndef	_SPELLFORMAT_h
+#define _SPELLFORMAT_h
 #include <Pch/Pch.h>
-#include <Particles/Particles.h>
-#include <Mesh/MeshFormat.h>
+#include <Mesh/Mesh.h>
 #include <Particles/ParticleBuffers.h>
+
 struct SpellBase
 {
 	Mesh* m_mesh;

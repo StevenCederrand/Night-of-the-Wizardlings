@@ -28,11 +28,17 @@ float dirlightStr = 0.1f;     // Modifier for brightness (dirlight)
 float ambientStr = 0.1f;      // Global light strength (ambient)
 float brightnessMod = 1.0f;    // Modifier for brightness (textures)
 
-// Modifier for brightness (point light), hardcoded temp needs fix
-float pointLightModP = 68.0f;    //SPELLS
-float pointLightMod1 = 25.0f;      //MAPLIGHT
-float pointLightMod2 = 15.0f;      //MAPLIGHT2
-float pointLightMod3 = 6.5f;      //MAPLIGHT
+// Modifier for brightness (point light), hardcoded temp needs fix 
+// Default
+//float pointLightModP = 68.0f;     //SPELLS 
+//float pointLightMod1 = 25.0f;     //MAPLIGHT
+//float pointLightMod2 = 15.0f;     //MAPLIGHT2
+//float pointLightMod3 = 6.5f;      //MAPLIGHT
+
+float pointLightModP = 78.0f;       //SPELLS               
+float pointLightMod1 = 45.0f;       //MAPLIGHT
+float pointLightMod2 = 25.0f;       //MAPLIGHT2
+float pointLightMod3 = 10.5f;        //MAPLIGHT
 
 uniform vec3 CameraPosition;
 

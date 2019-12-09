@@ -17,7 +17,6 @@ PlayState::PlayState(bool spectator)
 {
 
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
-	//BulletPhysics::getInstance()->setGra
 
 	m_camera = new Camera();
 	mu.printBoth("After physics and camera init:");
@@ -60,7 +59,6 @@ PlayState::PlayState(bool spectator)
 		delete enemyShield;
 
 		m_spellHandler = new SpellHandler();
-		m_spellHandler->setOnHitCallback(std::bind(&PlayState::onSpellHit_callback, this));
 
 		m_player = new Player("Player", NetGlobals::PlayerFirstSpawnPoint, m_camera, m_spellHandler);
 		m_player->setHealth(NetGlobals::PlayerMaxHealth);
@@ -76,7 +74,6 @@ PlayState::PlayState(bool spectator)
 	}
 	else {
 		m_spellHandler = new SpellHandler();
-		m_spellHandler->setOnHitCallback(std::bind(&PlayState::onSpellHit_callback, this));
 		m_camera->setSpectatorMode(SpectatorMode::FreeCamera);
 	}
 
@@ -193,8 +190,24 @@ void PlayState::loadDecor()
 	}
 }
 
-void PlayState::loadLights()
+void PlayState::loadLights()									
 {
+	// Light attenuation chart
+/*
+	7		1.0,	0.7,		1.8
+	13		1.0,	0.35,		0.44
+	20		1.0,	0.22,		0.20
+	32		1.0,	0.14,		0.07
+	50		1.0,	0.09,		0.032
+	65		1.0,	0.07,		0.017
+	100		1.0,	0.045,		0.0075
+	160		1.0,	0.027,		0.0028
+	200		1.0,	0.022,		0.0019
+	325		1.0,	0.014,		0.0007
+	600		1.0,	0.007,		0.0002
+	3250	1.0,	0.0014,		0.000007
+*/
+
 	Renderer* renderer = Renderer::getInstance();
 	switch (m_map)
 	{
@@ -231,23 +244,23 @@ void PlayState::loadLights()
 	case 1:
 		// Light Middle
 		m_pointlights.emplace_back(new Pointlight(glm::vec3(0.0f, 20.0f, 0.0f), glm::vec3(1.0, 1.0, 1.0)));
-		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.07f, 0.017f, 100.0f));
+		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.045, 0.0075, 100.0f));
 
 		// Light Right Back
 		m_pointlights.emplace_back(new Pointlight(glm::vec3(50.0f, 20.0f, 50.0f), glm::vec3(1.0, 0.0, 1.0)));
-		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.07f, 0.017f, 100.0f));
+		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.045, 0.0075, 100.0f));
 
 		// Light Right Forward
 		m_pointlights.emplace_back(new Pointlight(glm::vec3(50.0f, 20.0f, -50.0f), glm::vec3(0.0, 1.0, 1.0)));
-		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.07f, 0.017f, 100.0f));
+		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.045, 0.0075, 100.0f));
 
 		// Light Left Back
 		m_pointlights.emplace_back(new Pointlight(glm::vec3(-50.0f, 20.0f, 50.0f), glm::vec3(0.0, 0.0, 1.0)));
-		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.07f, 0.017f, 100.0f));
+		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.045, 0.0075, 100.0f));
 
 		// Light Left Forward
 		m_pointlights.emplace_back(new Pointlight(glm::vec3(-50.0f, 20.0f, -50.0f), glm::vec3(0.0, 1.0, 1.0)));
-		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.07f, 0.017f, 100.0f));
+		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.045, 0.0075, 100.0f));
 		break;
 
 
@@ -290,8 +303,6 @@ void PlayState::loadDestructables()
 	switch (m_map)
 	{
 	case 0:
-
-
 		for (int i = (int)m_objects.size() - 1; i >= 0; i--)
 		{
 			if (m_objects[i]->getType() == DESTRUCTIBLE)
@@ -405,10 +416,10 @@ void PlayState::loadDestructables()
 
 			gravityOnImpact = 30.0f;
 			timeToChange = 2.5f;
-			gravityAfterTime = 30.0f; // Hover-up effect
+			gravityAfterTime = 30.0f; 
 
 			// Temporary variables to move later ---
-			m_dstr.setBreakSettings(DSTR2, breakPoints, breakRadius, gravityOnImpact);
+			m_dstr.setBreakSettings(DSTR1, breakPoints, breakRadius, gravityOnImpact);
 
 			meshLoader.LoadMesh(MESHPATH + "Debug_DSTR.mesh");
 			for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
@@ -514,11 +525,6 @@ void PlayState::removeDeadObjects()
 			}
 		}
 	}
-}
-
-void PlayState::onSpellHit_callback()
-{
-
 }
 
 void PlayState::update_isPlaying(const float& dt)
@@ -890,10 +896,35 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 {
 	SoundHandler* shPtr = SoundHandler::getInstance();
 	auto* clientPtr = Client::getInstance();
-	GameObject* sp1 = static_cast<GameObject*>(obj1->getCollisionObject()->getUserPointer());
-	GameObject* sp2 = static_cast<GameObject*>(obj2->getCollisionObject()->getUserPointer());
-	if (!sp1 || !sp2)
-		return false;	
+
+	std::string name;
+	std::string name2;
+
+	// If more collision cases are added these need to be filtered and sorted better
+	// Avoid casting wrong types, it will crash
+	Player* ply = nullptr;
+	GameObject* sp1 = nullptr;
+	GameObject* sp2 = nullptr;
+	if (obj1->getCollisionObject()->getUserIndex() == 545)
+	{
+		ply	= static_cast<Player*>(obj1->getCollisionObject()->getUserPointer());
+		sp2 = static_cast<GameObject*>(obj2->getCollisionObject()->getUserPointer());
+		name = ply->getName();
+	}
+	else if (obj2->getCollisionObject()->getUserIndex() == 545)
+	{
+		sp1 = static_cast<GameObject*>(obj1->getCollisionObject()->getUserPointer());
+		ply	= static_cast<Player*>(obj2->getCollisionObject()->getUserPointer());
+		name2 = ply->getName();
+	}
+	else
+	{
+		sp1 = static_cast<GameObject*>(obj1->getCollisionObject()->getUserPointer());
+		sp2 = static_cast<GameObject*>(obj2->getCollisionObject()->getUserPointer());
+
+		if (!sp1 || !sp2)
+			return false;	
+	}
 
 	DestructibleObject* dstrObj = nullptr;
 	Spell* spellObj = nullptr;
@@ -901,44 +932,50 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 
 	btVector3 hitpoint;
 
-	switch (sp1->getType())
+	if (sp1)
 	{
-	case (DESTRUCTIBLE):
-		dstrObj = static_cast<DestructibleObject*>(sp1);
-		hitpoint = cp.m_localPointA;
-		break;
+		switch (sp1->getType())
+		{
+		case (DESTRUCTIBLE):
+			dstrObj = static_cast<DestructibleObject*>(sp1);
+			hitpoint = cp.m_localPointA;
+			break;
 
-	case (NORMALATTACK):
-		spellObj = static_cast<Spell*>(sp1);
-		break;
+		case (NORMALATTACK):
+			spellObj = static_cast<Spell*>(sp1);
+			break;
 
-	case (ENHANCEATTACK):
-		spellObj = static_cast<Spell*>(sp1);
-		break;
+		case (ENHANCEATTACK):
+			spellObj = static_cast<Spell*>(sp1);
+			break;
 
-	case (FLAMESTRIKE):
-		spellObj = static_cast<Spell*>(sp1);
-		break;
+		case (FLAMESTRIKE):
+			spellObj = static_cast<Spell*>(sp1);
+			break;
+		}
 	}
 
-	switch (sp2->getType())
+	if (sp2)
 	{
-	case (DESTRUCTIBLE):
-		dstrObj = static_cast<DestructibleObject*>(sp2);
-		hitpoint = cp.m_localPointB;
-		break;
+		switch (sp2->getType())
+		{
+		case (DESTRUCTIBLE):
+			dstrObj = static_cast<DestructibleObject*>(sp2);
+			hitpoint = cp.m_localPointB;
+			break;
 
-	case (NORMALATTACK):
-		spellObj = static_cast<Spell*>(sp2);
-		break;
+		case (NORMALATTACK):
+			spellObj = static_cast<Spell*>(sp2);
+			break;
 
-	case (ENHANCEATTACK):
-		spellObj = static_cast<Spell*>(sp2);
-		break;
+		case (ENHANCEATTACK):
+			spellObj = static_cast<Spell*>(sp2);
+			break;
 
-	case (FLAMESTRIKE):
-		spellObj = static_cast<Spell*>(sp2);
-		break;
+		case (FLAMESTRIKE):
+			spellObj = static_cast<Spell*>(sp2);
+			break;
+		}
 	}
 
 	if (spellObj)
@@ -964,10 +1001,6 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 				float rndZ = rand() % 2000 + 1 - 1000; rndZ /= 1000;
 				spellObj->getRigidBody()->setLinearVelocity(btVector3(rndX, rndY, rndZ) * 35);
 			}
-
-
-			//if (spellObj->getType() != FLAMESTRIKE)
-			//	spellObj->setTravelTime(0.0f);
 
 			// Network packet
 			DestructionPacket dstrPacket;

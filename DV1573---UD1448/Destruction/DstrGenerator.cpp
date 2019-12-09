@@ -159,97 +159,36 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 	m_diagram.sites = m_diagram.triangulation.vertices;
 
 	const std::vector<glm::vec2> polygon = object->getPolygon();
-	float scale = object->getScale();
+	const std::vector<glm::vec2> uv = object->getUv();
+	const float& scale = object->getScale();
 
-	int count = 0;
-	int vi = 0;
-	int ni = 0;
-	int ti = 0;
-	int mi = 1; // The first mesh (mi == 0) is the initial mesh to destroy
+	// Resets for each
+	count = 0;
+	vi = 0;
+	uvi = 0;
+	ni = 0;
+	ti = 0;
+
+	// Counts each
+	mi = 1; // The first mesh (mi == 0) is the initial mesh to destroy
+
+	// Bottom Left
+	// Bottom Right
+	// Top Right
+	// Top Left
+
+	// Scale format
+	// (maxAllowed - minAllowed) * (unscaledNum - min) / (max - min) + minAllowed;
+	// (1 - 0) * (unscaledNum - polygon[3].x) / (polygon[3].x - polygon[1].x) + 0;
+
 	glm::vec3 normal = glm::vec3();
-
 	for (int i = 0; i < m_randomPoints.size(); i++)
 	{
 		m_clipper.ClipSite(m_diagram, polygon, i, m_clipped);
 
 		if (m_clipped.size() > 0)
 		{
-			count = m_clipped.size();
-			//TODO: one point was nan(ind)
-			
-			m_newVertices.clear();
-			m_newVertices.resize(6 * count);
-
-			m_newFace.clear();
-			m_newFace.resize(4 * count - 4);
-
-			vi = 0;
-			ni = 0;
-			ti = 0;
-			
-			// Top
-			for (int i = 0; i < count; i++)
-			{
-				m_newVertices[vi++].position = glm::vec3(m_clipped[i].x, m_clipped[i].y, scale);
-				m_newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, 1.0f);
-			}
-
-			// Bottom
-			for (int i = 0; i < count; i++)
-			{
-				m_newVertices[vi++].position = glm::vec3(m_clipped[i].x, m_clipped[i].y, -scale);
-				m_newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, -1.0f);
-			}
-
-			// Sides
-			for (int i = 0; i < count; i++)
-			{
-				int iNext = i == count - 1 ? 0 : i + 1;
-
-				m_newVertices[vi++].position = glm::vec3(m_clipped[i].x, m_clipped[i].y, scale);
-				m_newVertices[vi++].position = glm::vec3(m_clipped[i].x, m_clipped[i].y, -scale);
-				m_newVertices[vi++].position = glm::vec3(m_clipped[iNext].x, m_clipped[iNext].y, -scale);
-				m_newVertices[vi++].position = glm::vec3(m_clipped[iNext].x, m_clipped[iNext].y, scale);
-
-				normal = glm::normalize(glm::cross(glm::vec3(m_clipped[iNext] - m_clipped[i], 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
-
-				m_newVertices[ni++].Normals = normal;
-				m_newVertices[ni++].Normals = normal;
-				m_newVertices[ni++].Normals = normal;
-				m_newVertices[ni++].Normals = normal;
-			}
-
-			for (int vert = 2; vert < count; vert++)
-			{
-				m_newFace[ti].indices[0] = 0;
-				m_newFace[ti].indices[1] = vert - 1;
-				m_newFace[ti].indices[2] = vert;
-				ti++;
-			}
-
-			for (int vert = 2; vert < count; vert++)
-			{
-				m_newFace[ti].indices[0] = count;
-				m_newFace[ti].indices[1] = count + vert;
-				m_newFace[ti].indices[2] = count + vert - 1;
-				ti++;
-			}
-
-			int si = 0;
-			for (int vert = 0; vert < count; vert++)
-			{
-				si = 2 * count + 4 * vert;
-
-				m_newFace[ti].indices[0] = si;
-				m_newFace[ti].indices[1] = si + 1;
-				m_newFace[ti].indices[2] = si + 2;
-				ti++;
-
-				m_newFace[ti].indices[0] = si;
-				m_newFace[ti].indices[1] = si + 2;
-				m_newFace[ti].indices[2] = si + 3;
-				ti++;
-			}
+			meshFromClipped(scale, polygon, normal);
 
 			glm::vec3 min = m_newVertices[0].position;
 			glm::vec3 max = m_newVertices[0].position;
@@ -263,8 +202,8 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 				max.y = fmaxf(m_newVertices[i].position.y, max.y);
 				max.z = fmaxf(m_newVertices[i].position.z, max.z);
 			}
-			glm::vec3 center = glm::vec3((min + max) * 0.5f);
 
+			glm::vec3 center = glm::vec3((min + max) * 0.5f);
 			for (size_t i = 0; i < m_newVertices.size(); i++)
 			{
 				m_newVertices[i].position -= center;
@@ -305,9 +244,12 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			float dirRndZ = 2 * (double)rand() / (double)RAND_MAX - 1;
 			
 			btRigidBody* body = object->getRigidBody(mi);
-			body->applyCentralImpulse(btVector3(force.x, force.y, force.z) * 1.4);
-			body->applyTorque(btVector3(force.x * dirRndX, force.y * dirRndY, force.z * dirRndZ) * 15);
-			body->setGravity(m_initGravity);
+			if (body)
+			{
+				body->applyCentralImpulse(btVector3(force.x, force.y, force.z) * 1.4);
+				body->applyTorque(btVector3(force.x * dirRndX, force.y * dirRndY, force.z * dirRndZ) * 15);
+				body->setGravity(m_initGravity);
+			}
 
 			mi++;
 		}
@@ -319,6 +261,96 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 
 	object->setMaterial(nullptr, -1);
 	object->setBodyWorldPosition(glm::vec3(-999.0f), 0);
+}
+
+void DstrGenerator::meshFromClipped(const float& scale, const std::vector<glm::vec2>& polygon, glm::vec3& normal)
+{
+	count = m_clipped.size();
+
+	m_newVertices.clear();
+	m_newVertices.resize(6 * count);
+
+	m_newFace.clear();
+	m_newFace.resize(4 * count - 4);
+
+	vi = 0;
+	uvi = 0;
+	ni = 0;
+	ti = 0;
+
+	// Front
+	for (int i = 0; i < count; i++)
+	{
+		m_newVertices[vi++].position = glm::vec3(m_clipped[i].x, m_clipped[i].y, scale);
+		m_newVertices[uvi++].UV = glm::vec2(
+			(1 - 0) * (m_clipped[i].x - polygon[3].x) / (polygon[3].x - polygon[1].x) + 0,
+			-(1 - 0) * (m_clipped[i].y - polygon[3].y) / (polygon[3].y - polygon[1].y) + 0
+		);
+
+		m_newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, 1.0f);
+	}
+
+	// Back
+	for (int i = 0; i < count; i++)
+	{
+		m_newVertices[vi++].position = glm::vec3(m_clipped[i].x, m_clipped[i].y, -scale);
+		m_newVertices[uvi++].UV = glm::vec2(
+			(1 - 0) * (m_clipped[i].x - polygon[3].x) / (polygon[3].x - polygon[1].x) + 0,
+			-(1 - 0) * (m_clipped[i].y - polygon[3].y) / (polygon[3].y - polygon[1].y) + 0
+		);
+
+		m_newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, -1.0f);
+	}
+
+	// Sides
+	for (int i = 0; i < count; i++)
+	{
+		int iNext = i == count - 1 ? 0 : i + 1;
+
+		m_newVertices[vi++].position = glm::vec3(m_clipped[i].x, m_clipped[i].y, scale);
+		m_newVertices[vi++].position = glm::vec3(m_clipped[i].x, m_clipped[i].y, -scale);
+		m_newVertices[vi++].position = glm::vec3(m_clipped[iNext].x, m_clipped[iNext].y, -scale);
+		m_newVertices[vi++].position = glm::vec3(m_clipped[iNext].x, m_clipped[iNext].y, scale);
+
+		normal = glm::normalize(glm::cross(glm::vec3(m_clipped[iNext] - m_clipped[i], 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+
+		m_newVertices[ni++].Normals = normal;
+		m_newVertices[ni++].Normals = normal;
+		m_newVertices[ni++].Normals = normal;
+		m_newVertices[ni++].Normals = normal;
+	}
+
+	for (int vert = 2; vert < count; vert++)
+	{
+		m_newFace[ti].indices[0] = 0;
+		m_newFace[ti].indices[1] = vert - 1;
+		m_newFace[ti].indices[2] = vert;
+		ti++;
+	}
+
+	for (int vert = 2; vert < count; vert++)
+	{
+		m_newFace[ti].indices[0] = count;
+		m_newFace[ti].indices[1] = count + vert;
+		m_newFace[ti].indices[2] = count + vert - 1;
+		ti++;
+	}
+
+	int si = 0;
+	for (int vert = 0; vert < count; vert++)
+	{
+		si = 2 * count + 4 * vert;
+
+		m_newFace[ti].indices[0] = si;
+		m_newFace[ti].indices[1] = si + 1;
+		m_newFace[ti].indices[2] = si + 2;
+		ti++;
+
+		m_newFace[ti].indices[0] = si;
+		m_newFace[ti].indices[1] = si + 2;
+		m_newFace[ti].indices[2] = si + 3;
+		ti++;
+	}
 }
 
 const unsigned int DstrGenerator::seedRand(int seed)
@@ -348,9 +380,6 @@ void DstrGenerator::Clear()
 	m_newVertices.shrink_to_fit();
 	m_newFace.clear();
 	m_newFace.shrink_to_fit();
-
-	m_meshResults.clear();
-	m_meshResults.shrink_to_fit();
 }
 
 

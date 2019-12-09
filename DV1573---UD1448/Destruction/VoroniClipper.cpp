@@ -1,7 +1,7 @@
 #include <Pch/Pch.h>	
 #include "VoroniClipper.h"
 
-void VoroniClipper::ClipSite(VoroniDiagram diagram, std::vector<glm::vec2> polygon, int site, std::vector<glm::vec2>& clipped)
+void VoroniClipper::ClipSite(VoroniDiagram diagram, const std::vector<glm::vec2>& polygon, int site, std::vector<glm::vec2>& clipped)
 {
 	pointsIn.clear();
 	pointsIn.shrink_to_fit();

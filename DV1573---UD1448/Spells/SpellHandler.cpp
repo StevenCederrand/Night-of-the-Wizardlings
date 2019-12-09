@@ -531,12 +531,6 @@ void SpellHandler::setSpawnerDirection(glm::vec3 direction)
 	m_spawnerDir = direction;
 }
 
-void SpellHandler::setOnHitCallback(std::function<void()> func)
-{
-	m_onHitCallback = func;
-}
-
-
 const SpellBase* SpellHandler::getSpellBase(OBJECT_TYPE type) const
 {
 	switch (type)
@@ -669,9 +663,6 @@ void SpellHandler::spellCollisionCheck()
 					spells[j]->setTravelTime(0.0f);
 					Client::getInstance()->sendHitRequest(*spells[j], list[i]);
 
-					if (m_onHitCallback != nullptr) {
-						m_onHitCallback();
-					}
 					k = static_cast<size_t>(m_nrSubSteps);
 				}
 			}

@@ -28,6 +28,7 @@ Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera, Spell
 	m_client = Client::getInstance();
 	m_character = BulletPhysics::getInstance()->createCharacter(playerPosition);
 	m_character->getGhostObject()->setUserPointer(this);
+	m_character->getGhostObject()->setUserIndex(545);
 
 	// Often moving values 
 	m_playerPosition = playerPosition;

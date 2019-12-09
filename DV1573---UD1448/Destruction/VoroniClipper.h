@@ -5,7 +5,7 @@
 class VoroniClipper
 {
 public:
-	void ClipSite(VoroniDiagram diagram, std::vector<glm::vec2> polygon, int site, std::vector<glm::vec2>& clipped);
+	void ClipSite(VoroniDiagram diagram, const std::vector<glm::vec2>& polygon, int site, std::vector<glm::vec2>& clipped);
 
 
 
