@@ -131,6 +131,7 @@ private:
 
 	TextureInfo m_txtInfo;
 	PSinfo m_PSinfo;
+	ParticleBuffers* deathBuffer;
 
 	std::vector<ParticleSystem> m_particleSystems;
 
@@ -180,6 +181,8 @@ public:
 
 	void initializeParticle();
 	void updateParticles(float dt);
+	void removePoof();
+	void death();
 };
 
 #endif

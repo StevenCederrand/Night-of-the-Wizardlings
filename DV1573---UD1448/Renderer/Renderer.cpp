@@ -36,6 +36,9 @@ Renderer::~Renderer()
 {
 	//delete m_bloom;
 	delete m_text;
+
+	if (deathBuffer)
+		delete deathBuffer;
 }
 
 void Renderer::renderHUD()
@@ -472,7 +475,10 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 
 	if (objType == RENDER_TYPE::STATIC) 
 	{
+		//gameObject->addParticle(deathBuffer);
 		m_staticObjects.emplace_back(gameObject);
+		//m_staticObjects[0]->addParticle(deathBuffer);
+		//gameObject->addParticle(deathBuffer);
 	}
 	else if (objType == RENDER_TYPE::SPELL) 
 	{
@@ -903,6 +909,7 @@ void Renderer::render() {
 #pragma endregion
 	}
 
+	renderSkybox();
 	
 	
 	//BLOOMBLUR MISSION STEP 1: SAMPLE
@@ -961,6 +968,10 @@ void Renderer::render() {
 		if (!object->getShouldRender()) {
 			continue;
 		}
+		//TODO
+		//object->UpdateParticles(dt);
+		//object->UpdateParticles(dt);
+		//object->RenderParticles(glm::vec3(0), m_camera);
 
 		//Then through all of the meshes
 		for (int j = 0; j < object->getMeshesCount(); j++)
@@ -985,7 +996,10 @@ void Renderer::render() {
 			glDisableVertexAttribArray(0);
 			glDisableVertexAttribArray(1);
 			glDisableVertexAttribArray(2);
+
 		}
+		object->RenderParticles(m_camera);
+		//object->getTransform().position
 	}
 
 	shader->clearBinding();
@@ -1197,7 +1211,7 @@ void Renderer::render() {
 
 	shader->clearBinding();
 #pragma endregion
-	renderSkybox();
+	//renderSkybox();
 	// Spell Rendering
 	m_spellHandler->renderSpell();
 	m_spellEditor->renderSpell();
@@ -1391,6 +1405,11 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 		}
 	}
 
+	for (int i = 0; i < m_particleSystems.size(); i++)
+	{
+		m_particleSystems[i].Render(m_camera);
+		m_particleSystems[i].SetPosition(glm::vec3(0));
+	}
 }
 
 void Renderer::renderSpell(SpellEditor* SpellEditor)
@@ -1489,10 +1508,58 @@ Camera* Renderer::getMainCamera() const
 
 void Renderer::initializeParticle()
 {
+	PSinfo tempPS;
+	TextureInfo tempTxt;
 
+	tempTxt.name = "Assets/Textures/betterSmoke.png";
+	tempPS.width = 0.9f;
+	tempPS.heigth = 1.2f;
+	tempPS.lifetime = 5.0f;
+	tempPS.maxParticles = 300;
+	tempPS.emission = 0.02f;
+	tempPS.force = -0.54f;
+	tempPS.drag = 0.0f;
+	tempPS.gravity = -2.2f;
+	tempPS.seed = 1;
+	tempPS.cont = true;
+	tempPS.omnious = true;
+	tempPS.spread = 5.0f;
+	tempPS.glow = 1.3;
+	tempPS.scaleDirection = 0;
+	tempPS.swirl = 0;
+	tempPS.fade = 1;
+	tempPS.randomSpawn = true;
+	tempPS.color = glm::vec3(0.3f, 0.3f, 0.3f);
+	tempPS.blendColor = glm::vec3(1.0f, 1.0f, 1.0f);
+	tempPS.color = glm::vec3(0.0, 0.0f, 0.0f);
+	tempPS.direction = glm::vec3(0.0f, -1.0f, 0.0f);
+
+	deathBuffer = new ParticleBuffers(tempPS, tempTxt);
+	deathBuffer->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
+	deathBuffer->bindBuffers();
+
+	//m_staticObjects.back()->addParticle(deathBuffer);
 }
 
 void Renderer::updateParticles(float dt)
 {
+	for (GameObject* object : m_staticObjects)
+	{
+		object->UpdateParticles(dt);
+	}
 
+	for (int i = 0; i < m_particleSystems.size(); i++)
+	{
+		m_particleSystems[i].Update(dt);
+	}
+}
+
+void Renderer::removePoof()
+{
+	//m_particleSystems.erase(m_particleSystems[0]);
+}
+
+void Renderer::death()
+{
+	//m_particleSystems.emplace_back(deathBuffer);
 }

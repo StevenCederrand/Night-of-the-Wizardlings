@@ -102,6 +102,7 @@ PlayState::PlayState(bool spectator)
 	//m_hudHandler.loadPlayStateHUD();
 	m_hideHUD = false;
 
+	InitParticle();
 
 	mu.printBoth("End of play state init:");
 }
@@ -449,6 +450,9 @@ PlayState::~PlayState()
 		if (light)
 			delete light;
 
+	if (deathBuffer)
+		delete deathBuffer;
+
 	GUIclear();
 
 	m_pointlights.clear();
@@ -568,6 +572,14 @@ void PlayState::update_isPlaying(const float& dt)
 				m_camera->disableCameraMovement(true);
 				//TODO
 				//Here I can implement the poof particles for a dead player
+
+				//m_objects.push_back(new WorldObject("Poof"));
+				//m_objects.back()->setWorldPosition(m_player->getPlayerPos());
+				//m_objects.back()->addParticle(deathBuffer);
+				//m_objects.back()->RemoveParticle(); //Set remove to true, it will now die when the player has respawned
+				//Renderer::getInstance()->submit(m_objects.back(), STATIC);
+
+
 				break;
 			}
 
@@ -582,6 +594,18 @@ void PlayState::update_isPlaying(const float& dt)
 				m_camera->resetCamera();
 				m_camera->disableCameraMovement(false);
 				m_player->onRespawn();
+				
+				for (int i = 0; i < m_objects.size(); i++)
+				{
+					if (m_objects[i]->ShouldDie()) //Atm this seems to be working fine
+					{
+						Renderer::getInstance()->removeRenderObject(m_objects[i], STATIC);
+						// Might fuck up destruction!!!1
+						delete m_objects[i];
+						m_objects.erase(m_objects.begin() + i);
+					}
+				}
+
 				break;
 			}
 
@@ -756,6 +780,42 @@ void PlayState::update_isPlaying(const float& dt)
 				m_hudHandler.getHudObject(HUDID::BAR_MANA)->setYClip(1.0f);
 				m_hudHandler.getHudObject(HUDID::BAR_HP)->setYClip(1.0f);
 				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(1.0f);
+				break;
+			}
+			
+			case PlayerEvents::EnemyDied:
+			{
+				if (evnt.data == nullptr) continue;
+
+				for (int i = 0; i < m_objects.size(); i++)
+				{
+					if (m_objects[i]->ShouldDie()) //Atm this seems to be working fine
+					{
+						Renderer::getInstance()->removeRenderObject(m_objects[i], STATIC);
+						// Might fuck up destruction!!!1
+						delete m_objects[i];
+						m_objects.erase(m_objects.begin() + i);
+					}
+				}
+
+				EnemyDiedPacket packet;
+				memcpy(&packet, evnt.data, sizeof(EnemyDiedPacket));
+				auto* player = Client::getInstance()->findPlayerWithGuid(packet.guidOfDeadPlayer);
+
+				// Do stuff here with player pointer
+				
+				std::printf("Player died at %f, %f, %f\n", player->position.x, player->position.y, player->position.z);
+
+
+				m_objects.push_back(new WorldObject("Poof"));
+				m_objects.back()->setWorldPosition(glm::vec3(player->position.x, player->position.y, player->position.z));
+				m_objects.back()->addParticle(deathBuffer);
+				m_objects.back()->RemoveParticle(); //Set remove to true, it will now die when the player has respawned
+				Renderer::getInstance()->submit(m_objects.back(), STATIC);
+				//-------------
+
+
+				delete evnt.data;
 				break;
 			}
 
@@ -1004,6 +1064,39 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 
 
 	return false;
+}
+
+void PlayState::InitParticle()
+{
+	PSinfo tempPS;
+	TextureInfo tempTxt;
+
+	tempTxt.name = "Assets/Textures/betterSmoke2.png";
+	tempPS.width = 0.9f;
+	tempPS.heigth = 1.2f;
+	tempPS.lifetime = 3.0f;
+	tempPS.maxParticles = 300;
+	tempPS.emission = 0.02f;
+	tempPS.force = -0.54f;
+	tempPS.drag = 0.0f;
+	tempPS.gravity = -2.2f;
+	tempPS.seed = 1;
+	tempPS.cont = false;
+	tempPS.omnious = true;
+	tempPS.spread = 5.0f;
+	tempPS.glow = 1.3;
+	tempPS.scaleDirection = 0;
+	tempPS.swirl = 0;
+	tempPS.fade = 1;
+	tempPS.randomSpawn = true;
+	tempPS.color = glm::vec3(0.3f, 0.8f, 0.0f);
+	tempPS.blendColor = glm::vec3(0.0f, 1.0f, 0.0f);
+	//tempPS.color = glm::vec3(0.0, 0.0f, 0.0f);
+	tempPS.direction = glm::vec3(0.0f, -1.0f, 0.0f);
+
+	deathBuffer = new ParticleBuffers(tempPS, tempTxt);
+	deathBuffer->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
+	deathBuffer->bindBuffers();
 }
 
 void PlayState::HUDHandler() {
