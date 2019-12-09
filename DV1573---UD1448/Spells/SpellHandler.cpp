@@ -209,7 +209,7 @@ void SpellHandler::initFireSpell()
 	PSinfo tempPS;
 	TextureInfo tempTxt;
 
-	tempTxt.name = "Assets/Textures/betterSmoke.png";
+	tempTxt.name = "Assets/Textures/betterSmoke2.png";
 	tempPS.width = 0.9f;
 	tempPS.heigth = 1.2f;
 	tempPS.lifetime = 5.0f;
@@ -221,7 +221,7 @@ void SpellHandler::initFireSpell()
 	tempPS.seed = 1;
 	tempPS.cont = true;
 	tempPS.omnious = true;
-	tempPS.spread = 5.0f;
+	tempPS.spread = 3.0f;
 	tempPS.glow = 1.3;
 	tempPS.scaleDirection = 0;
 	tempPS.swirl = 0;

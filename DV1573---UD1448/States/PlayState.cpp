@@ -562,7 +562,7 @@ void PlayState::update_isPlaying(const float& dt)
 				//TODO
 				//Here I can implement the poof particles for a dead player
 
-				m_objects.push_back(new WorldObject("Death"));
+				m_objects.push_back(new WorldObject("Poof"));
 				m_objects.back()->setWorldPosition(m_player->getPlayerPos());
 				m_objects.back()->addParticle(deathBuffer);
 				m_objects.back()->RemoveParticle(); //Set remove to true, it will now die when the player has respawned
@@ -586,7 +586,7 @@ void PlayState::update_isPlaying(const float& dt)
 				
 				for (int i = 0; i < m_objects.size(); i++)
 				{
-					if (m_objects[i]->ShouldDie())
+					if (m_objects[i]->ShouldDie()) //Atm this seems to be working fine
 					{
 						Renderer::getInstance()->removeRenderObject(m_objects[i], STATIC);
 						// Might fuck up destruction!!!1
