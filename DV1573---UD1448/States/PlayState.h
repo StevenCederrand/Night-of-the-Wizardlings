@@ -17,6 +17,7 @@
 #include <GFX/Pointlight.h>
 #include <System/MemoryUsage.h>
 #include <HUD/WorldHudObject.h>
+
 //bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
 //	const btCollisionObjectWrapper* obj2, int id2, int index2);
 
@@ -25,6 +26,10 @@ class PlayState : public State {
 public:
 	//PlayState(){}
 	PlayState(bool spectator);
+	void loadMap();
+	void loadSkyDebris(Renderer* renderer);
+	void loadDecor();
+	void loadLights();
 	void loadDestructables();
 	virtual ~PlayState() override;
 	virtual void update(float dt) override;
@@ -33,6 +38,8 @@ public:
 
 	static bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
 		const btCollisionObjectWrapper* obj2, int id2, int index2);	
+
+	void InitParticle();
 private:
 	/* Callbacks */
 	void onSpellHit_callback();
@@ -42,7 +49,14 @@ private:
 	void update_isSpectating(const float& dt);
 
 private:
-	int key = 1;
+	int key = 1;	// Delete this??
+
+	// Hardcoded solution for choosing the map
+	// Should probably be changed depending on how we want to handle different maps
+	// 0 is default
+	// 1 is debug
+	int m_map = 0;
+
 	float m_rotVal;
 	bool m_GUIOpen;
 	
@@ -58,7 +72,6 @@ private:
 	Player* m_player;
 	Camera* m_camera;
 	SkyBox* m_skybox;
-	BulletPhysics* m_bPhysics;
 	MemoryUsage mu;
 	HudHandler m_hudHandler;
 	
@@ -70,8 +83,15 @@ private:
 	bool m_hideHUD;
 
 	glm::vec3 m_lastPositionOfMyKiller;
+	GUIText* m_gameTimeText;
+	GUIText* m_readyText;
+	GUIText* m_numberOfPlayersReadyText;
+	GUIText* m_killNotification;
+	GUIText* m_memoryText;
+	GUIText* m_fpsText;
+	float startY;
 
-	float startY;	
+	ParticleBuffers* deathBuffer;
 private: 
 
 	bool onMainMenuClick(const CEGUI::EventArgs& e);

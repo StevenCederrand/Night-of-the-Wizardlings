@@ -9,15 +9,15 @@ LocalServer::LocalServer()
 	m_roundTimer = NetGlobals::GameRoundTimeMS;
 
 	m_timedCountdownTimer.setTotalExecutionTime(NetGlobals::WarmupCountdownTimeMS);
-	m_timedCountdownTimer.setExecutionInterval(500);
+	m_timedCountdownTimer.setExecutionInterval(1000);
 	m_timedCountdownTimer.registerCallback(std::bind(&LocalServer::countdownExecutionLogic, this));
 
 	m_timedRunTimer.setTotalExecutionTime(NetGlobals::GameRoundTimeMS);
-	m_timedRunTimer.setExecutionInterval(500);
+	m_timedRunTimer.setExecutionInterval(1000);
 	m_timedRunTimer.registerCallback(std::bind(&LocalServer::roundTimeExecutionLogic, this));
 
 	m_timedGameInEndStateTimer.setTotalExecutionTime(NetGlobals::InGameEndStateTimeMS);
-	m_timedGameInEndStateTimer.setExecutionInterval(500);
+	m_timedGameInEndStateTimer.setExecutionInterval(1000);
 	m_timedGameInEndStateTimer.registerCallback(std::bind(&LocalServer::endGameTimeExecutionLogic, this));
 
 	m_timedPickupSpawner.setTotalExecutionTime(NetGlobals::GameRoundTimeMS);
@@ -731,11 +731,13 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 		//Update the shooter's hitmark
 		RakNet::BitStream hitmarkStream;
 		hitmarkStream.Write((RakNet::MessageID)HITMARK);
-		shooter->Serialize(true, hitmarkStream);
+		HitConfirmedPacket hitConfirmedPacket;
+		hitConfirmedPacket.damageDone = static_cast<int>(hitpacket->damage);
+		hitConfirmedPacket.targetPosition = target->position;
+		hitConfirmedPacket.Serialize(true, hitmarkStream);
 		m_serverPeer->Send(&hitmarkStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, shooter->guid, false);
 
-		float damageMultiplier = 1.0f;
-		float totalDamage = hitpacket->damage * damageMultiplier;
+		float totalDamage = hitpacket->damage;
 
 		target->health -= static_cast<int>(totalDamage);
 
@@ -777,6 +779,15 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 			kFeed.deadGuid = target->guid;
 			kFeed.Serialize(true, killFeedStream);
 			sendStreamToAllClients(killFeedStream, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
+
+			// Send a dead player packet to everyone so that they can mainly play particels or something :P
+			RakNet::BitStream deadPlayerStream;
+			deadPlayerStream.Write((RakNet::MessageID)ENEMY_DIED);
+			EnemyDiedPacket enemyDiedPacket;
+			enemyDiedPacket.guidOfDeadPlayer = target->guid.rakNetGuid;
+			enemyDiedPacket.Serialize(true, deadPlayerStream);
+			sendStreamToAllClients(deadPlayerStream, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
+			
 
 		}
 

@@ -10,6 +10,7 @@
 #define FULLSCREEN false;
 
 float DeltaTime = 0.0f;
+unsigned int Framerate = 0;
 
 Application::Application() {
 }
@@ -104,8 +105,8 @@ bool Application::init() {
 #endif
 
 	SoundHandler* shPtr = SoundHandler::getInstance();	
-	shPtr->playSound(ThemeSong0);
-	shPtr->setSourceLooping(true, ThemeSong0);
+	//shPtr->playSound(ThemeSong0);
+	//shPtr->setSourceLooping(true, ThemeSong0);
 
 	unsigned int _time = unsigned int(time(NULL));
 	srand(_time);
@@ -230,9 +231,7 @@ void Application::calcFPS(const float& dt)
 	if (frameTimer <= 0.0f)
 	{
 		frameTimer = 1.0f;
-		//std::string title = "Wizards 'n stuff | FPS: " + std::to_string(fps);
-		//printf("%s\n",title.c_str());
-		glfwSetWindowTitle(m_window, "Wizards 'n stuff");
+		Framerate = fps;
 		fps = 0;
 	}
 

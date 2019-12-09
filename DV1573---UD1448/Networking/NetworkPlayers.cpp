@@ -18,8 +18,10 @@ void NetworkPlayers::cleanUp()
 	{
 		PlayerEntity& p = m_players[i];
 		delete p.healthDisplay;
-		delete p.manaDisplay;
 		delete p.gameobject;
+		
+		if(p.nameplate != nullptr)
+			TextManager::getInstance()->removeText(p.nameplate->getUniqueIndex());
 	}
 	m_players.clear();
 }
@@ -38,7 +40,9 @@ void NetworkPlayers::update(const float& dt)
 			if (p.gameobject == nullptr) {
 
 				p.healthDisplay = new WorldHudObject("Assets/Textures/hud/tmpHP.png", p.data.position, m_displayScale);
-				p.manaDisplay = new WorldHudObject("Assets/Textures/hud/tmpMana.png", p.data.position - m_displayScale.y, m_displayScale);
+				
+				
+
 				p.gameobject = new AnimatedObject("asd");
 				p.gameobject->loadMesh("NyCharacter.mesh");
 				p.gameobject->setWorldPosition(glm::vec3(0, 0, 0));
@@ -66,6 +70,7 @@ void NetworkPlayers::update(const float& dt)
 			Renderer::getInstance()->removeRenderObject(p.gameobject, ANIMATEDSTATIC);
 			delete p.healthDisplay;
 			delete p.gameobject;
+			TextManager::getInstance()->removeText(p.nameplate->getUniqueIndex());
 			m_players.erase(m_players.begin() + i);
 			shPtr->removePlayer(p.data.guid);
 			i--;
@@ -80,7 +85,7 @@ void NetworkPlayers::update(const float& dt)
 			shieldObject->loadMesh("EnemyShieldMesh.mesh");
 			
 			glm::vec3 spawnpos = p.data.position + glm::vec3(0.0f, p.data.meshHalfSize.y, 0.0f);
-			glm::vec3 newShieldpos = g->getTransform().position + glm::vec3(0.0f, p.data.meshHalfSize.y, 0.0f);
+			glm::vec3 newShieldpos = g->getObjectTransform().position + glm::vec3(0.0f, p.data.meshHalfSize.y, 0.0f);
 			glm::vec3 shieldLerp = CustomLerp(newShieldpos, spawnpos, m_lerpSpeed * dt);
 			shieldObject->setTransform(shieldLerp, p.data.rotation, glm::vec3(1.0));
 			Renderer::getInstance()->submit(shieldObject, ENEMY_SHIELD);
@@ -131,30 +136,47 @@ void NetworkPlayers::update(const float& dt)
 			/* Don't render the player if he's dead */
 			if (p.data.health <= 0.0f || p.data.hasBeenUpdatedOnce == false) {
 				p.healthDisplay->setShouldRender(false);
-				p.manaDisplay->setShouldRender(false);
 				g->setShouldRender(false);
+				if (p.nameplate != nullptr) {
+					p.nameplate->setShouldRender(false);
+				}
 			}
 
 			else {
 				p.healthDisplay->setShouldRender(true);
-				p.manaDisplay->setShouldRender(true);
 				g->setShouldRender(true);
+				if (p.nameplate != nullptr) {
+					p.nameplate->setShouldRender(true);
+				}
 			}
 
-			glm::vec3 pos = CustomLerp(g->getTransform().position, p.data.position, m_lerpSpeed * dt);
+			if (p.playerFlag == NetGlobals::THREAD_PLAYER_FLAG::SafeToAddNameplate && p.nameplate == nullptr) {
+				p.nameplate = TextManager::getInstance()->addDynamicText(std::string(p.data.userName),
+					1.0f,
+					p.data.position + glm::vec3(0.0f, p.data.meshHalfSize.y * 1.2f, 0.0f),
+					0.0f,
+					TextManager::TextBehaviour::StayForever);
+				p.nameplate->setToFaceCamera(true);
+				p.nameplate->setIgnoreDepthTest(false);
+				p.playerFlag == NetGlobals::THREAD_PLAYER_FLAG::AlreadyAdded;
+			}
+
+			glm::vec3 pos = CustomLerp(g->getObjectTransform().position, p.data.position, m_lerpSpeed * dt);
 
 
 			float healthClip = static_cast<float>(p.data.health) / static_cast<float>(NetGlobals::PlayerMaxHealth);
-			float manaClip = static_cast<float>(p.data.mana) / static_cast<float>(NetGlobals::PlayerMaxMana);
 			p.healthDisplay->setXClip(healthClip);
-			p.healthDisplay->setCenter(pos + glm::vec3(0.0f, p.data.meshHalfSize.y * 2.12, 0.0f));
+			p.healthDisplay->setCenter(pos + glm::vec3(0.0f, p.data.meshHalfSize.y * 2.0f, 0.0f));
 			
-			p.manaDisplay->setXClip(manaClip);
-			p.manaDisplay->setCenter(pos + glm::vec3(0.0f, p.data.meshHalfSize.y * 2.0, 0.0f));
+			if (p.nameplate != nullptr) {
+				p.nameplate->setPosition(pos + glm::vec3(0.0f, p.data.meshHalfSize.y * 2.20, 0.0f));
+				float distance = glm::distance(p.nameplate->getPosition(), Client::getInstance()->getMyData().position);
+				p.nameplate->setScale(fminf(fmaxf(distance / 8.0f, 1.0f), 2.0f));
+
+			}
 
 			Renderer::getInstance()->submitWorldHud(p.healthDisplay);
-			Renderer::getInstance()->submitWorldHud(p.manaDisplay);
-
+			
 			g->setWorldPosition(pos);
 			g->setTransform(pos, glm::quat(p.data.rotation), glm::vec3(1.0f));
 

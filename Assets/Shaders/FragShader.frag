@@ -57,7 +57,10 @@ void main() {
 
     vec3 emissive = Ambient_Color; // Temp used as emmisve, should rename all ambient names to emmisive.
     //Makes the material full solid color (basically fully lit). Needs bloom for best effect.
+
+    // Texture slot
     vec4 finalTexture = texture(albedoTexture, f_UV);
+
     // Ambient light
     vec3 ambientLight = Diffuse_Color * ambientStr * ssaoValue;     // Material color
     if (TexAndRim.x == 1)
@@ -87,19 +90,18 @@ void main() {
     }
 
     // Resulting light
-    vec3 result = ambientLight + directionalLight + pointLights + emissive; // We see light, so add only and all the lights together to get color
+    vec4 result = vec4(ambientLight + directionalLight + pointLights + emissive, finalTexture.a); // We see light, so add only and all the lights together to get color
+
     if(grayscale == 1){
-    	result = grayscaleColour(result);
+    	result.xyz = grayscaleColour(result.xyz);
     }
-
-
-    color = vec4(result, 1);
+    color = result;
 }
 
 vec3 calcPointLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance, vec3 diffuse) {
     vec3 lightDir = normalize(pLight.position - position); //From the surface to the light
     float diff = max(dot(normal, lightDir), 0);
-    vec3 diffuseLight = diffuse * diff * normalize(pLight.color) * 5.0f;
+    vec3 diffuseLight = diffuse * diff * normalize(pLight.color);
 
     vec3 newDiffuse = diffuseLight;
     float f = 0.15; // desaturate by %

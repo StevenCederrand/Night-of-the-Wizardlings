@@ -30,6 +30,10 @@ namespace NetGlobals {
 		None
 	};
 
+	enum THREAD_PLAYER_FLAG {
+		SafeToAddNameplate, AlreadyAdded, NotAdded
+	};
+
 	enum SERVER_STATE {
 		WaitingForPlayers = 0,
 		GameIsStarting,
@@ -37,6 +41,7 @@ namespace NetGlobals {
 		GameFinished
 	};
 
+	static std::mutex DynamicTextMutex;
 	static std::mutex ClientCleanupMutex;
 	static std::mutex UpdatePickupsMutex;
 	static std::mutex UpdatePlayersMutex;

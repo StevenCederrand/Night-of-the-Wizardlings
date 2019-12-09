@@ -9,6 +9,7 @@
 #define ANIMATION "Basic_Animation"
 #define FRESNEL "Fresnel_Shader"
 #define ENEMYSHIELD "Enemy_Shield"
+#define TRANSPARENT "Transparent_Render"
 #define SKYBOX "Skybox_Shader"
 #define HUD "Hud_Shader"
 #define WHUD "wHudShader"
@@ -46,6 +47,10 @@
 #include <Particles/ParticleBuffers.h>
 #pragma endregion
 
+#include <System/MemoryUsage.h>
+
+#define P_LIGHT_COUNT 64
+#define P_LIGHT_RADIUS 5
 
 struct ObjectRenderData {
 	Buffers buffer;
@@ -74,7 +79,8 @@ enum RENDER_TYPE {
 	SHIELD,
 	FIRESPELL,
 	POINTLIGHT_SOURCE,
-	ENEMY_SHIELD
+	ENEMY_SHIELD,
+	SKYOBJECTS
 };
 
 class Renderer
@@ -103,8 +109,9 @@ private:
 	std::vector<GameObject*> m_spells;
 	std::vector<PLIGHT> m_lights;
 	std::vector<GameObject*> m_pickups;
-	std::vector<GameObject*> m_shieldObject;
 	std::vector<GameObject*> m_enemyShieldObject;
+	std::vector<GameObject*> m_skyObjects;
+	GameObject* m_shieldObject;
 
 	std::unordered_map<GLuint, std::vector<HudObject*>> m_2DHudMap;
 	std::unordered_map<GLuint, std::vector<WorldHudObject*>> m_worldHudMap;
@@ -126,6 +133,7 @@ private:
 	unsigned int m_colourBuffer;
 	unsigned int m_rbo;
 	bool m_renderedDepthmap;
+
 	//Storage Buffer for light indecies
 	unsigned int m_lightIndexSSBO;
 	glm::uvec2 workGroups;
@@ -144,37 +152,11 @@ private:
 	unsigned int m_colorID;
 	unsigned int m_blendColorID;
 
-	int	thisActive = 0;
-	int	vertexCountDiff = 0;
-	float emissionDiff = 0.0f;
-
-	int	thisActive2 = 0;
-	int	vertexCountDiff2 = 0;
-	float emissionDiff2 = 0.0f;
-
-	int	thisActive3 = 0;
-	int	vertexCountDiff3 = 0;
-	float emissionDiff3 = 0.0f;
-
 	TextureInfo m_txtInfo;
 	PSinfo m_PSinfo;
-	PSinfo m_flameInfo;
-	PSinfo m_enhanceInfo;
-	PSinfo m_smoke;
+	ParticleBuffers* deathBuffer;
 
 	std::vector<ParticleSystem> m_particleSystems;
-	//1 for every spelltype
-	psBuffers attackBuffer;
-	psBuffers flameBuffer; //Do I need 1 for every spell?
-	psBuffers enhanceBuffer; // Yes, yes I do
-	psBuffers smokeBuffer;
-
-	ParticleBuffers* attackPS;
-	ParticleBuffers* flamestrikePS;
-	ParticleBuffers* enhancePS;
-	ParticleBuffers* smokePS;
-#pragma endregion
-
 	void renderBigNotifications();
 	void renderKillFeed();
 	void createDepthMap();
@@ -206,8 +188,7 @@ public:
 	void renderDepthmap(); //Generate a depthmap, this is used for both Forward+ and SSAO
 	void renderHUD();
 	void renderWorldHud();
-
-
+	
 	void addBigNotification(NotificationText notification);
 	void addKillFeed(NotificationText notification);
 	void addKillNotification(NotificationText notification);
@@ -218,6 +199,8 @@ public:
 
 	void initializeParticle();
 	void updateParticles(float dt);
+	void removePoof();
+	void death();
 };
 
 #endif
