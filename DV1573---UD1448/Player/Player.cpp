@@ -56,11 +56,7 @@ Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera, Spell
 	m_specialManaDrain = 30.0f;
 
 	m_mainAtkType = NORMALATTACK;
-	m_specialAtkType = ENHANCEATTACK;
-
-	m_deflectSoundGain = SoundHandler::getInstance()->getSourceGain(DeflectSound,
-		m_client->getMyData().guid);
-	SoundHandler::getInstance()->setMasterVolume(1.0f);
+	m_specialAtkType = ENHANCEATTACK;		
 }
 
 Player::~Player()
