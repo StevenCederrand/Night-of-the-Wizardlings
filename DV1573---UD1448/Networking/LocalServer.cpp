@@ -9,15 +9,15 @@ LocalServer::LocalServer()
 	m_roundTimer = NetGlobals::GameRoundTimeMS;
 
 	m_timedCountdownTimer.setTotalExecutionTime(NetGlobals::WarmupCountdownTimeMS);
-	m_timedCountdownTimer.setExecutionInterval(500);
+	m_timedCountdownTimer.setExecutionInterval(1000);
 	m_timedCountdownTimer.registerCallback(std::bind(&LocalServer::countdownExecutionLogic, this));
 
 	m_timedRunTimer.setTotalExecutionTime(NetGlobals::GameRoundTimeMS);
-	m_timedRunTimer.setExecutionInterval(500);
+	m_timedRunTimer.setExecutionInterval(1000);
 	m_timedRunTimer.registerCallback(std::bind(&LocalServer::roundTimeExecutionLogic, this));
 
 	m_timedGameInEndStateTimer.setTotalExecutionTime(NetGlobals::InGameEndStateTimeMS);
-	m_timedGameInEndStateTimer.setExecutionInterval(500);
+	m_timedGameInEndStateTimer.setExecutionInterval(1000);
 	m_timedGameInEndStateTimer.registerCallback(std::bind(&LocalServer::endGameTimeExecutionLogic, this));
 
 	m_timedPickupSpawner.setTotalExecutionTime(NetGlobals::GameRoundTimeMS);

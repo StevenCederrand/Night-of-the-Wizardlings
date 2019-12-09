@@ -14,6 +14,9 @@ public:
 		ScaleUp_ScaleDown,
 		FadeIn_FadeOut,
 		Instant_FadOut,
+		StayForever,
+		StayForeverAndScale,
+
 	};
 
 	struct TextEntity {
@@ -31,14 +34,13 @@ public:
 	
 	void update();
 	static TextManager* getInstance();
+	void removeText(unsigned int uniqueKey);
 
-
-	GUIText* addDynamicText(const std::string& text, const float& fontSize, const glm::vec3& position, const float& lifetime, TextBehaviour behaviour, const glm::vec3& velocity = glm::vec3(0.0f));
+	GUIText* addDynamicText(const std::string& text, const float& fontSize, const glm::vec3& position, const float& lifetime, TextBehaviour behaviour, const glm::vec3& velocity = glm::vec3(0.0f), bool ScreenText = false, const float& viewportWidth = 1.0f);
 
 
 private:
 	
-
 	std::vector<TextEntity> m_textEntities;
 	FontType* m_fontType;
 

@@ -8,6 +8,7 @@
 #include <BetterText/TextManager.h>
 #define PLAYSECTION "PLAYSTATE"
 
+#define SHOW_MEMORY_INFO true
 
 void logVec3(glm::vec3 vector) {
 	logTrace("Vector: ({0}, {1}, {2})", std::to_string(vector.x), std::to_string(vector.y), std::to_string(vector.z));
@@ -15,33 +16,12 @@ void logVec3(glm::vec3 vector) {
 
 PlayState::PlayState(bool spectator)
 {
-
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
-	//BulletPhysics::getInstance()->setGra
-
 	m_camera = new Camera();
 	mu.printBoth("After physics and camera init:");
 
-
-
-	mu.printBoth("Before Font:");
-
-	/* Todo:
-		Create the whole render logic, hashmaps 'n stuff.
-		Gui text has a unique index so use that to remove the texts if needed.
-
-		Font loading resulet in:
-		+ ~ 1MB Ram
-		+ ~ 3MB VRam
-	*/
-
-	
-	//m_text = new GUIText("Yoooo", 2.f, m_fontType, glm::vec3(0.0f, 0.0f, -10.0f), 1.f, true);
-	//m_text->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	TextRenderer::getInstance()->init(m_camera);
 	TextManager::getInstance();
-	/*TextRenderer::getInstance()->submitText(m_text);*/
-
 	mu.printBoth("After Font:");
 
 	if (spectator == false) {
@@ -99,15 +79,25 @@ PlayState::PlayState(bool spectator)
 	if(Client::getInstance()->isInitialized())
 		Client::getInstance()->assignSpellHandler(m_spellHandler);
 
-	//m_hudHandler.loadPlayStateHUD();
 	m_hideHUD = false;
 
 	InitParticle();
 
+#if SHOW_MEMORY_INFO
+	std::string memTex = "Ram: " + std::to_string(mu.getCurrentRamUsage()) + " | VRam: " + std::to_string(mu.getCurrentVramUsage()) +
+		" | Highest Ram: " + std::to_string(mu.getHighestRamUsage()) + " | Highest VRam: " + std::to_string(mu.getHighestVramUsage());
+	
+	m_memoryText = TextManager::getInstance()->addDynamicText(
+		memTex,
+		0.09f,
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		1.f,
+		TextManager::TextBehaviour::StayForever,
+		glm::vec3(0.0f, 0.0f, 0.0f), true);
+#endif
 	mu.printBoth("End of play state init:");
+
 }
-
-
 
 void PlayState::loadMap()
 {
@@ -478,10 +468,11 @@ PlayState::~PlayState()
 	TextManager::getInstance()->cleanup();
 
 	mu.printBoth("Afer deleting playstate:");
+	
 }
 
 
-
+static float memTimer = 0.0f;
 void PlayState::update(float dt)
 {
 	Client::getInstance()->updateNetworkEntities(dt);
@@ -496,6 +487,17 @@ void PlayState::update(float dt)
 	}
 
 	removeDeadObjects();
+
+#if SHOW_MEMORY_INFO
+	memTimer += DeltaTime;
+	if (memTimer >= 0.5f) {
+		memTimer = 0.0f;
+		mu.updateBoth();
+		std::string memTex = "Ram: " + std::to_string(mu.getCurrentRamUsage()) + " | VRam: " + std::to_string(mu.getCurrentVramUsage()) +
+			" | Highest Ram: " + std::to_string(mu.getHighestRamUsage()) + " | Highest VRam: " + std::to_string(mu.getHighestVramUsage());
+		m_memoryText->changeText(memTex);
+	}
+#endif
 
 	TextManager::getInstance()->update();
 }
@@ -539,25 +541,104 @@ void PlayState::update_isPlaying(const float& dt)
 
 	shPtr->setSourcePosition(m_player->getPlayerPos(), HitmarkSound);
 
-	/*if (Input::isKeyPressed(GLFW_KEY_U)) {
-
-		GUIText* t = TextManager::getInstance()->addDynamicText(
-			"HELLOOOO",
-			2.0f,
-			glm::vec3(0.0f, 0.0f, 0.0f),
-			6.0f,
-			TextManager::TextBehaviour::Instant_FadOut,
-			glm::vec3(Randomizer::single(-0.5f, 0.5f), 1.5f, Randomizer::single(-0.5f, 0.5f)));
-
-		t->setColor(glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
-		t->setScale(5.0f);
-		t->setToFaceCamera(true);
-	}*/
-
 	for (Evnt evnt = clientPtr->readNextEvent(); evnt.playerEvent != PlayerEvents::None; evnt = clientPtr->readNextEvent()) {
 
 		switch (evnt.playerEvent) {
 
+			case PlayerEvents::GameCountdown:
+			{
+				static int lastNumber = 0;
+				CountdownPacket pp;
+				memcpy(&pp, evnt.data, sizeof(CountdownPacket));
+
+				if (&pp != nullptr) {
+
+					if (lastNumber == (pp.timeLeft / 1000)){
+						delete evnt.data;
+						break;
+					}
+
+					lastNumber = pp.timeLeft / 1000;
+
+					if (lastNumber == 0) {
+						GUIText* t = TextManager::getInstance()->addDynamicText(
+							"Game has begun!",
+							0.25f,
+							glm::vec3(0.0f, -0.25f, 0.0f),
+							2.5f,
+							TextManager::TextBehaviour::Instant_FadOut,
+							glm::vec3(0.0f, 0.0f, 0.0f), true);
+
+						t->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+						t->setScale(1.0f);
+					}
+					else {
+						GUIText* t = TextManager::getInstance()->addDynamicText(
+							"Game Starting in: " + std::to_string(lastNumber),
+							0.25f,
+							glm::vec3(0.0f, -0.25f, 0.0f),
+							1.f,
+							TextManager::TextBehaviour::Instant_FadOut,
+							glm::vec3(0.0f, 0.0f, 0.0f), true);
+
+						t->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+						t->setScale(1.0f);
+					}
+
+					
+
+
+
+					delete evnt.data;
+				}
+
+				break;
+			}
+			case PlayerEvents::RoundTimer:
+			{
+				static int lastSecond = 0;
+				RoundTimePacket rp;
+				memcpy(&rp, evnt.data, sizeof(RoundTimePacket));
+
+				if (&rp != nullptr) {
+
+					if (lastSecond == rp.seconds) {
+						delete evnt.data;
+						break;
+					}
+
+					lastSecond = rp.seconds;
+
+					if (m_gameTimeText == nullptr) {
+						m_gameTimeText = TextManager::getInstance()->addDynamicText(
+							std::to_string(rp.minutes) + ":" + std::to_string(lastSecond),
+							0.25f,
+							glm::vec3(0.0f, -0.035f, 0.0f),
+							1.f,
+							TextManager::TextBehaviour::StayForever,
+							glm::vec3(0.0f, 0.0f, 0.0f), true);
+					}
+					else {
+
+						std::string secondsText = (rp.seconds <= 9 ? "0" : "") + std::to_string(rp.seconds);
+						std::string preText = "";
+						
+						if (Client::getInstance()->getServerState().currentState == NetGlobals::SERVER_STATE::GameFinished)
+							preText = "End of round ";
+
+						m_gameTimeText->changeText(preText + std::to_string(rp.minutes) + ":" + secondsText);
+
+					}
+
+					m_gameTimeText->setShouldRender(true);
+
+				}
+
+
+
+				delete evnt.data;
+				break;
+			}
 			case PlayerEvents::Died:
 			{
 				logWarning("[Event system] Died");
@@ -582,7 +663,6 @@ void PlayState::update_isPlaying(const float& dt)
 
 				break;
 			}
-
 			case PlayerEvents::Respawned:
 			{
 				logWarning("[Event system] Respawned");
@@ -608,7 +688,6 @@ void PlayState::update_isPlaying(const float& dt)
 
 				break;
 			}
-
 			case PlayerEvents::TookDamage:
 			{
 				logWarning("[Event system] Took damage");
@@ -671,12 +750,12 @@ void PlayState::update_isPlaying(const float& dt)
 						txtPos,
 						2.0f,
 						TextManager::TextBehaviour::Instant_FadOut,
-						glm::vec3(Randomizer::single(-0.5f, 0.5f), 1.5f, Randomizer::single(-0.5f, 0.5f)));
+						glm::vec3(Randomizer::single(-0.5f, 0.5f), 1.5f, Randomizer::single(-0.5f, 0.5f)), true, 1.0f);
 
 					t->setColor(glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
 					t->setScale(fminf(fmaxf(dist / 15.0f, 1.0f), 5.0f));
 					t->setToFaceCamera(true);
-					
+					t->setIgnoreDepthTest(true);
 				}
 
 				delete evnt.data;
@@ -692,7 +771,6 @@ void PlayState::update_isPlaying(const float& dt)
 				m_hudHandler.getHudObject(HUDID::MANA_OVERLAY)->setAlpha(0.75f);
 				break;
 			}
-
 			case PlayerEvents::TookHeal:
 			{
 				shPtr->playSound(PickupSound);
@@ -705,7 +783,6 @@ void PlayState::update_isPlaying(const float& dt)
 
 				break;
 			}
-
 			case PlayerEvents::SessionOver:
 			{
 				logWarning("[Event system] Session is over");
@@ -721,7 +798,6 @@ void PlayState::update_isPlaying(const float& dt)
 
 				break;
 			}
-
 			case PlayerEvents::Deflected:
 			{
 				m_hudHandler.getHudObject(HUDID::CROSSHAIR_DEFLECT_INDICATOR)->setAlpha(1.0f);
@@ -732,13 +808,11 @@ void PlayState::update_isPlaying(const float& dt)
 				//Implement particles for self deflect here
 				break;
 			}
-
 			case PlayerEvents::EnemyDeflected:
 			{
 
 				break;
 			}
-
 			case PlayerEvents::WallGotDestroyed:
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::ReadDestructableWallsMutex); // Thread safe
@@ -757,11 +831,40 @@ void PlayState::update_isPlaying(const float& dt)
 
 				break;
 			}
-
 			case PlayerEvents::PlayerReady:
-			{
-				// Play sound?
-				logTrace("Player ready");
+			{	
+
+				if (m_readyText == nullptr) {
+					m_readyText = TextManager::getInstance()->addDynamicText("Press F1 to ready up!",
+						0.20f,
+						glm::vec3(0.0f, -1.35f, 0.0f),
+						2.5f,
+						TextManager::TextBehaviour::StayForeverAndScale,
+						glm::vec3(0.0f, 0.0f, 0.0f), true);
+
+					m_readyText->setColor(glm::vec4(1.0f, 0.75f, 0.75f, 1.0f));
+					m_readyText->setScale(1.0f);
+				}
+
+				if (m_numberOfPlayersReadyText == nullptr) {
+					m_numberOfPlayersReadyText = TextManager::getInstance()->addDynamicText(
+						"Players ready: " + std::to_string(Client::getInstance()->getNumberOfReadyPlayers()) 
+						+ "/" +std::to_string(Client::getInstance()->getNumberOfPlayers()),
+						0.15f,
+						glm::vec3(0.0f, -0.05f, 0.0f),
+						2.5f,
+						TextManager::TextBehaviour::StayForever,
+						glm::vec3(0.0f, 0.0f, 0.0f), true);
+
+					m_numberOfPlayersReadyText->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+					m_numberOfPlayersReadyText->setScale(1.0f);
+				}
+				else {
+					m_numberOfPlayersReadyText->changeText("Players ready: " + std::to_string(Client::getInstance()->getNumberOfReadyPlayers())
+						+ "/" + std::to_string(Client::getInstance()->getNumberOfPlayers()));
+
+				}
+
 
 				break;
 			}
@@ -772,6 +875,35 @@ void PlayState::update_isPlaying(const float& dt)
 				m_hudHandler.getHudObject(HUDID::BAR_HP)->setYClip(1.0f);
 				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(1.0f);
 				loadDestructables();
+				break;
+			}
+
+			case PlayerEvents::GameIsAboutToStart:
+			{
+				if (m_gameTimeText != nullptr) {
+					m_gameTimeText->setShouldRender(false);
+				}
+
+				if (m_numberOfPlayersReadyText != nullptr) {
+					m_numberOfPlayersReadyText->setShouldRender(false);
+				}
+
+				break;
+			}
+
+			case PlayerEvents::WaitingForPlayers:
+			{
+				if (m_gameTimeText != nullptr) {
+					m_gameTimeText->setShouldRender(false);
+				}
+
+				if (m_numberOfPlayersReadyText != nullptr) {
+					m_numberOfPlayersReadyText->setShouldRender(true);
+				}
+
+				if (m_readyText != nullptr) {
+					m_readyText->setShouldRender(true);
+				}
 				break;
 			}
 
@@ -820,17 +952,22 @@ void PlayState::update_isPlaying(const float& dt)
 			}
 
 
-
 		}
 
 	}
+
+	if (clientPtr->getMyData().isReady && m_readyText != nullptr && m_readyText->shouldRender() == true)
+	{
+		m_readyText->setShouldRender(false);
+	}
+
 	// Look at the killer when dead ( If he exist )
 	if (!m_camera->isCameraActive() && clientPtr->getMyData().health <= 0)
 	{
 		const PlayerPacket* myKiller = clientPtr->getLatestPlayerThatHitMe();
 
 		if (myKiller != nullptr) {
-			glm::vec3 lookPos = CustomLerp(m_lastPositionOfMyKiller, myKiller->position + myKiller->meshHalfSize * 1.75f, DeltaTime);
+			glm::vec3 lookPos = CustomLerp(m_lastPositionOfMyKiller, myKiller->position + glm::vec3(0.0f,myKiller->meshHalfSize.y * 1.75f, 0.0f), DeltaTime);
 			m_camera->lookAt(lookPos);
 
 			m_lastPositionOfMyKiller = lookPos;
@@ -941,9 +1078,8 @@ void PlayState::update_isSpectating(const float& dt)
 }
 
 void PlayState::render()
-{
+{	
 	Renderer::getInstance()->render();
-	TextRenderer::getInstance()->renderText();
 }
 
 bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1, const btCollisionObjectWrapper* obj2, int id2, int index2)

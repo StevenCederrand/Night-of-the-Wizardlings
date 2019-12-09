@@ -24,10 +24,19 @@ void TextManager::update()
 {
 	for(size_t i = 0; i < m_textEntities.size(); i++){
 		TextEntity& t = m_textEntities[i];
+		
+		if (t.behaviour == TextBehaviour::StayForever) {
+			TextRenderer::getInstance()->submitText(t.text);
+			continue;
+		}
+
+		static float internalTimer = 0.0f;
+		internalTimer += DeltaTime;
+
 		t.currentLifeTime += DeltaTime;
 		t.text->setPosition(t.text->getPosition() + t.velocity * DeltaTime);
+		
 		float halfTime = t.lifeTime / 2.0f;
-
 		bool endState = false;
 		float percentage = 0.0f;
 		
@@ -83,6 +92,17 @@ void TextManager::update()
 				break;
 			}
 
+			case TextBehaviour::StayForeverAndScale:
+			{
+				
+				float scale = (cosf(internalTimer) + 1.0f) / 2.0f; // 0. - 1.
+				scale = (scale / 4.0f) + 0.9f;
+				t.currentLifeTime = 0.0f,
+				t.text->setScale(scale);
+
+				break;
+			}
+
 		}
 
 		if (t.currentLifeTime >= t.lifeTime) {
@@ -106,10 +126,21 @@ TextManager* TextManager::getInstance()
 	return &t;
 }
 
-GUIText* TextManager::addDynamicText(const std::string& text, const float& fontSize, const glm::vec3& position, const float& lifetime, 
-	TextBehaviour behaviour, const glm::vec3& velocity)
+void TextManager::removeText(unsigned int uniqueKey)
 {
-	GUIText* guiText = new GUIText(text, fontSize, m_fontType, position, 100.0f, false);
+	for (size_t i = 0; i < m_textEntities.size(); i++) {
+		if (m_textEntities[i].text->getUniqueIndex() == uniqueKey) {
+			delete m_textEntities[i].text;
+			m_textEntities.erase(m_textEntities.begin() + i);
+			return;
+		}
+	}
+}
+
+GUIText* TextManager::addDynamicText(const std::string& text, const float& fontSize, const glm::vec3& position, const float& lifetime, 
+	TextBehaviour behaviour, const glm::vec3& velocity, bool ScreenText, const float& viewportWidth)
+{
+	GUIText* guiText = new GUIText(text, fontSize, m_fontType, position, viewportWidth, true, ScreenText);
 	guiText->setInitialScale(1.0f);
 	guiText->setScale(1.0f);
 	TextEntity textEntity;

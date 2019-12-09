@@ -72,7 +72,7 @@ void TextRenderer::removeText(GUIText* text)
 
 void TextRenderer::renderText()
 {
-	glClear(GL_DEPTH_BUFFER_BIT);
+	//glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
@@ -85,26 +85,17 @@ void TextRenderer::renderText()
 		m_staticTextShader->use();
 
 		for (auto* text : item.second) {
-			if (text->getFaceCamera())
-				text->rotateTowardsCamera(m_camera);
 			
-			text->updateModelMatrix();
+			if (text->shouldRender() == false)
+				continue;
 
 
-			m_staticTextShader->setMat4("modelMatrix", text->getModelMatrix());
-			m_staticTextShader->setMat4("viewMatrix", m_camera->getViewMat());
-			m_staticTextShader->setMat4("projectionMatrix", m_camera->getProjMat());
-			m_staticTextShader->setVec4("color", text->getColor());
-			
-			glBindVertexArray(text->getMeshVao());
-			glEnableVertexAttribArray(0);
-			glEnableVertexAttribArray(1);
-
-			glDrawArrays(GL_TRIANGLES, 0, text->getVertexCount());
-
-			glDisableVertexAttribArray(0);
-			glDisableVertexAttribArray(1);
-			glBindVertexArray(NULL);
+			if (text->isScreenText()) {
+				renderScreenText(text);
+			}
+			else {
+				renderWorldText(text);
+			}
 
 		}
 
@@ -118,4 +109,56 @@ void TextRenderer::renderText()
 	glEnable(GL_CULL_FACE);
 
 	m_textMap.clear();
+}
+
+void TextRenderer::renderWorldText(GUIText* text)
+{
+	text->updateModelMatrix();
+
+	if (text->getFaceCamera())
+		text->rotateTowardsCamera(m_camera);
+
+	if (text->ignoreDepthTest()) {
+		glDisable(GL_DEPTH_TEST);
+	}
+	else {
+		glEnable(GL_DEPTH_TEST);
+	}
+
+	m_staticTextShader->setMat4("modelMatrix", text->getModelMatrix());
+	m_staticTextShader->setMat4("viewMatrix", m_camera->getViewMat());
+	m_staticTextShader->setMat4("projectionMatrix", m_camera->getProjMat());
+	m_staticTextShader->setVec4("color", text->getColor());
+
+	glBindVertexArray(text->getMeshVao());
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+
+	glDrawArrays(GL_TRIANGLES, 0, text->getVertexCount());
+
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+	glBindVertexArray(NULL);
+}
+
+void TextRenderer::renderScreenText(GUIText* text)
+{
+
+	text->updateModelMatrix();
+	m_staticTextShader->setMat4("modelMatrix", text->getModelMatrix());
+	m_staticTextShader->setMat4("viewMatrix", glm::mat4(1.0f));
+	m_staticTextShader->setMat4("projectionMatrix", glm::mat4(1.0f));
+	m_staticTextShader->setVec4("color", text->getColor());
+
+	glDisable(GL_DEPTH_TEST);
+
+	glBindVertexArray(text->getMeshVao());
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+
+	glDrawArrays(GL_TRIANGLES, 0, text->getVertexCount());
+
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+	glBindVertexArray(NULL);
 }

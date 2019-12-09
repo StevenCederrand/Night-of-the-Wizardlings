@@ -4,9 +4,22 @@
 
 class MemoryUsage {
 public:
-	void printVramUsage();
-	void printRamUsage();
-	void printBoth(std::string string);
+	void updateVramUsage();
+	void updateRamUsage();
+	void updateBoth();
+	void printBoth(std::string string = "");
+
+	const float& getCurrentVramUsage() const;
+	const float& getCurrentRamUsage() const;
+
+	const float& getHighestVramUsage() const;
+	const float& getHighestRamUsage() const;
+
+private:
+	float m_vramUsage = 0.0f;;
+	float m_ramUsage = 0.0f;
+	float m_highestVramUsage = 0.0f;
+	float m_highestRamUsage = 0.0;
 
 };
 
