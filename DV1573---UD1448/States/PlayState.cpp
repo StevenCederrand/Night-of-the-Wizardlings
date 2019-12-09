@@ -95,6 +95,14 @@ PlayState::PlayState(bool spectator)
 #endif
 	mu.printBoth("End of play state init:");
 
+	m_fpsText = TextManager::getInstance()->addDynamicText(
+		"fps: " + std::to_string(Framerate),
+		0.09f,
+		glm::vec3(-0.95f, -0.02f, 0.0f),
+		1.f,
+		TextManager::TextBehaviour::StayForever,
+		glm::vec3(0.0f, 0.0f, 0.0f), true);
+
 }
 
 void PlayState::loadMap()
@@ -468,6 +476,7 @@ PlayState::~PlayState()
 
 
 static float memTimer = 0.0f;
+static float fpsTimer = 0.0f;
 void PlayState::update(float dt)
 {
 	Client::getInstance()->updateNetworkEntities(dt);
@@ -493,6 +502,12 @@ void PlayState::update(float dt)
 		m_memoryText->changeText(memTex);
 	}
 #endif
+
+	fpsTimer += DeltaTime;
+	if (fpsTimer >= 1.0f) {
+		fpsTimer = 0.0f;
+		m_fpsText->changeText("fps: " + std::to_string(Framerate));
+	}
 
 	TextManager::getInstance()->update();
 }

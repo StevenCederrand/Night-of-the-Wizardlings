@@ -86,6 +86,7 @@ private:
 	GUIText* m_numberOfPlayersReadyText;
 	GUIText* m_killNotification;
 	GUIText* m_memoryText;
+	GUIText* m_fpsText;
 	float startY;
 private: 
 
