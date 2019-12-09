@@ -68,7 +68,6 @@ private:
 
 	// Dynamic spell base (Spell Creator tool)
 	SpellBase dynamicSpellBase;
-	SpellLoader myLoader;
 
 	void spellCollisionCheck();	
 	bool specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis, float radius);
