@@ -64,6 +64,7 @@ void SpellHandler::initAttackSpell()
 	tempPS.seed = 0;
 	tempPS.cont = true;
 	tempPS.omnious = false;
+	tempPS.randomSpawn = false;
 	tempPS.spread = 0.0f;
 	tempPS.glow = 2;
 	tempPS.scaleDirection = 0;
@@ -72,6 +73,7 @@ void SpellHandler::initAttackSpell()
 	tempPS.color = glm::vec3(0.0f, 0.9f, 0.9f);
 	tempPS.blendColor = glm::vec3(0.8f, 1.0f, 1.0f);
 	tempPS.direction = glm::vec3(1.0f, 0.0f, 0.0f);
+	tempPS.direction = glm::clamp(tempPS.direction, -1.0f, 1.0f);
 
 	attackBase.m_particleBuffers.emplace_back(new ParticleBuffers(tempPS, tempTxt));
 	attackBase.m_particleBuffers.back()->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
@@ -126,6 +128,7 @@ void SpellHandler::initEnhanceSpell()
 	tempPS.seed = 0;
 	tempPS.cont = true;
 	tempPS.omnious = false;
+	tempPS.randomSpawn = false;
 	tempPS.spread = -1.0f;
 	tempPS.glow = 1.3;
 	tempPS.scaleDirection = 0;
@@ -135,6 +138,7 @@ void SpellHandler::initEnhanceSpell()
 	tempPS.blendColor = glm::vec3(1.0f, 0.0f, 1.0f);
 	tempPS.color = glm::vec3(0.0, 0.0f, 0.0f);
 	tempPS.direction = glm::vec3(1.0f, 0.0f, 0.0f);
+	tempPS.direction = glm::clamp(tempPS.direction, -1.0f, 1.0f);
 
 	enhanceAtkBase.m_particleBuffers.emplace_back(new ParticleBuffers(tempPS, tempTxt));
 	enhanceAtkBase.m_particleBuffers.back()->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
@@ -231,6 +235,7 @@ void SpellHandler::initFireSpell()
 	tempPS.blendColor = glm::vec3(1.0f, 1.0f, 1.0f);
 	tempPS.color = glm::vec3(0.0, 0.0f, 0.0f);
 	tempPS.direction = glm::vec3(0.0f, -1.0f, 0.0f);
+	tempPS.direction = glm::clamp(tempPS.direction, -1.0f, 1.0f); //Do i need this???
 
 	fireBase.m_particleBuffers.emplace_back(new ParticleBuffers(tempPS, tempTxt));
 	fireBase.m_particleBuffers.back()->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());

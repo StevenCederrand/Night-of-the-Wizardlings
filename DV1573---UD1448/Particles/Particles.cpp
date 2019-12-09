@@ -279,7 +279,7 @@ void ParticleSystem::Update(float time) //removed campos
 
 				particles.direction = otherPosition - particles.position;
 
-			//	if(m_camera != nullptr)
+				if(m_camera != nullptr)
 					particles.distance = glm::length(particles.position - m_camera->getCamPos());
 
 				m_vertex.at(i) = particles.position;
