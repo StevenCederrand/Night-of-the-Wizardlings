@@ -9,6 +9,7 @@
 #include <System/BulletPhysics.h>
 #include <GameObject/ObjectTypes.h>
 #include <Loader/LoaderFormat.h>
+#include <SpellLoader/spellLoader.h>
 
 
 //enum TYPE { NORMALATTACK, ENHANCEATTACK };
@@ -43,6 +44,7 @@ private:
 	void initEnhanceSpell();
 	void initFlamestrikeSpell();
 	void initFireSpell();
+	void initDynamicSpellBase();
 
 	const uint64_t getUniqueID();
 	bool m_setcharacter = false;
@@ -63,6 +65,10 @@ private:
 	SpellBase flamestrikeBase;
 	SpellBase fireBase;
 	SpellBase death;
+
+	// Dynamic spell base (Spell Creator tool)
+	SpellBase dynamicSpellBase;
+	SpellLoader myLoader;
 
 	void spellCollisionCheck();	
 	bool specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis, float radius);
