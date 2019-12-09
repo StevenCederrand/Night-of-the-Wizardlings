@@ -771,6 +771,25 @@ void PlayState::update_isPlaying(const float& dt)
 				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(1.0f);
 				break;
 			}
+			
+			case PlayerEvents::EnemyDied:
+			{
+				if (evnt.data == nullptr) continue;
+
+				EnemyDiedPacket packet;
+				memcpy(&packet, evnt.data, sizeof(EnemyDiedPacket));
+				auto* player = Client::getInstance()->findPlayerWithGuid(packet.guidOfDeadPlayer);
+
+				// Do stuff here with player pointer
+				
+				std::printf("Player died at %f, %f, %f\n", player->position.x, player->position.y, player->position.z);
+
+				//-------------
+
+
+				delete evnt.data;
+				break;
+			}
 
 
 
