@@ -928,9 +928,7 @@ void Renderer::render() {
 	//bindMatrixes(shader);	//Bind view and projection matrix
 	glBindTexture(GL_TEXTURE_2D, m_depthMap);	
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, m_SSAONoiseTexture);
-	//shader->setFloat("sampleRadius", 1.5f);
-	shader->setMat4("projMatrix", m_camera->getProjMat());
+	glBindTexture(GL_TEXTURE_2D, m_SSAONoiseTexture);	
 
 	for (size_t i = 0; i < m_SSAOKernels.size(); i++)
 	{
@@ -949,7 +947,7 @@ void Renderer::render() {
 	glBindImageTexture(0, m_SSAOColourBuffer, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 	glDispatchCompute(workGroups.x, workGroups.y, 1);
 	glMemoryBarrier(GL_TEXTURE_UPDATE_BARRIER_BIT);
-
+	
 #endif
 
 #pragma region Color_Render

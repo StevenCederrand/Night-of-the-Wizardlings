@@ -52,19 +52,21 @@ vec3 grayscaleColour(vec3 col);
 
 void main() {
     vec4 ssaoVal = imageLoad(SSAOTexture, ivec2(gl_FragCoord.xy));
+    //Sample from the SSAO map
+    float ssaoValue = imageLoad(SSAOTexture, ivec2(gl_FragCoord.xy)).r;
 
     vec3 emissive = Ambient_Color; // Temp used as emmisve, should rename all ambient names to emmisive.
     //Makes the material full solid color (basically fully lit). Needs bloom for best effect.
     vec4 finalTexture = texture(albedoTexture, f_UV);
     // Ambient light
-    vec3 ambientLight = Diffuse_Color * ambientStr;     // Material color
+    vec3 ambientLight = Diffuse_Color * ambientStr * ssaoValue;     // Material color
     if (TexAndRim.x == 1)
-        ambientLight = finalTexture.rgb * ambientStr * brightnessMod; // Texture color    (If there is texture we disregard material color)
+        ambientLight = finalTexture.rgb * ambientStr * brightnessMod * ssaoValue; // Texture color    (If there is texture we disregard material color)
 
     // Create the diffuse color once
     vec3 diffuseColor = Diffuse_Color;  // Material color
     if(TexAndRim.x == 1)
-        diffuseColor = finalTexture.rgb * 0.5;   // Texture color
+        diffuseColor = finalTexture.rgb * 0.5 * ssaoValue;   // Texture color
     // Directional light
     vec3 directionalLight = calcDirLight(f_normal, diffuseColor, GLOBAL_lightDirection);
     directionalLight += calcDirLight(f_normal, diffuseColor, GLOBAL_lightDirection2);
@@ -91,7 +93,7 @@ void main() {
     }
 
 
-    color = ssaoVal;//vec4(result, 1);
+    color = vec4(result, 1);
 }
 
 vec3 calcPointLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance, vec3 diffuse) {
