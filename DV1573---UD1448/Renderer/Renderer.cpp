@@ -844,7 +844,7 @@ void Renderer::render() {
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
 	shader->setVec3("CameraPosition", m_camera->getCamPos());
 	//Add a step where we insert lights into the scene
-	shader->setInt("LightCount", m_lights.size());
+	shader->setInt("LightCount", m_lights.size());	
 
 	if (m_lights.size() > 0) {
 		std::string iConv = "";
@@ -885,7 +885,8 @@ void Renderer::render() {
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
 			glEnableVertexAttribArray(2);
-			mesh = object->getMesh(j);
+			glEnableVertexAttribArray(3);
+			mesh = object->getMesh(j);			
 
 			//Bind the material
 			object->bindMaterialToShader(shader, j);
@@ -901,7 +902,7 @@ void Renderer::render() {
 			glDisableVertexAttribArray(0);
 			glDisableVertexAttribArray(1);
 			glDisableVertexAttribArray(2);
-
+			glDisableVertexAttribArray(3);			
 		}
 		object->RenderParticles(m_camera);
 		//object->getTransform().position
@@ -926,6 +927,7 @@ void Renderer::render() {
 				glEnableVertexAttribArray(0);
 				glEnableVertexAttribArray(1);
 				glEnableVertexAttribArray(2);
+				glEnableVertexAttribArray(3);
 				mesh = object->getMesh(j);
 				//Bind the material
 				object->bindMaterialToShader(shader, j);
@@ -941,6 +943,7 @@ void Renderer::render() {
 				glDisableVertexAttribArray(0);
 				glDisableVertexAttribArray(1);
 				glDisableVertexAttribArray(2);
+				glDisableVertexAttribArray(3);
 			}
 		}
 	}
@@ -961,6 +964,7 @@ void Renderer::render() {
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
 			glEnableVertexAttribArray(2);
+			glEnableVertexAttribArray(3);
 
 			Pickup* p = dynamic_cast<Pickup*>(object);
 
@@ -985,6 +989,7 @@ void Renderer::render() {
 			glDisableVertexAttribArray(0);
 			glDisableVertexAttribArray(1);
 			glDisableVertexAttribArray(2);
+			glDisableVertexAttribArray(3);
 		}
 	}
 	shader->clearBinding();

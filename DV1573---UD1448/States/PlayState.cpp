@@ -16,7 +16,11 @@ void logVec3(glm::vec3 vector) {
 
 PlayState::PlayState(bool spectator)
 {
-	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
+	Shader* basicTempShader = ShaderMap::getInstance()->getShader(BASIC_FORWARD);
+	basicTempShader->use();
+	basicTempShader->setInt("albedoTexture", 0);
+	basicTempShader->setInt("normalMap", 1);	
+	
 	m_camera = new Camera();
 	mu.printBoth("After physics and camera init:");
 
@@ -72,6 +76,14 @@ PlayState::PlayState(bool spectator)
 
 	// Map
 	loadMap();
+
+	//Load test cube for normal mapping
+	/*GameObject* tangentCube = new WorldObject();
+	tangentCube->loadMesh("tangentCube.mesh");
+	tangentCube->setTexture("NormalMap/Bricks01.jpg");
+	tangentCube->setNormalMap("NormalMap/BricksNRM.jpg");
+	m_objects.push_back(tangentCube);	
+	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);*/
 
 	// Geneterate bullet objects / hitboxes
 	gContactAddedCallback = callbackFunc;

@@ -80,6 +80,7 @@ void NetworkPlayers::update(const float& dt)
 		GameObject* g = p.gameobject;
 		if (p.data.inDeflectState && p.data.health > 0.0f)
 		{
+			shPtr->setSourcePosition(p.data.position, DeflectSound, p.data.guid);
 			GameObject* shieldObject = new EnemyShieldObject("enemyShield");
 			//logTrace(std::to_string(p.data.position.x) + " " + std::to_string(p.data.position.y) + " " + std::to_string(p.data.position.z));
 			shieldObject->loadMesh("EnemyShieldMesh.mesh");
@@ -93,8 +94,8 @@ void NetworkPlayers::update(const float& dt)
 			{
 				if (!p.wasDeflecting)
 				{
-					//kolla position uppdatering
-					shPtr->setSourcePosition(p.data.position, DeflectSound, p.data.guid);
+					p.deflectSoundGain = shPtr->getMasterVolume(); // Will automaticially be set relative to master sound
+					shPtr->setSourceGain(p.deflectSoundGain, DeflectSound, p.data.guid);					
 					shPtr->playSound(DeflectSound, p.data.guid);
 					p.wasDeflecting = true;
 				}
@@ -102,10 +103,10 @@ void NetworkPlayers::update(const float& dt)
 			//No mana
 			else
 			{
+				p.deflectSoundGain -= 3.0f * shPtr->getMasterVolume() * dt;
 				if (p.deflectSoundGain > 0.0f)
 				{
 					shPtr->setSourceGain(p.deflectSoundGain, DeflectSound, p.data.guid);
-					p.deflectSoundGain -= 2.0f * dt;
 				}
 				else
 				{
@@ -115,21 +116,19 @@ void NetworkPlayers::update(const float& dt)
 		}
 		else if (p.wasDeflecting)
 		{
+			p.deflectSoundGain -= 3.0f * shPtr->getMasterVolume() * dt;
 			if (p.deflectSoundGain > 0.0f)
 			{				
 				shPtr->setSourceGain(p.deflectSoundGain, DeflectSound, p.data.guid);
-				p.deflectSoundGain -= 2.0f * dt;
 			}
 			else
 			{
 				shPtr->stopSound(DeflectSound, p.data.guid);
-				p.deflectSoundGain = 0.4f;
+				p.deflectSoundGain = shPtr->getMasterVolume(); // Will automaticially be set relative to master sound
 				shPtr->setSourceGain(p.deflectSoundGain, DeflectSound, p.data.guid);
 				p.wasDeflecting = false;			
 			}
-		}
-
-		
+		}		
 
 		if (g != nullptr) {
 
