@@ -95,8 +95,7 @@ void NetworkPlayers::update(const float& dt)
 				if (!p.wasDeflecting)
 				{
 					p.deflectSoundGain = 1.0f; // Will automaticially be set relative to master sound
-					shPtr->setSourceGain(p.deflectSoundGain, DeflectSound, p.data.guid);
-					//shPtr->setSourcePosition(p.data.position, DeflectSound, p.data.guid);
+					shPtr->setSourceGain(p.deflectSoundGain, DeflectSound, p.data.guid);					
 					shPtr->playSound(DeflectSound, p.data.guid);
 					p.wasDeflecting = true;
 				}
