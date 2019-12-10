@@ -14,15 +14,15 @@ SettingState::SettingState()
 
 
 	int userNumMax = 0;
-	m_volymCurrent = GetPrivateProfileInt("DB_SETTINGS", "Volym", 0, "../foobarr.ini");
+	m_volymCurrent = GetPrivateProfileInt("DB_SETTINGS", "Volym", 0, "Assets/Settings/settings.ini");
 	m_volymMax = 100.0f;
 	
-	m_MouseSensCurrent = GetPrivateProfileInt("DB_SETTINGS", "MouseSens", 50, "../foobarr.ini");
+	m_MouseSensCurrent = GetPrivateProfileInt("DB_SETTINGS", "MouseSens", 50, "Assets/Settings/settings.ini");
 	m_MouseSensMax = 100.0f;
-	m_FOVBase = 20;
 
-	m_FOVCurrent = GetPrivateProfileInt("DB_SETTINGS", "FoV", 0, "../foobarr.ini");
+	m_FOVCurrent = GetPrivateProfileInt("DB_SETTINGS", "FoV", 60, "Assets/Settings/settings.ini");
 	m_FOVMax = 100.0f;
+	m_FOVBase = 20;
 	
 	loadGui();
 }
@@ -109,9 +109,9 @@ bool SettingState::OnSaveClicked(const CEGUI::EventArgs& e)
 	
 	//bool test = WritePrivateProfileString("DB_SETTINGS", "USER_NUM_MAX", "99", "../foobarr.ini");
 
-	bool volym = WritePrivateProfileString("DB_SETTINGS", "Volym", std::to_string(m_volymCurrent).c_str(), "../foobarr.ini");
-	bool mouseSens = WritePrivateProfileString("DB_SETTINGS", "MouseSens", std::to_string(m_MouseSensCurrent).c_str(), "../foobarr.ini");
-	bool foV = WritePrivateProfileString("DB_SETTINGS", "FoV", std::to_string(m_FOVCurrent).c_str(), "../foobarr.ini");
+	bool volym = WritePrivateProfileString("DB_SETTINGS", "Volym", std::to_string(m_volymCurrent).c_str(), "Assets/Settings/settings.ini");
+	bool mouseSens = WritePrivateProfileString("DB_SETTINGS", "MouseSens", std::to_string(m_MouseSensCurrent).c_str(), "Assets/Settings/settings.ini");
+	bool foV = WritePrivateProfileString("DB_SETTINGS", "FoV", std::to_string(m_FOVCurrent).c_str(), "Assets/Settings/settings.ini");
 
 	if (!volym)
 		logTrace("ERROR_ cant write Volym");
@@ -122,7 +122,7 @@ bool SettingState::OnSaveClicked(const CEGUI::EventArgs& e)
 
 
 	int userNumMax = 0;
-	userNumMax = GetPrivateProfileInt("DB_SETTINGS", "USER_NUM_MAX", -1, "../foobarr.ini");
+	userNumMax = GetPrivateProfileInt("DB_SETTINGS", "USER_NUM_MAX", -1, "Assets/Settings/settings.ini");
 
 
 	return false;

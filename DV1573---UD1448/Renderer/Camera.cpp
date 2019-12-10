@@ -248,8 +248,12 @@ void Camera::setWindowSize(float width, float height)
 
 void Camera::mouseControls(float xOffset, float yOffset, bool pitchLimit)
 {
-	xOffset *= m_sensitivity;
-	yOffset *= m_sensitivity;
+	int mouseSens = GetPrivateProfileInt("DB_SETTINGS", "MouseSens", 50, "Assets/Settings/settings.ini");
+	float sens = (float)mouseSens;
+	sens = (sens * 0.01 * 2 )+ 0.02f;
+
+	xOffset *= m_sensitivity * sens;
+	yOffset *= m_sensitivity * sens;
 	
 	m_camYaw += xOffset;
 	m_camPitch += yOffset;
@@ -267,7 +271,10 @@ void Camera::mouseControls(float xOffset, float yOffset, bool pitchLimit)
 
 void Camera::setProjMat(float widht, float height, float nearPlane, float farPlane)
 {
-	m_projectionMatrix = glm::perspective(glm::radians(60.0f), widht / height, nearPlane, farPlane);
+	int fov = GetPrivateProfileInt("DB_SETTINGS", "FoV", 60, "Assets/Settings/settings.ini");
+	float fov1 = (float)fov;
+
+	m_projectionMatrix = glm::perspective(glm::radians(fov1), widht / height, nearPlane, farPlane);
 }
 
 const glm::mat4 Camera::getViewMat() const
