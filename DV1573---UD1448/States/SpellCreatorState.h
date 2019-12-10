@@ -75,6 +75,7 @@ private:
     bool m_AttackSpellAlive = true;
     bool m_FireSpellAlive = true;
 
+	int m_emission = 1;
 };
 #endif
 

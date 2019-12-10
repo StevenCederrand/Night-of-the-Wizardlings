@@ -96,16 +96,16 @@ bool Application::init() {
 	Gui::getInstance()->setFont("DejaVuSans-10");
 
 	m_stateManager = new StateManager();
-	m_stateManager->pushState(new SpellCreatorState());
+	//m_stateManager->pushState(new SpellCreatorState());
 
 
 
 
-//#if AUTOSTART
-//	m_stateManager->pushState(new PlayState(false));
-//#else 
-//	m_stateManager->pushState(new MenuState());	
-//#endif
+#if AUTOSTART
+	m_stateManager->pushState(new PlayState(false));
+#else 
+	m_stateManager->pushState(new MenuState());	
+#endif
 
 	SoundHandler* shPtr = SoundHandler::getInstance();	
 	//shPtr->playSound(ThemeSong0);

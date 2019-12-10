@@ -54,6 +54,14 @@ void MenuState::loadGui()
 	m_quitBtn->setText("Exit");
 	m_quitBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&MenuState::onExitClicked, this));
 
+	m_startSpellEditorBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.05f, 0.95f, 0.1f, 0.05f), glm::vec4(0.0f), "SpellEditor"));
+	m_startSpellEditorBtn->setText("Spell Editor");
+	m_startSpellEditorBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&MenuState::onStartSpellEditor, this));
+
+	//m_quitBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.05f, 0.85f, 0.1f, 0.05f), glm::vec4(0.0f), "ExitButton"));
+	//m_quitBtn->setText("Exit");
+	//m_quitBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&MenuState::onExitClicked, this));
+
 }
 
 bool MenuState::onStartOfflineClicked(const CEGUI::EventArgs& e)
@@ -84,5 +92,12 @@ bool MenuState::onExitClicked(const CEGUI::EventArgs& e)
 {
 	SoundHandler::getInstance()->stopSound(ThemeSong0);
 	glfwSetWindowShouldClose(glfwGetCurrentContext(), true);	
+	return true;
+}
+
+bool MenuState::onStartSpellEditor(const CEGUI::EventArgs& e)
+{
+	SoundHandler::getInstance()->stopSound(ThemeSong0);
+	m_stateManager->clearAllAndSetState(new SpellCreatorState());
 	return true;
 }

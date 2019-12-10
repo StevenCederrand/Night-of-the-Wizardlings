@@ -95,6 +95,7 @@ SpellCreatorState::~SpellCreatorState()
 void SpellCreatorState::update(float dt)
 {
 
+	//tempPS.emission = 1 / m_emission;
 	m_spellEditor->spellToolUpdate(dt, tempPS, normalSpell);
     m_bPhysics->update(dt);
 
@@ -291,16 +292,16 @@ void SpellCreatorState::editAttackSpell()
 		ImGui::SliderFloat("Heigth", &tempPS.heigth, 0.0f, 10.0f);
 		ImGui::SliderFloat("Lifetime", &tempPS.lifetime, 0.0f, 100.0f);
 		ImGui::SliderInt("Max particles", &tempPS.maxParticles, 0, 5000);
-		ImGui::SliderFloat("Emission", &tempPS.emission, 0.00001f, 1.0f);
+		ImGui::SliderFloat("Emission", &tempPS.emission, 1.0f, 0.00001f);
 		ImGui::SliderFloat("Force", &tempPS.force, -100.0f, 100.0f);
 		ImGui::SliderFloat("Drag", &tempPS.drag, -100.0f, 100.0f);
-		ImGui::SliderFloat("Gravity", &tempPS.gravity, -100.0f, 100.0f);
+		ImGui::SliderFloat("Gravity", &tempPS.gravity, -10.0f, 10.0f);
 		//ImGui::SliderInt("Seed", &tempPS.seed, 0.0f, 100.0f);
 		ImGui::SliderFloat("Spread", &tempPS.spread, 0.0f, 10.0f);
 		ImGui::SliderFloat("Glow", &tempPS.glow, 0.0f, 10.0f);
 		ImGui::SliderInt("Scale direction", &tempPS.scaleDirection, 0.0f, 100.0f);
-		ImGui::SliderInt("Swirl", &tempPS.swirl, 0.0f, 10.0f);
-		ImGui::SliderInt("Fade", &tempPS.fade, 0.0f, 10.0f);
+		ImGui::SliderInt("Swirl", &tempPS.swirl, 0.0f, 1.0f);
+		ImGui::SliderInt("Fade", &tempPS.fade, -1.0f, 1.0f);
 		ImGui::Checkbox("Random spawn", &tempPS.randomSpawn);
 		ImGui::Checkbox("Continue", &tempPS.cont);
 		ImGui::Checkbox("Omni", &tempPS.omnious);
@@ -366,7 +367,7 @@ void SpellCreatorState::editAOEAttackSpell()
 		ImGui::SliderFloat("Heigth", &tempPS.heigth, 0.0f, 10.0f);
 		ImGui::SliderFloat("Lifetime", &tempPS.lifetime, 0.0f, 100.0f);
 		ImGui::SliderInt("Max particles", &tempPS.maxParticles, 0, 5000);
-		ImGui::SliderFloat("Emission", &tempPS.emission, -0.000001f, 1.0f);
+		ImGui::SliderFloat("Emission", &tempPS.emission, 1.0f, 0.00001f);
 		ImGui::SliderFloat("Force", &tempPS.force, -100.0f, 100.0f);
 		ImGui::SliderFloat("Drag", &tempPS.drag, -100.0f, 100.0f);
 		ImGui::SliderFloat("Gravity", &tempPS.gravity, -100.0f, 100.0f);

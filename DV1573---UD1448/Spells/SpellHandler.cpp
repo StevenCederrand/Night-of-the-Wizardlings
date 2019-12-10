@@ -37,7 +37,7 @@ void SpellHandler::initAttackSpell()
 	attackBase.m_material->diffuse = glm::vec3(0.65f, 1.0f, 1.0f); // Light blue
 	attackBase.m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
 
-	myLoader.LoadProjectileSpell("test123456.spell");
+	myLoader.LoadProjectileSpell("newBestSpell12345.spell");
 
 	// Gameplay--
 	attackBase.m_lowDamage		= myLoader.m_projectile.lowDamage;
