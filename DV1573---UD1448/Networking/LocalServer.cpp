@@ -798,6 +798,15 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 			kFeed.Serialize(true, killFeedStream);
 			sendStreamToAllClients(killFeedStream, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
 
+			// Send a dead player packet to everyone so that they can mainly play particels or something :P
+			RakNet::BitStream deadPlayerStream;
+			deadPlayerStream.Write((RakNet::MessageID)ENEMY_DIED);
+			EnemyDiedPacket enemyDiedPacket;
+			enemyDiedPacket.guidOfDeadPlayer = target->guid.rakNetGuid;
+			enemyDiedPacket.Serialize(true, deadPlayerStream);
+			sendStreamToAllClients(deadPlayerStream, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
+			
+
 		}
 
 		// Send a hit packet to the target

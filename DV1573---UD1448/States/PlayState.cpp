@@ -8,6 +8,7 @@
 #include <BetterText/TextManager.h>
 #define PLAYSECTION "PLAYSTATE"
 
+#define SHOW_MEMORY_INFO true
 
 void logVec3(glm::vec3 vector) {
 	logTrace("Vector: ({0}, {1}, {2})", std::to_string(vector.x), std::to_string(vector.y), std::to_string(vector.z));
@@ -80,6 +81,9 @@ PlayState::PlayState(bool spectator)
 
 	m_hideHUD = false;
 
+	InitParticle();
+
+#if SHOW_MEMORY_INFO
 	std::string memTex = "Ram: " + std::to_string(mu.getCurrentRamUsage()) + " | VRam: " + std::to_string(mu.getCurrentVramUsage()) +
 		" | Highest Ram: " + std::to_string(mu.getHighestRamUsage()) + " | Highest VRam: " + std::to_string(mu.getHighestVramUsage());
 	
@@ -90,8 +94,17 @@ PlayState::PlayState(bool spectator)
 		1.f,
 		TextManager::TextBehaviour::StayForever,
 		glm::vec3(0.0f, 0.0f, 0.0f), true);
-
+#endif
 	mu.printBoth("End of play state init:");
+
+	m_fpsText = TextManager::getInstance()->addDynamicText(
+		"fps: " + std::to_string(Framerate),
+		0.09f,
+		glm::vec3(-0.95f, -0.02f, 0.0f),
+		1.f,
+		TextManager::TextBehaviour::StayForever,
+		glm::vec3(0.0f, 0.0f, 0.0f), true);
+
 
 }
 
@@ -436,6 +449,9 @@ PlayState::~PlayState()
 		if (light)
 			delete light;
 
+	if (deathBuffer)
+		delete deathBuffer;
+
 	GUIclear();
 
 	m_pointlights.clear();
@@ -466,6 +482,7 @@ PlayState::~PlayState()
 
 
 static float memTimer = 0.0f;
+static float fpsTimer = 0.0f;
 void PlayState::update(float dt)
 {
 	Client::getInstance()->updateNetworkEntities(dt);
@@ -481,14 +498,21 @@ void PlayState::update(float dt)
 
 	removeDeadObjects();
 
+#if SHOW_MEMORY_INFO
 	memTimer += DeltaTime;
-
 	if (memTimer >= 0.5f) {
 		memTimer = 0.0f;
 		mu.updateBoth();
 		std::string memTex = "Ram: " + std::to_string(mu.getCurrentRamUsage()) + " | VRam: " + std::to_string(mu.getCurrentVramUsage()) +
 			" | Highest Ram: " + std::to_string(mu.getHighestRamUsage()) + " | Highest VRam: " + std::to_string(mu.getHighestVramUsage());
 		m_memoryText->changeText(memTex);
+	}
+#endif
+
+	fpsTimer += DeltaTime;
+	if (fpsTimer >= 1.0f) {
+		fpsTimer = 0.0f;
+		m_fpsText->changeText("fps: " + std::to_string(Framerate));
 	}
 
 	TextManager::getInstance()->update();
@@ -570,7 +594,7 @@ void PlayState::update_isPlaying(const float& dt)
 							0.25f,
 							glm::vec3(0.0f, -0.25f, 0.0f),
 							1.f,
-							TextManager::TextBehaviour::ScaleUp_FadeOut,
+							TextManager::TextBehaviour::Instant_FadOut,
 							glm::vec3(0.0f, 0.0f, 0.0f), true);
 
 						t->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -586,7 +610,6 @@ void PlayState::update_isPlaying(const float& dt)
 
 				break;
 			}
-
 			case PlayerEvents::RoundTimer:
 			{
 				static int lastSecond = 0;
@@ -632,7 +655,6 @@ void PlayState::update_isPlaying(const float& dt)
 				delete evnt.data;
 				break;
 			}
-
 			case PlayerEvents::Died:
 			{
 				logWarning("[Event system] Died");
@@ -647,9 +669,16 @@ void PlayState::update_isPlaying(const float& dt)
 				m_camera->disableCameraMovement(true);
 				//TODO
 				//Here I can implement the poof particles for a dead player
+
+				//m_objects.push_back(new WorldObject("Poof"));
+				//m_objects.back()->setWorldPosition(m_player->getPlayerPos());
+				//m_objects.back()->addParticle(deathBuffer);
+				//m_objects.back()->RemoveParticle(); //Set remove to true, it will now die when the player has respawned
+				//Renderer::getInstance()->submit(m_objects.back(), STATIC);
+
+
 				break;
 			}
-
 			case PlayerEvents::Respawned:
 			{
 				logWarning("[Event system] Respawned");
@@ -661,9 +690,20 @@ void PlayState::update_isPlaying(const float& dt)
 				m_camera->resetCamera();
 				m_camera->disableCameraMovement(false);
 				m_player->onRespawn();
+				
+				for (int i = 0; i < m_objects.size(); i++)
+				{
+					if (m_objects[i]->ShouldDie()) //Atm this seems to be working fine
+					{
+						Renderer::getInstance()->removeRenderObject(m_objects[i], STATIC);
+						// Might fuck up destruction!!!1
+						delete m_objects[i];
+						m_objects.erase(m_objects.begin() + i);
+					}
+				}
+
 				break;
 			}
-
 			case PlayerEvents::TookDamage:
 			{
 				logWarning("[Event system] Took damage");
@@ -747,7 +787,6 @@ void PlayState::update_isPlaying(const float& dt)
 				m_hudHandler.getHudObject(HUDID::MANA_OVERLAY)->setAlpha(0.75f);
 				break;
 			}
-
 			case PlayerEvents::TookHeal:
 			{
 				shPtr->playSound(PickupSound);
@@ -760,7 +799,6 @@ void PlayState::update_isPlaying(const float& dt)
 
 				break;
 			}
-
 			case PlayerEvents::SessionOver:
 			{
 				logWarning("[Event system] Session is over");
@@ -776,7 +814,6 @@ void PlayState::update_isPlaying(const float& dt)
 
 				break;
 			}
-
 			case PlayerEvents::Deflected:
 			{
 				m_hudHandler.getHudObject(HUDID::CROSSHAIR_DEFLECT_INDICATOR)->setAlpha(1.0f);
@@ -787,13 +824,11 @@ void PlayState::update_isPlaying(const float& dt)
 				//Implement particles for self deflect here
 				break;
 			}
-
 			case PlayerEvents::EnemyDeflected:
 			{
 
 				break;
 			}
-
 			case PlayerEvents::WallGotDestroyed:
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::ReadDestructableWallsMutex); // Thread safe
@@ -812,11 +847,40 @@ void PlayState::update_isPlaying(const float& dt)
 
 				break;
 			}
-
 			case PlayerEvents::PlayerReady:
-			{
-				// Play sound?
-				logTrace("Player ready");
+			{	
+
+				if (m_readyText == nullptr) {
+					m_readyText = TextManager::getInstance()->addDynamicText("Press F1 to ready up!",
+						0.20f,
+						glm::vec3(0.0f, -1.35f, 0.0f),
+						2.5f,
+						TextManager::TextBehaviour::StayForeverAndScale,
+						glm::vec3(0.0f, 0.0f, 0.0f), true);
+
+					m_readyText->setColor(glm::vec4(1.0f, 0.75f, 0.75f, 1.0f));
+					m_readyText->setScale(1.0f);
+				}
+
+				if (m_numberOfPlayersReadyText == nullptr) {
+					m_numberOfPlayersReadyText = TextManager::getInstance()->addDynamicText(
+						"Players ready: " + std::to_string(Client::getInstance()->getNumberOfReadyPlayers()) 
+						+ "/" +std::to_string(Client::getInstance()->getNumberOfPlayers()),
+						0.15f,
+						glm::vec3(0.0f, -0.05f, 0.0f),
+						2.5f,
+						TextManager::TextBehaviour::StayForever,
+						glm::vec3(0.0f, 0.0f, 0.0f), true);
+
+					m_numberOfPlayersReadyText->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+					m_numberOfPlayersReadyText->setScale(1.0f);
+				}
+				else {
+					m_numberOfPlayersReadyText->changeText("Players ready: " + std::to_string(Client::getInstance()->getNumberOfReadyPlayers())
+						+ "/" + std::to_string(Client::getInstance()->getNumberOfPlayers()));
+
+				}
+
 
 				break;
 			}
@@ -835,6 +899,11 @@ void PlayState::update_isPlaying(const float& dt)
 				if (m_gameTimeText != nullptr) {
 					m_gameTimeText->setShouldRender(false);
 				}
+
+				if (m_numberOfPlayersReadyText != nullptr) {
+					m_numberOfPlayersReadyText->setShouldRender(false);
+				}
+
 				break;
 			}
 
@@ -842,6 +911,14 @@ void PlayState::update_isPlaying(const float& dt)
 			{
 				if (m_gameTimeText != nullptr) {
 					m_gameTimeText->setShouldRender(false);
+				}
+
+				if (m_numberOfPlayersReadyText != nullptr) {
+					m_numberOfPlayersReadyText->setShouldRender(true);
+				}
+
+				if (m_readyText != nullptr) {
+					m_readyText->setShouldRender(true);
 				}
 				break;
 			}
@@ -853,19 +930,60 @@ void PlayState::update_isPlaying(const float& dt)
 				m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(1.0f);
 				break;
 			}
+			
+			case PlayerEvents::EnemyDied:
+			{
+				if (evnt.data == nullptr) continue;
 
+				for (int i = 0; i < m_objects.size(); i++)
+				{
+					if (m_objects[i]->ShouldDie()) //Atm this seems to be working fine
+					{
+						Renderer::getInstance()->removeRenderObject(m_objects[i], STATIC);
+						// Might fuck up destruction!!!1
+						delete m_objects[i];
+						m_objects.erase(m_objects.begin() + i);
+					}
+				}
+
+				EnemyDiedPacket packet;
+				memcpy(&packet, evnt.data, sizeof(EnemyDiedPacket));
+				auto* player = Client::getInstance()->findPlayerWithGuid(packet.guidOfDeadPlayer);
+
+				// Do stuff here with player pointer
+				
+				std::printf("Player died at %f, %f, %f\n", player->position.x, player->position.y, player->position.z);
+
+
+				m_objects.push_back(new WorldObject("Poof"));
+				m_objects.back()->setWorldPosition(glm::vec3(player->position.x, player->position.y, player->position.z));
+				m_objects.back()->addParticle(deathBuffer);
+				m_objects.back()->RemoveParticle(); //Set remove to true, it will now die when the player has respawned
+				Renderer::getInstance()->submit(m_objects.back(), STATIC);
+				//-------------
+
+
+				delete evnt.data;
+				break;
+			}
 
 
 		}
 
 	}
+
+	if (clientPtr->getMyData().isReady && m_readyText != nullptr && m_readyText->shouldRender() == true)
+	{
+		m_readyText->setShouldRender(false);
+	}
+
 	// Look at the killer when dead ( If he exist )
 	if (!m_camera->isCameraActive() && clientPtr->getMyData().health <= 0)
 	{
 		const PlayerPacket* myKiller = clientPtr->getLatestPlayerThatHitMe();
 
 		if (myKiller != nullptr) {
-			glm::vec3 lookPos = CustomLerp(m_lastPositionOfMyKiller, myKiller->position + myKiller->meshHalfSize * 1.75f, DeltaTime);
+			glm::vec3 lookPos = CustomLerp(m_lastPositionOfMyKiller, myKiller->position + glm::vec3(0.0f,myKiller->meshHalfSize.y * 1.75f, 0.0f), DeltaTime);
 			m_camera->lookAt(lookPos);
 
 			m_lastPositionOfMyKiller = lookPos;
@@ -1098,6 +1216,39 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 
 
 	return false;
+}
+
+void PlayState::InitParticle()
+{
+	PSinfo tempPS;
+	TextureInfo tempTxt;
+
+	tempTxt.name = "Assets/Textures/betterSmoke2.png";
+	tempPS.width = 0.9f;
+	tempPS.heigth = 1.2f;
+	tempPS.lifetime = 3.0f;
+	tempPS.maxParticles = 300;
+	tempPS.emission = 0.02f;
+	tempPS.force = -0.54f;
+	tempPS.drag = 0.0f;
+	tempPS.gravity = -2.2f;
+	tempPS.seed = 1;
+	tempPS.cont = false;
+	tempPS.omnious = true;
+	tempPS.spread = 5.0f;
+	tempPS.glow = 1.3;
+	tempPS.scaleDirection = 0;
+	tempPS.swirl = 0;
+	tempPS.fade = 1;
+	tempPS.randomSpawn = true;
+	tempPS.color = glm::vec3(0.3f, 0.8f, 0.0f);
+	tempPS.blendColor = glm::vec3(0.0f, 1.0f, 0.0f);
+	//tempPS.color = glm::vec3(0.0, 0.0f, 0.0f);
+	tempPS.direction = glm::vec3(0.0f, -1.0f, 0.0f);
+
+	deathBuffer = new ParticleBuffers(tempPS, tempTxt);
+	deathBuffer->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
+	deathBuffer->bindBuffers();
 }
 
 void PlayState::HUDHandler() {

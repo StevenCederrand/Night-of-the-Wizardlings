@@ -40,7 +40,8 @@ enum {
 	NUMBER_OF_READY_PLAYERS,
 	UNREADY_PACKET_FROM_SERVER,
 	HITMARK,
-	ENEMY_DEFLECTED_SPELL
+	ENEMY_DEFLECTED_SPELL,
+	ENEMY_DIED
 
 };
 
@@ -226,6 +227,14 @@ struct ReadyPlayersCount {
 struct HitConfirmedPacket {
 	int damageDone;
 	glm::vec3 targetPosition;
+
+	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
+		stream.Serialize(writeToStream, *this);
+	}
+};
+
+struct EnemyDiedPacket {
+	RakNet::RakNetGUID guidOfDeadPlayer = RakNet::UNASSIGNED_RAKNET_GUID;
 
 	void Serialize(bool writeToStream, RakNet::BitStream& stream) {
 		stream.Serialize(writeToStream, *this);
