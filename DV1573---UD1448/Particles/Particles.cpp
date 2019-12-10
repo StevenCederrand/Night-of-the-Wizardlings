@@ -386,8 +386,9 @@ void ParticleSystem::Update(float time) //removed campos
 	}
 }
 
-void ParticleSystem::TempInit(PSinfo* psInfo)
+void ParticleSystem::TempInit(PSinfo psInfo)
 {
+	m_psInfo = psInfo;
 }
 
 void ParticleSystem::Render(Camera* camera)

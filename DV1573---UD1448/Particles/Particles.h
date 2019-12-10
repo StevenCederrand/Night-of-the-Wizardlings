@@ -39,8 +39,8 @@ struct PSinfo //All the fun particle information values
 	glm::vec3 blendColor;
 
 	int maxParticles;
-	int cont;
-	int omnious;
+	bool cont;
+	bool omnious;
 	int seed;
 	int fade;
 	int scaleDirection;
@@ -115,7 +115,7 @@ public:
 	int GetNrOfParticles();
 
 	void Update(float time); //removed glm::vec3 cameraPos
-	void TempInit(PSinfo* psInfo);
+	void TempInit(PSinfo psInfo);
 	void Render(Camera* camera);
 	void Pause();
 	void Play();

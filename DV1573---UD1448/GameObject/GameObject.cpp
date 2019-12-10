@@ -578,6 +578,20 @@ void GameObject::UpdateParticles(float dt)
 	}
 }
 
+void GameObject::UpdateParticles(float dt, PSinfo psInfo)
+{
+	//for (ParticleSystem system : m_particleSystems)
+	//{
+	//	system.Update(camera->getCamPos(), dt);
+	//}
+
+	for (int i = 0; i < m_particleSystems.size(); i++)
+	{
+		m_particleSystems[i].TempInit(psInfo);
+		m_particleSystems[i].Update(dt);
+	}
+}
+
 void GameObject::RenderParticles(Camera* camera)
 {
 	for (int i = 0; i < m_particleSystems.size(); i++)

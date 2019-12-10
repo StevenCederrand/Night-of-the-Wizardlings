@@ -21,10 +21,10 @@ AttackSpell::AttackSpell(glm::vec3 pos, OBJECT_TYPE type)
 	: Spell(pos, glm::vec3(0), nullptr)
 {
 	m_type = type;
-	mySpellLoader.LoadProjectileSpell("normalSpell.spell");
 
 	Transform tempTransform;
-	tempTransform.scale = glm::vec3(mySpellLoader.m_projectile.m_radius, mySpellLoader.m_projectile.m_radius, mySpellLoader.m_projectile.m_radius);
+	//mySpellLoader.LoadProjectileSpell("normalSpell.spell");
+	//tempTransform.scale = glm::vec3(mySpellLoader.m_projectile.m_radius, mySpellLoader.m_projectile.m_radius, mySpellLoader.m_projectile.m_radius);
 	setTransform(tempTransform);
 	setWorldPosition(pos);
 }

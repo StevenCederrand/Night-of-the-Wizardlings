@@ -2,21 +2,7 @@
 #define _SPELL_CREATOR_STATE_H
 #include <Pch/Pch.h>
 #include <System/State.h>
-#include <GUI/Gui.h>
-#include <GFX/MaterialMap.h>
-#include <GameObject/GameObject.h>
-#include <Player/Player.h>
-#include <GameObject/WorldObject.h>
-#include <GameObject/MapObject.h>
-#include <GameObject/AnimatedObject.h>
-#include <Spells/Spell.h>
-#include <System/BulletPhysics.h>
-#include <System/Input.h>
-#include <HUD/HudObject.h>
-#include <HUD/HudHandler.h>
-#include <Spells/AttackSpell.h>
-#include <Spells/SpellEditor.h>
-
+#include <Mesh/MeshFormat.h>
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw_gl3.h>
 #include <stdio.h>
@@ -24,41 +10,13 @@
 #include <GLFW/glfw3.h>
 #include <imgui/imfilebrowser.h>
 
-#include "SpellLoader/spellLoader.h"
+#include <SpellLoader/spellLoader.h>
+
+//class SpellLoader;
 
 //bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
 //	const btCollisionObjectWrapper* obj2, int id2, int index2);
 
-struct Projectiles
-{
-    int m_ProjectileLowDmg = 0;
-    int m_ProjectileHighDmg = 0;
-    int m_ProjectileSpeed = 0;
-    int m_ProjectileCooldown = 0;
-    float m_ProjectileRadius = 0;
-    int m_ProjectileLifetime = 0;
-    int m_ProjectileMaxBounces = 1;
-};
-
-struct AOE
-{
-    int m_damage = 0;
-    int m_AOESpeed = 0;
-    int m_AOECooldown = 0;
-    int m_AOERadius = 1;
-    int m_AOELifetime = 0;
-    int m_AOEMaxBounces = 1;
-};
-
-struct SpellEvents
-{
-    int m_nrOfEvents = 1;
-    int m_firstEvent = 1;
-    int m_secondEvent = 1;
-    int m_thirdEvent = 1;
-    int m_fourthEvent = 1;
-    int m_fifthEvent = 1;
-};
 
 class SpellCreatorState : public State {
 
@@ -88,13 +46,19 @@ public:
     bool loadASpell = false;
     //-----test data-----//
     std::string m_name = "fireball";
-    Projectiles normalSpell;
-    AOE aoeSpell;
-    SpellEvents spellEvents;
+	SpellLoading::Projectile normalSpell;
+    SpellLoading::AOESpell aoeSpell;
+
+	//particles
+	PSinfo tempPS;
+	TextureInfo tempTxt;
+
+	SpellLoading::SpellEvents spellEvents;
+	SpellLoading::SpellEvents nrOfParticleSystems;
     //-----File opener/Path to Exports-----//
     ImGui::FileBrowser fileDialog;
 
-    char m_spellName[NAME_SIZE];
+    char m_spellName[256];
 
 private:
     Player* m_player;

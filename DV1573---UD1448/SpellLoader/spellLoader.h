@@ -6,8 +6,8 @@
 #include <sstream>
 #include <iomanip>
 #include <cstring>
-#include "loaderFormat.h"
-
+#include <SpellLoader/loaderFormat.h>
+//#include <States/SpellCreatorState.h>
 
 class SpellLoader
 {
@@ -19,9 +19,7 @@ public:
 
     bool LoadProjectileSpell(std::string fileName);	// Load a file
     bool loadAOESpell(std::string fileName);	// Load a file
-    void SaveProjectileSpell(std::string m_name, float m_ProjectileLowDmg, float m_ProjectileHighDmg,float m_ProjectileSpeed,
-           float m_ProjectileCooldown, float m_ProjectileRadius, float m_ProjectileLifetime, float m_ProjectileMaxBounces,
-           int m_nrOfEvents, int m_firstEvent, int m_secondEvent, int m_thirdEvent, int m_fourthEvent, int m_fifthEvent);
+    void SaveProjectileSpell(std::string name, SpellLoading::Projectile projectileInfo, SpellLoading::SpellEvents spellEvent, PSinfo psInfo);
 
     void saveAOESpell(std::string name, int damage, int speed, int cooldown, int radius, int lifetime, int maxBounces);
 
@@ -33,6 +31,7 @@ public:
 	SpellLoading::Projectile m_projectile;
     SpellLoading::AOESpell m_AOESpell;
     SpellLoading::SpellEvents m_spellEvents;
+	PSinfo m_psInfo;
 
 	int m_nrOfSpells = 1;
 
@@ -57,4 +56,29 @@ private:
     float m_thirdEvent;
     float m_fourthEvent;
     float m_fifthEvent;
+
+
+	//-----Particle Data----//
+	glm::vec3 m_direction;
+	glm::vec3 m_color;
+	glm::vec3 m_blendColor;
+
+	int m_maxParticles;
+	bool m_cont;
+	bool m_omnious;
+	int m_seed;
+	int m_fade;
+	int m_scaleDirection;
+	float m_glow;
+	int m_swirl;
+	bool m_randomSpawn;
+
+	float m_width;
+	float m_heigth;
+	float m_lifetimeP;
+	float m_emission;
+	float m_spread;
+	float m_force;
+	float m_drag;
+	float m_gravity;
 };

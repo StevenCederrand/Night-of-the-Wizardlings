@@ -1,13 +1,5 @@
 #pragma once
 #include <Pch/Pch.h>
-#include <Spells/Spells.h>
-#include <GameObject/GameObject.h>
-#include <Spells/AttackSpell.h>
-#include <Spells/EnhanceAttackSpell.h>
-#include <Spells/AOEAttack.h>
-#include <Spells/fire.h>
-#include <System/BulletPhysics.h>
-#include <GameObject/ObjectTypes.h>
 
 class Client;
 
@@ -18,7 +10,7 @@ public:
 	~SpellEditor();
 
 	void createSpellForTool(glm::vec3 spellPos, glm::vec3 directionVector, OBJECT_TYPE type);
-	void spellToolUpdate(float dt, float radius, float speed);
+	void spellToolUpdate(float dt,PSinfo psInfo, SpellLoading::Projectile projectileInfo);
 	void changeSpell(int state);
 
 	void renderSpell();
@@ -45,6 +37,9 @@ private:
 	SpellBase enhanceAtkBase;
 	SpellBase flamestrikeBase;
 	SpellBase fireBase;
+
+	PSinfo tempPS;
+	TextureInfo tempTxt;
 
 	// Don't touch if you don't know what you are doing
 	friend class Client;
