@@ -90,6 +90,8 @@ private:
 	ALenum m_error;
 	int m_nrOfPlayers; // Including me
 
+	float m_masterVolume = 1.0f;
+
 public:
 	SoundHandler();
 	~SoundHandler();
@@ -160,7 +162,8 @@ public:
 
 	const ALint& getSourceState(SoundIndexClient whatSound) const;
 	const ALint& getSourceState(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID, int slot = 0) const;
-	//source relative?	
+	
+	const float& getMasterVolume() const;
 
 	void freeBuffer(SoundIndexClient whatSound);
 };

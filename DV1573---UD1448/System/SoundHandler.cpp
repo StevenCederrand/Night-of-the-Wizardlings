@@ -623,6 +623,8 @@ void SoundHandler::setMasterVolume(float gain)
 			}
 		}
 	}	
+
+	m_masterVolume = gain;
 }
 
 void SoundHandler::playSound(SoundIndexClient whatSound)
@@ -1291,6 +1293,11 @@ const ALint& SoundHandler::getSourceState(SoundIndexCommon whatSound, RakNet::Ad
 	}
 
 	return value;
+}
+
+const float& SoundHandler::getMasterVolume() const
+{
+	return m_masterVolume;
 }
 
 void SoundHandler::freeBuffer(SoundIndexClient whatSound)

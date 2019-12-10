@@ -94,7 +94,7 @@ void NetworkPlayers::update(const float& dt)
 			{
 				if (!p.wasDeflecting)
 				{
-					p.deflectSoundGain = 1.0f; // Will automaticially be set relative to master sound
+					p.deflectSoundGain = shPtr->getMasterVolume(); // Will automaticially be set relative to master sound
 					shPtr->setSourceGain(p.deflectSoundGain, DeflectSound, p.data.guid);					
 					shPtr->playSound(DeflectSound, p.data.guid);
 					p.wasDeflecting = true;
@@ -103,7 +103,7 @@ void NetworkPlayers::update(const float& dt)
 			//No mana
 			else
 			{
-				p.deflectSoundGain -= 3.0f * dt;
+				p.deflectSoundGain -= 3.0f * shPtr->getMasterVolume() * dt;
 				if (p.deflectSoundGain > 0.0f)
 				{
 					shPtr->setSourceGain(p.deflectSoundGain, DeflectSound, p.data.guid);
@@ -116,7 +116,7 @@ void NetworkPlayers::update(const float& dt)
 		}
 		else if (p.wasDeflecting)
 		{
-			p.deflectSoundGain -= 3.0f * dt;
+			p.deflectSoundGain -= 3.0f * shPtr->getMasterVolume() * dt;
 			if (p.deflectSoundGain > 0.0f)
 			{				
 				shPtr->setSourceGain(p.deflectSoundGain, DeflectSound, p.data.guid);
@@ -124,7 +124,7 @@ void NetworkPlayers::update(const float& dt)
 			else
 			{
 				shPtr->stopSound(DeflectSound, p.data.guid);
-				p.deflectSoundGain = 1.0f; // Will automaticially be set relative to master sound
+				p.deflectSoundGain = shPtr->getMasterVolume(); // Will automaticially be set relative to master sound
 				shPtr->setSourceGain(p.deflectSoundGain, DeflectSound, p.data.guid);
 				p.wasDeflecting = false;			
 			}
