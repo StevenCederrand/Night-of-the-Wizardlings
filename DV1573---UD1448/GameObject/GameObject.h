@@ -39,6 +39,9 @@ public:
 	
 	void addParticle(ParticleBuffers* particleBuffers);
 	void UpdateParticles(float dt);
+	void RenderParticles(Camera *camera);
+	void RemoveParticle();
+	bool ShouldDie();
 	   	
 	//Set functions
 	void setTransform(Transform transform);
@@ -70,6 +73,7 @@ public:
 	btRigidBody* getRigidBody(int meshIndex = 0) const { return m_meshes[meshIndex].body; }
 	std::vector<ParticleSystem>& getParticles() { return m_particleSystems; } //Get the particle vector so we can render and stuff
 
+
 private:
 	void updateTransform();
 
@@ -97,6 +101,8 @@ private:
 	Transform t_transform;
 
 	std::vector<ParticleSystem> m_particleSystems;
+
+	bool removeParticle;
 
 protected:
 	std::vector<glm::mat4> m_modelMatrixes;

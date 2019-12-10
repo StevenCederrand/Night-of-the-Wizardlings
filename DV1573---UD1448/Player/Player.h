@@ -81,7 +81,7 @@ private:
 	float m_deflectSoundGain = 1.0f;
 	
 	float m_mana;
-	int m_health;	
+	int m_health;
 	bool m_rMouse; //Right Mouse
 	int m_frameCount;
 

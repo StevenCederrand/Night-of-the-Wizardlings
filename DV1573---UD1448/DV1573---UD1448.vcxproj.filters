@@ -176,6 +176,7 @@
     <ClInclude Include="System\UniqueIndex.h" />
     <ClInclude Include="Renderer\TextRenderer.h" />
     <ClInclude Include="BetterText\TextManager.h" />
+    <ClInclude Include="System\Framerate.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

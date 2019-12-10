@@ -9,6 +9,7 @@
 #define AUTOSTART false;
 #define FULLSCREEN false;
 float DeltaTime = 0.0f;
+unsigned int Framerate = 0;
 
 Application::Application() {
 }
@@ -229,9 +230,7 @@ void Application::calcFPS(const float& dt)
 	if (frameTimer <= 0.0f)
 	{
 		frameTimer = 1.0f;
-		std::string title = "Wizards 'n stuff | FPS: " + std::to_string(fps);
-		//printf("%s\n",title.c_str());
-		glfwSetWindowTitle(m_window, title.c_str());
+		Framerate = fps;
 		fps = 0;
 	}
 
