@@ -143,44 +143,6 @@ void Renderer::renderAndAnimateNetworkingTexts()
 
 		NetGlobals::SERVER_STATE state = Client::getInstance()->getServerState().currentState;
 
-		
-		if (state == NetGlobals::SERVER_STATE::WaitingForPlayers) {
-
-			//int numberOfPlayersReady = Client::getInstance()->getNumberOfReadyPlayers();
-			//int numberOfPlayers = Client::getInstance()->getNumberOfPlayers();
-			//glm::vec3 scale = glm::vec3(0.55f);
-			//glm::vec3 baseColor = glm::vec3(1.0f);
-			//std::string numberOfReadyPlayersText = std::to_string(numberOfPlayersReady) + "/" + std::to_string(numberOfPlayers) + " players ready";
-			//if (!Client::getInstance()->isSpectating()) {
-			//	bool meReady = Client::getInstance()->getMyData().isReady;
-
-			//	std::string readyBase = "You are ";
-			//	std::string readyText = meReady ? "Ready" : "Not Ready";
-			//	glm::vec3 readyColor = meReady ? glm::vec3(0.0f, 1.0f, 0.0f) : glm::vec3(1.0f, 0.0f, 0.0f);
-
-
-			//	unsigned int readyBaseWidth = m_text->getTotalWidth(readyBase, scale);
-			//	unsigned int readyWidth = m_text->getTotalWidth(readyText, scale);
-			//	unsigned int totalWidth = readyBaseWidth + readyWidth;
-
-			//	m_text->RenderText(readyBase, (SCREEN_WIDTH / 2) - totalWidth * 0.5f, SCREEN_HEIGHT * 0.35f, scale.x, baseColor);
-			//	m_text->RenderText(readyText, (SCREEN_WIDTH / 2) - totalWidth * 0.5f + readyBaseWidth, SCREEN_HEIGHT * 0.35f, scale.x, readyColor);
-
-			//	if (meReady == false) {
-			//		glm::vec3 howtoScale = glm::vec3(0.35f);
-			//		std::string howToReadyText = "Press F1 to ready";
-			//		unsigned int width = m_text->getTotalWidth(howToReadyText, howtoScale);
-
-			//		m_text->RenderText(howToReadyText, (SCREEN_WIDTH / 2) - width * 0.5f, SCREEN_HEIGHT * 0.30f, howtoScale.x, baseColor);
-			//	}
-
-			//}
-
-			//unsigned int playersThatAreReadyWidth = m_text->getTotalWidth(numberOfReadyPlayersText, glm::vec3(0.40f));
-			////m_text->RenderText(numberOfReadyPlayersText, (SCREEN_WIDTH / 2) - playersThatAreReadyWidth * 0.5f, SCREEN_HEIGHT * 0.92f, 0.40f, baseColor);
-
-		}
-
 		if (Client::getInstance()->isSpectating() == false) {
 
 			if (Client::getInstance()->getMyData().health == 0) {
@@ -298,7 +260,7 @@ void Renderer::renderKillFeed()
 		NotificationText& notification = m_killNotification[i];
 
 		float xPos = (float)((SCREEN_WIDTH / 2) - (notification.width / 2.0f));
-		float yPos = (float)((SCREEN_HEIGHT / 2) - ((90.0f * notification.scale.x) * (i + 1)));
+		float yPos = (float)((SCREEN_HEIGHT / 2) - ((100.0f * notification.scale.x) * (i + 1)));
 
 		m_text->RenderText(notification, glm::vec3(xPos, yPos, 0.0f), glm::vec2(notification.scale), notification.useAlpha);
 
@@ -1236,7 +1198,7 @@ void Renderer::render() {
 #pragma endregion
 
 #pragma region Deflect_Render
-	if (m_shieldObject->getShouldRender())
+	if (m_shieldObject != nullptr && m_shieldObject->getShouldRender())
 	{
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

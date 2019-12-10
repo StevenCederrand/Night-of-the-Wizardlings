@@ -569,7 +569,7 @@ void PlayState::update_isPlaying(const float& dt)
 
 				if (&pp != nullptr) {
 
-					if (lastNumber == (pp.timeLeft / 1000)){
+					if (lastNumber == (pp.timeLeft / 1000)  || (pp.timeLeft / 1000) == 11){
 						delete evnt.data;
 						break;
 					}
@@ -766,7 +766,7 @@ void PlayState::update_isPlaying(const float& dt)
 						txtPos,
 						2.0f,
 						TextManager::TextBehaviour::Instant_FadOut,
-						glm::vec3(Randomizer::single(-0.5f, 0.5f), 1.5f, Randomizer::single(-0.5f, 0.5f)), true, 1.0f);
+						glm::vec3(Randomizer::single(-0.5f, 0.5f), 1.5f, Randomizer::single(-0.5f, 0.5f)), false, 1.0f);
 
 					t->setColor(glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
 					t->setScale(fminf(fmaxf(dist / 15.0f, 1.0f), 5.0f));
@@ -1026,6 +1026,117 @@ void PlayState::update_isSpectating(const float& dt)
 
 		switch (evnt.playerEvent) {
 
+
+		case PlayerEvents::GameCountdown:
+		{
+			static int lastNumber = 0;
+			CountdownPacket pp;
+			memcpy(&pp, evnt.data, sizeof(CountdownPacket));
+
+			if (&pp != nullptr) {
+
+				if (lastNumber == (pp.timeLeft / 1000) || (pp.timeLeft / 1000) == 11) {
+					delete evnt.data;
+					break;
+				}
+
+				lastNumber = pp.timeLeft / 1000;
+
+				if (lastNumber == 0) {
+					GUIText* t = TextManager::getInstance()->addDynamicText(
+						"Game has begun!",
+						0.25f,
+						glm::vec3(0.0f, -0.25f, 0.0f),
+						2.5f,
+						TextManager::TextBehaviour::Instant_FadOut,
+						glm::vec3(0.0f, 0.0f, 0.0f), true);
+
+					t->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+					t->setScale(1.0f);
+				}
+				else {
+					GUIText* t = TextManager::getInstance()->addDynamicText(
+						"Game Starting in: " + std::to_string(lastNumber),
+						0.25f,
+						glm::vec3(0.0f, -0.25f, 0.0f),
+						1.f,
+						TextManager::TextBehaviour::Instant_FadOut,
+						glm::vec3(0.0f, 0.0f, 0.0f), true);
+
+					t->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+					t->setScale(1.0f);
+				}
+
+
+
+
+
+				delete evnt.data;
+			}
+
+			break;
+		}
+		case PlayerEvents::RoundTimer:
+		{
+			static int lastSecond = 0;
+			RoundTimePacket rp;
+			memcpy(&rp, evnt.data, sizeof(RoundTimePacket));
+
+			if (&rp != nullptr) {
+
+				if (lastSecond == rp.seconds) {
+					delete evnt.data;
+					break;
+				}
+
+				lastSecond = rp.seconds;
+
+				if (m_gameTimeText == nullptr) {
+					m_gameTimeText = TextManager::getInstance()->addDynamicText(
+						std::to_string(rp.minutes) + ":" + std::to_string(lastSecond),
+						0.25f,
+						glm::vec3(0.0f, -0.035f, 0.0f),
+						1.f,
+						TextManager::TextBehaviour::StayForever,
+						glm::vec3(0.0f, 0.0f, 0.0f), true);
+				}
+				else {
+
+					std::string secondsText = (rp.seconds <= 9 ? "0" : "") + std::to_string(rp.seconds);
+					std::string preText = "";
+
+					if (Client::getInstance()->getServerState().currentState == NetGlobals::SERVER_STATE::GameFinished)
+						preText = "End of round ";
+
+					m_gameTimeText->changeText(preText + std::to_string(rp.minutes) + ":" + secondsText);
+
+				}
+
+				m_gameTimeText->setShouldRender(true);
+
+			}
+
+
+
+			delete evnt.data;
+			break;
+		}
+		case PlayerEvents::Died:
+		{
+			logWarning("[Event system] Died");
+			//Update the HP bar
+			m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100.0f);
+			m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100.0f);
+			const PlayerPacket* shooter = clientPtr->getLatestPlayerThatHitMe();
+			if (shooter != nullptr) {
+				m_lastPositionOfMyKiller = shooter->position;
+			}
+			m_player->onDead();
+			m_camera->disableCameraMovement(true);
+			
+			break;
+		}
+
 		case PlayerEvents::WallGotDestroyed:
 		{
 			std::lock_guard<std::mutex> lockGuard(NetGlobals::ReadDestructableWallsMutex); // Thread safe
@@ -1044,11 +1155,28 @@ void PlayState::update_isSpectating(const float& dt)
 
 			break;
 		}
-
 		case PlayerEvents::PlayerReady:
 		{
-			// Play sound?
-			logTrace("Player ready");
+
+			if (m_numberOfPlayersReadyText == nullptr) {
+				m_numberOfPlayersReadyText = TextManager::getInstance()->addDynamicText(
+					"Players ready: " + std::to_string(Client::getInstance()->getNumberOfReadyPlayers())
+					+ "/" + std::to_string(Client::getInstance()->getNumberOfPlayers()),
+					0.15f,
+					glm::vec3(0.0f, -0.05f, 0.0f),
+					2.5f,
+					TextManager::TextBehaviour::StayForever,
+					glm::vec3(0.0f, 0.0f, 0.0f), true);
+
+				m_numberOfPlayersReadyText->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+				m_numberOfPlayersReadyText->setScale(1.0f);
+			}
+			else {
+				m_numberOfPlayersReadyText->changeText("Players ready: " + std::to_string(Client::getInstance()->getNumberOfReadyPlayers())
+					+ "/" + std::to_string(Client::getInstance()->getNumberOfPlayers()));
+
+			}
+
 
 			break;
 		}
@@ -1059,12 +1187,65 @@ void PlayState::update_isSpectating(const float& dt)
 			break;
 		}
 
-		case PlayerEvents::GameEnded:
+		case PlayerEvents::GameIsAboutToStart:
 		{
+			if (m_gameTimeText != nullptr) {
+				m_gameTimeText->setShouldRender(false);
+			}
+
+			if (m_numberOfPlayersReadyText != nullptr) {
+				m_numberOfPlayersReadyText->setShouldRender(false);
+			}
 
 			break;
 		}
 
+		case PlayerEvents::WaitingForPlayers:
+		{
+			if (m_gameTimeText != nullptr) {
+				m_gameTimeText->setShouldRender(false);
+			}
+
+			if (m_numberOfPlayersReadyText != nullptr) {
+				m_numberOfPlayersReadyText->setShouldRender(true);
+			}
+
+			if (m_readyText != nullptr) {
+				m_readyText->setShouldRender(true);
+			}
+			break;
+		}
+
+		case PlayerEvents::EnemyDied:
+		{
+			if (evnt.data == nullptr) continue;
+
+			for (int i = 0; i < m_objects.size(); i++)
+			{
+				if (m_objects[i]->ShouldDie()) //Atm this seems to be working fine
+				{
+					Renderer::getInstance()->removeRenderObject(m_objects[i], STATIC);
+					// Might fuck up destruction!!!1
+					delete m_objects[i];
+					m_objects.erase(m_objects.begin() + i);
+				}
+			}
+
+			EnemyDiedPacket packet;
+			memcpy(&packet, evnt.data, sizeof(EnemyDiedPacket));
+			auto* player = Client::getInstance()->findPlayerWithGuid(packet.guidOfDeadPlayer);
+
+			// Do stuff here with player pointer
+			m_objects.push_back(new WorldObject("Poof"));
+			m_objects.back()->setWorldPosition(glm::vec3(player->position.x, player->position.y, player->position.z));
+			m_objects.back()->addParticle(deathBuffer);
+			m_objects.back()->RemoveParticle(); //Set remove to true, it will now die when the player has respawned
+			Renderer::getInstance()->submit(m_objects.back(), STATIC);
+			//-------------
+
+			delete evnt.data;
+			break;
+		}
 
 
 		}
