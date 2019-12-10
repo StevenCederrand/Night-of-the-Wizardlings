@@ -21,7 +21,7 @@
 #define SSAO true;
 
 //Number of SSAO kernels allowed in the system
-#define SSAO_KERNELS 128
+#define SSAO_KERNELS 32
 //Max number of lights
 #define P_LIGHT_COUNT 64
 

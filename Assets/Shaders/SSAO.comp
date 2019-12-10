@@ -1,6 +1,6 @@
 //Compute shader for generating a ssao texture
 #version 430
-#define SSAO_KERNELS 128
+#define SSAO_KERNELS 32
 
 uniform sampler2D depthMap;
 uniform sampler2D noiseMap;
@@ -89,7 +89,7 @@ vec3 normalFromDepth(float depth, vec2 uv)
     vec3 v2 = p2 - p;*/
 
     vec3 normal = cross(p1, p2);
-    normal.z = normal.z;
+    normal.z = -normal.z;
 
     return normalize(normal) * 0.5 + 0.5;
 }

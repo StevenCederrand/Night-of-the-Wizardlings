@@ -95,6 +95,7 @@ void main() {
     if(grayscale == 1){
     	result.xyz = grayscaleColour(result.xyz);
     }
+
     color = result;
 }
 
