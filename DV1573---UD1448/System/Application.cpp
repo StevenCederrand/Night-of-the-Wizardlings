@@ -15,7 +15,7 @@
 #include <imgui/imfilebrowser.h>
 
 
-#define AUTOSTART false;
+#define AUTOSTART true;
 #define FULLSCREEN false;
 float DeltaTime = 0.0f;
 
@@ -176,17 +176,19 @@ void Application::run()
 		currentTime += DeltaTime;
 		
 		calcFPS(DeltaTime);
-		
-
-		
+	
 		m_stateManager->update(DeltaTime);
 		Gui::getInstance()->update(DeltaTime);
-		
 
-		ImGui_ImplGlfwGL3_NewFrame();
 		m_stateManager->render();
-
-		ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
+		
+		if (m_stateManager->getImGuiState())
+		{
+			ImGui_ImplGlfwGL3_NewFrame();
+			m_stateManager->getGuiInfo();
+			ImGui::Render();
+			ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
+		}
 
 
 		glActiveTexture(GL_TEXTURE0);

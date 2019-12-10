@@ -49,6 +49,11 @@ bool StateManager::getImGuiState()
 	return m_states.back()->is_ImGui();
 }
 
+void StateManager::getGuiInfo()
+{
+	m_states.back()->guiInfo();
+}
+
 void StateManager::update(float dt)
 {
 	// Clear and remove the states that is present in the kill list
@@ -61,10 +66,7 @@ void StateManager::update(float dt)
 
 void StateManager::render()
 {
-
-	ImGui::Begin("Level Editor");
-	ImGui::End();
-	ImGui::Render();
+	
 	if (!m_states.empty()) {
 		m_states.back()->render();
 	}

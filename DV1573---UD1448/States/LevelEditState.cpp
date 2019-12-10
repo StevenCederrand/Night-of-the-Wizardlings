@@ -23,6 +23,10 @@ LevelEditState::LevelEditState()
 	//the load map function might need tweaking in this regard
 	//We also need a save map func.
 	//loadMap();
+
+	fileDialog.SetTitle("Open gile(.mesh)");
+	fileDialog.SetTypeFilters({ ".mesh" });
+	fileDialog.SetPwd("\Assets\Meshes");
 }
 
 LevelEditState::~LevelEditState()
@@ -32,7 +36,7 @@ LevelEditState::~LevelEditState()
 	for (GameObject* object : m_models)
 		delete object;
 	for (Pointlight* light : m_pointlights)
-		delete light;
+		delete light; 
 
 	//Delete UI
 
@@ -44,6 +48,8 @@ LevelEditState::~LevelEditState()
 	delete m_skybox;
 	delete m_picker;
 	
+	ImGui::DestroyContext();
+
 	MeshMap::getInstance()->cleanUp();
 }
 
@@ -124,6 +130,15 @@ void LevelEditState::update(float dt)
 {
 	updateState(dt);
 
+	//ImGui stuff
+	//ImGui::Begin("Level Editor", &tool_active, ImGuiWindowFlags_MenuBar);
+	//ImGui::TextColored(ImVec4(0.5f, 0.7f, 0.1f, 1.0f), "Select attribute");
+	//ImGui::Checkbox("Test box", &test);
+
+	//fileDialog.Display();
+
+	//ImGui::End();
+
 	static float t = 0.0f;
 	t += DeltaTime;
 	
@@ -143,6 +158,119 @@ void LevelEditState::update(float dt)
 void LevelEditState::render()
 {
 	Renderer::getInstance()->render();
+}
+
+void LevelEditState::guiInfo()
+{
+	ImGui::Begin("Level Editor");
+
+#pragma region AttribCheck
+	ImGui::BeginGroup();
+	if (Input::isKeyPressed(GLFW_KEY_W))
+		changeAttrib = 1;
+	ImGui::RadioButton("Translate", &changeAttrib, 1);
+	ImGui::SameLine(0.0f, 10.f);
+	if (Input::isKeyPressed(GLFW_KEY_E))
+		changeAttrib = 2;
+	ImGui::RadioButton("Rotate", &changeAttrib, 2);
+	ImGui::SameLine(0.0f, 10.f);
+	if (Input::isKeyPressed(GLFW_KEY_R))
+		changeAttrib = 3;
+	ImGui::RadioButton("Scale", &changeAttrib, 3);
+	ImGui::Separator();
+	ImGui::EndGroup();
+	ImGui::End();
+#pragma endregion
+
+
+#pragma region SceneList
+	ImGui::Begin("Scene");
+
+	if (ImGui::BeginMainMenuBar())
+	{
+		if (ImGui::BeginMenu("File"))
+		{
+			if (ImGui::MenuItem("New Level", "Ctrl+N"))
+			{
+				// Do Stuff
+			}
+			if (ImGui::MenuItem("Open Level", "Ctrl+O"))
+			{
+				// Do Stuff
+			}
+			if (ImGui::MenuItem("Save Level", "Ctrl+S"))
+			{
+				// Do Stuff
+			}
+			if (ImGui::MenuItem("Exit", "Ctrl+Q"))
+			{
+				// Do Exit
+			}
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Edit"))
+		{
+			if (ImGui::MenuItem("Delete"))
+			{
+				// Do Stuff
+			}
+			if (ImGui::MenuItem("Duplicate", "Ctrl+D"))
+			{
+				// Do Stuff
+			}
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Create"))
+		{
+			if (ImGui::MenuItem("Create PointLight"))
+			{
+				//Do Stuff
+			}
+			if (ImGui::MenuItem("Load Asset"))
+			{
+				// Do Stuff
+			}
+			if (ImGui::MenuItem("Load Particles"))
+			{
+				// Do Stuff
+			}
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
+	}
+	const char* listBox_items1[] = { "Apple", "Banana", "Cherry", "Kiwi", "Mango", "Orange", "Pineapple", "Strawberry", "Watermelon" };
+	static int listBox_item_current1 = 1;
+	ImGui::ListBox("Meshes", &listBox_item_current1, listBox_items1, IM_ARRAYSIZE(listBox_items1), 6);
+
+	ImGui::Separator();
+
+	const char* listBox_items2[] = { "Apple", "Banana", "Cherry", "Kiwi", "Mango", "Orange", "Pineapple", "Strawberry", "Watermelon" };
+	static int listBox_item_current2 = 1;
+	ImGui::ListBox("Lights", &listBox_item_current2, listBox_items2, IM_ARRAYSIZE(listBox_items2), 6);
+
+	ImGui::Separator();
+
+	const char* listBox_items3[] = { "Apple", "Banana", "Cherry", "Kiwi", "Mango", "Orange", "Pineapple", "Strawberry", "Watermelon" };
+	static int listBox_item_current3 = 1;
+	ImGui::ListBox("Particles", &listBox_item_current3, listBox_items3, IM_ARRAYSIZE(listBox_items3), 6);
+
+	ImGui::End();
+#pragma endregion
+
+#pragma region MeshList
+	ImGui::Begin("Assets");
+
+	const char* listBox_items4[] = { "Apple", "Banana", "Cherry", "Kiwi", "Mango", "Orange", "Pineapple", "Strawberry", "Watermelon" };
+	static int listBox_item_current4 = 1;
+	ImGui::ListBox("Particles", &listBox_item_current4, listBox_items4, IM_ARRAYSIZE(listBox_items4), 6);
+	
+	ImGui::Button("Create", ImVec2(50.f, 20.f));
+
+	ImGui::End();
+
+#pragma endregion
+
+	//ImGui::Render();
 }
 
 void LevelEditState::updateState(const float& dt)

@@ -28,6 +28,7 @@ public:
 	*/
 
 	virtual bool is_ImGui() { return false; }
+	virtual void guiInfo() {}
 
 protected:
 	StateManager* m_stateManager;	

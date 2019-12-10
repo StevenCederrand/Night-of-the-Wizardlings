@@ -5,6 +5,7 @@
 
 static float m_sensitivity;
 static float m_distanceThirdPerson = 10.0f;
+static float m_distanceModel = 100.f;
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
@@ -102,6 +103,11 @@ void Camera::LE_freeCamera()
 
 void Camera::LE_orbitCamera()
 {
+	updateThirdPersonMouseMovement();
+	m_camPos.x = 0.0f + (m_distanceModel * cos(glm::radians(m_camYaw)) * cos(glm::radians(m_camPitch)));
+	m_camPos.y = 0.0f + (m_distanceModel * sin(glm::radians(m_camPitch)));
+	m_camPos.z = 0.0f + (m_distanceModel * sin(glm::radians(m_camYaw)) * cos(glm::radians(m_camPitch)));
+	lookAt(glm::vec3(0.0f));
 }
 
 void Camera::lookForModeChange()
@@ -232,6 +238,8 @@ void Camera::updateThirdPersonMouseMovement()
 Camera::Camera()
 {
 	//Initial values (starting point of camera) if nothing else is given
+	m_cameraControlSwitch = 1;
+
 	m_camPos = glm::vec3(0.0f, 3.0f, 0.0f);
 	m_worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	m_camYaw = -90.0f;
@@ -441,7 +449,7 @@ void Camera::update()
 
 void Camera::updateLevelEd()
 {
-	LE_freeCamera();
+	LE_orbitCamera();
 }
 
 void Camera::enableFP(const bool& fpEnable) {

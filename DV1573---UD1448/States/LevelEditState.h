@@ -39,6 +39,7 @@ public:
 	virtual void update(float dt) override;
 	virtual void render() override;
 	bool is_ImGui() { return true; }
+	void guiInfo();
 
 private:
 	void updateState(const float& dt);
@@ -55,7 +56,14 @@ private:
 	MousePicker* m_picker;
 
 	float m_rotVal;
+	bool tool_active;
+	int changeAttrib = 1;
 	glm::vec3 m_focusPoint;
+
+	static const char * items[];
+	int selectedItem = 0;
+
+	ImGui::FileBrowser fileDialog;
 };
 
 

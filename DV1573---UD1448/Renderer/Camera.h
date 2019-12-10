@@ -52,6 +52,7 @@ private:
 	void updateThirdPersonMouseMovement();
 	bool m_fpEnabled;
 	bool m_activeCamera;
+	int m_cameraControlSwitch;
 	glm::vec2 oldPosition;
 public:
 	Camera();
