@@ -92,12 +92,12 @@ PlayState::PlayState(bool spectator)
 	loadMap();
 
 	//Load test cube for normal mapping
-	GameObject* tangentCube = new WorldObject();
+	/*GameObject* tangentCube = new WorldObject();
 	tangentCube->loadMesh("tangentCube.mesh");
 	tangentCube->setTexture("NormalMap/Bricks01.jpg");
 	tangentCube->setNormalMap("NormalMap/BricksNRM.jpg");
 	m_objects.push_back(tangentCube);	
-	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
+	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);*/
 
 	// Geneterate bullet objects / hitboxes
 	gContactAddedCallback = callbackFunc;
