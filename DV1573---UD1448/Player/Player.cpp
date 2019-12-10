@@ -314,35 +314,30 @@ void Player::attack()
 				m_mana -= m_deflectManaDrain; 
 				shPtr->playSound(DeflectSound, m_client->getMyData().guid);
 				shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
+				m_deflecting = true;
 			}
 			else // Looping state
 			{
 				m_mana -= m_deflectManaDrain * DeltaTime;			
 			}
-
-			m_deflecting = true;
 		}
 		else // No mana but trying to cast
 		{ 
-			m_deflecting = false;
-
 			//Fade out deflect sound
 			m_deflectSoundGain -= 3.0f * DeltaTime;
 			if (m_deflectSoundGain > 0.0f)
 			{				
 				shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
-				m_deflectSoundGain -= 2.0f * DeltaTime;
 			}
 			else
-			{
+			{				
 				shPtr->stopSound(DeflectSound, m_client->getMyData().guid);				
 			}
 		}
 
 	}
 	else if(m_deflecting) // Not holding RMB but in deflect state
-	{	
-		//shPtr->stopSound(DeflectSound, m_client->getMyData().guid);
+	{			
 		//Fade out deflect sound
 		m_deflectSoundGain -= 3.0f * DeltaTime;
 		if (m_deflectSoundGain > 0.0f)
@@ -407,8 +402,7 @@ void Player::attack()
 
 	if (Input::isMouseReleased(GLFW_MOUSE_BUTTON_RIGHT)) {
 		animState.deflecting = false;
-		m_rMouse = false;
-		m_deflecting = false;
+		m_rMouse = false;		
 	}
 
 	// Update our shield for the renderer
