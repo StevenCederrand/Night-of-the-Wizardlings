@@ -96,7 +96,7 @@ private:
 
 	bool onMainMenuClick(const CEGUI::EventArgs& e);
 	bool onQuitClick(const CEGUI::EventArgs& e);
-	
+
 	void HUDHandler();
 	void GUIHandler();
 	void GUILoadScoreboard();

@@ -25,7 +25,7 @@ MenuState::~MenuState()
 
 void MenuState::update(float dt)
 {
-
+	
 }
 
 void MenuState::render()
@@ -47,7 +47,6 @@ void MenuState::loadGui()
 	m_settingBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.05f, 0.55f, 0.1f, 0.05f), glm::vec4(0.0f), "SettingButton"));
 	m_settingBtn->setText("Settings");
 	m_settingBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&MenuState::onSettingClicked, this));
-
 
 	m_startServerBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.05f, 0.65f, 0.1f, 0.05f), glm::vec4(0.0f), "StartServerButton"));
 	m_startServerBtn->setText("Start Server");
@@ -98,5 +97,5 @@ bool MenuState::onSettingClicked(const CEGUI::EventArgs& e)
 {
 	Renderer::getInstance()->clear();
 	m_stateManager->clearAllAndSetState(new SettingState());
-	return true;
+	return false;
 }

@@ -3,8 +3,8 @@
 #include "MenuState.h"
 #include <System/StateManager.h>
 #include <Windows.h>
-#include <ShlObj.h>
-#include <Shlwapi.h>
+//#include <ShlObj.h>
+//#include <Shlwapi.h>
 
 
 #define GUI_SECTION "SETTINGSTATE"
@@ -14,8 +14,8 @@ SettingState::SettingState()
 
 
 	int userNumMax = 0;
-	m_volymCurrent = GetPrivateProfileInt("DB_SETTINGS", "Volym", 0, "Assets/Settings/settings.ini");
-	m_volymMax = 100.0f;
+	m_volumeCurrent = GetPrivateProfileInt("DB_SETTINGS", "volume", 0, "Assets/Settings/settings.ini");
+	m_volumeMax = 100.0f;
 	
 	m_MouseSensCurrent = GetPrivateProfileInt("DB_SETTINGS", "MouseSens", 50, "Assets/Settings/settings.ini");
 	m_MouseSensMax = 100.0f;
@@ -51,11 +51,11 @@ void SettingState::loadGui()
 
 
 	//Sliders
-	m_sliderVolym = static_cast<CEGUI::Slider*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Slider", glm::vec4(0.05f, 0.55f, 0.1f, 0.05f), glm::vec4(0.0f), "VolymSlider"));
-	m_sliderVolym->setMaxValue(m_volymMax);
-	m_sliderVolym->setCurrentValue(m_volymCurrent);
-	m_sliderVolym->setClickStep(1.0f);
-	m_sliderVolym->subscribeEvent(CEGUI::Slider::EventValueChanged, CEGUI::Event::Subscriber(&SettingState::onVolymChange, this));
+	m_sliderVolume = static_cast<CEGUI::Slider*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Slider", glm::vec4(0.05f, 0.55f, 0.1f, 0.05f), glm::vec4(0.0f), "volumeSlider"));
+	m_sliderVolume->setMaxValue(m_volumeMax);
+	m_sliderVolume->setCurrentValue(m_volumeCurrent);
+	m_sliderVolume->setClickStep(1.0f);
+	m_sliderVolume->subscribeEvent(CEGUI::Slider::EventValueChanged, CEGUI::Event::Subscriber(&SettingState::onvolumeChange, this));
 
 
 	m_sliderMouseSens = static_cast<CEGUI::Slider*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Slider", glm::vec4(0.15f, 0.55f, 0.15f, 0.05f), glm::vec4(0.0f), "MouseSensSlider"));
@@ -73,8 +73,8 @@ void SettingState::loadGui()
 
 
 	//Boxes
-	m_editBoxVolym = static_cast<CEGUI::Editbox*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Editbox", glm::vec4(0.05f, 0.50f, 0.1f, 0.05f), glm::vec4(0.0f), "EditBoxVolym"));
-	m_editBoxVolym->setText("Volym: " + std::to_string(m_volymCurrent));
+	m_editBoxvolume = static_cast<CEGUI::Editbox*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Editbox", glm::vec4(0.05f, 0.50f, 0.1f, 0.05f), glm::vec4(0.0f), "EditBoxvolume"));
+	m_editBoxvolume->setText("volume: " + std::to_string(m_volumeCurrent));
 
 
 	m_editBoxMouseSens = static_cast<CEGUI::Editbox*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Editbox", glm::vec4(0.15f, 0.50f, 0.15f, 0.05f), glm::vec4(0.0f), "EditBoxMouseSens"));
@@ -100,43 +100,41 @@ void SettingState::loadGui()
 bool SettingState::onBackClicked(const CEGUI::EventArgs& e)
 {
 	Renderer::getInstance()->clear();
+	
 	m_stateManager->clearAllAndSetState(new MenuState());
 	return true;
 }
 
 bool SettingState::OnSaveClicked(const CEGUI::EventArgs& e)
 {
-	
-	//bool test = WritePrivateProfileString("DB_SETTINGS", "USER_NUM_MAX", "99", "../foobarr.ini");
-
-	bool volym = WritePrivateProfileString("DB_SETTINGS", "Volym", std::to_string(m_volymCurrent).c_str(), "Assets/Settings/settings.ini");
+	bool volume = WritePrivateProfileString("DB_SETTINGS", "volume", std::to_string(m_volumeCurrent).c_str(), "Assets/Settings/settings.ini");
 	bool mouseSens = WritePrivateProfileString("DB_SETTINGS", "MouseSens", std::to_string(m_MouseSensCurrent).c_str(), "Assets/Settings/settings.ini");
 	bool foV = WritePrivateProfileString("DB_SETTINGS", "FoV", std::to_string(m_FOVCurrent).c_str(), "Assets/Settings/settings.ini");
 
-	if (!volym)
-		logTrace("ERROR_ cant write Volym");
+	if (!volume)
+		logTrace("ERROR_ cant write volume");
 	if (!mouseSens)
 		logTrace("ERROR_ cant write MouseSens");
 	if (!foV)
 		logTrace("ERROR_ cant write FoV");
 
-
+	float tempVolume = m_volumeCurrent * 0.01;
+	SoundHandler::getInstance()->setMasterVolume(tempVolume);
 	int userNumMax = 0;
 	userNumMax = GetPrivateProfileInt("DB_SETTINGS", "USER_NUM_MAX", -1, "Assets/Settings/settings.ini");
 
-
-	return false;
+	return true;
 }
 
 
-bool SettingState::onVolymChange(const CEGUI::EventArgs& e)
+bool SettingState::onvolumeChange(const CEGUI::EventArgs& e)
 {
 
-	m_volymCurrent = m_sliderVolym->getCurrentValue();
-	m_editBoxVolym->setText("Volym: " + std::to_string(m_volymCurrent));
-	logTrace("Volym: "+ std::to_string(m_volymCurrent));
+	m_volumeCurrent = m_sliderVolume->getCurrentValue();
+	m_editBoxvolume->setText("volume: " + std::to_string(m_volumeCurrent));
+	logTrace("volume: "+ std::to_string(m_volumeCurrent));
 
-	return false;
+	return true;
 }
 
 bool SettingState::onMouseSensChange(const CEGUI::EventArgs& e)
@@ -145,7 +143,7 @@ bool SettingState::onMouseSensChange(const CEGUI::EventArgs& e)
 	m_editBoxMouseSens->setText("Mouse Sensitivity: " + std::to_string(m_MouseSensCurrent));
 	logTrace("Mouse Sensitivity: " + std::to_string(m_MouseSensCurrent));
 
-	return false;
+	return true;
 }
 
 bool SettingState::onFOVChange(const CEGUI::EventArgs& e)
@@ -153,5 +151,5 @@ bool SettingState::onFOVChange(const CEGUI::EventArgs& e)
 	m_FOVCurrent = m_FOVBase + m_sliderFOV->getCurrentValue();
 	m_editBoxFOV->setText("FOV: " + std::to_string(m_FOVCurrent));
 	logTrace("FOV: " + std::to_string(m_FOVCurrent));
-	return false;
+	return true;
 }
