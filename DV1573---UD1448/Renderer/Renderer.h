@@ -15,10 +15,14 @@
 #define WHUD "wHudShader"
 #define PARTICLES "Particle_Shader"
 #define SSAO_RAW "SSAO_Compute"
-#define BLUR "Blur"
+#define NAIVE_BLUR "NaiveBlur"
+#define V_BLUR "VerticalBlur"
+#define H_BLUR "HorizontalBlur"
 //Rendering Options 
 #define FORWARDPLUS true;
 #define SSAO true;
+#define BLUR false;
+#define N_BLUR true; //Use naive blur?
 
 //Number of SSAO kernels allowed in the system
 #define SSAO_KERNELS 32

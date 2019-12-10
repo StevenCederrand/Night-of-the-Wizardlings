@@ -35,7 +35,7 @@ uniform vec3 Ambient_Color;             // Change to emmisive
 uniform vec3 Diffuse_Color;             // Material diffuse
 uniform vec3 Specular_Color;            // Material specular
 uniform vec2 TexAndRim;                 // Booleans --- Textures & Rimlighting
-
+uniform int SSAO;                       // SSAO flag
 uniform int LightCount;                 // Used when lightculling. To know how many lights there are in total in the scene
 uniform sampler2D albedoTexture;        // Texture diffuse
 layout(rgba32f, binding = 0) uniform readonly image2D SSAOTexture;   // Texture with SSAO value comoing from the compute shader
@@ -62,14 +62,19 @@ void main() {
     vec4 finalTexture = texture(albedoTexture, f_UV);
 
     // Ambient light
-    vec3 ambientLight = Diffuse_Color * ambientStr * ssaoValue;     // Material color
-    if (TexAndRim.x == 1)
-        ambientLight = finalTexture.rgb * ambientStr * brightnessMod * ssaoValue; // Texture color    (If there is texture we disregard material color)
+    vec3 ambientLight = Diffuse_Color * ambientStr;     // Material color
 
+    if (TexAndRim.x == 1 || SSAO == 0)
+        ambientLight = finalTexture.rgb * ambientStr * brightnessMod; // Texture color    (If there is texture we disregard material color)
+    if(SSAO == 1)
+        ambientLight = finalTexture.rgb * ambientStr * brightnessMod * ssaoValue; // Texture color    (If there is texture we disregard material color)
     // Create the diffuse color once
     vec3 diffuseColor = Diffuse_Color;  // Material color
-    if(TexAndRim.x == 1)
-        diffuseColor = finalTexture.rgb * 0.5 * ssaoValue;   // Texture color
+    if(TexAndRim.x == 1 || SSAO == 0)
+        diffuseColor = finalTexture.rgb * 0.5;   // Texture color
+    if(SSAO == 1)
+        diffuseColor = finalTexture.rgb * 0.5 * ssaoValue;
+
     // Directional light
     vec3 directionalLight = calcDirLight(f_normal, diffuseColor, GLOBAL_lightDirection);
     directionalLight += calcDirLight(f_normal, diffuseColor, GLOBAL_lightDirection2);

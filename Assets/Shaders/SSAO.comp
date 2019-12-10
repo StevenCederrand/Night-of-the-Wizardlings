@@ -18,7 +18,7 @@ const float falloff = 0.000001;
 const float intensity = 1.0f;
 //Radius of the SSAO sphere
 const float radius = 0.07;
-const float m_base = 0.15;
+const float m_base = 0.2;
 
 //SSAO kernels
 uniform vec3 kernels[SSAO_KERNELS];

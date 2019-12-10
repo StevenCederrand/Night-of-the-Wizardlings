@@ -1,9 +1,5 @@
 //Compute shader for generating a gaussian blur
 #version 430
-//Image size
-#define size_x 1280
-#define size_y 720
-
 //Filter coefficiants
 float filter[49] = {
     //0.030078323, 0.104983664, 0.222250419, 0.285375187, 0.222250419, 0.104983664, 0.030078323

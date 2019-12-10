@@ -441,7 +441,13 @@ void Renderer::initShaders() {
 	shader->use();
 	shader->setInt("depthMap", 0);
 	shader->setInt("noiseMap", 1);
-	shader = shaderMap->createShader(BLUR, "Blur.comp");
+#endif
+#if BLUR 
+	shaderMap->createShader(V_BLUR, "Blur/VerticalBlur.comp");		
+	shaderMap->createShader(H_BLUR, "Blur/HorizontalBlur.comp");
+#endif
+#if N_BLUR
+	shaderMap->createShader(NAIVE_BLUR, "Blur/Blur.comp");
 #endif
 	//Set the light index binding
 	shaderMap->createShader(BASIC_FORWARD, "VertexShader.vert", "FragShader.frag");
@@ -452,7 +458,6 @@ void Renderer::initShaders() {
 	shaderMap->createShader(ENEMYSHIELD, "FresnelFX.vert", "EnemyShield.frag");
 	shaderMap->createShader(WHUD, "WorldHud.vs", "WorldHud.fs");
 	shaderMap->createShader(TRANSPARENT, "TransparentRender.vert", "TransparentRender.frag");
-
 	m_text = new FreeType();
 	m_text->BindTexture();
 
@@ -901,12 +906,27 @@ void Renderer::render() {
 	glDispatchCompute(workGroups.x, workGroups.y, 1);
 	glMemoryBarrier(GL_TEXTURE_UPDATE_BARRIER_BIT);
 	glBindTexture(GL_TEXTURE_2D, 0);
-
-	//Blur pass 
-	shader = shaderMap->useByName(BLUR);
+#if N_BLUR //Naive blurring
+	shader = shaderMap->useByName(NAIVE_BLUR);
 	glBindImageTexture(0, m_SSAOColourBuffer, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 	glDispatchCompute(workGroups.x, workGroups.y, 1);
 	glMemoryBarrier(GL_TEXTURE_UPDATE_BARRIER_BIT);
+#endif
+#if BLUR //More efficiant blurring
+	//Blur Horizontally
+	shader = shaderMap->useByName(H_BLUR);
+	glBindImageTexture(0, m_SSAOColourBuffer, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F); //Bind the image unit
+	glDispatchCompute(2, 1, 1); //Dispatch 2 - xAxis workgroups
+	glMemoryBarrier(GL_TEXTURE_UPDATE_BARRIER_BIT);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	//Blur Vertically
+	shader = shaderMap->useByName(V_BLUR);
+	glBindImageTexture(0, m_SSAOColourBuffer, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F); //Bind the image unit
+	glDispatchCompute(1, 1, 1); //Because of our resolution we can comfortably dipatch one group of threads
+	glMemoryBarrier(GL_TEXTURE_UPDATE_BARRIER_BIT);
+	glBindTexture(GL_TEXTURE_2D, 0);
+#endif
 
 #endif
 
@@ -927,6 +947,7 @@ void Renderer::render() {
 	shader->setVec3("CameraPosition", m_camera->getCamPos());
 	//Add a step where we insert lights into the scene
 	shader->setInt("LightCount", m_lights.size());
+	shader->setInt("SSAO", 0);
 
 	if (m_lights.size() > 0) {
 		std::string iConv = "";
@@ -946,6 +967,7 @@ void Renderer::render() {
 	}
 
 #if SSAO 
+	shader->setInt("SSAO", 1);
 	glBindImageTexture(0, m_SSAOColourBuffer, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
 #endif
 
@@ -992,7 +1014,7 @@ void Renderer::render() {
 		object->RenderParticles(m_camera);
 		//object->getTransform().position
 	}
-
+	shader->setInt("SSAO", 0);
 	shader->clearBinding();
 	//Dynamic objects
 	if (m_dynamicObjects.size() > 0) {
