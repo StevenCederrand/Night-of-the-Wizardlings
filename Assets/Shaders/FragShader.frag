@@ -10,6 +10,7 @@ struct P_LIGHT {
     vec3 position;
     vec3 color; //Light that is sent out from the light
     vec4 attenAndRadius;
+    float strength;
 };
 
 in vec2 f_UV;
@@ -20,20 +21,14 @@ in vec3 f_tangent;
 out vec4 color;
 out vec4 brightColor;
 
-vec3 GLOBAL_lightDirection = vec3(0.3f, -0.5f, -0.5f);       // 1 Directional light
+vec3 GLOBAL_lightDirection = vec3(0.3f, -0.5f, -0.5f);      // 1 Directional light
 vec3 GLOBAL_lightColor = normalize(vec3(1, 1, 1));          // Directional light color (white)
 
-vec3 GLOBAL_lightDirection2 = vec3(0.8f, -0.5f, 0.4f);       // 1 Directional light
+vec3 GLOBAL_lightDirection2 = vec3(0.8f, -0.5f, 0.4f);      // 1 Directional light
 
 float dirlightStr = 0.1f;     // Modifier for brightness (dirlight)
 float ambientStr = 0.1f;      // Global light strength (ambient)
-float brightnessMod = 1.0f;    // Modifier for brightness (textures)
-
-// Modifier for brightness (point light), hardcoded temp needs fix
-float pointLightModP = 68.0f;    //SPELLS
-float pointLightMod1 = 25.0f;      //MAPLIGHT
-float pointLightMod2 = 15.0f;      //MAPLIGHT2
-float pointLightMod3 = 6.5f;      //MAPLIGHT
+float brightnessMod = 1.0f;   // Modifier for brightness (textures)
 
 uniform vec3 CameraPosition;
 
@@ -41,9 +36,10 @@ uniform vec3 Ambient_Color;             // Change to emmisive
 uniform vec3 Diffuse_Color;             // Material diffuse
 uniform vec3 Specular_Color;            // Material specular
 uniform vec2 TexAndRim;                 // Booleans --- Textures & Rimlighting
-
-uniform int LightCount;
+uniform int SSAO;                       // SSAO flag
+uniform int LightCount;                 // Used when lightculling. To know how many lights there are in total in the scene
 uniform sampler2D albedoTexture;        // Texture diffuse
+layout(rgba32f, binding = 0) uniform readonly image2D SSAOTexture;   // Texture with SSAO value comoing from the compute shader
 
 uniform bool NormalMapping;				// Use normal mapping or not
 uniform sampler2D normalMap;
@@ -59,9 +55,13 @@ vec3 calcDirLight(vec3 normal, vec3 diffuseColor, vec3 lightDirection);
 vec3 grayscaleColour(vec3 col);
 
 void main() {
-
+    vec4 ssaoVal = imageLoad(SSAOTexture, ivec2(gl_FragCoord.xy));
+    //Sample from the SSAO map
+    float ssaoValue = imageLoad(SSAOTexture, ivec2(gl_FragCoord.xy)).r;
+    if(SSAO == 0) {
+        ssaoValue = 1;
+    }
 	vec3 finalNormal = f_normal;
-
 	if(NormalMapping == true)
 	{
 		//Obtain normal from normal map in range [0, 1]
@@ -71,20 +71,25 @@ void main() {
 
     vec3 emissive = Ambient_Color; // Temp used as emmisve, should rename all ambient names to emmisive.
     //Makes the material full solid color (basically fully lit). Needs bloom for best effect.
-    
+
     // Texture slot
     vec4 finalTexture = texture(albedoTexture, f_UV);
 
     // Ambient light
-    vec3 ambientLight = Diffuse_Color * ambientStr;     // Material color
-    if (TexAndRim.x == 1)
+    vec3 ambientLight = Diffuse_Color * ambientStr* ssaoValue;     // Material color
+
+    if (TexAndRim.x == 1 && SSAO == 0)
         ambientLight = finalTexture.rgb * ambientStr * brightnessMod; // Texture color    (If there is texture we disregard material color)
+    else if(TexAndRim.x == 1 && SSAO == 1)
+        ambientLight = finalTexture.rgb * ambientStr * brightnessMod * ssaoValue; // Texture color    (If there is texture we disregard material color)
 
     // Create the diffuse color once
-    vec3 diffuseColor = Diffuse_Color;  // Material color
-    if(TexAndRim.x == 1)
-        diffuseColor = finalTexture.rgb;   // Texture color
+    vec3 diffuseColor = Diffuse_Color * ssaoValue;  // Material color
 
+    if(TexAndRim.x == 1 && SSAO == 0)
+        diffuseColor = finalTexture.rgb * 0.5;   // Texture color
+    else if(TexAndRim.x == 1 && SSAO == 1)
+        diffuseColor = finalTexture.rgb * 0.5 * ssaoValue;
 
     // Directional light
     vec3 directionalLight = calcDirLight(finalNormal, diffuseColor, GLOBAL_lightDirection);
@@ -101,29 +106,9 @@ void main() {
             continue;
         }
         else {
-
-            // Hardcode strength because lights have no input and lazy Xd
-            float str = pointLightModP;
-
-            if(pLights[i].attenAndRadius.w >= 31.0f)
-            {
-                str = pointLightMod1;
-            }
-            if(pLights[i].attenAndRadius.w >= 64.0f)
-            {
-                str = pointLightMod2;
-            }
-            if(pLights[i].attenAndRadius.w >= 99.0f)
-            {
-                str = pointLightMod3;
-            }
-            // Hardcode strength because lights have no input and lazy Xd
-
-
-            pointLights += calcPointLights(pLights[i], finalNormal, f_position.xyz, distance, diffuseColor) * str;
+            pointLights += calcPointLights(pLights[i], f_normal, f_position.xyz, distance, diffuseColor) * pLights[i].strength;
         }
     }
-
 
     // Resulting light
     vec4 result = vec4(ambientLight + directionalLight + pointLights + emissive, finalTexture.a); // We see light, so add only and all the lights together to get color
@@ -131,6 +116,7 @@ void main() {
     if(grayscale == 1){
     	result.xyz = grayscaleColour(result.xyz);
     }
+
     color = result;
 }
 
@@ -146,7 +132,7 @@ vec3 normalSampleToWorldSpace(vec3 normalMapSample, vec3 normal, vec3 tangent) {
 	vec3 B = cross(N,T);
 
 	mat3 TBN = mat3(T, B, N);
-	
+
 	//Transform from tangent space to world space
 	bumpedNormal = normalT * TBN;
 

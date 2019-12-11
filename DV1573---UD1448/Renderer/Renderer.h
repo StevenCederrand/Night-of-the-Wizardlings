@@ -10,16 +10,26 @@
 #define FRESNEL "Fresnel_Shader"
 #define ENEMYSHIELD "Enemy_Shield"
 #define TRANSPARENT "Transparent_Render"
-//#define BLOOM "Bloom_Shader"
-//#define BLUR "Blur_Shader"
-//#define BLOOM_BLUR "BloomBlur_Shader"
+#define SKYBOX "Skybox_Shader"
 #define HUD "Hud_Shader"
 #define WHUD "wHudShader"
 #define PARTICLES "Particle_Shader"
+#define SSAO_RAW "SSAO_Compute"
+#define NAIVE_BLUR "NaiveBlur"
+#define V_BLUR "VerticalBlur"
+#define H_BLUR "HorizontalBlur"
+//Rendering Options 
+#define FORWARDPLUS true;
+#define SSAO false; 
+#define N_BLUR false; //Use naive blur?
 
-// Debug define
-//#define DEBUG_WIREFRAME
+//Number of SSAO kernels allowed in the system
+#define SSAO_KERNELS 32
+//Max number of lights
+#define P_LIGHT_COUNT 64
 
+
+#pragma region Includes
 #include <Pch/Pch.h>
 #include <GameObject/GameObject.h>
 #include <GameObject/AnimatedObject.h>
@@ -38,6 +48,7 @@
 #include <GFX/Pointlight.h>
 #include <Particles/Particles.h>
 #include <Particles/ParticleBuffers.h>
+#pragma endregion
 
 #include <System/MemoryUsage.h>
 
@@ -57,6 +68,7 @@ struct PLIGHT {
 	glm::vec3 position;
 	glm::vec3 color;
 	glm::vec4 attenAndRadius;
+	float strength;
 	int index;
 };
 
@@ -90,6 +102,8 @@ private:
 	Timer m_timer;
 	SpellHandler* m_spellHandler;
 
+	
+
 	//Store gameobjects directly to the renderer
 	std::vector<GameObject*> m_staticObjects;
 	std::vector<GameObject*> m_dynamicObjects;
@@ -108,9 +122,20 @@ private:
 	//Buffers
 	unsigned int m_depthFBO;
 	unsigned int m_depthMap;
+
+#if SSAO
+	std::vector<glm::vec3> m_SSAOKernels;
+	std::vector<glm::vec3> m_SSAONoise;
+
+	unsigned int m_SSAOFBO;
+	unsigned int m_SSAOColourBuffer;
+	unsigned int m_SSAONoiseTexture;	//SSAO noise texture
+#endif
+
 	//unsigned int m_hdrFbo;
 	unsigned int m_colourBuffer;
 	unsigned int m_rbo;
+	bool m_renderedDepthmap;
 
 	//Storage Buffer for light indecies
 	unsigned int m_lightIndexSSBO;
@@ -118,6 +143,7 @@ private:
 	void renderAndAnimateNetworkingTexts();
 
 
+#pragma region Particles
 	//Particle variables
 	unsigned int m_matrixID;
 	unsigned int m_cameraID;
@@ -162,7 +188,7 @@ public:
 	void removeRenderObject(GameObject* gameObject, RENDER_TYPE objType); //Remove an object from the dynamic array
 	void renderSkybox();
 	void render();
-	//void renderSpell();
+	void renderDepthmap(); //Generate a depthmap, this is used for both Forward+ and SSAO
 	void renderHUD();
 	void renderWorldHud();
 	

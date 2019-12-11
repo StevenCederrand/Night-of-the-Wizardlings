@@ -12,7 +12,7 @@ namespace NetGlobals {
 	constexpr int TickRate = 128;
 	constexpr unsigned int NetThreadSleepTime = static_cast<unsigned int>((1.0f / static_cast<float>(TickRate)) * 1000u);
 	constexpr unsigned short PlayerTimeoutTimeMS = 5 * 1000;
-	constexpr uint32_t WarmupCountdownTimeMS = 10 * 1000;
+	constexpr uint32_t WarmupCountdownTimeMS = 11 * 1000;
 	constexpr uint32_t TimeBeforeRespawnMS = 5 * 1000;
 	constexpr uint32_t GameRoundTimeMS = 2 * 60 * 1000;
 	constexpr uint32_t InGameEndStateTimeMS = 10 * 1000;

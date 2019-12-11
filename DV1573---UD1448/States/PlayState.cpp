@@ -212,53 +212,53 @@ void PlayState::loadLights()
 	{
 	case 0:
 		// Church
-		m_pointlights.emplace_back(new Pointlight(glm::vec3(49.0f, 15.0f, 2.0f), glm::vec3(0.3, 0.85, 1.0)));
+		m_pointlights.emplace_back(new Pointlight(glm::vec3(49.0f, 15.0f, 2.0f), glm::vec3(0.3, 0.85, 1.0), 2.5f));
 		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.07f, 0.017f, 65.0f));
 
 		// Middle
-		m_pointlights.emplace_back(new Pointlight(glm::vec3(0.0f, 24.0f, 0.0f), glm::vec3(0.9, 0.17, 0.123)));
+		m_pointlights.emplace_back(new Pointlight(glm::vec3(0.0f, 24.0f, 0.0f), glm::vec3(0.9, 0.17, 0.123), 8.8f));
 		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.14f, 0.07f, 47.0f));
 
 		// Court area
-		m_pointlights.emplace_back(new Pointlight(glm::vec3(-41.0f, 21.0f, 10.0f), glm::vec3(0.9, 0.2, 0.5)));
+		m_pointlights.emplace_back(new Pointlight(glm::vec3(-41.0f, 21.0f, 10.0f), glm::vec3(0.9, 0.2, 0.5), 2.5f));
 		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.045f, 0.0075f, 100.0f));
 
 		// Back wall platforms M
-		m_pointlights.emplace_back(new Pointlight(glm::vec3(-2.0f, 19.0f, -31.0f), glm::vec3(0.98, 0.675, 0.084)));
+		m_pointlights.emplace_back(new Pointlight(glm::vec3(-2.0f, 19.0f, -31.0f), glm::vec3(0.98, 0.675, 0.084), 8.8f));
 		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.14f, 0.11f, 47.0f));
 
 		// Back wall platforms R
-		m_pointlights.emplace_back(new Pointlight(glm::vec3(-31.0f, 17.0f, -37.0f), glm::vec3(0.98, 0.675, 0.084)));
+		m_pointlights.emplace_back(new Pointlight(glm::vec3(-31.0f, 17.0f, -37.0f), glm::vec3(0.98, 0.675, 0.084), 8.8f));
 		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.14, 0.11f, 47.0f));
 
 		// Back wall platforms L
-		m_pointlights.emplace_back(new Pointlight(glm::vec3(29.0f, 19.0f, -37.0f), glm::vec3(0.98, 0.675, 0.084)));
+		m_pointlights.emplace_back(new Pointlight(glm::vec3(29.0f, 19.0f, -37.0f), glm::vec3(0.98, 0.675, 0.084), 8.8f));
 		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.14f, 0.11f, 47.0f));
 
 		// Maze
-		m_pointlights.emplace_back(new Pointlight(glm::vec3(-100.0f, 13.0f, -4.0f), glm::vec3(0.9, 0.9, 1.0)));
+		m_pointlights.emplace_back(new Pointlight(glm::vec3(-100.0f, 13.0f, -4.0f), glm::vec3(0.9, 0.9, 1.0), 2.5f));
 		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 64.0f));
 		break;
 
 	case 1:
 		// Light Middle
-		m_pointlights.emplace_back(new Pointlight(glm::vec3(0.0f, 20.0f, 0.0f), glm::vec3(1.0, 1.0, 1.0)));
+		m_pointlights.emplace_back(new Pointlight(glm::vec3(0.0f, 20.0f, 0.0f), glm::vec3(1.0, 1.0, 1.0), 8.8f));
 		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.07f, 0.017f, 100.0f));
 
 		// Light Right Back
-		m_pointlights.emplace_back(new Pointlight(glm::vec3(50.0f, 20.0f, 50.0f), glm::vec3(1.0, 0.0, 1.0)));
+		m_pointlights.emplace_back(new Pointlight(glm::vec3(50.0f, 20.0f, 50.0f), glm::vec3(1.0, 0.0, 1.0), 8.8f));
 		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.07f, 0.017f, 100.0f));
 
 		// Light Right Forward
-		m_pointlights.emplace_back(new Pointlight(glm::vec3(50.0f, 20.0f, -50.0f), glm::vec3(0.0, 1.0, 1.0)));
+		m_pointlights.emplace_back(new Pointlight(glm::vec3(50.0f, 20.0f, -50.0f), glm::vec3(0.0, 1.0, 1.0), 8.8f));
 		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.07f, 0.017f, 100.0f));
 
 		// Light Left Back
-		m_pointlights.emplace_back(new Pointlight(glm::vec3(-50.0f, 20.0f, 50.0f), glm::vec3(0.0, 0.0, 1.0)));
+		m_pointlights.emplace_back(new Pointlight(glm::vec3(-50.0f, 20.0f, 50.0f), glm::vec3(0.0, 0.0, 1.0), 8.8f));
 		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.07f, 0.017f, 100.0f));
 
 		// Light Left Forward
-		m_pointlights.emplace_back(new Pointlight(glm::vec3(-50.0f, 20.0f, -50.0f), glm::vec3(0.0, 1.0, 1.0)));
+		m_pointlights.emplace_back(new Pointlight(glm::vec3(-50.0f, 20.0f, -50.0f), glm::vec3(0.0, 1.0, 1.0), 8.8f));
 		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.07f, 0.017f, 100.0f));
 		break;
 
@@ -581,7 +581,7 @@ void PlayState::update_isPlaying(const float& dt)
 
 				if (&pp != nullptr) {
 
-					if (lastNumber == (pp.timeLeft / 1000)){
+					if (lastNumber == (pp.timeLeft / 1000)  || (pp.timeLeft / 1000) == 11){
 						delete evnt.data;
 						break;
 					}
@@ -778,7 +778,7 @@ void PlayState::update_isPlaying(const float& dt)
 						txtPos,
 						2.0f,
 						TextManager::TextBehaviour::Instant_FadOut,
-						glm::vec3(Randomizer::single(-0.5f, 0.5f), 1.5f, Randomizer::single(-0.5f, 0.5f)), true, 1.0f);
+						glm::vec3(Randomizer::single(-0.5f, 0.5f), 1.5f, Randomizer::single(-0.5f, 0.5f)), false, 1.0f);
 
 					t->setColor(glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
 					t->setScale(fminf(fmaxf(dist / 15.0f, 1.0f), 5.0f));
@@ -1038,6 +1038,117 @@ void PlayState::update_isSpectating(const float& dt)
 
 		switch (evnt.playerEvent) {
 
+
+		case PlayerEvents::GameCountdown:
+		{
+			static int lastNumber = 0;
+			CountdownPacket pp;
+			memcpy(&pp, evnt.data, sizeof(CountdownPacket));
+
+			if (&pp != nullptr) {
+
+				if (lastNumber == (pp.timeLeft / 1000) || (pp.timeLeft / 1000) == 11) {
+					delete evnt.data;
+					break;
+				}
+
+				lastNumber = pp.timeLeft / 1000;
+
+				if (lastNumber == 0) {
+					GUIText* t = TextManager::getInstance()->addDynamicText(
+						"Game has begun!",
+						0.25f,
+						glm::vec3(0.0f, -0.25f, 0.0f),
+						2.5f,
+						TextManager::TextBehaviour::Instant_FadOut,
+						glm::vec3(0.0f, 0.0f, 0.0f), true);
+
+					t->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+					t->setScale(1.0f);
+				}
+				else {
+					GUIText* t = TextManager::getInstance()->addDynamicText(
+						"Game Starting in: " + std::to_string(lastNumber),
+						0.25f,
+						glm::vec3(0.0f, -0.25f, 0.0f),
+						1.f,
+						TextManager::TextBehaviour::Instant_FadOut,
+						glm::vec3(0.0f, 0.0f, 0.0f), true);
+
+					t->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+					t->setScale(1.0f);
+				}
+
+
+
+
+
+				delete evnt.data;
+			}
+
+			break;
+		}
+		case PlayerEvents::RoundTimer:
+		{
+			static int lastSecond = 0;
+			RoundTimePacket rp;
+			memcpy(&rp, evnt.data, sizeof(RoundTimePacket));
+
+			if (&rp != nullptr) {
+
+				if (lastSecond == rp.seconds) {
+					delete evnt.data;
+					break;
+				}
+
+				lastSecond = rp.seconds;
+
+				if (m_gameTimeText == nullptr) {
+					m_gameTimeText = TextManager::getInstance()->addDynamicText(
+						std::to_string(rp.minutes) + ":" + std::to_string(lastSecond),
+						0.25f,
+						glm::vec3(0.0f, -0.035f, 0.0f),
+						1.f,
+						TextManager::TextBehaviour::StayForever,
+						glm::vec3(0.0f, 0.0f, 0.0f), true);
+				}
+				else {
+
+					std::string secondsText = (rp.seconds <= 9 ? "0" : "") + std::to_string(rp.seconds);
+					std::string preText = "";
+
+					if (Client::getInstance()->getServerState().currentState == NetGlobals::SERVER_STATE::GameFinished)
+						preText = "End of round ";
+
+					m_gameTimeText->changeText(preText + std::to_string(rp.minutes) + ":" + secondsText);
+
+				}
+
+				m_gameTimeText->setShouldRender(true);
+
+			}
+
+
+
+			delete evnt.data;
+			break;
+		}
+		case PlayerEvents::Died:
+		{
+			logWarning("[Event system] Died");
+			//Update the HP bar
+			m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100.0f);
+			m_hudHandler.getHudObject(HUDID::CROSSHAIR_HP)->setYClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100.0f);
+			const PlayerPacket* shooter = clientPtr->getLatestPlayerThatHitMe();
+			if (shooter != nullptr) {
+				m_lastPositionOfMyKiller = shooter->position;
+			}
+			m_player->onDead();
+			m_camera->disableCameraMovement(true);
+			
+			break;
+		}
+
 		case PlayerEvents::WallGotDestroyed:
 		{
 			std::lock_guard<std::mutex> lockGuard(NetGlobals::ReadDestructableWallsMutex); // Thread safe
@@ -1056,11 +1167,28 @@ void PlayState::update_isSpectating(const float& dt)
 
 			break;
 		}
-
 		case PlayerEvents::PlayerReady:
 		{
-			// Play sound?
-			logTrace("Player ready");
+
+			if (m_numberOfPlayersReadyText == nullptr) {
+				m_numberOfPlayersReadyText = TextManager::getInstance()->addDynamicText(
+					"Players ready: " + std::to_string(Client::getInstance()->getNumberOfReadyPlayers())
+					+ "/" + std::to_string(Client::getInstance()->getNumberOfPlayers()),
+					0.15f,
+					glm::vec3(0.0f, -0.05f, 0.0f),
+					2.5f,
+					TextManager::TextBehaviour::StayForever,
+					glm::vec3(0.0f, 0.0f, 0.0f), true);
+
+				m_numberOfPlayersReadyText->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+				m_numberOfPlayersReadyText->setScale(1.0f);
+			}
+			else {
+				m_numberOfPlayersReadyText->changeText("Players ready: " + std::to_string(Client::getInstance()->getNumberOfReadyPlayers())
+					+ "/" + std::to_string(Client::getInstance()->getNumberOfPlayers()));
+
+			}
+
 
 			break;
 		}
@@ -1071,12 +1199,65 @@ void PlayState::update_isSpectating(const float& dt)
 			break;
 		}
 
-		case PlayerEvents::GameEnded:
+		case PlayerEvents::GameIsAboutToStart:
 		{
+			if (m_gameTimeText != nullptr) {
+				m_gameTimeText->setShouldRender(false);
+			}
+
+			if (m_numberOfPlayersReadyText != nullptr) {
+				m_numberOfPlayersReadyText->setShouldRender(false);
+			}
 
 			break;
 		}
 
+		case PlayerEvents::WaitingForPlayers:
+		{
+			if (m_gameTimeText != nullptr) {
+				m_gameTimeText->setShouldRender(false);
+			}
+
+			if (m_numberOfPlayersReadyText != nullptr) {
+				m_numberOfPlayersReadyText->setShouldRender(true);
+			}
+
+			if (m_readyText != nullptr) {
+				m_readyText->setShouldRender(true);
+			}
+			break;
+		}
+
+		case PlayerEvents::EnemyDied:
+		{
+			if (evnt.data == nullptr) continue;
+
+			for (int i = 0; i < m_objects.size(); i++)
+			{
+				if (m_objects[i]->ShouldDie()) //Atm this seems to be working fine
+				{
+					Renderer::getInstance()->removeRenderObject(m_objects[i], STATIC);
+					// Might fuck up destruction!!!1
+					delete m_objects[i];
+					m_objects.erase(m_objects.begin() + i);
+				}
+			}
+
+			EnemyDiedPacket packet;
+			memcpy(&packet, evnt.data, sizeof(EnemyDiedPacket));
+			auto* player = Client::getInstance()->findPlayerWithGuid(packet.guidOfDeadPlayer);
+
+			// Do stuff here with player pointer
+			m_objects.push_back(new WorldObject("Poof"));
+			m_objects.back()->setWorldPosition(glm::vec3(player->position.x, player->position.y, player->position.z));
+			m_objects.back()->addParticle(deathBuffer);
+			m_objects.back()->RemoveParticle(); //Set remove to true, it will now die when the player has respawned
+			Renderer::getInstance()->submit(m_objects.back(), STATIC);
+			//-------------
+
+			delete evnt.data;
+			break;
+		}
 
 
 		}

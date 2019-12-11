@@ -48,6 +48,7 @@ private:
 	void updateThirdPersonMouseMovement();
 	bool m_fpEnabled;
 	bool m_activeCamera;
+	bool m_lock = false;
 	glm::vec2 oldPosition;
 public:
 	Camera();

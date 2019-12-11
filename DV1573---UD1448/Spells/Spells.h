@@ -21,7 +21,7 @@ struct SpellBase
 
 	// Light
 	glm::vec4 m_attenAndRadius; 
-
+	float m_strength;
 	SpellBase()
 	{
 		m_mesh = nullptr;
@@ -32,6 +32,7 @@ struct SpellBase
 		m_highDamage = 0;
 		m_speed = 0;
 		m_radius = 0;
+		m_strength = 0;
 
 		m_lifeTime = 0;
 		m_maxBounces = 0;
