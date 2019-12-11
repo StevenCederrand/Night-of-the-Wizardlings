@@ -75,19 +75,6 @@ void SettingState::loadGui()
 	m_sliderFOV->subscribeEvent(CEGUI::Slider::EventValueChanged, CEGUI::Event::Subscriber(&SettingState::onFOVChange, this));
 
 
-	//Boxes
-	//m_editBoxvolume = static_cast<CEGUI::Editbox*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Editbox", glm::vec4(0.45f, 0.35f, 0.1f, 0.03f), glm::vec4(0.0f), "EditBoxvolume"));
-	//m_editBoxvolume->setText("volume: " + std::to_string(m_volumeCurrent));
-
-
-	//m_editBoxMouseSens = static_cast<CEGUI::Editbox*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Editbox", glm::vec4(0.45f, 0.55f, 0.15f, 0.05f), glm::vec4(0.0f), "EditBoxMouseSens"));
-	//m_editBoxMouseSens->setText("Mouse Sensitivity: "+ std::to_string(m_MouseSensCurrent));
-
-
-	//m_editBoxFOV = static_cast<CEGUI::Editbox*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Editbox", glm::vec4(0.45f, 0.75f, 0.1f, 0.05f), glm::vec4(0.0f), "EditBoxFov"));
-	//m_editBoxFOV->setText("FOV: " + std::to_string(m_FOVCurrent));
-
-
 	//Buttons
 	m_SaveBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.05f, 0.75f, 0.1f, 0.05f), glm::vec4(0.0f), "SaveButton"));
 	m_SaveBtn->setText("Save");
@@ -103,7 +90,7 @@ void SettingState::loadGui()
 	m_VSyncBtn->setText("VSync");
 	m_VSyncBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&SettingState::onVSyncClicked, this));
 
-
+	 //Text
 	TextRenderer::getInstance()->init(nullptr);
 	m_textVolume = TextManager::getInstance()->addDynamicText("Volume: " + std::to_string(m_volumeCurrent), 0.12f, glm::vec3(0.05f, -0.7f, 0.0f), 1.0f, TextManager::TextBehaviour::StayForever, glm::vec3(0.0f), true);
 	m_textSensitivity = TextManager::getInstance()->addDynamicText("Mouse Sensitivity: " + std::to_string(m_MouseSensCurrent), 0.12f, glm::vec3(0.05f, -1.1f, 0.0f), 1.0f, TextManager::TextBehaviour::StayForever, glm::vec3(0.0f), true);
