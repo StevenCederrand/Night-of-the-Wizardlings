@@ -32,6 +32,10 @@ SettingState::SettingState()
 SettingState::~SettingState()
 {
 	Gui::getInstance()->clearWidgetsInSection(GUI_SECTION);
+	TextManager::getInstance()->removeText(m_textVolume->getUniqueIndex());
+	TextManager::getInstance()->removeText(m_textSensitivity->getUniqueIndex());
+	TextManager::getInstance()->removeText(m_textFOV->getUniqueIndex());
+	TextManager::getInstance()->removeText(m_textVSync->getUniqueIndex());
 }
 
 void SettingState::update(float dt)
