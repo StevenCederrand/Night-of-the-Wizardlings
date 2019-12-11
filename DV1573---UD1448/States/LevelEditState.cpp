@@ -260,11 +260,43 @@ void LevelEditState::guiInfo()
 #pragma region MeshList
 	ImGui::Begin("Assets");
 
-	const char* listBox_items4[] = { "Apple", "Banana", "Cherry", "Kiwi", "Mango", "Orange", "Pineapple", "Strawberry", "Watermelon" };
+	const char* listBox_items4[] = { "Level1(Castle)", "Terrain(Forrest)", "Plane" };
 	static int listBox_item_current4 = 1;
-	ImGui::ListBox("Particles", &listBox_item_current4, listBox_items4, IM_ARRAYSIZE(listBox_items4), 6);
 	
-	ImGui::Button("Create", ImVec2(50.f, 20.f));
+	const char* listBox_items5[] = { "Fire", "Torch", "Flies", "Smoke", "Rain" };
+	static int listBox_item_current5 = 1;
+	
+	ImGui::BeginGroup();
+	if (ImGui::Button("Meshes", ImVec2(120, 25)))
+	{
+		assetTab = 0;	
+	}
+	ImGui::SameLine(0.0f, 1.0f);
+	if (ImGui::Button("Particles", ImVec2(120, 25)))
+	{
+		assetTab = 1;
+	}
+
+	//The list items needs to represent actual meshes and such
+	switch (assetTab)
+	{
+	case 0:
+		ImGui::ListBox("Meshes", &listBox_item_current4, listBox_items4, IM_ARRAYSIZE(listBox_items4), 6);
+		break;
+	case 1:
+		ImGui::ListBox("Particles", &listBox_item_current5, listBox_items5, IM_ARRAYSIZE(listBox_items5), 6);
+		break;
+	default:
+		break;
+	}
+	ImGui::EndGroup();
+
+	if (ImGui::Button("Create", ImVec2(70, 25)))
+	{
+		loadMap();
+	}
+	
+	//ImGui::Button("Create", ImVec2(50.f, 20.f));
 
 	ImGui::End();
 

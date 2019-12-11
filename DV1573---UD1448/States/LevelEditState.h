@@ -60,6 +60,10 @@ private:
 	int changeAttrib = 1;
 	glm::vec3 m_focusPoint;
 
+
+	//ImGui Variables
+	int assetTab = 0;
+
 	static const char * items[];
 	int selectedItem = 0;
 
