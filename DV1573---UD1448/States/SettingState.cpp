@@ -58,21 +58,21 @@ void SettingState::loadGui()
 
 
 	//Sliders
-	m_sliderVolume = static_cast<CEGUI::Slider*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Slider", glm::vec4(0.45f, 0.40f, 0.15f, 0.03f), glm::vec4(0.0f), "volumeSlider"));
+	m_sliderVolume = static_cast<CEGUI::Slider*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Slider", glm::vec4(0.45f, 0.20f, 0.15f, 0.03f), glm::vec4(0.0f), "volumeSlider"));
 	m_sliderVolume->setMaxValue(m_volumeMax);
 	m_sliderVolume->setCurrentValue(m_volumeCurrent);
 	m_sliderVolume->setClickStep(1.0f);
 	m_sliderVolume->subscribeEvent(CEGUI::Slider::EventValueChanged, CEGUI::Event::Subscriber(&SettingState::onvolumeChange, this));
 
 
-	m_sliderMouseSens = static_cast<CEGUI::Slider*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Slider", glm::vec4(0.45f, 0.6f, 0.15f, 0.03f), glm::vec4(0.0f), "MouseSensSlider"));
+	m_sliderMouseSens = static_cast<CEGUI::Slider*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Slider", glm::vec4(0.45f, 0.4f, 0.15f, 0.03f), glm::vec4(0.0f), "MouseSensSlider"));
 	m_sliderMouseSens->setMaxValue(m_MouseSensMax);
 	m_sliderMouseSens->setCurrentValue(m_MouseSensCurrent);
 	m_sliderMouseSens->setClickStep(1.0f);
 	m_sliderMouseSens->subscribeEvent(CEGUI::Slider::EventValueChanged, CEGUI::Event::Subscriber(&SettingState::onMouseSensChange, this));
 
 
-	m_sliderFOV = static_cast<CEGUI::Slider*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Slider", glm::vec4(0.45f, 0.8f, 0.15f, 0.03f), glm::vec4(0.0f), "FOVSlider"));
+	m_sliderFOV = static_cast<CEGUI::Slider*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Slider", glm::vec4(0.45f, 0.6f, 0.15f, 0.03f), glm::vec4(0.0f), "FOVSlider"));
 	m_sliderFOV->setMaxValue(m_FOVMax);
 	m_sliderFOV->setCurrentValue(m_FOVCurrent-m_FOVBase);
 	m_sliderFOV->setClickStep(1.0f);
@@ -90,16 +90,16 @@ void SettingState::loadGui()
 	m_BackBth->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&SettingState::onBackClicked, this));
 
 
-	m_VSyncBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.475f, 0.95f, 0.1f, 0.05f), glm::vec4(0.0f), "VSyncButton"));
+	m_VSyncBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.475f, 0.75f, 0.1f, 0.05f), glm::vec4(0.0f), "VSyncButton"));
 	m_VSyncBtn->setText("VSync");
 	m_VSyncBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&SettingState::onVSyncClicked, this));
 
 	 //Text
 	TextRenderer::getInstance()->init(nullptr);
-	m_textVolume = TextManager::getInstance()->addDynamicText("Volume: " + std::to_string(m_volumeCurrent), 0.12f, glm::vec3(0.05f, -0.7f, 0.0f), 1.0f, TextManager::TextBehaviour::StayForever, glm::vec3(0.0f), true);
-	m_textSensitivity = TextManager::getInstance()->addDynamicText("Mouse Sensitivity: " + std::to_string(m_MouseSensCurrent), 0.12f, glm::vec3(0.05f, -1.1f, 0.0f), 1.0f, TextManager::TextBehaviour::StayForever, glm::vec3(0.0f), true);
-	m_textFOV = TextManager::getInstance()->addDynamicText("FOV: " + std::to_string(m_FOVCurrent), 0.12f, glm::vec3(0.05f, -1.5f, 0.0f), 1.0f, TextManager::TextBehaviour::StayForever, glm::vec3(0.0f), true);
-	m_textVSync = TextManager::getInstance()->addDynamicText("VSync: " + std::to_string(m_boolVSync), 0.12f, glm::vec3(0.05f, -1.79f, 0.0f), 1.0f, TextManager::TextBehaviour::StayForever, glm::vec3(0.0f), true);
+	m_textVolume = TextManager::getInstance()->addDynamicText("Volume: " + std::to_string(m_volumeCurrent), 0.12f, glm::vec3(0.05f, -0.3f, 0.0f), 1.0f, TextManager::TextBehaviour::StayForever, glm::vec3(0.0f), true);
+	m_textSensitivity = TextManager::getInstance()->addDynamicText("Mouse Sensitivity: " + std::to_string(m_MouseSensCurrent), 0.12f, glm::vec3(0.05f, -0.68f, 0.0f), 1.0f, TextManager::TextBehaviour::StayForever, glm::vec3(0.0f), true);
+	m_textFOV = TextManager::getInstance()->addDynamicText("FOV: " + std::to_string(m_FOVCurrent), 0.12f, glm::vec3(0.05f, -1.1f, 0.0f), 1.0f, TextManager::TextBehaviour::StayForever, glm::vec3(0.0f), true);
+	m_textVSync = TextManager::getInstance()->addDynamicText("VSync: " + std::to_string(m_boolVSync), 0.12f, glm::vec3(0.05f, -1.38f, 0.0f), 1.0f, TextManager::TextBehaviour::StayForever, glm::vec3(0.0f), true);
 
 }
 
