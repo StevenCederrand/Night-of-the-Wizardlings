@@ -46,8 +46,7 @@ void AnimatedObject::update(float dt)
 			size_t animSize = m_meshes[i].mesh->getAnimations().size();
 			for (size_t a = 0; a < animSize; a++)
 			{
-				std::string animName = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations()[a];
-				ComputeMatrix((int)i, m_meshes[i].name, animName, &m_bonePalleteBlend, m_currentTime);
+				ComputeMatrix((int)i, (int)a, &m_bonePalleteBlend, m_currentTime);
 			}
 		}
 	}
@@ -62,11 +61,10 @@ void AnimatedObject::update(float dt)
 		{
 			for (size_t i = 0; i < m_meshes.size(); i++)
 			{
-				size_t animSize = MeshMap::getInstance()->getMesh(m_meshes[i].mesh->getName())->getAnimations().size();
+				size_t animSize = m_meshes[i].mesh->getAnimations().size();
 				for (size_t a = 0; a < animSize; a++)
 				{
-					std::string animName = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations()[a];
-					ComputeMatrix((int)i, m_meshes[i].name, animName, &m_bonePalleteBlend, m_currentTime);
+					ComputeMatrix((int)i, (int)a, &m_bonePalleteBlend, m_currentTime);
 				}
 			}
 		}
@@ -81,11 +79,10 @@ void AnimatedObject::update(float dt)
 			}
 			for (size_t i = 0; i < m_meshes.size(); i++)
 			{
-				size_t animSize = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations().size();
+				size_t animSize = m_meshes[i].mesh->getAnimations().size();
 				for (size_t a = 0; a < animSize; a++)
 				{
-					std::string animName = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations()[a];
-					ComputeMatrixUpper((int)i, m_meshes[i].name, animName, &m_bonePallete, m_currentTimeUpper);
+					ComputeMatrixUpper((int)i, (int)a, &m_bonePallete, m_currentTimeUpper);
 				}
 			}
 		}
@@ -97,11 +94,10 @@ void AnimatedObject::update(float dt)
 			}
 			for (size_t i = 0; i < m_meshes.size(); i++)
 			{
-				size_t animSize = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations().size();
+				size_t animSize = m_meshes[i].mesh->getAnimations().size();
 				for (size_t a = 0; a < animSize; a++)
 				{
-					std::string animName = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations()[a];
-					ComputeMatrixUpper((int)i, m_meshes[i].name, animName, &m_bonePallete, m_currentTimeUpper);
+					ComputeMatrixUpper((int)i, (int)a, &m_bonePallete, m_currentTimeUpper);
 				}
 			}
 		}
@@ -113,11 +109,10 @@ void AnimatedObject::update(float dt)
 
 		for (size_t i = 0; i < m_meshes.size(); i++)
 		{
-			size_t animSize = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations().size();
+			size_t animSize = m_meshes[i].mesh->getAnimations().size();
 			for (size_t a = 0; a < animSize; a++)
 			{
-				std::string animName = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations()[a];
-				ComputeMatrixLower((int)i, m_meshes[i].name, animName, &m_bonePalleteBlend, m_currentTimeLower);
+				ComputeMatrixLower((int)i, (int)a, &m_bonePalleteBlend, m_currentTimeLower);
 
 			}
 		}
@@ -136,11 +131,11 @@ void AnimatedObject::update(float dt)
 
 //TODO: Optimize if laggy, possibly move to GPU
 //Less allocations will speed up the algorithm
-void AnimatedObject::ComputeMatrix(int meshId, std::string meshn, std::string animation, BonePalleteBuffer* bonePallete, float currentTime)
+void AnimatedObject::ComputeMatrix(int meshId, int animId, BonePalleteBuffer* bonePallete, float currentTime)
 {
 	// Mesh, animation, and skeleton
-	const Animation& anim = *AnimationMap::getInstance()->getAnimation(animation);
-	const Mesh& mesh = *MeshMap::getInstance()->getMesh(meshn);
+	const Mesh& mesh = *m_meshes[meshId].mesh;
+	const Animation& anim = *AnimationMap::getInstance()->getAnimation(mesh.getAnimations()[animId]);
 	const Skeleton& skeleton = *SkeletonMap::getInstance()->getSkeleton(mesh.getSkeleton());
 
 	// time must be less than duration. Also resets animation.
@@ -208,10 +203,10 @@ void AnimatedObject::ComputeMatrix(int meshId, std::string meshn, std::string an
 	}
 }
 
-void AnimatedObject::ComputeMatrixUpper(int meshId, std::string meshn, std::string animation, BonePalleteBuffer* bonePallete, float currentTime)
+void AnimatedObject::ComputeMatrixUpper(int meshId, int animId, BonePalleteBuffer* bonePallete, float currentTime)
 {
-	const Animation& anim = *AnimationMap::getInstance()->getAnimation(animation);
-	const Mesh& mesh = *MeshMap::getInstance()->getMesh(meshn);
+	const Mesh& mesh = *m_meshes[meshId].mesh;
+	const Animation& anim = *AnimationMap::getInstance()->getAnimation(mesh.getAnimations()[animId]);
 	const Skeleton& skeleton = *SkeletonMap::getInstance()->getSkeleton(mesh.getSkeleton());
 
 	if (currentTime > anim.duration)
@@ -278,10 +273,10 @@ void AnimatedObject::ComputeMatrixUpper(int meshId, std::string meshn, std::stri
 	}
 }
 
-void AnimatedObject::ComputeMatrixLower(int meshId, std::string meshn, std::string animation, BonePalleteBuffer* bonePallete, float currentTime)
+void AnimatedObject::ComputeMatrixLower(int meshId, int animId, BonePalleteBuffer* bonePallete, float currentTime)
 {
-	const Animation& anim = *AnimationMap::getInstance()->getAnimation(animation);
-	const Mesh& mesh = *MeshMap::getInstance()->getMesh(meshn);
+	const Mesh& mesh = *m_meshes[meshId].mesh;
+	const Animation& anim = *AnimationMap::getInstance()->getAnimation(mesh.getAnimations()[animId]);
 	const Skeleton& skeleton = *SkeletonMap::getInstance()->getSkeleton(mesh.getSkeleton());
 
 	if (currentTime > anim.duration)

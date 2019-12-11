@@ -27,9 +27,9 @@ public:
 	void update(float dt);
 
 	//Calculates the transforms of a joint at a specific time, also interpolates.
-	void ComputeMatrix(int meshId, std::string meshn, std::string animation, BonePalleteBuffer* bonePallete, float currentTime);
-	void ComputeMatrixUpper(int meshId, std::string meshn, std::string animation, BonePalleteBuffer* bonePallete, float currentTime);
-	void ComputeMatrixLower(int meshId, std::string meshn, std::string animation, BonePalleteBuffer* bonePallete, float currentTime);
+	void ComputeMatrix(int meshId, int animId, BonePalleteBuffer* bonePallete, float currentTime);
+	void ComputeMatrixUpper(int meshId, int animId, BonePalleteBuffer* bonePallete, float currentTime);
+	void ComputeMatrixLower(int meshId, int animId, BonePalleteBuffer* bonePallete, float currentTime);
 
 	//Binds the transforms to the shader
 	void BindAnimation(int meshId);
