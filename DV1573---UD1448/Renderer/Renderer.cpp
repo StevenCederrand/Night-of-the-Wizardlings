@@ -1259,7 +1259,8 @@ void Renderer::render() {
 		glDepthFunc(GL_LEQUAL);
 		shader = shaderMap->useByName(FRESNEL);
 		bindMatrixes(shader);
-	
+
+
 		mesh = m_shieldObject->getMesh();
 		m_shieldObject->bindMaterialToShader(shader);
 

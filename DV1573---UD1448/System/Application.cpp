@@ -17,6 +17,8 @@
 
 #define AUTOSTART true;
 #define FULLSCREEN false;
+#define DISABLE_INPUT true; 
+
 float DeltaTime = 0.0f;
 
 Application::Application() {
@@ -99,8 +101,12 @@ bool Application::init() {
 	// Vsync
 	glfwSwapInterval(1); // Turning this off will cause occasionally freezes, so don't!
 	
+#if DISABLE_INPUT
+	//m_input = new Input();
+#else
 	m_input = new Input();
 
+#endif
 	initGraphics();
 	initSound();
 
@@ -113,14 +119,14 @@ bool Application::init() {
 	//m_stateManager->pushState(new SpellCreatorState());
 
 #if AUTOSTART
-	m_stateManager->pushState(new PlayState(false));
+	m_stateManager->pushState(new SpellCreatorState());
 #else 
 	m_stateManager->pushState(new MenuState());	
 #endif
 
 	SoundHandler* shPtr = SoundHandler::getInstance();	
-	//shPtr->playSound(ThemeSong0);
-	//shPtr->setSourceLooping(true, ThemeSong0);
+	shPtr->playSound(ThemeSong0);
+	shPtr->setSourceLooping(true, ThemeSong0);
 
 	unsigned int _time = unsigned int(time(NULL));
 	srand(_time);
@@ -144,7 +150,14 @@ void Application::run()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
+
+		#if DISABLE_INPUT
+		//m_input->clearKeys();
+		#else
 		m_input->clearKeys();
+
+		#endif
+		
 		glfwPollEvents();
 
 		// Quick way to close the app
@@ -184,6 +197,7 @@ void Application::run()
 		
 		if (m_stateManager->getImGuiState())
 		{
+
 			ImGui_ImplGlfwGL3_NewFrame();
 			m_stateManager->getGuiInfo();
 			ImGui::Render();

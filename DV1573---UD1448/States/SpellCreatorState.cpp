@@ -38,7 +38,6 @@ SpellCreatorState::SpellCreatorState()
     renderer->submitSkybox(m_skybox);
     renderer->submitSpellEditor(m_spellEditor);
 
-
    
 
     MaterialMap::getInstance();
@@ -90,7 +89,15 @@ SpellCreatorState::~SpellCreatorState()
 
 void SpellCreatorState::update(float dt)
 {
+	//ImGui::Begin("testar text", &my_tool_active, ImGuiWindowFlags_MenuBar);// Create a window called "Spell Creator" and append into it.
+	//ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Name your spell:");
+	//ImGui::InputText("", m_spellName, IM_ARRAYSIZE(m_spellName));
+	//ImGui::End();
+}
 
+void SpellCreatorState::Update(float dt)
+{
+	update(dt);
 	//tempPS.emission = 1 / m_emission;
 	m_spellEditor->spellToolUpdate(dt, tempPS, normalSpell);
     m_bPhysics->update(dt);
@@ -107,7 +114,7 @@ void SpellCreatorState::update(float dt)
 
 
     //ImGui::ShowDemoWindow();
-
+	
     ImGui::Begin("Spell Creator", &my_tool_active, ImGuiWindowFlags_MenuBar);// Create a window called "Spell Creator" and append into it.
     ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Select a spell type to create");
     ImGui::Checkbox("Create Projectile", &isProjectile);
@@ -201,9 +208,11 @@ void SpellCreatorState::update(float dt)
     ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Number of spell events:");
     editSpellEvents();
 
-    ImGui::Text("");
-    ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Name your spell:");
-    ImGui::InputText("", m_spellName, NAME_SIZE);
+	ImGui::Text("");
+	ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Name your spell:");
+	ImGui::InputText("", m_spellName, IM_ARRAYSIZE(m_spellName));
+	//ImGui::
+
     ImGui::End();
 
 }
@@ -211,7 +220,7 @@ void SpellCreatorState::update(float dt)
 void SpellCreatorState::render()
 {
     Renderer::getInstance()->render();
-	ImGui::Render();
+	//ImGui::Render();
   
 }
 
@@ -485,4 +494,9 @@ void SpellCreatorState::setSpellEvents(int eventNr)
     {
         ImGui::Text("event10");
     }
+}
+
+void SpellCreatorState::guiInfo()
+{
+	Update(DeltaTime);
 }

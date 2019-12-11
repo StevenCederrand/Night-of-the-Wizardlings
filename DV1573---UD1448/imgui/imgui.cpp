@@ -490,7 +490,9 @@
        Button("Hello###ID";   // Label = "Hello",  ID = top of id stack + hash of "ID"
        Button("World###ID";   // Label = "World",  ID = top of id stack + hash of "ID" (same as above)
 
-       sprintf(m_spellName, "My game (%f FPS)###MyGame", fps);
+       sprintf(
+	   
+	   , "My game (%f FPS)###MyGame", fps);
        Begin(m_spellName);            // Variable label,   ID = hash of "MyGame"
 
    - Solving ID conflict in a more general manner:

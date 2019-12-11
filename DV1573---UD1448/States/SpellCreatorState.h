@@ -21,6 +21,7 @@ public:
 	SpellCreatorState();
 	virtual ~SpellCreatorState() override;
 	virtual void update(float dt) override;
+	void Update(float dt);
 	virtual void render() override;
 
     void updateToolSettings();
@@ -34,7 +35,10 @@ public:
     void setSpellEvents(int eventNr);
 
     //IMGUI
-    bool my_tool_active = true;
+	bool is_ImGui() { return true; }
+	void guiInfo();
+
+	bool my_tool_active = true;
     bool isProjectile = false;
 	bool isAOE = false;
     bool isEnhanceProjectile = false;
@@ -53,12 +57,10 @@ public:
 	SpellLoading::SpellEvents nrOfParticleSystems;
     //-----File opener/Path to Exports-----//
     ImGui::FileBrowser fileDialog;
-
-    char m_spellName[256];
-
-	bool is_ImGui() { return true; }
+    char m_spellName[256] = "spellName";
 
 private:
+
     Player* m_player;
     SpellHandler* m_spellHandler;
 	SpellEditor* m_spellEditor;
