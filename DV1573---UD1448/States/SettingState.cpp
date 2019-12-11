@@ -34,6 +34,8 @@ SettingState::~SettingState()
 	TextManager::getInstance()->removeText(m_textSensitivity->getUniqueIndex());
 	TextManager::getInstance()->removeText(m_textFOV->getUniqueIndex());
 	TextManager::getInstance()->removeText(m_textVSync->getUniqueIndex());
+	TextManager::getInstance()->cleanup();
+	TextRenderer::getInstance()->cleanup();
 }
 
 void SettingState::update(float dt)

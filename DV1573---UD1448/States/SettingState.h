@@ -27,8 +27,6 @@ private:
 	bool onFOVChange(const CEGUI::EventArgs& e);
 
 
-
-	
 	CEGUI::PushButton* m_BackBth;
 	CEGUI::PushButton* m_SaveBtn;
 	CEGUI::PushButton* m_VSyncBtn;
@@ -36,11 +34,6 @@ private:
 	CEGUI::Slider* m_sliderVolume;
 	CEGUI::Slider* m_sliderMouseSens;
 	CEGUI::Slider* m_sliderFOV;
-
-
-	CEGUI::Editbox* m_editBoxvolume;
-	CEGUI::Editbox* m_editBoxMouseSens;
-	CEGUI::Editbox* m_editBoxFOV;
 
 	GUIText* m_textVolume;
 	GUIText* m_textSensitivity;
@@ -60,8 +53,6 @@ private:
 	float m_FOVMax;
 
 	bool m_boolVSync;
-
-
 
 };
 
