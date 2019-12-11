@@ -8,10 +8,6 @@ AnimatedObject::AnimatedObject(std::string name) : GameObject(name)
 	m_boneBuffer = 0;
 	m_boneBufferBlend = 0;
 
-
-
-
-
 	//Binds buffer for the bone matrices on the gpu
 
 	glGenBuffers(1, &m_boneBuffer);
@@ -23,9 +19,6 @@ AnimatedObject::AnimatedObject(std::string name) : GameObject(name)
 	glBindBuffer(GL_UNIFORM_BUFFER, m_boneBufferBlend);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 64, NULL, GL_DYNAMIC_DRAW);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-
-
 }
 
 AnimatedObject::~AnimatedObject()
@@ -40,7 +33,6 @@ void AnimatedObject::update(float dt)
 	m_currentTime += dt;
 	m_currentTimeUpper += dt;
 	m_currentTimeLower += dt;
-
 	// Update animation time
 	if (m_isLooping)
 	{
@@ -85,7 +77,6 @@ void AnimatedObject::update(float dt)
 		{
 			if (m_currentTimeUpper >= m_stopTimeUpper)
 			{
-				//m_isDone = true;
 				m_once = false;
 			}
 			for (size_t i = 0; i < m_meshes.size(); i++)
@@ -126,30 +117,11 @@ void AnimatedObject::update(float dt)
 			for (size_t a = 0; a < animSize; a++)
 			{
 				std::string animName = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations()[a];
-				//ComputeMatrixUpper((int)i, m_meshes[i].name, animName, &m_bonePallete, m_currentTimeUpper);
 				ComputeMatrixLower((int)i, m_meshes[i].name, animName, &m_bonePalleteBlend, m_currentTimeLower);
 
 			}
 		}
 	}
-	//if (m_shouldBlend)
-	//{
-	//
-	//	if (m_currentTimeLower >= m_stopTimeLower)
-	//	{
-	//		m_currentTimeLower = m_startTimeLower;
-	//	}
-	//	for (size_t i = 0; i < m_meshes.size(); i++)
-	//	{
-	//		size_t animSize = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations().size();
-	//		for (size_t a = 0; a < animSize; a++)
-	//		{
-	//			std::string animName = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations()[a];
-	//			ComputeMatrixLower((int)i, m_meshes[i].name, animName, &m_bonePallete, m_currentTimeLower);
-	//		}
-	//	}
-	//}
-
 
 	// Basic animation update for testing
 	// TODO: Only update 1 animation, Choose animation to update
@@ -401,12 +373,9 @@ void AnimatedObject::initAnimations(std::string name, float startTime, float sto
 
 void AnimatedObject::playAnimation(std::string name)
 {
-	//m_upper = false;
 	m_isDone = false;
 	m_currentAnimation = name;
-	//m_lower = false;
 	m_shouldBlend = true;
-	//tempTime = currentTime;
 	m_isLooping = false;
 	for (int i = 0; i < animations.size(); i++)
 	{
@@ -426,10 +395,7 @@ void AnimatedObject::playLoopAnimation(std::string name)
 		return;
 	}
 	m_currentAnimation = name;
-	m_isDone = true;
-	//m_upper = false;
 	m_isLooping = true;
-	//m_lower = false;
 	m_shouldBlend = true;
 
 	for (int i = 0; i < animations.size(); i++)
@@ -451,13 +417,9 @@ void AnimatedObject::playUpperAnimation(std::string name)
 	}
 	m_currentAnimationUpper = name;
 	m_once = false;
-
 	m_shouldBlend = false;
-
-	m_upper = true;
 	m_isLooping = false;
 	m_isDone = true;
-	//m_lower = false;
 	for (int i = 0; i < animations.size(); i++)
 	{
 		if (animations[i].m_name == name)
@@ -479,13 +441,9 @@ void AnimatedObject::playLowerAnimation(std::string name)
 	}
 	m_currentAnimationLower = name;
 	m_once = false;
-
 	m_shouldBlend = false;
-
-	//m_upper = false;
 	m_isLooping = false;
 	m_isDone = true;
-	m_lower = true;
 
 	for (int i = 0; i < animations.size(); i++)
 	{
@@ -506,11 +464,8 @@ void AnimatedObject::playUpperAnimationOnce(std::string name)
 	m_currentAnimationUpper = name;
 	m_once = true;
 	m_shouldBlend = false;
-
-	m_upper = true;
 	m_isLooping = false;
 	m_isDone = false;
-	//m_lower = false;
 	for (int i = 0; i < animations.size(); i++)
 	{
 		if (animations[i].m_name == name)
@@ -521,18 +476,6 @@ void AnimatedObject::playUpperAnimationOnce(std::string name)
 	}
 
 	m_currentTimeUpper = m_startTimeUpper;
-
-}
-
-void AnimatedObject::blendIdentity(float startTime, float stopTime, int index)
-{
-	std::string temp = MeshMap::getInstance()->getMesh(m_meshes[0].name)->getAnimations()[0];
-	Animation& anim = *AnimationMap::getInstance()->getAnimation(temp);
-	Transform transformTemp;
-	for (int i = startTime; i < stopTime; i++)
-	{
-		anim.keyframes[i].local_joint_t[index].transform = transformTemp;
-	}
 
 }
 

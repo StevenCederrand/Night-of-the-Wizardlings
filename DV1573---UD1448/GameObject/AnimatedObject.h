@@ -35,6 +35,7 @@ public:
 	void BindAnimation(int meshId);
 
 	void initAnimations(std::string name, float startTime, float stopTime);
+	void splitSkeleton(int upper); // do with initiation of upper and lower body
 
 	void playAnimation(std::string name);
 	void playLoopAnimation(std::string name);
@@ -42,9 +43,6 @@ public:
 	void playLowerAnimation(std::string name);
 	void playUpperAnimationOnce(std::string name);
 
-	void blendIdentity(float startTime, float stopTime, int index);
-
-	void splitSkeleton(int upper);
 
 private:
 
@@ -78,8 +76,6 @@ private:
 
 	bool m_isLooping = false;
 	bool m_isDone = true;
-	bool m_upper = false;//CREATE A BOOL FOR BOTH UPPER AND LOWER? (put compute matrix for upper and lower in same function?)
-	bool m_lower = false;
 	bool m_shouldBlend = true;
 	bool m_once = false;
 };

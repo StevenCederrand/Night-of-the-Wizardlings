@@ -52,7 +52,7 @@ private:
 	DstrGenerator m_dstr;
 	DstrGenerator m_dstr_alt1;
 
-	AnimatedObject* m_firstPerson;
+	//AnimatedObject* m_firstPerson;
 	SpellHandler* m_spellHandler;
 	Player* m_player;
 	Camera* m_camera;

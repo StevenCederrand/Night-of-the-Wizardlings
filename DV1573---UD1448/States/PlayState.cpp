@@ -71,23 +71,20 @@ PlayState::PlayState(bool spectator)
 	m_objects[m_objects.size() - 1]->loadMesh("Towermap/Academy_t.mesh");
 	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
 
-	m_objects.push_back(new AnimatedObject("NyCharacter"));
-	m_objects[m_objects.size() - 1]->loadMesh("NyCharacter.mesh");
-	static_cast<AnimatedObject*>(m_objects.back())->splitSkeleton(46);
-	static_cast<AnimatedObject*>(m_objects.back())->initAnimations("test", 2.0f, 22.0f);
-	static_cast<AnimatedObject*>(m_objects.back())->initAnimations("Cast", 95.0f, 109.0f);
-
-	static_cast<AnimatedObject*>(m_objects.back())->setWorldPosition(glm::vec3(0.0f, 13.0f, 0.0f));
-	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::ANIMATEDSTATIC);
-	//static_cast<AnimatedObject*>(m_objects.back())->playAnimation("test");
-
+	//********************* ANIMATION TESTING DONT DELETE********************
+	//m_objects.push_back(new AnimatedObject("NyCharacter"));
+	//m_objects[m_objects.size() - 1]->loadMesh("NyCharacter.mesh");
+	//static_cast<AnimatedObject*>(m_objects.back())->splitSkeleton(46);
+	//static_cast<AnimatedObject*>(m_objects.back())->initAnimations("test", 2.0f, 22.0f);
+	//static_cast<AnimatedObject*>(m_objects.back())->initAnimations("Cast", 95.0f, 109.0f);
+	//
+	//static_cast<AnimatedObject*>(m_objects.back())->setWorldPosition(glm::vec3(0.0f, 13.0f, 0.0f));
+	//renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::ANIMATEDSTATIC);
+	//
+	//static_cast<AnimatedObject*>(m_objects.back())->playLowerAnimation("test");
 	//static_cast<AnimatedObject*>(m_objects.back())->playUpperAnimation("Cast");
-	static_cast<AnimatedObject*>(m_objects.back())->playLowerAnimation("test");
-	static_cast<AnimatedObject*>(m_objects.back())->playUpperAnimation("Cast");
-
-
-	
-
+	//********************* ANIMATION TESTING DONT DELETE********************
+	   
 
 	//			TOO LAGGY ATM
 	//LIGHTS
@@ -327,7 +324,6 @@ PlayState::~PlayState()
 	delete m_bPhysics;
 	delete m_spellHandler;
 	delete m_camera;
-	delete m_firstPerson;
 	if (LocalServer::getInstance()->isInitialized()) {
 		LocalServer::getInstance()->destroy();
 	}
