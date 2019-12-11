@@ -10,7 +10,7 @@ public:
 	~SpellEditor();
 
 	void createSpellForTool(glm::vec3 spellPos, glm::vec3 directionVector, OBJECT_TYPE type);
-	void spellToolUpdate(float dt,PSinfo psInfo, SpellLoading::Projectile projectileInfo);
+	void spellToolUpdate(float dt,PSinfo psInfo, SpellLoading::Projectile projectileInfo, TextureInfo txtInfo);
 	void changeSpell(int state);
 
 	void renderSpell();

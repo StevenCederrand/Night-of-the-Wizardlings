@@ -41,7 +41,7 @@ void SpellEditor::initAttackSpell()
 	attackBase.m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
 
 
-	myLoader.LoadProjectileSpell("bestSpell123.spell");
+	myLoader.LoadProjectileSpell("redstar.spell");
 
 	// Gameplay--
 	attackBase.m_lowDamage		= myLoader.m_projectile.lowDamage;
@@ -56,7 +56,7 @@ void SpellEditor::initAttackSpell()
 	attackBase.m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f);// OLD
 	attackBase.m_attenAndRadius = glm::vec4(1.0f, 2.15f, 4.5f, 22.0f);
 
-	tempTxt.name = "Assets/Textures/dots.png";
+	tempTxt.name = myLoader.m_txtInfo.name;
 	tempPS.width = myLoader.m_psInfo.width;
 	tempPS.heigth = myLoader.m_psInfo.heigth;
 	tempPS.lifetime = myLoader.m_psInfo.lifetime;
@@ -215,12 +215,13 @@ void SpellEditor::createSpellForTool(glm::vec3 spellPos, glm::vec3 directionVect
 	}
 }
 
-void SpellEditor::spellToolUpdate(float dt, PSinfo psInfo, SpellLoading::Projectile projectileInfo)
+void SpellEditor::spellToolUpdate(float dt, PSinfo psInfo, SpellLoading::Projectile projectileInfo, TextureInfo txtInfo)
 {
 	for (size_t i = 0; i < spells.size(); i++)
 	{
 		spells[i]->updateTool(projectileInfo.radius, projectileInfo.speed, dt);
 		spells[i]->UpdateParticles(dt, psInfo);
+		spells[i]->UpdateTexture(txtInfo);
 
 		if (activespell == 1)
 		{

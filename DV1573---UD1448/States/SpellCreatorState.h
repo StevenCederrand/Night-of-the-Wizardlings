@@ -24,6 +24,7 @@ public:
 	void Update(float dt);
 	virtual void render() override;
 
+	void loadTexture();
     void updateToolSettings();
 
     //-----Edit spell Functions-----//
@@ -56,7 +57,9 @@ public:
 	SpellLoading::SpellEvents spellEvents;
 	SpellLoading::SpellEvents nrOfParticleSystems;
     //-----File opener/Path to Exports-----//
-    ImGui::FileBrowser fileDialog;
+	ImGui::FileBrowser fileDialog;
+	ImGui::FileBrowser textureDialog;
+	
     char m_spellName[256] = "spellName";
 
 private:
@@ -71,6 +74,8 @@ private:
     std::vector<GameObject*> m_objects;
 
     AttackSpell* normalAttSpell;
+
+	std::string m_textureName;
 
     bool m_AttackSpellAlive = true;
     bool m_FireSpellAlive = true;

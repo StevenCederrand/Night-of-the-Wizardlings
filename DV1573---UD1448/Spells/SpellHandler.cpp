@@ -37,7 +37,7 @@ void SpellHandler::initAttackSpell()
 	attackBase.m_material->diffuse = glm::vec3(0.65f, 1.0f, 1.0f); // Light blue
 	attackBase.m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
 
-	myLoader.LoadProjectileSpell("newBestSpell12345.spell");
+	myLoader.LoadProjectileSpell("redstar.spell");
 
 	// Gameplay--
 	attackBase.m_lowDamage		= myLoader.m_projectile.lowDamage;
@@ -64,7 +64,7 @@ void SpellHandler::initAttackSpell()
 
 	PSinfo tempPS;
 	TextureInfo tempTxt;
-	tempTxt.name = "Assets/Textures/dots.png";
+	tempTxt.name = myLoader.m_txtInfo.name;
 	tempPS.width = myLoader.m_psInfo.width;
 	tempPS.heigth = myLoader.m_psInfo.heigth;
 	tempPS.lifetime = myLoader.m_psInfo.lifetime;

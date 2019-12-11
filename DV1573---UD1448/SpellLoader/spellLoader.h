@@ -19,7 +19,7 @@ public:
 
     bool LoadProjectileSpell(std::string fileName);	// Load a file
     bool loadAOESpell(std::string fileName);	// Load a file
-    void SaveProjectileSpell(std::string name, SpellLoading::Projectile projectileInfo, SpellLoading::SpellEvents spellEvent, PSinfo psInfo);
+    void SaveProjectileSpell(std::string name, SpellLoading::Projectile projectileInfo, SpellLoading::SpellEvents spellEvent, PSinfo psInfo, TextureInfo txtInfo);
 
     void saveAOESpell(std::string name, int damage, int speed, int cooldown, int radius, int lifetime, int maxBounces);
 
@@ -32,6 +32,7 @@ public:
     SpellLoading::AOESpell m_AOESpell;
     SpellLoading::SpellEvents m_spellEvents;
 	PSinfo m_psInfo;
+	TextureInfo m_txtInfo;
 
 	int m_nrOfSpells = 1;
 
@@ -81,4 +82,9 @@ private:
 	float m_force;
 	float m_drag;
 	float m_gravity;
+
+	char m_textureName[NAME_SIZE];
+
+
+
 };

@@ -48,12 +48,14 @@ SpellCreatorState::SpellCreatorState()
     //    //m_objects.at(i)->createDebugDrawer();
     //}
 
-   
-
-
+  
     fileDialog.SetTitle("Open file(.spell)");
     fileDialog.SetTypeFilters({ ".spell" });
     fileDialog.SetPwd("\Exports");
+
+	textureDialog.SetTitle("Open file(.png)");
+	textureDialog.SetTypeFilters({ ".png" });
+	textureDialog.SetPwd("\Assets");
 
 }
 
@@ -89,20 +91,16 @@ SpellCreatorState::~SpellCreatorState()
 
 void SpellCreatorState::update(float dt)
 {
-	//ImGui::Begin("testar text", &my_tool_active, ImGuiWindowFlags_MenuBar);// Create a window called "Spell Creator" and append into it.
-	//ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Name your spell:");
-	//ImGui::InputText("", m_spellName, IM_ARRAYSIZE(m_spellName));
-	//ImGui::End();
+
 }
 
 void SpellCreatorState::Update(float dt)
 {
 	update(dt);
 	//tempPS.emission = 1 / m_emission;
-	m_spellEditor->spellToolUpdate(dt, tempPS, normalSpell);
+	m_spellEditor->spellToolUpdate(dt, tempPS, normalSpell, tempTxt);
     m_bPhysics->update(dt);
 
-   // m_player->update(dt);
     Renderer::getInstance()->updateParticles(dt);
     auto* clientPtr = Client::getInstance();
 
@@ -130,7 +128,8 @@ void SpellCreatorState::Update(float dt)
         isProjectile = false;
         editAOEAttackSpell();
     }
-    fileDialog.Display();
+	fileDialog.Display();
+	textureDialog.Display();
 
     if (fileDialog.HasSelected() && loadASpell == true && isAOE == true)
     {
@@ -169,6 +168,21 @@ void SpellCreatorState::Update(float dt)
         loadASpell = false;
     }
 
+	if (textureDialog.HasSelected())
+	{
+		const std::string path = textureDialog.GetSelected().string();
+		auto const pos = path.find_last_of('\\');
+		m_textureName = path.substr(pos + 1);
+
+		tempTxt.name = "Assets/Textures/" + m_textureName;
+
+		myLoader.SaveProjectileSpell(m_name, normalSpell, spellEvents, tempPS, tempTxt);
+
+		updateToolSettings();
+
+		textureDialog.ClearSelected();
+	}
+
     if (ImGui::BeginMenuBar())
     {
         if (ImGui::BeginMenu("File"))
@@ -185,7 +199,7 @@ void SpellCreatorState::Update(float dt)
                 m_name = m_spellName;
 				if (isProjectile)
 				{
-                    myLoader.SaveProjectileSpell(m_name, normalSpell, spellEvents, tempPS);
+                    myLoader.SaveProjectileSpell(m_name, normalSpell, spellEvents, tempPS, tempTxt);
 				}
                 if (isAOE)
                     myLoader.saveAOESpell(m_name, aoeSpell.damage, aoeSpell.speed, aoeSpell.coolDown, aoeSpell.radius, aoeSpell.lifeTime, aoeSpell.maxBounces);
@@ -195,6 +209,7 @@ void SpellCreatorState::Update(float dt)
             {
                 my_tool_active = false;
             }
+			
             ImGui::EndMenu();
         }
         ImGui::EndMenuBar();
@@ -204,6 +219,7 @@ void SpellCreatorState::Update(float dt)
     {
         ImGui::CloseCurrentPopup();
     }
+	
 
     ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Number of spell events:");
     editSpellEvents();
@@ -211,7 +227,6 @@ void SpellCreatorState::Update(float dt)
 	ImGui::Text("");
 	ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Name your spell:");
 	ImGui::InputText("", m_spellName, IM_ARRAYSIZE(m_spellName));
-	//ImGui::
 
     ImGui::End();
 
@@ -222,6 +237,10 @@ void SpellCreatorState::render()
     Renderer::getInstance()->render();
 	//ImGui::Render();
   
+}
+
+void SpellCreatorState::loadTexture()
+{
 }
 
 void SpellCreatorState::updateToolSettings()
@@ -243,6 +262,7 @@ void SpellCreatorState::updateToolSettings()
     spellEvents.fourthEvent = myLoader.m_spellEvents.fourthEvent;
     spellEvents.fifthEvent  = myLoader.m_spellEvents.fifthEvent;
 
+	tempTxt.name = myLoader.m_txtInfo.name;
 	tempPS.width = myLoader.m_psInfo.width;
 	tempPS.heigth = myLoader.m_psInfo.heigth;
 	tempPS.lifetime = myLoader.m_psInfo.lifetime;
@@ -290,7 +310,13 @@ void SpellCreatorState::editAttackSpell()
 	if (nrOfParticleSystems.nrOfEvents >= 1.0f)
 	{
 		
-		ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Particle values 1:");										            // Display some text (you can use a format strings too)
+		ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Particle values 1:");	
+		if (ImGui::MenuItem("Load texture to spell...", "Ctrl+L"))
+		{
+			//loadASpell = true;
+			// open file dialog when user clicks this button
+			textureDialog.Open();
+		}
 		ImGui::SliderFloat("Width", &tempPS.width, 0.0f, 10.0f);
 		ImGui::SliderFloat("Heigth", &tempPS.heigth, 0.0f, 10.0f);
 		ImGui::SliderFloat("Lifetime", &tempPS.lifetime, 0.0f, 100.0f);

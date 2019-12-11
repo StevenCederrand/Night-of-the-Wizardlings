@@ -592,6 +592,14 @@ void GameObject::UpdateParticles(float dt, PSinfo psInfo)
 	}
 }
 
+void GameObject::UpdateTexture(TextureInfo txtInfo)
+{
+	for (int i = 0; i < m_particleSystems.size(); i++)
+	{
+		m_particleSystems[i].Texture(txtInfo);
+	}
+}
+
 void GameObject::RenderParticles(Camera* camera)
 {
 	for (int i = 0; i < m_particleSystems.size(); i++)

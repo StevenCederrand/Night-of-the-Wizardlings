@@ -37,6 +37,7 @@ public:
 	void addParticle(ParticleBuffers* particleBuffers);
 	void UpdateParticles(float dt);
 	void UpdateParticles(float dt, PSinfo psInfo);
+	void UpdateTexture(TextureInfo txtInfo);
 	void RenderParticles(Camera *camera);
 	void RemoveParticle();
 	bool ShouldDie();

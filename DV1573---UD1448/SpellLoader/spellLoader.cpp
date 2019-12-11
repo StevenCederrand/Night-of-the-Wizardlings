@@ -59,8 +59,6 @@ bool SpellLoader::LoadProjectileSpell(std::string file)
         m_fifthEvent         = m_spellEvents.fifthEvent;
 
 		binFile.read((char*)& m_psInfo, sizeof(PSinfo));
-
-		//Fill particle data
 		m_width = m_psInfo.width;
 		m_heigth = m_psInfo.heigth;
 		m_lifetimeP = m_psInfo.lifetime;
@@ -81,6 +79,11 @@ bool SpellLoader::LoadProjectileSpell(std::string file)
 		m_color = m_psInfo.color;
 		m_blendColor = m_psInfo.blendColor;
 		m_direction = m_psInfo.direction;
+
+		binFile.read((char*)& m_textureName, sizeof(m_textureName));
+		m_txtInfo.name = m_textureName;
+		//Fill particle data
+		//m_textureName = m_txtInfo.name;
 	}
 	binFile.close();
 
@@ -120,7 +123,7 @@ bool SpellLoader::loadAOESpell(std::string fileName)
     return true;
 }
 
-void SpellLoader::SaveProjectileSpell(std::string name, SpellLoading::Projectile projectileInfo, SpellLoading::SpellEvents spellEvent, PSinfo psInfo)
+void SpellLoader::SaveProjectileSpell(std::string name, SpellLoading::Projectile projectileInfo, SpellLoading::SpellEvents spellEvent, PSinfo psInfo, TextureInfo txtInfo)
 {
 	fileHeader.spellCount = m_nrOfSpells;
 	
@@ -142,6 +145,7 @@ void SpellLoader::SaveProjectileSpell(std::string name, SpellLoading::Projectile
     m_spellEvents.fifthEvent  = spellEvent.fifthEvent;
 
 	//-----Assign all the particle data-----//
+	m_txtInfo.name			= txtInfo.name;
 	m_psInfo.width			= psInfo.width;
 	m_psInfo.heigth			= psInfo.heigth;
 	m_psInfo.lifetime		= psInfo.lifetime;
@@ -169,6 +173,15 @@ void SpellLoader::SaveProjectileSpell(std::string name, SpellLoading::Projectile
 	for (int i = 0; i < stringLength + 1; i++)
 	{
 		m_projectile.name[i] = tempCharName[i];
+	}
+
+	stringLength = m_txtInfo.name.length();
+	tempCharName[NAME_SIZE];
+	m_txtInfo.name.copy(tempCharName, stringLength);
+	tempCharName[stringLength] = '\0';
+	for (int i = 0; i < stringLength + 1; i++)
+	{
+		m_textureName[i] = tempCharName[i];
 	}
 
 	//-----===== Write ASCII file =====-----//
@@ -205,6 +218,7 @@ void SpellLoader::SaveProjectileSpell(std::string name, SpellLoading::Projectile
     asciiFile << m_spellEvents.fifthEvent << std::endl;
 
 	asciiFile << "// particles ----------" << std::endl;
+	asciiFile << m_txtInfo.name << std::endl;
 	asciiFile << m_psInfo.width << std::endl;
 	asciiFile << m_psInfo.heigth << std::endl;
 	asciiFile << m_psInfo.lifetime << std::endl;
@@ -235,6 +249,7 @@ void SpellLoader::SaveProjectileSpell(std::string name, SpellLoading::Projectile
     binaryFile.write((char*)& m_projectile, sizeof(SpellLoading::Projectile));
 	binaryFile.write((char*)& m_spellEvents, sizeof(SpellLoading::SpellEvents));
 	binaryFile.write((char*)& m_psInfo, sizeof(PSinfo));
+	binaryFile.write((char*)& m_textureName, sizeof(m_textureName));
 
 	binaryFile.close();
 	std::cout << "binary file done!" << std::endl;
