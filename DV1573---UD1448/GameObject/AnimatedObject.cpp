@@ -435,7 +435,7 @@ void AnimatedObject::playUpperAnimation(std::string name)
 
 void AnimatedObject::playLowerAnimation(std::string name)
 {
-	if (m_currentAnimationLower == name || m_isDone == false)
+	if (m_currentAnimationLower == name || m_once == true)
 	{
 		return;
 	}
