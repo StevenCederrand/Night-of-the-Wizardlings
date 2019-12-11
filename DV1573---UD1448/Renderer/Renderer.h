@@ -20,9 +20,8 @@
 #define H_BLUR "HorizontalBlur"
 //Rendering Options 
 #define FORWARDPLUS true;
-#define SSAO true;
-#define BLUR true;
-#define N_BLUR true; //Use naive blur?
+#define SSAO false; 
+#define N_BLUR false; //Use naive blur?
 
 //Number of SSAO kernels allowed in the system
 #define SSAO_KERNELS 32
