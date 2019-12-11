@@ -140,7 +140,6 @@ bool SettingState::onVSyncClicked(const CEGUI::EventArgs& e)
 
 bool SettingState::onvolumeChange(const CEGUI::EventArgs& e)
 {
-
 	m_volumeCurrent = m_sliderVolume->getCurrentValue();
 	//m_editBoxvolume->setText("volume: " + std::to_string(m_volumeCurrent));
 	m_textVolume->changeText("Volume: " + std::to_string(m_volumeCurrent));
