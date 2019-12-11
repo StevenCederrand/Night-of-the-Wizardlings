@@ -1214,8 +1214,6 @@ void Renderer::render() {
 	bindMatrixes(shader);
 
 	shader->setVec3("CameraPosition", m_camera->getCamPos());
-	//Add a step where we insert lights into the scene
-	shader->setInt("LightCount", m_spells.size());
 
 	//Render Deflect Objects
 	for (GameObject* object : m_enemyShieldObject)
