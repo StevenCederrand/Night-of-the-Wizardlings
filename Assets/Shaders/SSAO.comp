@@ -1,0 +1,117 @@
+//Compute shader for generating a ssao texture
+#version 430
+#define SSAO_KERNELS 32
+
+uniform sampler2D depthMap;
+uniform sampler2D noiseMap;
+
+//Used to place the depthmap value in world space
+uniform mat4 projMatrix;
+
+const float near = 0.1;
+const float far = 1500.0;
+
+const float base = 0.2;
+
+const float area = 0.00075;
+const float falloff = 0.000001;
+const float intensity = 1.0f;
+//Radius of the SSAO sphere
+const float radius = 0.07;
+const float m_base = 0.2;
+
+//SSAO kernels
+uniform vec3 kernels[SSAO_KERNELS];
+
+//Generalize this
+vec2 screenSize = vec2(1280.f, 720.f);
+
+//Output image position
+layout(rgba32f, binding = 0) uniform writeonly image2D img_output;
+
+vec3 normalFromDepth(float depth, vec2 coordinate);
+vec4 positionFromDepth(float depth, vec2 samplePos);
+vec3 reflection(vec3 v1,vec3 v2);
+//Compute shader layout
+layout(local_size_x = 16, local_size_y = 16) in;
+void main() {
+    ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
+    vec2 samplePos = vec2(pixel_coords) / screenSize;
+    float depth = texture(depthMap, samplePos).r;
+    //depth = (2.0 * 0.1f) / (far + near - depth * (far - near));
+
+    vec3 viewPosition = vec3(samplePos, depth);//positionFromDepth(depth, samplePos).xyz;        //Viewspace position
+    vec3 random = normalize(texture(noiseMap, samplePos).xyz);    //Random noise direction
+    vec3 normal = normalFromDepth(depth, samplePos).xyz;                //Estimated normal
+
+    float occlusion = 0.0f;
+    float radiusDepth = radius / depth;
+
+    for(int i = 0; i < SSAO_KERNELS; i++) {
+        vec3 ray = radius * reflection(kernels[i], random);
+        vec3 hemiRay = viewPosition + sign(dot(ray, normal)) * ray;
+        float occDepth = texture(depthMap, clamp(hemiRay.xy, 0.0, 1.0)).r;
+        float difference = depth - occDepth;
+
+        occlusion += step(falloff, difference) * (1.0 - smoothstep(falloff, area, difference));
+    }
+
+    float AO = 1.0 - intensity * occlusion * (1.0 / SSAO_KERNELS);
+  	float final = clamp(AO + base,0.0,1.0);
+
+    vec4 data = vec4(final, final, final, 1.0);//vec4(kernels[tileIndex % SSAO_KERNELS], 1);
+    //vec4(normalFromDepth(depth, samplePos), 1);
+    imageStore(img_output, ivec2(pixel_coords), data);
+}
+
+vec3 reflection(vec3 v1,vec3 v2)
+{
+    vec3 result = 2.0 * dot(v2, v1) * v2;
+    result = v1-result;
+    return result;
+}
+
+vec3 normalFromDepth(float depth, vec2 uv)
+{
+    vec2 offset1 = vec2( 0.0, 1.0 / screenSize.y) * 0.5;
+    vec2 offset2 = vec2( 1.0 / screenSize.x, 0.0) * 0.5;
+
+    float depth1 = texture(depthMap, uv + offset1).r;
+    float depth2 = texture(depthMap, uv + offset2).r;
+
+    vec3 p1 = vec3(offset1, depth1 - depth);
+    vec3 p2 = vec3(offset2, depth2 - depth);
+    /*vec3 p = positionFromDepth(depth, uv).xyz;
+    vec3 p1 = positionFromDepth(depth1, uv + offset1).xyz;
+    vec3 p2 = positionFromDepth(depth2, uv + offset2).xyz;*/
+
+    /*vec3 v1 = p1 - p;
+    vec3 v2 = p2 - p;*/
+
+    vec3 normal = cross(p1, p2);
+    normal.z = -normal.z;
+
+    return normalize(normal) * 0.5 + 0.5;
+}
+
+vec4 positionFromDepth(float depth, vec2 samplePos) {
+    float x = samplePos.x * 2 - 1;
+    float y = (1 - samplePos.y) * 2 - 1;
+    vec4 projectedPos = vec4(x, y, depth, 1.0);
+    vec4 viewPosition = inverse(projMatrix) * projectedPos;
+    return (viewPosition / viewPosition.w);
+
+}
+/*
+vec4 samplePos = vec4(viewPosition + normalize(kernels[i]), 1); //Get a random point as a vec4
+vec4 offset = projMatrix * samplePos; //Place the random point into clipspace
+offset.xy /= offset.w; //Perspective divide
+offset.xy = offset.xy * 0.5 + vec2(0.5); //[0, 1]
+
+float sampleDepth = positionFromDepth(depth, offset.xy).b;
+
+if (abs(viewPosition.z - sampleDepth) < sampleRadius) {
+    AO += step(sampleDepth, samplePos.z);
+}
+
+*/

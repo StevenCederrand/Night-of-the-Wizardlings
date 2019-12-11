@@ -5,7 +5,7 @@
 
 #define TILE_SIZE 16
 
-Renderer* Renderer::m_rendererInstance = 0;
+Renderer * Renderer::m_rendererInstance = 0;
 
 Renderer::Renderer()
 {
@@ -31,15 +31,96 @@ Renderer::Renderer()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+
+	//Initialize everything we need for SSAO
+#if SSAO 
+
+	//Generate SSAO Colour buffer
+	glGenTextures(1, &m_SSAOColourBuffer);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_SSAOColourBuffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glBindImageTexture(0, m_SSAOColourBuffer, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "SSAO Framebuffer not complete!" << std::endl;
+
+	//Generete SSAO kernels
+	std::uniform_real_distribution<float> randomFloats(0.0, 1.0);
+	std::default_random_engine generator;
+
+	for (int i = 0; i < SSAO_KERNELS; i++) {
+		float scale = (float)i / (float)(SSAO_KERNELS);
+		glm::vec3 v;
+		v.x = 2.0f * (float)rand() / RAND_MAX - 1.0f;
+		v.y = 2.0f * (float)rand() / RAND_MAX - 1.0f;
+		v.z = 2.0f * (float)rand() / RAND_MAX - 1.0f;
+		// Use an acceleration function so more points are
+		// located closer to the origin
+		v *= (0.1f + 0.9f * scale * scale);
+
+		m_SSAOKernels.push_back(v);
+	}
+
+	//Generate a noise texture
+	for (size_t i = 0; i < 256; i++)
+	{
+		glm::vec3 noise(randomFloats(generator) * 2.0 - 1.0, randomFloats(generator) * 2.0 - 1.0, 0.0f);
+		m_SSAONoise.push_back(noise);
+	}
+
+	glGenTextures(1, &m_SSAONoiseTexture);
+	glBindTexture(GL_TEXTURE_2D, m_SSAONoiseTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, 16, 16, 0, GL_RGB, GL_FLOAT, &m_SSAONoise[0]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	int work_grp_cnt[3];
+	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &work_grp_cnt[0]);
+	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, &work_grp_cnt[1]);
+	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, &work_grp_cnt[2]);
+
+	printf("max global (total) work group size x:%i y:%i z:%i\n",
+		work_grp_cnt[0], work_grp_cnt[1], work_grp_cnt[2]);
+	int work_grp_size[3];
+
+	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 0, &work_grp_size[0]);
+	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 1, &work_grp_size[1]);
+	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 2, &work_grp_size[2]);
+
+	printf("max local (in one shader) work group sizes x:%i y:%i z:%i\n",
+		work_grp_size[0], work_grp_size[1], work_grp_size[2]);
+#endif
+
+#if FORWARDPLUS
+	createDepthMap();
+#endif
+	initShaders();
+
 }
 
 Renderer::~Renderer()
 {
-	//delete m_bloom;
 	delete m_text;
 
 	if (deathBuffer)
 		delete deathBuffer;
+
+
+#if SSAO
+	glDeleteTextures(1, &m_SSAOColourBuffer);
+	glDeleteTextures(1, &m_SSAONoiseTexture);
+	glDeleteFramebuffers(1, &m_SSAOFBO);
+
+#endif
+
+#if FORWARDPLUS
+	glDeleteTextures(1, &m_depthMap);
+	glDeleteFramebuffers(1, &m_depthFBO);
+#endif
 }
 
 void Renderer::renderHUD()
@@ -143,51 +224,13 @@ void Renderer::renderAndAnimateNetworkingTexts()
 
 		NetGlobals::SERVER_STATE state = Client::getInstance()->getServerState().currentState;
 
-		
-		if (state == NetGlobals::SERVER_STATE::WaitingForPlayers) {
-
-			//int numberOfPlayersReady = Client::getInstance()->getNumberOfReadyPlayers();
-			//int numberOfPlayers = Client::getInstance()->getNumberOfPlayers();
-			//glm::vec3 scale = glm::vec3(0.55f);
-			//glm::vec3 baseColor = glm::vec3(1.0f);
-			//std::string numberOfReadyPlayersText = std::to_string(numberOfPlayersReady) + "/" + std::to_string(numberOfPlayers) + " players ready";
-			//if (!Client::getInstance()->isSpectating()) {
-			//	bool meReady = Client::getInstance()->getMyData().isReady;
-
-			//	std::string readyBase = "You are ";
-			//	std::string readyText = meReady ? "Ready" : "Not Ready";
-			//	glm::vec3 readyColor = meReady ? glm::vec3(0.0f, 1.0f, 0.0f) : glm::vec3(1.0f, 0.0f, 0.0f);
-
-
-			//	unsigned int readyBaseWidth = m_text->getTotalWidth(readyBase, scale);
-			//	unsigned int readyWidth = m_text->getTotalWidth(readyText, scale);
-			//	unsigned int totalWidth = readyBaseWidth + readyWidth;
-
-			//	m_text->RenderText(readyBase, (SCREEN_WIDTH / 2) - totalWidth * 0.5f, SCREEN_HEIGHT * 0.35f, scale.x, baseColor);
-			//	m_text->RenderText(readyText, (SCREEN_WIDTH / 2) - totalWidth * 0.5f + readyBaseWidth, SCREEN_HEIGHT * 0.35f, scale.x, readyColor);
-
-			//	if (meReady == false) {
-			//		glm::vec3 howtoScale = glm::vec3(0.35f);
-			//		std::string howToReadyText = "Press F1 to ready";
-			//		unsigned int width = m_text->getTotalWidth(howToReadyText, howtoScale);
-
-			//		m_text->RenderText(howToReadyText, (SCREEN_WIDTH / 2) - width * 0.5f, SCREEN_HEIGHT * 0.30f, howtoScale.x, baseColor);
-			//	}
-
-			//}
-
-			//unsigned int playersThatAreReadyWidth = m_text->getTotalWidth(numberOfReadyPlayersText, glm::vec3(0.40f));
-			////m_text->RenderText(numberOfReadyPlayersText, (SCREEN_WIDTH / 2) - playersThatAreReadyWidth * 0.5f, SCREEN_HEIGHT * 0.92f, 0.40f, baseColor);
-
-		}
-
 		if (Client::getInstance()->isSpectating() == false) {
 
 			if (Client::getInstance()->getMyData().health == 0) {
 				std::string timeText = "Respawn in " + std::to_string(Client::getInstance()->getRespawnTime().timeLeft / 1000) + " seconds";
 				unsigned int width = m_text->getTotalWidth(timeText, glm::vec3(0.8f));
 				m_text->RenderText(timeText, (SCREEN_WIDTH / 2) - width * 0.5f, 480.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
-			}  
+			}
 
 		}
 		else {
@@ -275,7 +318,7 @@ void Renderer::renderKillFeed()
 
 		NotificationText& notification = m_killFeed[i];
 
-		float xPos = (float)((SCREEN_WIDTH) - notification.width - 25.0f);
+		float xPos = (float)((SCREEN_WIDTH)-notification.width - 25.0f);
 		float yPos = (float)(SCREEN_HEIGHT - ((60.0f * notification.scale.x) * (i + 1)));
 
 		m_text->RenderText(notification, glm::vec3(xPos, yPos, 0.0f), glm::vec2(notification.scale), notification.useAlpha);
@@ -298,7 +341,7 @@ void Renderer::renderKillFeed()
 		NotificationText& notification = m_killNotification[i];
 
 		float xPos = (float)((SCREEN_WIDTH / 2) - (notification.width / 2.0f));
-		float yPos = (float)((SCREEN_HEIGHT / 2) - ((90.0f * notification.scale.x) * (i + 1)));
+		float yPos = (float)((SCREEN_HEIGHT / 2) - ((100.0f * notification.scale.x) * (i + 1)));
 
 		m_text->RenderText(notification, glm::vec3(xPos, yPos, 0.0f), glm::vec2(notification.scale), notification.useAlpha);
 
@@ -341,52 +384,51 @@ void Renderer::createDepthMap() {
 	glGenRenderbuffers(1, &m_rbo);
 	glBindRenderbuffer(GL_RENDERBUFFER, m_rbo);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCREEN_WIDTH, SCREEN_HEIGHT);
-
-	//Inits the shaders for forward+
-	initShaders();
 }
 
 void Renderer::initShaders() {
-	ShaderMap::getInstance()->createShader(DEPTH_MAP, "Depth.vert", "Depth.frag");
+	ShaderMap* shaderMap = ShaderMap::getInstance();
+	Shader* shader;
+	shaderMap->createShader(DEPTH_MAP, "Depth.vert", "Depth.frag");
 	//Set the light index binding
-	ShaderMap::getInstance()->createShader(LIGHT_CULL, "LightCullCompute.comp");
-	ShaderMap::getInstance()->useByName(LIGHT_CULL);
+#if FORWARDPLUS
+	shaderMap->createShader(LIGHT_CULL, "LightCullCompute.comp");
+	shaderMap->useByName(LIGHT_CULL);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
-	ShaderMap::getInstance()->createShader(BASIC_FORWARD, "VertexShader.vert", "FragShader.frag");
-	ShaderMap::getInstance()->createShader(ANIMATION, "Animation.vert", "FragShader.frag");
-	ShaderMap::getInstance()->createShader("Skybox_Shader", "Skybox.vs", "Skybox.fs");
-	ShaderMap::getInstance()->getShader("Skybox_Shader")->setInt("skyBox", 4);	
-	ShaderMap::getInstance()->createShader(FRESNEL, "FresnelFX.vert", "FresnelFX.frag");
-	ShaderMap::getInstance()->createShader(ENEMYSHIELD, "FresnelFX.vert", "EnemyShield.frag");
-	ShaderMap::getInstance()->createShader(TRANSPARENT, "TransparentRender.vert", "TransparentRender.frag");
-	ShaderMap::getInstance()->createShader(WHUD, "WorldHud.vs", "WorldHud.fs");
+#endif
 
-	/*=====================================================*/
-	/*ShaderMap::getInstance()->createShader(BLOOM, "Bloom.vs", "Bloom.fs");
-	ShaderMap::getInstance()->useByName(BLOOM);
-	ShaderMap::getInstance()->getShader(BLOOM)->setInt("albedoTexture", 0);
-
-	ShaderMap::getInstance()->createShader(BLUR, "Blur.vs", "Blur.fs");
-	ShaderMap::getInstance()->useByName(BLUR);
-	ShaderMap::getInstance()->getShader(BLUR)->setInt("brightImage", 0);
-
-	ShaderMap::getInstance()->createShader(BLOOM_BLUR, "BloomBlur.vs", "BloomBlur.fs");
-	ShaderMap::getInstance()->useByName(BLOOM_BLUR);
-	ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("sceneImage", 0);
-	ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("bloomImage", 1);*/
+#if SSAO
+	//Init the compute shader
+	shader = shaderMap->createShader(SSAO_RAW, "SSAO.comp");
+	shader->use();
+	shader->setInt("depthMap", 0);
+	shader->setInt("noiseMap", 1);
+#endif
+#if BLUR 
+	shaderMap->createShader(V_BLUR, "Blur/VerticalBlur.comp");		
+	shaderMap->createShader(H_BLUR, "Blur/HorizontalBlur.comp");
+#endif
+#if N_BLUR
+	shaderMap->createShader(NAIVE_BLUR, "Blur/Blur.comp");
+#endif
+	//Set the light index binding
+	shaderMap->createShader(BASIC_FORWARD, "VertexShader.vert", "FragShader.frag");
+	shaderMap->createShader(ANIMATION, "Animation.vert", "FragShader.frag");
+	shaderMap->createShader(SKYBOX, "Skybox.vs", "Skybox.fs");
+	shaderMap->getShader(SKYBOX)->setInt("skyBox", 4);
+	shaderMap->createShader(FRESNEL, "FresnelFX.vert", "FresnelFX.frag");
+	shaderMap->createShader(ENEMYSHIELD, "FresnelFX.vert", "EnemyShield.frag");
+	shaderMap->createShader(WHUD, "WorldHud.vs", "WorldHud.fs");
+	shaderMap->createShader(TRANSPARENT, "TransparentRender.vert", "TransparentRender.frag");
 	m_text = new FreeType();
 	m_text->BindTexture();
-	//m_bloom = new BloomBlur;
-	//m_bloom->createHdrFBO();
-	//m_bloom->createPingPingFBO();
-	/*=====================================================*/
 
 	/* Hud */
-	auto* shader = ShaderMap::getInstance()->createShader(HUD, "HUD.vs", "HUD.fs");
+	shader = ShaderMap::getInstance()->createShader(HUD, "HUD.vs", "HUD.fs");
 	shader->use();
 	shader->setInt("textureSampler", 0);
 
-	ShaderMap::getInstance()->createShader(PARTICLES, "Particles.vs", "Particles.gs", "Particles.fs");
+	shaderMap->createShader(PARTICLES, "Particles.vs", "Particles.gs", "Particles.fs");
 
 	initializeParticle();
 }
@@ -431,14 +473,14 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 	TextureInfo smoke;
 	smoke.name = "Assets/Textures/Spell_2.png";
 
-	if (objType == RENDER_TYPE::STATIC) 
+	if (objType == RENDER_TYPE::STATIC)
 	{
 		//gameObject->addParticle(deathBuffer);
 		m_staticObjects.emplace_back(gameObject);
 		//m_staticObjects[0]->addParticle(deathBuffer);
 		//gameObject->addParticle(deathBuffer);
 	}
-	else if (objType == RENDER_TYPE::SPELL) 
+	else if (objType == RENDER_TYPE::SPELL)
 	{
 		/* Place the light in the lights list */
 		PLIGHT light;
@@ -446,7 +488,7 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 		light.color = glm::vec3(1.0f);
 		light.index = m_spells.size();
 		m_spells.emplace_back(gameObject);
-	
+
 		Spell* spell = dynamic_cast<Spell*>(gameObject);
 		if (spell == nullptr) return;
 
@@ -454,12 +496,14 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 		{
 			light.attenAndRadius = m_spellHandler->getSpellBase(NORMALATTACK)->m_attenAndRadius;
 			light.color = m_spellHandler->getSpellBase(NORMALATTACK)->m_material->diffuse;
+			light.strength = m_spellHandler->getSpellBase(NORMALATTACK)->m_strength;
 		}
 
 		else if (spell->getType() == OBJECT_TYPE::ENHANCEATTACK)
 		{
 			light.attenAndRadius = m_spellHandler->getSpellBase(ENHANCEATTACK)->m_attenAndRadius;
 			light.color = m_spellHandler->getSpellBase(ENHANCEATTACK)->m_material->diffuse;
+			light.strength = m_spellHandler->getSpellBase(ENHANCEATTACK)->m_strength;
 		}
 
 		else if (spell->getType() == OBJECT_TYPE::FIRE)
@@ -467,14 +511,16 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 			light.position.y += 2.0f;
 			light.attenAndRadius = m_spellHandler->getSpellBase(FIRE)->m_attenAndRadius;
 			light.color = m_spellHandler->getSpellBase(FIRE)->m_material->diffuse;
+			light.strength = m_spellHandler->getSpellBase(FIRE)->m_strength;
 		}
 
 		else if (spell->getType() == OBJECT_TYPE::FLAMESTRIKE)
 		{
 			light.attenAndRadius = m_spellHandler->getSpellBase(FLAMESTRIKE)->m_attenAndRadius;
 			light.color = m_spellHandler->getSpellBase(FLAMESTRIKE)->m_material->diffuse;
+			light.strength = m_spellHandler->getSpellBase(FLAMESTRIKE)->m_strength;
 		}
-		
+
 		m_lights.emplace_back(light);
 	}
 	else if (objType == RENDER_TYPE::DYNAMIC) {
@@ -506,8 +552,9 @@ void Renderer::submit(GameObject* gameObject, RENDER_TYPE objType)
 		light.position = gameObject->getObjectTransform().position;
 		light.color = lightRef->getColor();
 		light.attenAndRadius = lightRef->getAttenuationAndRadius(); //First 3 dims are for the attenuation, final 4th is for radius
+		light.strength = lightRef->getStrength();
 		light.index = -2;
-		
+
 		m_lights.emplace_back(light);
 	}
 }
@@ -549,7 +596,7 @@ void Renderer::submitWorldHud(WorldHudObject* wHud)
 		newVec.reserve(5);
 		newVec.emplace_back(wHud);
 		m_worldHudMap[wHud->getTextureID()] = newVec;
-		
+
 	}
 }
 
@@ -681,7 +728,7 @@ void Renderer::destroy()
 void Renderer::renderSkybox()
 {
 	glDisable(GL_CULL_FACE);
-	
+
 	//glDepthMask(GL_FALSE);
 	glDepthFunc(GL_LEQUAL);
 	auto* shader = ShaderMap::getInstance()->useByName("Skybox_Shader");
@@ -700,6 +747,50 @@ void Renderer::renderSkybox()
 	glEnable(GL_CULL_FACE);
 }
 
+void Renderer::renderDepthmap() {
+	Shader* shader = ShaderMap::getInstance()->useByName(DEPTH_MAP);
+	glm::mat4 modelMatrix;
+	Mesh* mesh = nullptr;
+	//Bind and draw the objects to the depth-buffer
+	bindMatrixes(shader);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_depthFBO);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	//Loop through all of the static Gameobjects
+	for (GameObject* object : m_staticObjects)
+	{
+		if (object == nullptr) {
+			continue;
+		}
+
+		if (!object->getShouldRender()) {
+			continue;
+		}
+
+		//Then through all of the meshes
+		for (int j = 0; j < object->getMeshesCount(); j++)
+		{
+			glEnableVertexAttribArray(0);
+			modelMatrix = glm::mat4(1.0f);
+			//Fetch the current mesh and its transform
+			mesh = object->getMesh(j);
+
+			modelMatrix = object->getMatrix(j);
+
+			glBindVertexArray(mesh->getBuffers().vao);
+
+			//Bind the modelmatrix
+			shader->setMat4("modelMatrix", modelMatrix);
+
+			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+
+			glBindVertexArray(0);
+			glDisableVertexAttribArray(0);
+		}
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	m_renderedDepthmap = true;
+}
+
 void Renderer::render() {
 	Mesh* mesh = nullptr;
 	Transform transform;
@@ -708,122 +799,25 @@ void Renderer::render() {
 	MeshMap* meshMap = MeshMap::getInstance();
 	ShaderMap* shaderMap = ShaderMap::getInstance();
 	Material* material = nullptr;
-	
-	
-#pragma region Depth_Render & Light_Cull
+	//We always assume that we haven't rendered a depthmap
+	m_renderedDepthmap = false; //This is set to true in renderDepthmap()
+
+
+#if FORWARDPLUS	
 	if (m_lights.size() > 0) {
-		shader = shaderMap->useByName(DEPTH_MAP);
+		renderDepthmap();
+	}
+#endif
 
-		//Bind and draw the objects to the depth-buffer
-		bindMatrixes(shader);
-		glBindFramebuffer(GL_FRAMEBUFFER, m_depthFBO);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		//Loop through all of the gameobjects
-		for (GameObject* object : m_staticObjects)
-		{
-			if (object == nullptr) {
-				continue;
-			}
+#if SSAO
+	if (!m_renderedDepthmap) {
+		renderDepthmap();
+	}
+#endif
 
-			if (!object->getShouldRender()) {
-				continue;
-			}
-
-			//Then through all of the meshes
-			for (int j = 0; j < object->getMeshesCount(); j++)
-			{
-				glEnableVertexAttribArray(0);
-				modelMatrix = glm::mat4(1.0f);
-				//Fetch the current mesh and its transform
-				mesh = object->getMesh(j);
-
-				modelMatrix = object->getMatrix(j);
-
-				glBindVertexArray(mesh->getBuffers().vao);
-
-				//Bind the modelmatrix
-				shader->setMat4("modelMatrix", modelMatrix);
-
-				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
-				glBindVertexArray(0);
-				glDisableVertexAttribArray(0);
-			}
-		}
-
-		//Animated static objects
-		//TODO: Consider animation for the depth shader
-		for (GameObject* object : m_anistaticObjects)
-		{
-			if (object == nullptr) {
-				continue;
-			}
-
-			if (!object->getShouldRender()) {
-				continue;
-			}
-
-			//Then through all of the meshes
-			for (int j = 0; j < object->getMeshesCount(); j++)
-			{
-				glEnableVertexAttribArray(0);
-				modelMatrix = glm::mat4(1.0f);
-				//Fetch the current mesh and its transform
-
-				mesh = object->getMesh(j);
-
-				modelMatrix = object->getMatrix(j);
-
-				glBindVertexArray(mesh->getBuffers().vao);
-
-				//Bind the modelmatrix
-				shader->setMat4("modelMatrix", modelMatrix);
-
-				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
-				glBindVertexArray(0);
-				glDisableVertexAttribArray(0);
-			}
-		}
-
-		for (GameObject* object : m_pickups)
-		{
-			if (object == nullptr) {
-				continue;
-			}
-
-			if (!object->getShouldRender()) {
-				continue;
-			}
-
-			Pickup* p = dynamic_cast<Pickup*>(object);
-
-			//Then through all of the meshes
-			for (int j = 0; j < object->getMeshesCount(); j++)
-			{
-				glEnableVertexAttribArray(0);
-				modelMatrix = glm::mat4(1.0f);
-				//Fetch the current mesh and its transform
-
-				mesh = p->getRenderInformation().mesh;
-
-				modelMatrix = object->getMatrix(j);
-
-				glBindVertexArray(mesh->getBuffers().vao);
-
-				//Bind the modelmatrix
-				shader->setMat4("modelMatrix", modelMatrix);
-
-				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
-				glBindVertexArray(0);
-				glDisableVertexAttribArray(0);
-			}
-		}
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-#pragma region Light_Culling
+#if FORWARDPLUS
+	//Light Culling from the compute shader
+	if (m_lights.size() > 0) {
 		shader = shaderMap->useByName(LIGHT_CULL);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
 		bindMatrixes(shader);
@@ -834,7 +828,7 @@ void Renderer::render() {
 
 		//Bind the depthmap
 		glActiveTexture(GL_TEXTURE0);
-		shader->setInt("depthMap", 0); //Not sure if this has to happen every frame
+		shader->setInt("depthMap", 0);
 		glBindTexture(GL_TEXTURE_2D, m_depthMap);
 
 		//Send all of the light data into the compute shader
@@ -845,25 +839,57 @@ void Renderer::render() {
 
 		glDispatchCompute(workGroups.x, workGroups.y, 1);
 
-		glMemoryBarrier(GL_SHADER_STORAGE_BUFFER);
-		//Unbind the depth
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+		//Unbind the depth & noise
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, 0);
-#pragma endregion
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+#endif
+
+#if SSAO
+	//Here we dispatch the SSAO compute shader
+	shader = shaderMap->useByName(SSAO_RAW);
+	glActiveTexture(GL_TEXTURE0);
+	//bindMatrixes(shader);	//Bind view and projection matrix
+	glBindTexture(GL_TEXTURE_2D, m_depthMap);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, m_SSAONoiseTexture);
+
+	for (size_t i = 0; i < m_SSAOKernels.size(); i++)
+	{
+		//Assign the kernels
+		shader->setVec3("kernels[" + std::to_string(i) + "]", m_SSAOKernels[i]);
 	}
 
-	renderSkybox();
-	
-	
-	//BLOOMBLUR MISSION STEP 1: SAMPLE
-	//m_bloom->bindHdrFBO();
+	glBindImageTexture(0, m_SSAOColourBuffer, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F); //Bind the image unit
 
-#ifdef DEBUG_WIREFRAME
-	// DEBUG (MOSTLY FOR DSTR)
-	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_M) == GLFW_PRESS)
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_N) == GLFW_PRESS)
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glDispatchCompute(workGroups.x, workGroups.y, 1);
+	glMemoryBarrier(GL_TEXTURE_UPDATE_BARRIER_BIT);
+	glBindTexture(GL_TEXTURE_2D, 0);
+#if N_BLUR //Naive blurring
+	shader = shaderMap->useByName(NAIVE_BLUR);
+	glBindImageTexture(0, m_SSAOColourBuffer, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+	glDispatchCompute(workGroups.x, workGroups.y, 1);
+	glMemoryBarrier(GL_TEXTURE_UPDATE_BARRIER_BIT);
+#endif
+#if BLUR //More efficiant blurring
+	//Blur Horizontally
+	shader = shaderMap->useByName(H_BLUR);
+	glBindImageTexture(0, m_SSAOColourBuffer, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F); //Bind the image unit
+	glDispatchCompute(2, 1, 1); //Dispatch 2 - xAxis workgroups
+	glMemoryBarrier(GL_TEXTURE_UPDATE_BARRIER_BIT);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	//Blur Vertically
+	shader = shaderMap->useByName(V_BLUR);
+	glBindImageTexture(0, m_SSAOColourBuffer, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F); //Bind the image unit
+	glDispatchCompute(1, 1, 1); //Because of our resolution we can comfortably dipatch one group of threads
+	glMemoryBarrier(GL_TEXTURE_UPDATE_BARRIER_BIT);
+	glBindTexture(GL_TEXTURE_2D, 0);
+#endif
+
 #endif
 
 #pragma region Color_Render
@@ -882,24 +908,31 @@ void Renderer::render() {
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
 	shader->setVec3("CameraPosition", m_camera->getCamPos());
 	//Add a step where we insert lights into the scene
+
 	shader->setInt("LightCount", m_lights.size());
+	shader->setInt("SSAO", 0);
 
 	if (m_lights.size() > 0) {
 		std::string iConv = "";
 		for (size_t i = 0; i < m_lights.size(); i++) {
 			iConv = std::to_string(i);
-			
+
 			if (m_lights[i].index != -2) {
 				shader->setVec3("pLights[" + std::to_string(i) + "].position", m_spells[m_lights[i].index]->getObjectTransform().position);
 			}
 			else {
 				shader->setVec3("pLights[" + std::to_string(i) + "].position", m_lights[i].position);
 			}
-			
 			shader->setVec3("pLights[" + iConv + "].color", m_lights[i].color);
 			shader->setVec4("pLights[" + iConv + "].attenAndRadius", m_lights[i].attenAndRadius);
+			shader->setFloat("pLights[" + iConv + "].strength", m_lights[i].strength);
 		}
 	}
+
+#if SSAO 
+	shader->setInt("SSAO", 1);
+	glBindImageTexture(0, m_SSAOColourBuffer, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+#endif
 
 	//Render Static objects
 	for (GameObject* object : m_staticObjects)
@@ -923,7 +956,8 @@ void Renderer::render() {
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
 			glEnableVertexAttribArray(2);
-			mesh = object->getMesh(j);
+			glEnableVertexAttribArray(3);
+			mesh = object->getMesh(j);			
 
 			//Bind the material
 			object->bindMaterialToShader(shader, j);
@@ -939,12 +973,12 @@ void Renderer::render() {
 			glDisableVertexAttribArray(0);
 			glDisableVertexAttribArray(1);
 			glDisableVertexAttribArray(2);
-
+			glDisableVertexAttribArray(3);			
 		}
 		object->RenderParticles(m_camera);
 		//object->getTransform().position
 	}
-
+	shader->setInt("SSAO", 0);
 	shader->clearBinding();
 	//Dynamic objects
 	if (m_dynamicObjects.size() > 0) {
@@ -964,6 +998,7 @@ void Renderer::render() {
 				glEnableVertexAttribArray(0);
 				glEnableVertexAttribArray(1);
 				glEnableVertexAttribArray(2);
+				glEnableVertexAttribArray(3);
 				mesh = object->getMesh(j);
 				//Bind the material
 				object->bindMaterialToShader(shader, j);
@@ -979,6 +1014,7 @@ void Renderer::render() {
 				glDisableVertexAttribArray(0);
 				glDisableVertexAttribArray(1);
 				glDisableVertexAttribArray(2);
+				glDisableVertexAttribArray(3);
 			}
 		}
 	}
@@ -999,6 +1035,7 @@ void Renderer::render() {
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
 			glEnableVertexAttribArray(2);
+			glEnableVertexAttribArray(3);
 
 			Pickup* p = dynamic_cast<Pickup*>(object);
 
@@ -1023,6 +1060,7 @@ void Renderer::render() {
 			glDisableVertexAttribArray(0);
 			glDisableVertexAttribArray(1);
 			glDisableVertexAttribArray(2);
+			glDisableVertexAttribArray(3);
 		}
 	}
 	shader->clearBinding();
@@ -1163,29 +1201,6 @@ void Renderer::render() {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 #endif
 
-	//ShaderMap::getInstance()->useByName(BLUR);
-	//ShaderMap::getInstance()->getShader(BLUR)->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
-	//m_bloom->blurIteration(0);
-	//for (unsigned int i = 0; i < m_bloom->getAmount() - 1; i++)
-	//{
-	//	ShaderMap::getInstance()->getShader(BLUR)->setInt("horizontal", m_bloom->getHorizontal() ? 1 : 0);
-	//	m_bloom->blurIteration(1);
-	//}
-	//m_bloom->unbindTextures();
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	//ShaderMap::getInstance()->useByName(BLOOM_BLUR);
-	//If the client is dead
-	//
-	//if (Client::getInstance()->getMyData().health <= 0) {
-	//	ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("grayscale", 1);
-	//}
-	//else {
-	//	ShaderMap::getInstance()->getShader(BLOOM_BLUR)->setInt("grayscale", 0);
-	//}
-	//m_bloom->sendTextureLastPass();
-	//m_bloom->renderQuad();
-	//m_bloom->unbindTextures();
-
 #pragma region Enemy_Deflect_Render
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1236,14 +1251,14 @@ void Renderer::render() {
 #pragma endregion
 
 #pragma region Deflect_Render
-	if (m_shieldObject->getShouldRender())
+	if (m_shieldObject != nullptr && m_shieldObject->getShouldRender())
 	{
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glDepthFunc(GL_LEQUAL);
 		shader = shaderMap->useByName(FRESNEL);
 		bindMatrixes(shader);
-	
+
 		mesh = m_shieldObject->getMesh();
 		m_shieldObject->bindMaterialToShader(shader);
 
@@ -1262,18 +1277,20 @@ void Renderer::render() {
 	}
 #pragma endregion
 
+	renderSkybox();
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	TextRenderer::getInstance()->renderText();
+	
 
 	renderWorldHud();
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	glEnable(GL_BLEND);
-	
+
 	glDisable(GL_CULL_FACE);
-	
+
 	renderAndAnimateNetworkingTexts();
 	renderBigNotifications();
 	renderKillFeed();

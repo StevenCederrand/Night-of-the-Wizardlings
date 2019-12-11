@@ -9,15 +9,15 @@ LocalServer::LocalServer()
 	m_roundTimer = NetGlobals::GameRoundTimeMS;
 
 	m_timedCountdownTimer.setTotalExecutionTime(NetGlobals::WarmupCountdownTimeMS);
-	m_timedCountdownTimer.setExecutionInterval(1000);
+	m_timedCountdownTimer.setExecutionInterval(100);
 	m_timedCountdownTimer.registerCallback(std::bind(&LocalServer::countdownExecutionLogic, this));
 
 	m_timedRunTimer.setTotalExecutionTime(NetGlobals::GameRoundTimeMS);
-	m_timedRunTimer.setExecutionInterval(1000);
+	m_timedRunTimer.setExecutionInterval(100);
 	m_timedRunTimer.registerCallback(std::bind(&LocalServer::roundTimeExecutionLogic, this));
 
 	m_timedGameInEndStateTimer.setTotalExecutionTime(NetGlobals::InGameEndStateTimeMS);
-	m_timedGameInEndStateTimer.setExecutionInterval(1000);
+	m_timedGameInEndStateTimer.setExecutionInterval(100);
 	m_timedGameInEndStateTimer.registerCallback(std::bind(&LocalServer::endGameTimeExecutionLogic, this));
 
 	m_timedPickupSpawner.setTotalExecutionTime(NetGlobals::GameRoundTimeMS);
@@ -338,7 +338,7 @@ void LocalServer::processAndHandlePackets()
 
 			// Lastly, add the new player to the local list of connected players
 			m_connectedPlayers.emplace_back(player);
-
+					
 			// Update the general server information.
 			m_serverInfo.connectedPlayers++;
 			m_serverPeer->SetOfflinePingResponse((const char*)&m_serverInfo, sizeof(ServerInfo));
@@ -350,8 +350,8 @@ void LocalServer::processAndHandlePackets()
 			statePacket.currentState = m_serverInfo.currentState;
 			statePacket.Serialize(true, stateStream);
 			m_serverPeer->Send(&stateStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, packet->systemAddress, false);
-
-			sendReadyInfoToPlayer(&player);
+			sendReadyInfoToAllPlayers();
+			//sendReadyInfoToPlayer(&player);
 
 			break;
 		}
@@ -1083,6 +1083,7 @@ void LocalServer::countdownExecutionLogic()
 	stream.Write((RakNet::MessageID)GAME_START_COUNTDOWN);
 	CountdownPacket countdownPacket;
 	countdownPacket.timeLeft = static_cast<uint32_t>(m_timedCountdownTimer.getTimeLeft());
+	//printf("Timer: %f\n", m_timedCountdownTimer.getTimeLeft());
 	countdownPacket.Serialize(true, stream);
 	sendStreamToAllClients(stream);
 }

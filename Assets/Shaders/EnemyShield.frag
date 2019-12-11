@@ -30,6 +30,7 @@ uniform vec3 Ambient_Color;
 uniform vec3 Diffuse_Color;
 uniform vec3 Specular_Color;
 uniform vec2 TexAndRim;
+uniform bool NormalMapping;
 uniform float time;
 
 uniform int LightCount;
@@ -41,7 +42,7 @@ uniform P_LIGHT pLights[LIGHTS_MAX];
 vec3 calcDirLight(vec3 normal, vec3 diffuseColor);
 vec2 rotate(float magnitude, vec2 p);
 
-void main() {
+void main() {	
     vec3 pivot = vec3(0.5, -0.5, 1.);
     vec2 p = f_UV - pivot.xy;
     p = rotate(3.14 * time * 0.1, p);
@@ -67,6 +68,7 @@ void main() {
     vec3 ambientHolder = Ambient_Color;
     int lightHolder = LightCount;
     vec3 cameraHolder = CameraPosition;
+	bool normalMapHolder = NormalMapping;
     //-------------------------
 
     vec3 viewDir = normalize(cameraHolder - f_position.xyz);

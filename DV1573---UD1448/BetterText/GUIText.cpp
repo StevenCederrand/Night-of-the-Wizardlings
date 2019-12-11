@@ -74,7 +74,6 @@ void GUIText::setPosition(const glm::vec3 position)
 
 void GUIText::rotateTowardsCamera(Camera* camera)
 {
-	glm::vec3 dir = glm::normalize(m_position - camera->getCamPos());
 	m_rotationMatrix = glm::inverse(glm::lookAt(glm::vec3(0.0f), camera->getCamFace(), glm::vec3(0, 1, 0)));
 }
 
@@ -179,16 +178,17 @@ const std::string& GUIText::getText() const
 }
 
 void GUIText::updateModelMatrix()
-{
-	glm::vec3 pivot = glm::vec3(0.0f, 1.0f + (m_position.y), 0.0f);
+{	
+	glm::vec3 pivot = glm::vec3(m_position.x , m_position.y + 1.0f , m_position.z);
 	glm::mat4 transToOrigin = glm::translate(glm::mat4(1.0f), -pivot);
 	glm::mat4 transFromOrigin = glm::translate(glm::mat4(1.0f), +pivot);
-	glm::mat4 scaleTrans = glm::scale(glm::mat4(1.0f), glm::vec3(m_scale, m_scale, 0.0f));
+	glm::mat4 scaleTrans = glm::scale(glm::mat4(1.0f), glm::vec3(m_scale, m_scale, 1.0f));
 
 	m_modelMatrix = glm::mat4(1.0f);
 	m_modelMatrix = transFromOrigin * scaleTrans * transToOrigin;
-	m_modelMatrix = glm::translate(m_modelMatrix, glm::vec3(m_position));
-	m_modelMatrix = m_modelMatrix * m_rotationMatrix;
+	
+	m_modelMatrix = glm::translate(m_modelMatrix, m_position);
+	m_modelMatrix = m_modelMatrix *  m_rotationMatrix;
 
 }
 

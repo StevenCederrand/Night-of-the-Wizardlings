@@ -14,7 +14,7 @@ Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera, Spell
 	m_firstPersonMesh->initAnimations("RunAnimation", 116.0f, 136.0f);
 	m_firstPersonMesh->initAnimations("IdleAnimation", 19.0f, 87.0f);
 	m_firstPersonMesh->initAnimations("DeflectAnimation", 154.0f, 169.0f);
-	Renderer::getInstance()->submit(m_firstPersonMesh, ANIMATEDSTATIC);
+	Renderer::getInstance()->submit(m_firstPersonMesh, ANIMATEDSTATIC);	
 
 	// Player shield
 	m_shieldObject = new ShieldObject("playerShield");
@@ -328,30 +328,27 @@ void Player::attack()
 		{
 			if (!m_deflecting) // Initial cast
 			{
-				m_deflectSoundGain = 1.0f; // Will automatically be set to master volume
+				m_deflectSoundGain = shPtr->getMasterVolume(); // Will automatically be set to master volume
 				m_mana -= m_deflectManaDrain; 
 				shPtr->playSound(DeflectSound, m_client->getMyData().guid);
 				shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
+				m_deflecting = true;
 			}
 			else // Looping state
 			{
 				m_mana -= m_deflectManaDrain * DeltaTime;			
 			}
-
-			m_deflecting = true;
 		}
 		else // No mana but trying to cast
 		{ 
-			m_deflecting = false;
-
 			//Fade out deflect sound
-			m_deflectSoundGain -= 3.0f * DeltaTime;
+			m_deflectSoundGain -= 3.0f * shPtr->getMasterVolume() * DeltaTime;
 			if (m_deflectSoundGain > 0.0f)
 			{				
 				shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
 			}
 			else
-			{
+			{				
 				shPtr->stopSound(DeflectSound, m_client->getMyData().guid);				
 			}
 		}
@@ -359,16 +356,15 @@ void Player::attack()
 	}
 	else if(m_deflecting) // Not holding RMB but in deflect state
 	{	
-		//shPtr->stopSound(DeflectSound, m_client->getMyData().guid);
 		//Fade out deflect sound
-		m_deflectSoundGain -= 3.0f * DeltaTime;
+		m_deflectSoundGain -= 3.0f * shPtr->getMasterVolume() * DeltaTime;
 		if (m_deflectSoundGain > 0.0f)
 		{
 			shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
 		}
 		else
 		{
-			m_deflectSoundGain = 1.0f; // Will automatically be set to master volume			
+			m_deflectSoundGain = shPtr->getMasterVolume(); // Will automatically be set to master volume			
 
 			for (int i = 0; i < NR_OF_SUBSEQUENT_SOUNDS; i++)
 			{
@@ -424,10 +420,8 @@ void Player::attack()
 
 	if (Input::isMouseReleased(GLFW_MOUSE_BUTTON_RIGHT)) {
 		animState.deflecting = false;
-		m_rMouse = false;
-		//m_deflecting = false;
+		m_rMouse = false;		
 	}
-
 
 	// Update our shield for the renderer
 	m_shieldObject->setShouldRender(m_deflecting);

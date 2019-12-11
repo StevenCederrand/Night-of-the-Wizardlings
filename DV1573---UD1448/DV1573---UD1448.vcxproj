@@ -112,6 +112,7 @@
       <PrecompiledHeaderFile>Pch/Pch.h</PrecompiledHeaderFile>
       <PreprocessToFile>false</PreprocessToFile>
       <AdditionalIncludeDirectories>C:\Users\Nicolas Wallenskog\Documents\GitHub\DV1573---UD1448\dependencies\include\freetype;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -150,6 +151,7 @@
       <PrecompiledHeaderFile>Pch/Pch.h</PrecompiledHeaderFile>
       <PreprocessToFile>false</PreprocessToFile>
       <AdditionalIncludeDirectories>C:\Users\Nicolas Wallenskog\Documents\GitHub\DV1573---UD1448\dependencies\include\freetype;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
