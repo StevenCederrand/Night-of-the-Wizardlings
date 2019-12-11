@@ -737,10 +737,28 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 		hitConfirmedPacket.Serialize(true, hitmarkStream);
 		m_serverPeer->Send(&hitmarkStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, shooter->guid, false);
 
+
 		float totalDamage = hitpacket->damage;
+		
+		//Add the damage done to your total damage if targets health is equal or more 
+		//otherwise add the remaining health. Don't do it if you do dmg to yourself
+		if (target->position != shooter->position)
+		{
+			if (target->health < static_cast<int>(totalDamage))
+				shooter->numberOfDamage += target->health;
+		
+			else
+				shooter->numberOfDamage += static_cast<int>(totalDamage);
+
+
+			RakNet::BitStream Damage;
+			Damage.Write((RakNet::MessageID)SCORE_UPDATE);
+			shooter->Serialize(true, Damage);
+			m_serverPeer->Send(&Damage, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, shooter->guid, false);
+		}
+
 
 		target->health -= static_cast<int>(totalDamage);
-
 		target->lastHitByGuid = hitpacket->CreatorGUID;
 
 		if (target->health <= 0) {
@@ -1040,6 +1058,7 @@ void LocalServer::resetScores()
 	{
 		m_connectedPlayers[i].numberOfDeaths = 0;
 		m_connectedPlayers[i].numberOfKills = 0;
+		m_connectedPlayers[i].numberOfDamage = 0;
 
 		RakNet::BitStream stream;
 		stream.Write((RakNet::MessageID)SCORE_UPDATE);

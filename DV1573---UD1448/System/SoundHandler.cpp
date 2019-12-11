@@ -8,6 +8,7 @@ SoundHandler::SoundHandler()
 {	
 	m_nrOfPlayers = 1;	
 	
+	
 	m_buffersClient.resize(NR_OF_CLIENT_SOUNDS);	
 	m_buffersCommon.resize(NR_OF_COMMON_SOUNDS);
 	m_clientSoundInfo.sources.resize(NR_OF_CLIENT_SOUNDS);
@@ -61,6 +62,8 @@ SoundHandler::SoundHandler()
 	setSourceGain(0.4, PickupTopSound);*/	
 
 	setSourceLooping(true, DeflectSound, myGuid);
+	float volume = GetPrivateProfileInt("DB_SETTINGS", "volume", 0, "Assets/Settings/settings.ini") * 0.01;
+	setMasterVolume(volume);
 }
 
 SoundHandler::~SoundHandler()

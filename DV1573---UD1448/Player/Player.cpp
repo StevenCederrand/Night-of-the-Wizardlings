@@ -69,6 +69,11 @@ Player::~Player()
 
 void Player::update(float deltaTime)
 {
+	//if the game is not in session, always have 100 mana
+	if (m_client->getServerState().currentState != NetGlobals::SERVER_STATE::GameInSession)
+		m_mana = 100;
+
+
 	if (m_playerCamera->isCameraActive()) {									// IMPORTANT; DOING THESE WRONG WILL CAUSE INPUT LAG
 		move(deltaTime);
 		m_playerCamera->update();											// Update this first so that subsequent uses are synced
@@ -168,9 +173,15 @@ void Player::move(float deltaTime)
 	if (m_frameCount < 5)
 		return;
 
-	m_moveDir = glm::vec3(0.0f);
+	//can't move much in the air
+	if (m_character->onGround())
+	{
+		m_moveDir = glm::vec3(0.0f);
+		m_oldMoveDir = glm::vec3(0.0f);
+	}
 
-	if (m_playerCamera->isFPEnabled()) {
+
+	if (m_playerCamera->isFPEnabled() ) {
 
 		glm::vec3 lookDirection = m_directionVector;
 		lookDirection.y = 0.0f;
@@ -220,9 +231,16 @@ void Player::move(float deltaTime)
 		}
 		else if(m_character->onGround())
 		{
+			m_oldMoveDir = m_moveDir;
 			sh->playSound(StepsSound, m_client->getMyData().guid);
 		}
 		m_isWalking = false;
+	}
+
+	//can't move much in the air
+	if (!m_character->onGround())
+	{
+		m_moveDir = m_oldMoveDir + (m_moveDir * 0.06f);
 	}
 
 	// Make sure moving is a constant speed

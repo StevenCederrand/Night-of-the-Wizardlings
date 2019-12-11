@@ -1109,8 +1109,9 @@ void Renderer::render() {
 				glDisableVertexAttribArray(2);
 			}
 		}
+		shader->clearBinding();
 	}
-	shader->clearBinding();
+
 #pragma endregion
 
 
@@ -1188,11 +1189,12 @@ void Renderer::render() {
 				glDisableVertexAttribArray(2);
 			}
 		}
+		shader->clearBinding();
 	}
 
-	shader->clearBinding();
+
 #pragma endregion
-	//renderSkybox();
+	renderSkybox();
 	// Spell Rendering
 	m_spellHandler->renderSpell();
 
@@ -1200,8 +1202,8 @@ void Renderer::render() {
 	// DEBUG (MOSTLY FOR DSTR)
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 #endif
-
-#pragma region Enemy_Deflect_Render
+	//Enemy Deflect Render
+	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glDisable(GL_CULL_FACE);
@@ -1212,8 +1214,6 @@ void Renderer::render() {
 	bindMatrixes(shader);
 
 	shader->setVec3("CameraPosition", m_camera->getCamPos());
-	//Add a step where we insert lights into the scene
-	shader->setInt("LightCount", m_spells.size());
 
 	//Render Deflect Objects
 	for (GameObject* object : m_enemyShieldObject)
@@ -1221,6 +1221,9 @@ void Renderer::render() {
 		//Then through all of the meshes
 		for (int j = 0; j < object->getMeshesCount(); j++)
 		{
+			glEnableVertexAttribArray(0);
+			glEnableVertexAttribArray(1);
+			glEnableVertexAttribArray(2);
 			//Fetch the current mesh and its transform
 			mesh = object->getMesh(j);
 			shader->setFloat("time", glfwGetTime());
@@ -1238,6 +1241,9 @@ void Renderer::render() {
 			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
 			glBindVertexArray(0);
+			glDisableVertexAttribArray(0);
+			glDisableVertexAttribArray(1);
+			glDisableVertexAttribArray(2);
 		}
 	}
 
@@ -1248,11 +1254,13 @@ void Renderer::render() {
 
 	m_enemyShieldObject.clear();
 	shader->clearBinding();
-#pragma endregion
-
-#pragma region Deflect_Render
+	
+	//Deflect Render
 	if (m_shieldObject != nullptr && m_shieldObject->getShouldRender())
 	{
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(2);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glDepthFunc(GL_LEQUAL);
@@ -1264,7 +1272,7 @@ void Renderer::render() {
 
 		modelMatrix = glm::mat4(1.0f);
 		modelMatrix = m_shieldObject->getMatrix();
-		shader->setInt("LightCount", m_spells.size());
+		
 		shader->setVec3("CameraPosition", m_camera->getCamPos());
 		shader->setFloat("time", glfwGetTime());
 		shader->setMat4("modelMatrix", modelMatrix);
@@ -1272,12 +1280,13 @@ void Renderer::render() {
 		glBindVertexArray(mesh->getBuffers().vao);
 		glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 		glBindVertexArray(0);
-
+		glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(2);
 		shader->clearBinding();
 	}
-#pragma endregion
 
-	renderSkybox();
+
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	TextRenderer::getInstance()->renderText();

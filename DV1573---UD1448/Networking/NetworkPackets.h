@@ -77,6 +77,7 @@ struct PlayerPacket {
 	char userName[16] = { ' ' };
 	int numberOfKills = 0;
 	int numberOfDeaths = 0;
+	int numberOfDamage = 0; 
 	bool inDeflectState = false;
 	bool isReady = false;
 	bool hasBeenUpdatedOnce = false;
