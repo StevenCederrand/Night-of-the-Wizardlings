@@ -5,6 +5,7 @@
 
 static float m_sensitivity;
 static float m_distanceThirdPerson = 10.0f;
+static float m_distanceModel = 100.f;
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
@@ -31,6 +32,10 @@ void Camera::freeCameraMode()
 		moveDir += m_camFace;
 	if (Input::isKeyHeldDown(GLFW_KEY_S))
 		moveDir -= m_camFace;
+	if (Input::isKeyHeldDown(GLFW_KEY_R))
+		moveDir += m_worldUp;
+	if (Input::isKeyHeldDown(GLFW_KEY_F))
+		moveDir -= m_worldUp;
 
 	m_camPos += moveDir * DeltaTime * m_spectatorMoveSpeed;
 
@@ -66,6 +71,43 @@ void Camera::thirdPersonCamera()
 
 void Camera::firstPersonCamera()
 {
+}
+
+void Camera::LE_freeCamera()
+{
+	glm::vec3 moveDir = glm::vec3(0.0f);
+	//When alt is held down camera is controllable
+	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_RIGHT))
+	{
+		updateMouseMovement();
+		
+		// Move
+		if (Input::isKeyHeldDown(GLFW_KEY_A))
+			moveDir -= m_camRight;
+		if (Input::isKeyHeldDown(GLFW_KEY_D))
+			moveDir += m_camRight;
+		if (Input::isKeyHeldDown(GLFW_KEY_W))
+			moveDir += m_camFace;
+		if (Input::isKeyHeldDown(GLFW_KEY_S))
+			moveDir -= m_camFace;
+		if (Input::isKeyHeldDown(GLFW_KEY_R))
+			moveDir += m_worldUp;
+		if (Input::isKeyHeldDown(GLFW_KEY_F))
+			moveDir -= m_worldUp;
+
+		m_camPos += moveDir * DeltaTime * m_spectatorMoveSpeed;
+
+		m_viewMatrix = glm::lookAt(m_camPos, m_camPos + m_camFace, m_camUp);
+	}
+}
+
+void Camera::LE_orbitCamera()
+{
+	updateThirdPersonMouseMovement();
+	m_camPos.x = 0.0f + (m_distanceModel * cos(glm::radians(m_camYaw)) * cos(glm::radians(m_camPitch)));
+	m_camPos.y = 0.0f + (m_distanceModel * sin(glm::radians(m_camPitch)));
+	m_camPos.z = 0.0f + (m_distanceModel * sin(glm::radians(m_camYaw)) * cos(glm::radians(m_camPitch)));
+	lookAt(glm::vec3(0.0f));
 }
 
 void Camera::lookForModeChange()
@@ -196,11 +238,42 @@ void Camera::updateThirdPersonMouseMovement()
 Camera::Camera()
 {
 	//Initial values (starting point of camera) if nothing else is given
+	m_cameraControlSwitch = 1;
+
 	m_camPos = glm::vec3(0.0f, 3.0f, 0.0f);
 	m_worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	m_camYaw = -90.0f;
 	m_camPitch = 0;//-40.0f;
 	
+	m_camFace = glm::vec3(0.0f, 0.0f, -1.0f);
+	m_camSpeed = 10;
+	m_sensitivity = 0.15f;
+
+	m_width = SCREEN_WIDTH;
+	m_height = SCREEN_HEIGHT;
+
+	m_nearPlane = 0.1f;
+	m_farPlane = 1500.0f;
+
+	m_spectatorMoveSpeed = 20.0f;
+	setWindowSize(m_width, m_height);
+	calcVectors();
+	m_viewMatrix = glm::lookAt(m_camPos, m_camPos + m_camFace, m_camUp);
+	m_fpEnabled = true;
+	m_activeCamera = true;
+
+	glfwSetScrollCallback(glfwGetCurrentContext(), scroll_callback);
+
+}
+
+Camera::Camera(glm::vec3 pos, float yaw, float pitch)
+{
+	//Initial values (starting point of camera) if nothing else is given
+	m_camPos = pos;
+	m_worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	m_camYaw = yaw;
+	m_camPitch = pitch;//-40.0f;
+
 	m_camFace = glm::vec3(0.0f, 0.0f, -1.0f);
 	m_camSpeed = 10;
 	m_sensitivity = 0.15f;
@@ -372,6 +445,11 @@ void Camera::update()
 	if(!Client::getInstance()->isSpectating())
 		m_viewMatrix = glm::lookAt(m_camPos, m_camPos + m_camFace, m_camUp);
 
+}
+
+void Camera::updateLevelEd()
+{
+	LE_orbitCamera();
 }
 
 void Camera::enableFP(const bool& fpEnable) {

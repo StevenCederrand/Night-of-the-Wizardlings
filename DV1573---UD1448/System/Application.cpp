@@ -2,12 +2,20 @@
 #include "Application.h"
 #include "States/PlayState.h"
 #include "States/MenuState.h"
+#include <States/LevelEditState.h>
 #include <Networking/Client.h>
 #include <Networking/LocalServer.h>
 #include <Gui/Gui.h>
 #include <System/MemoryUsage.h>
 #include <States/SpellCreatorState.h>
-#define AUTOSTART false;
+
+
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw_gl3.h>
+#include <imgui/imfilebrowser.h>
+
+
+#define AUTOSTART true;
 #define FULLSCREEN false;
 float DeltaTime = 0.0f;
 
@@ -57,6 +65,7 @@ bool Application::init() {
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
+
 #if FULLSCREEN
 	m_window = glfwCreateWindow(1280, 720, "Night of the Wizardlings", glfwGetPrimaryMonitor(), NULL);// !!! FULLSCREEN!!!
 #else 
@@ -75,6 +84,10 @@ bool Application::init() {
 
 	// Opengl context
 	glfwMakeContextCurrent(m_window);
+	//-----Set up IMGUI-----//
+	ImGui::CreateContext();
+	ImGui_ImplGlfwGL3_Init(glfwGetCurrentContext(), true);
+	ImGui::StyleColorsDark();
 
 	GLenum status = glewInit();
 
@@ -91,15 +104,13 @@ bool Application::init() {
 	initGraphics();
 	initSound();
 
+
 	Gui::getInstance()->init();
 	Gui::getInstance()->loadScheme(CEGUI_TYPE + ".scheme");
 	Gui::getInstance()->setFont("DejaVuSans-10");
 
 	m_stateManager = new StateManager();
 	//m_stateManager->pushState(new SpellCreatorState());
-
-
-
 
 #if AUTOSTART
 	m_stateManager->pushState(new PlayState(false));
@@ -165,14 +176,23 @@ void Application::run()
 		currentTime += DeltaTime;
 		
 		calcFPS(DeltaTime);
-		
+	
 		m_stateManager->update(DeltaTime);
 		Gui::getInstance()->update(DeltaTime);
-		
+
 		m_stateManager->render();
+		
+		if (m_stateManager->getImGuiState())
+		{
+			ImGui_ImplGlfwGL3_NewFrame();
+			m_stateManager->getGuiInfo();
+			ImGui::Render();
+			ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
+		}
+
+
 		glActiveTexture(GL_TEXTURE0);
 		Gui::getInstance()->draw();
-
 
 		glfwSwapBuffers(m_window);
 	}

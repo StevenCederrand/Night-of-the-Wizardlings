@@ -39,11 +39,7 @@ SpellCreatorState::SpellCreatorState()
     renderer->submitSpellEditor(m_spellEditor);
 
 
-    //-----Set up IMGUI-----//
-    ImGui::CreateContext();
-    ImGui_ImplGlfwGL3_Init(glfwGetCurrentContext(), true);
-    ImGui::StyleColorsDark();
-
+   
 
     MaterialMap::getInstance();
 
@@ -109,7 +105,7 @@ void SpellCreatorState::update(float dt)
     }
     Renderer::getInstance()->updateParticles(dt);
 
-    ImGui_ImplGlfwGL3_NewFrame();
+
     //ImGui::ShowDemoWindow();
 
     ImGui::Begin("Spell Creator", &my_tool_active, ImGuiWindowFlags_MenuBar);// Create a window called "Spell Creator" and append into it.
@@ -215,10 +211,8 @@ void SpellCreatorState::update(float dt)
 void SpellCreatorState::render()
 {
     Renderer::getInstance()->render();
-
-    ImGui::Render();
-    ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
-
+	ImGui::Render();
+  
 }
 
 void SpellCreatorState::updateToolSettings()

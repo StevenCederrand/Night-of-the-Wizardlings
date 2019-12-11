@@ -65,6 +65,8 @@
     <ClCompile Include="GameObject\EnemyShieldObject.cpp" />
     <ClCompile Include="System\MemoryUsage.cpp" />
     <ClCompile Include="HUD\WorldHudObject.cpp" />
+    <ClCompile Include="States\LevelEditState.cpp" />
+    <ClCompile Include="LevelEditor\MousePicker.cpp" />
     <ClCompile Include="BetterText\Metafile.cpp" />
     <ClCompile Include="BetterText\Line.cpp" />
     <ClCompile Include="BetterText\Word.cpp" />
@@ -172,6 +174,8 @@
     <ClInclude Include="GameObject\EnemyShieldObject.h" />
     <ClInclude Include="System\MemoryUsage.h" />
     <ClInclude Include="HUD\WorldHudObject.h" />
+    <ClInclude Include="States\LevelEditState.h" />
+    <ClInclude Include="LevelEditor\MousePicker.h" />
     <ClInclude Include="BetterText\Character.h" />
     <ClInclude Include="BetterText\Metafile.h" />
     <ClInclude Include="BetterText\Line.h" />
