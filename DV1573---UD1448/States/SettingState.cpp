@@ -11,8 +11,6 @@
 
 SettingState::SettingState()
 {
-
-
 	int userNumMax = 0;
 	m_volumeCurrent = GetPrivateProfileInt("DB_SETTINGS", "volume", 0, "Assets/Settings/settings.ini");
 	m_volumeMax = 100.0f;
