@@ -6,6 +6,7 @@
 #include <Networking/LocalServer.h>
 #include <Gui/Gui.h>
 #include <System/MemoryUsage.h>
+
 #define AUTOSTART false;
 #define FULLSCREEN false;
 
@@ -18,6 +19,7 @@ Application::Application() {
 Application::~Application() {
 	delete m_input;
 	delete m_stateManager;
+	delete m_noLog;
 	ShaderMap::getInstance()->destroy();
 	Renderer::getInstance()->destroy();
 	MaterialMap::getInstance()->destroy();
@@ -92,9 +94,10 @@ bool Application::init() {
 	initGraphics();
 	initSound();
 
+	m_noLog = new NoLogger();
 	Gui::getInstance()->init();
 	Gui::getInstance()->loadScheme(CEGUI_TYPE + ".scheme");
-	Gui::getInstance()->setFont("DejaVuSans-10");
+	Gui::getInstance()->setFont("DejaVuSans-10");	
 
 	m_stateManager = new StateManager();
 

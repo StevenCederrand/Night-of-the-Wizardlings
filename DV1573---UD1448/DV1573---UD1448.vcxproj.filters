@@ -177,6 +177,7 @@
     <ClInclude Include="Renderer\TextRenderer.h" />
     <ClInclude Include="BetterText\TextManager.h" />
     <ClInclude Include="System\Framerate.h" />
+    <ClInclude Include="Gui\NoLogger.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

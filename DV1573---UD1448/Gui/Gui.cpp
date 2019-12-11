@@ -71,7 +71,7 @@ void Gui::init()
 		CEGUI::Font::setDefaultResourceGroup("fonts");
 		CEGUI::WidgetLookManager::setDefaultResourceGroup("looknfeel");
 		CEGUI::WindowManager::setDefaultResourceGroup("layout");
-		CEGUI::ScriptModule::setDefaultResourceGroup("lua_scripts");
+		CEGUI::ScriptModule::setDefaultResourceGroup("lua_scripts");		
 
 	}
 
