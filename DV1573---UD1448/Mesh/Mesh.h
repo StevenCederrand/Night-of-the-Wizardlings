@@ -14,12 +14,11 @@ private:
 
 	int m_indexInFile;
 	
-	Transform m_transform;
 	int m_vertexCount;
 	int m_faceCount;
 	std::vector<Face> m_faces;
 	std::vector<Vertex> m_vertices;
-	std::vector<Vertex2> m_skeleVertices;		// Animation specific vertices
+	std::vector<Vertex2> m_skeleVertices;		// Animation specific vertices	
 	Buffers m_vertexBuffer;
 
 public:
@@ -34,14 +33,10 @@ public:
 	void saveFilePath(std::string name, int index);
 	void setUpBuffers();
 	void setUpSkeleBuffers();					// Animation specific buffers
-	void setMaterial(std::string matName);
+	void setMaterial(std::string matName);	
 
 	void addAnimation(std::string name);
 	void setSkeleton(std::string name);
-	void setPos(glm::vec3 pos);
-	void setRot(glm::quat quat);
-	void setScale(glm::vec3 scale);
-	void setTransform(Transform transform);
 
 	const std::string& getMaterial() const;
 
@@ -57,7 +52,6 @@ public:
 	const std::vector<Face>& getFaces() { return m_faces; }
 	const std::vector<Vertex>& getVertices() { return m_vertices; }
 	const std::vector<Vertex2>& getVerticesSkele() { return m_skeleVertices; }
-	const Transform& getTransform() const { return m_transform; }
 };
 
 #endif

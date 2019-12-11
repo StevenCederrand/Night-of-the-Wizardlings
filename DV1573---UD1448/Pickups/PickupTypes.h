@@ -3,7 +3,7 @@
 
 enum PickupType {
 	HealthPotion,
-	DamageBuff
+	ManaPotion
 };
 
 

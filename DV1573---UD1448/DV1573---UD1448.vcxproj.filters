@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="DebugDrawer\DebugDrawer.cpp" />
     <ClCompile Include="GameObject\AnimatedObject.cpp" />
     <ClCompile Include="HUD\HudHandler.cpp" />
     <ClCompile Include="Mesh\AnimationMap.cpp" />
@@ -32,7 +31,6 @@
     <ClCompile Include="Spells\AttackSpell.cpp" />
     <ClCompile Include="Spells\EnhanceAttackSpell.cpp" />
     <ClCompile Include="Spells\fire.cpp" />
-    <ClCompile Include="Spells\ReflectSpell.cpp" />
     <ClCompile Include="Spells\Spell.cpp" />
     <ClCompile Include="Renderer\SkyBox.cpp" />
     <ClCompile Include="Spells\SpellHandler.cpp" />
@@ -65,9 +63,20 @@
     <ClCompile Include="GameObject\ShieldObject.cpp" />
     <ClCompile Include="GFX\Pointlight.cpp" />
     <ClCompile Include="GameObject\EnemyShieldObject.cpp" />
+    <ClCompile Include="System\MemoryUsage.cpp" />
+    <ClCompile Include="HUD\WorldHudObject.cpp" />
+    <ClCompile Include="BetterText\Metafile.cpp" />
+    <ClCompile Include="BetterText\Line.cpp" />
+    <ClCompile Include="BetterText\Word.cpp" />
+    <ClCompile Include="BetterText\GUIText.cpp" />
+    <ClCompile Include="BetterText\FontType.cpp" />
+    <ClCompile Include="BetterText\TextMeshCreator.cpp" />
+    <ClCompile Include="System\UniqueIndex.cpp" />
+    <ClCompile Include="Renderer\TextRenderer.cpp" />
+    <ClCompile Include="BetterText\TextManager.cpp" />
+    <ClCompile Include="States\SettingState.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DebugDrawer\DebugDrawer.h" />
     <ClInclude Include="GameObject\AnimatedObject.h" />
     <ClInclude Include="HUD\HudHandler.h" />
     <ClInclude Include="Mesh\AnimationMap.h" />
@@ -92,7 +101,6 @@
     <ClInclude Include="Networking\NetworkPickups.h" />
     <ClInclude Include="Pickups\PickupTypes.h" />
     <ClInclude Include="Player\Player.h" />
-    <ClInclude Include="Spells\ReflectSpell.h" />
     <ClInclude Include="Renderer\BloomBlur.h" />
     <ClInclude Include="Renderer\Camera.h" />
     <ClInclude Include="HUD\HudObject.h" />
@@ -138,7 +146,6 @@
     <ClInclude Include="GameObject\DestructibleObject.h" />
     <ClInclude Include="Particles\Particles.h" />
     <ClInclude Include="Particles\ParticleBuffers.h" />
-    <ClInclude Include="System\Helper.h" />
     <ClInclude Include="HUD\HudObject.h" />
     <ClInclude Include="HUD\HudTextureMap.h" />
     <ClInclude Include="HUD\HudHandler.h" />
@@ -157,6 +164,21 @@
     <ClInclude Include="Renderer\PickupNotificationStructure.h" />
     <ClInclude Include="GFX\Pointlight.h" />
     <ClInclude Include="GameObject\EnemyShieldObject.h" />
+    <ClInclude Include="System\MemoryUsage.h" />
+    <ClInclude Include="HUD\WorldHudObject.h" />
+    <ClInclude Include="BetterText\Character.h" />
+    <ClInclude Include="BetterText\Metafile.h" />
+    <ClInclude Include="BetterText\Line.h" />
+    <ClInclude Include="BetterText\Word.h" />
+    <ClInclude Include="BetterText\TextMeshData.h" />
+    <ClInclude Include="BetterText\GUIText.h" />
+    <ClInclude Include="BetterText\FontType.h" />
+    <ClInclude Include="BetterText\TextMeshCreator.h" />
+    <ClInclude Include="System\UniqueIndex.h" />
+    <ClInclude Include="Renderer\TextRenderer.h" />
+    <ClInclude Include="BetterText\TextManager.h" />
+    <ClInclude Include="States\SettingState.h" />
+    <ClInclude Include="System\Framerate.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

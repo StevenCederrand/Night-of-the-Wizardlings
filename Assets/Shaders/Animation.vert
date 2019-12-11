@@ -22,6 +22,7 @@ uniform int shouldBlend;
 out vec2 f_UV;
 out vec3 f_normal;
 out vec4 f_position;
+out vec3 f_tangent;
 void main() {
 
     if (shouldBlend == 0)

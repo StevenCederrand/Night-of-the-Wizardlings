@@ -8,6 +8,7 @@ SoundHandler::SoundHandler()
 {	
 	m_nrOfPlayers = 1;	
 	
+	
 	m_buffersClient.resize(NR_OF_CLIENT_SOUNDS);	
 	m_buffersCommon.resize(NR_OF_COMMON_SOUNDS);
 	m_clientSoundInfo.sources.resize(NR_OF_CLIENT_SOUNDS);
@@ -41,22 +42,28 @@ SoundHandler::SoundHandler()
 	
 	//Set the volume for the client sources. 
 	RakNet::AddressOrGUID myGuid = Client::getInstance()->getMyData().guid;	
-	//setSourceGain(0.8, BasicAttackSound, myGuid);
-	setSourceGain(0.4, DeflectSound, myGuid);
 	
 	setSourceGain(0.4, ThemeSong0);
-	setSourceGain(0.5, JumpSound, myGuid);
-	setSourceGain(0.5, LandingSound, myGuid);
-	setSourceGain(0.3, StepsSound, myGuid);
-	setSourceGain(0.3, FireSound, myGuid);
 	setSourceGain(0.3, TakingDamageSound);
 	setSourceGain(0.3, HitmarkSound);	
+	//setSourceGain(0.8, BasicAttackSound, myGuid);
+	
+	for (int i = 0; i < NR_OF_SUBSEQUENT_SOUNDS; i++)
+	{
+		setSourceGain(0.4, DeflectSound, myGuid, i);	
+		setSourceGain(0.5, JumpSound, myGuid, i);
+		setSourceGain(0.5, LandingSound, myGuid, i);
+		setSourceGain(0.3, StepsSound, myGuid, i);
+		setSourceGain(0.3, FireSound, myGuid, i);
+	}
 	/*setSourceGain(0.4, PickupGraveyardSound);
 	setSourceGain(0.4, PickupMazeSound);
 	setSourceGain(0.4, PickupTunnelsSound);
 	setSourceGain(0.4, PickupTopSound);*/	
 
 	setSourceLooping(true, DeflectSound, myGuid);
+	float volume = GetPrivateProfileInt("DB_SETTINGS", "volume", 0, "Assets/Settings/settings.ini") * 0.01;
+	setMasterVolume(volume);
 }
 
 SoundHandler::~SoundHandler()
@@ -492,12 +499,15 @@ void SoundHandler::setPlayerSourceGains(RakNet::AddressOrGUID guid)
 	{
 		if (m_playerSoundInfo.at(i).guid.rakNetGuid == guid.rakNetGuid)
 		{
-			setSourceLooping(true, DeflectSound, guid);			
-			setSourceGain(0.4, DeflectSound, m_playerSoundInfo.at(i).guid);			
-			setSourceGain(0.3, JumpSound, m_playerSoundInfo.at(i).guid);
-			setSourceGain(0.4, StepsSound, m_playerSoundInfo.at(i).guid);
-			setSourceGain(0.3, FireSound, m_playerSoundInfo.at(i).guid);
-			//setSourceGain(0.3, DestructionSound, m_playerSoundInfo.at(i).guid);
+			for (int j = 0; j < NR_OF_SUBSEQUENT_SOUNDS; j++)
+			{
+				setSourceLooping(true, DeflectSound, guid, j);			
+				setSourceGain(0.4, DeflectSound, m_playerSoundInfo.at(i).guid, j);
+				setSourceGain(0.3, JumpSound, m_playerSoundInfo.at(i).guid, j);
+				setSourceGain(0.4, StepsSound, m_playerSoundInfo.at(i).guid, j);
+				setSourceGain(0.3, FireSound, m_playerSoundInfo.at(i).guid, j);
+				//setSourceGain(0.3, DestructionSound, m_playerSoundInfo.at(i).guid, j);
+			}
 			
 			found = true;
 		}
@@ -572,6 +582,52 @@ int SoundHandler::attachBuffersToPlayerSources(RakNet::AddressOrGUID playerID)
 	}
 
 	return success;
+}
+
+void SoundHandler::setMasterVolume(float gain)
+{		
+	ALfloat currentGain;
+	for (int i = 0; i < m_clientSoundInfo.sources.size(); i++)
+	{		
+		m_error = alGetError();
+
+		alGetSourcef(m_clientSoundInfo.sources.at(i),
+			AL_GAIN, &currentGain);
+
+		alSourcef(m_clientSoundInfo.sources.at(i),
+			AL_MAX_GAIN,
+			gain * currentGain);
+
+		if ((m_error = alGetError()) != AL_NO_ERROR)
+		{
+			logTrace("Error setting max gain to source");
+		}
+	}
+
+	for (int i = 0; i < m_playerSoundInfo.size(); i++)
+	{
+		for (int j = 0; j < NR_OF_COMMON_SOUNDS; j++)
+		{
+			for (int k = 0; k < NR_OF_SUBSEQUENT_SOUNDS; k++)
+			{
+				m_error = alGetError();
+
+				alGetSourcef(m_playerSoundInfo.at(i).sources.at(j).at(k),
+					AL_GAIN, &currentGain);
+
+				alSourcef(m_playerSoundInfo.at(i).sources.at(j).at(k),
+					AL_MAX_GAIN,
+					gain * currentGain);
+
+				if ((m_error = alGetError()) != AL_NO_ERROR)
+				{
+					logTrace("Error setting max gain to source");
+				}
+			}
+		}
+	}	
+
+	m_masterVolume = gain;
 }
 
 void SoundHandler::playSound(SoundIndexClient whatSound)
@@ -1188,6 +1244,32 @@ void SoundHandler::removePlayer(RakNet::AddressOrGUID guid)
 	}
 }
 
+const float& SoundHandler::getSourceGain(SoundIndexClient whatSound) const
+{
+	float value = -1.0f;
+	
+	alGetSourcef(m_clientSoundInfo.sources.at(whatSound), AL_GAIN, &value);
+
+	return value;
+}
+
+const float& SoundHandler::getSourceGain(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID) const
+{
+	float value = -1.0f;
+
+	bool found = false;
+	for (int i = 0; i < m_playerSoundInfo.size() && !found; i++)
+	{
+		if (m_playerSoundInfo.at(i).guid.rakNetGuid == playerID.rakNetGuid)
+		{
+			found = true;
+			alGetSourcef(m_playerSoundInfo.at(i).sources.at(whatSound).at(0), AL_GAIN, &value);
+		}
+	}
+	
+	return value;
+}
+
 const ALint& SoundHandler::getSourceState(SoundIndexClient whatSound) const
 {
 	ALint value;	
@@ -1214,4 +1296,17 @@ const ALint& SoundHandler::getSourceState(SoundIndexCommon whatSound, RakNet::Ad
 	}
 
 	return value;
+}
+
+const float& SoundHandler::getMasterVolume() const
+{
+	return m_masterVolume;
+}
+
+void SoundHandler::freeBuffer(SoundIndexClient whatSound)
+{
+	alSourcei(m_clientSoundInfo.sources.at(whatSound), AL_BUFFER, NULL);
+	alDeleteSources(1, &m_clientSoundInfo.sources.at(whatSound));
+
+	alDeleteBuffers(1, &m_buffersClient.at(whatSound));
 }

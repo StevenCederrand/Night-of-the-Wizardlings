@@ -38,7 +38,7 @@ const int NR_OF_SUBSEQUENT_SOUNDS = 4;
 //For example, you can hear other players' spells.
 //Put sounds that will come only from this client as a SoundIndexClient enum.
 //Also, make sure to increase NR_OF_CLIENT_SOUNDS or NR_OF_COMMON_SOUNDS depending 
-//on what type of sound you added. And, of course, increase the number of total sounds aswell. 
+//on what type of sound you added.
 
 //Sounds in common here:
 enum SoundIndexCommon {		
@@ -90,6 +90,8 @@ private:
 	ALenum m_error;
 	int m_nrOfPlayers; // Including me
 
+	float m_masterVolume = 1.0f;
+
 public:
 	SoundHandler();
 	~SoundHandler();
@@ -106,6 +108,8 @@ public:
 	
 	void attachBuffersToClientSources();
 	int attachBuffersToPlayerSources(RakNet::AddressOrGUID playerID);
+
+	void setMasterVolume(float gain);
 
 	void playSound(SoundIndexClient whatSound);
 	int playSound(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID);
@@ -130,7 +134,7 @@ public:
 	
 	void setSourceMaxGain(float gain, SoundIndexClient whatSound);
 	void setSourceMaxGain(float gain, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID, int slot = 0);
-	
+		
 	void setSourceMaxDistance(float dist, SoundIndexClient whatSound);
 	void setSourceMaxDistance(float dist, SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID, int slot = 0);
 	
@@ -153,9 +157,15 @@ public:
 	void addPlayer(RakNet::AddressOrGUID guid);
 	void removePlayer(RakNet::AddressOrGUID guid);
 
+	const float& getSourceGain(SoundIndexClient whatSound) const;
+	const float& getSourceGain(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID) const;
+
 	const ALint& getSourceState(SoundIndexClient whatSound) const;
 	const ALint& getSourceState(SoundIndexCommon whatSound, RakNet::AddressOrGUID playerID, int slot = 0) const;
-	//source relative?	
+	
+	const float& getMasterVolume() const;
+
+	void freeBuffer(SoundIndexClient whatSound);
 };
 
 #endif

@@ -4,6 +4,7 @@
 
 NetworkPlayers::NetworkPlayers()
 {
+	m_displayScale = glm::vec2(2.0f, 2.0f);
 }
 
 NetworkPlayers::~NetworkPlayers()
@@ -16,7 +17,11 @@ void NetworkPlayers::cleanUp()
 	for (size_t i = 0; i < m_players.size(); i++)
 	{
 		PlayerEntity& p = m_players[i];
+		delete p.healthDisplay;
 		delete p.gameobject;
+		
+		if(p.nameplate != nullptr)
+			TextManager::getInstance()->removeText(p.nameplate->getUniqueIndex());
 	}
 	m_players.clear();
 }
@@ -33,6 +38,10 @@ void NetworkPlayers::update(const float& dt)
 		if (p.flag == NetGlobals::THREAD_FLAG::Add){
 
 			if (p.gameobject == nullptr) {
+
+				p.healthDisplay = new WorldHudObject("Assets/Textures/hud/tmpHP.png", p.data.position, m_displayScale);
+				
+				
 
 				p.gameobject = new AnimatedObject("asd");
 				p.gameobject->loadMesh("NyCharacter.mesh");
@@ -61,8 +70,9 @@ void NetworkPlayers::update(const float& dt)
 		else if (p.flag == NetGlobals::THREAD_FLAG::Remove)
 		{
 			Renderer::getInstance()->removeRenderObject(p.gameobject, ANIMATEDSTATIC);
-
+			delete p.healthDisplay;
 			delete p.gameobject;
+			TextManager::getInstance()->removeText(p.nameplate->getUniqueIndex());
 			m_players.erase(m_players.begin() + i);
 			shPtr->removePlayer(p.data.guid);
 			i--;
@@ -72,12 +82,13 @@ void NetworkPlayers::update(const float& dt)
 		GameObject* g = p.gameobject;
 		if (p.data.inDeflectState && p.data.health > 0.0f)
 		{
+			shPtr->setSourcePosition(p.data.position, DeflectSound, p.data.guid);
 			GameObject* shieldObject = new EnemyShieldObject("enemyShield");
 			//logTrace(std::to_string(p.data.position.x) + " " + std::to_string(p.data.position.y) + " " + std::to_string(p.data.position.z));
 			shieldObject->loadMesh("EnemyShieldMesh.mesh");
 			
 			glm::vec3 spawnpos = p.data.position + glm::vec3(0.0f, p.data.meshHalfSize.y, 0.0f);
-			glm::vec3 newShieldpos = g->getTransform().position + glm::vec3(0.0f, p.data.meshHalfSize.y, 0.0f);
+			glm::vec3 newShieldpos = g->getObjectTransform().position + glm::vec3(0.0f, p.data.meshHalfSize.y, 0.0f);
 			glm::vec3 shieldLerp = CustomLerp(newShieldpos, spawnpos, m_lerpSpeed * dt);
 			shieldObject->setTransform(shieldLerp, p.data.rotation, glm::vec3(1.0));
 			Renderer::getInstance()->submit(shieldObject, ENEMY_SHIELD);
@@ -85,8 +96,8 @@ void NetworkPlayers::update(const float& dt)
 			{
 				if (!p.wasDeflecting)
 				{
-					//kolla position uppdatering
-					shPtr->setSourcePosition(p.data.position, DeflectSound, p.data.guid);
+					p.deflectSoundGain = shPtr->getMasterVolume(); // Will automaticially be set relative to master sound
+					shPtr->setSourceGain(p.deflectSoundGain, DeflectSound, p.data.guid);					
 					shPtr->playSound(DeflectSound, p.data.guid);
 					p.wasDeflecting = true;
 				}
@@ -94,10 +105,10 @@ void NetworkPlayers::update(const float& dt)
 			//No mana
 			else
 			{
+				p.deflectSoundGain -= 3.0f * shPtr->getMasterVolume() * dt;
 				if (p.deflectSoundGain > 0.0f)
 				{
 					shPtr->setSourceGain(p.deflectSoundGain, DeflectSound, p.data.guid);
-					p.deflectSoundGain -= 2.0f * dt;
 				}
 				else
 				{
@@ -107,33 +118,66 @@ void NetworkPlayers::update(const float& dt)
 		}
 		else if (p.wasDeflecting)
 		{
+			p.deflectSoundGain -= 3.0f * shPtr->getMasterVolume() * dt;
 			if (p.deflectSoundGain > 0.0f)
 			{				
 				shPtr->setSourceGain(p.deflectSoundGain, DeflectSound, p.data.guid);
-				p.deflectSoundGain -= 2.0f * dt;
 			}
 			else
 			{
 				shPtr->stopSound(DeflectSound, p.data.guid);
-				p.deflectSoundGain = 0.4f;
+				p.deflectSoundGain = shPtr->getMasterVolume(); // Will automaticially be set relative to master sound
 				shPtr->setSourceGain(p.deflectSoundGain, DeflectSound, p.data.guid);
 				p.wasDeflecting = false;			
 			}
-		}
-
-		
+		}		
 
 		if (g != nullptr) {
 
 			/* Don't render the player if he's dead */
-			if (p.data.health <= 0.0f || p.data.hasBeenUpdatedOnce == false)
+			if (p.data.health <= 0.0f || p.data.hasBeenUpdatedOnce == false) {
+				p.healthDisplay->setShouldRender(false);
 				g->setShouldRender(false);
-			else {
-				g->setShouldRender(true);
+				if (p.nameplate != nullptr) {
+					p.nameplate->setShouldRender(false);
+				}
 			}
 
-			glm::vec3 pos = CustomLerp(g->getTransform().position, p.data.position, m_lerpSpeed * dt);
+			else {
+				p.healthDisplay->setShouldRender(true);
+				g->setShouldRender(true);
+				if (p.nameplate != nullptr) {
+					p.nameplate->setShouldRender(true);
+				}
+			}
 
+			if (p.playerFlag == NetGlobals::THREAD_PLAYER_FLAG::SafeToAddNameplate && p.nameplate == nullptr) {
+				p.nameplate = TextManager::getInstance()->addDynamicText(std::string(p.data.userName),
+					1.0f,
+					p.data.position + glm::vec3(0.0f, p.data.meshHalfSize.y * 1.2f, 0.0f),
+					0.0f,
+					TextManager::TextBehaviour::StayForever);
+				p.nameplate->setToFaceCamera(true);
+				p.nameplate->setIgnoreDepthTest(false);
+				p.nameplate->setColor(glm::vec4(0.50f, 1.0f, 0.50f, 0.75f));
+				p.playerFlag == NetGlobals::THREAD_PLAYER_FLAG::AlreadyAdded;
+			}
+
+			glm::vec3 pos = CustomLerp(g->getObjectTransform().position, p.data.position, m_lerpSpeed * dt);
+
+
+			float healthClip = static_cast<float>(p.data.health) / static_cast<float>(NetGlobals::PlayerMaxHealth);
+			p.healthDisplay->setXClip(healthClip);
+			p.healthDisplay->setCenter(pos + glm::vec3(0.0f, p.data.meshHalfSize.y * 2.0f, 0.0f));
+			
+			if (p.nameplate != nullptr) {
+				p.nameplate->setPosition(pos + glm::vec3(0.0f, p.data.meshHalfSize.y * 2.30, 0.0f));
+				float distance = glm::distance(p.nameplate->getPosition(), Client::getInstance()->getMyData().position);
+				p.nameplate->setScale(fminf(fmaxf(distance / 8.0f, 1.0f), 1.25f));
+			}
+
+			Renderer::getInstance()->submitWorldHud(p.healthDisplay);
+			
 			g->setWorldPosition(pos);
 			g->setTransform(pos, glm::quat(p.data.rotation), glm::vec3(1.0f));
 

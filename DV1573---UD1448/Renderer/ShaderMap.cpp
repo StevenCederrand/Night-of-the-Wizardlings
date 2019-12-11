@@ -95,7 +95,7 @@ void ShaderMap::reload() {
 			delete it->second;
 			it->second = tempShader;
 
-			logInfo("Recompile Shader Completed");
+			logInfo("Recompile Shader Completed {0}", tempShader->getShaderNames().at(0));
 		}
 		else {
 			delete tempShader;
@@ -120,4 +120,5 @@ void ShaderMap::destroy()
 {
 	cleanUp();
 	delete m_shaderMapInstance;
+	m_shaderMapInstance = nullptr;
 }

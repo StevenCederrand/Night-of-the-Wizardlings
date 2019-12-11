@@ -2,6 +2,7 @@
 #define _PCH_H
 
 #include <System/DeltaTime.h>
+#include <System/Framerate.h>
 #include "Bullet/btBulletDynamicsCommon.h"
 
 #include <iostream>
@@ -20,6 +21,15 @@
 #include <stdio.h>
 #include <future>
 #include <functional>
+
+#define WIN32_LEAN_AND_MEAN
+
+#include <d3d11_4.h>
+#include <dxgi1_6.h>
+
+#pragma comment(lib, "dxgi.lib")
+
+#include <psapi.h>
 
 //GL related includes
 #include <GL/glew.h>
@@ -67,7 +77,7 @@
 #include <Renderer/Renderer.h>
 #include <System/Input.h>
 #include <System/SoundHandler.h>
-#include <GameObject/ObjectTypes.h>
+#include <GameObject/ObjectTypes.h>	
 
 // DSTR
 #include <Destruction/TriangleNode.h>
@@ -89,5 +99,8 @@ const unsigned int SCREEN_WIDTH = 1280;
 const unsigned int SCREEN_HEIGHT = 720;
 const int MAX_BONES = 64;
 
+constexpr int SPACE_ASCII = 32;
+constexpr int DESIRED_PADDING = 6;
+constexpr float LINE_HEIGHT = 0.3f;
 
 #endif

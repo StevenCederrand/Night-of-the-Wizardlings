@@ -5,9 +5,11 @@
 #include <Networking/Client.h>
 #include <Networking/LocalServer.h>
 #include <Gui/Gui.h>
+#include <System/MemoryUsage.h>
 #define AUTOSTART false;
 #define FULLSCREEN false;
 float DeltaTime = 0.0f;
+unsigned int Framerate = 0;
 
 Application::Application() {
 }
@@ -34,10 +36,11 @@ Application::~Application() {
 
 	glfwTerminate();
 
+
 }
 
 bool Application::init() {
-
+	
 	bool statusOK = false;
 	initialFrame = false;
 	statusOK = glfwInit();
@@ -81,7 +84,8 @@ bool Application::init() {
 	}
 	
 	// Vsync
-	glfwSwapInterval(1); // Turning this off will cause occasionally freezes, so don't!
+	int VSync = GetPrivateProfileInt("DB_SETTINGS", "VSync", 1, "Assets/Settings/settings.ini");
+	glfwSwapInterval(VSync); // Turning this off will cause occasionally freezes, so don't!
 	
 	m_input = new Input();
 
@@ -101,13 +105,15 @@ bool Application::init() {
 #endif
 
 	SoundHandler* shPtr = SoundHandler::getInstance();	
-	shPtr->playSound(ThemeSong0);
-	shPtr->setSourceLooping(true, ThemeSong0);
+	//shPtr->playSound(ThemeSong0);
+	//shPtr->setSourceLooping(true, ThemeSong0);
 
 	unsigned int _time = unsigned int(time(NULL));
 	srand(_time);
 
-	logTrace("Application successfully initialized");
+	MemoryUsage mu;
+	mu.printBoth("End of application init:");
+
 	return statusOK;
 }
 
@@ -225,9 +231,7 @@ void Application::calcFPS(const float& dt)
 	if (frameTimer <= 0.0f)
 	{
 		frameTimer = 1.0f;
-		std::string title = "Wizards 'n stuff | FPS: " + std::to_string(fps);
-		//printf("%s\n",title.c_str());
-		glfwSetWindowTitle(m_window, title.c_str());
+		Framerate = fps;
 		fps = 0;
 	}
 

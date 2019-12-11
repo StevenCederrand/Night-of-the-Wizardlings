@@ -1,6 +1,7 @@
 #include <Pch/Pch.h>
 #include "Client.h"
 #include <Player/Player.h>
+#include <BetterText/TextManager.h>
 
 Client::Client()
 {
@@ -264,7 +265,7 @@ void Client::processAndHandlePackets()
 				pE.data = player;
 				pE.flag = NetGlobals::THREAD_FLAG::Add;
 				pE.gameobject = nullptr;
-
+				pE.playerFlag = NetGlobals::THREAD_PLAYER_FLAG::SafeToAddNameplate;
 				/* Thread lock guard because this needs to be synced with the main game thread because
 				   this thread will add data to a list that is created and present in the main thread.
 
@@ -427,6 +428,13 @@ void Client::processAndHandlePackets()
 							Renderer::getInstance()->addBigNotification(t);
 						}
 
+
+						{
+							std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayersMutex);
+							NetworkPlayers::PlayerEntity* pEntity = findPlayerEntityInNetworkPlayers(pData.guid);
+							pEntity->playerFlag = NetGlobals::THREAD_PLAYER_FLAG::SafeToAddNameplate;
+						}
+
 					}
 
 					m_connectedPlayers[i] = pData;
@@ -467,29 +475,50 @@ void Client::processAndHandlePackets()
 			m_serverState.Serialize(false, bsIn);
 			if (m_serverState.currentState == NetGlobals::SERVER_STATE::WaitingForPlayers) {
 				logTrace("[Client]******** WARMUP ********");
-			}
-			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GameIsStarting) {
-				
-				logTrace("[Client]******** GAME IS STARTING ********");
-			}
-			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GameInSession) {
-				logTrace("[Client]******** GAME HAS STARTED ********");
+				Evnt evnt;
+				evnt.playerEvent = PlayerEvents::WaitingForPlayers;
 
 				// Add this to the event list
 				{
 					std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-					m_playerEvents.push_back(PlayerEvents::GameStarted);
+					m_playerEvents.push_back(evnt);
+				}
+
+
+			}
+			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GameIsStarting) {
+				logTrace("[Client]******** GAME IS STARTING ********");
+				Evnt evnt;
+				evnt.playerEvent = PlayerEvents::GameIsAboutToStart;
+
+				// Add this to the event list
+				{
+					std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+					m_playerEvents.push_back(evnt);
+				}
+			}
+			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GameInSession) {
+				logTrace("[Client]******** GAME HAS STARTED ********");
+
+				Evnt evnt;
+				evnt.playerEvent = PlayerEvents::GameStarted;
+
+				// Add this to the event list
+				{
+					std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+					m_playerEvents.push_back(evnt);
 				}
 
 			}
 			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GameFinished) {
 			
 				logTrace("[Client]******** GAME HAS ENDED ********");
-
+				Evnt evnt;
+				evnt.playerEvent = PlayerEvents::GameEnded;
 				// Add this to the event list
 				{
 					std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-					m_playerEvents.push_back(PlayerEvents::GameEnded);
+					m_playerEvents.push_back(evnt);
 				}
 
 
@@ -606,13 +635,18 @@ void Client::processAndHandlePackets()
 				m_latestPlayerThatHitMe = findPlayerByGuid(playerPacket.lastHitByGuid);
 			}
 			
+			Evnt dmgEvnt;
+			Evnt deathEvnt;
+			dmgEvnt.playerEvent = PlayerEvents::TookDamage;
+			deathEvnt.playerEvent = PlayerEvents::Died;
+
 			// Add this to the event list
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-				m_playerEvents.push_back(PlayerEvents::TookDamage);
+				m_playerEvents.push_back(dmgEvnt);
 
 				if (m_myPlayerDataPacket.health <= 0) {
-					m_playerEvents.push_back(PlayerEvents::Died);
+					m_playerEvents.push_back(deathEvnt);
 					
 				}
 			}
@@ -624,6 +658,18 @@ void Client::processAndHandlePackets()
 		{
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			m_countDownPacket.Serialize(false, bsIn);
+			Evnt evnt;
+			evnt.playerEvent = PlayerEvents::GameCountdown;
+			evnt.data = (void*)malloc(sizeof(CountdownPacket));
+			memcpy(evnt.data, &m_countDownPacket, sizeof(CountdownPacket));
+
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+				m_playerEvents.push_back(evnt);
+			}
+
+
 			m_inGame = true;
 		}
 		break;
@@ -639,6 +685,16 @@ void Client::processAndHandlePackets()
 		{
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			m_roundTimePacket.Serialize(false, bsIn);
+			Evnt evnt;
+			evnt.playerEvent = PlayerEvents::RoundTimer;
+			evnt.data = (void*)malloc(sizeof(RoundTimePacket));
+			memcpy(evnt.data, &m_roundTimePacket, sizeof(RoundTimePacket));
+
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+				m_playerEvents.push_back(evnt);
+			}
 		}
 		break;
 
@@ -650,10 +706,13 @@ void Client::processAndHandlePackets()
 			m_myPlayerDataPacket.latestSpawnPosition = playerPacket.latestSpawnPosition;
 			m_myPlayerDataPacket.health = playerPacket.health;
 
+			Evnt evnt;
+			evnt.playerEvent = PlayerEvents::Respawned;
+
 			// Add this to the event list
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-				m_playerEvents.push_back(PlayerEvents::Respawned);
+				m_playerEvents.push_back(evnt);
 			}
 
 
@@ -664,10 +723,13 @@ void Client::processAndHandlePackets()
 			m_myPlayerDataPacket.health = NetGlobals::PlayerMaxHealth;
 			m_myPlayerDataPacket.latestSpawnPosition = NetGlobals::PlayerFirstSpawnPoint;
 
+			Evnt evnt;
+			evnt.playerEvent = PlayerEvents::Respawned;
+
 			// Add this to the event list
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-				m_playerEvents.push_back(PlayerEvents::Respawned);
+				m_playerEvents.push_back(evnt);
 			}
 			break;
 		}
@@ -675,10 +737,13 @@ void Client::processAndHandlePackets()
 		case GIVE_PLAYER_FULL_HEALTH:
 		{
 			m_myPlayerDataPacket.health = NetGlobals::PlayerMaxHealth;
+			Evnt evnt;
+			evnt.playerEvent = PlayerEvents::SessionOver;
+
 			// Add this to the event list
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-				m_playerEvents.push_back(PlayerEvents::SessionOver);
+				m_playerEvents.push_back(evnt);
 			}
 			break;
 		}
@@ -691,16 +756,27 @@ void Client::processAndHandlePackets()
 			playerPacket.Serialize(false, bsIn);
 			m_myPlayerDataPacket.numberOfDeaths = playerPacket.numberOfDeaths;
 			m_myPlayerDataPacket.numberOfKills = playerPacket.numberOfKills;
+			m_myPlayerDataPacket.numberOfDamage = playerPacket.numberOfDamage;
 		}
 
 		break;
 
 		case HITMARK:
 		{
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			HitConfirmedPacket hitConfirmedPacket;
+			hitConfirmedPacket.Serialize(false, bsIn);
+			Evnt evnt = Evnt();
+			evnt.playerEvent = PlayerEvents::Hitmark;
+			evnt.data = (void*)malloc(sizeof(HitConfirmedPacket));
+			memcpy(evnt.data, &hitConfirmedPacket, sizeof(HitConfirmedPacket));
+
+			//evnt.data = (void*)&hitConfirmedPacket;
+
 			// Add this to the event list
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-				m_playerEvents.push_back(PlayerEvents::Hitmark);
+				m_playerEvents.push_back(evnt);
 			}			
 		}
 		break;
@@ -724,10 +800,13 @@ void Client::processAndHandlePackets()
 			int slot = shPtr->playSound(SuccessfulDeflectSound, spellPacket.CreatorGUID);
 			shPtr->setSourcePosition(spellPacket.Position, SuccessfulDeflectSound, spellPacket.CreatorGUID, slot);
 			
+			Evnt evnt;
+			evnt.playerEvent = PlayerEvents::Deflected;
+
 			// Add this to the event list
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-				m_playerEvents.push_back(PlayerEvents::Deflected);
+				m_playerEvents.push_back(evnt);
 			}
 
 			// scope
@@ -735,6 +814,29 @@ void Client::processAndHandlePackets()
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateDeflectSpellMutex);
 				m_spellHandler->m_deflectedSpells.emplace_back(data);
 			}			
+		}
+		break;
+
+		case ENEMY_DEFLECTED_SPELL:
+		{
+			if (m_spellHandler == nullptr) continue;
+
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			SpellPacket spellPacket;
+			spellPacket.Serialize(false, bsIn);
+			bsIn.SetReadOffset(0);
+
+			int slot = shPtr->playSound(SuccessfulDeflectSound, spellPacket.CreatorGUID);
+			shPtr->setSourcePosition(spellPacket.Position, SuccessfulDeflectSound, spellPacket.CreatorGUID, slot);
+		
+			Evnt evnt;
+			evnt.playerEvent = PlayerEvents::EnemyDeflected;
+
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+				m_playerEvents.push_back(evnt);
+			}
 		}
 		break;
 
@@ -795,10 +897,10 @@ void Client::processAndHandlePackets()
 				t.width += Renderer::getInstance()->getTextWidth(type, t.scale);
 				t.textParts.emplace_back(type, color);					
 			}
-			else if (pickupPacket.type == PickupType::DamageBuff)
+			else if (pickupPacket.type == PickupType::ManaPotion)
 			{
-				std::string type = "Damage potion ";
-				glm::vec3 color = glm::vec3(1.0f, 0.5f, 0.0f);
+				std::string type = "Mana potion ";
+				glm::vec3 color = glm::vec3(0.2f, 0.2f, 1.0f);
 				t.width += Renderer::getInstance()->getTextWidth(type, t.scale);
 				t.textParts.emplace_back(type, color);
 			}
@@ -835,50 +937,44 @@ void Client::processAndHandlePackets()
 		}
 		break;
 
-		case HEAL_BUFF:
+		case HEAL_POTION:
 		{
 			
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			PlayerPacket pData;
 			pData.Serialize(false, bsIn);
 
+			Evnt evnt;
+			evnt.playerEvent = PlayerEvents::TookHeal;
+
+
 			// Add this to the event list
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-				m_playerEvents.push_back(PlayerEvents::TookHeal);
+				m_playerEvents.push_back(evnt);
 			}
 
 			m_myPlayerDataPacket.health = pData.health;
 		}
 		break;
 
-		case DAMAGE_BUFF_ACTIVE:
+		case MANA_POTION:
 		{
+
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			PlayerPacket pData;
 			pData.Serialize(false, bsIn);
 
+			Evnt evnt;
+			evnt.playerEvent = PlayerEvents::TookMana;
+
 			// Add this to the event list
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-				m_playerEvents.push_back(PlayerEvents::TookPowerup);
+				m_playerEvents.push_back(evnt);
 			}
 
-			m_myPlayerDataPacket.hasDamageBuff = pData.hasDamageBuff;
-			m_myPlayerDataPacket.health = pData.health;
-			
-		}
-		break;
-
-		case DAMAGE_BUFF_INACTIVE: 
-		{	
-			// Add this to the event list
-			{
-				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-				m_playerEvents.push_back(PlayerEvents::PowerupRemoved);
-			}
-
-			m_myPlayerDataPacket.hasDamageBuff = false;
+			m_myPlayerDataPacket.mana = pData.mana;
 		}
 		break;
 
@@ -890,9 +986,12 @@ void Client::processAndHandlePackets()
 
 			PlayerPacket* killer;
 			PlayerPacket* dead;
+			bool createPersonalKillFeed = false;
 
-			if (killFeed.killerGuid == m_myPlayerDataPacket.guid)
+			if (killFeed.killerGuid == m_myPlayerDataPacket.guid) {
+				createPersonalKillFeed = true;
 				killer = &m_myPlayerDataPacket;
+			}
 			else
 				killer = findPlayerByGuid(killFeed.killerGuid);
 			
@@ -904,32 +1003,71 @@ void Client::processAndHandlePackets()
 
 			if (killer == nullptr || dead == nullptr)
 				return;
-
-			NotificationText t;
-			t.alphaColor = 1.0f;
-			t.width = 0;
-			t.scale = glm::vec3(0.35f);
-			t.useAlpha = false;
-			t.lifeTimeInSeconds = 5.0f;
-
-			glm::vec3 playerColor = glm::vec3(1.0f, 0.5f, 0.0f);
 			
-			std::string killername = std::string(killer->userName);
-			t.width += Renderer::getInstance()->getTextWidth(killername, t.scale);
-			t.textParts.emplace_back(killername, playerColor);
-
-			std::string text = std::string(" killed ");
-			t.width += Renderer::getInstance()->getTextWidth(text, t.scale);
-			t.textParts.emplace_back(text, glm::vec3(1.0f, 1.0f, 1.0f));
-
-			std::string deadguyName = std::string(dead->userName);
-			t.width += Renderer::getInstance()->getTextWidth(deadguyName, t.scale);
-			t.textParts.emplace_back(deadguyName, playerColor);
-
+			
+			
+			
+			
 			{
-				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateKillFeedMutex);
-				Renderer::getInstance()->addKillFeed(t);
+				NotificationText t;
+				t.alphaColor = 1.0f;
+				t.width = 0;
+				t.scale = glm::vec3(0.35f);
+				t.useAlpha = false;
+				t.lifeTimeInSeconds = 5.0f;
+
+				glm::vec3 playerColor = glm::vec3(1.0f, 0.5f, 0.0f);
+
+				std::string killername = std::string(killer->userName);
+				t.width += Renderer::getInstance()->getTextWidth(killername, t.scale);
+				t.textParts.emplace_back(killername, playerColor);
+
+				std::string text = std::string(" killed ");
+				t.width += Renderer::getInstance()->getTextWidth(text, t.scale);
+				t.textParts.emplace_back(text, glm::vec3(1.0f, 1.0f, 1.0f));
+
+				std::string deadguyName = std::string(dead->userName);
+				t.width += Renderer::getInstance()->getTextWidth(deadguyName, t.scale);
+				t.textParts.emplace_back(deadguyName, playerColor);
+
+				{
+					std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateKillFeedMutex);
+					Renderer::getInstance()->addKillFeed(t);
+				}
 			}
+
+
+			if (createPersonalKillFeed) {
+
+				NotificationText t;
+				t.alphaColor = 1.0f;
+				t.width = 0;
+				t.scale = glm::vec3(0.35f);
+				t.useAlpha = true;
+				t.lifeTimeInSeconds = 5.0f;
+
+				glm::vec3 playerColor = glm::vec3(1.0f, 0.5f, 0.0f);
+
+				std::string killername = "You";
+				t.width += Renderer::getInstance()->getTextWidth(killername, t.scale);
+				t.textParts.emplace_back(killername, playerColor);
+
+				std::string text = std::string(" killed ");
+				t.width += Renderer::getInstance()->getTextWidth(text, t.scale);
+				t.textParts.emplace_back(text, glm::vec3(1.0f, 1.0f, 1.0f));
+
+				std::string deadguyName = std::string(dead->userName);
+				t.width += Renderer::getInstance()->getTextWidth(deadguyName, t.scale);
+				t.textParts.emplace_back(deadguyName, playerColor);
+
+				{
+					std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdateKillFeedMutex);
+					Renderer::getInstance()->addKillNotification(t);
+				}
+
+
+			}
+
 
 			break;
 		}
@@ -952,10 +1090,13 @@ void Client::processAndHandlePackets()
 				m_destroyedWalls.push_back(destpacket);
 			}
 
+			Evnt evnt;
+			evnt.playerEvent = PlayerEvents::WallGotDestroyed;
+
 			// Add this to the event list
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-				m_playerEvents.push_back(PlayerEvents::WallGotDestroyed);
+				m_playerEvents.push_back(evnt);
 			}
 
 			break;
@@ -966,13 +1107,16 @@ void Client::processAndHandlePackets()
 			ReadyPlayersCount readyPlayersCount;
 			readyPlayersCount.Serialize(false, bsIn);
 
+			Evnt evnt;
+			evnt.playerEvent = PlayerEvents::PlayerReady;
+			m_numberOfReadyPlayers = readyPlayersCount.numberOfReadyPlayers;
+
 			// Add this to the event list
 			{
 				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
-				m_playerEvents.push_back(PlayerEvents::PlayerReady);
+				m_playerEvents.push_back(evnt);
 			}
 
-			m_numberOfReadyPlayers = readyPlayersCount.numberOfReadyPlayers;
 
 			break;
 		}
@@ -981,6 +1125,38 @@ void Client::processAndHandlePackets()
 		{
 			m_myPlayerDataPacket.isReady = false;
 			m_numberOfReadyPlayers = 0;
+
+			Evnt evnt;
+			evnt.playerEvent = PlayerEvents::PlayerReady;
+
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+				m_playerEvents.push_back(evnt);
+			}
+
+			break;
+		}
+		case ENEMY_DIED:
+		{	
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			EnemyDiedPacket enemyDiedPacket;
+			enemyDiedPacket.Serialize(false, bsIn);
+			
+			if (enemyDiedPacket.guidOfDeadPlayer == m_myPlayerDataPacket.guid.rakNetGuid)
+				continue;
+			
+			Evnt evnt = Evnt();
+			evnt.playerEvent = PlayerEvents::EnemyDied;
+			evnt.data = (void*)malloc(sizeof(EnemyDiedPacket));
+			memcpy(evnt.data, &enemyDiedPacket, sizeof(EnemyDiedPacket));
+
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+				m_playerEvents.push_back(evnt);
+			}
+
 			break;
 		}
 
@@ -998,7 +1174,7 @@ void Client::processAndHandlePackets()
 void Client::updatePlayerData(Player* player)
 {
 	if (!m_initialized || !m_isConnectedToAnServer) return;
-
+	m_myPlayerDataPacket.mana = player->getMana();
 	m_myPlayerDataPacket.position = player->getPlayerPos();
 	m_myPlayerDataPacket.inDeflectState = player->isDeflecting();
 	m_myPlayerDataPacket.lookDirection = player->getCamera()->getCamFace();
@@ -1035,12 +1211,12 @@ void Client::createSpellOnNetwork(const Spell& spell)
 	spellPacket.packetType = SPELL_CREATED;
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
 	spellPacket.timestamp = RakNet::GetTimeMS();
-	spellPacket.Position = spell.getTransform().position;
+	spellPacket.Position = spell.getObjectTransform().position;
 	spellPacket.LastPosition = spell.getLastPosition();
 	spellPacket.Direction = spell.getDirection();
 	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Rotation = glm::vec3(0.0f);
-	spellPacket.Scale = spell.getTransform().scale;
+	spellPacket.Scale = spell.getObjectTransform().scale;
 	spellPacket.SpellType = (OBJECT_TYPE)spell.getType();
 
 	m_removeOrAddSpellQueue.emplace_back(spellPacket);
@@ -1054,12 +1230,12 @@ void Client::updateSpellOnNetwork(const Spell& spell)
 	SpellPacket spellPacket;
 	spellPacket.packetType = SPELL_UPDATE;
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
-	spellPacket.Position = spell.getTransform().position;
+	spellPacket.Position = spell.getObjectTransform().position;
 	spellPacket.LastPosition = spell.getLastPosition();
 	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Direction = spell.getDirection();
 	spellPacket.Rotation = glm::vec3(0.0f);
-	spellPacket.Scale = spell.getTransform().scale;
+	spellPacket.Scale = spell.getObjectTransform().scale;
 	spellPacket.SpellType = (OBJECT_TYPE)spell.getType(); 
 
 	m_updateSpellQueue.emplace_back(spellPacket);
@@ -1073,12 +1249,12 @@ void Client::destroySpellOnNetwork(const Spell& spell)
 	spellPacket.packetType = SPELL_DESTROY;
 	spellPacket.CreatorGUID = m_clientPeer->GetMyGUID();
 	spellPacket.timestamp = RakNet::GetTimeMS();
-	spellPacket.Position = spell.getTransform().position;
+	spellPacket.Position = spell.getObjectTransform().position;
 	spellPacket.LastPosition = spell.getLastPosition();
 	spellPacket.SpellID = spell.getUniqueID();
 	spellPacket.Direction = spell.getDirection();
 	spellPacket.Rotation = glm::vec3(0.0f);
-	spellPacket.Scale = spell.getTransform().scale;
+	spellPacket.Scale = spell.getObjectTransform().scale;
 	spellPacket.SpellType = (OBJECT_TYPE)spell.getType();
 
 	m_removeOrAddSpellQueue.emplace_back(spellPacket);
@@ -1097,9 +1273,9 @@ void Client::sendHitRequest(Spell& spell, NetworkPlayers::PlayerEntity& playerTh
 	hitPacket.SpellID = spell.getUniqueID();
 	hitPacket.CreatorGUID = m_clientPeer->GetMyGUID();
 	hitPacket.playerHitGUID = playerThatWasHit.data.guid.rakNetGuid;
-	hitPacket.Position = spell.getTransform().position;
-	hitPacket.Rotation = spell.getTransform().rotation;
-	hitPacket.Scale = spell.getTransform().scale;
+	hitPacket.Position = spell.getObjectTransform().position;
+	hitPacket.Rotation = spell.getObjectTransform().rotation;
+	hitPacket.Scale = spell.getObjectTransform().scale;
 	hitPacket.damage = spell.getDamage();
 	hitPacket.SpellDirection = spell.getDirection();
 
@@ -1114,9 +1290,9 @@ void Client::sendHitRequest(Spell& spell, const PlayerPacket& playerThatWasHit)
 	hitPacket.SpellID = spell.getUniqueID();
 	hitPacket.CreatorGUID = m_clientPeer->GetMyGUID();
 	hitPacket.playerHitGUID = playerThatWasHit.guid.rakNetGuid;
-	hitPacket.Position = spell.getTransform().position;
-	hitPacket.Rotation = spell.getTransform().rotation;
-	hitPacket.Scale = spell.getTransform().scale;
+	hitPacket.Position = spell.getObjectTransform().position;
+	hitPacket.Rotation = spell.getObjectTransform().rotation;
+	hitPacket.Scale = spell.getObjectTransform().scale;
 	hitPacket.damage = spell.getDamage();
 	hitPacket.SpellDirection = spell.getDirection();
 
@@ -1290,13 +1466,16 @@ const RoundTimePacket& Client::getRoundTimePacket() const
 	return m_roundTimePacket;
 }
 
-const PlayerEvents Client::readNextEvent()
+const Evnt Client::readNextEvent()
 {
-	if (m_playerEvents.size() == 0)
-		return PlayerEvents::None;
+	if (m_playerEvents.size() == 0){
+		Evnt evnt;
+		evnt.playerEvent = PlayerEvents::None;
+		return evnt;
+	}
 
 	// Save it
-	PlayerEvents evnt = m_playerEvents[0];
+	Evnt evnt = m_playerEvents[0];
 
 	// Remove it so that the next time this function is called the next event will be shown
 	{
@@ -1596,6 +1775,7 @@ void Client::resetPlayerData()
 	m_myPlayerDataPacket.inDeflectState = false;
 	m_myPlayerDataPacket.numberOfDeaths = 0;
 	m_myPlayerDataPacket.numberOfKills = 0;
+	m_myPlayerDataPacket.numberOfDamage = 0;
 	m_myPlayerDataPacket.hasBeenUpdatedOnce = false;
 	char t[16] = { ' ' };
 	memcpy(m_myPlayerDataPacket.userName, t, sizeof(m_myPlayerDataPacket.userName));

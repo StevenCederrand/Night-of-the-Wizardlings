@@ -19,6 +19,7 @@ struct Vertex
 	glm::vec3 position;
 	glm::vec2 UV;
 	glm::vec3 Normals;
+	glm::vec3 Tangent;
 };
 
 struct Vertex2
@@ -44,7 +45,9 @@ struct Material
 	glm::vec3 specular;
 	int rimLighting;
 	bool texture;
+	bool normalMap;
 	std::vector<GLuint> textureID;	
+	GLuint normalMapID;
 };
 
 struct Buffers
@@ -227,17 +230,4 @@ struct VoroniDiagram
 	}
 
 
-};
-
-struct psBuffers
-{
-	unsigned int texture;
-	unsigned int vao;
-	unsigned int vertexBuffer;
-	unsigned int directionalBuffer;
-	unsigned int lifetimeBuffer;
-	unsigned int shader;
-	unsigned int vertexPosition;
-	unsigned int vertexDirection;
-	unsigned int vertexLife;
 };

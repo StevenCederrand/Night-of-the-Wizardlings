@@ -89,7 +89,11 @@ void Mesh::setUpBuffers()
 	// vertex texture coords
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, UV));
+	//vertex tangent for normal mapping
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Tangent));
 	glBindVertexArray(0);
+
 
 	m_vertexBuffer.nrOfFaces = static_cast<int>(m_faces.size());
 }
@@ -140,26 +144,6 @@ void Mesh::addAnimation(std::string name)
 void Mesh::setSkeleton(std::string name)
 {
 	m_skeleton = name;
-}
-
-void Mesh::setPos(glm::vec3 pos)
-{
-	m_transform.position = pos;
-}
-
-void Mesh::setRot(glm::quat quat)
-{
-	m_transform.rotation = quat;
-}
-
-void Mesh::setScale(glm::vec3 scale)
-{
-	m_transform.scale = scale;
-}
-
-void Mesh::setTransform(Transform transform)
-{
-	m_transform = transform;
 }
 
 const std::string& Mesh::getMaterial() const

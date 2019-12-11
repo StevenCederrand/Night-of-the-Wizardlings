@@ -9,15 +9,15 @@ LocalServer::LocalServer()
 	m_roundTimer = NetGlobals::GameRoundTimeMS;
 
 	m_timedCountdownTimer.setTotalExecutionTime(NetGlobals::WarmupCountdownTimeMS);
-	m_timedCountdownTimer.setExecutionInterval(500);
+	m_timedCountdownTimer.setExecutionInterval(100);
 	m_timedCountdownTimer.registerCallback(std::bind(&LocalServer::countdownExecutionLogic, this));
 
 	m_timedRunTimer.setTotalExecutionTime(NetGlobals::GameRoundTimeMS);
-	m_timedRunTimer.setExecutionInterval(500);
+	m_timedRunTimer.setExecutionInterval(100);
 	m_timedRunTimer.registerCallback(std::bind(&LocalServer::roundTimeExecutionLogic, this));
 
 	m_timedGameInEndStateTimer.setTotalExecutionTime(NetGlobals::InGameEndStateTimeMS);
-	m_timedGameInEndStateTimer.setExecutionInterval(500);
+	m_timedGameInEndStateTimer.setExecutionInterval(100);
 	m_timedGameInEndStateTimer.registerCallback(std::bind(&LocalServer::endGameTimeExecutionLogic, this));
 
 	m_timedPickupSpawner.setTotalExecutionTime(NetGlobals::GameRoundTimeMS);
@@ -135,7 +135,6 @@ void LocalServer::ThreadedUpdate()
 			handleRoundTime(timeDiff);
 			handlePickupTimer(timeDiff);
 			checkCollisionBetweenPlayersAndPickups();
-			updatePlayersWithDamageBuffs(timeDiff);
 		}
 
 		if (m_serverInfo.currentState == NetGlobals::SERVER_STATE::GameFinished) {
@@ -339,7 +338,7 @@ void LocalServer::processAndHandlePackets()
 
 			// Lastly, add the new player to the local list of connected players
 			m_connectedPlayers.emplace_back(player);
-
+					
 			// Update the general server information.
 			m_serverInfo.connectedPlayers++;
 			m_serverPeer->SetOfflinePingResponse((const char*)&m_serverInfo, sizeof(ServerInfo));
@@ -351,8 +350,8 @@ void LocalServer::processAndHandlePackets()
 			statePacket.currentState = m_serverInfo.currentState;
 			statePacket.Serialize(true, stateStream);
 			m_serverPeer->Send(&stateStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, packet->systemAddress, false);
-
-			sendReadyInfoToPlayer(&player);
+			sendReadyInfoToAllPlayers();
+			//sendReadyInfoToPlayer(&player);
 
 			break;
 		}
@@ -720,6 +719,11 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 				spell->Serialize(true, spellCreationStream);
 				m_serverPeer->Send(&spellCreationStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, target->guid, false);
 
+				RakNet::BitStream enemyDeflectStream;
+				enemyDeflectStream.Write((RakNet::MessageID)ENEMY_DEFLECTED_SPELL);
+				spell->Serialize(true, enemyDeflectStream);
+				m_serverPeer->Send(&enemyDeflectStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, shooter->guid, false);
+
 				return;
 			}
 		}
@@ -727,22 +731,37 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 		//Update the shooter's hitmark
 		RakNet::BitStream hitmarkStream;
 		hitmarkStream.Write((RakNet::MessageID)HITMARK);
-		shooter->Serialize(true, hitmarkStream);
+		HitConfirmedPacket hitConfirmedPacket;
+		hitConfirmedPacket.damageDone = static_cast<int>(hitpacket->damage);
+		hitConfirmedPacket.targetPosition = target->position;
+		hitConfirmedPacket.Serialize(true, hitmarkStream);
 		m_serverPeer->Send(&hitmarkStream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, shooter->guid, false);
 
-		float damageMultiplier = 1.0f;
 
-		if (shooter->hasDamageBuff)
-			damageMultiplier = 4.0f;
+		float totalDamage = hitpacket->damage;
+		
+		//Add the damage done to your total damage if targets health is equal or more 
+		//otherwise add the remaining health. Don't do it if you do dmg to yourself
+		if (target->position != shooter->position)
+		{
+			if (target->health < static_cast<int>(totalDamage))
+				shooter->numberOfDamage += target->health;
+		
+			else
+				shooter->numberOfDamage += static_cast<int>(totalDamage);
 
-		float totalDamage = hitpacket->damage * damageMultiplier;
+
+			RakNet::BitStream Damage;
+			Damage.Write((RakNet::MessageID)SCORE_UPDATE);
+			shooter->Serialize(true, Damage);
+			m_serverPeer->Send(&Damage, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, shooter->guid, false);
+		}
+
 
 		target->health -= static_cast<int>(totalDamage);
-
 		target->lastHitByGuid = hitpacket->CreatorGUID;
 
 		if (target->health <= 0) {
-			removePlayerBuff(target);
 			target->health = 0;
 			Respawner respawner;
 			respawner.currentTime = NetGlobals::TimeBeforeRespawnMS;
@@ -778,6 +797,15 @@ void LocalServer::handleCollisionWithSpells(HitPacket* hitpacket, SpellPacket* s
 			kFeed.deadGuid = target->guid;
 			kFeed.Serialize(true, killFeedStream);
 			sendStreamToAllClients(killFeedStream, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
+
+			// Send a dead player packet to everyone so that they can mainly play particels or something :P
+			RakNet::BitStream deadPlayerStream;
+			deadPlayerStream.Write((RakNet::MessageID)ENEMY_DIED);
+			EnemyDiedPacket enemyDiedPacket;
+			enemyDiedPacket.guidOfDeadPlayer = target->guid.rakNetGuid;
+			enemyDiedPacket.Serialize(true, deadPlayerStream);
+			sendStreamToAllClients(deadPlayerStream, RELIABLE_ORDERED_WITH_ACK_RECEIPT);
+			
 
 		}
 
@@ -900,25 +928,20 @@ void LocalServer::checkCollisionBetweenPlayersAndPickups()
 						player.health = NetGlobals::PlayerMaxHealth;
 					
 					RakNet::BitStream stream;
-					stream.Write((RakNet::MessageID)HEAL_BUFF);
+					stream.Write((RakNet::MessageID)HEAL_POTION);
 					player.Serialize(true, stream);
 					m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, player.guid, false);
 
 
 				}
-				else if (pickup.type == PickupType::DamageBuff) {
-					player.hasDamageBuff = true;
+				else if (pickup.type == PickupType::ManaPotion) {
+					if (player.mana < NetGlobals::PlayerMaxMana)
+						player.mana = NetGlobals::PlayerMaxMana;
+					
 					RakNet::BitStream stream;
-					stream.Write((RakNet::MessageID)DAMAGE_BUFF_ACTIVE);
-					player.health = NetGlobals::PlayerMaxHealth;
+					stream.Write((RakNet::MessageID)MANA_POTION);
 					player.Serialize(true, stream);
 					m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, player.guid, false);
-
-					BuffedPlayer buffedPlayer;
-					buffedPlayer.currentTime = NetGlobals::DamageBuffActiveTimeMS;
-
-					buffedPlayer.player = &player;
-					m_buffedPlayers.emplace_back(buffedPlayer);
 
 				}
 				//----------------------
@@ -950,29 +973,6 @@ bool LocalServer::isCollidingWithPickup(const PlayerPacket& player, const Pickup
 		return true;
 
 	return false;
-}
-
-void LocalServer::updatePlayersWithDamageBuffs(const uint32_t& diff)
-{
-	for (size_t i = 0; i < m_buffedPlayers.size(); i++) {
-		auto& buff = m_buffedPlayers[i];
-
-		if (diff <= buff.currentTime)
-			buff.currentTime -= diff;
-		else
-			buff.currentTime = 0;
-
-
-
-		if (buff.currentTime <= 0) {
-			buff.player->hasDamageBuff = false;
-			RakNet::BitStream stream;
-			stream.Write((RakNet::MessageID)DAMAGE_BUFF_INACTIVE);
-			m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, buff.player->guid, false);
-			m_buffedPlayers.erase(m_buffedPlayers.begin() + i);
-			i--;
-		}
-	}
 }
 
 void LocalServer::handleRespawns(const uint32_t& diff)
@@ -1029,6 +1029,7 @@ void LocalServer::respawnPlayers()
 		if (m_connectedPlayers[i].health <= 0)
 		{
 			m_connectedPlayers[i].health = NetGlobals::PlayerMaxHealth;
+			m_connectedPlayers[i].health = NetGlobals::PlayerMaxMana;
 			m_connectedPlayers[i].invulnerabilityTime = NetGlobals::InvulnerabilityTime;
 			RakNet::BitStream stream;
 			stream.Write((RakNet::MessageID)RESPAWN_PLAYER_NOT_IN_SESSION);
@@ -1039,6 +1040,7 @@ void LocalServer::respawnPlayers()
 		else
 		{
 			m_connectedPlayers[i].health = NetGlobals::PlayerMaxHealth;
+			m_connectedPlayers[i].health = NetGlobals::PlayerMaxMana;
 			m_connectedPlayers[i].invulnerabilityTime = NetGlobals::InvulnerabilityTime;
 			RakNet::BitStream stream;
 			stream.Write((RakNet::MessageID)GIVE_PLAYER_FULL_HEALTH);
@@ -1050,42 +1052,13 @@ void LocalServer::respawnPlayers()
 	m_respawnList.clear();
 }
 
-void LocalServer::resetPlayerBuffs()
-{
-	for (size_t i = 0; i < m_buffedPlayers.size(); i++) {
-		auto& buff = m_buffedPlayers[i];
-		buff.player->hasDamageBuff = false;
-		RakNet::BitStream stream;
-		stream.Write((RakNet::MessageID)DAMAGE_BUFF_INACTIVE);
-		m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, buff.player->guid, false);
-	}
-	m_buffedPlayers.clear();
-}
-
-void LocalServer::removePlayerBuff(const PlayerPacket* player)
-{
-	for (size_t i = 0; i < m_buffedPlayers.size(); i++) {
-		auto& buff = m_buffedPlayers[i];
-
-		if (buff.player->guid == player->guid) {
-			buff.player->hasDamageBuff = false;
-			RakNet::BitStream stream;
-			stream.Write((RakNet::MessageID)DAMAGE_BUFF_INACTIVE);
-			m_serverPeer->Send(&stream, HIGH_PRIORITY, RELIABLE_ORDERED_WITH_ACK_RECEIPT, 0, buff.player->guid, false);
-			m_buffedPlayers.erase(m_buffedPlayers.begin() + i);
-			i--;
-			
-		}
-
-	}
-}
-
 void LocalServer::resetScores()
 {
 	for (size_t i = 0; i < m_connectedPlayers.size(); i++)
 	{
 		m_connectedPlayers[i].numberOfDeaths = 0;
 		m_connectedPlayers[i].numberOfKills = 0;
+		m_connectedPlayers[i].numberOfDamage = 0;
 
 		RakNet::BitStream stream;
 		stream.Write((RakNet::MessageID)SCORE_UPDATE);
@@ -1110,6 +1083,7 @@ void LocalServer::countdownExecutionLogic()
 	stream.Write((RakNet::MessageID)GAME_START_COUNTDOWN);
 	CountdownPacket countdownPacket;
 	countdownPacket.timeLeft = static_cast<uint32_t>(m_timedCountdownTimer.getTimeLeft());
+	//printf("Timer: %f\n", m_timedCountdownTimer.getTimeLeft());
 	countdownPacket.Serialize(true, stream);
 	sendStreamToAllClients(stream);
 }
@@ -1353,14 +1327,14 @@ void LocalServer::unreadyEveryPlayer()
 PickupType LocalServer::getRandomPickupType()
 {
 
-	/*size_t luckyNumber = Randomizer::single(size_t(0), size_t(1));
+	size_t luckyNumber = Randomizer::single(size_t(0), size_t(1));
 
 	if (luckyNumber == 0) {
 		return PickupType::HealthPotion;
 	}
 	else if (luckyNumber == 1) {
-		return PickupType::DamageBuff;
-	}*/
+		return PickupType::ManaPotion;
+	}
 
 	return PickupType::HealthPotion;
 }
@@ -1524,7 +1498,6 @@ void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 		respawnPlayers();
 		resetScores();
 		destroyAllPickups();
-		resetPlayerBuffs();
 		m_queuedPickups.clear();
 		logTrace("[Server] Warmup!");
 	}
@@ -1549,7 +1522,6 @@ void LocalServer::stateChange(NetGlobals::SERVER_STATE newState)
 	if (newState == NetGlobals::SERVER_STATE::GameFinished) {
 		logTrace("[Server] Game is over!");
 		respawnPlayers();
-		resetPlayerBuffs();
 		destroyAllPickups();
 		unreadyEveryPlayer();
 		m_queuedPickups.clear();

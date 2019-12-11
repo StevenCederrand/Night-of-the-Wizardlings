@@ -5,8 +5,7 @@ enum PlayerEvents {
 	Died,
 	Respawned,
 	TookDamage,
-	TookPowerup,
-	PowerupRemoved,
+	TookMana,
 	TookHeal,
 	SessionOver,
 	Deflected,
@@ -16,8 +15,20 @@ enum PlayerEvents {
 	GameEnded,
 	Warmup,
 	None,
-	Hitmark
+	Hitmark,
+	EnemyDeflected,
+	EnemyDied,
+	GameCountdown,
+	RoundTimer,
+	GameIsAboutToStart,
+	WaitingForPlayers
 
+};
+
+struct Evnt
+{
+	PlayerEvents playerEvent;
+	void* data;
 };
 
 #endif
