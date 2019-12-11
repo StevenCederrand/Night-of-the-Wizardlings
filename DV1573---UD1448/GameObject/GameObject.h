@@ -33,7 +33,10 @@ public:
 	void createDynamic(CollisionObject shape = box, float weight = 1.0f, int meshIndex = 0, bool recenter = true);	
 	void removeBody(int bodyIndex);
 	void setBodyActive(bool state = false, int meshIndex = 0);
-
+	
+	void setNormalMap(const char* fileName);
+	void setTexture(const char* fileName);
+	
 	void addParticle(ParticleBuffers* particleBuffers);
 	void UpdateParticles(float dt);
 	void RenderParticles(Camera *camera);
@@ -65,7 +68,7 @@ public:
 	const glm::mat4& getMatrix(const int& i = 0) const;
 	const int getType() const { return m_type; }
 	const bool& getShouldRender() const;
-	const glm::vec3 getLastPosition() const;
+	const glm::vec3 getLastPosition() const;	
 
 	btRigidBody* getRigidBody(int meshIndex = 0) const { return m_meshes[meshIndex].body; }
 	std::vector<ParticleSystem>& getParticles() { return m_particleSystems; } //Get the particle vector so we can render and stuff
@@ -105,7 +108,7 @@ protected:
 	std::vector<glm::mat4> m_modelMatrixes;
 	std::vector<MeshBox> m_meshes;
 	bool m_shouldRender;
-	int m_type;
+	int m_type;	
 };
 
 

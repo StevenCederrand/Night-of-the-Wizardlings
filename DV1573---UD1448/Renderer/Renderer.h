@@ -21,7 +21,7 @@
 //Rendering Options 
 #define FORWARDPLUS true;
 #define SSAO true;
-#define BLUR false;
+#define BLUR true;
 #define N_BLUR true; //Use naive blur?
 
 //Number of SSAO kernels allowed in the system

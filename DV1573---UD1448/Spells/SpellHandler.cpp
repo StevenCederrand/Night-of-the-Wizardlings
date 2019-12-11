@@ -373,7 +373,8 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 
 		// Bullet
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
-		spell->createRigidBody(BulletPhysics::getInstance()->createObject(
+		spell->createRigidBody(
+			BulletPhysics::getInstance()->createObject(
 			sphere,
 			1.0f,
 			spellPos + directionVector * 2,

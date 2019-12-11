@@ -14,8 +14,9 @@ struct P_LIGHT {
 };
 
 in vec2 f_UV;
-in vec3 f_normal;   //Comes in normalized
-in vec4 f_position; //Comes in in world space
+in vec3 f_normal; //Comes in normalized
+in vec4 f_position;
+in vec3 f_tangent;
 
 out vec4 color;
 out vec4 brightColor;
@@ -40,10 +41,13 @@ uniform int LightCount;                 // Used when lightculling. To know how m
 uniform sampler2D albedoTexture;        // Texture diffuse
 layout(rgba32f, binding = 0) uniform readonly image2D SSAOTexture;   // Texture with SSAO value comoing from the compute shader
 
+uniform bool NormalMapping;				// Use normal mapping or not
+uniform sampler2D normalMap;
+
 uniform int grayscale = 0;
 uniform P_LIGHT pLights[LIGHTS_MAX];
 
-
+vec3 normalSampleToWorldSpace(vec3 normalMapSample, vec3 normal, vec3 tangent);
 vec3 calcPointLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance, vec3 diffuse);
 //Calculate the directional light... Returns the diffuse color, post calculations
 vec3 calcDirLight(vec3 normal, vec3 diffuseColor, vec3 lightDirection);
@@ -54,6 +58,16 @@ void main() {
     vec4 ssaoVal = imageLoad(SSAOTexture, ivec2(gl_FragCoord.xy));
     //Sample from the SSAO map
     float ssaoValue = imageLoad(SSAOTexture, ivec2(gl_FragCoord.xy)).r;
+    if(SSAO == 0) {
+        ssaoValue = 1;
+    }
+	vec3 finalNormal = f_normal;
+	if(NormalMapping == true)
+	{
+		//Obtain normal from normal map in range [0, 1]
+		vec3 normalMapSample = texture(normalMap, f_UV).rgb;
+		finalNormal = normalSampleToWorldSpace(normalMapSample, f_normal, f_tangent);
+	}
 
     vec3 emissive = Ambient_Color; // Temp used as emmisve, should rename all ambient names to emmisive.
     //Makes the material full solid color (basically fully lit). Needs bloom for best effect.
@@ -62,14 +76,15 @@ void main() {
     vec4 finalTexture = texture(albedoTexture, f_UV);
 
     // Ambient light
-    vec3 ambientLight = Diffuse_Color * ambientStr;     // Material color
+    vec3 ambientLight = Diffuse_Color * ambientStr* ssaoValue;     // Material color
 
     if (TexAndRim.x == 1 && SSAO == 0)
         ambientLight = finalTexture.rgb * ambientStr * brightnessMod; // Texture color    (If there is texture we disregard material color)
     else if(TexAndRim.x == 1 && SSAO == 1)
         ambientLight = finalTexture.rgb * ambientStr * brightnessMod * ssaoValue; // Texture color    (If there is texture we disregard material color)
+
     // Create the diffuse color once
-    vec3 diffuseColor = Diffuse_Color;  // Material color
+    vec3 diffuseColor = Diffuse_Color * ssaoValue;  // Material color
 
     if(TexAndRim.x == 1 && SSAO == 0)
         diffuseColor = finalTexture.rgb * 0.5;   // Texture color
@@ -77,8 +92,8 @@ void main() {
         diffuseColor = finalTexture.rgb * 0.5 * ssaoValue;
 
     // Directional light
-    vec3 directionalLight = calcDirLight(f_normal, diffuseColor, GLOBAL_lightDirection);
-    directionalLight += calcDirLight(f_normal, diffuseColor, GLOBAL_lightDirection2);
+    vec3 directionalLight = calcDirLight(finalNormal, diffuseColor, GLOBAL_lightDirection);
+    directionalLight += calcDirLight(finalNormal, diffuseColor, GLOBAL_lightDirection2);
 
     //This is a light accumilation over the point lights
     vec3 pointLights = vec3(0.0f);
@@ -103,6 +118,25 @@ void main() {
     }
 
     color = result;
+}
+
+vec3 normalSampleToWorldSpace(vec3 normalMapSample, vec3 normal, vec3 tangent) {
+	vec3 bumpedNormal;
+
+	//Uncompress each component from [0,1] to [-1, 1]
+	vec3 normalT = normalize(2.0f*normalMapSample - 1.0f);
+
+	//Build orthonormal basis and TBN matrix
+	vec3 N = normal;
+	vec3 T = normalize(tangent - dot(tangent,N)*N);
+	vec3 B = cross(N,T);
+
+	mat3 TBN = mat3(T, B, N);
+
+	//Transform from tangent space to world space
+	bumpedNormal = normalT * TBN;
+
+	return bumpedNormal;
 }
 
 vec3 calcPointLights(P_LIGHT pLight, vec3 normal, vec3 position, float distance, vec3 diffuse) {
@@ -149,7 +183,7 @@ vec3 calcDirLight(vec3 normal, vec3 diffuseColor, vec3 lightDirection) {
         float specularStr = 0.5f;
 
         vec3 viewDir = normalize(CameraPosition - f_position.xyz); //normalize(CameraPosition - f_position.xyz);
-        vec3 reflectDir = reflect(-lightDir, f_normal);
+        vec3 reflectDir = reflect(-lightDir, normal);
         float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64);
         //Lock specular
         spec = smoothstep(0.005, 0.01, spec);
@@ -157,7 +191,7 @@ vec3 calcDirLight(vec3 normal, vec3 diffuseColor, vec3 lightDirection) {
 
         vec3 rimColor = vec3(1.0);
         float rimThreshold = 0.1;
-        float rimDot = 1 - dot(viewDir, f_normal); //Rim value
+        float rimDot = 1 - dot(viewDir, normal); //Rim value
         float rimIntensity = rimDot * pow(nDotL, rimThreshold);
         rimIntensity = smoothstep(0.7 - 0.01, 0.7 - 0.01, rimIntensity);
         rimColor = diffuseColor * rimIntensity;
