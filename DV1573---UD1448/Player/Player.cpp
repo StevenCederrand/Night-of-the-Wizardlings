@@ -56,7 +56,9 @@ Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera, Spell
 	m_specialManaDrain = 30.0f;
 
 	m_mainAtkType = NORMALATTACK;
-	m_specialAtkType = ENHANCEATTACK;		
+	m_specialAtkType = ENHANCEATTACK;	
+
+	SoundHandler::getInstance()->setSourceLooping(true, StepsSound, m_client->getMyData().guid);
 }
 
 Player::~Player()
@@ -149,8 +151,7 @@ void Player::updateListenerProperties()
 	shPtr->setSourcePosition(m_playerPosition, PickupMazeSound);
 	shPtr->setSourcePosition(m_playerPosition, PickupTunnelsSound);
 	shPtr->setSourcePosition(m_playerPosition, PickupTopSound);
-	shPtr->setSourcePosition(m_playerPosition, PickupSound);
-	shPtr->setSourceLooping(true, StepsSound, m_client->getMyData().guid);	
+	shPtr->setSourcePosition(m_playerPosition, PickupSound);	
 
 	for (int i = 0; i < NR_OF_SUBSEQUENT_SOUNDS; i++)
 	{
@@ -310,7 +311,7 @@ void Player::attack()
 		{
 			if (!m_deflecting) // Initial cast
 			{
-				m_deflectSoundGain = shPtr->getMasterVolume(); // Will automatically be set to master volume
+				m_deflectSoundGain = shPtr->getMasterVolume(); 
 				m_mana -= m_deflectManaDrain; 
 				shPtr->playSound(DeflectSound, m_client->getMyData().guid);
 				shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
@@ -330,8 +331,12 @@ void Player::attack()
 				shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
 			}
 			else
-			{				
-				shPtr->stopSound(DeflectSound, m_client->getMyData().guid);				
+			{	
+				//Stop all sources for this sound. 
+				for (int i = 0; i < NR_OF_SUBSEQUENT_SOUNDS; i++)
+				{
+					shPtr->stopSound(DeflectSound, m_client->getMyData().guid, i);
+				}
 			}
 		}
 
@@ -348,6 +353,7 @@ void Player::attack()
 		{
 			m_deflectSoundGain = shPtr->getMasterVolume(); // Will automatically be set to master volume			
 
+			//Stop all sources and set the gain back to max gain. 
 			for (int i = 0; i < NR_OF_SUBSEQUENT_SOUNDS; i++)
 			{
 				shPtr->stopSound(DeflectSound, m_client->getMyData().guid, i);
@@ -355,8 +361,7 @@ void Player::attack()
 					DeflectSound, m_client->getMyData().guid, i);
 			}
 			m_deflecting = false;
-		}
-		
+		}		
 	}
 
 	if (!m_deflecting && Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_LEFT))
