@@ -64,15 +64,16 @@ void main() {
     // Ambient light
     vec3 ambientLight = Diffuse_Color * ambientStr;     // Material color
 
-    if (TexAndRim.x == 1 || SSAO == 0)
+    if (TexAndRim.x == 1 && SSAO == 0)
         ambientLight = finalTexture.rgb * ambientStr * brightnessMod; // Texture color    (If there is texture we disregard material color)
-    if(SSAO == 1)
+    else if(TexAndRim.x == 1 && SSAO == 1)
         ambientLight = finalTexture.rgb * ambientStr * brightnessMod * ssaoValue; // Texture color    (If there is texture we disregard material color)
     // Create the diffuse color once
     vec3 diffuseColor = Diffuse_Color;  // Material color
-    if(TexAndRim.x == 1 || SSAO == 0)
+
+    if(TexAndRim.x == 1 && SSAO == 0)
         diffuseColor = finalTexture.rgb * 0.5;   // Texture color
-    if(SSAO == 1)
+    else if(TexAndRim.x == 1 && SSAO == 1)
         diffuseColor = finalTexture.rgb * 0.5 * ssaoValue;
 
     // Directional light
