@@ -19,7 +19,7 @@ Application::Application() {
 Application::~Application() {
 	delete m_input;
 	delete m_stateManager;
-	delete m_noLog;
+	//delete m_noLog;
 	ShaderMap::getInstance()->destroy();
 	Renderer::getInstance()->destroy();
 	MaterialMap::getInstance()->destroy();

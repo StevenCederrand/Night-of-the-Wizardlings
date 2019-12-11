@@ -110,7 +110,7 @@ void LobbyState::startServer()
 	LocalServer::getInstance()->startup(getInputBoxByID(SERVERNAME)->getText().c_str());
 	Client::getInstance()->startup();
 	Client::getInstance()->setUsername(getInputBoxByID(USERNAME)->getText().c_str());
-	Client::getInstance()->connectToMyServer();
+	Client::getInstance()->connectToMyServer();	
 
 	glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	m_stateManager->clearAllAndSetState(new PlayState(false));
