@@ -1203,60 +1203,57 @@ void Renderer::render() {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 #endif
 	//Enemy Deflect Render
-	if (m_enemyShieldObject.size() > 0) {
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		//glDisable(GL_CULL_FACE);
-		glDepthFunc(GL_LEQUAL);
-		shader = shaderMap->useByName(ENEMYSHIELD);
+	
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glDisable(GL_CULL_FACE);
+	glDepthFunc(GL_LEQUAL);
+	shader = shaderMap->useByName(ENEMYSHIELD);
 
-		//Bind view- and projection matrix
-		bindMatrixes(shader);
+	//Bind view- and projection matrix
+	bindMatrixes(shader);
 
-		shader->setVec3("CameraPosition", m_camera->getCamPos());
-		//Add a step where we insert lights into the scene
-		shader->setInt("LightCount", m_spells.size());
+	shader->setVec3("CameraPosition", m_camera->getCamPos());
 
-		//Render Deflect Objects
-		for (GameObject* object : m_enemyShieldObject)
+	//Render Deflect Objects
+	for (GameObject* object : m_enemyShieldObject)
+	{
+		//Then through all of the meshes
+		for (int j = 0; j < object->getMeshesCount(); j++)
 		{
-			//Then through all of the meshes
-			for (int j = 0; j < object->getMeshesCount(); j++)
-			{
-				glEnableVertexAttribArray(0);
-				glEnableVertexAttribArray(1);
-				glEnableVertexAttribArray(2);
-				//Fetch the current mesh and its transform
-				mesh = object->getMesh(j);
-				shader->setFloat("time", glfwGetTime());
-				//Bind the material
-				object->bindMaterialToShader(shader, j);
+			glEnableVertexAttribArray(0);
+			glEnableVertexAttribArray(1);
+			glEnableVertexAttribArray(2);
+			//Fetch the current mesh and its transform
+			mesh = object->getMesh(j);
+			shader->setFloat("time", glfwGetTime());
+			//Bind the material
+			object->bindMaterialToShader(shader, j);
 
-				modelMatrix = glm::mat4(1.0f);
+			modelMatrix = glm::mat4(1.0f);
 
-				modelMatrix = object->getMatrix(j);
-				//Bind the modelmatrix
-				shader->setMat4("modelMatrix", modelMatrix);
+			modelMatrix = object->getMatrix(j);
+			//Bind the modelmatrix
+			shader->setMat4("modelMatrix", modelMatrix);
 
-				glBindVertexArray(mesh->getBuffers().vao);
+			glBindVertexArray(mesh->getBuffers().vao);
 
-				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+			glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
 
-				glBindVertexArray(0);
-				glDisableVertexAttribArray(0);
-				glDisableVertexAttribArray(1);
-				glDisableVertexAttribArray(2);
-			}
+			glBindVertexArray(0);
+			glDisableVertexAttribArray(0);
+			glDisableVertexAttribArray(1);
+			glDisableVertexAttribArray(2);
 		}
-
-		for (size_t i = 0; i < m_enemyShieldObject.size(); i++)
-		{
-			delete m_enemyShieldObject[i];
-		}
-
-		m_enemyShieldObject.clear();
-		shader->clearBinding();
 	}
+
+	for (size_t i = 0; i < m_enemyShieldObject.size(); i++)
+	{
+		delete m_enemyShieldObject[i];
+	}
+
+	m_enemyShieldObject.clear();
+	shader->clearBinding();
 	
 	//Deflect Render
 	if (m_shieldObject != nullptr && m_shieldObject->getShouldRender())
