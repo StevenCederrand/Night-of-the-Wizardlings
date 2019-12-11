@@ -278,10 +278,11 @@ void PlayState::loadLights()
 // Might change these Pepega constructors later if feeling cute
 void PlayState::loadDestructables()
 {
-	m_dstr = DstrGenerator();
-	m_dstr_alt1 = DstrGenerator();
 	Renderer* renderer = Renderer::getInstance();
 	BGLoader meshLoader; // The file loader
+	
+	m_dstr = DstrGenerator();
+	m_dstr_alt1 = DstrGenerator();
 
 	// Temporary variables to move later ---
 	// Debug Destructibles
@@ -297,8 +298,8 @@ void PlayState::loadDestructables()
 	float gravityAfterTime = -8.0f; // Hover-up effect
 
 	// Temporary variables to move later ---
-	m_dstr.setBreakSettings(DSTR2, 11, 2.8f, gravityOnImpact);
-	m_dstr_alt1.setBreakSettings(DSTR1, 8, 3.4f, gravityOnImpact);
+	m_dstr.setBreakSettings(BASIC, breakPoints, breakRadius, gravityOnImpact);
+	m_dstr_alt1.setBreakSettings(PILLAR, breakPoints, breakRadius, gravityOnImpact);
 
 	switch (m_map)
 	{
@@ -354,7 +355,7 @@ void PlayState::loadDestructables()
 				meshLoader.GetMaterial(i),
 				meshLoader.GetAlbedo(i),
 				meshLoader.GetTransform(i),
-				0.25f
+				0.5f
 			);
 
 			m_objects.back()->makeStatic();
@@ -379,7 +380,7 @@ void PlayState::loadDestructables()
 				meshLoader.GetMaterial(i),
 				meshLoader.GetAlbedo(i),
 				meshLoader.GetTransform(i),
-				1.0f
+				1.6f
 			);
 
 			m_objects.back()->makeStatic();
@@ -411,15 +412,15 @@ void PlayState::loadDestructables()
 
 		case 1:
 			// Debug Destructibles
-			breakPoints = 11;
-			breakRadius = 2.8f;
+			// Temporary variables to move later ---
+			breakPoints = 20;
+			breakRadius = 10.0f;
 
 			gravityOnImpact = 30.0f;
 			timeToChange = 2.5f;
 			gravityAfterTime = 30.0f; 
 
-			// Temporary variables to move later ---
-			m_dstr.setBreakSettings(DSTR1, breakPoints, breakRadius, gravityOnImpact);
+			m_dstr.setBreakSettings(PILLAR, breakPoints, breakRadius, gravityOnImpact);
 
 			meshLoader.LoadMesh(MESHPATH + "Debug_DSTR.mesh");
 			for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
@@ -436,7 +437,29 @@ void PlayState::loadDestructables()
 					meshLoader.GetMaterial(i),
 					meshLoader.GetAlbedo(i),
 					meshLoader.GetTransform(i),
-					0.15f
+					0.3f
+				);
+
+				m_objects.back()->makeStatic();
+				Renderer::getInstance()->submit(m_objects.back(), STATIC);
+			}
+
+			meshLoader.LoadMesh(MESHPATH + "Debug_DSTR_pillar.mesh");
+			for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
+			{
+				m_objects.emplace_back(new DestructibleObject(
+					&m_dstr,
+					m_objects.size(),
+					gravityAfterTime,
+					timeToChange));
+
+				static_cast<DestructibleObject*>(m_objects.back())->loadDestructible(
+					meshLoader.GetVertices(i),
+					meshLoader.GetMeshName(i),
+					meshLoader.GetMaterial(i),
+					meshLoader.GetAlbedo(i),
+					meshLoader.GetTransform(i),
+					1.5f
 				);
 
 				m_objects.back()->makeStatic();

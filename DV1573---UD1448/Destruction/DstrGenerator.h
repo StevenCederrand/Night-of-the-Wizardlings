@@ -5,8 +5,15 @@
 
 enum DSTRType
 {
-	DSTR1,
-	DSTR2,
+	// First point centered,
+	// second set in a circle around it,
+	// third set in a circle around it with a slighly larger radius
+	BASIC,
+
+	// Completely random points in a circle
+	PILLAR,
+
+	//
 	DSTR3,
 	DSTR4
 };
@@ -30,7 +37,7 @@ public:
 
 	void Destroy(DestructibleObject* object, glm::vec2 hitPosition = glm::vec3(0.0f), glm::vec3 hitDirection = glm::vec3(0.0f));
 
-	void meshFromClipped(const float& scale, const std::vector<glm::vec2>& polygon, glm::vec3& normal);
+	void meshFromClipped(const float& scale, const std::vector<glm::vec2>& polygon, const std::vector<glm::vec2>& uv, glm::vec3& normal);
 
 	const unsigned int seedRand(int seed = -1);
 	const unsigned int getSeed(unsigned int seed) const { return m_seed; }
@@ -38,14 +45,31 @@ public:
 	void Clear();
 
 private:
-	// Tools
+	struct BreakSettings
+	{
+		unsigned int breakPoints;
+		float breakAreaRadius;
+		float timeSinceLastDestruction;
+		btVector3 initGravity;
+	};
+
+	// Randomizes a points position within a circle radius of original input
+	void randomizeCircle(float& rnd, float& offset, float& angle, glm::vec2& point);
+
+	// Toolss
 	VoroniCalculator m_voroniCalc;
 	VoroniDiagram m_diagram;
 	VoroniClipper m_clipper;
 	std::vector<glm::vec2> m_randomPoints;
 	int m_seed;	// Seed for randomizer, used for network consistency
 
+
+	DSTRType m_dstType = BASIC;
+	BreakSettings m_settings;
+
 	// Allocation
+private:
+	btVector3 m_initGravity;
 	std::vector<glm::vec2> m_clipped;	// Cleared in m_clipper
 	std::vector<Vertex> m_newVertices;	// Cleared in mesh from clipped
 	std::vector<Face> m_newFace;		// Cleared in mesh from clipped
@@ -55,14 +79,7 @@ private:
 	int ni = 0;
 	int ti = 0;
 	int mi = 1;
-
-
-	// TODO: init these correctly
-	DSTRType m_dstType = DSTR1;
-	unsigned int m_breakPoints;
-	float m_breakAreaRadius;
-	float m_timeSinceLastDestruction = 0.0f;
-	btVector3 m_initGravity;
+	
 };
 
 #endif

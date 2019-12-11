@@ -82,8 +82,6 @@ void DestructibleObject::update(float dt)
 				}
 				setWorldPosition(glm::vec3(-999));
 				m_dstrState = 3;
-				//getRigidBodies()[i]->setActivationState(false);
-				//getRigidBodies()[i]->forceActivationState(false);
 			}
 		}
 	}
@@ -397,7 +395,7 @@ void DestructibleObject::meshFromPolygon(std::string name)
 	// Front
 	for (int i = 0; i < count; i++)
 	{
-		newVertices[vi++].position = glm::vec3(m_polygonFace[i].x, m_polygonFace[i].y, m_scale);
+		newVertices[vi++].position = glm::vec3(m_polygonFace[i].x, m_polygonFace[i].y, 0);
 		newVertices[uvi++].UV = glm::vec2(m_polygonUV[i].x, m_polygonUV[i].y);
 		newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, 1.0f);
 	}
@@ -415,10 +413,10 @@ void DestructibleObject::meshFromPolygon(std::string name)
 	{
 		int iNext = i == count - 1 ? 0 : i + 1;
 
-		newVertices[vi++].position = glm::vec3(m_polygonFace[i].x, m_polygonFace[i].y, m_scale);
+		newVertices[vi++].position = glm::vec3(m_polygonFace[i].x, m_polygonFace[i].y, 0);
 		newVertices[vi++].position = glm::vec3(m_polygonFace[i].x, m_polygonFace[i].y, -m_scale);
 		newVertices[vi++].position = glm::vec3(m_polygonFace[iNext].x, m_polygonFace[iNext].y, -m_scale);
-		newVertices[vi++].position = glm::vec3(m_polygonFace[iNext].x, m_polygonFace[iNext].y, m_scale);
+		newVertices[vi++].position = glm::vec3(m_polygonFace[iNext].x, m_polygonFace[iNext].y, 0);
 
 		normal = glm::normalize(glm::cross(glm::vec3(m_polygonFace[iNext] - m_polygonFace[i], 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
 
@@ -460,6 +458,10 @@ void DestructibleObject::meshFromPolygon(std::string name)
 		ti++;
 	}
 
-
 	initMesh(name, newVertices, newFace);
+
+	// TODO: Maybe move or fix this better
+	Transform t = getTransform();
+	t.position.z += m_scale * 0.5;
+	setMeshOffsetTransform(t);
 }

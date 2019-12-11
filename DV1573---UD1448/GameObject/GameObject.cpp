@@ -458,6 +458,8 @@ void GameObject::makeStatic()
 
 			m_meshes[i].body->setUserPointer(this);
 		}
+
+		setTransformFromRigid(i);
 	}
 
 	m_transform.position = glm::vec3(0.0f);

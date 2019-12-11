@@ -4,14 +4,12 @@
 DstrGenerator::DstrGenerator()
 {
 	m_seed = 0;
-	m_breakPoints = 16;
-	m_breakAreaRadius = 1.8f;
-	m_initGravity = btVector3(0.0f, -50.0f, 0.0f);
 
-	//m_breakPoints = 22;
-	//m_breakAreaRadius = 18.8f;
+	m_settings.breakPoints = 16;
+	m_settings.breakAreaRadius = 1.8f;
+	m_settings.timeSinceLastDestruction = 0.0f;
+	m_settings.initGravity = btVector3(0.0f, -50.0f, 0.0f);
 
-	m_randomPoints.resize(m_breakPoints);
 	initPoints();
 }
 
@@ -21,17 +19,17 @@ DstrGenerator::~DstrGenerator()
 
 void DstrGenerator::initPoints(glm::vec2 position)
 {
-	m_randomPoints.resize(m_breakPoints);
+	m_randomPoints.resize(m_settings.breakPoints);
 
 	float rnd = 0;
-	float offset = 0;
+	float offset = m_settings.breakAreaRadius;
 	float angle = 0;
 
 	seedRand(); // Important for the networking to get consistent breakage
 
-	if (m_breakAreaRadius < 0.1f)
+	if (m_settings.breakPoints < 0.1f)
 	{
-		m_breakAreaRadius = 0.1f;
+		m_settings.breakAreaRadius = 0.1f;
 		logWarning("Not enough precision for break radius less than 0.1, clamping");
 	}
 
@@ -39,82 +37,79 @@ void DstrGenerator::initPoints(glm::vec2 position)
 	{
 
 	// Creates points randomly
-	case DSTR2:
-		for (int i = 0; i < m_randomPoints.size(); i++)
-		{
-			rnd = rand() % 1000 + 1;
-			rnd /= 1000;
-			offset = m_breakAreaRadius;
-			offset *= glm::sqrt(rnd);
-
-			rnd = rand() % 1000 + 1;
-			rnd /= 1000;
-			angle = 2.0f * glm::pi<float>() * rnd;
-
-			m_randomPoints[i] = position;
-			m_randomPoints[i].x += offset * glm::cos(angle);
-			m_randomPoints[i].y += offset * glm::sin(angle);
-		}
-		break;
-
-		// Creates points in a fine circle with an outer circle
-	default:
-		// Creates points in a fine circle
+	case BASIC:
+		// First point centered
 		m_randomPoints[0] = position;
 		for (int i = 1; i < m_randomPoints.size(); i++)
 		{
-			rnd = rand() % 1000 + 1;
-			rnd /= 1000;
-			offset = m_breakAreaRadius;
-			//offset += (0.05f * m_breakAreaRadius * glm::sqrt(rnd));
-
-			rnd = rand() % 1000 + 1;
-			rnd /= 1000;
-			angle = 2.0f * glm::pi<float>() * rnd;
-
 			m_randomPoints[i] = position;
-			m_randomPoints[i].x += offset * glm::cos(angle);
-			m_randomPoints[i].y += offset * glm::sin(angle);
-		}
+			offset = m_settings.breakAreaRadius;
 
-		// Creates points in a fine circle slighly larger
-		for (int i = m_randomPoints.size() / 2; i < m_randomPoints.size(); i++)
+			if (i < m_randomPoints.size() / 2)
+			{
+				randomizeCircle(rnd, offset, angle, m_randomPoints[i]);
+			}
+			else if (i < m_randomPoints.size())
+			{
+				offset *= 1.5;	// Increase radius slighly
+				offset += (0.05f * m_settings.breakAreaRadius * glm::sqrt(rnd));
+				randomizeCircle(rnd, offset, angle, m_randomPoints[i]);
+			}
+		}
+		break;
+
+	case PILLAR:
+		for (int i = 0; i < m_randomPoints.size(); i++)
 		{
-			rnd = rand() % 1000 + 1;
-			rnd /= 1000;
-			offset = m_breakAreaRadius * 1.5;
-			offset += (0.05f * m_breakAreaRadius * glm::sqrt(rnd));
-
-			rnd = rand() % 1000 + 1;
-			rnd /= 1000;
-			angle = 2.0f * glm::pi<float>() * rnd;
-
 			m_randomPoints[i] = position;
-			m_randomPoints[i].x += offset * glm::cos(angle);
-			m_randomPoints[i].y += offset * glm::sin(angle);
+			offset = m_settings.breakAreaRadius;
+
+			randomizeCircle(rnd, offset, angle, m_randomPoints[i]);
 		}
+		break;
+
+		
+	default:
 		break;
 
 	}
 	
 }
 
+void DstrGenerator::randomizeCircle(float& rnd, float& offset, float& angle, glm::vec2& point)
+{
+	rnd = rand() % 100 + 10;
+	rnd /= 100;
+
+	offset *= glm::sqrt(rnd);
+
+	rnd = rand() % 100 + 10;
+	rnd /= 100;
+
+	angle = 2.0f * glm::pi<float>() * rnd;
+
+	point.x += offset * glm::cos(angle);
+	point.y += offset * glm::sin(angle);
+
+
+}
+
 void DstrGenerator::setBreakSettings(DSTRType type, float breakPoints, float breakAreaRadius, float gravity)
 {
 	m_dstType = type;
-	m_breakPoints = breakPoints;
-	m_breakAreaRadius = breakAreaRadius;
-	m_initGravity = btVector3(0.0f, -gravity, 0.0f);
+	m_settings.breakPoints = breakPoints;
+	m_settings.breakAreaRadius = breakAreaRadius;
+	m_settings.initGravity = btVector3(0.0f, -gravity, 0.0f);
 }
 
 void DstrGenerator::setBreakPoints(float breakPoints)
 {
-	m_breakPoints = breakPoints;
+	m_settings.breakPoints = breakPoints;
 }
 
 void DstrGenerator::setBreakRadius(float breakAreaRadius)
 {
-	m_breakAreaRadius = breakAreaRadius;
+	m_settings.breakAreaRadius = breakAreaRadius;
 }
 
 void DstrGenerator::setBreakGravity(float gravity)
@@ -137,7 +132,7 @@ void DstrGenerator::offsetPoints(glm::vec2 position)
 
 void DstrGenerator::update()
 {
-	m_timeSinceLastDestruction += DeltaTime;
+	m_settings.timeSinceLastDestruction += DeltaTime;
 }
 
 void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, glm::vec3 hitDirection)
@@ -145,11 +140,11 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 	if (object->is_destroyed())
 		return;	
 
-	if (m_timeSinceLastDestruction > 0.3f)
+	if (m_settings.timeSinceLastDestruction > 0.3f)
 	{
 		int slot = SoundHandler::getInstance()->playSound(DestructionSound, Client::getInstance()->getMyData().guid);
-		SoundHandler::getInstance()->setSourcePosition(object->getObjectTransform().position, DestructionSound, Client::getInstance()->getMyData().guid, slot);
-		m_timeSinceLastDestruction = 0.0f;
+		SoundHandler::getInstance()->setSourcePosition(object->getRigidTransform().position, DestructionSound, Client::getInstance()->getMyData().guid, slot);
+		m_settings.timeSinceLastDestruction = 0.0f;
 	}
 
 	Clear();
@@ -172,15 +167,11 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 	// Counts each
 	mi = 1; // The first mesh (mi == 0) is the initial mesh to destroy
 
-	// Bottom Left
-	// Bottom Right
-	// Top Right
-	// Top Left
-
-	// Scale format
-	// (maxAllowed - minAllowed) * (unscaledNum - min) / (max - min) + minAllowed;
-	// (1 - 0) * (unscaledNum - polygon[3].x) / (polygon[3].x - polygon[1].x) + 0;
-
+	// - Vertex order format
+	// 0 - Bottom Left
+	// 1 - Bottom Right
+	// 2 - Top Right
+	// 3 - Top Left
 	glm::vec3 normal = glm::vec3();
 	for (int i = 0; i < m_randomPoints.size(); i++)
 	{
@@ -188,7 +179,7 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 
 		if (m_clipped.size() > 0)
 		{
-			meshFromClipped(scale, polygon, normal);
+			meshFromClipped(scale, polygon, uv,  normal);
 
 			glm::vec3 min = m_newVertices[0].position;
 			glm::vec3 max = m_newVertices[0].position;
@@ -216,14 +207,13 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			object->setMeshOffsetTransform(newTransform, mi);
 
 			// DEBUG PLACEMENT
-			//Transform newTransform = object->getTransform(0);
-			//newTransform.position += glm::vec3(
-			//	m_diagram.sites[i].x * 0.2f,
-			//	m_diagram.sites[i].y * 0.2f,
-			//	0.0f);
-			//object->setTransform(newTransform,  mi);
+			newTransform.position += glm::vec3(
+				m_diagram.sites[i].x * 0.2f,
+				m_diagram.sites[i].y * 0.2f,
+				0.0f);
+			//object->setMeshOffsetTransform(newTransform, mi);
 
-			object->createDynamic(CollisionObject::box, 100.0f * scale, mi, true);
+			//object->createDynamic(CollisionObject::box, 100.0f * scale, mi, true);
 			
 			// Values for destroyed object
 			// TODO: Move thiss
@@ -263,7 +253,7 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 	object->setBodyWorldPosition(glm::vec3(-999.0f), 0);
 }
 
-void DstrGenerator::meshFromClipped(const float& scale, const std::vector<glm::vec2>& polygon, glm::vec3& normal)
+void DstrGenerator::meshFromClipped(const float& scale, const std::vector<glm::vec2>& polygon, const std::vector<glm::vec2>& uv, glm::vec3& normal)
 {
 	count = m_clipped.size();
 
@@ -278,13 +268,25 @@ void DstrGenerator::meshFromClipped(const float& scale, const std::vector<glm::v
 	ni = 0;
 	ti = 0;
 
+	// 0 - Bottom Left
+	// 1 - Bottom Right
+	// 2 - Top Right
+	// 3 - Top Left
+	float uvmin_u = uv[0].x;
+	float uvmax_u = uv[2].x;
+
+	float uvmin_v = uv[0].y;
+	float uvmax_v = uv[2].y;
+
+
+	// TODO: Check and confirm this -> UV.u is inversed
 	// Front
 	for (int i = 0; i < count; i++)
 	{
-		m_newVertices[vi++].position = glm::vec3(m_clipped[i].x, m_clipped[i].y, scale);
+		m_newVertices[vi++].position = glm::vec3(m_clipped[i].x, m_clipped[i].y, 0);
 		m_newVertices[uvi++].UV = glm::vec2(
-			(1 - 0) * (m_clipped[i].x - polygon[3].x) / (polygon[3].x - polygon[1].x) + 0,
-			-(1 - 0) * (m_clipped[i].y - polygon[3].y) / (polygon[3].y - polygon[1].y) + 0
+			(uvmin_u - uvmax_u) * (m_clipped[i].x - polygon[3].x) / (polygon[3].x - polygon[1].x),
+			(uvmax_v - uvmin_v) * (m_clipped[i].y - polygon[3].y) / (polygon[3].y - polygon[1].y)
 		);
 
 		m_newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, 1.0f);
@@ -295,8 +297,8 @@ void DstrGenerator::meshFromClipped(const float& scale, const std::vector<glm::v
 	{
 		m_newVertices[vi++].position = glm::vec3(m_clipped[i].x, m_clipped[i].y, -scale);
 		m_newVertices[uvi++].UV = glm::vec2(
-			(1 - 0) * (m_clipped[i].x - polygon[3].x) / (polygon[3].x - polygon[1].x) + 0,
-			-(1 - 0) * (m_clipped[i].y - polygon[3].y) / (polygon[3].y - polygon[1].y) + 0
+			(uvmin_u - uvmax_u) * (m_clipped[i].x - polygon[3].x) / (polygon[3].x - polygon[1].x),
+			(uvmax_v - uvmin_v) * (m_clipped[i].y - polygon[3].y) / (polygon[3].y - polygon[1].y)
 		);
 
 		m_newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -307,10 +309,10 @@ void DstrGenerator::meshFromClipped(const float& scale, const std::vector<glm::v
 	{
 		int iNext = i == count - 1 ? 0 : i + 1;
 
-		m_newVertices[vi++].position = glm::vec3(m_clipped[i].x, m_clipped[i].y, scale);
+		m_newVertices[vi++].position = glm::vec3(m_clipped[i].x, m_clipped[i].y, 0);
 		m_newVertices[vi++].position = glm::vec3(m_clipped[i].x, m_clipped[i].y, -scale);
 		m_newVertices[vi++].position = glm::vec3(m_clipped[iNext].x, m_clipped[iNext].y, -scale);
-		m_newVertices[vi++].position = glm::vec3(m_clipped[iNext].x, m_clipped[iNext].y, scale);
+		m_newVertices[vi++].position = glm::vec3(m_clipped[iNext].x, m_clipped[iNext].y, 0);
 
 		normal = glm::normalize(glm::cross(glm::vec3(m_clipped[iNext] - m_clipped[i], 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
 
