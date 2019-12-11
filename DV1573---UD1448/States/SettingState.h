@@ -4,6 +4,8 @@
 #include <System/State.h>
 #include <Gui/Gui.h>
 #include <HUD/HudHandler.h>
+#include "../BetterText/GUIText.h"
+
 
 class SettingState: public State 
 {
@@ -38,7 +40,12 @@ private:
 	CEGUI::Editbox* m_editBoxMouseSens;
 	CEGUI::Editbox* m_editBoxFOV;
 
+	GUIText* m_textVolume;
+	GUIText* m_textSensitivity;
+	GUIText* m_textFOV;
+
 	HudHandler m_hudHandler; //Basic HUD objects
+
 
 	int m_volumeCurrent;
 	int m_MouseSensCurrent;
@@ -48,6 +55,9 @@ private:
 	float m_volumeMax;
 	float m_MouseSensMax;
 	float m_FOVMax;
+
+
+
 };
 
 

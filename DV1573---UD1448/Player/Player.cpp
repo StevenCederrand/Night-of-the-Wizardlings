@@ -173,9 +173,12 @@ void Player::move(float deltaTime)
 		return;
 
 	//can't move much in the air
-	if (m_character->onGround() )
+	if (m_character->onGround())
+	{
 		m_moveDir = glm::vec3(0.0f);
-	
+		m_oldMoveDir = glm::vec3(0.0f);
+	}
+
 
 	if (m_playerCamera->isFPEnabled() ) {
 
@@ -236,7 +239,7 @@ void Player::move(float deltaTime)
 	//can't move much in the air
 	if (!m_character->onGround())
 	{
-		m_moveDir = m_oldMoveDir + (m_moveDir * 0.8f);
+		m_moveDir = m_oldMoveDir + (m_moveDir * 0.06f);
 	}
 
 	// Make sure moving is a constant speed

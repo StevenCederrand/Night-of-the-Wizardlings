@@ -3,8 +3,8 @@
 #include "MenuState.h"
 #include <System/StateManager.h>
 #include <Windows.h>
-//#include <ShlObj.h>
-//#include <Shlwapi.h>
+#include "../Renderer/TextRenderer.h"
+
 
 
 #define GUI_SECTION "SETTINGSTATE"
@@ -34,12 +34,13 @@ SettingState::~SettingState()
 
 void SettingState::update(float dt)
 {
-	
+	TextManager::getInstance()->update();
 }
 
 void SettingState::render()
 {
 	Renderer::getInstance()->renderHUD();
+	TextRenderer::getInstance()->renderText();
 }
 
 void SettingState::loadGui()
@@ -51,42 +52,42 @@ void SettingState::loadGui()
 
 
 	//Sliders
-	m_sliderVolume = static_cast<CEGUI::Slider*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Slider", glm::vec4(0.05f, 0.55f, 0.1f, 0.05f), glm::vec4(0.0f), "volumeSlider"));
+	m_sliderVolume = static_cast<CEGUI::Slider*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Slider", glm::vec4(0.45f, 0.40f, 0.15f, 0.03f), glm::vec4(0.0f), "volumeSlider"));
 	m_sliderVolume->setMaxValue(m_volumeMax);
 	m_sliderVolume->setCurrentValue(m_volumeCurrent);
 	m_sliderVolume->setClickStep(1.0f);
 	m_sliderVolume->subscribeEvent(CEGUI::Slider::EventValueChanged, CEGUI::Event::Subscriber(&SettingState::onvolumeChange, this));
 
 
-	m_sliderMouseSens = static_cast<CEGUI::Slider*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Slider", glm::vec4(0.15f, 0.55f, 0.15f, 0.05f), glm::vec4(0.0f), "MouseSensSlider"));
+	m_sliderMouseSens = static_cast<CEGUI::Slider*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Slider", glm::vec4(0.45f, 0.6f, 0.15f, 0.03f), glm::vec4(0.0f), "MouseSensSlider"));
 	m_sliderMouseSens->setMaxValue(m_MouseSensMax);
 	m_sliderMouseSens->setCurrentValue(m_MouseSensCurrent);
 	m_sliderMouseSens->setClickStep(1.0f);
 	m_sliderMouseSens->subscribeEvent(CEGUI::Slider::EventValueChanged, CEGUI::Event::Subscriber(&SettingState::onMouseSensChange, this));
 
 
-	m_sliderFOV = static_cast<CEGUI::Slider*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Slider", glm::vec4(0.3f, 0.55f, 0.1f, 0.05f), glm::vec4(0.0f), "FOVSlider"));
+	m_sliderFOV = static_cast<CEGUI::Slider*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Slider", glm::vec4(0.45f, 0.8f, 0.15f, 0.03f), glm::vec4(0.0f), "FOVSlider"));
 	m_sliderFOV->setMaxValue(m_FOVMax);
-	m_sliderFOV->setCurrentValue(m_FOVCurrent);
+	m_sliderFOV->setCurrentValue(m_FOVCurrent-m_FOVBase);
 	m_sliderFOV->setClickStep(1.0f);
 	m_sliderFOV->subscribeEvent(CEGUI::Slider::EventValueChanged, CEGUI::Event::Subscriber(&SettingState::onFOVChange, this));
 
 
 	//Boxes
-	m_editBoxvolume = static_cast<CEGUI::Editbox*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Editbox", glm::vec4(0.05f, 0.50f, 0.1f, 0.05f), glm::vec4(0.0f), "EditBoxvolume"));
-	m_editBoxvolume->setText("volume: " + std::to_string(m_volumeCurrent));
+	//m_editBoxvolume = static_cast<CEGUI::Editbox*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Editbox", glm::vec4(0.45f, 0.35f, 0.1f, 0.03f), glm::vec4(0.0f), "EditBoxvolume"));
+	//m_editBoxvolume->setText("volume: " + std::to_string(m_volumeCurrent));
 
 
-	m_editBoxMouseSens = static_cast<CEGUI::Editbox*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Editbox", glm::vec4(0.15f, 0.50f, 0.15f, 0.05f), glm::vec4(0.0f), "EditBoxMouseSens"));
-	m_editBoxMouseSens->setText("Mouse Sensitivity: "+ std::to_string(m_MouseSensCurrent));
+	//m_editBoxMouseSens = static_cast<CEGUI::Editbox*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Editbox", glm::vec4(0.45f, 0.55f, 0.15f, 0.05f), glm::vec4(0.0f), "EditBoxMouseSens"));
+	//m_editBoxMouseSens->setText("Mouse Sensitivity: "+ std::to_string(m_MouseSensCurrent));
 
 
-	m_editBoxFOV = static_cast<CEGUI::Editbox*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Editbox", glm::vec4(0.3f, 0.50f, 0.1f, 0.05f), glm::vec4(0.0f), "EditBoxFov"));
-	m_editBoxFOV->setText("FOV: " + std::to_string(m_FOVCurrent));
+	//m_editBoxFOV = static_cast<CEGUI::Editbox*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Editbox", glm::vec4(0.45f, 0.75f, 0.1f, 0.05f), glm::vec4(0.0f), "EditBoxFov"));
+	//m_editBoxFOV->setText("FOV: " + std::to_string(m_FOVCurrent));
 
 
 	//Buttons
-	m_SaveBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.05f, 0.65f, 0.1f, 0.05f), glm::vec4(0.0f), "SaveButton"));
+	m_SaveBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.05f, 0.75f, 0.1f, 0.05f), glm::vec4(0.0f), "SaveButton"));
 	m_SaveBtn->setText("Save");
 	m_SaveBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&SettingState::OnSaveClicked, this));
 
@@ -94,6 +95,12 @@ void SettingState::loadGui()
 	m_BackBth = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.05f, 0.85f, 0.1f, 0.05f), glm::vec4(0.0f), "BackButton"));
 	m_BackBth->setText("Back");
 	m_BackBth->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&SettingState::onBackClicked, this));
+
+
+	TextRenderer::getInstance()->init(nullptr);
+	m_textVolume = TextManager::getInstance()->addDynamicText("Volume: " + std::to_string(m_volumeCurrent), 0.12f, glm::vec3(0.05f, -0.7f, 0.0f), 1.0f, TextManager::TextBehaviour::StayForever, glm::vec3(0.0f), true);
+	m_textSensitivity = TextManager::getInstance()->addDynamicText("Mouse Sensitivity: " + std::to_string(m_MouseSensCurrent), 0.12f, glm::vec3(0.05f, -1.1f, 0.0f), 1.0f, TextManager::TextBehaviour::StayForever, glm::vec3(0.0f), true);
+	m_textFOV = TextManager::getInstance()->addDynamicText("FOV: " + std::to_string(m_FOVCurrent), 0.12f, glm::vec3(0.05f, -1.5f, 0.0f), 1.0f, TextManager::TextBehaviour::StayForever, glm::vec3(0.0f), true);
 
 }
 
@@ -131,7 +138,8 @@ bool SettingState::onvolumeChange(const CEGUI::EventArgs& e)
 {
 
 	m_volumeCurrent = m_sliderVolume->getCurrentValue();
-	m_editBoxvolume->setText("volume: " + std::to_string(m_volumeCurrent));
+	//m_editBoxvolume->setText("volume: " + std::to_string(m_volumeCurrent));
+	m_textVolume->changeText("Volume: " + std::to_string(m_volumeCurrent));
 	logTrace("volume: "+ std::to_string(m_volumeCurrent));
 
 	return true;
@@ -140,7 +148,8 @@ bool SettingState::onvolumeChange(const CEGUI::EventArgs& e)
 bool SettingState::onMouseSensChange(const CEGUI::EventArgs& e)
 {
 	m_MouseSensCurrent = m_sliderMouseSens->getCurrentValue();
-	m_editBoxMouseSens->setText("Mouse Sensitivity: " + std::to_string(m_MouseSensCurrent));
+	//m_editBoxMouseSens->setText("Mouse Sensitivity: " + std::to_string(m_MouseSensCurrent));
+	m_textSensitivity->changeText("Mouse Sensitivity: " + std::to_string(m_MouseSensCurrent));
 	logTrace("Mouse Sensitivity: " + std::to_string(m_MouseSensCurrent));
 
 	return true;
@@ -149,7 +158,8 @@ bool SettingState::onMouseSensChange(const CEGUI::EventArgs& e)
 bool SettingState::onFOVChange(const CEGUI::EventArgs& e)
 {
 	m_FOVCurrent = m_FOVBase + m_sliderFOV->getCurrentValue();
-	m_editBoxFOV->setText("FOV: " + std::to_string(m_FOVCurrent));
+	m_textFOV->changeText("FOV: " + std::to_string(m_FOVCurrent));
+	//m_editBoxFOV->setText("FOV: " + std::to_string(m_FOVCurrent));
 	logTrace("FOV: " + std::to_string(m_FOVCurrent));
 	return true;
 }
