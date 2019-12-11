@@ -111,7 +111,7 @@ struct Animation
 
 struct BonePalleteBuffer
 {
-	glm::mat4 bones[64]{ glm::mat4() };
+	glm::mat4 bones[64]{ glm::mat4(1.0f) };
 };
 
 struct DelaunayTriangulation

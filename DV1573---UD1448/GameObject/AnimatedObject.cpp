@@ -39,6 +39,8 @@ void AnimatedObject::update(float dt)
 
 	m_currentTime += dt;
 	m_currentTimeUpper += dt;
+	m_currentTimeLower += dt;
+
 	// Update animation time
 	if (m_isLooping)
 	{
@@ -53,7 +55,7 @@ void AnimatedObject::update(float dt)
 			for (size_t a = 0; a < animSize; a++)
 			{
 				std::string animName = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations()[a];
-				ComputeMatrix((int)i, m_meshes[i].name, animName, &m_bonePallete, m_currentTime);
+				ComputeMatrix((int)i, m_meshes[i].name, animName, &m_bonePalleteBlend, m_currentTime);
 			}
 		}
 	}
@@ -72,45 +74,81 @@ void AnimatedObject::update(float dt)
 				for (size_t a = 0; a < animSize; a++)
 				{
 					std::string animName = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations()[a];
-					ComputeMatrix((int)i, m_meshes[i].name, animName, &m_bonePallete, m_currentTime);
+					ComputeMatrix((int)i, m_meshes[i].name, animName, &m_bonePalleteBlend, m_currentTime);
 				}
 			}
 		}
 	}
-	if (m_upper)
+	if (m_shouldBlend == false)
 	{
-		
-		if (m_currentTimeUpper >= m_stopTimeUpper)
+		if (m_once)
 		{
-			m_currentTimeUpper = m_startTimeUpper;
-		}
-		for (size_t i = 0; i < m_meshes.size(); i++)
-		{
-			size_t animSize = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations().size();
-			for (size_t a = 0; a < animSize; a++)
+			if (m_currentTimeUpper >= m_stopTimeUpper)
 			{
-				std::string animName = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations()[a];
-				ComputeMatrixUpper((int)i, m_meshes[i].name, animName, &m_bonePallete, m_currentTimeUpper);
+				//m_isDone = true;
+				m_once = false;
+			}
+			for (size_t i = 0; i < m_meshes.size(); i++)
+			{
+				size_t animSize = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations().size();
+				for (size_t a = 0; a < animSize; a++)
+				{
+					std::string animName = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations()[a];
+					ComputeMatrixUpper((int)i, m_meshes[i].name, animName, &m_bonePallete, m_currentTimeUpper);
+				}
 			}
 		}
-	}
-	if (m_lower)
-	{
+		else
+		{
+			if (m_currentTimeUpper >= m_stopTimeUpper)
+			{
+				m_currentTimeUpper = m_startTimeUpper;
+			}
+			for (size_t i = 0; i < m_meshes.size(); i++)
+			{
+				size_t animSize = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations().size();
+				for (size_t a = 0; a < animSize; a++)
+				{
+					std::string animName = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations()[a];
+					ComputeMatrixUpper((int)i, m_meshes[i].name, animName, &m_bonePallete, m_currentTimeUpper);
+				}
+			}
+		}
 
 		if (m_currentTimeLower >= m_stopTimeLower)
 		{
 			m_currentTimeLower = m_startTimeLower;
 		}
+
 		for (size_t i = 0; i < m_meshes.size(); i++)
 		{
 			size_t animSize = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations().size();
 			for (size_t a = 0; a < animSize; a++)
 			{
 				std::string animName = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations()[a];
+				//ComputeMatrixUpper((int)i, m_meshes[i].name, animName, &m_bonePallete, m_currentTimeUpper);
 				ComputeMatrixLower((int)i, m_meshes[i].name, animName, &m_bonePalleteBlend, m_currentTimeLower);
+
 			}
 		}
 	}
+	//if (m_shouldBlend)
+	//{
+	//
+	//	if (m_currentTimeLower >= m_stopTimeLower)
+	//	{
+	//		m_currentTimeLower = m_startTimeLower;
+	//	}
+	//	for (size_t i = 0; i < m_meshes.size(); i++)
+	//	{
+	//		size_t animSize = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations().size();
+	//		for (size_t a = 0; a < animSize; a++)
+	//		{
+	//			std::string animName = MeshMap::getInstance()->getMesh(m_meshes[i].name)->getAnimations()[a];
+	//			ComputeMatrixLower((int)i, m_meshes[i].name, animName, &m_bonePallete, m_currentTimeLower);
+	//		}
+	//	}
+	//}
 
 
 	// Basic animation update for testing
@@ -239,12 +277,13 @@ void AnimatedObject::ComputeMatrixUpper(int meshId, std::string meshn, std::stri
 	int transformCount = (int)anim.keyframes[0].local_joint_t.size();	// Assuming same size for all
 	for (int i = 1; i < boneCount; i++)									// First bone already assigned (i = 1)
 	{
+		glm::mat4 ID = glm::mat4(0.0f);
 
 		glm::vec3 translation = glm::vec3();
 		glm::vec3 scaling = glm::vec3(1.0f);
 		glm::quat quaternion = glm::quat();
 
-		if (i < upperIndex)
+		if (i <= upperIndex)
 		{
 			const Transform& keyTransform1 = anim.keyframes[k1].local_joint_t[i].transform;
 			const Transform& keyTransform2 = anim.keyframes[k2].local_joint_t[i].transform;
@@ -259,10 +298,11 @@ void AnimatedObject::ComputeMatrixUpper(int meshId, std::string meshn, std::stri
 		glm::mat4 scaleMatrix = glm::scale(MODEL_MAT, scaling);
 		glm::mat4 localTransform = translationMatrix * rotationMatrix * scaleMatrix;
 
-		if (i < transformCount)
+		if (i <= upperIndex)
 			bones_global_pose[i] = bones_global_pose[skeleton.joints[i].parentIndex] * localTransform;
 		bonePallete->bones[i] = bones_global_pose[i] * skeleton.joints[i].invBindPose;
-
+		if (upperIndex < i)
+			bonePallete->bones[i] = ID;
 	}
 }
 
@@ -299,9 +339,10 @@ void AnimatedObject::ComputeMatrixLower(int meshId, std::string meshn, std::stri
 	glm::mat4 rotationMatrix_r = glm::mat4_cast(quaternion_r);
 	glm::mat4 scaleMatrix_r = glm::scale(MODEL_MAT, scaling_r);
 	glm::mat4 local_r = translationMatrix_r * rotationMatrix_r * scaleMatrix_r;
+	glm::mat4 ID = glm::mat4(0.0f);
 
 	bones_global_pose[0] = local_r;
-	bonePallete->bones[0] = bones_global_pose[0] * skeleton.joints[0].invBindPose;
+	bonePallete->bones[0] = ID;//bones_global_pose[0] * skeleton.joints[0].invBindPose;
 
 	int boneCount = (int)skeleton.joints.size();
 	int transformCount = (int)anim.keyframes[0].local_joint_t.size();	// Assuming same size for all
@@ -326,11 +367,11 @@ void AnimatedObject::ComputeMatrixLower(int meshId, std::string meshn, std::stri
 		glm::mat4 rotationMatrix = glm::mat4_cast(quaternion);
 		glm::mat4 scaleMatrix = glm::scale(MODEL_MAT, scaling);
 		glm::mat4 localTransform = translationMatrix * rotationMatrix * scaleMatrix;
-
-		if (i < transformCount)
+		if (upperIndex < i)
 			bones_global_pose[i] = bones_global_pose[skeleton.joints[i].parentIndex] * localTransform;
 		bonePallete->bones[i] = bones_global_pose[i] * skeleton.joints[i].invBindPose;
-
+		if (i <= upperIndex )
+			bonePallete->bones[i] = ID;
 	}
 }
 
@@ -345,7 +386,7 @@ void AnimatedObject::BindAnimation(int meshId)
 	glUniformBlockBinding(aniShader, boneDataIndex, 2);
 	glBindBufferBase(GL_UNIFORM_BUFFER, 2, m_boneBufferBlend);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(BonePalleteBuffer), &m_bonePalleteBlend, GL_STATIC_DRAW);
-	ShaderMap::getInstance()->getShader(ANIMATION)->setInt("shouldBlend", 0);
+	ShaderMap::getInstance()->getShader(ANIMATION)->setInt("shouldBlend", m_shouldBlend);
 }
 
 
@@ -360,11 +401,11 @@ void AnimatedObject::initAnimations(std::string name, float startTime, float sto
 
 void AnimatedObject::playAnimation(std::string name)
 {
-	m_upper = false;
+	//m_upper = false;
 	m_isDone = false;
 	m_currentAnimation = name;
-	m_lower = false;
-
+	//m_lower = false;
+	m_shouldBlend = true;
 	//tempTime = currentTime;
 	m_isLooping = false;
 	for (int i = 0; i < animations.size(); i++)
@@ -386,9 +427,10 @@ void AnimatedObject::playLoopAnimation(std::string name)
 	}
 	m_currentAnimation = name;
 	m_isDone = true;
-	m_upper = false;
+	//m_upper = false;
 	m_isLooping = true;
-	m_lower = false;
+	//m_lower = false;
+	m_shouldBlend = true;
 
 	for (int i = 0; i < animations.size(); i++)
 	{
@@ -403,11 +445,14 @@ void AnimatedObject::playLoopAnimation(std::string name)
 
 void AnimatedObject::playUpperAnimation(std::string name)
 {
-	if (m_currentAnimation == name || m_isDone == false)
+	if (m_currentAnimationUpper == name || m_once == true)
 	{
 		return;
 	}
-	m_currentAnimation = name;
+	m_currentAnimationUpper = name;
+	m_once = false;
+
+	m_shouldBlend = false;
 
 	m_upper = true;
 	m_isLooping = false;
@@ -433,8 +478,11 @@ void AnimatedObject::playLowerAnimation(std::string name)
 		return;
 	}
 	m_currentAnimationLower = name;
+	m_once = false;
 
-	m_upper = false;
+	m_shouldBlend = false;
+
+	//m_upper = false;
 	m_isLooping = false;
 	m_isDone = true;
 	m_lower = true;
@@ -449,6 +497,30 @@ void AnimatedObject::playLowerAnimation(std::string name)
 	}
 
 	m_currentTimeLower = m_startTimeLower;
+
+}
+
+void AnimatedObject::playUpperAnimationOnce(std::string name)
+{
+
+	m_currentAnimationUpper = name;
+	m_once = true;
+	m_shouldBlend = false;
+
+	m_upper = true;
+	m_isLooping = false;
+	m_isDone = false;
+	//m_lower = false;
+	for (int i = 0; i < animations.size(); i++)
+	{
+		if (animations[i].m_name == name)
+		{
+			m_startTimeUpper = animations[i].m_startTime / animations[i].m_animSpeed;
+			m_stopTimeUpper = animations[i].m_stopTime / animations[i].m_animSpeed;
+		}
+	}
+
+	m_currentTimeUpper = m_startTimeUpper;
 
 }
 

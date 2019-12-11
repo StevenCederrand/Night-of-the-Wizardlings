@@ -41,6 +41,7 @@ void NetworkPlayers::update(const float& dt)
 
 				if (animObj != nullptr)
 				{
+					animObj->splitSkeleton(46);
 					animObj->initAnimations("RunAnimation", 2.0f, 22.0f);
 					animObj->initAnimations("IdleAnimation", 25.0f, 93.0f);
 					animObj->initAnimations("CastAnimation", 95.0f, 109.0f);
@@ -160,7 +161,7 @@ void NetworkPlayers::update(const float& dt)
 
 				if (p.data.animStates.casting == true)
 				{
-					animObj->playLoopAnimation("RunAnimation");
+					animObj->playUpperAnimationOnce("CastAnimation");
 				}
 				//if (p.data.animStates.deflecting == true)
 				//{
@@ -168,7 +169,10 @@ void NetworkPlayers::update(const float& dt)
 				//}
 				if (p.data.animStates.running == true)
 				{
-					animObj->playLoopAnimation("RunAnimation");
+					animObj->playUpperAnimation("RunAnimation");
+					animObj->playLowerAnimation("RunAnimation");
+
+
 
 					if (!p.wasRunning)
 					{
@@ -185,7 +189,9 @@ void NetworkPlayers::update(const float& dt)
 						shPtr->stopSound(StepsSound, p.data.guid);
 						p.wasRunning = false;
 					}
-					animObj->playLoopAnimation("IdleAnimation");
+					animObj->playLowerAnimation("IdleAnimation");
+					animObj->playUpperAnimation("IdleAnimation");
+
 				}
 				if (p.wasRunning == true)
 				{

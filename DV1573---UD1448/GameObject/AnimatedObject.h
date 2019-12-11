@@ -40,6 +40,7 @@ public:
 	void playLoopAnimation(std::string name);
 	void playUpperAnimation(std::string name);
 	void playLowerAnimation(std::string name);
+	void playUpperAnimationOnce(std::string name);
 
 	void blendIdentity(float startTime, float stopTime, int index);
 
@@ -63,6 +64,8 @@ private:
 	float m_tempTime;
 	std::string m_currentAnimation;
 	std::string m_currentAnimationLower;
+	std::string m_currentAnimationUpper;
+
 
 
 	float m_stopTimeUpper;
@@ -77,7 +80,8 @@ private:
 	bool m_isDone = true;
 	bool m_upper = false;//CREATE A BOOL FOR BOTH UPPER AND LOWER? (put compute matrix for upper and lower in same function?)
 	bool m_lower = false;
-	
+	bool m_shouldBlend = true;
+	bool m_once = false;
 };
 
 #endif

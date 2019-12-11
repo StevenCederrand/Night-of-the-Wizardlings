@@ -28,16 +28,6 @@ PlayState::PlayState(bool spectator)
 		delete AnimationMesh;
 
 
-
-
-		//m_firstPerson = new AnimatedObject("NyCharacter");
-		//m_firstPerson->loadMesh("NyCharacter.mesh");
-		//m_firstPerson->initAnimations("Test", 25.0f, 93.0f);
-		//m_firstPerson->setWorldPosition(glm::vec3(0.0f, 13.0f, 0.0f));
-		//Renderer::getInstance()->submit(m_firstPerson, ANIMATEDSTATIC);
-	
-
-
 		GameObject* fpsShield = new ShieldObject("PlayerShield");
 		fpsShield->loadMesh("ShieldMeshFPS.mesh");
 		delete fpsShield;
@@ -85,14 +75,16 @@ PlayState::PlayState(bool spectator)
 	m_objects[m_objects.size() - 1]->loadMesh("NyCharacter.mesh");
 	static_cast<AnimatedObject*>(m_objects.back())->splitSkeleton(46);
 	static_cast<AnimatedObject*>(m_objects.back())->initAnimations("test", 2.0f, 22.0f);
-	//static_cast<AnimatedObject*>(m_objects.back())->initAnimations("test2", 2.0f, 22.0f);
+	static_cast<AnimatedObject*>(m_objects.back())->initAnimations("Cast", 95.0f, 109.0f);
 
 	static_cast<AnimatedObject*>(m_objects.back())->setWorldPosition(glm::vec3(0.0f, 13.0f, 0.0f));
 	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::ANIMATEDSTATIC);
 	//static_cast<AnimatedObject*>(m_objects.back())->playAnimation("test");
 
-	static_cast<AnimatedObject*>(m_objects.back())->playUpperAnimation("test");
+	//static_cast<AnimatedObject*>(m_objects.back())->playUpperAnimation("Cast");
 	static_cast<AnimatedObject*>(m_objects.back())->playLowerAnimation("test");
+	static_cast<AnimatedObject*>(m_objects.back())->playUpperAnimation("Cast");
+
 
 	
 
@@ -349,11 +341,7 @@ PlayState::~PlayState()
 	
 void PlayState::update(float dt)
 {
-	//m_firstPerson->playLoopAnimation("Test");
-	//m_objects.push_back(new AnimatedObject("NyCharacter"));
 
-
-	//m_firstPerson->update(dt);
 	Client::getInstance()->updateNetworkEntities(dt);
 	auto* clientPtr = Client::getInstance();
 	m_dstr.update();

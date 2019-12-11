@@ -25,7 +25,7 @@ vec3 GLOBAL_lightColor = normalize(vec3(1, 1, 1));          // Directional light
 vec3 GLOBAL_lightDirection2 = vec3(0.8f, -0.5f, 0.4f);       // 1 Directional light
 
 float dirlightStr = 0.1f;     // Modifier for brightness (dirlight)
-float ambientStr = 0.1f;      // Global light strength (ambient)
+float ambientStr = 0.8f;      // Global light strength (ambient)
 float brightnessMod = 1.0f;    // Modifier for brightness (textures)
 
 // Modifier for brightness (point light), hardcoded temp needs fix
