@@ -84,7 +84,8 @@ bool Application::init() {
 	}
 	
 	// Vsync
-	glfwSwapInterval(1); // Turning this off will cause occasionally freezes, so don't!
+	int VSync = GetPrivateProfileInt("DB_SETTINGS", "VSync", 1, "Assets/Settings/settings.ini");
+	glfwSwapInterval(VSync); // Turning this off will cause occasionally freezes, so don't!
 	
 	m_input = new Input();
 

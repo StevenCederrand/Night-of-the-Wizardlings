@@ -21,6 +21,7 @@ private:
 	
 	bool onBackClicked(const CEGUI::EventArgs& e);
 	bool OnSaveClicked(const CEGUI::EventArgs& e);
+	bool onVSyncClicked(const CEGUI::EventArgs& e);
 	bool onvolumeChange(const CEGUI::EventArgs& e);
 	bool onMouseSensChange(const CEGUI::EventArgs& e);
 	bool onFOVChange(const CEGUI::EventArgs& e);
@@ -30,6 +31,7 @@ private:
 	
 	CEGUI::PushButton* m_BackBth;
 	CEGUI::PushButton* m_SaveBtn;
+	CEGUI::PushButton* m_VSyncBtn;
 
 	CEGUI::Slider* m_sliderVolume;
 	CEGUI::Slider* m_sliderMouseSens;
@@ -43,6 +45,7 @@ private:
 	GUIText* m_textVolume;
 	GUIText* m_textSensitivity;
 	GUIText* m_textFOV;
+	GUIText* m_textVSync;
 
 	HudHandler m_hudHandler; //Basic HUD objects
 
@@ -55,6 +58,8 @@ private:
 	float m_volumeMax;
 	float m_MouseSensMax;
 	float m_FOVMax;
+
+	bool m_boolVSync;
 
 
 

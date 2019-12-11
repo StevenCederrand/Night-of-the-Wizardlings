@@ -23,6 +23,8 @@ SettingState::SettingState()
 	m_FOVCurrent = GetPrivateProfileInt("DB_SETTINGS", "FoV", 60, "Assets/Settings/settings.ini");
 	m_FOVMax = 100.0f;
 	m_FOVBase = 20;
+
+	m_boolVSync = GetPrivateProfileInt("DB_SETTINGS", "VSync", 1, "Assets/Settings/settings.ini");
 	
 	loadGui();
 }
@@ -97,10 +99,16 @@ void SettingState::loadGui()
 	m_BackBth->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&SettingState::onBackClicked, this));
 
 
+	m_VSyncBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.475f, 0.95f, 0.1f, 0.05f), glm::vec4(0.0f), "VSyncButton"));
+	m_VSyncBtn->setText("VSync");
+	m_VSyncBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&SettingState::onVSyncClicked, this));
+
+
 	TextRenderer::getInstance()->init(nullptr);
 	m_textVolume = TextManager::getInstance()->addDynamicText("Volume: " + std::to_string(m_volumeCurrent), 0.12f, glm::vec3(0.05f, -0.7f, 0.0f), 1.0f, TextManager::TextBehaviour::StayForever, glm::vec3(0.0f), true);
 	m_textSensitivity = TextManager::getInstance()->addDynamicText("Mouse Sensitivity: " + std::to_string(m_MouseSensCurrent), 0.12f, glm::vec3(0.05f, -1.1f, 0.0f), 1.0f, TextManager::TextBehaviour::StayForever, glm::vec3(0.0f), true);
 	m_textFOV = TextManager::getInstance()->addDynamicText("FOV: " + std::to_string(m_FOVCurrent), 0.12f, glm::vec3(0.05f, -1.5f, 0.0f), 1.0f, TextManager::TextBehaviour::StayForever, glm::vec3(0.0f), true);
+	m_textVSync = TextManager::getInstance()->addDynamicText("VSync: " + std::to_string(m_boolVSync), 0.12f, glm::vec3(0.05f, -1.79f, 0.0f), 1.0f, TextManager::TextBehaviour::StayForever, glm::vec3(0.0f), true);
 
 }
 
@@ -117,6 +125,8 @@ bool SettingState::OnSaveClicked(const CEGUI::EventArgs& e)
 	bool volume = WritePrivateProfileString("DB_SETTINGS", "volume", std::to_string(m_volumeCurrent).c_str(), "Assets/Settings/settings.ini");
 	bool mouseSens = WritePrivateProfileString("DB_SETTINGS", "MouseSens", std::to_string(m_MouseSensCurrent).c_str(), "Assets/Settings/settings.ini");
 	bool foV = WritePrivateProfileString("DB_SETTINGS", "FoV", std::to_string(m_FOVCurrent).c_str(), "Assets/Settings/settings.ini");
+	bool VSync =  WritePrivateProfileString("DB_SETTINGS", "VSync", std::to_string(m_boolVSync).c_str(), "Assets/Settings/settings.ini");
+
 
 	if (!volume)
 		logTrace("ERROR_ cant write volume");
@@ -127,9 +137,14 @@ bool SettingState::OnSaveClicked(const CEGUI::EventArgs& e)
 
 	float tempVolume = m_volumeCurrent * 0.01;
 	SoundHandler::getInstance()->setMasterVolume(tempVolume);
-	int userNumMax = 0;
-	userNumMax = GetPrivateProfileInt("DB_SETTINGS", "USER_NUM_MAX", -1, "Assets/Settings/settings.ini");
 
+	return true;
+}
+
+bool SettingState::onVSyncClicked(const CEGUI::EventArgs& e)
+{
+	m_boolVSync = !m_boolVSync;
+	m_textVSync->changeText("VSync: " + std::to_string(m_boolVSync));
 	return true;
 }
 
