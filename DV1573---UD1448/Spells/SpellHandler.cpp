@@ -47,8 +47,8 @@ void SpellHandler::initAttackSpell()
 	attackBase.m_maxBounces = 3.0f;
 
 	// Light--
-	attackBase.m_attenAndRadius = glm::vec4(1.0f, 2.15f, 4.5f, 22.0f);
-	attackBase.m_strength = 68.0f;
+	attackBase.m_attenAndRadius = glm::vec4(1.0f, 0.35,	0.44, 28.0f);
+	attackBase.m_strength = 38.0f;
 
 	PSinfo tempPS;
 	TextureInfo tempTxt;
@@ -111,9 +111,8 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase.m_maxBounces = 3.0;
 
 	// Light--
-	enhanceAtkBase.m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // OLD
-	enhanceAtkBase.m_attenAndRadius = glm::vec4(1.0f, 1.55f, 3.7f, 22.0f);
-	enhanceAtkBase.m_strength = 68.0f;
+	enhanceAtkBase.m_attenAndRadius = glm::vec4(1.0f, 0.22,	0.20, 38.0f);
+	enhanceAtkBase.m_strength = 28.0f;
 
 	PSinfo tempPS;
 	TextureInfo tempTxt;
@@ -175,9 +174,8 @@ void SpellHandler::initFlamestrikeSpell()
 	flamestrikeBase.m_maxBounces = 2;
 
 	// Light--
-	flamestrikeBase.m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // Old
-	flamestrikeBase.m_attenAndRadius = glm::vec4(1.0f, 0.61f, 0.74f, 22.0f);
-	flamestrikeBase.m_strength = 68.0f;
+	flamestrikeBase.m_attenAndRadius = glm::vec4(1.0f, 0.35, 0.44, 28.0f);
+	flamestrikeBase.m_strength = 38.0f;
 }
 
 void SpellHandler::initFireSpell()
@@ -209,9 +207,8 @@ void SpellHandler::initFireSpell()
 	fireBase.m_maxBounces = 0.0f;
 
 	// Light--
-	fireBase.m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // Old
-	fireBase.m_attenAndRadius = glm::vec4(1.0f, 0.61f, 0.74f, 22.0f);
-	fireBase.m_strength = 68.0f;
+	fireBase.m_attenAndRadius = glm::vec4(1.0f, 0.14, 0.07, 44.0f);
+	fireBase.m_strength = 19.0f;
 
 	PSinfo tempPS;
 	TextureInfo tempTxt;
