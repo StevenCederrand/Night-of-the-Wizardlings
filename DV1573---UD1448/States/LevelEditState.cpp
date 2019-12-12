@@ -2,6 +2,7 @@
 #include "LevelEditState.h"
 #include <System/StateManager.h>
 #include "MenuState.h"
+#include <string>
 
 LevelEditState::LevelEditState()
 {
