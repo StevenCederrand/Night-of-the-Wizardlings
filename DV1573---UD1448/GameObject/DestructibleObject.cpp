@@ -24,23 +24,23 @@ void DestructibleObject::update(float dt)
 {
 	m_lifetime += dt;
 	updateBulletRigids();
-
+	
 	// Temporary variables to move later ---
-
+	
 	/*float dampingMidTime = 1.0f;
 	float dampingSpinMidTime = 0.0f;
 	float dampingAfterTime = 0.0f;
 	float dampingSpinAfterTime = 0.0f;*/ // Stop-fall effect
-
+	
 	float dampingEv1 = 0.0f;
 	float dampingSpinEv1 = 0.0f;
 	float dampingEv2 = 0.0f;
 	float dampingSpinEv2 = 0.0f;
-
+	
 	// Temporary variables to move later ---
 	if (m_destroyed && m_dstrState != 3)
 	{
-
+	
 		// Freezes object after time
 		if (m_lifetime >= m_ev1Time && m_dstrState == 0)
 		{
@@ -52,10 +52,10 @@ void DestructibleObject::update(float dt)
 					m_meshes[i].body->setDamping(dampingEv1, dampingSpinEv1);
 				}
 			}
-
+	
 			m_dstrState = 1;
 		}
-
+	
 		// Changes gravity after time
 		if (m_lifetime >= m_ev2Time && m_dstrState == 1)
 		{
@@ -67,10 +67,10 @@ void DestructibleObject::update(float dt)
 					m_meshes[i].body->setDamping(dampingEv2, dampingSpinEv2);
 				}
 			}
-
+	
 			m_dstrState = 2;
 		}
-
+	
 		// Removes the object after time
 		if (m_lifetime >= 17.0f && m_dstrState == 2)
 		{

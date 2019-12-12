@@ -114,7 +114,7 @@ void DstrGenerator::setBreakRadius(float breakAreaRadius)
 
 void DstrGenerator::setBreakGravity(float gravity)
 {
-	m_initGravity = btVector3(0.0f, -gravity, 0.0f);
+	m_settings.initGravity = btVector3(0.0f, -gravity, 0.0f);
 }
 
 void DstrGenerator::setBreakType(DSTRType type)
@@ -207,11 +207,11 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			object->setMeshOffsetTransform(newTransform, mi);
 
 			// DEBUG PLACEMENT
-			//newTransform.position += glm::vec3(
-			//	m_diagram.sites[i].x * 0.2f,
-			//	m_diagram.sites[i].y * 0.2f,
-			//	0.0f);
-			//object->setMeshOffsetTransform(newTransform, mi);
+			newTransform.position += glm::vec3(
+				m_diagram.sites[i].x * 0.2f,
+				m_diagram.sites[i].y * 0.2f,
+				0.0f);
+			object->setMeshOffsetTransform(newTransform, mi);
 
 			object->createDynamic(CollisionObject::box, 100.0f * scale, mi, true);
 			
@@ -238,7 +238,7 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			{
 				body->applyCentralImpulse(btVector3(force.x, force.y, force.z) * 1.4);
 				body->applyTorque(btVector3(force.x * dirRndX, force.y * dirRndY, force.z * dirRndZ) * 15);
-				body->setGravity(m_initGravity);
+				body->setGravity(m_settings.initGravity);
 			}
 
 			mi++;

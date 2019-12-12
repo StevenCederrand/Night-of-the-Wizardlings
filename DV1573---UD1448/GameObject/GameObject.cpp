@@ -503,6 +503,7 @@ void GameObject::makeStatic()
 
 	m_transform.position = glm::vec3(0.0f);
 	m_transform.rotation = glm::quat();
+	updateBulletRigids();
 }
 
 void GameObject::createRigidBody(btRigidBody* body, int meshIndex)

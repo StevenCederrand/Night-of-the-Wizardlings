@@ -71,7 +71,6 @@ private:
 
 	// Allocation
 private:
-	btVector3 m_initGravity;
 	std::vector<glm::vec2> m_clipped;	// Cleared in m_clipper
 	std::vector<Vertex> m_newVertices;	// Cleared in mesh from clipped
 	std::vector<Face> m_newFace;		// Cleared in mesh from clipped
