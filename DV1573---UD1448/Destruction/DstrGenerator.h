@@ -67,6 +67,8 @@ private:
 	DSTRType m_dstType = BASIC;
 	BreakSettings m_settings;
 
+	float m_timeSinceLastDestruction = 0.0f;
+
 	// Allocation
 private:
 	btVector3 m_initGravity;
