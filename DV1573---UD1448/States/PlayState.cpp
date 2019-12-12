@@ -313,7 +313,7 @@ void PlayState::loadDestructables()
 
 	// Temporary variables to move later ---
 	m_dstr.setBreakSettings(BASIC, breakPoints, breakRadius, gravityOnImpact);
-	m_dstr_alt1.setBreakSettings(PILLAR, breakPoints, 12.0f, gravityOnImpact);
+	m_dstr_alt1.setBreakSettings(PILLAR, breakPoints, 6.0f, gravityOnImpact);
 
 	switch (m_map)
 	{
