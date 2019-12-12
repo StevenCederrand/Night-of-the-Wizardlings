@@ -22,8 +22,8 @@ DestructibleObject::~DestructibleObject()
 
 void DestructibleObject::update(float dt)
 {
-	updateBulletRigids();
 	m_lifetime += dt;
+	updateBulletRigids();
 
 	// Temporary variables to move later ---
 

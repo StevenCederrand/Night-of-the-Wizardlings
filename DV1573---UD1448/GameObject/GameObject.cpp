@@ -311,7 +311,6 @@ void GameObject::setBodyWorldPosition(glm::vec3 worldPosition, int meshIndex)
 		m_meshes[meshIndex].body->setWorldTransform(newTransform);
 
 		updateBulletRigids();
-		updateTransform();
 	}
 }
 

@@ -34,6 +34,7 @@ PlayState::PlayState(bool spectator)
 		GameObject* AnimationMesh = new WorldObject("AnimationMesh");
 		AnimationMesh->loadMesh("NyCharacter.mesh");
 		delete AnimationMesh;
+		mu.printBoth("After animationMesh:");
 
 		GameObject* fpsShield = new ShieldObject("PlayerShield");
 		fpsShield->loadMesh("ShieldMeshFPS.mesh");
@@ -42,20 +43,20 @@ PlayState::PlayState(bool spectator)
 		GameObject* enemyShield = new EnemyShieldObject("enemyShield");
 		enemyShield->loadMesh("EnemyShieldMesh.mesh");
 		delete enemyShield;
+		mu.printBoth("After fps shield and enemy shield");
 
 		m_spellHandler = new SpellHandler();
 
 		m_player = new Player("Player", NetGlobals::PlayerFirstSpawnPoint, m_camera, m_spellHandler);
 		m_player->setHealth(NetGlobals::PlayerMaxHealth);
+		mu.printBoth("After player:");
 
 		if (Client::getInstance()->isInitialized())
 			Client::getInstance()->assignSpellHandler(m_spellHandler);
 
-		mu.printBoth("After fps shield, enemy shield, and animationMesh:");
-
 		m_hudHandler.loadPlayStateHUD();
-
 		mu.printBoth("After hud:");
+
 	}
 	else {
 		m_spellHandler = new SpellHandler();
@@ -127,7 +128,7 @@ void PlayState::loadMap()
 	{
 	case 0:
 		m_objects.push_back(new MapObject("Academy_Map"));
-		m_objects[m_objects.size() - 1]->loadMesh("Towermap/Academy_t.mesh");
+		m_objects[m_objects.size() - 1]->loadMesh("Academy_t.mesh");
 		renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
 		break;
 
@@ -328,7 +329,7 @@ void PlayState::loadDestructables()
 		}
 
 		// Wall desctructibles
-		meshLoader.LoadMesh(MESHPATH + "Towermap/DSTRWalls.mesh");
+		meshLoader.LoadMesh(MESHPATH + "DSTRWalls.mesh");
 		for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
 		{
 			m_objects.emplace_back(new DestructibleObject(
@@ -377,7 +378,7 @@ void PlayState::loadDestructables()
 		meshLoader.Unload();
 
 		// Pillar destructibles
-		meshLoader.LoadMesh(MESHPATH + "Towermap/DSTRPillars.mesh");
+		meshLoader.LoadMesh(MESHPATH + "DSTRPillars.mesh");
 		for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
 		{
 			m_objects.emplace_back(new DestructibleObject(
@@ -400,27 +401,6 @@ void PlayState::loadDestructables()
 			Renderer::getInstance()->submit(m_objects.back(), STATIC);
 		}
 		meshLoader.Unload();
-
-		// CONCEPT
-		//// Outside walls destructibles
-		//meshLoader.LoadMesh(MESHPATH + "DSTROutsideWalls.mesh");
-		//for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
-		//{
-		//	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
-		//
-		//	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible(
-		//		meshLoader.GetVertices(i),
-		//		meshLoader.GetMeshName(i),
-		//		meshLoader.GetMaterial(i),
-		//		meshLoader.GetAlbedo(i),
-		//		meshLoader.GetTransform(i),
-		//		1.6f
-		//	);
-		//
-		//	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-		//	Renderer::getInstance()->submit(m_objects.back(), STATIC);
-		//}
-		//meshLoader.Unload();
 		break;
 
 		case 1:

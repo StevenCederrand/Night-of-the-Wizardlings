@@ -207,13 +207,13 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			object->setMeshOffsetTransform(newTransform, mi);
 
 			// DEBUG PLACEMENT
-			newTransform.position += glm::vec3(
-				m_diagram.sites[i].x * 0.2f,
-				m_diagram.sites[i].y * 0.2f,
-				0.0f);
+			//newTransform.position += glm::vec3(
+			//	m_diagram.sites[i].x * 0.2f,
+			//	m_diagram.sites[i].y * 0.2f,
+			//	0.0f);
 			//object->setMeshOffsetTransform(newTransform, mi);
 
-			//object->createDynamic(CollisionObject::box, 100.0f * scale, mi, true);
+			object->createDynamic(CollisionObject::box, 100.0f * scale, mi, true);
 			
 			// Values for destroyed object
 			// TODO: Move thiss
@@ -245,12 +245,11 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 		}
 	}
 
-	object->setBodyActive(false);
-	object->set_destroyed(true);
-	object->setLifetime(0.0f);
-
 	object->setMaterial(nullptr, -1);
-	object->setBodyWorldPosition(glm::vec3(-999.0f), 0);
+	object->setLifetime(0.0f);
+	object->setBodyWorldPosition(glm::vec3(9.0f), 0);
+	object->set_destroyed(true);
+	object->setBodyActive(false);
 }
 
 void DstrGenerator::meshFromClipped(const float& scale, const std::vector<glm::vec2>& polygon, const std::vector<glm::vec2>& uv, glm::vec3& normal)
@@ -285,8 +284,8 @@ void DstrGenerator::meshFromClipped(const float& scale, const std::vector<glm::v
 	{
 		m_newVertices[vi++].position = glm::vec3(m_clipped[i].x, m_clipped[i].y, 0);
 		m_newVertices[uvi++].UV = glm::vec2(
-			(uvmin_u - uvmax_u) * (m_clipped[i].x - polygon[3].x) / (polygon[3].x - polygon[1].x),
-			(uvmax_v - uvmin_v) * (m_clipped[i].y - polygon[3].y) / (polygon[3].y - polygon[1].y)
+			(uvmax_u - uvmin_u) * (m_clipped[i].x - polygon[0].x) / (polygon[2].x - polygon[0].x) + uvmin_u,
+			(uvmax_v - uvmin_v) * (m_clipped[i].y - polygon[0].y) / (polygon[2].y - polygon[0].y) + uvmin_v
 		);
 
 		m_newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, 1.0f);
@@ -297,8 +296,8 @@ void DstrGenerator::meshFromClipped(const float& scale, const std::vector<glm::v
 	{
 		m_newVertices[vi++].position = glm::vec3(m_clipped[i].x, m_clipped[i].y, -scale);
 		m_newVertices[uvi++].UV = glm::vec2(
-			(uvmin_u - uvmax_u) * (m_clipped[i].x - polygon[3].x) / (polygon[3].x - polygon[1].x),
-			(uvmax_v - uvmin_v) * (m_clipped[i].y - polygon[3].y) / (polygon[3].y - polygon[1].y)
+			(uvmax_u - uvmin_u) * (m_clipped[i].x - polygon[0].x) / (polygon[2].x - polygon[0].x) + uvmin_u,
+			(uvmax_v - uvmin_v) * (m_clipped[i].y - polygon[0].y) / (polygon[2].y - polygon[0].y) + uvmin_v
 		);
 
 		m_newVertices[ni++].Normals = glm::vec3(0.0f, 0.0f, -1.0f);
