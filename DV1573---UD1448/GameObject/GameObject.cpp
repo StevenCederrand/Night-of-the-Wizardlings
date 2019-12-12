@@ -594,8 +594,9 @@ void GameObject::setTransformFromRigid(int meshIndex)
 	t_transform.rotation.z = btRotation.getZ();
 	t_transform.rotation.w = btRotation.getW();
 
-	setMeshOffsetPosition(t_transform.position, meshIndex);
-	setMeshOffsetRotation(t_transform.rotation, meshIndex);
+	m_meshes[meshIndex].transform.position = t_transform.position;
+	m_meshes[meshIndex].transform.rotation = t_transform.rotation;
+	updateTransform();
 }
 
 void GameObject::addParticle(ParticleBuffers* particleBuffers)

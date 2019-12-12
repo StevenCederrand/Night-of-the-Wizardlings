@@ -40,8 +40,8 @@ void SpellHandler::initAttackSpell()
 	// Gameplay--
 	attackBase.m_lowDamage = 20.0f;
 	attackBase.m_highDamage = 30.0f;
-	attackBase.m_speed = 40.0f;
-	attackBase.m_acceleration = 40.0f;
+	attackBase.m_speed = 60.0f;
+	attackBase.m_acceleration = 15.0f;
 	attackBase.m_radius = 0.25f;
 	attackBase.m_lifeTime = 5.0f;
 	attackBase.m_maxBounces = 3.0f;
