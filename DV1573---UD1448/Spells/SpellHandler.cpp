@@ -47,8 +47,8 @@ void SpellHandler::initAttackSpell()
 	attackBase.m_maxBounces = 3.0f;
 
 	// Light--
-	attackBase.m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f);// OLD
-	attackBase.m_attenAndRadius = glm::vec4(1.0f, 2.15f, 4.5f, 22.0f);
+	attackBase.m_attenAndRadius = glm::vec4(1.0f, 0.35,	0.44, 28.0f);
+	attackBase.m_strength = 38.0f;
 
 	PSinfo tempPS;
 	TextureInfo tempTxt;
@@ -64,6 +64,7 @@ void SpellHandler::initAttackSpell()
 	tempPS.seed = 0;
 	tempPS.cont = true;
 	tempPS.omnious = false;
+	tempPS.randomSpawn = false;
 	tempPS.spread = 0.0f;
 	tempPS.glow = 2;
 	tempPS.scaleDirection = 0;
@@ -72,6 +73,7 @@ void SpellHandler::initAttackSpell()
 	tempPS.color = glm::vec3(0.0f, 0.9f, 0.9f);
 	tempPS.blendColor = glm::vec3(0.8f, 1.0f, 1.0f);
 	tempPS.direction = glm::vec3(1.0f, 0.0f, 0.0f);
+	tempPS.direction = glm::clamp(tempPS.direction, -1.0f, 1.0f);
 
 	attackBase.m_particleBuffers.emplace_back(new ParticleBuffers(tempPS, tempTxt));
 	attackBase.m_particleBuffers.back()->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
@@ -109,8 +111,8 @@ void SpellHandler::initEnhanceSpell()
 	enhanceAtkBase.m_maxBounces = 3.0;
 
 	// Light--
-	enhanceAtkBase.m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // OLD
-	enhanceAtkBase.m_attenAndRadius = glm::vec4(1.0f, 1.55f, 3.7f, 22.0f);
+	enhanceAtkBase.m_attenAndRadius = glm::vec4(1.0f, 0.22,	0.20, 38.0f);
+	enhanceAtkBase.m_strength = 28.0f;
 
 	PSinfo tempPS;
 	TextureInfo tempTxt;
@@ -126,6 +128,7 @@ void SpellHandler::initEnhanceSpell()
 	tempPS.seed = 0;
 	tempPS.cont = true;
 	tempPS.omnious = false;
+	tempPS.randomSpawn = false;
 	tempPS.spread = -1.0f;
 	tempPS.glow = 1.3;
 	tempPS.scaleDirection = 0;
@@ -135,6 +138,7 @@ void SpellHandler::initEnhanceSpell()
 	tempPS.blendColor = glm::vec3(1.0f, 0.0f, 1.0f);
 	tempPS.color = glm::vec3(0.0, 0.0f, 0.0f);
 	tempPS.direction = glm::vec3(1.0f, 0.0f, 0.0f);
+	tempPS.direction = glm::clamp(tempPS.direction, -1.0f, 1.0f);
 
 	enhanceAtkBase.m_particleBuffers.emplace_back(new ParticleBuffers(tempPS, tempTxt));
 	enhanceAtkBase.m_particleBuffers.back()->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
@@ -170,8 +174,8 @@ void SpellHandler::initFlamestrikeSpell()
 	flamestrikeBase.m_maxBounces = 2;
 
 	// Light--
-	flamestrikeBase.m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // Old
-	flamestrikeBase.m_attenAndRadius = glm::vec4(1.0f, 0.61f, 0.74f, 22.0f);
+	flamestrikeBase.m_attenAndRadius = glm::vec4(1.0f, 0.35, 0.44, 28.0f);
+	flamestrikeBase.m_strength = 38.0f;
 }
 
 void SpellHandler::initFireSpell()
@@ -203,13 +207,13 @@ void SpellHandler::initFireSpell()
 	fireBase.m_maxBounces = 0.0f;
 
 	// Light--
-	fireBase.m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // Old
-	fireBase.m_attenAndRadius = glm::vec4(1.0f, 0.61f, 0.74f, 22.0f);
+	fireBase.m_attenAndRadius = glm::vec4(1.0f, 0.14, 0.07, 44.0f);
+	fireBase.m_strength = 19.0f;
 
 	PSinfo tempPS;
 	TextureInfo tempTxt;
 
-	tempTxt.name = "Assets/Textures/betterSmoke.png";
+	tempTxt.name = "Assets/Textures/betterSmoke2.png";
 	tempPS.width = 0.9f;
 	tempPS.heigth = 1.2f;
 	tempPS.lifetime = 5.0f;
@@ -221,7 +225,7 @@ void SpellHandler::initFireSpell()
 	tempPS.seed = 1;
 	tempPS.cont = true;
 	tempPS.omnious = true;
-	tempPS.spread = 5.0f;
+	tempPS.spread = 3.0f;
 	tempPS.glow = 1.3;
 	tempPS.scaleDirection = 0;
 	tempPS.swirl = 0;
@@ -231,6 +235,7 @@ void SpellHandler::initFireSpell()
 	tempPS.blendColor = glm::vec3(1.0f, 1.0f, 1.0f);
 	tempPS.color = glm::vec3(0.0, 0.0f, 0.0f);
 	tempPS.direction = glm::vec3(0.0f, -1.0f, 0.0f);
+	tempPS.direction = glm::clamp(tempPS.direction, -1.0f, 1.0f); //Do i need this???
 
 	fireBase.m_particleBuffers.emplace_back(new ParticleBuffers(tempPS, tempTxt));
 	fireBase.m_particleBuffers.back()->setShader(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
@@ -365,7 +370,8 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 
 		// Bullet
 		btVector3 direction = btVector3(directionVector.x, directionVector.y, directionVector.z);
-		spell->createRigidBody(BulletPhysics::getInstance()->createObject(
+		spell->createRigidBody(
+			BulletPhysics::getInstance()->createObject(
 			sphere,
 			1.0f,
 			spellPos + directionVector * 2,

@@ -1,7 +1,7 @@
 #include "Pch/Pch.h"
 #include "MemoryUsage.h"
 
-void MemoryUsage::printVramUsage()
+void MemoryUsage::updateVramUsage()
 {
 	IDXGIFactory* dxgifactory = nullptr;
 	HRESULT ret_code = ::CreateDXGIFactory(
@@ -21,8 +21,11 @@ void MemoryUsage::printVramUsage()
 
 				if (SUCCEEDED(dxgiAdapter4->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info)))
 				{
-					float memoryUsage = float(info.CurrentUsage / 1024.0 / 1024.0); //MiB
-					printf("[VRAM USAGE]: %f\n", memoryUsage);
+					m_vramUsage = float(info.CurrentUsage / 1024.0 / 1024.0); //MiB
+					
+					if (m_vramUsage > m_highestVramUsage)
+						m_highestVramUsage = m_vramUsage;
+
 
 				};
 
@@ -34,7 +37,7 @@ void MemoryUsage::printVramUsage()
 	}
 }
 
-void MemoryUsage::printRamUsage()
+void MemoryUsage::updateRamUsage()
 {
 	//src: https://docs.microsoft.com/en-us/windows/desktop/api/psapi/ns-psapi-_process_memory_counters
 
@@ -52,19 +55,49 @@ void MemoryUsage::printRamUsage()
 			//The Commit Charge value in bytes for this process.
 			//Commit Charge is the total amount of memory that the memory manager has committed for a running process.
 
-		float memoryUsage = float(pmc.PagefileUsage / 1024.0 / 1024.0); //MiB
+		m_ramUsage = float(pmc.PagefileUsage / 1024.0 / 1024.0); //MiB
+
+		if (m_ramUsage > m_highestRamUsage)
+			m_highestRamUsage = m_ramUsage;
 
 	
-		printf("[RAM USAGE]: %f\n", memoryUsage);
+		//printf("[RAM USAGE]: %f\n", memoryUsage);
 	}
 
 	CloseHandle(hProcess);
 }
 
+void MemoryUsage::updateBoth()
+{
+	updateRamUsage();
+	updateVramUsage();
+}
+
 void MemoryUsage::printBoth(std::string string)
 {
+	updateBoth();
 	std::cout << string << "\n";
-	printRamUsage();
-	printVramUsage();
+	printf("Ram: %f\n", m_ramUsage);
+	printf("Vram: %f\n", m_vramUsage);
 	std::cout << "----------------------------\n";
+}
+
+const float& MemoryUsage::getCurrentVramUsage() const
+{
+	return m_vramUsage;
+}
+
+const float& MemoryUsage::getCurrentRamUsage() const
+{
+	return m_ramUsage;
+}
+
+const float& MemoryUsage::getHighestVramUsage() const
+{
+	return m_highestVramUsage;
+}
+
+const float& MemoryUsage::getHighestRamUsage() const
+{
+	return m_highestRamUsage;
 }

@@ -4,22 +4,24 @@
 #include <System/UniqueIndex.h>
 #include <Renderer/Camera.h>
 
-GUIText::GUIText(const std::string& text, float fontSize, FontType* fontType, const glm::vec3& position, float maxLineLength, bool centered)
+GUIText::GUIText(const std::string& text, float fontSize, FontType* fontType, const glm::vec3& position, float maxLineLength, bool centered, bool screenText)
 {
 	m_text = text;
 	m_fontSize = fontSize;
 	m_fontType = fontType;
 	m_position = position;
+	m_initialPosition = position;
 	m_lineMaxSize = maxLineLength;
 	m_centered = centered;
 	m_color = glm::vec4(1.0f);
 	m_rotationMatrix = glm::mat4(1.0f);
 	m_modelMatrix = glm::mat4(1.0f);
 	m_modelMatrix = glm::translate(m_modelMatrix, glm::vec3(m_position));
-
-	createBuffers();
-	
+	m_screenText = screenText;
+	m_shouldRender = true;
 	m_uniqueIndex = UniqueIndex::getUniqueIndex();
+	
+	createBuffers();
 }
 
 GUIText::~GUIText()
@@ -35,6 +37,13 @@ void GUIText::setColor(const glm::vec4& color)
 void GUIText::remove()
 {
 	deleteBuffers();
+}
+
+void GUIText::changeText(const std::string& text)
+{
+	m_text = text;
+	deleteBuffers();
+	createBuffers();
 }
 
 void GUIText::setMeshInfo(int vao, int verticesCount)
@@ -65,7 +74,6 @@ void GUIText::setPosition(const glm::vec3 position)
 
 void GUIText::rotateTowardsCamera(Camera* camera)
 {
-	glm::vec3 dir = glm::normalize(m_position - camera->getCamPos());
 	m_rotationMatrix = glm::inverse(glm::lookAt(glm::vec3(0.0f), camera->getCamFace(), glm::vec3(0, 1, 0)));
 }
 
@@ -119,9 +127,34 @@ const bool GUIText::isCentered() const
 	return m_centered;
 }
 
+const float& GUIText::getWidth() const
+{
+	return m_width;
+}
+
+const bool& GUIText::isScreenText() const
+{
+	return m_screenText;
+}
+
+const bool& GUIText::ignoreDepthTest() const
+{
+	return m_ignoreDepthTest;
+}
+
+const bool& GUIText::shouldRender() const
+{
+	return m_shouldRender;
+}
+
 const glm::vec3& GUIText::getPosition() const
 {
 	return m_position;
+}
+
+const glm::vec3& GUIText::getInitialPosition() const
+{
+	return m_initialPosition;
 }
 
 const glm::vec4& GUIText::getColor() const
@@ -145,11 +178,18 @@ const std::string& GUIText::getText() const
 }
 
 void GUIText::updateModelMatrix()
-{
+{	
+	glm::vec3 pivot = glm::vec3(m_position.x , m_position.y + 1.0f , m_position.z);
+	glm::mat4 transToOrigin = glm::translate(glm::mat4(1.0f), -pivot);
+	glm::mat4 transFromOrigin = glm::translate(glm::mat4(1.0f), +pivot);
+	glm::mat4 scaleTrans = glm::scale(glm::mat4(1.0f), glm::vec3(m_scale, m_scale, 1.0f));
+
 	m_modelMatrix = glm::mat4(1.0f);
-	m_modelMatrix = glm::translate(m_modelMatrix, glm::vec3(m_position));
-	m_modelMatrix = m_modelMatrix * m_rotationMatrix;
-	m_modelMatrix = glm::scale(m_modelMatrix, glm::vec3(m_scale, m_scale, 1.0f));
+	m_modelMatrix = transFromOrigin * scaleTrans * transToOrigin;
+	
+	m_modelMatrix = glm::translate(m_modelMatrix, m_position);
+	m_modelMatrix = m_modelMatrix *  m_rotationMatrix;
+
 }
 
 void GUIText::setAlpha(const float& alpha)
@@ -162,19 +202,28 @@ void GUIText::setToFaceCamera(bool condition)
 	m_faceCamera = condition;
 }
 
+void GUIText::setIgnoreDepthTest(bool condition)
+{
+	m_ignoreDepthTest = condition;
+}
+
+void GUIText::setShouldRender(bool condition)
+{
+	m_shouldRender = condition;
+}
+
 void GUIText::createBuffers()
 {
-	//m_timer.start();
-
 	TextMeshData data = m_fontType->loadText(this);
-
-	// setup plane VAO
+	m_width = data.totalWordWith;
+	
+	// Setup VAO
 	glGenVertexArrays(1, &m_textMeshVao);
 	glGenBuffers(2, m_buffers);
 
 	glBindVertexArray(m_textMeshVao);
 
-	// ---------------------------Pos---------------------------
+	//---------------------------Pos---------------------------
 	glBindBuffer(GL_ARRAY_BUFFER, m_buffers[0]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * data.vertexPositions.size(), &data.vertexPositions[0], GL_STATIC_DRAW);
 
@@ -196,11 +245,6 @@ void GUIText::createBuffers()
 	glBindVertexArray(NULL);
 
 	m_vertexCount = data.vertexPositions.size();
-	
-	//m_timer.stop();
-
-	//std::printf("GUIText Creation: \n");
-	//m_timer.print();
 
 }
 

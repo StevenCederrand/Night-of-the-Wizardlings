@@ -14,7 +14,7 @@ Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera, Spell
 	m_firstPersonMesh->initAnimations("RunAnimation", 116.0f, 136.0f);
 	m_firstPersonMesh->initAnimations("IdleAnimation", 19.0f, 87.0f);
 	m_firstPersonMesh->initAnimations("DeflectAnimation", 154.0f, 169.0f);
-	Renderer::getInstance()->submit(m_firstPersonMesh, ANIMATEDSTATIC);
+	Renderer::getInstance()->submit(m_firstPersonMesh, ANIMATEDSTATIC);	
 
 	// Player shield
 	m_shieldObject = new ShieldObject("playerShield");
@@ -57,7 +57,9 @@ Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera, Spell
 	m_specialManaDrain = 30.0f;
 
 	m_mainAtkType = NORMALATTACK;
-	m_specialAtkType = ENHANCEATTACK;
+	m_specialAtkType = ENHANCEATTACK;	
+
+	SoundHandler::getInstance()->setSourceLooping(true, StepsSound, m_client->getMyData().guid);
 }
 
 Player::~Player()
@@ -68,6 +70,11 @@ Player::~Player()
 
 void Player::update(float deltaTime)
 {
+	//if the game is not in session, always have 100 mana
+	if (m_client->getServerState().currentState != NetGlobals::SERVER_STATE::GameInSession)
+		m_mana = 100;
+
+
 	if (m_playerCamera->isCameraActive()) {									// IMPORTANT; DOING THESE WRONG WILL CAUSE INPUT LAG
 		move(deltaTime);
 		m_playerCamera->update();											// Update this first so that subsequent uses are synced
@@ -142,8 +149,7 @@ void Player::updateListenerProperties()
 		m_playerCamera->getCamUp());
 	shPtr->setListenerPos(m_playerPosition);
 	shPtr->setSourcePosition(m_playerPosition, BasicAttackSound, m_client->getMyData().guid);
-	shPtr->setSourcePosition(m_playerPosition, BasicAttackSound, m_client->getMyData().guid, 1);
-	shPtr->setSourcePosition(m_playerPosition, DeflectSound, m_client->getMyData().guid);
+	shPtr->setSourcePosition(m_playerPosition, BasicAttackSound, m_client->getMyData().guid, 1);		
 	shPtr->setSourcePosition(m_playerPosition, StepsSound, m_client->getMyData().guid);
 	shPtr->setSourcePosition(m_playerPosition, JumpSound, m_client->getMyData().guid);
 	shPtr->setSourcePosition(m_playerPosition, LandingSound, m_client->getMyData().guid);
@@ -151,12 +157,12 @@ void Player::updateListenerProperties()
 	shPtr->setSourcePosition(m_playerPosition, PickupMazeSound);
 	shPtr->setSourcePosition(m_playerPosition, PickupTunnelsSound);
 	shPtr->setSourcePosition(m_playerPosition, PickupTopSound);
-	shPtr->setSourcePosition(m_playerPosition, PickupSound);
-	shPtr->setSourceLooping(true, StepsSound, m_client->getMyData().guid);
+	shPtr->setSourcePosition(m_playerPosition, PickupSound);	
 
 	for (int i = 0; i < NR_OF_SUBSEQUENT_SOUNDS; i++)
 	{
 		shPtr->setSourcePosition(m_playerPosition, EnhanceAttackSound, m_client->getMyData().guid, i);
+		shPtr->setSourcePosition(m_playerPosition, DeflectSound, m_client->getMyData().guid, i);
 	}
 }
 
@@ -168,9 +174,15 @@ void Player::move(float deltaTime)
 	if (m_frameCount < 5)
 		return;
 
-	m_moveDir = glm::vec3(0.0f);
+	//can't move much in the air
+	if (m_character->onGround())
+	{
+		m_moveDir = glm::vec3(0.0f);
+		m_oldMoveDir = glm::vec3(0.0f);
+	}
 
-	if (m_playerCamera->isFPEnabled()) {
+
+	if (m_playerCamera->isFPEnabled() ) {
 
 		glm::vec3 lookDirection = m_directionVector;
 		lookDirection.y = 0.0f;
@@ -220,9 +232,16 @@ void Player::move(float deltaTime)
 		}
 		else if(m_character->onGround())
 		{
+			m_oldMoveDir = m_moveDir;
 			sh->playSound(StepsSound, m_client->getMyData().guid);
 		}
 		m_isWalking = false;
+	}
+
+	//can't move much in the air
+	if (!m_character->onGround())
+	{
+		m_moveDir = m_oldMoveDir + (m_moveDir * 0.06f);
 	}
 
 	// Make sure moving is a constant speed
@@ -309,41 +328,62 @@ void Player::attack()
 		// Enough mana to cast
 		if (m_mana > m_deflectManaDrain) 
 		{
-			m_deflectSoundGain = 0.4f;
-
 			if (!m_deflecting) // Initial cast
 			{
+				m_deflectSoundGain = shPtr->getMasterVolume(); 
 				m_mana -= m_deflectManaDrain; 
 				shPtr->playSound(DeflectSound, m_client->getMyData().guid);
 				shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
+				m_deflecting = true;
 			}
 			else // Looping state
 			{
 				m_mana -= m_deflectManaDrain * DeltaTime;			
 			}
-
-			m_deflecting = true;
 		}
 		else // No mana but trying to cast
 		{ 
-			m_deflecting = false;
-
 			//Fade out deflect sound
+			m_deflectSoundGain -= 3.0f * shPtr->getMasterVolume() * DeltaTime;
 			if (m_deflectSoundGain > 0.0f)
 			{				
-				m_deflectSoundGain -= 2.0f * DeltaTime;
 				shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
 			}
 			else
-			{
-				shPtr->stopSound(DeflectSound, m_client->getMyData().guid);				
+			{	
+				//Stop all sources for this sound. 
+				for (int i = 0; i < NR_OF_SUBSEQUENT_SOUNDS; i++)
+				{
+					shPtr->stopSound(DeflectSound, m_client->getMyData().guid, i);
+				}
 			}
 		}
 
 	}
 	else if(m_deflecting) // Not holding RMB but in deflect state
-	{		
+	{					
 		m_deflecting = false;
+	}
+	else if (shPtr->getSourceState(DeflectSound, m_client->getMyData().guid, 0) == AL_PLAYING)
+	{
+		//Fade out deflect sound
+		m_deflectSoundGain -= 3.0f * shPtr->getMasterVolume() * DeltaTime;
+		if (m_deflectSoundGain > 0.0f)
+		{
+			shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
+		}
+		else
+		{
+			m_deflectSoundGain = shPtr->getMasterVolume(); // Will automatically be set to master volume			
+
+			//Stop all sources and set the gain back to max gain. 
+			for (int i = 0; i < NR_OF_SUBSEQUENT_SOUNDS; i++)
+			{
+				shPtr->stopSound(DeflectSound, m_client->getMyData().guid, i);
+				shPtr->setSourceGain(m_deflectSoundGain,
+					DeflectSound, m_client->getMyData().guid, i);
+			}
+		}
 	}
 
 	if (!m_deflecting && Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_LEFT))
@@ -389,25 +429,8 @@ void Player::attack()
 
 	if (Input::isMouseReleased(GLFW_MOUSE_BUTTON_RIGHT)) {
 		animState.deflecting = false;
-		m_rMouse = false;
-		//m_deflecting = false;
-	}
-
-	if (!m_deflecting)
-	{
-		//Fade out deflect sound
-		if (m_deflectSoundGain > 0.0f)
-		{
-			m_deflectSoundGain -= 2.0f * DeltaTime;
-			shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
-		}
-		else
-		{
-			shPtr->stopSound(DeflectSound, m_client->getMyData().guid);
-			m_deflectSoundGain = 0.4f;
-			shPtr->setSourceGain(m_deflectSoundGain, DeflectSound, m_client->getMyData().guid);
-			m_deflecting = false;
-		}
+		m_rMouse = false;	
+		m_deflecting = false;
 	}
 
 	// Update our shield for the renderer

@@ -144,7 +144,7 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 	{
 		int slot = SoundHandler::getInstance()->playSound(DestructionSound, Client::getInstance()->getMyData().guid);
 		SoundHandler::getInstance()->setSourcePosition(object->getRigidTransform().position, DestructionSound, Client::getInstance()->getMyData().guid, slot);
-		m_settings.timeSinceLastDestruction = 0.0f;
+		m_timeSinceLastDestruction = 0.0f;
 	}
 
 	Clear();

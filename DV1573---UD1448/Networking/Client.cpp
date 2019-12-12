@@ -265,7 +265,7 @@ void Client::processAndHandlePackets()
 				pE.data = player;
 				pE.flag = NetGlobals::THREAD_FLAG::Add;
 				pE.gameobject = nullptr;
-
+				pE.playerFlag = NetGlobals::THREAD_PLAYER_FLAG::SafeToAddNameplate;
 				/* Thread lock guard because this needs to be synced with the main game thread because
 				   this thread will add data to a list that is created and present in the main thread.
 
@@ -428,6 +428,13 @@ void Client::processAndHandlePackets()
 							Renderer::getInstance()->addBigNotification(t);
 						}
 
+
+						{
+							std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayersMutex);
+							NetworkPlayers::PlayerEntity* pEntity = findPlayerEntityInNetworkPlayers(pData.guid);
+							pEntity->playerFlag = NetGlobals::THREAD_PLAYER_FLAG::SafeToAddNameplate;
+						}
+
 					}
 
 					m_connectedPlayers[i] = pData;
@@ -468,10 +475,27 @@ void Client::processAndHandlePackets()
 			m_serverState.Serialize(false, bsIn);
 			if (m_serverState.currentState == NetGlobals::SERVER_STATE::WaitingForPlayers) {
 				logTrace("[Client]******** WARMUP ********");
+				Evnt evnt;
+				evnt.playerEvent = PlayerEvents::WaitingForPlayers;
+
+				// Add this to the event list
+				{
+					std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+					m_playerEvents.push_back(evnt);
+				}
+
+
 			}
 			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GameIsStarting) {
-				
 				logTrace("[Client]******** GAME IS STARTING ********");
+				Evnt evnt;
+				evnt.playerEvent = PlayerEvents::GameIsAboutToStart;
+
+				// Add this to the event list
+				{
+					std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+					m_playerEvents.push_back(evnt);
+				}
 			}
 			else if (m_serverState.currentState == NetGlobals::SERVER_STATE::GameInSession) {
 				logTrace("[Client]******** GAME HAS STARTED ********");
@@ -634,6 +658,18 @@ void Client::processAndHandlePackets()
 		{
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			m_countDownPacket.Serialize(false, bsIn);
+			Evnt evnt;
+			evnt.playerEvent = PlayerEvents::GameCountdown;
+			evnt.data = (void*)malloc(sizeof(CountdownPacket));
+			memcpy(evnt.data, &m_countDownPacket, sizeof(CountdownPacket));
+
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+				m_playerEvents.push_back(evnt);
+			}
+
+
 			m_inGame = true;
 		}
 		break;
@@ -649,6 +685,16 @@ void Client::processAndHandlePackets()
 		{
 			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
 			m_roundTimePacket.Serialize(false, bsIn);
+			Evnt evnt;
+			evnt.playerEvent = PlayerEvents::RoundTimer;
+			evnt.data = (void*)malloc(sizeof(RoundTimePacket));
+			memcpy(evnt.data, &m_roundTimePacket, sizeof(RoundTimePacket));
+
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+				m_playerEvents.push_back(evnt);
+			}
 		}
 		break;
 
@@ -710,6 +756,7 @@ void Client::processAndHandlePackets()
 			playerPacket.Serialize(false, bsIn);
 			m_myPlayerDataPacket.numberOfDeaths = playerPacket.numberOfDeaths;
 			m_myPlayerDataPacket.numberOfKills = playerPacket.numberOfKills;
+			m_myPlayerDataPacket.numberOfDamage = playerPacket.numberOfDamage;
 		}
 
 		break;
@@ -1062,6 +1109,7 @@ void Client::processAndHandlePackets()
 
 			Evnt evnt;
 			evnt.playerEvent = PlayerEvents::PlayerReady;
+			m_numberOfReadyPlayers = readyPlayersCount.numberOfReadyPlayers;
 
 			// Add this to the event list
 			{
@@ -1069,7 +1117,6 @@ void Client::processAndHandlePackets()
 				m_playerEvents.push_back(evnt);
 			}
 
-			m_numberOfReadyPlayers = readyPlayersCount.numberOfReadyPlayers;
 
 			break;
 		}
@@ -1078,6 +1125,38 @@ void Client::processAndHandlePackets()
 		{
 			m_myPlayerDataPacket.isReady = false;
 			m_numberOfReadyPlayers = 0;
+
+			Evnt evnt;
+			evnt.playerEvent = PlayerEvents::PlayerReady;
+
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+				m_playerEvents.push_back(evnt);
+			}
+
+			break;
+		}
+		case ENEMY_DIED:
+		{	
+			bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
+			EnemyDiedPacket enemyDiedPacket;
+			enemyDiedPacket.Serialize(false, bsIn);
+			
+			if (enemyDiedPacket.guidOfDeadPlayer == m_myPlayerDataPacket.guid.rakNetGuid)
+				continue;
+			
+			Evnt evnt = Evnt();
+			evnt.playerEvent = PlayerEvents::EnemyDied;
+			evnt.data = (void*)malloc(sizeof(EnemyDiedPacket));
+			memcpy(evnt.data, &enemyDiedPacket, sizeof(EnemyDiedPacket));
+
+			// Add this to the event list
+			{
+				std::lock_guard<std::mutex> lockGuard(NetGlobals::UpdatePlayerEventMutex); // Thread safe
+				m_playerEvents.push_back(evnt);
+			}
+
 			break;
 		}
 
@@ -1696,6 +1775,7 @@ void Client::resetPlayerData()
 	m_myPlayerDataPacket.inDeflectState = false;
 	m_myPlayerDataPacket.numberOfDeaths = 0;
 	m_myPlayerDataPacket.numberOfKills = 0;
+	m_myPlayerDataPacket.numberOfDamage = 0;
 	m_myPlayerDataPacket.hasBeenUpdatedOnce = false;
 	char t[16] = { ' ' };
 	memcpy(m_myPlayerDataPacket.userName, t, sizeof(m_myPlayerDataPacket.userName));

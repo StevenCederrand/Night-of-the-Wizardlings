@@ -38,6 +38,8 @@ public:
 
 	static bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
 		const btCollisionObjectWrapper* obj2, int id2, int index2);	
+
+	void InitParticle();
 private:
 	/* Callbacks */
 	void onSpellHit_callback();
@@ -81,13 +83,20 @@ private:
 	bool m_hideHUD;
 
 	glm::vec3 m_lastPositionOfMyKiller;
-
+	GUIText* m_gameTimeText;
+	GUIText* m_readyText;
+	GUIText* m_numberOfPlayersReadyText;
+	GUIText* m_killNotification;
+	GUIText* m_memoryText;
+	GUIText* m_fpsText;
 	float startY;
+
+	ParticleBuffers* deathBuffer;
 private: 
 
 	bool onMainMenuClick(const CEGUI::EventArgs& e);
 	bool onQuitClick(const CEGUI::EventArgs& e);
-	
+
 	void HUDHandler();
 	void GUIHandler();
 	void GUILoadScoreboard();

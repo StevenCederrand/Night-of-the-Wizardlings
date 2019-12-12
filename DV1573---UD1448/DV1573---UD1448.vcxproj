@@ -112,6 +112,7 @@
       <PrecompiledHeaderFile>Pch/Pch.h</PrecompiledHeaderFile>
       <PreprocessToFile>false</PreprocessToFile>
       <AdditionalIncludeDirectories>C:\Users\Nicolas Wallenskog\Documents\GitHub\DV1573---UD1448\dependencies\include\freetype;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -150,6 +151,7 @@
       <PrecompiledHeaderFile>Pch/Pch.h</PrecompiledHeaderFile>
       <PreprocessToFile>false</PreprocessToFile>
       <AdditionalIncludeDirectories>C:\Users\Nicolas Wallenskog\Documents\GitHub\DV1573---UD1448\dependencies\include\freetype;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -272,6 +274,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pch/Pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pch/Pch.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="States\SettingState.cpp" />
     <ClCompile Include="System\Application.cpp" />
     <ClCompile Include="System\BulletPhysics.cpp" />
     <ClCompile Include="System\Input.cpp" />
@@ -393,9 +396,11 @@
     <ClInclude Include="States\LobbyState.h" />
     <ClInclude Include="States\MenuState.h" />
     <ClInclude Include="States\PlayState.h" />
+    <ClInclude Include="States\SettingState.h" />
     <ClInclude Include="System\Application.h" />
     <ClInclude Include="System\BulletPhysics.h" />
     <ClInclude Include="System\DeltaTime.h" />
+    <ClInclude Include="System\Framerate.h" />
     <ClInclude Include="System\Input.h" />
     <ClInclude Include="System\Lerp.h" />
     <ClInclude Include="System\Log.h" />

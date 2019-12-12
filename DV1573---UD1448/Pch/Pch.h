@@ -2,6 +2,7 @@
 #define _PCH_H
 
 #include <System/DeltaTime.h>
+#include <System/Framerate.h>
 #include "Bullet/btBulletDynamicsCommon.h"
 
 #include <iostream>

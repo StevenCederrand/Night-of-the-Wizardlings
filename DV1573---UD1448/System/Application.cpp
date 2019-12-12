@@ -8,7 +8,9 @@
 #include <System/MemoryUsage.h>
 #define AUTOSTART true;
 #define FULLSCREEN false;
+
 float DeltaTime = 0.0f;
+unsigned int Framerate = 0;
 
 Application::Application() {
 }
@@ -83,7 +85,8 @@ bool Application::init() {
 	}
 	
 	// Vsync
-	glfwSwapInterval(1); // Turning this off will cause occasionally freezes, so don't!
+	int VSync = GetPrivateProfileInt("DB_SETTINGS", "VSync", 1, "Assets/Settings/settings.ini");
+	glfwSwapInterval(VSync); // Turning this off will cause occasionally freezes, so don't!
 	
 	m_input = new Input();
 
@@ -229,9 +232,7 @@ void Application::calcFPS(const float& dt)
 	if (frameTimer <= 0.0f)
 	{
 		frameTimer = 1.0f;
-		std::string title = "Wizards 'n stuff | FPS: " + std::to_string(fps);
-		//printf("%s\n",title.c_str());
-		glfwSetWindowTitle(m_window, title.c_str());
+		Framerate = fps;
 		fps = 0;
 	}
 
