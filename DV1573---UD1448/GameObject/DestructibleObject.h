@@ -17,7 +17,9 @@ public:
 		Material newMaterial_in, std::string albedo_in, Transform transform, float size);
 	void loadBasic(std::string name);
 	void loadDefined(std::string name, std::vector<glm::vec2> polygon);
+	void findVertices(const std::vector<Vertex>& vertices);
 	void meshFromPolygon(std::string name);
+
 	void set_destroyed(bool state) { m_destroyed = state; }
 	void setLifetime(float time) { m_lifetime = time; }
 	void setEvent1Time(float time) { m_ev1Time = time; }
@@ -25,6 +27,7 @@ public:
 	void setEvent3Time(float time) { m_ev3Time = time; }
 
 	const std::vector<glm::vec2>& getPolygon() const { return m_polygonFace; }
+	const std::vector<glm::vec2>& getUv() const { return m_polygonUV; }
 	const float& getScale() const { return m_scale; }
 	const float& getLifetime() const { return m_lifetime; }
 	const int& getIndex() const { return m_index; }
@@ -33,6 +36,7 @@ public:
 
 private:
 	std::vector<glm::vec2> m_polygonFace;
+	std::vector<glm::vec2> m_polygonUV;
 
 	float m_ev1Time;
 	float m_ev2Time;

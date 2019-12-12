@@ -108,7 +108,7 @@ void VoroniCalculator::CalculateDiagram(std::vector<glm::vec2> inputVertices, Vo
 
 		int count = end - start;
 
-		assert(count >= 0);
+		//assert(count >= 0);
 
 		for (int ptiCurr = start; ptiCurr <= end; ptiCurr++)
 		{
@@ -159,7 +159,7 @@ void VoroniCalculator::CalculateDiagram(std::vector<glm::vec2> inputVertices, Vo
 				}
 				else
 				{
-					assert(ptCurr.point == faces[tiCurr + 2]);
+					//assert(ptCurr.point == faces[tiCurr + 2]);
 					v0 = verts[faces[tiCurr + 1]] - verts[faces[tiCurr + 2]];
 				}
 
@@ -173,7 +173,7 @@ void VoroniCalculator::CalculateDiagram(std::vector<glm::vec2> inputVertices, Vo
 				}
 				else
 				{
-					assert(ptNext.point == faces[tiNext + 2]);
+					//assert(ptNext.point == faces[tiNext + 2]);
 					v1 = verts[faces[tiNext + 2]] - verts[faces[tiNext + 0]];
 				}
 
@@ -211,7 +211,7 @@ void VoroniCalculator::CalculateDiagram(std::vector<glm::vec2> inputVertices, Vo
 
 int VoroniCalculator::NonSharedPoint(std::vector<int> tris, int ti0, int ti1)
 {
-	assert(SharesEdge(tris, ti0, ti1));
+	//assert(SharesEdge(tris, ti0, ti1));
 
 	int x0 = tris[ti0];
 	int x1 = tris[ti0 + 1];
@@ -225,7 +225,7 @@ int VoroniCalculator::NonSharedPoint(std::vector<int> tris, int ti0, int ti1)
 	if (x1 != y0 && x1 != y1 && x1 != y2) return x1;
 	if (x2 != y0 && x2 != y1 && x2 != y2) return x2;
 
-	assert(false);
+	//assert(false);
 	return -1;
 }
 
@@ -245,7 +245,7 @@ bool VoroniCalculator::SharesEdge(std::vector<int> tris, int ti0, int ti1)
 	if (x1 == y0 || x1 == y1 || x1 == y2) n++;
 	if (x2 == y0 || x2 == y1 || x2 == y2) n++;
 
-	assert(n != 3);
+	//assert(n != 3);
 
 	return n >= 2;
 }

@@ -6,8 +6,7 @@
 #include <Networking/LocalServer.h>
 #include <Gui/Gui.h>
 #include <System/MemoryUsage.h>
-
-#define AUTOSTART false;
+#define AUTOSTART true;
 #define FULLSCREEN false;
 
 float DeltaTime = 0.0f;

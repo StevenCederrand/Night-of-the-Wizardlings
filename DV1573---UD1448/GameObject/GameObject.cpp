@@ -311,7 +311,6 @@ void GameObject::setBodyWorldPosition(glm::vec3 worldPosition, int meshIndex)
 		m_meshes[meshIndex].body->setWorldTransform(newTransform);
 
 		updateBulletRigids();
-		updateTransform();
 	}
 }
 
@@ -498,10 +497,13 @@ void GameObject::makeStatic()
 
 			m_meshes[i].body->setUserPointer(this);
 		}
+
+		setTransformFromRigid(i);
 	}
 
 	m_transform.position = glm::vec3(0.0f);
 	m_transform.rotation = glm::quat();
+	updateBulletRigids();
 }
 
 void GameObject::createRigidBody(btRigidBody* body, int meshIndex)
@@ -592,8 +594,9 @@ void GameObject::setTransformFromRigid(int meshIndex)
 	t_transform.rotation.z = btRotation.getZ();
 	t_transform.rotation.w = btRotation.getW();
 
-	setMeshOffsetPosition(t_transform.position, meshIndex);
-	setMeshOffsetRotation(t_transform.rotation, meshIndex);
+	m_meshes[meshIndex].transform.position = t_transform.position;
+	m_meshes[meshIndex].transform.rotation = t_transform.rotation;
+	updateTransform();
 }
 
 void GameObject::addParticle(ParticleBuffers* particleBuffers)

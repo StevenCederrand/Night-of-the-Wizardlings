@@ -210,8 +210,8 @@ bool DelaunayGenerator::ToTheLeft(int pointIndex, int edge_0, int edge_1)
 	}
 	else
 	{
-		assert(edge_0 >= 0);
-		assert(edge_1 >= 0);
+		//assert(edge_0 >= 0);
+		//assert(edge_1 >= 0);
 
 		return m_geometry.ToTheLeft(m_vertices[pointIndex], m_vertices[edge_0], m_vertices[edge_1]);
 	}
@@ -221,7 +221,7 @@ bool DelaunayGenerator::ToTheLeft(int pointIndex, int edge_0, int edge_1)
 
 int DelaunayGenerator::LeafWithEdge(int triangleIndex, int edge_0, int edge_1)
 {
-	assert(m_triangles[triangleIndex].Has_Edge(edge_0, edge_1));
+	//assert(m_triangles[triangleIndex].Has_Edge(edge_0, edge_1));
 
 	while (!m_triangles[triangleIndex].Is_Leaf())
 	{
@@ -246,13 +246,13 @@ int DelaunayGenerator::LeafWithEdge(int triangleIndex, int edge_0, int edge_1)
 
 bool DelaunayGenerator::LegalEdge(int k, int l, int i, int j)
 {
-	assert(k != highest && k >= 0);
+	//assert(k != highest && k >= 0);
 
 	float lMagic = l < 0;
 	float iMagic = i < 0;
 	float jMagic = j < 0;
 
-	assert(!(iMagic && jMagic));
+	//assert(!(iMagic && jMagic));
 
 	if (lMagic)
 	{
@@ -260,7 +260,7 @@ bool DelaunayGenerator::LegalEdge(int k, int l, int i, int j)
 	}
 	else if (iMagic)
 	{
-		assert(!jMagic);
+		//assert(!jMagic);
 
 		glm::vec2 p = m_vertices[l];
 		glm::vec2 l0 = m_vertices[k];
@@ -270,7 +270,7 @@ bool DelaunayGenerator::LegalEdge(int k, int l, int i, int j)
 	}
 	else if (jMagic)
 	{
-		assert(!iMagic);
+		//assert(!iMagic);
 
 		glm::vec2 p = m_vertices[l];
 		glm::vec2 l0 = m_vertices[k];
@@ -280,15 +280,15 @@ bool DelaunayGenerator::LegalEdge(int k, int l, int i, int j)
 	}
 	else
 	{
-		assert(k >= 0 && l >= 0 && i >= 0 && j >= 0);
+		//assert(k >= 0 && l >= 0 && i >= 0 && j >= 0);
 
 		glm::vec2 p = m_vertices[l];
 		glm::vec2 c0 = m_vertices[k];
 		glm::vec2 c1 = m_vertices[i];
 		glm::vec2 c2 = m_vertices[j];
 
-		assert(m_geometry.ToTheLeft(c2, c0, c1));
-		assert(m_geometry.ToTheLeft(c2, c1, p));
+		//assert(m_geometry.ToTheLeft(c2, c0, c1));
+		//assert(m_geometry.ToTheLeft(c2, c1, p));
 
 		return !m_geometry.InsideCircumcircle(p, c0, c1, c2);
 	}
@@ -306,12 +306,12 @@ void DelaunayGenerator::LegalizeEdge(int index_0, int index_1, int pointIndex, i
 	int index_q = triangle_1.GetLastPoint(edge_0, edge_1);
 
 
-	assert(triangle_0.Has_Edge(edge_0, edge_1));
-	assert(triangle_1.Has_Edge(edge_0, edge_1));
-	assert(triangle_0.Is_Leaf());
-	assert(triangle_1.Is_Leaf());
-	assert(triangle_0.m_vertex_0 == pointIndex || triangle_0.m_vertex_1 == pointIndex || triangle_0.m_vertex_2 == pointIndex);
-	assert(triangle_1.m_vertex_0 == index_q || triangle_1.m_vertex_1 == index_q || triangle_1.m_vertex_2 == index_q);
+	//assert(triangle_0.Has_Edge(edge_0, edge_1));
+	//assert(triangle_1.Has_Edge(edge_0, edge_1));
+	//assert(triangle_0.Is_Leaf());
+	//assert(triangle_1.Is_Leaf());
+	//assert(triangle_0.m_vertex_0 == pointIndex || triangle_0.m_vertex_1 == pointIndex || triangle_0.m_vertex_2 == pointIndex);
+	//assert(triangle_1.m_vertex_0 == index_q || triangle_1.m_vertex_1 == index_q || triangle_1.m_vertex_2 == index_q);
 
 	if (!LegalEdge(pointIndex, index_q, edge_0, edge_1))
 	{
