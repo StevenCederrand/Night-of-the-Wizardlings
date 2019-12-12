@@ -54,7 +54,7 @@ void VoroniClipper::ClipSite(VoroniDiagram diagram, const std::vector<glm::vec2>
 		}
 		else
 		{
-			assert(false);
+			//assert(false);
 			return;
 		}
 
@@ -91,7 +91,7 @@ void VoroniClipper::ClipSite(VoroniDiagram diagram, const std::vector<glm::vec2>
 				}
 				else
 				{
-					assert(false);
+					//assert(false);
 				}
 			}
 		}

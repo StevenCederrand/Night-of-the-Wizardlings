@@ -90,8 +90,6 @@ void DstrGenerator::randomizeCircle(float& rnd, float& offset, float& angle, glm
 
 	point.x += offset * glm::cos(angle);
 	point.y += offset * glm::sin(angle);
-
-
 }
 
 void DstrGenerator::setBreakSettings(DSTRType type, float breakPoints, float breakAreaRadius, float gravity)
@@ -207,11 +205,11 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			object->setMeshOffsetTransform(newTransform, mi);
 
 			// DEBUG PLACEMENT
-			newTransform.position += glm::vec3(
-				m_diagram.sites[i].x * 0.2f,
-				m_diagram.sites[i].y * 0.2f,
-				0.0f);
-			object->setMeshOffsetTransform(newTransform, mi);
+			//newTransform.position += glm::vec3(
+			//	m_diagram.sites[i].x * 0.2f,
+			//	m_diagram.sites[i].y * 0.2f,
+			//	0.0f);
+			//object->setMeshOffsetTransform(newTransform, mi);
 
 			object->createDynamic(CollisionObject::box, 100.0f * scale, mi, true);
 			
@@ -225,9 +223,9 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			if (scale > 1.5)
 				force = (forceDir * 200) + hitDirection * 30;	//Hardcoded for big walls, to fix later pls dont worrying
 
-			float forceRand = rand() % 300 + 900;
-			forceRand /= 1000;
-			force *= forceRand;
+			//float forceRand = rand() % 300 + 900;
+			//forceRand /= 1000;
+			//force *= forceRand;
 
 			float dirRndX = 2 * (double)rand() / (double)RAND_MAX - 1;
 			float dirRndY = 2 * (double)rand() / (double)RAND_MAX - 1;
@@ -247,7 +245,7 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 
 	object->setMaterial(nullptr, -1);
 	object->setLifetime(0.0f);
-	object->setBodyWorldPosition(glm::vec3(9.0f), 0);
+	object->setBodyWorldPosition(glm::vec3(999.0f), 0);
 	object->set_destroyed(true);
 	object->setBodyActive(false);
 }

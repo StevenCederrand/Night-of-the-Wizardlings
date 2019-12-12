@@ -300,8 +300,8 @@ void PlayState::loadDestructables()
 
 	// Temporary variables to move later ---
 	// Debug Destructibles
-	int breakPoints = 11;
-	float breakRadius = 2.8f;
+	int breakPoints = 16;
+	float breakRadius = 1.1f;
 
 	/*float gravityOnImpact = 0.0f;
 	float timeToChange = 2.0f;
@@ -313,7 +313,7 @@ void PlayState::loadDestructables()
 
 	// Temporary variables to move later ---
 	m_dstr.setBreakSettings(BASIC, breakPoints, breakRadius, gravityOnImpact);
-	m_dstr_alt1.setBreakSettings(PILLAR, breakPoints, breakRadius, gravityOnImpact);
+	m_dstr_alt1.setBreakSettings(PILLAR, breakPoints, 4.0f, gravityOnImpact);
 
 	switch (m_map)
 	{
