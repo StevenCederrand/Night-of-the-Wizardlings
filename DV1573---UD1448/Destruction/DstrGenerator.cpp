@@ -218,14 +218,14 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			glm::vec3 forceDir = glm::vec3((m_diagram.sites[i] - hitPosition), 0.0f) * glm::inverse(newTransform.rotation);
 			glm::vec3 force = (forceDir * 20) + hitDirection;
 			if (scale > 0.6)
-				force = (forceDir * 100) + hitDirection * 9;	//Hardcoded for pillar, to fix later pls dont worrying
+				force = (forceDir * 100) + hitDirection * 5;	//Hardcoded for pillar, to fix later pls dont worrying
 
 			if (scale > 1.5)
-				force = (forceDir * 200) + hitDirection * 30;	//Hardcoded for big walls, to fix later pls dont worrying
+				force = (forceDir * 200) + hitDirection * 10;	//Hardcoded for big walls, to fix later pls dont worrying
 
-			//float forceRand = rand() % 300 + 900;
-			//forceRand /= 1000;
-			//force *= forceRand;
+			float forceRand = rand() % 400;
+			forceRand /= 1000;
+			force *= 0.8f + forceRand;
 
 			float dirRndX = 2 * (double)rand() / (double)RAND_MAX - 1;
 			float dirRndY = 2 * (double)rand() / (double)RAND_MAX - 1;

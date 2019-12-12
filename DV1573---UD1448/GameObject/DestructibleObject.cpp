@@ -79,6 +79,7 @@ void DestructibleObject::update(float dt)
 				if (m_meshes[i].body)
 				{
 					removeBody(i);
+					m_meshes[i].mesh->Destroy();
 				}
 				setWorldPosition(glm::vec3(-999.0f));
 				m_dstrState = 3;
