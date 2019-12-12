@@ -53,6 +53,14 @@ LevelEditState::~LevelEditState()
 	MeshMap::getInstance()->cleanUp();
 }
 
+void LevelEditState::loadMesh(std::vector<GameObject*> objectVector, std::string filePath)
+{
+	Renderer* renderer = Renderer::getInstance();
+	objectVector.push_back(new MapObject("Object"));
+	objectVector[objectVector.size() - 1]->loadMesh(filePath);
+	renderer->submit(objectVector[objectVector.size() - 1], RENDER_TYPE::STATIC);
+}
+
 void LevelEditState::loadMap()
 {
 	Renderer* renderer = Renderer::getInstance();
@@ -162,6 +170,30 @@ void LevelEditState::render()
 
 void LevelEditState::guiInfo()
 {
+	//This has to be moved to be class or be made vectors instead? variables to be accable by other imgui instances
+	const char* listBox_Meshes[] = { "Level1(Castle)", "Terrain(Forrest)", "Plane" };
+	static int listBox_Meshes_Current = 1;
+
+	const char* listBox_Particles[] = { "Fire", "Torch", "Flies", "Smoke", "Rain" };
+	static int listBox_Particles_Current = 1;
+
+	float* View;
+	float* Proj;
+	float* ID;
+	float* gridSize;
+
+	glm::mat4 m_viewMat = m_camera->getViewMat();
+	View = glm::value_ptr(m_viewMat);
+
+	glm::mat4 m_projMat = m_camera->getProjMat();
+	Proj = glm::value_ptr(m_projMat);
+
+	glm::mat4 m_identity = glm::mat4(1.0f);
+	ID = glm::value_ptr(m_identity);
+
+	float matrixT[3], matrixR[3], matrixS[3];
+
+
 	ImGui::Begin("Level Editor");
 
 #pragma region AttribCheck
@@ -178,6 +210,13 @@ void LevelEditState::guiInfo()
 		changeAttrib = 3;
 	ImGui::RadioButton("Scale", &changeAttrib, 3);
 	ImGui::Separator();
+
+	ImGuizmo::DecomposeMatrixToComponents(ID, matrixT, matrixR, matrixS);
+	ImGui::InputFloat3("Tr", matrixT, 3);
+	ImGui::InputFloat3("Ro", matrixR, 3);
+	ImGui::InputFloat3("Sc", matrixS, 3);
+	ImGuizmo::RecomposeMatrixFromComponents(matrixT, matrixR, matrixS, ID);
+
 	ImGui::EndGroup();
 	ImGui::End();
 #pragma endregion
@@ -224,7 +263,7 @@ void LevelEditState::guiInfo()
 		{
 			if (ImGui::MenuItem("Create PointLight"))
 			{
-				//Do Stuff
+				loadBasicLight();
 			}
 			if (ImGui::MenuItem("Load Asset"))
 			{
@@ -238,15 +277,15 @@ void LevelEditState::guiInfo()
 		}
 		ImGui::EndMainMenuBar();
 	}
-	const char* listBox_items1[] = { "Apple", "Banana", "Cherry", "Kiwi", "Mango", "Orange", "Pineapple", "Strawberry", "Watermelon" };
-	static int listBox_item_current1 = 1;
-	ImGui::ListBox("Meshes", &listBox_item_current1, listBox_items1, IM_ARRAYSIZE(listBox_items1), 6);
+	const char* listBox_ActiveMeshes[] = { "" };
+	static int listBox_ActiveMeshes_Current = 0;
+	ImGui::ListBox("Meshes", &listBox_ActiveMeshes_Current, listBox_ActiveMeshes, IM_ARRAYSIZE(listBox_ActiveMeshes), 6);
 
 	ImGui::Separator();
 
-	const char* listBox_items2[] = { "Apple", "Banana", "Cherry", "Kiwi", "Mango", "Orange", "Pineapple", "Strawberry", "Watermelon" };
-	static int listBox_item_current2 = 1;
-	ImGui::ListBox("Lights", &listBox_item_current2, listBox_items2, IM_ARRAYSIZE(listBox_items2), 6);
+	const char* listBox_ActiveLights[] = { "Apple" };
+	static int listBox_ActiveLights_Current = 1;
+	ImGui::ListBox("Lights", &listBox_ActiveLights_Current, listBox_ActiveLights, IM_ARRAYSIZE(listBox_ActiveLights), 6);
 
 	ImGui::Separator();
 
@@ -258,14 +297,7 @@ void LevelEditState::guiInfo()
 #pragma endregion
 
 #pragma region MeshList
-	ImGui::Begin("Assets");
-
-	const char* listBox_items4[] = { "Level1(Castle)", "Terrain(Forrest)", "Plane" };
-	static int listBox_item_current4 = 1;
-	
-	const char* listBox_items5[] = { "Fire", "Torch", "Flies", "Smoke", "Rain" };
-	static int listBox_item_current5 = 1;
-	
+	ImGui::Begin("Assets");	
 	ImGui::BeginGroup();
 	if (ImGui::Button("Meshes", ImVec2(120, 25)))
 	{
@@ -281,10 +313,10 @@ void LevelEditState::guiInfo()
 	switch (assetTab)
 	{
 	case 0:
-		ImGui::ListBox("Meshes", &listBox_item_current4, listBox_items4, IM_ARRAYSIZE(listBox_items4), 6);
+		ImGui::ListBox("Meshes", &listBox_Meshes_Current, listBox_Meshes, IM_ARRAYSIZE(listBox_Meshes), 6);
 		break;
 	case 1:
-		ImGui::ListBox("Particles", &listBox_item_current5, listBox_items5, IM_ARRAYSIZE(listBox_items5), 6);
+		ImGui::ListBox("Particles", &listBox_Particles_Current, listBox_Particles, IM_ARRAYSIZE(listBox_Particles), 6);
 		break;
 	default:
 		break;
@@ -293,12 +325,25 @@ void LevelEditState::guiInfo()
 
 	if (ImGui::Button("Create", ImVec2(70, 25)))
 	{
-		loadMap();
+		if (listBox_Meshes_Current == 0)
+			loadMesh(m_objects, "Towermap/Academy_t.mesh"); //File path cannot be hard coded in the future
+		else if (listBox_Meshes_Current == 1)
+			loadMesh(m_objects, "ExteriorTest.mesh");
+		else if (listBox_Meshes_Current == 2)
+			loadMesh(m_models, "canvas.mesh");
 	}
 	
 	//ImGui::Button("Create", ImVec2(50.f, 20.f));
 
 	ImGui::End();
+
+#pragma endregion
+
+#pragma region GRID
+
+
+	ImGuizmo::DrawGrid(View, Proj, ID, 10.f);
+	ImGuizmo::DrawCube(View, Proj, ID);
 
 #pragma endregion
 
@@ -310,6 +355,8 @@ void LevelEditState::updateState(const float& dt)
 	for (GameObject* object : m_objects)
 		if (object != nullptr)
 			object->update(dt);
+
+
 
 	m_camera->updateLevelEd();
 	m_picker->update();

@@ -207,6 +207,7 @@
     <ClCompile Include="GFX\Pointlight.cpp" />
     <ClCompile Include="HUD\HudHandler.cpp" />
     <ClCompile Include="HUD\WorldHudObject.cpp" />
+    <ClCompile Include="imgui\ImGuizmo.cpp" />
     <ClCompile Include="LevelEditor\MousePicker.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
@@ -341,6 +342,7 @@
     <ClInclude Include="GFX\Pointlight.h" />
     <ClInclude Include="HUD\HudHandler.h" />
     <ClInclude Include="HUD\WorldHudObject.h" />
+    <ClInclude Include="imgui\ImGuizmo.h" />
     <ClInclude Include="LevelEditor\MousePicker.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imfilebrowser.h" />

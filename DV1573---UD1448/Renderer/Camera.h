@@ -18,6 +18,7 @@ private:
 	// Level Edit modes
 	void LE_freeCamera();
 	void LE_orbitCamera();
+	void cameraPan(float dx, float dy);
 
 	void lookForModeChange();
 	void resetMouseToMiddle();
@@ -47,6 +48,8 @@ private:
 	float m_nearPlane;
 	float m_farPlane;
 	float m_camSpeed;
+	float m_panX;
+	float m_panY;
 
 	void updateMouseMovement();
 	void updateThirdPersonMouseMovement();

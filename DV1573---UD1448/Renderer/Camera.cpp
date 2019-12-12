@@ -11,6 +11,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 
 	m_distanceThirdPerson -= yoffset;
+	m_distanceModel -= yoffset*4;
 
 	if (m_distanceThirdPerson <= 2.0f)
 		m_distanceThirdPerson = 2.0f;
@@ -60,6 +61,7 @@ void Camera::thirdPersonCamera()
 	const glm::vec3& playerpos = m_spectatedPlayer->position;
 	const glm::vec3& meshHalfSize = m_spectatedPlayer->meshHalfSize;
 
+
 	m_camPos.x = playerpos.x + (m_distanceThirdPerson * cos(glm::radians(m_camYaw)) * cos(glm::radians(m_camPitch)));
 	m_camPos.y = meshHalfSize.y + playerpos.y + (m_distanceThirdPerson * sin(glm::radians(m_camPitch)));
 	m_camPos.z = playerpos.z + (m_distanceThirdPerson * sin(glm::radians(m_camYaw)) * cos(glm::radians(m_camPitch)));
@@ -108,6 +110,12 @@ void Camera::LE_orbitCamera()
 	m_camPos.y = 0.0f + (m_distanceModel * sin(glm::radians(m_camPitch)));
 	m_camPos.z = 0.0f + (m_distanceModel * sin(glm::radians(m_camYaw)) * cos(glm::radians(m_camPitch)));
 	lookAt(glm::vec3(0.0f));
+}
+
+void Camera::cameraPan(float dx, float dy)
+{
+	m_panX += dx;
+	m_panY += dy;
 }
 
 void Camera::lookForModeChange()

@@ -21,6 +21,7 @@
 
 #include <imgui/imgui.h>
 #include <imgui/imfilebrowser.h>
+#include <imgui/ImGuizmo.h>
 
 
 class LevelEditState : public State
@@ -42,6 +43,7 @@ public:
 	void guiInfo();
 
 private:
+	void loadMesh(std::vector<GameObject*>, std::string);
 	void updateState(const float& dt);
 
 private:
@@ -60,6 +62,7 @@ private:
 	int changeAttrib = 1;
 	glm::vec3 m_focusPoint;
 
+	//Loaded Meshes
 
 	//ImGui Variables
 	int assetTab = 0;
