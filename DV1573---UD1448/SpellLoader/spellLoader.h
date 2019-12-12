@@ -17,11 +17,12 @@ public:
 	~SpellLoader();
 
 
-    bool LoadProjectileSpell(std::string fileName);	// Load a file
+    bool LoadSpell(std::string fileName, OBJECT_TYPE type);	// Load a file
     bool loadAOESpell(std::string fileName);	// Load a file
-    void SaveProjectileSpell(std::string name, SpellLoading::Projectile projectileInfo, SpellLoading::SpellEvents spellEvent, PSinfo psInfo, TextureInfo txtInfo);
+    void SaveSpell(std::string name, SpellLoading::Projectile projectileInfo, SpellLoading::AOESpell aoeInfo,
+		SpellLoading::SpellEvents spellEvent, PSinfo psInfo, TextureInfo txtInfo, OBJECT_TYPE type);
 
-    void saveAOESpell(std::string name, int damage, int speed, int cooldown, int radius, int lifetime, int maxBounces);
+    void saveAOESpell(std::string name, SpellLoading::AOESpell aoeInfo, PSinfo psInfo, TextureInfo txtInfo);
 
 	std::string m_fileName;
 	std::string outputFilepath = "Exports/";
@@ -84,6 +85,8 @@ private:
 	float m_gravity;
 
 	char m_textureName[NAME_SIZE];
+
+
 
 
 

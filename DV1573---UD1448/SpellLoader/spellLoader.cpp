@@ -5,8 +5,8 @@ SpellLoader::SpellLoader(std::string fileName)
 {
 	m_fileName = fileName;
 
-    loadAOESpell(fileName);
-    LoadProjectileSpell(fileName);
+	LoadSpell(fileName, FIRE);
+	LoadSpell(fileName, NORMALATTACK);
 }
 
 SpellLoader::SpellLoader()
@@ -17,7 +17,7 @@ SpellLoader::~SpellLoader()
 {
 }
 
-bool SpellLoader::LoadProjectileSpell(std::string file)
+bool SpellLoader::LoadSpell(std::string file, OBJECT_TYPE type)
 {
 	//unload();
 	m_fileName = file;
@@ -34,18 +34,33 @@ bool SpellLoader::LoadProjectileSpell(std::string file)
 		binFile.read((char*)&fileHeader, sizeof(SpellLoading::SpellHeader));
 		m_nrOfSpells = fileHeader.spellCount;
 
-		// Read the Projectile struct
-		binFile.read((char*)&m_projectile, sizeof(SpellLoading::Projectile));
+		if (type == NORMALATTACK)
+		{
+			// Read the Projectile struct
+			binFile.read((char*)&m_projectile, sizeof(SpellLoading::Projectile));
 		
-		// Fill Projectile data
-		m_name               = m_projectile.name;
-        m_lowDmg             = m_projectile.lowDamage;
-        m_highDmg            = m_projectile.highDamage;
-		m_speed              = m_projectile.speed;
-		m_cooldown           = m_projectile.coolDown;
-		m_radius             = m_projectile.radius;
-		m_lifetime           = m_projectile.lifeTime;
-		m_maxBounces         = m_projectile.maxBounces;
+			// Fill Projectile data
+			m_name               = m_projectile.name;
+			m_lowDmg             = m_projectile.lowDamage;
+			m_highDmg            = m_projectile.highDamage;
+			m_speed              = m_projectile.speed;
+			m_cooldown           = m_projectile.coolDown;
+			m_radius             = m_projectile.radius;
+			m_lifetime           = m_projectile.lifeTime;
+			m_maxBounces         = m_projectile.maxBounces;
+		}
+		if (type == FIRE)
+		{
+			binFile.read((char*)& m_AOESpell, sizeof(SpellLoading::AOESpell));
+
+			m_name = m_AOESpell.name;
+			m_damage = m_AOESpell.damage;
+			m_speed = m_AOESpell.speed;
+			m_cooldown = m_AOESpell.coolDown;
+			m_radius = m_AOESpell.radius;
+			m_lifetime = m_AOESpell.lifeTime;
+			m_maxBounces = m_AOESpell.maxBounces;
+		}
 
         // Read the Spell Events struct
         binFile.read((char*)& m_spellEvents, sizeof(SpellLoading::SpellEvents));
@@ -123,7 +138,8 @@ bool SpellLoader::loadAOESpell(std::string fileName)
     return true;
 }
 
-void SpellLoader::SaveProjectileSpell(std::string name, SpellLoading::Projectile projectileInfo, SpellLoading::SpellEvents spellEvent, PSinfo psInfo, TextureInfo txtInfo)
+void SpellLoader::SaveSpell(std::string name, SpellLoading::Projectile projectileInfo, SpellLoading::AOESpell aoeInfo,
+	SpellLoading::SpellEvents spellEvent, PSinfo psInfo, TextureInfo txtInfo, OBJECT_TYPE type)
 {
 	fileHeader.spellCount = m_nrOfSpells;
 	
@@ -135,6 +151,13 @@ void SpellLoader::SaveProjectileSpell(std::string name, SpellLoading::Projectile
 	m_projectile.radius		= projectileInfo.radius;
 	m_projectile.lifeTime	= projectileInfo.lifeTime;
 	m_projectile.maxBounces	= projectileInfo.maxBounces;
+
+	m_AOESpell.damage = aoeInfo.damage;
+	m_AOESpell.speed = aoeInfo.speed;
+	m_AOESpell.coolDown = aoeInfo.coolDown;
+	m_AOESpell.radius = aoeInfo.radius;
+	m_AOESpell.lifeTime = aoeInfo.lifeTime;
+	m_AOESpell.maxBounces = aoeInfo.maxBounces;
 
     //-----Assign all the Spell event data-----//
     m_spellEvents.nrOfEvents  = spellEvent.nrOfEvents;
@@ -246,7 +269,15 @@ void SpellLoader::SaveProjectileSpell(std::string name, SpellLoading::Projectile
 	std::ofstream binaryFile(outputFilepath + name + ".spell", std::ofstream::binary);	// This is where out the filepath should be added comming in from the CMD
 
 	binaryFile.write((char*)& fileHeader, sizeof(SpellLoading::SpellHeader));
-    binaryFile.write((char*)& m_projectile, sizeof(SpellLoading::Projectile));
+	if (type == NORMALATTACK)
+	{
+		binaryFile.write((char*)& m_projectile, sizeof(SpellLoading::Projectile));
+	}
+	if (type == FIRE)
+	{
+		binaryFile.write((char*)& m_AOESpell, sizeof(SpellLoading::AOESpell));
+	}
+
 	binaryFile.write((char*)& m_spellEvents, sizeof(SpellLoading::SpellEvents));
 	binaryFile.write((char*)& m_psInfo, sizeof(PSinfo));
 	binaryFile.write((char*)& m_textureName, sizeof(m_textureName));
@@ -256,18 +287,18 @@ void SpellLoader::SaveProjectileSpell(std::string name, SpellLoading::Projectile
 
 }
 
-void SpellLoader::saveAOESpell(std::string name, int damage, int speed, int cooldown, int radius, int lifetime, int maxBounces)
+void SpellLoader::saveAOESpell(std::string name, SpellLoading::AOESpell aoeInfo, PSinfo psInfo, TextureInfo txtInfo)
 {
     fileHeader.spellCount = m_nrOfSpells;
 
     //-----Assign all the Projectile spell data-----//
 
-    m_AOESpell.damage = damage;
-    m_AOESpell.speed = speed;
-    m_AOESpell.coolDown = cooldown;
-    m_AOESpell.radius = radius;
-    m_AOESpell.lifeTime = lifetime;
-    m_AOESpell.maxBounces = maxBounces;
+    m_AOESpell.damage = aoeInfo.damage;
+    m_AOESpell.speed = aoeInfo.speed;
+    m_AOESpell.coolDown = aoeInfo.coolDown;
+    m_AOESpell.radius = aoeInfo.radius;
+    m_AOESpell.lifeTime = aoeInfo.lifeTime;
+    m_AOESpell.maxBounces = aoeInfo.maxBounces;
 
     //-----Convert a string to char and assign the char to the struct-----//
     int stringLength = name.length();

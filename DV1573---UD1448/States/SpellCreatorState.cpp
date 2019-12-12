@@ -138,15 +138,11 @@ void SpellCreatorState::Update(float dt)
         auto const pos = path.find_last_of('\\');
         m_name = path.substr(pos + 1);
 
-        myLoader.loadAOESpell(m_name);
+        myLoader.LoadSpell(m_name, FIRE);
 
-        //Set the tool values to match the loaded file
-        aoeSpell.damage		= myLoader.m_AOESpell.damage;
-        aoeSpell.speed		= myLoader.m_AOESpell.speed;
-        aoeSpell.coolDown	= myLoader.m_AOESpell.coolDown;
-        aoeSpell.radius		= myLoader.m_AOESpell.radius;
-        aoeSpell.lifeTime	= myLoader.m_AOESpell.lifeTime;
-        aoeSpell.maxBounces = myLoader.m_AOESpell.maxBounces;
+		updateToolSettings(FIRE);
+
+		m_Type = FIRE;
   
         fileDialog.ClearSelected();
         loadASpell = false;
@@ -160,10 +156,12 @@ void SpellCreatorState::Update(float dt)
         m_name = path.substr(pos + 1);
 
         //myLoader.LoadSpell(m_name);
-        myLoader.LoadProjectileSpell(m_name);
+        myLoader.LoadSpell(m_name, NORMALATTACK);
 
-        updateToolSettings();
+        updateToolSettings(NORMALATTACK);
     
+		m_Type = NORMALATTACK;
+
         fileDialog.ClearSelected();
         loadASpell = false;
     }
@@ -176,9 +174,9 @@ void SpellCreatorState::Update(float dt)
 
 		tempTxt.name = "Assets/Textures/" + m_textureName;
 
-		myLoader.SaveProjectileSpell(m_name, normalSpell, spellEvents, tempPS, tempTxt);
+		myLoader.SaveSpell(m_name, normalSpell, aoeSpell, spellEvents, tempPS, tempTxt, m_Type);
 
-		updateToolSettings();
+		updateToolSettings(m_Type);
 
 		textureDialog.ClearSelected();
 	}
@@ -199,10 +197,10 @@ void SpellCreatorState::Update(float dt)
                 m_name = m_spellName;
 				if (isProjectile)
 				{
-                    myLoader.SaveProjectileSpell(m_name, normalSpell, spellEvents, tempPS, tempTxt);
+                    myLoader.SaveSpell(m_name, normalSpell, aoeSpell, spellEvents, tempPS, tempTxt, NORMALATTACK);
 				}
                 if (isAOE)
-                    myLoader.saveAOESpell(m_name, aoeSpell.damage, aoeSpell.speed, aoeSpell.coolDown, aoeSpell.radius, aoeSpell.lifeTime, aoeSpell.maxBounces);
+                    myLoader.SaveSpell(m_name, normalSpell, aoeSpell, spellEvents, tempPS, tempTxt, FIRE);
 
             }
             if (ImGui::MenuItem("Close Window", "Ctrl+W"))
@@ -243,16 +241,29 @@ void SpellCreatorState::loadTexture()
 {
 }
 
-void SpellCreatorState::updateToolSettings()
+void SpellCreatorState::updateToolSettings(OBJECT_TYPE type)
 {
     //Set the tool values to match the loaded file
-    normalSpell.lowDamage = myLoader.m_projectile.lowDamage;
-	normalSpell.highDamage = myLoader.m_projectile.highDamage;
-	normalSpell.speed = myLoader.m_projectile.speed;
-	normalSpell.coolDown = myLoader.m_projectile.coolDown;
-	normalSpell.radius = myLoader.m_projectile.radius;
-	normalSpell.lifeTime = myLoader.m_projectile.lifeTime;
-	normalSpell.maxBounces = myLoader.m_projectile.maxBounces;
+	if (type == NORMALATTACK)
+	{
+		normalSpell.lowDamage = myLoader.m_projectile.lowDamage;
+		normalSpell.highDamage = myLoader.m_projectile.highDamage;
+		normalSpell.speed = myLoader.m_projectile.speed;
+		normalSpell.coolDown = myLoader.m_projectile.coolDown;
+		normalSpell.radius = myLoader.m_projectile.radius;
+		normalSpell.lifeTime = myLoader.m_projectile.lifeTime;
+		normalSpell.maxBounces = myLoader.m_projectile.maxBounces;
+	}
+
+	if (type == FIRE)
+	{
+		aoeSpell.damage = myLoader.m_AOESpell.damage;
+		aoeSpell.speed = myLoader.m_AOESpell.speed;
+		aoeSpell.coolDown = myLoader.m_AOESpell.coolDown;
+		aoeSpell.radius = myLoader.m_AOESpell.radius;
+		aoeSpell.lifeTime = myLoader.m_AOESpell.lifeTime;
+		aoeSpell.maxBounces = myLoader.m_AOESpell.maxBounces;
+	}
 
     //-----Spell Events-----//
     spellEvents.nrOfEvents  = myLoader.m_spellEvents.nrOfEvents;
@@ -391,6 +402,13 @@ void SpellCreatorState::editAOEAttackSpell()
 
 	if (nrOfParticleSystems.nrOfEvents >= 1.0f)
 	{
+		ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Particle values 1:");
+		if (ImGui::MenuItem("Load texture to spell...", "Ctrl+L"))
+		{
+			//loadASpell = true;
+			// open file dialog when user clicks this button
+			textureDialog.Open();
+		}
 		ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Particle values 1:");										            // Display some text (you can use a format strings too)
 		ImGui::SliderFloat("Width", &tempPS.width, 0.0f, 10.0f);
 		ImGui::SliderFloat("Heigth", &tempPS.heigth, 0.0f, 10.0f);

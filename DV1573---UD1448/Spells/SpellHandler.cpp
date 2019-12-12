@@ -37,7 +37,7 @@ void SpellHandler::initAttackSpell()
 	attackBase.m_material->diffuse = glm::vec3(0.65f, 1.0f, 1.0f); // Light blue
 	attackBase.m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
 
-	myLoader.LoadProjectileSpell("redstar.spell");
+	myLoader.LoadSpell("redstar.spell", NORMALATTACK);
 
 	// Gameplay--
 	attackBase.m_lowDamage		= myLoader.m_projectile.lowDamage;
@@ -179,11 +179,13 @@ void SpellHandler::initFlamestrikeSpell()
 	flamestrikeBase.m_material->name = newMaterial.name;
 	flamestrikeBase.m_material->specular = newMaterial.specular;
 
+	myLoader.LoadSpell("felStorm.spell", FIRE);
+
 	// Gameplay--
-	flamestrikeBase.m_damage = 10;
-	flamestrikeBase.m_speed = 55.0f;
-	flamestrikeBase.m_lifeTime = 5;
-	flamestrikeBase.m_maxBounces = 2;
+	flamestrikeBase.m_damage = myLoader.m_AOESpell.damage;
+	flamestrikeBase.m_speed = myLoader.m_AOESpell.speed;
+	flamestrikeBase.m_lifeTime = myLoader.m_AOESpell.lifeTime;
+	flamestrikeBase.m_maxBounces = myLoader.m_AOESpell.maxBounces;
 
 	// Light--
 	flamestrikeBase.m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // Old
@@ -212,11 +214,12 @@ void SpellHandler::initFireSpell()
 	fireBase.m_material->diffuse = glm::vec3(1.0f, 0.5f, 0.0f);
 	fireBase.m_material->ambient = glm::vec3(1.0f, 0.5f, 0.0f);
 
+	myLoader.LoadSpell("felStorm.spell", FIRE);
 	// Gameplay--
-	fireBase.m_damage = 30.0f;
-	fireBase.m_speed = 0.0f;
-	fireBase.m_lifeTime = 5.0f;
-	fireBase.m_maxBounces = 0.0f;
+	fireBase.m_damage = myLoader.m_AOESpell.damage;
+	fireBase.m_speed = myLoader.m_AOESpell.speed;
+	fireBase.m_lifeTime = myLoader.m_AOESpell.lifeTime;
+	fireBase.m_maxBounces = myLoader.m_AOESpell.maxBounces;
 
 	// Light--
 	fireBase.m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f); // Old
@@ -256,27 +259,27 @@ void SpellHandler::initFireSpell()
 
 	//---------------
 
-	tempTxt.name = "Assets/Textures/Spell_2.png";
-	tempPS.width = 1.2f;
-	tempPS.heigth = 1.0f;
-	tempPS.lifetime = 10.0f;
-	tempPS.maxParticles = 1000; //350     
-	tempPS.emission = 0.01f; //0.00001f;     
-	tempPS.force = -0.04f; //5     
-	tempPS.drag = 0.0f;
-	tempPS.gravity = -0.2f; //Standard is 1     
-	tempPS.seed = 1;
-	tempPS.cont = true;
-	tempPS.omnious = true;
-	tempPS.spread = 5.0f;
-	tempPS.glow = 1.3;
-	tempPS.scaleDirection = 0;
-	tempPS.swirl = 1;
-	tempPS.fade = 1;
-	tempPS.color = glm::vec3(1.0f, 0.2f, 0.0f);
-	tempPS.blendColor = glm::vec3(1.0f, 1.0f, 0.1f);
-	tempPS.randomSpawn = true;
-	tempPS.direction = glm::vec3(0.0f, 1.0f, 0.0f);
+	tempTxt.name = myLoader.m_txtInfo.name;
+	tempPS.width = myLoader.m_psInfo.width;
+	tempPS.heigth = myLoader.m_psInfo.heigth;
+	tempPS.lifetime = myLoader.m_psInfo.lifetime;
+	tempPS.maxParticles = myLoader.m_psInfo.maxParticles;
+	tempPS.emission = myLoader.m_psInfo.emission;
+	tempPS.force = myLoader.m_psInfo.force;
+	tempPS.drag = myLoader.m_psInfo.drag;
+	tempPS.gravity = myLoader.m_psInfo.gravity;
+	tempPS.seed = 0;
+	tempPS.cont = myLoader.m_psInfo.cont;
+	tempPS.omnious = myLoader.m_psInfo.omnious;
+	tempPS.randomSpawn = myLoader.m_psInfo.randomSpawn;
+	tempPS.spread = myLoader.m_psInfo.spread;
+	tempPS.glow = myLoader.m_psInfo.glow;
+	tempPS.scaleDirection = myLoader.m_psInfo.scaleDirection;
+	tempPS.swirl = myLoader.m_psInfo.swirl;
+	tempPS.fade = myLoader.m_psInfo.fade;
+	tempPS.color = myLoader.m_psInfo.color;
+	tempPS.blendColor = myLoader.m_psInfo.blendColor;
+	tempPS.direction = glm::vec3(1.0f, 0.0f, 0.0f);
 	tempPS.direction = glm::clamp(tempPS.direction, -1.0f, 1.0f);
 
 	fireBase.m_particleBuffers.emplace_back(new ParticleBuffers(tempPS, tempTxt));
@@ -307,7 +310,7 @@ void SpellHandler::initDynamicSpellBase()
 	dynamicSpellBase.m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
 
 	// Load a spell--
-	myLoader.LoadProjectileSpell("fireball.spell");
+	myLoader.LoadSpell("fireball.spell", FIRE);
 
 	// Gameplay--
 

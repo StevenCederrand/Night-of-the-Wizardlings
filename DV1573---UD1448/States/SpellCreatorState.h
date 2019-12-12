@@ -25,7 +25,7 @@ public:
 	virtual void render() override;
 
 	void loadTexture();
-    void updateToolSettings();
+    void updateToolSettings(OBJECT_TYPE type);
 
     //-----Edit spell Functions-----//
     void editAttackSpell();
@@ -81,6 +81,8 @@ private:
     bool m_FireSpellAlive = true;
 
 	int m_emission = 1;
+
+	OBJECT_TYPE m_Type = NORMALATTACK;
 };
 #endif
 

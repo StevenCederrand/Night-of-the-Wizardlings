@@ -15,9 +15,9 @@
 #include <imgui/imfilebrowser.h>
 
 
-#define AUTOSTART true;
+#define AUTOSTART false;
 #define FULLSCREEN false;
-#define DISABLE_INPUT true; 
+#define DISABLE_INPUT false; 
 
 float DeltaTime = 0.0f;
 
