@@ -12,6 +12,7 @@ public:
 	bool existsWithName(std::string name);
 	Mesh* getMesh(std::string name);
 	Mesh* createMesh(std::string name, Mesh mesh);
+	void removeMesh(std::string name);
 	void destroy();
 
 private:
