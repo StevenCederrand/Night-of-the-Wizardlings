@@ -418,7 +418,7 @@ void GameObject::makeStatic()
 			}
 
 			glm::vec3 center = glm::vec3((min + max) * 0.5f) + getTransform(i).position;
-			glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale;
+			glm::vec3 halfSize = glm::vec3((max - min) * 0.5f) * getTransform(i).scale; //* scale2;
 
 			m_meshes[i].body = BulletPhysics::getInstance()->createObject(
 				box,

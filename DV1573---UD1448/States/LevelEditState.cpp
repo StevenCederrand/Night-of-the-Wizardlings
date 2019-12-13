@@ -54,8 +54,17 @@ LevelEditState::~LevelEditState()
 void LevelEditState::loadMesh(std::vector<GameObject*> objectVector, std::string filePath)
 {
 	Renderer* renderer = Renderer::getInstance();
-	objectVector.push_back(new MapObject("Object"));
+
+	std::string firstName = filePath;
+	std::size_t found = firstName.find_first_of("/\\");
+	std::string editedName = firstName.substr(found + 1);
+	std::size_t foundDot = editedName.find_first_of(".");
+	editedName = editedName.substr(0, foundDot);
+
+	objectVector.push_back(new MapObject(editedName));
 	objectVector[objectVector.size() - 1]->loadMesh(filePath);
+	const char* objectName = objectVector[objectVector.size() - 1]->getObjectName();
+	m_objectNames.push_back();
 	renderer->submit(objectVector[objectVector.size() - 1], RENDER_TYPE::STATIC);
 }
 
@@ -67,9 +76,8 @@ void LevelEditState::loadMap()
 	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
 
 	//const char* getListName = m_objects[m_objects.size() - 1]->getObjectName().c_str();
-	m_objectNames.push_back(m_objects[m_objects.size() - 1]->getObjectName().c_str());
 	//m_objectNames.push_back("TEst");
-	//m_nrOfObj++;
+	m_nrOfObj++;
 
 }
 
@@ -290,22 +298,23 @@ void LevelEditState::guiInfo()
 
 	if (m_objectNames.size() > 0)
 	{
+		const char* charPtr = "Test";
 		static int listBox_ActiveMeshes_Current = 0;
-		ImGui::ListBox("Meshes", &listBox_ActiveMeshes_Current, &m_objectNames.back(), m_objectNames.size(), 6);
+		ImGui::ListBox("Meshes", &listBox_ActiveMeshes_Current, &m_objectNames[0], m_objectNames.size(), 6);
 		ImGui::Separator();
 	}
 
 	if (m_LightsNames.size() > 0)
 	{
 		static int listBox_ActiveLights_Current = 1;
-		ImGui::ListBox("Lights", &listBox_ActiveLights_Current, &m_LightsNames.back(), m_LightsNames.size(), 6);
+		ImGui::ListBox("Lights", &listBox_ActiveLights_Current, &m_LightsNames[0], m_LightsNames.size(), 6);
 		ImGui::Separator();
 	}
 
 	if (m_ParticlesNames.size() > 0) 
 	{
 		static int listBox_item_current3 = 1;
-		ImGui::ListBox("Particles", &listBox_item_current3, &m_ParticlesNames.back(), m_ParticlesNames.size(), 6);
+		ImGui::ListBox("Particles", &listBox_item_current3, &m_ParticlesNames[0], m_ParticlesNames.size(), 6);
 	}
 
 	ImGui::End();

@@ -63,7 +63,7 @@ public:
 	const int getType() const { return m_type; }
 	const bool& getShouldRender() const;
 	const glm::vec3 getLastPosition() const;
-	const std::string getObjectName() const { return m_objectName;  }
+	std::string getObjectName() const { return m_objectName;  }
 
 	btRigidBody* getRigidBody(int meshIndex = 0) const { return m_meshes[meshIndex].body; }
 	std::vector<ParticleSystem>& getParticles() { return m_particleSystems; } //Get the particle vector so we can render and stuff

@@ -80,7 +80,7 @@ private:
 	int changeAttrib = 1;
 	glm::vec3 m_focusPoint;
 
-	
+	std::string objectName;
 
 	//Loaded Meshes
 
