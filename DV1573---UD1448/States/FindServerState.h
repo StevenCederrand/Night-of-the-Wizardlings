@@ -20,6 +20,7 @@ private:
 	void loadServersIntoList();
 	void removeAllRows();
 	void usernameInput();
+	void usernameInputAfterIP();
 	void ipInput();
 
 private:

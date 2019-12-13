@@ -157,6 +157,23 @@ void FindServerState::usernameInput()
 	}	
 }
 
+void FindServerState::usernameInputAfterIP()
+{
+	//is write text open?
+	if (!m_inputTextOpen) {
+		m_serverList->hide();
+		m_refreshServerList->hide();
+		m_spectateServer->hide();
+		m_ipInput->hide();
+		m_connectViaIP->show();
+		m_joinServer->hide();
+		m_usernameBox->show();
+		m_backToList->show();
+
+		m_inputTextOpen = true;
+	}
+}
+
 void FindServerState::ipInput()
 {
 	if (!m_ipTextOpen) {
@@ -225,16 +242,15 @@ bool FindServerState::onConnectViaIPClicked(const CEGUI::EventArgs& e)
 	if (m_ipInput->getText() == "Enter IP Adress...") {
 		return false;
 	}
-	ServerInfo serverInfo;
-	CEGUI::String AdressAndPort = m_ipInput->getText() + "|42405";
-	//serverInfo.serverAddress.FromStringExplicitPort(m_ipInput->getText().c_str() + "|8000");
-	serverInfo.serverAddress.FromString(AdressAndPort.c_str());
-	/*Gui::getInstance()->setWidgetDestRect(m_joinServer, glm::vec4(0.35f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f));
-	usernameInput();
+	Gui::getInstance()->setWidgetDestRect(m_joinServer, glm::vec4(0.35f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f));
+	usernameInputAfterIP();
 	if (m_usernameBox->getText() == "Enter Username...") {
 		return false;
-	}	*/
+	}	
 
+	ServerInfo serverInfo;
+	CEGUI::String AdressAndPort = m_ipInput->getText() + "|42405";	
+	serverInfo.serverAddress.FromString(AdressAndPort.c_str());
 	Client::getInstance()->connectToAnotherServer(serverInfo, false);
 	Client::getInstance()->setUsername(m_usernameBox->getText().c_str());
 
