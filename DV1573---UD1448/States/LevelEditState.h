@@ -23,6 +23,10 @@
 #include <imgui/imfilebrowser.h>
 #include <imgui/ImGuizmo.h>
 
+#include <algorithm>
+#include <iostream>
+#include <vector>
+#include <string>
 
 class LevelEditState : public State
 {
@@ -37,6 +41,8 @@ public:
 	void loadBasicLight();
 	void deleteMesh();
 
+	/*bool GetVecToStr(void* data, int i, const char** out_text);*/
+
 	virtual void update(float dt) override;
 	virtual void render() override;
 	bool is_ImGui() { return true; }
@@ -46,12 +52,21 @@ private:
 	void loadMesh(std::vector<GameObject*>, std::string);
 	void updateState(const float& dt);
 
+	bool vecOfStrGet(void* data, int n, const char** out_text);
+
 private:
 	//Any inherited GameObject class added to this vector will support basic rendering
 	std::vector<GameObject*> m_objects;
 	std::vector<GameObject*> m_models;
 	std::vector<Pointlight*> m_pointlights;
 
+	std::vector<const char*> m_objectNames;
+	std::vector<const char*> m_LightsNames;
+	std::vector<const char*> m_ParticlesNames;
+
+	int m_nrOfObj = 0;
+	int m_nrOfLight = 0;
+	int m_nrOfPartic = 0;
 
 	Camera* m_camera;
 	SkyBox* m_skybox;

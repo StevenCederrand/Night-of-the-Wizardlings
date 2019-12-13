@@ -67,6 +67,12 @@ void LevelEditState::loadMap()
 	m_objects.push_back(new MapObject("AcademyMap"));
 	m_objects[m_objects.size() - 1]->loadMesh("Towermap/Academy_t.mesh");
 	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
+
+	//const char* getListName = m_objects[m_objects.size() - 1]->getObjectName().c_str();
+	m_objectNames.push_back(m_objects[m_objects.size() - 1]->getObjectName().c_str());
+	//m_objectNames.push_back("TEst");
+	//m_nrOfObj++;
+
 }
 
 void LevelEditState::loadCanvas()
@@ -84,6 +90,7 @@ void LevelEditState::loadDecor()
 	m_objects.push_back(new MapObject("Academy_Outer"));
 	m_objects[m_objects.size() - 1]->loadMesh("ExteriorTest.mesh");
 	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
+
 }
 
 void LevelEditState::saveMap()
@@ -133,6 +140,11 @@ void LevelEditState::deleteMesh()
 
 	m_models.clear();
 }
+
+//bool LevelEditState::GetVecToStr(void* data, int i, const char** out_text)
+//{
+//
+//}
 
 void LevelEditState::update(float dt)
 {
@@ -277,23 +289,29 @@ void LevelEditState::guiInfo()
 		}
 		ImGui::EndMainMenuBar();
 	}
-	const char* listBox_ActiveMeshes[] = { "" };
-	static int listBox_ActiveMeshes_Current = 0;
-	ImGui::ListBox("Meshes", &listBox_ActiveMeshes_Current, listBox_ActiveMeshes, IM_ARRAYSIZE(listBox_ActiveMeshes), 6);
 
-	ImGui::Separator();
+	if (m_objectNames.size() > 0)
+	{
+		static int listBox_ActiveMeshes_Current = 0;
+		ImGui::ListBox("Meshes", &listBox_ActiveMeshes_Current, &m_objectNames.back(), m_objectNames.size(), 6);
+		ImGui::Separator();
+	}
 
-	const char* listBox_ActiveLights[] = { "Apple" };
-	static int listBox_ActiveLights_Current = 1;
-	ImGui::ListBox("Lights", &listBox_ActiveLights_Current, listBox_ActiveLights, IM_ARRAYSIZE(listBox_ActiveLights), 6);
+	if (m_LightsNames.size() > 0)
+	{
+		static int listBox_ActiveLights_Current = 1;
+		ImGui::ListBox("Lights", &listBox_ActiveLights_Current, &m_LightsNames.back(), m_LightsNames.size(), 6);
+		ImGui::Separator();
+	}
 
-	ImGui::Separator();
-
-	const char* listBox_items3[] = { "Apple", "Banana", "Cherry", "Kiwi", "Mango", "Orange", "Pineapple", "Strawberry", "Watermelon" };
-	static int listBox_item_current3 = 1;
-	ImGui::ListBox("Particles", &listBox_item_current3, listBox_items3, IM_ARRAYSIZE(listBox_items3), 6);
+	if (m_ParticlesNames.size() > 0) 
+	{
+		static int listBox_item_current3 = 1;
+		ImGui::ListBox("Particles", &listBox_item_current3, &m_ParticlesNames.back(), m_ParticlesNames.size(), 6);
+	}
 
 	ImGui::End();
+
 #pragma endregion
 
 #pragma region MeshList
@@ -342,13 +360,14 @@ void LevelEditState::guiInfo()
 #pragma region GRID
 
 
-	ImGuizmo::DrawGrid(View, Proj, ID, 10.f);
-	ImGuizmo::DrawCube(View, Proj, ID);
+	/*ImGuizmo::DrawGrid(View, Proj, ID, 10.f);
+	ImGuizmo::DrawCube(View, Proj, ID);*/
 
 #pragma endregion
 
 	//ImGui::Render();
 }
+
 
 void LevelEditState::updateState(const float& dt)
 {
@@ -360,9 +379,14 @@ void LevelEditState::updateState(const float& dt)
 
 	m_camera->updateLevelEd();
 	m_picker->update();
-	logTrace("MousePicker: ({0}, {1}, {2})", std::to_string(m_picker->getCurrentRay().x), std::to_string(m_picker->getCurrentRay().y), std::to_string(m_picker->getCurrentRay().z));
+	//logTrace("MousePicker: ({0}, {1}, {2})", std::to_string(m_picker->getCurrentRay().x), std::to_string(m_picker->getCurrentRay().y), std::to_string(m_picker->getCurrentRay().z));
 	Renderer::getInstance()->updateParticles(dt);
 	for (GameObject* object : m_objects)
 		object->update(dt);
 
+}
+
+bool LevelEditState::vecOfStrGet(void* data, int n, const char** out_text)
+{
+	return false;
 }
