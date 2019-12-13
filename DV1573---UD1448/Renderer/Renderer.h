@@ -19,7 +19,7 @@
 #define V_BLUR "VerticalBlur"
 #define H_BLUR "HorizontalBlur"
 //Rendering Options 
-#define FORWARDPLUS false;
+#define FORWARDPLUS true;
 #define SSAO false; 
 #define N_BLUR false; //Use naive blur?
 
