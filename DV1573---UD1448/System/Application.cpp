@@ -7,7 +7,7 @@
 #include <Gui/Gui.h>
 #include <System/MemoryUsage.h>
 #define AUTOSTART false;
-#define FULLSCREEN true;
+#define FULLSCREEN false;
 
 float DeltaTime = 0.0f;
 unsigned int Framerate = 0;
