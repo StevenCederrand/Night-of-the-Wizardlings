@@ -53,6 +53,7 @@ private:
 
 	void updateMouseMovement();
 	void updateThirdPersonMouseMovement();
+	void updateLEMouseMovement();
 	bool m_fpEnabled;
 	bool m_activeCamera;
 	int m_cameraControlSwitch;

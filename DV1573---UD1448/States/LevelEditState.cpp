@@ -2,6 +2,7 @@
 #include "LevelEditState.h"
 #include <System/StateManager.h>
 #include "MenuState.h"
+#include <string>
 
 LevelEditState::LevelEditState()
 {
@@ -23,10 +24,6 @@ LevelEditState::LevelEditState()
 	//the load map function might need tweaking in this regard
 	//We also need a save map func.
 	//loadMap();
-
-	fileDialog.SetTitle("Open gile(.mesh)");
-	fileDialog.SetTypeFilters({ ".mesh" });
-	fileDialog.SetPwd("\Assets\Meshes");
 }
 
 LevelEditState::~LevelEditState()
@@ -50,6 +47,7 @@ LevelEditState::~LevelEditState()
 	
 	ImGui::DestroyContext();
 
+	BulletPhysics::getInstance()->destroy();
 	MeshMap::getInstance()->cleanUp();
 }
 
@@ -183,7 +181,7 @@ void LevelEditState::render()
 void LevelEditState::guiInfo()
 {
 	//This has to be moved to be class or be made vectors instead? variables to be accable by other imgui instances
-	const char* listBox_Meshes[] = { "Level1(Castle)", "Terrain(Forrest)", "Plane" };
+	const char* listBox_Meshes[] = { "Level1(Castle)", "Terrain(Forrest)", "Plane", "Tree" };
 	static int listBox_Meshes_Current = 1;
 
 	const char* listBox_Particles[] = { "Fire", "Torch", "Flies", "Smoke", "Rain" };
@@ -349,6 +347,8 @@ void LevelEditState::guiInfo()
 			loadMesh(m_objects, "ExteriorTest.mesh");
 		else if (listBox_Meshes_Current == 2)
 			loadMesh(m_models, "canvas.mesh");
+		else if (listBox_Meshes_Current == 3)
+			loadMesh(m_objects, "LevelEdit/TestCube.mesh");
 	}
 	
 	//ImGui::Button("Create", ImVec2(50.f, 20.f));

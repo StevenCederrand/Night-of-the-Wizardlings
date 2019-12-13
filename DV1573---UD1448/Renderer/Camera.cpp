@@ -6,6 +6,7 @@
 static float m_sensitivity;
 static float m_distanceThirdPerson = 10.0f;
 static float m_distanceModel = 100.f;
+static glm::vec3 m_aim = glm::vec3(0.0f, 0.0f, 0.0f);
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
@@ -105,11 +106,11 @@ void Camera::LE_freeCamera()
 
 void Camera::LE_orbitCamera()
 {
-	updateThirdPersonMouseMovement();
-	m_camPos.x = 0.0f + (m_distanceModel * cos(glm::radians(m_camYaw)) * cos(glm::radians(m_camPitch)));
-	m_camPos.y = 0.0f + (m_distanceModel * sin(glm::radians(m_camPitch)));
-	m_camPos.z = 0.0f + (m_distanceModel * sin(glm::radians(m_camYaw)) * cos(glm::radians(m_camPitch)));
-	lookAt(glm::vec3(0.0f));
+	updateLEMouseMovement();
+	m_camPos.x = m_aim.x + (m_distanceModel * cos(glm::radians(m_camYaw)) * cos(glm::radians(m_camPitch)));
+	m_camPos.y = m_aim.y + (m_distanceModel * sin(glm::radians(m_camPitch)));
+	m_camPos.z = m_aim.z + (m_distanceModel * sin(glm::radians(m_camYaw)) * cos(glm::radians(m_camPitch)));
+	lookAt(glm::vec3(m_aim));
 }
 
 void Camera::cameraPan(float dx, float dy)
@@ -242,6 +243,74 @@ void Camera::updateThirdPersonMouseMovement()
 	}
 
 }
+
+void Camera::updateLEMouseMovement()
+{
+	static glm::dvec2 initPos = glm::dvec2(0.0);
+	calcVectors();
+
+	if (Input::isMousePressed(GLFW_MOUSE_BUTTON_RIGHT))
+		glfwGetCursorPos(glfwGetCurrentContext(), &initPos.x, &initPos.y);
+	
+	if (Input::isMousePressed(GLFW_MOUSE_BUTTON_MIDDLE))
+	{
+		logTrace("LeftClick");
+
+		glfwGetCursorPos(glfwGetCurrentContext(), &initPos.x, &initPos.y);
+	}
+
+	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_MIDDLE))
+	{
+		logTrace("LeftButton Held Down");
+		glm::dvec2 currentMouse = glm::dvec2(0.0);
+		glfwGetCursorPos(glfwGetCurrentContext(), &currentMouse.x, &currentMouse.y);
+
+		float xOffset = static_cast<float>(currentMouse.x) - initPos.x;
+		float yOffset = initPos.y - static_cast<float>(currentMouse.y);
+
+		xOffset *= m_sensitivity;
+		yOffset *= m_sensitivity;
+
+		/*m_camRight += xOffset;
+		m_camUp += yOffset;*/
+
+		m_aim += m_camRight * xOffset - m_camUp * yOffset; 
+
+		
+
+		initPos = currentMouse;
+	}
+	if (Input::isKeyPressed(GLFW_KEY_F))
+	{
+		//This can and should be expanded upon to focus on selected target
+		m_aim = glm::vec3(0.0f);
+		m_distanceModel = 100.f;
+	}
+
+	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_RIGHT))
+	{
+		glm::dvec2 currentMouse = glm::dvec2(0.0);
+		glfwGetCursorPos(glfwGetCurrentContext(), &currentMouse.x, &currentMouse.y);
+
+		float xoffset = static_cast<float>(currentMouse.x) - initPos.x;
+		float yoffset = initPos.y - static_cast<float>(currentMouse.y);
+
+		xoffset *= m_sensitivity;
+		yoffset *= m_sensitivity;
+
+		m_camYaw += xoffset;
+		m_camPitch -= yoffset;
+
+		if (m_camPitch > 89.0f)
+			m_camPitch = 89.0f;
+		if (m_camPitch < -89.0f)
+			m_camPitch = -89.0f;
+
+		initPos = currentMouse;
+	}
+}
+
+
 
 Camera::Camera()
 {
