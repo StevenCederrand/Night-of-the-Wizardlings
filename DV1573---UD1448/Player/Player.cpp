@@ -178,6 +178,7 @@ void Player::move(float deltaTime)
 	if (m_character->onGround())
 	{
 		m_moveDir = glm::vec3(0.0f);
+		m_oldMoveDir = glm::vec3(0.0f);
 	}
 
 
@@ -223,7 +224,6 @@ void Player::move(float deltaTime)
 		{
 			sh->playSound(LandingSound, m_client->getMyData().guid);
 			m_isJumping = false;
-			m_oldMoveDir = glm::vec3(0.0f);
 		}
 
 		if (!m_isWalking || !m_character->onGround())
@@ -241,7 +241,7 @@ void Player::move(float deltaTime)
 	//can't move much in the air
 	if (!m_character->onGround())
 	{
-		m_moveDir = m_oldMoveDir + (m_moveDir * 0.5f);
+		m_moveDir = m_oldMoveDir + (m_moveDir * 0.06f);
 	}
 
 	// Make sure moving is a constant speed
