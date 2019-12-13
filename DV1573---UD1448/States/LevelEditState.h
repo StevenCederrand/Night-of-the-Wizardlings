@@ -42,6 +42,9 @@ public:
 	bool is_ImGui() { return true; }
 	void guiInfo();
 
+	/*static bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
+		const btCollisionObjectWrapper* obj2, int id2, int index2);*/
+
 private:
 	void loadMesh(std::vector<GameObject*>, std::string);
 	void updateState(const float& dt);
@@ -61,6 +64,8 @@ private:
 	bool tool_active;
 	int changeAttrib = 1;
 	glm::vec3 m_focusPoint;
+
+	
 
 	//Loaded Meshes
 

@@ -280,6 +280,13 @@ void Camera::updateLEMouseMovement()
 
 		initPos = currentMouse;
 	}
+	if (Input::isKeyPressed(GLFW_KEY_F))
+	{
+		//This can and should be expanded upon to focus on selected target
+		m_aim = glm::vec3(0.0f);
+		m_distanceModel = 100.f;
+	}
+
 	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_RIGHT))
 	{
 		glm::dvec2 currentMouse = glm::dvec2(0.0);
