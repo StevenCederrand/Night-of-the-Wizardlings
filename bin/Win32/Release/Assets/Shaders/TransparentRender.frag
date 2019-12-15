@@ -69,6 +69,7 @@ void main() {
     vec3 ambientHolder = Ambient_Color;
     int lightHolder = LightCount;
     vec3 cameraHolder = CameraPosition;
+    cameraHolder = Ambient_Color;
 	bool normalMapHolder = NormalMapping;
     //-------------------------
 

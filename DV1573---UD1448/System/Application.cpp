@@ -7,7 +7,7 @@
 #include <Gui/Gui.h>
 #include <System/MemoryUsage.h>
 #define AUTOSTART false;
-#define FULLSCREEN false;
+#define FULLSCREEN true;
 
 float DeltaTime = 0.0f;
 unsigned int Framerate = 0;
@@ -60,7 +60,8 @@ bool Application::init() {
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
 #if FULLSCREEN
-	m_window = glfwCreateWindow(1280, 720, "Night of the Wizardlings", glfwGetPrimaryMonitor(), NULL);// !!! FULLSCREEN!!!
+	m_window = glfwCreateWindow(1920, 1080, "Night of the Wizardlings", NULL, NULL);// !!! FULLSCREEN!!!
+
 #else 
 	m_window = glfwCreateWindow(1280, 720, "Night of the Wizardlings", NULL, NULL);
 #endif
@@ -86,7 +87,7 @@ bool Application::init() {
 	}
 	
 	// Vsync
-	int VSync = GetPrivateProfileInt("DB_SETTINGS", "VSync", 1, "Assets/Settings/settings.ini");
+	int VSync = GetPrivateProfileInt("DB_SETTINGS", "VSync", 0, "Assets/Settings/settings.ini");
 	glfwSwapInterval(VSync); // Turning this off will cause occasionally freezes, so don't!
 	
 	m_input = new Input();

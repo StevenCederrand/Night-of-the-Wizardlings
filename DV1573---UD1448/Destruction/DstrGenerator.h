@@ -39,8 +39,8 @@ public:
 
 	void meshFromClipped(const float& scale, const std::vector<glm::vec2>& polygon, const std::vector<glm::vec2>& uv, glm::vec3& normal);
 
-	const unsigned int seedRand(int seed = -1);
-	const unsigned int getSeed(unsigned int seed) const { return m_seed; }
+	const int seedRand(int seed = -1);
+	const int getSeed(int seed) const { return m_seed; }
 
 	void Clear();
 

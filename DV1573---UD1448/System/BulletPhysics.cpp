@@ -241,7 +241,7 @@ void BulletPhysics::destructionobj(btRigidBody* body)
 	body->setFriction(101.0f);
 	body->setSpinningFriction(1.0f);
 	body->setAngularFactor(btVector3(1.0f, 1.0f, 1.0f));
-	body->setDamping(0.2f, 0.1f);	// Chaotic
+	body->setDamping(0.4f, 0.6f);	// Chaotic
 	//body->setDamping(0.4f, 0.2f);	// Breaks in air
 
 }

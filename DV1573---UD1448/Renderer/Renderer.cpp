@@ -1289,10 +1289,10 @@ void Renderer::render() {
 
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	TextRenderer::getInstance()->renderText();
+	//TextRenderer::getInstance()->renderText();
 	
 
-	renderWorldHud();
+	//renderWorldHud();
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -1300,10 +1300,10 @@ void Renderer::render() {
 
 	glDisable(GL_CULL_FACE);
 
-	renderAndAnimateNetworkingTexts();
-	renderBigNotifications();
-	renderKillFeed();
-	renderHUD();
+	//renderAndAnimateNetworkingTexts();
+	//renderBigNotifications();
+	//renderKillFeed();
+	//renderHUD();
 	m_enemyShieldObject.clear();
 }
 

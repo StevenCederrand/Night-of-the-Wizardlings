@@ -9,11 +9,11 @@ out vec4 pixelColor;
 
 void main()
 {
-	vec2 texture = vec2(f_uv.x, 1.0 - f_uv.y);
+	vec2 textureUV = vec2(f_uv.x, 1.0 - f_uv.y);
 
-	if(texture.x > clip.x)
+	if(textureUV.x > clip.x)
 		discard;
-	if(texture.y > clip.y )
+	if(textureUV.y > clip.y )
 		discard;
 
 	vec4 textureColor = texture(textureSampler, f_uv);

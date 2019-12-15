@@ -90,7 +90,7 @@ PlayState::PlayState(bool spectator)
 	if(Client::getInstance()->isInitialized())
 		Client::getInstance()->assignSpellHandler(m_spellHandler);
 
-	m_hideHUD = false;
+	m_hideHUD = true;
 
 	InitParticle();
 
@@ -315,18 +315,18 @@ void PlayState::loadDestructables()
 	m_dstr.setBreakSettings(BASIC, breakPoints, breakRadius, gravityOnImpact);
 	m_dstr_alt1.setBreakSettings(PILLAR, breakPoints, 6.0f, gravityOnImpact);
 
+	for (int i = (int)m_objects.size() - 1; i >= 0; i--)
+	{
+		if (m_objects[i]->getType() == DESTRUCTIBLE)
+		{
+			renderer->removeRenderObject(m_objects[i], STATIC);
+			delete m_objects[i];
+			m_objects.erase(m_objects.begin() + i);
+		}
+	}
 	switch (m_map)
 	{
 	case 0:
-		for (int i = (int)m_objects.size() - 1; i >= 0; i--)
-		{
-			if (m_objects[i]->getType() == DESTRUCTIBLE)
-			{
-				renderer->removeRenderObject(m_objects[i], STATIC);
-				delete m_objects[i];
-				m_objects.erase(m_objects.begin() + i);
-			}
-		}
 
 		// Wall desctructibles
 		meshLoader.LoadMesh(MESHPATH + "DSTRWalls.mesh");
@@ -406,14 +406,14 @@ void PlayState::loadDestructables()
 		case 1:
 			// Debug Destructibles
 			// Temporary variables to move later ---
-			breakPoints = 20;
-			breakRadius = 10.0f;
+			breakPoints = 6;
+			breakRadius = 2.5f;
 
-			gravityOnImpact = 30.0f;
+			gravityOnImpact = 0.0f;
 			timeToChange = 2.5f;
-			gravityAfterTime = 30.0f; 
+			gravityAfterTime = 0.0f; 
 
-			m_dstr.setBreakSettings(PILLAR, breakPoints, breakRadius, gravityOnImpact);
+			m_dstr.setBreakSettings(BASIC, breakPoints, breakRadius, gravityOnImpact);
 
 			meshLoader.LoadMesh(MESHPATH + "Debug_DSTR.mesh");
 			for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
@@ -548,11 +548,43 @@ void PlayState::update(float dt)
 
 	// Hardcoded spell spawning
 	// TODO: DELETE THIS
-
-	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_MIDDLE))
+	if (Input::isMousePressed(GLFW_MOUSE_BUTTON_MIDDLE))
 	{
-		m_spellHandler->createSpell(glm::vec3(0.0f), glm::vec3(1.0f), NORMALATTACK); // Put attack on cooldown
+		m_spellHandler->createSpell(glm::vec3(1.2, -0.04, 3.5), glm::vec3(1.0f, 0.07f, -0.1f), NORMALATTACK); // Put attack on cooldown
 	}
+
+	if (Input::isKeyPressed(GLFW_KEY_5))
+	{
+		loadDestructables();
+	}
+
+	if (Input::isKeyPressed(GLFW_KEY_6))
+	{
+		glfwSetWindowMonitor(glfwGetCurrentContext(), NULL, 0, 0, 1280, 720, 144);
+
+		auto monitor = glfwGetPrimaryMonitor();
+
+		if (!monitor)
+			return;
+
+		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+		if (!mode)
+			return;
+
+		int monitorX, monitorY;
+		glfwGetMonitorPos(monitor, &monitorX, &monitorY);
+
+		int windowWidth, windowHeight;
+		glfwGetWindowSize(glfwGetCurrentContext(), &windowWidth, &windowHeight);
+
+		glfwSetWindowPos(glfwGetCurrentContext(),
+			monitorX + (mode->width - windowWidth) / 2,
+			monitorY + (mode->height - windowHeight) / 2);
+	}
+
+	
+
+
 
 }
 
@@ -690,6 +722,9 @@ void PlayState::update_isPlaying(const float& dt)
 			}
 			case PlayerEvents::Died:
 			{
+
+				loadDestructables();
+
 				logWarning("[Event system] Died");
 				//Update the HP bar
 				m_hudHandler.getHudObject(HUDID::BAR_HP)->setXClip(static_cast<float>(Client::getInstance()->getMyData().health) / 100.0f);
