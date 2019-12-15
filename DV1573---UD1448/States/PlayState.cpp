@@ -8,7 +8,7 @@
 #include <BetterText/TextManager.h>
 #define PLAYSECTION "PLAYSTATE"
 
-#define SHOW_MEMORY_INFO true
+#define SHOW_MEMORY_INFO false
 
 void logVec3(glm::vec3 vector) {
 	logTrace("Vector: ({0}, {1}, {2})", std::to_string(vector.x), std::to_string(vector.y), std::to_string(vector.z));
@@ -543,6 +543,17 @@ void PlayState::update(float dt)
 	}
 
 	TextManager::getInstance()->update();
+
+
+
+	// Hardcoded spell spawning
+	// TODO: DELETE THIS
+
+	if (Input::isMouseHeldDown(GLFW_MOUSE_BUTTON_MIDDLE))
+	{
+		m_spellHandler->createSpell(glm::vec3(0.0f), glm::vec3(1.0f), NORMALATTACK); // Put attack on cooldown
+	}
+
 }
 
 void PlayState::removeDeadObjects()
