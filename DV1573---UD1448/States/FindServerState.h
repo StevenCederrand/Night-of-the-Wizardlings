@@ -20,6 +20,8 @@ private:
 	void loadServersIntoList();
 	void removeAllRows();
 	void usernameInput();
+	void usernameInputAfterIP();
+	void ipInput();
 
 private:
 	CEGUI::PushButton* m_backToMenu;
@@ -27,10 +29,14 @@ private:
 	CEGUI::PushButton* m_joinServer;
 	CEGUI::PushButton* m_spectateServer;
 	CEGUI::PushButton* m_refreshServerList;
+	CEGUI::PushButton* m_connectViaIP;
 	CEGUI::MultiColumnList* m_serverList;
 	CEGUI::Editbox* m_usernameBox;
+	CEGUI::Editbox* m_ipInput;
 	bool m_serverListRefreshing;
 	bool m_inputTextOpen;
+	bool m_ipTextOpen;
+	bool m_ipTextSelected;
 	bool m_inputTextSelected;
 	HudHandler m_hudHandler; //Basic HUD objects
 
@@ -38,6 +44,7 @@ private:
 	bool onBackToMenuClicked(const CEGUI::EventArgs& e);
 	bool onBackToListClicked(const CEGUI::EventArgs& e);
 	bool onJoinServerClicked(const CEGUI::EventArgs& e);
+	bool onConnectViaIPClicked(const CEGUI::EventArgs& e);
 	bool onRefreshServerListClicked(const CEGUI::EventArgs& e);
 	bool onSpectateServerClicked(const CEGUI::EventArgs& e);
 };

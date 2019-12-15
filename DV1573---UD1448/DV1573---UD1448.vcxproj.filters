@@ -178,6 +178,7 @@
     <ClInclude Include="BetterText\TextManager.h" />
     <ClInclude Include="States\SettingState.h" />
     <ClInclude Include="System\Framerate.h" />
+    <ClInclude Include="Gui\NoLogger.h" />
     <ClInclude Include="Spells\SpellFormat.h" />
   </ItemGroup>
   <ItemGroup>

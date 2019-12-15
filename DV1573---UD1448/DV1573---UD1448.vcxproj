@@ -330,6 +330,7 @@
     <ClInclude Include="GameObject\DestructibleObject.h" />
     <ClInclude Include="GameObject\MapObject.h" />
     <ClInclude Include="GFX\Pointlight.h" />
+    <ClInclude Include="Gui\NoLogger.h" />
     <ClInclude Include="HUD\HudHandler.h" />
     <ClInclude Include="HUD\WorldHudObject.h" />
     <ClInclude Include="Mesh\AnimationMap.h" />

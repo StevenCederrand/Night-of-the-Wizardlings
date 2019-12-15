@@ -18,6 +18,15 @@ DestructibleObject::DestructibleObject(DstrGenerator* dstr, int index, float fal
 
 DestructibleObject::~DestructibleObject()
 {
+	for (int i = 0; i < (int)m_meshes.size(); i++)
+	{
+		if (m_meshes[i].body)
+		{
+			removeBody(i);
+			m_meshes[i].mesh->Destroy();
+			MeshMap::getInstance()->removeMesh(m_meshes[i].mesh->getName());
+		}
+	}
 }
 
 void DestructibleObject::update(float dt)
@@ -72,19 +81,23 @@ void DestructibleObject::update(float dt)
 		}
 
 		// Removes the object after time
-		if (m_lifetime >= 17.0f && m_dstrState == 2)
-		{
-			for (int i = 0; i < (int)m_meshes.size(); i++)
-			{
-				if (m_meshes[i].body)
-				{
-					removeBody(i);
-					m_meshes[i].mesh->Destroy();
-				}
-				setWorldPosition(glm::vec3(-999.0f));
-				m_dstrState = 3;
-			}
-		}
+		//if (m_lifetime >= 17.0f && m_dstrState == 2)
+		//{
+		//	for (int i = 0; i < (int)m_meshes.size(); i++)
+		//	{
+		//		if (m_meshes[i].body)
+		//		{
+		//			removeBody(i);
+		//			if (i > 0)
+		//			{
+		//				m_meshes[i].mesh->Destroy();
+		//				MeshMap::getInstance()->removeMesh(m_meshes[i].mesh->getName());
+		//			}
+		//		}
+		//		setWorldPosition(glm::vec3(-999.0f));
+		//		m_dstrState = 3;
+		//	}
+		//}
 	}
 
 

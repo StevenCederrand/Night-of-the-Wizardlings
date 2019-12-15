@@ -72,6 +72,9 @@ void LocalServer::startup(const std::string& serverName)
 		m_adminID = RakNet::UNASSIGNED_RAKNET_GUID;
 		createPickupSpawnLocations();
 		createPlayerSpawnLocations();
+	
+		/*RakNet::Packet* lol = m_serverPeer->Receive();
+		CEGUI::String hej = lol->systemAddress.ToString();*/
 	}
 }
 
