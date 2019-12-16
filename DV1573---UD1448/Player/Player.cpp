@@ -47,7 +47,7 @@ Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera, Spell
 	m_maxSpeed = 15.2f;
 	m_maxMana = 100.0f;
 	m_maxHealth = 100.0f;
-	m_manaRegen = 100.0f; 
+	m_manaRegen = 1.0f; 
 
 	
 	m_maxAttackCooldown = 1.0f;
