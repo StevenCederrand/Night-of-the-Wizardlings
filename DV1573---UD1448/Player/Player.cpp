@@ -175,11 +175,11 @@ void Player::move(float deltaTime)
 		return;
 
 	//can't move much in the air
-	if (m_character->onGround())
-	{
-		m_moveDir = glm::vec3(0.0f);
-		m_oldMoveDir = glm::vec3(0.0f);
-	}
+	//if (m_character->onGround())
+	//{
+	m_moveDir = glm::vec3(0.0f);
+	m_oldMoveDir = glm::vec3(0.0f);
+	//}
 
 
 	if (m_playerCamera->isFPEnabled() ) {
