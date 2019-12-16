@@ -1334,6 +1334,9 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 		break;
 	}
 
+	if (spellObj == nullptr)
+		return false;
+
 	if (spellObj)
 	{
 		if (!spellObj->getHasCollided())
