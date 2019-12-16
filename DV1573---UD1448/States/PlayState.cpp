@@ -8,7 +8,7 @@
 #include <BetterText/TextManager.h>
 #define PLAYSECTION "PLAYSTATE"
 
-#define SHOW_MEMORY_INFO true
+#define SHOW_MEMORY_INFO false
 
 void logVec3(glm::vec3 vector) {
 	logTrace("Vector: ({0}, {1}, {2})", std::to_string(vector.x), std::to_string(vector.y), std::to_string(vector.z));
@@ -108,13 +108,13 @@ PlayState::PlayState(bool spectator)
 #endif
 	mu.printBoth("End of play state init:");
 
-	m_fpsText = TextManager::getInstance()->addDynamicText(
+	/*m_fpsText = TextManager::getInstance()->addDynamicText(
 		"fps: " + std::to_string(Framerate),
 		0.09f,
 		glm::vec3(-0.95f, -0.02f, 0.0f),
 		1.f,
 		TextManager::TextBehaviour::StayForever,
-		glm::vec3(0.0f, 0.0f, 0.0f), true);
+		glm::vec3(0.0f, 0.0f, 0.0f), true);*/
 
 
 }
@@ -539,7 +539,7 @@ void PlayState::update(float dt)
 	fpsTimer += DeltaTime;
 	if (fpsTimer >= 1.0f) {
 		fpsTimer = 0.0f;
-		m_fpsText->changeText("fps: " + std::to_string(Framerate));
+		//m_fpsText->changeText("fps: " + std::to_string(Framerate));
 	}
 
 	TextManager::getInstance()->update();
