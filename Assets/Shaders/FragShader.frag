@@ -55,11 +55,15 @@ vec3 calcDirLight(vec3 normal, vec3 diffuseColor, vec3 lightDirection);
 vec3 grayscaleColour(vec3 col);
 
 void main() {
-    vec4 ssaoVal = imageLoad(SSAOTexture, ivec2(gl_FragCoord.xy));
+    vec4 ssaoVal = vec4(1, 1, 1, 1);
     //Sample from the SSAO map
-    float ssaoValue = imageLoad(SSAOTexture, ivec2(gl_FragCoord.xy)).r;
+    float ssaoValue = 1;
     if(SSAO == 0) {
         ssaoValue = 1;
+    }
+    else {
+        ssaoVal = imageLoad(SSAOTexture, ivec2(gl_FragCoord.xy));
+        ssaoValue = imageLoad(SSAOTexture, ivec2(gl_FragCoord.xy)).r;
     }
 	vec3 finalNormal = f_normal;
 	if(NormalMapping == true)
@@ -76,7 +80,7 @@ void main() {
     vec4 finalTexture = texture(albedoTexture, f_UV);
 
     // Ambient light
-    vec3 ambientLight = Diffuse_Color * ambientStr* ssaoValue;     // Material color
+    vec3 ambientLight = Diffuse_Color * ambientStr * ssaoValue;     // Material color
 
     if (TexAndRim.x == 1 && SSAO == 0)
         ambientLight = finalTexture.rgb * ambientStr * brightnessMod; // Texture color    (If there is texture we disregard material color)
