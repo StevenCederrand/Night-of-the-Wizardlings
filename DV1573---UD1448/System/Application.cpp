@@ -7,7 +7,7 @@
 #include <Gui/Gui.h>
 #include <System/MemoryUsage.h>
 #define AUTOSTART false;
-#define FULLSCREEN false;
+#define FULLSCREEN true;
 
 float DeltaTime = 0.0f;
 unsigned int Framerate = 0;
@@ -85,7 +85,7 @@ bool Application::init() {
 	}
 	
 	// Vsync
-	glfwSwapInterval(1); // Turning this off will cause occasionally freezes, so don't!
+	glfwSwapInterval(0); // Turning this off will cause occasionally freezes, so don't!
 	
 	m_input = new Input();
 
