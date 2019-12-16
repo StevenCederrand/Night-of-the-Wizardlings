@@ -709,148 +709,148 @@ void Renderer::render() {
 	ShaderMap* shaderMap = ShaderMap::getInstance();
 	Material* material = nullptr;
 	
-	
-#pragma region Depth_Render & Light_Cull
-	if (m_lights.size() > 0) {
-		shader = shaderMap->useByName(DEPTH_MAP);
-
-		//Bind and draw the objects to the depth-buffer
-		bindMatrixes(shader);
-		glBindFramebuffer(GL_FRAMEBUFFER, m_depthFBO);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		//Loop through all of the gameobjects
-		for (GameObject* object : m_staticObjects)
-		{
-			if (object == nullptr) {
-				continue;
-			}
-
-			if (!object->getShouldRender()) {
-				continue;
-			}
-
-			//Then through all of the meshes
-			for (int j = 0; j < object->getMeshesCount(); j++)
-			{
-				glEnableVertexAttribArray(0);
-				modelMatrix = glm::mat4(1.0f);
-				//Fetch the current mesh and its transform
-				mesh = object->getMesh(j);
-
-				modelMatrix = object->getMatrix(j);
-
-				glBindVertexArray(mesh->getBuffers().vao);
-
-				//Bind the modelmatrix
-				shader->setMat4("modelMatrix", modelMatrix);
-
-				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
-				glBindVertexArray(0);
-				glDisableVertexAttribArray(0);
-			}
-		}
-
-		//Animated static objects
-		//TODO: Consider animation for the depth shader
-		for (GameObject* object : m_anistaticObjects)
-		{
-			if (object == nullptr) {
-				continue;
-			}
-
-			if (!object->getShouldRender()) {
-				continue;
-			}
-
-			//Then through all of the meshes
-			for (int j = 0; j < object->getMeshesCount(); j++)
-			{
-				glEnableVertexAttribArray(0);
-				modelMatrix = glm::mat4(1.0f);
-				//Fetch the current mesh and its transform
-
-				mesh = object->getMesh(j);
-
-				modelMatrix = object->getMatrix(j);
-
-				glBindVertexArray(mesh->getBuffers().vao);
-
-				//Bind the modelmatrix
-				shader->setMat4("modelMatrix", modelMatrix);
-
-				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
-				glBindVertexArray(0);
-				glDisableVertexAttribArray(0);
-			}
-		}
-
-		for (GameObject* object : m_pickups)
-		{
-			if (object == nullptr) {
-				continue;
-			}
-
-			if (!object->getShouldRender()) {
-				continue;
-			}
-
-			Pickup* p = dynamic_cast<Pickup*>(object);
-
-			//Then through all of the meshes
-			for (int j = 0; j < object->getMeshesCount(); j++)
-			{
-				glEnableVertexAttribArray(0);
-				modelMatrix = glm::mat4(1.0f);
-				//Fetch the current mesh and its transform
-
-				mesh = p->getRenderInformation().mesh;
-
-				modelMatrix = object->getMatrix(j);
-
-				glBindVertexArray(mesh->getBuffers().vao);
-
-				//Bind the modelmatrix
-				shader->setMat4("modelMatrix", modelMatrix);
-
-				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-
-				glBindVertexArray(0);
-				glDisableVertexAttribArray(0);
-			}
-		}
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-#pragma region Light_Culling
-		shader = shaderMap->useByName(LIGHT_CULL);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
-		bindMatrixes(shader);
-
-		glm::vec2 screenSize = glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT);
-		shader->setVec2("screenSize", screenSize);
-		shader->setInt("lightCount", m_lights.size());//Set the number of active pointlights in the scene
-
-		//Bind the depthmap
-		glActiveTexture(GL_TEXTURE0);
-		shader->setInt("depthMap", 0); //Not sure if this has to happen every frame
-		glBindTexture(GL_TEXTURE_2D, m_depthMap);
-
-		//Send all of the light data into the compute shader
-		for (size_t i = 0; i < m_lights.size(); i++) {
-			shader->setVec3("lights[" + std::to_string(i) + "].position", m_lights[i].position);
-			shader->setFloat("lights[" + std::to_string(i) + "].radius", m_lights[i].attenAndRadius.w);
-		}
-
-		glDispatchCompute(workGroups.x, workGroups.y, 1);
-
-		glMemoryBarrier(GL_SHADER_STORAGE_BUFFER);
-		//Unbind the depth
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, 0);
-#pragma endregion
-	}
+//	
+//#pragma region Depth_Render & Light_Cull
+//	if (m_lights.size() > 0) {
+//		shader = shaderMap->useByName(DEPTH_MAP);
+//
+//		//Bind and draw the objects to the depth-buffer
+//		bindMatrixes(shader);
+//		glBindFramebuffer(GL_FRAMEBUFFER, m_depthFBO);
+//		glClear(GL_DEPTH_BUFFER_BIT);
+//		//Loop through all of the gameobjects
+//		for (GameObject* object : m_staticObjects)
+//		{
+//			if (object == nullptr) {
+//				continue;
+//			}
+//
+//			if (!object->getShouldRender()) {
+//				continue;
+//			}
+//
+//			//Then through all of the meshes
+//			for (int j = 0; j < object->getMeshesCount(); j++)
+//			{
+//				glEnableVertexAttribArray(0);
+//				modelMatrix = glm::mat4(1.0f);
+//				//Fetch the current mesh and its transform
+//				mesh = object->getMesh(j);
+//
+//				modelMatrix = object->getMatrix(j);
+//
+//				glBindVertexArray(mesh->getBuffers().vao);
+//
+//				//Bind the modelmatrix
+//				shader->setMat4("modelMatrix", modelMatrix);
+//
+//				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+//
+//				glBindVertexArray(0);
+//				glDisableVertexAttribArray(0);
+//			}
+//		}
+//
+//		//Animated static objects
+//		//TODO: Consider animation for the depth shader
+//		for (GameObject* object : m_anistaticObjects)
+//		{
+//			if (object == nullptr) {
+//				continue;
+//			}
+//
+//			if (!object->getShouldRender()) {
+//				continue;
+//			}
+//
+//			//Then through all of the meshes
+//			for (int j = 0; j < object->getMeshesCount(); j++)
+//			{
+//				glEnableVertexAttribArray(0);
+//				modelMatrix = glm::mat4(1.0f);
+//				//Fetch the current mesh and its transform
+//
+//				mesh = object->getMesh(j);
+//
+//				modelMatrix = object->getMatrix(j);
+//
+//				glBindVertexArray(mesh->getBuffers().vao);
+//
+//				//Bind the modelmatrix
+//				shader->setMat4("modelMatrix", modelMatrix);
+//
+//				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+//
+//				glBindVertexArray(0);
+//				glDisableVertexAttribArray(0);
+//			}
+//		}
+//
+//		for (GameObject* object : m_pickups)
+//		{
+//			if (object == nullptr) {
+//				continue;
+//			}
+//
+//			if (!object->getShouldRender()) {
+//				continue;
+//			}
+//
+//			Pickup* p = dynamic_cast<Pickup*>(object);
+//
+//			//Then through all of the meshes
+//			for (int j = 0; j < object->getMeshesCount(); j++)
+//			{
+//				glEnableVertexAttribArray(0);
+//				modelMatrix = glm::mat4(1.0f);
+//				//Fetch the current mesh and its transform
+//
+//				mesh = p->getRenderInformation().mesh;
+//
+//				modelMatrix = object->getMatrix(j);
+//
+//				glBindVertexArray(mesh->getBuffers().vao);
+//
+//				//Bind the modelmatrix
+//				shader->setMat4("modelMatrix", modelMatrix);
+//
+//				glDrawElements(GL_TRIANGLES, mesh->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+//
+//				glBindVertexArray(0);
+//				glDisableVertexAttribArray(0);
+//			}
+//		}
+//
+//		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//
+//#pragma region Light_Culling
+//		shader = shaderMap->useByName(LIGHT_CULL);
+//		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_lightIndexSSBO);
+//		bindMatrixes(shader);
+//
+//		glm::vec2 screenSize = glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT);
+//		shader->setVec2("screenSize", screenSize);
+//		shader->setInt("lightCount", m_lights.size());//Set the number of active pointlights in the scene
+//
+//		//Bind the depthmap
+//		glActiveTexture(GL_TEXTURE0);
+//		shader->setInt("depthMap", 0); //Not sure if this has to happen every frame
+//		glBindTexture(GL_TEXTURE_2D, m_depthMap);
+//
+//		//Send all of the light data into the compute shader
+//		for (size_t i = 0; i < m_lights.size(); i++) {
+//			shader->setVec3("lights[" + std::to_string(i) + "].position", m_lights[i].position);
+//			shader->setFloat("lights[" + std::to_string(i) + "].radius", m_lights[i].attenAndRadius.w);
+//		}
+//
+//		glDispatchCompute(workGroups.x, workGroups.y, 1);
+//
+//		glMemoryBarrier(GL_SHADER_STORAGE_BUFFER);
+//		//Unbind the depth
+//		glActiveTexture(GL_TEXTURE0);
+//		glBindTexture(GL_TEXTURE_2D, 0);
+//#pragma endregion
+//	}
 
 	renderSkybox();
 	
