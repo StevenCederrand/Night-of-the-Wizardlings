@@ -254,8 +254,8 @@ void SpellEditor::spellToolUpdate(float dt, PSinfo psInfo, SpellLoading::Project
 		fireSpells[i]->UpdateTexture(txtInfo);
 		fireSpells[i]->setShouldRender(true);
 
-		fireBase.m_material->diffuse = projectileInfo.color;
-		fireBase.m_material->ambient = projectileInfo.color;
+		fireBase.m_material->diffuse = aoeSpellInfo.color;
+		fireBase.m_material->ambient = aoeSpellInfo.color;
 
 		renderSpellBool = spellRenderer;
 

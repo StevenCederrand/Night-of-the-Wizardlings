@@ -412,8 +412,8 @@ void SpellCreatorState::editAOEAttackSpell()
 		ImGui::SliderFloat("Spread ", &tempPS.spread, 0.0f, 10.0f);
 		ImGui::SliderFloat("Glow ", &tempPS.glow, 0.0f, 10.0f);
 		ImGui::SliderInt("Scale direction ", &tempPS.scaleDirection, 0.0f, 100.0f);
-		ImGui::SliderInt("Swirl ", &tempPS.swirl, 0.0f, 10.0f);
-		ImGui::SliderInt("Fade ", &tempPS.fade, 0.0f, 10.0f);
+		ImGui::SliderInt("Swirl ", &tempPS.swirl, 0.0f, 1.0f);
+		ImGui::SliderInt("Fade ", &tempPS.fade, -1.0f, 1.0f);
 		ImGui::Checkbox("Random spawn ", &tempPS.randomSpawn);
 		ImGui::Checkbox("Continue ", &tempPS.cont);
 		ImGui::Checkbox("Omni ", &tempPS.omnious);
