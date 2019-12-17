@@ -98,7 +98,7 @@ void SpellCreatorState::Update(float dt)
 {
 	update(dt);
 	//tempPS.emission = 1 / m_emission;
-	m_spellEditor->spellToolUpdate(dt, tempPS, normalSpell, tempTxt);
+	m_spellEditor->spellToolUpdate(dt, tempPS, normalSpell, tempTxt, shouldRenderSpell, aoeSpell);
     m_bPhysics->update(dt);
 
     Renderer::getInstance()->updateParticles(dt);
@@ -246,6 +246,7 @@ void SpellCreatorState::updateToolSettings(OBJECT_TYPE type)
     //Set the tool values to match the loaded file
 	if (type == NORMALATTACK)
 	{
+
 		normalSpell.lowDamage = myLoader.m_projectile.lowDamage;
 		normalSpell.highDamage = myLoader.m_projectile.highDamage;
 		normalSpell.speed = myLoader.m_projectile.speed;
@@ -253,6 +254,7 @@ void SpellCreatorState::updateToolSettings(OBJECT_TYPE type)
 		normalSpell.radius = myLoader.m_projectile.radius;
 		normalSpell.lifeTime = myLoader.m_projectile.lifeTime;
 		normalSpell.maxBounces = myLoader.m_projectile.maxBounces;
+		normalSpell.color = myLoader.m_projectile.color;
 	}
 
 	if (type == FIRE)
@@ -263,6 +265,8 @@ void SpellCreatorState::updateToolSettings(OBJECT_TYPE type)
 		aoeSpell.radius = myLoader.m_AOESpell.radius;
 		aoeSpell.lifeTime = myLoader.m_AOESpell.lifeTime;
 		aoeSpell.maxBounces = myLoader.m_AOESpell.maxBounces;
+		aoeSpell.color = myLoader.m_AOESpell.color;
+
 	}
 
     //-----Spell Events-----//
@@ -273,26 +277,10 @@ void SpellCreatorState::updateToolSettings(OBJECT_TYPE type)
     spellEvents.fourthEvent = myLoader.m_spellEvents.fourthEvent;
     spellEvents.fifthEvent  = myLoader.m_spellEvents.fifthEvent;
 
+
 	tempTxt.name = myLoader.m_txtInfo.name;
-	tempPS.width = myLoader.m_psInfo.width;
-	tempPS.heigth = myLoader.m_psInfo.heigth;
-	tempPS.lifetime = myLoader.m_psInfo.lifetime;
-	tempPS.maxParticles = myLoader.m_psInfo.maxParticles;
-	tempPS.emission = myLoader.m_psInfo.emission;
-	tempPS.force = myLoader.m_psInfo.force;
-	tempPS.drag = myLoader.m_psInfo.drag;
-	tempPS.gravity = myLoader.m_psInfo.gravity;
+	tempPS = myLoader.m_psInfo;
 	tempPS.seed = 0;
-	tempPS.cont = myLoader.m_psInfo.cont;
-	tempPS.omnious = myLoader.m_psInfo.omnious;
-	tempPS.randomSpawn = myLoader.m_psInfo.randomSpawn;
-	tempPS.spread = myLoader.m_psInfo.spread;
-	tempPS.glow = myLoader.m_psInfo.glow;
-	tempPS.scaleDirection = myLoader.m_psInfo.scaleDirection;
-	tempPS.swirl = myLoader.m_psInfo.swirl;
-	tempPS.fade = myLoader.m_psInfo.fade;
-	tempPS.color = myLoader.m_psInfo.color;
-	tempPS.blendColor = myLoader.m_psInfo.blendColor;
 	tempPS.direction = glm::vec3(1.0f, 0.0f, 0.0f);
 	tempPS.direction = glm::clamp(tempPS.direction, -1.0f, 1.0f);
 
@@ -308,6 +296,9 @@ void SpellCreatorState::editAttackSpell()
     ImGui::SliderFloat("Spell Cooldown", &normalSpell.coolDown, 0.1f, 10.0f);
     ImGui::SliderFloat("Spell Lifetime", &normalSpell.lifeTime, 1.0f, 20.0f);
     ImGui::SliderInt("Spell Maximum Bounces", &normalSpell.maxBounces, 0, 5);
+	ImGui::ColorEdit3("Color for spell", &normalSpell.color.x);
+	ImGui::Checkbox("Render Spell object", &shouldRenderSpell);
+
     if (m_AttackSpellAlive == true)
     {
 		m_spellEditor->changeSpell(0);
@@ -345,7 +336,7 @@ void SpellCreatorState::editAttackSpell()
 		ImGui::Checkbox("Random spawn", &tempPS.randomSpawn);
 		ImGui::Checkbox("Continue", &tempPS.cont);
 		ImGui::Checkbox("Omni", &tempPS.omnious);
-		ImGui::ColorEdit3("Color", &tempPS.color.x);
+		ImGui::ColorEdit3("Color2", &tempPS.color.x);
 		ImGui::ColorEdit3("Blend color", &tempPS.blendColor.x);
 		//ImGui::SliderInt("Direction", &tempPS.direction, 0.0f, 10.0f);
 		
@@ -355,10 +346,7 @@ void SpellCreatorState::editAttackSpell()
 	if (nrOfParticleSystems.nrOfEvents >= 2.0f)
 	{
 		ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Particle values 2:");										            // Display some text (you can use a format strings too)
-
-		ImGui::SliderInt("Width", &aoeSpell.damage, 0.0f, 10.0f);
-		ImGui::SliderInt("Heigth", &aoeSpell.radius, 0.0f, 10.0f);
-		ImGui::SliderInt("lifetime", &aoeSpell.lifeTime, 0.0f, 100.0f);									            // Display some text (you can use a format strings too)
+								            // Display some text (you can use a format strings too)
 
 	}
 	if (nrOfParticleSystems.nrOfEvents >= 3.0f)
@@ -388,13 +376,15 @@ void SpellCreatorState::editAOEAttackSpell()
         m_AttackSpellAlive = true;
     }
     ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Edit area of effect values:");										            // Display some text (you can use a format strings too)
-    ImGui::SliderInt("Spell Damage", &aoeSpell.damage, 0.0f, 100.0f);
-    ImGui::SliderInt("Spell Radius", &aoeSpell.radius, 1.0f, 50.0f);
+    ImGui::SliderFloat("Spell Damage", &aoeSpell.damage, 0.0f, 100.0f);
+    ImGui::SliderFloat("Spell Radius", &aoeSpell.radius, 1.0f, 20.0f);
     ImGui::SliderInt("Spell Lifetime", &aoeSpell.lifeTime, 1.0f, 20.0f);
+	ImGui::ColorEdit3("Color for spell ", &aoeSpell.color.x);
+	ImGui::Checkbox("Render Spell object", &shouldRenderSpell);
 
 	ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Edit potion values:");										            // Display some text (you can use a format strings too)
-    ImGui::SliderInt("Spell Speed", &aoeSpell.speed, 0.0f, 200.0f);
-    ImGui::SliderInt("Spell Cooldown", &aoeSpell.coolDown, 0.1f, 10.0f);
+    ImGui::SliderFloat("Spell Speed", &aoeSpell.speed, 0.0f, 200.0f);
+    ImGui::SliderFloat("Spell Cooldown", &aoeSpell.coolDown, 0.1f, 10.0f);
     ImGui::SliderInt("Spell Maximum Bounces", &aoeSpell.maxBounces, 1, 3);
 
 	ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Edit particle values:");										            // Display some text (you can use a format strings too)
@@ -410,25 +400,25 @@ void SpellCreatorState::editAOEAttackSpell()
 			textureDialog.Open();
 		}
 		ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Particle values 1:");										            // Display some text (you can use a format strings too)
-		ImGui::SliderFloat("Width", &tempPS.width, 0.0f, 10.0f);
-		ImGui::SliderFloat("Heigth", &tempPS.heigth, 0.0f, 10.0f);
-		ImGui::SliderFloat("Lifetime", &tempPS.lifetime, 0.0f, 100.0f);
-		ImGui::SliderInt("Max particles", &tempPS.maxParticles, 0, 5000);
-		ImGui::SliderFloat("Emission", &tempPS.emission, 1.0f, 0.00001f);
-		ImGui::SliderFloat("Force", &tempPS.force, -100.0f, 100.0f);
-		ImGui::SliderFloat("Drag", &tempPS.drag, -100.0f, 100.0f);
-		ImGui::SliderFloat("Gravity", &tempPS.gravity, -100.0f, 100.0f);
+		ImGui::SliderFloat("Width ", &tempPS.width, 0.0f, 10.0f);
+		ImGui::SliderFloat("Heigth ", &tempPS.heigth, 0.0f, 10.0f);
+		ImGui::SliderFloat("Lifetime ", &tempPS.lifetime, 0.0f, 100.0f);
+		ImGui::SliderInt("Max particles ", &tempPS.maxParticles, 0, 5000);
+		ImGui::SliderFloat("Emission ", &tempPS.emission, 1.0f, 0.00001f);
+		ImGui::SliderFloat("Force ", &tempPS.force, -100.0f, 100.0f);
+		ImGui::SliderFloat("Drag ", &tempPS.drag, -100.0f, 100.0f);
+		ImGui::SliderFloat("Gravity ", &tempPS.gravity, -100.0f, 100.0f);
 		//ImGui::SliderInt("Seed", &tempPS.seed, 0.0f, 100.0f);
-		ImGui::SliderFloat("Spread", &tempPS.spread, 0.0f, 10.0f);
-		ImGui::SliderFloat("Glow", &tempPS.glow, 0.0f, 10.0f);
-		ImGui::SliderInt("Scale direction", &tempPS.scaleDirection, 0.0f, 100.0f);
-		ImGui::SliderInt("Swirl", &tempPS.swirl, 0.0f, 10.0f);
-		ImGui::SliderInt("Fade", &tempPS.fade, 0.0f, 10.0f);
-		ImGui::Checkbox("Random spawn", &tempPS.randomSpawn);
-		ImGui::Checkbox("Continue", &tempPS.cont);
-		ImGui::Checkbox("Omni", &tempPS.omnious);
-		ImGui::ColorEdit3("Color", &tempPS.color.x);
-		ImGui::ColorEdit3("Blend color", &tempPS.blendColor.x);
+		ImGui::SliderFloat("Spread ", &tempPS.spread, 0.0f, 10.0f);
+		ImGui::SliderFloat("Glow ", &tempPS.glow, 0.0f, 10.0f);
+		ImGui::SliderInt("Scale direction ", &tempPS.scaleDirection, 0.0f, 100.0f);
+		ImGui::SliderInt("Swirl ", &tempPS.swirl, 0.0f, 10.0f);
+		ImGui::SliderInt("Fade ", &tempPS.fade, 0.0f, 10.0f);
+		ImGui::Checkbox("Random spawn ", &tempPS.randomSpawn);
+		ImGui::Checkbox("Continue ", &tempPS.cont);
+		ImGui::Checkbox("Omni ", &tempPS.omnious);
+		ImGui::ColorEdit3("Color ", &tempPS.color.x);
+		ImGui::ColorEdit3("Blend color ", &tempPS.blendColor.x);
 		//ImGui::SliderInt("Direction", &tempPS.direction, 0.0f, 10.0f);
 		
 		//std::cout << tempPS.color.x << " " << tempPS.color.y << " " << tempPS.color.z << std::endl;
@@ -437,10 +427,7 @@ void SpellCreatorState::editAOEAttackSpell()
 	if (nrOfParticleSystems.nrOfEvents >= 2.0f)
 	{
 		ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Particle values 2:");										            // Display some text (you can use a format strings too)
-
-		ImGui::SliderInt("Width", &aoeSpell.damage, 0.0f, 10.0f);
-		ImGui::SliderInt("Heigth", &aoeSpell.radius, 0.0f, 10.0f);
-		ImGui::SliderInt("lifetime", &aoeSpell.lifeTime, 0.0f, 100.0f);									            // Display some text (you can use a format strings too)
+								            // Display some text (you can use a format strings too)
 
 	}
 	if (nrOfParticleSystems.nrOfEvents >= 3.0f)

@@ -34,10 +34,8 @@ void SpellHandler::initAttackSpell()
 	attackBase.m_material->diffuse = newMaterial.diffuse;
 	attackBase.m_material->name = newMaterial.name;
 	attackBase.m_material->specular = newMaterial.specular;
-	attackBase.m_material->diffuse = glm::vec3(0.65f, 1.0f, 1.0f); // Light blue
-	attackBase.m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
 
-	myLoader.LoadSpell("redstar.spell", NORMALATTACK);
+	myLoader.LoadSpell("spelll.spell", NORMALATTACK);
 
 	// Gameplay--
 	attackBase.m_lowDamage		= myLoader.m_projectile.lowDamage;
@@ -48,6 +46,8 @@ void SpellHandler::initAttackSpell()
 	attackBase.m_lifeTime		= myLoader.m_projectile.lifeTime;
 	attackBase.m_maxBounces		= myLoader.m_projectile.maxBounces;
 
+	attackBase.m_material->diffuse = myLoader.m_projectile.color;
+	attackBase.m_material->ambient = myLoader.m_projectile.color;
 	/*myLoader.LoadProjectileSpell("fireball.spell");
 
 	attackBase.m_lowDamage = myLoader.m_projectile.m_lowDamage;
@@ -484,8 +484,10 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 	if (type == FIRE)
 	{
 		// Generic
+
 		fireSpells.emplace_back(new fire(spellPos, directionVector, &fireBase));
 		auto spell = fireSpells.back();
+		spell->setShouldRender(false);
 		Renderer::getInstance()->submit(fireSpells.back(), SPELL);
 
 		for (int i = 0; i < fireBase.m_particleBuffers.size(); i++)

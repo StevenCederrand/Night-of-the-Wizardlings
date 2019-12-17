@@ -63,4 +63,9 @@ const glm::vec3& fire::getPos() const
 
 void fire::updateTool(float radius, float speed, float dt)
 {
+	tempTransformTest.rotation = glm::vec3(0, 0, 0);
+	tempTransformTest.position = glm::vec3(2, 3, -10);
+
+	tempTransformTest.scale = glm::vec3(m_spellBase->m_radius + radius, m_spellBase->m_radius + radius, m_spellBase->m_radius + radius);
+	setTransform(tempTransformTest);
 }

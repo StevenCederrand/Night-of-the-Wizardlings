@@ -5,7 +5,7 @@ SpellEditor::SpellEditor()
 {
 	initAttackSpell();
 	initFireSpell();
-
+	renderSpellBool = true;
 	/*if (Client::getInstance()->isSpectating() == false)
 		setCharacter(CHARACTER);*/
 }
@@ -37,11 +37,9 @@ void SpellEditor::initAttackSpell()
 	attackBase.m_material->diffuse = newMaterial.diffuse;
 	attackBase.m_material->name = newMaterial.name;
 	attackBase.m_material->specular = newMaterial.specular;
-	attackBase.m_material->diffuse = glm::vec3(0.65f, 1.0f, 1.0f); // Light blue
-	attackBase.m_material->ambient = glm::vec3(0.65f, 1.0f, 1.0f);
 
 
-	myLoader.LoadSpell("redstar.spell", NORMALATTACK);
+	myLoader.LoadSpell("spelll.spell", NORMALATTACK);
 
 	// Gameplay--
 	attackBase.m_lowDamage		= myLoader.m_projectile.lowDamage;
@@ -52,6 +50,8 @@ void SpellEditor::initAttackSpell()
 	attackBase.m_lifeTime		= myLoader.m_projectile.lifeTime;
 	attackBase.m_maxBounces		= myLoader.m_projectile.maxBounces;
 
+	attackBase.m_material->diffuse = myLoader.m_projectile.color; // Light blue
+	attackBase.m_material->ambient = myLoader.m_projectile.color;
 	// Light--
 	attackBase.m_attenAndRadius = glm::vec4(1.0f, 0.14f, 0.07f, 22.0f);// OLD
 	attackBase.m_attenAndRadius = glm::vec4(1.0f, 2.15f, 4.5f, 22.0f);
@@ -208,6 +208,7 @@ void SpellEditor::createSpellForTool(glm::vec3 spellPos, glm::vec3 directionVect
 		fireSpells.emplace_back(new fire(spellPos, directionVector, &fireBase));
 		auto spell = fireSpells.back();
 		spell->setType(FIRETOOL);
+		spell->setShouldRender(true);
 		Renderer::getInstance()->submit(fireSpells.back(), SPELL);
 
 		for (int i = 0; i < fireBase.m_particleBuffers.size(); i++)
@@ -217,13 +218,18 @@ void SpellEditor::createSpellForTool(glm::vec3 spellPos, glm::vec3 directionVect
 	}
 }
 
-void SpellEditor::spellToolUpdate(float dt, PSinfo psInfo, SpellLoading::Projectile projectileInfo, TextureInfo txtInfo)
+void SpellEditor::spellToolUpdate(float dt, PSinfo psInfo, SpellLoading::Projectile projectileInfo, TextureInfo txtInfo, bool spellRenderer, SpellLoading::AOESpell aoeSpellInfo)
 {
 	for (size_t i = 0; i < spells.size(); i++)
 	{
 		spells[i]->updateTool(projectileInfo.radius, projectileInfo.speed, dt);
 		spells[i]->UpdateParticles(dt, psInfo);
 		spells[i]->UpdateTexture(txtInfo);
+
+		attackBase.m_material->diffuse = projectileInfo.color;
+		attackBase.m_material->ambient = projectileInfo.color;
+
+		renderSpellBool = spellRenderer;
 
 		if (activespell == 1)
 		{
@@ -242,9 +248,17 @@ void SpellEditor::spellToolUpdate(float dt, PSinfo psInfo, SpellLoading::Project
 
 	for (size_t i = 0; i < fireSpells.size(); i++)
 	{
+		fireSpells[i]->updateTool(aoeSpellInfo.radius, aoeSpellInfo.speed, dt);
 		fireSpells[i]->UpdateParticles(dt);
 		fireSpells[i]->UpdateParticles(dt, psInfo);
 		fireSpells[i]->UpdateTexture(txtInfo);
+		fireSpells[i]->setShouldRender(true);
+
+		fireBase.m_material->diffuse = projectileInfo.color;
+		fireBase.m_material->ambient = projectileInfo.color;
+
+		renderSpellBool = spellRenderer;
+
 
 		if (activespell == 0)
 		{
@@ -268,7 +282,8 @@ void SpellEditor::changeSpell(int state)
 void SpellEditor::renderSpell()
 {
 	ShaderMap::getInstance()->useByName(BASIC_FORWARD);
-	Renderer::getInstance()->renderSpell(this);
+	if(renderSpellBool == true)
+		Renderer::getInstance()->renderSpell(this);
 }
 
 const uint64_t SpellEditor::getUniqueID()

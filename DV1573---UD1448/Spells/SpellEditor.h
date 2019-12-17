@@ -10,7 +10,7 @@ public:
 	~SpellEditor();
 
 	void createSpellForTool(glm::vec3 spellPos, glm::vec3 directionVector, OBJECT_TYPE type);
-	void spellToolUpdate(float dt,PSinfo psInfo, SpellLoading::Projectile projectileInfo, TextureInfo txtInfo);
+	void spellToolUpdate(float dt,PSinfo psInfo, SpellLoading::Projectile projectileInfo, TextureInfo txtInfo, bool spellRenderer, SpellLoading::AOESpell aoeSpellInfo);
 	void changeSpell(int state);
 
 	void renderSpell();
@@ -19,6 +19,7 @@ public:
 	const std::vector<Spell*>& getSpells() const { return spells; }
 	const uint64_t getUniqueID();
 	const SpellBase* getSpellBase(OBJECT_TYPE type) const;
+	bool renderSpellBool = true;
 
 private:
 	void initAttackSpell();

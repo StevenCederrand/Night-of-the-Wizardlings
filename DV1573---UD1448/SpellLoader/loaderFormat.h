@@ -19,17 +19,20 @@ namespace SpellLoading
 		float radius;
 		float lifeTime;
 		int maxBounces;
+		glm::vec3 color;
 	};
 
     struct AOESpell
     {
         char name[NAME_SIZE];
-        int damage;
-        int speed;
-        int coolDown;
-        int radius;
-        int lifeTime;
+		float damage;
+		float speed;
+		float coolDown;
+		float radius;
+		int lifeTime;
         int maxBounces;
+		glm::vec3 color;
+
     };
 
     struct SpellEvents

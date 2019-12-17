@@ -21,6 +21,8 @@ public:
 
 
 private:
+	Transform tempTransformTest;
+
 	float fireTimer = 8;
 
 };

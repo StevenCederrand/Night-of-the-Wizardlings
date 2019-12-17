@@ -60,7 +60,7 @@ public:
 	ImGui::FileBrowser fileDialog;
 	ImGui::FileBrowser textureDialog;
 	
-    char m_spellName[256] = "spellName";
+    char m_spellName[256] = "spellNameTest";
 
 private:
 
@@ -80,6 +80,7 @@ private:
     bool m_AttackSpellAlive = true;
     bool m_FireSpellAlive = true;
 
+	bool shouldRenderSpell;
 	int m_emission = 1;
 
 	OBJECT_TYPE m_Type = NORMALATTACK;

@@ -47,7 +47,8 @@ bool SpellLoader::LoadSpell(std::string file, OBJECT_TYPE type)
 			m_cooldown           = m_projectile.coolDown;
 			m_radius             = m_projectile.radius;
 			m_lifetime           = m_projectile.lifeTime;
-			m_maxBounces         = m_projectile.maxBounces;
+			m_maxBounces		= m_projectile.maxBounces;
+			m_colorSpell         = m_projectile.color;
 		}
 		if (type == FIRE)
 		{
@@ -60,6 +61,7 @@ bool SpellLoader::LoadSpell(std::string file, OBJECT_TYPE type)
 			m_radius = m_AOESpell.radius;
 			m_lifetime = m_AOESpell.lifeTime;
 			m_maxBounces = m_AOESpell.maxBounces;
+			m_colorSpell = m_AOESpell.color;
 		}
 
         // Read the Spell Events struct
@@ -150,7 +152,8 @@ void SpellLoader::SaveSpell(std::string name, SpellLoading::Projectile projectil
 	m_projectile.coolDown	= projectileInfo.coolDown;
 	m_projectile.radius		= projectileInfo.radius;
 	m_projectile.lifeTime	= projectileInfo.lifeTime;
-	m_projectile.maxBounces	= projectileInfo.maxBounces;
+	m_projectile.maxBounces = projectileInfo.maxBounces;
+	m_projectile.color	= projectileInfo.color;
 
 	m_AOESpell.damage = aoeInfo.damage;
 	m_AOESpell.speed = aoeInfo.speed;
@@ -158,6 +161,8 @@ void SpellLoader::SaveSpell(std::string name, SpellLoading::Projectile projectil
 	m_AOESpell.radius = aoeInfo.radius;
 	m_AOESpell.lifeTime = aoeInfo.lifeTime;
 	m_AOESpell.maxBounces = aoeInfo.maxBounces;
+	m_AOESpell.color = aoeInfo.color;
+
 
     //-----Assign all the Spell event data-----//
     m_spellEvents.nrOfEvents  = spellEvent.nrOfEvents;

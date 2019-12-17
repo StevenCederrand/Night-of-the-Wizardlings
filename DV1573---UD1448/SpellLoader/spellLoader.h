@@ -50,6 +50,7 @@ private:
 	float m_radius;
 	float m_lifetime;
 	float m_maxBounces;
+	glm::vec3 m_colorSpell;
 
     //-----Spell Event Data-----//
     float m_nrOfEvents;
