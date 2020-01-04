@@ -108,8 +108,8 @@ bool Application::init() {
 #endif
 
 	SoundHandler* shPtr = SoundHandler::getInstance();	
-	//shPtr->playSound(ThemeSong0);
-	//shPtr->setSourceLooping(true, ThemeSong0);
+	shPtr->playSound(ThemeSong0);
+	shPtr->setSourceLooping(true, ThemeSong0);
 
 	unsigned int _time = unsigned int(time(NULL));
 	srand(_time);
