@@ -94,7 +94,7 @@ bool Application::init() {
 	initGraphics();
 	initSound();
 
-	m_noLog = new NoLogger();
+	//m_noLog = new NoLogger();
 	Gui::getInstance()->init();
 	Gui::getInstance()->loadScheme(CEGUI_TYPE + ".scheme");
 	Gui::getInstance()->setFont("DejaVuSans-10");	

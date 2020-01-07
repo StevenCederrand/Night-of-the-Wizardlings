@@ -24,7 +24,7 @@ private:
 	Input* m_input;
 	StateManager* m_stateManager;	
 	bool initialFrame;
-	NoLogger* m_noLog;
+	//NoLogger* m_noLog;
 };
 
 
