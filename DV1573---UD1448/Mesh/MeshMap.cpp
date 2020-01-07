@@ -60,6 +60,7 @@ Mesh* MeshMap::createMesh(std::string name, Mesh mesh)
 void MeshMap::removeMesh(std::string name)
 {
 	m_meshMap[name]->Destroy();
+	delete m_meshMap[name];
 	m_meshMap.erase(name);
 }
 
