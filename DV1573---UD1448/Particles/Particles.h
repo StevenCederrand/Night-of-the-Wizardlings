@@ -36,27 +36,27 @@ struct Particle //Basic particle data
 struct PSinfo //All the fun particle information values
 {
 	glm::vec3 direction;
-	glm::vec3 color = glm::vec3(0.0f, 0.9f, 0.9f);
-	glm::vec3 blendColor = glm::vec3(0.8f, 1.0f, 1.0f);
+	glm::vec3 color;
+	glm::vec3 blendColor;
 
-	int maxParticles = 1000;
-	bool cont = true;
-	bool omnious = false;
-	int seed = 0;
-	int fade = true;
+	int maxParticles;
+	bool cont;
+	bool omnious;
+	int seed;
+	int fade;
 	int scaleDirection;
-	float glow = 2.0f;
-	int swirl = false;
-	bool randomSpawn = false;
+	float glow;
+	int swirl;
+	bool randomSpawn;
 
-	float width = 0.4;
-	float heigth = 0.6f;
-	float lifetime = 1.5f;
-	float emission = 0.002f;
-	float spread = 0.0f;
-	float force = -0.2f;
-	float drag = 0.0f;
-	float gravity = 0.0f;
+	float width;
+	float heigth;
+	float lifetime;
+	float emission;
+	float spread;
+	float force;
+	float drag;
+	float gravity;
 };
 
 class ParticleSystem

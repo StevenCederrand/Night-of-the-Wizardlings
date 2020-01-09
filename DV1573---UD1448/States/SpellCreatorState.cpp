@@ -297,7 +297,6 @@ void SpellCreatorState::editAttackSpell()
     ImGui::SliderFloat("Spell Lifetime", &normalSpell.lifeTime, 1.0f, 20.0f);
     ImGui::SliderInt("Spell Maximum Bounces", &normalSpell.maxBounces, 0, 5);
 	ImGui::ColorEdit3("Color for spell", &normalSpell.color.x);
-	ImGui::Checkbox("Render Spell object", &shouldRenderSpell);
 
     if (m_AttackSpellAlive == true)
     {
@@ -380,7 +379,6 @@ void SpellCreatorState::editAOEAttackSpell()
     ImGui::SliderFloat("Spell Radius", &aoeSpell.radius, 1.0f, 20.0f);
     ImGui::SliderInt("Spell Lifetime", &aoeSpell.lifeTime, 1.0f, 20.0f);
 	ImGui::ColorEdit3("Color for spell ", &aoeSpell.color.x);
-	ImGui::Checkbox("Render Spell object", &shouldRenderSpell);
 
 	ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Edit potion values:");										            // Display some text (you can use a format strings too)
     ImGui::SliderFloat("Spell Speed", &aoeSpell.speed, 0.0f, 200.0f);

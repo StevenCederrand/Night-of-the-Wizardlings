@@ -39,7 +39,7 @@ void SpellEditor::initAttackSpell()
 	attackBase.m_material->specular = newMaterial.specular;
 
 
-	myLoader.LoadSpell("spelll.spell", NORMALATTACK);
+	myLoader.LoadSpell("normalSpell.spell", NORMALATTACK);
 
 	// Gameplay--
 	attackBase.m_lowDamage		= myLoader.m_projectile.lowDamage;
@@ -144,7 +144,7 @@ void SpellEditor::initFireSpell()
 	fireBase.m_particleBuffers.back()->bindBuffers();
 
 
-	myLoader.LoadSpell("spellNameFire.spell", FIRE);
+	myLoader.LoadSpell("flamestrike.spell", FIRE);
 
 	// Gameplay--
 	fireBase.m_damage = myLoader.m_AOESpell.damage;

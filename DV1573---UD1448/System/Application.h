@@ -24,6 +24,7 @@ private:
 	Input* m_input;
 	StateManager* m_stateManager;	
 	bool initialFrame;
+	bool deleteImgui = true;
 	//NoLogger* m_noLog;
 };
 

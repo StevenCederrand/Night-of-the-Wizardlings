@@ -45,6 +45,10 @@ Application::~Application() {
 
 	Gui::getInstance()->destroy();
 	SoundHandler::getInstance()->destroy();
+	if (deleteImgui)
+	{
+		ImGui::DestroyContext();
+	}
 
 	glfwTerminate();
 
@@ -206,6 +210,7 @@ void Application::run()
 			m_stateManager->getGuiInfo();
 			ImGui::Render();
 			ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
+			deleteImgui = false;
 		}
 
 

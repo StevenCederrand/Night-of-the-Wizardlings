@@ -24,9 +24,9 @@ AttackSpell::AttackSpell(glm::vec3 pos, OBJECT_TYPE type)
 	m_type = type;
 
 	Transform tempTransform;
-	//mySpellLoader.LoadProjectileSpell("normalSpell.spell");
-	//tempTransform.scale = glm::vec3(mySpellLoader.m_projectile.m_radius, mySpellLoader.m_projectile.m_radius, mySpellLoader.m_projectile.m_radius);
-	tempTransform.scale = glm::vec3(0.2f, 0.2f, 0.2f); // Hardcoded for networkd. Needs to change.
+	mySpellLoader.LoadSpell("normalSpell.spell", NORMALATTACK);
+	tempTransform.scale = glm::vec3(mySpellLoader.m_projectile.radius, mySpellLoader.m_projectile.radius, mySpellLoader.m_projectile.radius);
+	//tempTransform.scale = glm::vec3(0.2f, 0.2f, 0.2f); // Hardcoded for networkd. Needs to change.
 	tempTransform.position = pos;
 
 	setTransform(tempTransform);
