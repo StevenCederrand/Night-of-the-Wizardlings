@@ -1354,10 +1354,9 @@ void Renderer::renderSpell(SpellHandler* spellHandler)
 			meshRef = spellHandler->getSpellBase(FIRE)->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
 			shader->setMaterial(spellHandler->getSpellBase(FIRE)->m_material);
-			if (m_spells[i]->getShouldRender())
-			{
-				glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-			}
+			
+			//glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+			
 			glBindVertexArray(0);
 		}
 
@@ -1431,10 +1430,9 @@ void Renderer::renderSpell(SpellEditor* SpellEditor)
 			meshRef = SpellEditor->getSpellBase(FIRETOOL)->m_mesh;
 			glBindVertexArray(meshRef->getBuffers().vao);
 			shader->setMaterial(SpellEditor->getSpellBase(FIRETOOL)->m_material);
-			if (m_spells[i]->getShouldRender())
-			{
-				glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
-			}
+			
+			//glDrawElements(GL_TRIANGLES, meshRef->getBuffers().nrOfFaces * 3, GL_UNSIGNED_INT, NULL);
+			
 			glBindVertexArray(0);
 		}
 

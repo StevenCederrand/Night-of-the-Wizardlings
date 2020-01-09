@@ -35,7 +35,7 @@ void SpellHandler::initAttackSpell()
 	attackBase.m_material->name = newMaterial.name;
 	attackBase.m_material->specular = newMaterial.specular;
 
-	myLoader.LoadSpell("spelll.spell", NORMALATTACK);
+	myLoader.LoadSpell("normalSpell.spell", NORMALATTACK);
 
 	// Gameplay--
 	attackBase.m_lowDamage		= myLoader.m_projectile.lowDamage;
@@ -179,7 +179,7 @@ void SpellHandler::initFlamestrikeSpell()
 	flamestrikeBase.m_material->name = newMaterial.name;
 	flamestrikeBase.m_material->specular = newMaterial.specular;
 
-	myLoader.LoadSpell("felStorm.spell", FIRE);
+	myLoader.LoadSpell("flamestrike.spell", FIRE);
 
 	// Gameplay--
 	flamestrikeBase.m_damage = myLoader.m_AOESpell.damage;
@@ -214,7 +214,7 @@ void SpellHandler::initFireSpell()
 	fireBase.m_material->diffuse = glm::vec3(1.0f, 0.5f, 0.0f);
 	fireBase.m_material->ambient = glm::vec3(1.0f, 0.5f, 0.0f);
 
-	myLoader.LoadSpell("felStorm.spell", FIRE);
+	myLoader.LoadSpell("flamestrike.spell", FIRE);
 	// Gameplay--
 	fireBase.m_damage = myLoader.m_AOESpell.damage;
 	fireBase.m_speed = myLoader.m_AOESpell.speed;
@@ -487,7 +487,6 @@ OBJECT_TYPE SpellHandler::createSpell(glm::vec3 spellPos, glm::vec3 directionVec
 
 		fireSpells.emplace_back(new fire(spellPos, directionVector, &fireBase));
 		auto spell = fireSpells.back();
-		spell->setShouldRender(false);
 		Renderer::getInstance()->submit(fireSpells.back(), SPELL);
 
 		for (int i = 0; i < fireBase.m_particleBuffers.size(); i++)

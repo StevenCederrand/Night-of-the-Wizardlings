@@ -60,7 +60,7 @@ public:
 	ImGui::FileBrowser fileDialog;
 	ImGui::FileBrowser textureDialog;
 	
-    char m_spellName[256] = "spellNameTest";
+    char m_spellName[256] = "newSpell";
 
 private:
 

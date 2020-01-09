@@ -208,7 +208,6 @@ void SpellEditor::createSpellForTool(glm::vec3 spellPos, glm::vec3 directionVect
 		fireSpells.emplace_back(new fire(spellPos, directionVector, &fireBase));
 		auto spell = fireSpells.back();
 		spell->setType(FIRETOOL);
-		spell->setShouldRender(true);
 		Renderer::getInstance()->submit(fireSpells.back(), SPELL);
 
 		for (int i = 0; i < fireBase.m_particleBuffers.size(); i++)
@@ -252,7 +251,6 @@ void SpellEditor::spellToolUpdate(float dt, PSinfo psInfo, SpellLoading::Project
 		fireSpells[i]->UpdateParticles(dt);
 		fireSpells[i]->UpdateParticles(dt, psInfo);
 		fireSpells[i]->UpdateTexture(txtInfo);
-		fireSpells[i]->setShouldRender(true);
 
 		fireBase.m_material->diffuse = aoeSpellInfo.color;
 		fireBase.m_material->ambient = aoeSpellInfo.color;
@@ -282,8 +280,7 @@ void SpellEditor::changeSpell(int state)
 void SpellEditor::renderSpell()
 {
 	ShaderMap::getInstance()->useByName(BASIC_FORWARD);
-	if(renderSpellBool == true)
-		Renderer::getInstance()->renderSpell(this);
+	Renderer::getInstance()->renderSpell(this);
 }
 
 const uint64_t SpellEditor::getUniqueID()
