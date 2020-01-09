@@ -27,6 +27,7 @@ private:
 	CEGUI::PushButton* m_quitSpellEditorBtn;
 	
 	CEGUI::PushButton* m_startLevelEditorBtn;
+	CEGUI::PushButton* m_settingBtn;
 	HudHandler m_hudHandler; //Basic HUD objects
 
 private:
@@ -36,6 +37,7 @@ private:
 	bool onExitClicked(const CEGUI::EventArgs& e);
 	bool onStartSpellEditor(const CEGUI::EventArgs& e);
 	bool onLevelEditClicked(const CEGUI::EventArgs& e);
+	bool onSettingClicked(const CEGUI::EventArgs& e);
 };
 
 

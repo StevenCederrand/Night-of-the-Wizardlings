@@ -88,6 +88,7 @@ private:
 	GUIText* m_numberOfPlayersReadyText;
 	GUIText* m_killNotification;
 	GUIText* m_memoryText;
+	GUIText* m_fpsText;
 	float startY;
 
 	ParticleBuffers* deathBuffer;
@@ -95,7 +96,7 @@ private:
 
 	bool onMainMenuClick(const CEGUI::EventArgs& e);
 	bool onQuitClick(const CEGUI::EventArgs& e);
-	
+
 	void HUDHandler();
 	void GUIHandler();
 	void GUILoadScoreboard();

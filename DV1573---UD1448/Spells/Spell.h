@@ -1,7 +1,6 @@
 #pragma once
 #include <Pch/Pch.h>
 #include <GameObject/GameObject.h>
-#include "Spells.h"
 
 class Spell : public GameObject
 {

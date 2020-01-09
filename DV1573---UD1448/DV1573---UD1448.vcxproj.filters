@@ -83,6 +83,7 @@
     <ClCompile Include="SpellLoader\spellLoader.cpp" />
     <ClCompile Include="States\SpellCreatorState.cpp" />
     <ClCompile Include="Spells\SpellEditor.cpp" />
+    <ClCompile Include="States\SettingState.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameObject\AnimatedObject.h" />
@@ -124,7 +125,6 @@
     <ClInclude Include="Renderer\SkyBox.h" />
     <ClInclude Include="Mesh\SkeletonMap.h" />
     <ClInclude Include="Spells\SpellHandler.h" />
-    <ClInclude Include="Spells\Spells.h" />
     <ClInclude Include="States\FindServerState.h" />
     <ClInclude Include="States\LobbyState.h" />
     <ClInclude Include="States\MenuState.h" />
@@ -200,6 +200,10 @@
     <ClInclude Include="SpellLoader\spellLoader.h" />
     <ClInclude Include="States\SpellCreatorState.h" />
     <ClInclude Include="Spells\SpellEditor.h" />
+    <ClInclude Include="States\SettingState.h" />
+    <ClInclude Include="System\Framerate.h" />
+    <ClInclude Include="Gui\NoLogger.h" />
+    <ClInclude Include="Spells\SpellFormat.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

@@ -5,12 +5,8 @@ AOEAttack::AOEAttack(glm::vec3 pos, glm::vec3 direction, const SpellBase* spellB
 	: Spell(pos, direction, spellBase)
 {
 	m_type = OBJECT_TYPE::FLAMESTRIKE;
+
 	setTravelTime(spellBase->m_lifeTime);
-
-	//Transform tempTransform;
-	//tempTransform.scale = glm::vec3(0.2f, 0.2f, 0.2f);
-	//setTransform(tempTransform);
-
 	setWorldPosition(pos);
 	setDirection(direction);
 }
@@ -20,9 +16,6 @@ AOEAttack::AOEAttack(glm::vec3 pos)
 {
 	m_type = OBJECT_TYPE::FLAMESTRIKE;
 
-	//Transform tempTransform;
-	//tempTransform.scale = glm::vec3(0.2f, 0.2f, 0.2f);
-	//setTransform(tempTransform);
 	setWorldPosition(pos);
 }
 

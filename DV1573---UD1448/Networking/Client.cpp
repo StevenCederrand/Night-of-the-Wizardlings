@@ -78,10 +78,12 @@ void Client::connectToAnotherServer(const ServerInfo& server, bool spectatorMode
 	m_shutdownThread = false;
 	m_isConnectedToAnServer = false;
 	m_serverOwner = false;
-	m_spectating = spectatorMode;
-
+	m_spectating = spectatorMode;	
+	
 	bool status = m_clientPeer->Connect(server.serverAddress.ToString(false), server.serverAddress.GetPort(), 0, 0, 0) == RakNet::CONNECTION_ATTEMPT_STARTED;
+	//bool status = m_clientPeer->Connect(server.serverAddress.ToString(false), 42405, 0, 0, 0) == RakNet::CONNECTION_ATTEMPT_STARTED;
 	assert((status == true, "[Client] Client connecting to {0} failed!", server.serverName));
+	
 
 	if (m_processThread.joinable()) {
 		m_processThread.join();		
@@ -756,6 +758,7 @@ void Client::processAndHandlePackets()
 			playerPacket.Serialize(false, bsIn);
 			m_myPlayerDataPacket.numberOfDeaths = playerPacket.numberOfDeaths;
 			m_myPlayerDataPacket.numberOfKills = playerPacket.numberOfKills;
+			m_myPlayerDataPacket.numberOfDamage = playerPacket.numberOfDamage;
 		}
 
 		break;
@@ -1774,6 +1777,7 @@ void Client::resetPlayerData()
 	m_myPlayerDataPacket.inDeflectState = false;
 	m_myPlayerDataPacket.numberOfDeaths = 0;
 	m_myPlayerDataPacket.numberOfKills = 0;
+	m_myPlayerDataPacket.numberOfDamage = 0;
 	m_myPlayerDataPacket.hasBeenUpdatedOnce = false;
 	char t[16] = { ' ' };
 	memcpy(m_myPlayerDataPacket.userName, t, sizeof(m_myPlayerDataPacket.userName));

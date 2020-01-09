@@ -32,7 +32,7 @@ void HudHandler::loadPlayStateHUD() {
 	
 	if (Client::getInstance()->isSpectating()) return;
 	
-	// HUD
+	//// HUD
 	HudObject* hudObject = new HudObject("Assets/Textures/HUD/Crosshair_Hp2.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2) - 3, static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(50.0f, 50.0f));
 	hudObject->setAlpha(0.7f);
 	insertHUDObject(hudObject, HUDID::CROSSHAIR_HP);
@@ -63,10 +63,8 @@ void HudHandler::loadPlayStateHUD() {
 
 	
 
-
 	
-
-	hudObject = new HudObject("Assets/Textures/hud/PickupOverlayMana.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(static_cast<float>(SCREEN_WIDTH), (static_cast<float>(SCREEN_HEIGHT))));
+	/*hudObject = new HudObject("Assets/Textures/hud/PickupOverlayMana.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(static_cast<float>(SCREEN_WIDTH), (static_cast<float>(SCREEN_HEIGHT))));
 	hudObject->setAlpha(0.0f);
 	insertHUDObject(hudObject, HUDID::MANA_OVERLAY);
 
@@ -76,7 +74,20 @@ void HudHandler::loadPlayStateHUD() {
 
 	hudObject = new HudObject("Assets/Textures/hud/PickupOverlayHP.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(static_cast<float>(SCREEN_WIDTH), (static_cast<float>(SCREEN_HEIGHT))));
 	hudObject->setAlpha(0.0f);
+	insertHUDObject(hudObject, HUDID::HEAL_OVERLAY);*/
+
+	hudObject = new HudObject("Assets/Textures/hud/PickupOverlayMana2.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(static_cast<float>(SCREEN_WIDTH), (static_cast<float>(SCREEN_HEIGHT))));
+	hudObject->setAlpha(0.0f);
+	insertHUDObject(hudObject, HUDID::MANA_OVERLAY);
+
+	hudObject = new HudObject("Assets/Textures/hud/DamageOverlay2.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(static_cast<float>(SCREEN_WIDTH), (static_cast<float>(SCREEN_HEIGHT))));
+	hudObject->setAlpha(0.0f);
+	insertHUDObject(hudObject, HUDID::DAMAGE_OVERLAY);
+
+	hudObject = new HudObject("Assets/Textures/hud/PickupOverlayHP2.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(SCREEN_HEIGHT / 2)), glm::vec2(static_cast<float>(SCREEN_WIDTH), (static_cast<float>(SCREEN_HEIGHT))));
+	hudObject->setAlpha(0.0f);
 	insertHUDObject(hudObject, HUDID::HEAL_OVERLAY);
+
 
 	//HP BAR
 	hudObject = new HudObject("Assets/Textures/hud/tmpHP.png", glm::vec2(static_cast<float>(SCREEN_WIDTH / 2), static_cast<float>(454 / 6)), glm::vec2(static_cast<float>(932 / 3), static_cast<float>(454 / 3)));

@@ -4,6 +4,7 @@
 #include "FindServerState.h"
 #include "PlayState.h"
 #include "LevelEditState.h"
+#include "SettingState.h"
 #include <System/StateManager.h>
 #include <System/MemoryUsage.h>
 
@@ -25,7 +26,7 @@ MenuState::~MenuState()
 
 void MenuState::update(float dt)
 {
-
+	
 }
 
 void MenuState::render()
@@ -43,6 +44,7 @@ void MenuState::loadGui()
 	m_startWithoutServerBtn->setText("Start offline");
 	m_startWithoutServerBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&MenuState::onStartOfflineClicked, this));*/
 
+
 	m_startServerBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.05f, 0.55f, 0.1f, 0.05f), glm::vec4(0.0f), "StartServerButton"));
 	m_startServerBtn->setText("Start Server");
 	m_startServerBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&MenuState::onStartServerClicked, this));
@@ -54,6 +56,9 @@ void MenuState::loadGui()
 	m_startLevelEditorBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.05f, 0.75f, 0.1f, 0.05f), glm::vec4(0.0f), "LevelEditor"));
 	m_startLevelEditorBtn->setText("LevelEditor");
 	m_startLevelEditorBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&MenuState::onLevelEditClicked, this));
+	m_settingBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.05f, 0.75f, 0.1f, 0.05f), glm::vec4(0.0f), "SettingButton"));
+	m_settingBtn->setText("Settings");
+	m_settingBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&MenuState::onSettingClicked, this));
 
 	m_quitBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.05f, 0.85f, 0.1f, 0.05f), glm::vec4(0.0f), "ExitButton"));
 	m_quitBtn->setText("Exit");
@@ -110,4 +115,10 @@ bool MenuState::onLevelEditClicked(const CEGUI::EventArgs& e)
 	Renderer::getInstance()->clear();
 	m_stateManager->clearAllAndSetState(new LevelEditState());
 	return true;
+}
+bool MenuState::onSettingClicked(const CEGUI::EventArgs& e)
+{
+	Renderer::getInstance()->clear();
+	m_stateManager->clearAllAndSetState(new SettingState());
+	return false;
 }

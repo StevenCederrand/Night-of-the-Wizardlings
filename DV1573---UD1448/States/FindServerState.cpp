@@ -40,6 +40,15 @@ void FindServerState::update(float dt)
 			m_usernameBox->setText(""); //Clear the text box upon selection
 		}
 	}
+
+	//We want to clear the ip box upon selection
+	if (m_ipTextOpen && m_ipInput->isActive() && !m_ipTextSelected) {
+		//Upon the selection frame
+		m_ipTextSelected = true;
+		if (m_ipTextSelected) {
+			m_ipInput->setText(""); //Clear the text box upon selection
+		}
+	}	
 }
 
 void FindServerState::render()
@@ -66,6 +75,7 @@ void FindServerState::loadGui()
 	m_joinServer->setText("Join");
 	m_joinServer->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&FindServerState::onJoinServerClicked, this));
 
+
 	//Refresh server list button
 	m_refreshServerList = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.45f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f), "RefreshServer"));
 	m_refreshServerList->setText("Refresh");
@@ -76,6 +86,11 @@ void FindServerState::loadGui()
 	m_spectateServer->setText("Spectate");
 	m_spectateServer->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&FindServerState::onSpectateServerClicked, this));
 
+	//Connect via IP button
+	m_connectViaIP = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.85f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f), "ConnectViaIP"));
+	m_connectViaIP->setText("Connect via IP");
+	m_connectViaIP->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&FindServerState::onConnectViaIPClicked, this));
+	
 	//The button to close the username input window
 	m_backToList = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.55f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f), "Close-username-input"));
 	m_backToList->setText("Return");
@@ -87,6 +102,12 @@ void FindServerState::loadGui()
 	m_usernameBox->setMaxTextLength(16);
 	m_usernameBox->setText("Enter Username...");
 	m_usernameBox->hide();	
+
+	//IP Adress input
+	m_ipInput = static_cast<CEGUI::Editbox*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Editbox", glm::vec4(0.425f, 0.55f, 0.15f, 0.05f), glm::vec4(0.0f), "IP-input"));
+	m_ipInput->setMaxTextLength(16);
+	m_ipInput->setText("Enter IP Adress...");
+	m_ipInput->hide();
 }
 
 void FindServerState::loadServersIntoList()
@@ -126,10 +147,46 @@ void FindServerState::usernameInput()
 		m_serverList->hide();
 		m_refreshServerList->hide();
 		m_spectateServer->hide();
+		m_ipInput->hide();
+		m_connectViaIP->hide();
+		m_joinServer->show();
 		m_usernameBox->show();
 		m_backToList->show();
 
 		m_inputTextOpen = true;
+	}	
+}
+
+void FindServerState::usernameInputAfterIP()
+{
+	//is write text open?
+	if (!m_inputTextOpen) {
+		m_serverList->hide();
+		m_refreshServerList->hide();
+		m_spectateServer->hide();
+		m_ipInput->hide();
+		m_connectViaIP->show();
+		m_joinServer->hide();
+		m_usernameBox->show();
+		m_backToList->show();
+
+		m_inputTextOpen = true;
+	}
+}
+
+void FindServerState::ipInput()
+{
+	if (!m_ipTextOpen) {
+		m_serverList->hide();
+		m_refreshServerList->hide();
+		m_spectateServer->hide();
+		m_usernameBox->hide();
+		m_joinServer->hide();
+		m_connectViaIP->show();
+		m_ipInput->show();
+		m_backToList->show();
+
+		m_ipTextOpen = true;
 	}
 }
 
@@ -161,7 +218,6 @@ bool FindServerState::onJoinServerClicked(const CEGUI::EventArgs& e)
 			Client::getInstance()->setUsername(m_usernameBox->getText().c_str());
 		}
 
-
 		while (!Client::getInstance()->isConnectedToSever())
 		{
 			if (Client::getInstance()->connectionFailed()) {
@@ -175,6 +231,41 @@ bool FindServerState::onJoinServerClicked(const CEGUI::EventArgs& e)
 		Renderer::getInstance()->clear();
 		m_stateManager->clearAllAndSetState(new PlayState(false));
 	}
+
+	return true;
+}
+
+bool FindServerState::onConnectViaIPClicked(const CEGUI::EventArgs& e)
+{	
+	Gui::getInstance()->setWidgetDestRect(m_connectViaIP, glm::vec4(0.35f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f));
+	ipInput();	
+	if (m_ipInput->getText() == "Enter IP Adress...") {
+		return false;
+	}
+	Gui::getInstance()->setWidgetDestRect(m_joinServer, glm::vec4(0.35f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f));
+	usernameInputAfterIP();
+	if (m_usernameBox->getText() == "Enter Username...") {
+		return false;
+	}	
+
+	ServerInfo serverInfo;
+	CEGUI::String AdressAndPort = m_ipInput->getText() + "|42405";	
+	serverInfo.serverAddress.FromString(AdressAndPort.c_str());
+	Client::getInstance()->connectToAnotherServer(serverInfo, false);
+	Client::getInstance()->setUsername(m_usernameBox->getText().c_str());
+
+	while (!Client::getInstance()->isConnectedToSever())
+	{
+		if (Client::getInstance()->connectionFailed()) {
+			std::printf("Server is full or in session!\n");
+			return true;
+		}
+	}
+	SoundHandler::getInstance()->stopSound(ThemeSong0);
+	SoundHandler::getInstance()->freeBuffer(ThemeSong0);
+	glfwSetInputMode(glfwGetCurrentContext(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	Renderer::getInstance()->clear();
+	m_stateManager->clearAllAndSetState(new PlayState(false));	
 
 	return true;
 }
@@ -226,16 +317,22 @@ bool FindServerState::onBackToListClicked(const CEGUI::EventArgs& e)
 {
 	//Hide the button and the username input
 	m_usernameBox->hide();
+	m_ipInput->hide();
 	m_backToList->hide();
 	//Open up the server list
 	m_serverList->show();
 	m_refreshServerList->show();
 	m_spectateServer->show();
+	m_connectViaIP->show();
+	m_joinServer->show();
 	m_inputTextOpen = false;
+	m_ipTextOpen = false;
 	Gui::getInstance()->setWidgetDestRect(m_joinServer, glm::vec4(0.25f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f));
-
+	Gui::getInstance()->setWidgetDestRect(m_connectViaIP, glm::vec4(0.85f, 0.70f, 0.1f, 0.05f), glm::vec4(0.0f));
 
 	m_usernameBox->setText("Enter Username...");
+	m_ipInput->setText("Enter IP Adress...");
 	m_inputTextSelected = false;
+	m_ipTextSelected = false;
 	return true;
 }

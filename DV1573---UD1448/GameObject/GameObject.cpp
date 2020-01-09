@@ -133,6 +133,42 @@ void GameObject::loadMesh(std::string fileName)
 			{
 				tempMaterial.texture = false;
 			}
+
+			//if (tempLoader.GetNormalMap(i) != "-1")
+			//{
+			//	std::string normalFile = TEXTUREPATH + tempLoader.GetNormalMap(i);
+			//	GLuint normalMap;
+			//	glGenTextures(1, &normalMap);
+			//	glBindTexture(GL_TEXTURE_2D, normalMap);
+			//	// set the texture wrapping/filtering options (on the currently bound texture object)
+			//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			//	// load and generate the texture
+			//	int width, height, nrChannels;
+			//	unsigned char* data = stbi_load(normalFile.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
+			//	if (data)
+			//	{
+			//		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+			//		glGenerateMipmap(GL_TEXTURE_2D);
+
+			//		tempMaterial.normalMap = true;
+			//		tempMaterial.normalMapID = normalMap;
+			//	}
+			//	else
+			//	{
+			//		std::cout << "Failed to load texture" << std::endl;
+			//	}
+			//	stbi_image_free(data);
+			//}
+			//else
+			//{
+			//	tempMaterial.normalMap = false;
+			//}
+
+			tempMaterial.normalMap = false;
+
 			//Get the material pointer so that we don't have to always search through the MatMap, when rendering
 			tempMeshBox.material = MaterialMap::getInstance()->createMaterial(materialName, tempMaterial);
  			logTrace("Material created: {0}", materialName);
@@ -275,7 +311,6 @@ void GameObject::setBodyWorldPosition(glm::vec3 worldPosition, int meshIndex)
 		m_meshes[meshIndex].body->setWorldTransform(newTransform);
 
 		updateBulletRigids();
-		updateTransform();
 	}
 }
 
@@ -462,10 +497,13 @@ void GameObject::makeStatic()
 
 			m_meshes[i].body->setUserPointer(this);
 		}
+
+		setTransformFromRigid(i);
 	}
 
 	m_transform.position = glm::vec3(0.0f);
 	m_transform.rotation = glm::quat();
+	updateBulletRigids();
 }
 
 void GameObject::createRigidBody(btRigidBody* body, int meshIndex)
@@ -556,8 +594,9 @@ void GameObject::setTransformFromRigid(int meshIndex)
 	t_transform.rotation.z = btRotation.getZ();
 	t_transform.rotation.w = btRotation.getW();
 
-	setMeshOffsetPosition(t_transform.position, meshIndex);
-	setMeshOffsetRotation(t_transform.rotation, meshIndex);
+	m_meshes[meshIndex].transform.position = t_transform.position;
+	m_meshes[meshIndex].transform.rotation = t_transform.rotation;
+	updateTransform();
 }
 
 void GameObject::addParticle(ParticleBuffers* particleBuffers)
@@ -600,6 +639,69 @@ void GameObject::UpdateTexture(TextureInfo txtInfo)
 	}
 }
 
+void GameObject::setNormalMap(const char* fileName)
+{
+	std::string normalFile = TEXTUREPATH + fileName;
+	GLuint normalMap;
+	glGenTextures(1, &normalMap);
+	glBindTexture(GL_TEXTURE_2D, normalMap);
+	// set the texture wrapping/filtering options (on the currently bound texture object)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// load and generate the texture
+	int width, height, nrChannels;
+	unsigned char* data = stbi_load(normalFile.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		for (int i = 0; i < m_meshes.size(); i++)
+		{
+			m_meshes.at(i).material->normalMap = true;
+			m_meshes.at(i).material->normalMapID = normalMap;
+		}		
+	}
+	else
+	{
+		std::cout << "Failed to load normal map texture" << std::endl;
+	}
+	stbi_image_free(data);
+}
+
+void GameObject::setTexture(const char* fileName)
+{
+	std::string albedoFile = TEXTUREPATH + fileName;
+	GLuint texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	// set the texture wrapping/filtering options (on the currently bound texture object)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// load and generate the texture
+	int width, height, nrChannels;
+	unsigned char* data = stbi_load(albedoFile.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		for (int i = 0; i < m_meshes.size(); i++)
+		{
+			m_meshes.at(i).material->texture = true;
+			m_meshes.at(i).material->textureID.push_back(texture);
+		}
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data);			
+}
 void GameObject::RenderParticles(Camera* camera)
 {
 	for (int i = 0; i < m_particleSystems.size(); i++)

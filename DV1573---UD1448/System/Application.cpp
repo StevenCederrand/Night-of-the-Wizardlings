@@ -20,6 +20,7 @@
 #define DISABLE_INPUT false; 
 
 float DeltaTime = 0.0f;
+unsigned int Framerate = 0;
 
 Application::Application() {
 }
@@ -27,6 +28,7 @@ Application::Application() {
 Application::~Application() {
 	delete m_input;
 	delete m_stateManager;
+	//delete m_noLog;
 	ShaderMap::getInstance()->destroy();
 	Renderer::getInstance()->destroy();
 	MaterialMap::getInstance()->destroy();
@@ -99,7 +101,8 @@ bool Application::init() {
 	}
 	
 	// Vsync
-	glfwSwapInterval(1); // Turning this off will cause occasionally freezes, so don't!
+	int VSync = GetPrivateProfileInt("DB_SETTINGS", "VSync", 1, "Assets/Settings/settings.ini");
+	glfwSwapInterval(VSync); // Turning this off will cause occasionally freezes, so don't!
 	
 #if DISABLE_INPUT
 	//m_input = new Input();
@@ -111,9 +114,10 @@ bool Application::init() {
 	initSound();
 
 
+	//m_noLog = new NoLogger();
 	Gui::getInstance()->init();
 	Gui::getInstance()->loadScheme(CEGUI_TYPE + ".scheme");
-	Gui::getInstance()->setFont("DejaVuSans-10");
+	Gui::getInstance()->setFont("DejaVuSans-10");	
 
 	m_stateManager = new StateManager();
 	//m_stateManager->pushState(new SpellCreatorState());
@@ -268,9 +272,7 @@ void Application::calcFPS(const float& dt)
 	if (frameTimer <= 0.0f)
 	{
 		frameTimer = 1.0f;
-		std::string title = "Wizards 'n stuff | FPS: " + std::to_string(fps);
-		//printf("%s\n",title.c_str());
-		glfwSetWindowTitle(m_window, title.c_str());
+		Framerate = fps;
 		fps = 0;
 	}
 

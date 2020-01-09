@@ -2,6 +2,7 @@
 #define PARTICLE_H
 
 #include <Pch/Pch.h>
+#include <Renderer/Camera.h>
 #include <streambuf>
 //#include <Particles/ParticleBuffers.h>
 

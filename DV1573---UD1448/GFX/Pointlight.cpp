@@ -7,13 +7,13 @@ Pointlight::Pointlight() : GameObject()
 	m_color = glm::vec3(1);
 }
 
-Pointlight::Pointlight(glm::vec3 position, glm::vec3 color) : GameObject("POINTLIGHT")
+Pointlight::Pointlight(const glm::vec3& position, const glm::vec3& color, const float& strength) : GameObject("POINTLIGHT")
 {
 	setWorldPosition(position);
 	m_color = color; 
 	m_type = OBJECT_TYPE::POINTLIGHT;
+	m_strength = strength;
 	setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 10)); //Default Attenation values
-
 }
 
 Pointlight::~Pointlight()
@@ -27,6 +27,16 @@ void Pointlight::setAttenuationAndRadius(const glm::vec4 attenAndRadius)
 
 void Pointlight::update(float dt) {
 
+}
+
+void Pointlight::setLightStrength(const float& strength)
+{
+	m_strength = strength;
+}
+
+const float& Pointlight::getStrength() const
+{
+	return m_strength;
 }
 
 const glm::vec4& Pointlight::getAttenuationAndRadius() const

@@ -185,21 +185,19 @@ btKinematicCharacterController* BulletPhysics::createCharacter(const glm::vec3& 
 	startTransform.setIdentity();
 	startTransform.setOrigin(btVector3(position.x, position.y, position.z));
 	m_ghostObject->setWorldTransform(startTransform);
-	
 
 	m_dynamicsWorld->getPairCache()->setInternalGhostPairCallback(m_ghostCallback);
 	m_ghostObject->setCollisionShape(m_playerShape);
 	m_ghostObject->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT);
 	m_character = new btKinematicCharacterController(m_ghostObject, m_playerShape, 1.0f, btVector3(0.0f, 1.0f, 0.0f));
 	m_dynamicsWorld->addCollisionObject(m_ghostObject, btBroadphaseProxy::CharacterFilter, btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter | NormalObjects | DestructableObjects);
-	
+
 
 	m_character->setMaxSlope(btRadians(80.0));
 	m_collisionShapes.push_back(m_playerShape);
 	m_dynamicsWorld->addAction(m_character);
 	m_character->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 	m_character->setMaxPenetrationDepth(0.1f);
-	
 
 	return m_character;
 }

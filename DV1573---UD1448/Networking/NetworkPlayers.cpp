@@ -80,6 +80,7 @@ void NetworkPlayers::update(const float& dt)
 		GameObject* g = p.gameobject;
 		if (p.data.inDeflectState && p.data.health > 0.0f)
 		{
+			shPtr->setSourcePosition(p.data.position, DeflectSound, p.data.guid);
 			GameObject* shieldObject = new EnemyShieldObject("enemyShield");
 			//logTrace(std::to_string(p.data.position.x) + " " + std::to_string(p.data.position.y) + " " + std::to_string(p.data.position.z));
 			shieldObject->loadMesh("EnemyShieldMesh.mesh");
@@ -93,8 +94,8 @@ void NetworkPlayers::update(const float& dt)
 			{
 				if (!p.wasDeflecting)
 				{
-					//kolla position uppdatering
-					shPtr->setSourcePosition(p.data.position, DeflectSound, p.data.guid);
+					p.deflectSoundGain = shPtr->getMasterVolume(); // Will automaticially be set relative to master sound
+					shPtr->setSourceGain(p.deflectSoundGain, DeflectSound, p.data.guid);					
 					shPtr->playSound(DeflectSound, p.data.guid);
 					p.wasDeflecting = true;
 				}
@@ -102,10 +103,10 @@ void NetworkPlayers::update(const float& dt)
 			//No mana
 			else
 			{
+				p.deflectSoundGain -= 3.0f * shPtr->getMasterVolume() * dt;
 				if (p.deflectSoundGain > 0.0f)
 				{
 					shPtr->setSourceGain(p.deflectSoundGain, DeflectSound, p.data.guid);
-					p.deflectSoundGain -= 2.0f * dt;
 				}
 				else
 				{
@@ -115,21 +116,19 @@ void NetworkPlayers::update(const float& dt)
 		}
 		else if (p.wasDeflecting)
 		{
+			p.deflectSoundGain -= 3.0f * shPtr->getMasterVolume() * dt;
 			if (p.deflectSoundGain > 0.0f)
 			{				
 				shPtr->setSourceGain(p.deflectSoundGain, DeflectSound, p.data.guid);
-				p.deflectSoundGain -= 2.0f * dt;
 			}
 			else
 			{
 				shPtr->stopSound(DeflectSound, p.data.guid);
-				p.deflectSoundGain = 0.4f;
+				p.deflectSoundGain = shPtr->getMasterVolume(); // Will automaticially be set relative to master sound
 				shPtr->setSourceGain(p.deflectSoundGain, DeflectSound, p.data.guid);
 				p.wasDeflecting = false;			
 			}
-		}
-
-		
+		}		
 
 		if (g != nullptr) {
 
@@ -158,6 +157,7 @@ void NetworkPlayers::update(const float& dt)
 					TextManager::TextBehaviour::StayForever);
 				p.nameplate->setToFaceCamera(true);
 				p.nameplate->setIgnoreDepthTest(false);
+				p.nameplate->setColor(glm::vec4(0.50f, 1.0f, 0.50f, 0.75f));
 				p.playerFlag == NetGlobals::THREAD_PLAYER_FLAG::AlreadyAdded;
 			}
 
@@ -169,10 +169,9 @@ void NetworkPlayers::update(const float& dt)
 			p.healthDisplay->setCenter(pos + glm::vec3(0.0f, p.data.meshHalfSize.y * 2.0f, 0.0f));
 			
 			if (p.nameplate != nullptr) {
-				p.nameplate->setPosition(pos + glm::vec3(0.0f, p.data.meshHalfSize.y * 2.20, 0.0f));
+				p.nameplate->setPosition(pos + glm::vec3(0.0f, p.data.meshHalfSize.y * 2.30, 0.0f));
 				float distance = glm::distance(p.nameplate->getPosition(), Client::getInstance()->getMyData().position);
-				p.nameplate->setScale(fminf(fmaxf(distance / 8.0f, 1.0f), 2.0f));
-
+				p.nameplate->setScale(fminf(fmaxf(distance / 8.0f, 1.0f), 1.25f));
 			}
 
 			Renderer::getInstance()->submitWorldHud(p.healthDisplay);

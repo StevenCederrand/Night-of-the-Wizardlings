@@ -61,6 +61,7 @@ private:
 	glm::vec3 m_spellSpawnPosition;
 	
 	glm::vec3 m_moveDir;
+	glm::vec3 m_oldMoveDir;
 	Camera* m_playerCamera;
 	bool m_logicStop;
 	SpellHandler* m_spellhandler;

@@ -11,9 +11,10 @@ AttackSpell::AttackSpell(glm::vec3 pos, glm::vec3 direction, const SpellBase* sp
 	setTravelTime(spellBase->m_lifeTime);
 
 	Transform tempTransform;
+	tempTransform.position = pos;
 	tempTransform.scale = glm::vec3(spellBase->m_radius, spellBase->m_radius, spellBase->m_radius);
+	
 	setTransform(tempTransform);
-	setWorldPosition(pos);
 	setDirection(direction);
 }
 
@@ -25,8 +26,10 @@ AttackSpell::AttackSpell(glm::vec3 pos, OBJECT_TYPE type)
 	Transform tempTransform;
 	//mySpellLoader.LoadProjectileSpell("normalSpell.spell");
 	//tempTransform.scale = glm::vec3(mySpellLoader.m_projectile.m_radius, mySpellLoader.m_projectile.m_radius, mySpellLoader.m_projectile.m_radius);
+	tempTransform.scale = glm::vec3(0.2f, 0.2f, 0.2f); // Hardcoded for networkd. Needs to change.
+	tempTransform.position = pos;
+
 	setTransform(tempTransform);
-	setWorldPosition(pos);
 }
 
 AttackSpell::~AttackSpell()
@@ -68,13 +71,11 @@ void AttackSpell::update(float deltaTime)
 		m_shouldAddBounce = true;
 	}
 
-	body->applyCentralImpulse(body->getLinearVelocity().normalized() * (1 + m_spellBase->m_acceleration * body->getMass() * deltaTime));
+	body->applyCentralImpulse(
+		body->getLinearVelocity().normalized() * (1.0f +
+			m_spellBase->m_acceleration * body->getMass() * deltaTime));
 	
-	glm::vec3 forceDirection = glm::vec3(
-		body->getLinearVelocity().getX(),
-		body->getLinearVelocity().getY(),
-		body->getLinearVelocity().getZ()
-	);
+	glm::vec3 forceDirection = glm::vec3(body->getLinearVelocity().getX(), body->getLinearVelocity().getY(), body->getLinearVelocity().getZ());
 	setDirection(forceDirection);
 	
 	setTransform(getRigidTransform());

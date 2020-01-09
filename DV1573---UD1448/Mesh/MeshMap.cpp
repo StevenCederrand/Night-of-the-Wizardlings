@@ -57,6 +57,13 @@ Mesh* MeshMap::createMesh(std::string name, Mesh mesh)
 	return newMesh;
 }
 
+void MeshMap::removeMesh(std::string name)
+{
+	m_meshMap[name]->Destroy();
+	delete m_meshMap[name];
+	m_meshMap.erase(name);
+}
+
 void MeshMap::destroy()
 {
 	cleanUp();

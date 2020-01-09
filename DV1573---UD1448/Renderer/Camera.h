@@ -53,6 +53,7 @@ private:
 	bool m_fpEnabled;
 	bool m_activeCamera;
 	int m_cameraControlSwitch;
+	bool m_lock = false;
 	glm::vec2 oldPosition;
 public:
 	Camera();

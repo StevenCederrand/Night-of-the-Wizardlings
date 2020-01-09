@@ -114,6 +114,7 @@
       <AdditionalIncludeDirectories>C:\Users\Nicolas Wallenskog\Documents\GitHub\DV1573---UD1448\dependencies\include\freetype;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -154,6 +155,7 @@
       <AdditionalIncludeDirectories>C:\Users\Nicolas Wallenskog\Documents\GitHub\DV1573---UD1448\dependencies\include\freetype;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -285,6 +287,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pch/Pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="States\SpellCreatorState.cpp" />
+    <ClCompile Include="States\SettingState.cpp" />
     <ClCompile Include="System\Application.cpp" />
     <ClCompile Include="System\BulletPhysics.cpp" />
     <ClCompile Include="System\Input.cpp" />
@@ -340,6 +343,7 @@
     <ClInclude Include="GameObject\DestructibleObject.h" />
     <ClInclude Include="GameObject\MapObject.h" />
     <ClInclude Include="GFX\Pointlight.h" />
+    <ClInclude Include="Gui\NoLogger.h" />
     <ClInclude Include="HUD\HudHandler.h" />
     <ClInclude Include="HUD\WorldHudObject.h" />
     <ClInclude Include="LevelEditor\MousePicker.h" />
@@ -414,16 +418,18 @@
     <ClInclude Include="Spells\SpellEditor.h" />
     <ClInclude Include="Spells\SpellHandler.h" />
     <ClInclude Include="GameObject\ObjectTypes.h" />
-    <ClInclude Include="Spells\Spells.h" />
+    <ClInclude Include="Spells\SpellFormat.h" />
     <ClInclude Include="States\FindServerState.h" />
     <ClInclude Include="States\LevelEditState.h" />
     <ClInclude Include="States\LobbyState.h" />
     <ClInclude Include="States\MenuState.h" />
     <ClInclude Include="States\PlayState.h" />
     <ClInclude Include="States\SpellCreatorState.h" />
+    <ClInclude Include="States\SettingState.h" />
     <ClInclude Include="System\Application.h" />
     <ClInclude Include="System\BulletPhysics.h" />
     <ClInclude Include="System\DeltaTime.h" />
+    <ClInclude Include="System\Framerate.h" />
     <ClInclude Include="System\Input.h" />
     <ClInclude Include="System\Lerp.h" />
     <ClInclude Include="System\Log.h" />

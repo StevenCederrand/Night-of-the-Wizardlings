@@ -17,6 +17,7 @@ uniform mat4 projMatrix;
 out vec2 f_UV;
 out vec3 f_normal;
 out vec4 f_position;
+out vec3 f_tangent;
 void main() {
 
     gl_Position  = vec4(position, 1.0f);
