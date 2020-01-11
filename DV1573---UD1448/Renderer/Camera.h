@@ -15,6 +15,10 @@ private:
 	void thirdPersonCamera();
 	void firstPersonCamera();
 
+	// Level Edit modes
+	void LE_freeCamera();
+	void LE_orbitCamera();
+
 	void lookForModeChange();
 	void resetMouseToMiddle();
 
@@ -48,10 +52,12 @@ private:
 	void updateThirdPersonMouseMovement();
 	bool m_fpEnabled;
 	bool m_activeCamera;
+	int m_cameraControlSwitch;
 	bool m_lock = false;
 	glm::vec2 oldPosition;
 public:
 	Camera();
+	Camera(glm::vec3 pos, float yaw, float pitch);
 	~Camera();
 
 	void fpsControls(const float& dt);
@@ -84,6 +90,7 @@ public:
 	const SpectatorMode& getSpectatorMode() const;
 
 	void update();
+	void updateLevelEd();
 	
 };
 

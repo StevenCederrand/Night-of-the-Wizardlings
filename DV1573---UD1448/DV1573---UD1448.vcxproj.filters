@@ -65,6 +65,8 @@
     <ClCompile Include="GameObject\EnemyShieldObject.cpp" />
     <ClCompile Include="System\MemoryUsage.cpp" />
     <ClCompile Include="HUD\WorldHudObject.cpp" />
+    <ClCompile Include="States\LevelEditState.cpp" />
+    <ClCompile Include="LevelEditor\MousePicker.cpp" />
     <ClCompile Include="BetterText\Metafile.cpp" />
     <ClCompile Include="BetterText\Line.cpp" />
     <ClCompile Include="BetterText\Word.cpp" />
@@ -74,6 +76,13 @@
     <ClCompile Include="System\UniqueIndex.cpp" />
     <ClCompile Include="Renderer\TextRenderer.cpp" />
     <ClCompile Include="BetterText\TextManager.cpp" />
+    <ClCompile Include="imgui\imgui.cpp" />
+    <ClCompile Include="imgui\imgui_demo.cpp" />
+    <ClCompile Include="imgui\imgui_draw.cpp" />
+    <ClCompile Include="imgui\imgui_impl_glfw_gl3.cpp" />
+    <ClCompile Include="SpellLoader\spellLoader.cpp" />
+    <ClCompile Include="States\SpellCreatorState.cpp" />
+    <ClCompile Include="Spells\SpellEditor.cpp" />
     <ClCompile Include="States\SettingState.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -116,7 +125,6 @@
     <ClInclude Include="Renderer\SkyBox.h" />
     <ClInclude Include="Mesh\SkeletonMap.h" />
     <ClInclude Include="Spells\SpellHandler.h" />
-    <ClInclude Include="Spells\Spells.h" />
     <ClInclude Include="States\FindServerState.h" />
     <ClInclude Include="States\LobbyState.h" />
     <ClInclude Include="States\MenuState.h" />
@@ -166,6 +174,8 @@
     <ClInclude Include="GameObject\EnemyShieldObject.h" />
     <ClInclude Include="System\MemoryUsage.h" />
     <ClInclude Include="HUD\WorldHudObject.h" />
+    <ClInclude Include="States\LevelEditState.h" />
+    <ClInclude Include="LevelEditor\MousePicker.h" />
     <ClInclude Include="BetterText\Character.h" />
     <ClInclude Include="BetterText\Metafile.h" />
     <ClInclude Include="BetterText\Line.h" />
@@ -177,8 +187,23 @@
     <ClInclude Include="System\UniqueIndex.h" />
     <ClInclude Include="Renderer\TextRenderer.h" />
     <ClInclude Include="BetterText\TextManager.h" />
+    <ClInclude Include="imgui\imconfig.h" />
+    <ClInclude Include="imgui\imfilebrowser.h" />
+    <ClInclude Include="imgui\imgui.h" />
+    <ClInclude Include="imgui\imgui_impl_glfw_gl3.h" />
+    <ClInclude Include="imgui\imgui_internal.h" />
+    <ClInclude Include="imgui\loaderFormat.h" />
+    <ClInclude Include="imgui\stb_rect_pack.h" />
+    <ClInclude Include="imgui\stb_textedit.h" />
+    <ClInclude Include="imgui\stb_truetype.h" />
+    <ClInclude Include="SpellLoader\loaderFormat.h" />
+    <ClInclude Include="SpellLoader\spellLoader.h" />
+    <ClInclude Include="States\SpellCreatorState.h" />
+    <ClInclude Include="Spells\SpellEditor.h" />
     <ClInclude Include="States\SettingState.h" />
     <ClInclude Include="System\Framerate.h" />
+    <ClInclude Include="Gui\NoLogger.h" />
+    <ClInclude Include="Spells\SpellFormat.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GameObject\GameObject.h" />

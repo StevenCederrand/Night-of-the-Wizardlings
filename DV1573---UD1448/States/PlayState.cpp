@@ -8,7 +8,7 @@
 #include <BetterText/TextManager.h>
 #define PLAYSECTION "PLAYSTATE"
 
-#define SHOW_MEMORY_INFO true
+#define SHOW_MEMORY_INFO false
 
 void logVec3(glm::vec3 vector) {
 	logTrace("Vector: ({0}, {1}, {2})", std::to_string(vector.x), std::to_string(vector.y), std::to_string(vector.z));
@@ -34,6 +34,7 @@ PlayState::PlayState(bool spectator)
 		GameObject* AnimationMesh = new WorldObject("AnimationMesh");
 		AnimationMesh->loadMesh("NyCharacter.mesh");
 		delete AnimationMesh;
+		mu.printBoth("After animationMesh:");
 
 
 		GameObject* fpsShield = new ShieldObject("PlayerShield");
@@ -43,12 +44,13 @@ PlayState::PlayState(bool spectator)
 		GameObject* enemyShield = new EnemyShieldObject("enemyShield");
 		enemyShield->loadMesh("EnemyShieldMesh.mesh");
 		delete enemyShield;
+		mu.printBoth("After fps shield and enemy shield");
 
 		m_spellHandler = new SpellHandler();
-		m_spellHandler->setOnHitCallback(std::bind(&PlayState::onSpellHit_callback, this));
 
 		m_player = new Player("Player", NetGlobals::PlayerFirstSpawnPoint, m_camera, m_spellHandler);
 		m_player->setHealth(NetGlobals::PlayerMaxHealth);
+		mu.printBoth("After player:");
 
 
 
@@ -56,15 +58,12 @@ PlayState::PlayState(bool spectator)
 		if (Client::getInstance()->isInitialized())
 			Client::getInstance()->assignSpellHandler(m_spellHandler);
 
-		mu.printBoth("After fps shield, enemy shield and animationMesh:");
-
 		m_hudHandler.loadPlayStateHUD();
-
 		mu.printBoth("After hud:");
+
 	}
 	else {
 		m_spellHandler = new SpellHandler();
-		m_spellHandler->setOnHitCallback(std::bind(&PlayState::onSpellHit_callback, this));
 		m_camera->setSpectatorMode(SpectatorMode::FreeCamera);
 	}
 
@@ -127,13 +126,13 @@ PlayState::PlayState(bool spectator)
 #endif
 	mu.printBoth("End of play state init:");
 
-	m_fpsText = TextManager::getInstance()->addDynamicText(
+	/*m_fpsText = TextManager::getInstance()->addDynamicText(
 		"fps: " + std::to_string(Framerate),
 		0.09f,
 		glm::vec3(-0.95f, -0.02f, 0.0f),
 		1.f,
 		TextManager::TextBehaviour::StayForever,
-		glm::vec3(0.0f, 0.0f, 0.0f), true);
+		glm::vec3(0.0f, 0.0f, 0.0f), true);*/
 
 
 }
@@ -147,7 +146,7 @@ void PlayState::loadMap()
 	{
 	case 0:
 		m_objects.push_back(new MapObject("Academy_Map"));
-		m_objects[m_objects.size() - 1]->loadMesh("Towermap/Academy_t.mesh");
+		m_objects[m_objects.size() - 1]->loadMesh("Academy_t.mesh");
 		renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
 		break;
 
@@ -223,60 +222,76 @@ void PlayState::loadDecor()
 	}
 }
 
-void PlayState::loadLights()
+void PlayState::loadLights()									
 {
+	// Light attenuation chart
+/*
+	7		1.0,	0.7,		1.8
+	13		1.0,	0.35,		0.44
+	20		1.0,	0.22,		0.20
+	32		1.0,	0.14,		0.07
+	50		1.0,	0.09,		0.032
+	65		1.0,	0.07,		0.017
+	100		1.0,	0.045,		0.0075
+	160		1.0,	0.027,		0.0028
+	200		1.0,	0.022,		0.0019
+	325		1.0,	0.014,		0.0007
+	600		1.0,	0.007,		0.0002
+	3250	1.0,	0.0014,		0.000007
+*/
+
 	Renderer* renderer = Renderer::getInstance();
 	switch (m_map)
 	{
 	case 0:
 		// Church
-		m_pointlights.emplace_back(new Pointlight(glm::vec3(49.0f, 15.0f, 2.0f), glm::vec3(0.3, 0.85, 1.0), 2.5f));
+		m_pointlights.emplace_back(new Pointlight(glm::vec3(49.0f, 15.0f, 2.0f), glm::vec3(0.3, 0.85, 1.0), 20.0f));
 		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.07f, 0.017f, 65.0f));
 
 		// Middle
-		m_pointlights.emplace_back(new Pointlight(glm::vec3(0.0f, 24.0f, 0.0f), glm::vec3(0.9, 0.17, 0.123), 8.8f));
+		m_pointlights.emplace_back(new Pointlight(glm::vec3(0.0f, 24.0f, 0.0f), glm::vec3(0.9, 0.17, 0.123), 30.0f));
 		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.14f, 0.07f, 47.0f));
 
 		// Court area
-		m_pointlights.emplace_back(new Pointlight(glm::vec3(-41.0f, 21.0f, 10.0f), glm::vec3(0.9, 0.2, 0.5), 2.5f));
+		m_pointlights.emplace_back(new Pointlight(glm::vec3(-41.0f, 21.0f, 10.0f), glm::vec3(0.9, 0.2, 0.5), 15.0f));
 		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.045f, 0.0075f, 100.0f));
 
 		// Back wall platforms M
-		m_pointlights.emplace_back(new Pointlight(glm::vec3(-2.0f, 19.0f, -31.0f), glm::vec3(0.98, 0.675, 0.084), 8.8f));
+		m_pointlights.emplace_back(new Pointlight(glm::vec3(-2.0f, 19.0f, -31.0f), glm::vec3(0.98, 0.675, 0.084), 40.0f));
 		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.14f, 0.11f, 47.0f));
 
 		// Back wall platforms R
-		m_pointlights.emplace_back(new Pointlight(glm::vec3(-31.0f, 17.0f, -37.0f), glm::vec3(0.98, 0.675, 0.084), 8.8f));
+		m_pointlights.emplace_back(new Pointlight(glm::vec3(-31.0f, 17.0f, -37.0f), glm::vec3(0.98, 0.675, 0.084), 40.0f));
 		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.14, 0.11f, 47.0f));
 
 		// Back wall platforms L
-		m_pointlights.emplace_back(new Pointlight(glm::vec3(29.0f, 19.0f, -37.0f), glm::vec3(0.98, 0.675, 0.084), 8.8f));
+		m_pointlights.emplace_back(new Pointlight(glm::vec3(29.0f, 19.0f, -37.0f), glm::vec3(0.98, 0.675, 0.084), 40.0f));
 		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.14f, 0.11f, 47.0f));
 
 		// Maze
-		m_pointlights.emplace_back(new Pointlight(glm::vec3(-100.0f, 13.0f, -4.0f), glm::vec3(0.9, 0.9, 1.0), 2.5f));
+		m_pointlights.emplace_back(new Pointlight(glm::vec3(-100.0f, 13.0f, -4.0f), glm::vec3(0.9, 0.9, 1.0), 20.0f));
 		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.09f, 0.032f, 64.0f));
 		break;
 
 	case 1:
 		// Light Middle
-		m_pointlights.emplace_back(new Pointlight(glm::vec3(0.0f, 20.0f, 0.0f), glm::vec3(1.0, 1.0, 1.0), 8.8f));
+		m_pointlights.emplace_back(new Pointlight(glm::vec3(0.0f, 20.0f, 0.0f), glm::vec3(1.0, 1.0, 1.0), 40.0f));
 		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.07f, 0.017f, 100.0f));
 
 		// Light Right Back
-		m_pointlights.emplace_back(new Pointlight(glm::vec3(50.0f, 20.0f, 50.0f), glm::vec3(1.0, 0.0, 1.0), 8.8f));
+		m_pointlights.emplace_back(new Pointlight(glm::vec3(50.0f, 20.0f, 50.0f), glm::vec3(1.0, 0.0, 1.0), 40.0f));
 		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.07f, 0.017f, 100.0f));
 
 		// Light Right Forward
-		m_pointlights.emplace_back(new Pointlight(glm::vec3(50.0f, 20.0f, -50.0f), glm::vec3(0.0, 1.0, 1.0), 8.8f));
+		m_pointlights.emplace_back(new Pointlight(glm::vec3(50.0f, 20.0f, -50.0f), glm::vec3(0.0, 1.0, 1.0), 40.0f));
 		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.07f, 0.017f, 100.0f));
 
 		// Light Left Back
-		m_pointlights.emplace_back(new Pointlight(glm::vec3(-50.0f, 20.0f, 50.0f), glm::vec3(0.0, 0.0, 1.0), 8.8f));
+		m_pointlights.emplace_back(new Pointlight(glm::vec3(-50.0f, 20.0f, 50.0f), glm::vec3(0.0, 0.0, 1.0), 40.0f));
 		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.07f, 0.017f, 100.0f));
 
 		// Light Left Forward
-		m_pointlights.emplace_back(new Pointlight(glm::vec3(-50.0f, 20.0f, -50.0f), glm::vec3(0.0, 1.0, 1.0), 8.8f));
+		m_pointlights.emplace_back(new Pointlight(glm::vec3(-50.0f, 20.0f, -50.0f), glm::vec3(0.0, 1.0, 1.0), 40.0f));
 		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.07f, 0.017f, 100.0f));
 		break;
 
@@ -295,15 +310,16 @@ void PlayState::loadLights()
 // Might change these Pepega constructors later if feeling cute
 void PlayState::loadDestructables()
 {
-	m_dstr = DstrGenerator();
-	m_dstr_alt1 = DstrGenerator();
 	Renderer* renderer = Renderer::getInstance();
 	BGLoader meshLoader; // The file loader
+	
+	m_dstr = DstrGenerator();
+	m_dstr_alt1 = DstrGenerator();
 
 	// Temporary variables to move later ---
 	// Debug Destructibles
-	int breakPoints = 11;
-	float breakRadius = 2.8f;
+	int breakPoints = 16;
+	float breakRadius = 1.1f;
 
 	/*float gravityOnImpact = 0.0f;
 	float timeToChange = 2.0f;
@@ -314,14 +330,12 @@ void PlayState::loadDestructables()
 	float gravityAfterTime = -8.0f; // Hover-up effect
 
 	// Temporary variables to move later ---
-	m_dstr.setBreakSettings(DSTR2, 11, 2.8f, gravityOnImpact);
-	m_dstr_alt1.setBreakSettings(DSTR1, 8, 3.4f, gravityOnImpact);
+	m_dstr.setBreakSettings(BASIC, breakPoints, breakRadius, gravityOnImpact);
+	m_dstr_alt1.setBreakSettings(PILLAR, breakPoints, 6.0f, gravityOnImpact);
 
 	switch (m_map)
 	{
 	case 0:
-
-
 		for (int i = (int)m_objects.size() - 1; i >= 0; i--)
 		{
 			if (m_objects[i]->getType() == DESTRUCTIBLE)
@@ -333,7 +347,7 @@ void PlayState::loadDestructables()
 		}
 
 		// Wall desctructibles
-		meshLoader.LoadMesh(MESHPATH + "Towermap/DSTRWalls.mesh");
+		meshLoader.LoadMesh(MESHPATH + "DSTRWalls.mesh");
 		for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
 		{
 			m_objects.emplace_back(new DestructibleObject(
@@ -373,7 +387,7 @@ void PlayState::loadDestructables()
 				meshLoader.GetMaterial(i),
 				meshLoader.GetAlbedo(i),
 				meshLoader.GetTransform(i),
-				0.25f
+				0.5f
 			);
 
 			m_objects.back()->makeStatic();
@@ -382,7 +396,7 @@ void PlayState::loadDestructables()
 		meshLoader.Unload();
 
 		// Pillar destructibles
-		meshLoader.LoadMesh(MESHPATH + "Towermap/DSTRPillars.mesh");
+		meshLoader.LoadMesh(MESHPATH + "DSTRPillars.mesh");
 		for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
 		{
 			m_objects.emplace_back(new DestructibleObject(
@@ -398,47 +412,26 @@ void PlayState::loadDestructables()
 				meshLoader.GetMaterial(i),
 				meshLoader.GetAlbedo(i),
 				meshLoader.GetTransform(i),
-				1.0f
+				1.6f
 			);
 
 			m_objects.back()->makeStatic();
 			Renderer::getInstance()->submit(m_objects.back(), STATIC);
 		}
 		meshLoader.Unload();
-
-		// CONCEPT
-		//// Outside walls destructibles
-		//meshLoader.LoadMesh(MESHPATH + "DSTROutsideWalls.mesh");
-		//for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
-		//{
-		//	m_objects.emplace_back(new DestructibleObject(&m_dstr, m_objects.size()));
-		//
-		//	static_cast<DestructibleObject*>(m_objects.back())->loadDestructible(
-		//		meshLoader.GetVertices(i),
-		//		meshLoader.GetMeshName(i),
-		//		meshLoader.GetMaterial(i),
-		//		meshLoader.GetAlbedo(i),
-		//		meshLoader.GetTransform(i),
-		//		1.6f
-		//	);
-		//
-		//	m_objects.back()->createRigidBody(CollisionObject::box, m_bPhysics);
-		//	Renderer::getInstance()->submit(m_objects.back(), STATIC);
-		//}
-		//meshLoader.Unload();
 		break;
 
 		case 1:
 			// Debug Destructibles
-			breakPoints = 11;
-			breakRadius = 2.8f;
+			// Temporary variables to move later ---
+			breakPoints = 20;
+			breakRadius = 10.0f;
 
 			gravityOnImpact = 30.0f;
 			timeToChange = 2.5f;
-			gravityAfterTime = 30.0f; // Hover-up effect
+			gravityAfterTime = 30.0f; 
 
-			// Temporary variables to move later ---
-			m_dstr.setBreakSettings(DSTR2, breakPoints, breakRadius, gravityOnImpact);
+			m_dstr.setBreakSettings(PILLAR, breakPoints, breakRadius, gravityOnImpact);
 
 			meshLoader.LoadMesh(MESHPATH + "Debug_DSTR.mesh");
 			for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
@@ -455,7 +448,29 @@ void PlayState::loadDestructables()
 					meshLoader.GetMaterial(i),
 					meshLoader.GetAlbedo(i),
 					meshLoader.GetTransform(i),
-					0.15f
+					0.3f
+				);
+
+				m_objects.back()->makeStatic();
+				Renderer::getInstance()->submit(m_objects.back(), STATIC);
+			}
+
+			meshLoader.LoadMesh(MESHPATH + "Debug_DSTR_pillar.mesh");
+			for (int i = 0; i < (int)meshLoader.GetMeshCount(); i++)
+			{
+				m_objects.emplace_back(new DestructibleObject(
+					&m_dstr,
+					m_objects.size(),
+					gravityAfterTime,
+					timeToChange));
+
+				static_cast<DestructibleObject*>(m_objects.back())->loadDestructible(
+					meshLoader.GetVertices(i),
+					meshLoader.GetMeshName(i),
+					meshLoader.GetMaterial(i),
+					meshLoader.GetAlbedo(i),
+					meshLoader.GetTransform(i),
+					1.5f
 				);
 
 				m_objects.back()->makeStatic();
@@ -541,7 +556,7 @@ void PlayState::update(float dt)
 	fpsTimer += DeltaTime;
 	if (fpsTimer >= 1.0f) {
 		fpsTimer = 0.0f;
-		m_fpsText->changeText("fps: " + std::to_string(Framerate));
+		//m_fpsText->changeText("fps: " + std::to_string(Framerate));
 	}
 
 	TextManager::getInstance()->update();
@@ -565,11 +580,6 @@ void PlayState::removeDeadObjects()
 			}
 		}
 	}
-}
-
-void PlayState::onSpellHit_callback()
-{
-
 }
 
 void PlayState::update_isPlaying(const float& dt)
@@ -1312,10 +1322,35 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 {
 	SoundHandler* shPtr = SoundHandler::getInstance();
 	auto* clientPtr = Client::getInstance();
-	GameObject* sp1 = static_cast<GameObject*>(obj1->getCollisionObject()->getUserPointer());
-	GameObject* sp2 = static_cast<GameObject*>(obj2->getCollisionObject()->getUserPointer());
-	if (!sp1 || !sp2)
-		return false;	
+
+	std::string name;
+	std::string name2;
+
+	// If more collision cases are added these need to be filtered and sorted better
+	// Avoid casting wrong types, it will crash
+	Player* ply = nullptr;
+	GameObject* sp1 = nullptr;
+	GameObject* sp2 = nullptr;
+	if (obj1->getCollisionObject()->getUserIndex() == 545)
+	{
+		ply	= static_cast<Player*>(obj1->getCollisionObject()->getUserPointer());
+		sp2 = static_cast<GameObject*>(obj2->getCollisionObject()->getUserPointer());
+		name = ply->getName();
+	}
+	else if (obj2->getCollisionObject()->getUserIndex() == 545)
+	{
+		sp1 = static_cast<GameObject*>(obj1->getCollisionObject()->getUserPointer());
+		ply	= static_cast<Player*>(obj2->getCollisionObject()->getUserPointer());
+		name2 = ply->getName();
+	}
+	else
+	{
+		sp1 = static_cast<GameObject*>(obj1->getCollisionObject()->getUserPointer());
+		sp2 = static_cast<GameObject*>(obj2->getCollisionObject()->getUserPointer());
+
+		if (!sp1 || !sp2)
+			return false;	
+	}
 
 	DestructibleObject* dstrObj = nullptr;
 	Spell* spellObj = nullptr;
@@ -1323,44 +1358,50 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 
 	btVector3 hitpoint;
 
-	switch (sp1->getType())
+	if (sp1)
 	{
-	case (DESTRUCTIBLE):
-		dstrObj = static_cast<DestructibleObject*>(sp1);
-		hitpoint = cp.m_localPointA;
-		break;
+		switch (sp1->getType())
+		{
+		case (DESTRUCTIBLE):
+			dstrObj = static_cast<DestructibleObject*>(sp1);
+			hitpoint = cp.m_localPointA;
+			break;
 
-	case (NORMALATTACK):
-		spellObj = static_cast<Spell*>(sp1);
-		break;
+		case (NORMALATTACK):
+			spellObj = static_cast<Spell*>(sp1);
+			break;
 
-	case (ENHANCEATTACK):
-		spellObj = static_cast<Spell*>(sp1);
-		break;
+		case (ENHANCEATTACK):
+			spellObj = static_cast<Spell*>(sp1);
+			break;
 
-	case (FLAMESTRIKE):
-		spellObj = static_cast<Spell*>(sp1);
-		break;
+		case (FLAMESTRIKE):
+			spellObj = static_cast<Spell*>(sp1);
+			break;
+		}
 	}
 
-	switch (sp2->getType())
+	if (sp2)
 	{
-	case (DESTRUCTIBLE):
-		dstrObj = static_cast<DestructibleObject*>(sp2);
-		hitpoint = cp.m_localPointB;
-		break;
+		switch (sp2->getType())
+		{
+		case (DESTRUCTIBLE):
+			dstrObj = static_cast<DestructibleObject*>(sp2);
+			hitpoint = cp.m_localPointB;
+			break;
 
-	case (NORMALATTACK):
-		spellObj = static_cast<Spell*>(sp2);
-		break;
+		case (NORMALATTACK):
+			spellObj = static_cast<Spell*>(sp2);
+			break;
 
-	case (ENHANCEATTACK):
-		spellObj = static_cast<Spell*>(sp2);
-		break;
+		case (ENHANCEATTACK):
+			spellObj = static_cast<Spell*>(sp2);
+			break;
 
-	case (FLAMESTRIKE):
-		spellObj = static_cast<Spell*>(sp2);
-		break;
+		case (FLAMESTRIKE):
+			spellObj = static_cast<Spell*>(sp2);
+			break;
+		}
 	}
 
 	if (spellObj)
@@ -1386,10 +1427,6 @@ bool PlayState::callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper
 				float rndZ = rand() % 2000 + 1 - 1000; rndZ /= 1000;
 				spellObj->getRigidBody()->setLinearVelocity(btVector3(rndX, rndY, rndZ) * 35);
 			}
-
-
-			//if (spellObj->getType() != FLAMESTRIKE)
-			//	spellObj->setTravelTime(0.0f);
 
 			// Network packet
 			DestructionPacket dstrPacket;

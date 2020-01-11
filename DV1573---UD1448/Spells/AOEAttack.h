@@ -13,24 +13,22 @@ public:
 	~AOEAttack();
 
 	// Virtual functions
-	virtual const bool& getHasCollided() const;	//TODO: Construct this function
-	virtual void hasCollided();					//TODO: Construct this function
+	virtual const bool& getHasCollided() const;
+	virtual void hasCollided();
 	virtual void update(float dt);
 	virtual const float getDamage();
+	void updateTool(float radius, float speed, float dt);
 
 	bool spellOnGround();
 	void setSpellBool(bool state);
 
 
 private:
-
-	//Transform transform1;
 	glm::vec3 gravityVector = glm::vec3(0,-1,0);
 	glm::vec3 newVer = glm::vec3(0, 0, 0);
 	glm::vec3 tempVer = glm::vec3(0, 0, 0);
 	glm::vec3 radiusVector = glm::vec3(0, 0, 0);
 
-	fire *tempFire;
 	float fireIsGone;
 	bool loadFire = true;
 	bool test123 = false;

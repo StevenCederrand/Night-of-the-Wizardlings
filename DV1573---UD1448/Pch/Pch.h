@@ -1,6 +1,7 @@
 #ifndef _PCH_H
 #define _PCH_H
 
+
 #include <System/DeltaTime.h>
 #include <System/Framerate.h>
 #include "Bullet/btBulletDynamicsCommon.h"
@@ -26,6 +27,8 @@
 
 #include <d3d11_4.h>
 #include <dxgi1_6.h>
+
+
 
 #pragma comment(lib, "dxgi.lib")
 
@@ -65,6 +68,7 @@
 
 
 //Custom
+#include <Spells/SpellFormat.h>
 #include <HUD/HudTextureMap.h>
 #include <Mesh/MeshFormat.h>
 #include <Mesh/Mesh.h>
@@ -86,6 +90,14 @@
 #include <Destruction/VoroniCalculator.h>
 #include <Destruction/VoroniClipper.h>
 #include <Destruction/DstrGenerator.h>
+
+// ImGui
+//#include <imgui/imgui.h>
+//#include <imgui/imgui_impl_glfw_gl3.h>
+//#include <stdio.h>
+//#include <GL/glew.h> 
+//#include <GLFW/glfw3.h>
+//#include <imgui/imfilebrowser.h>
 
 
 const std::string CEGUI_TYPE = "OgreTray";

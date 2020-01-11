@@ -3,6 +3,7 @@
 #include <Pch/Pch.h>
 #include "Input.h"
 #include "StateManager.h"
+#include <Gui/NoLogger.h>
 
 class Application {
 
@@ -23,6 +24,8 @@ private:
 	Input* m_input;
 	StateManager* m_stateManager;	
 	bool initialFrame;
+	bool deleteImgui = true;
+	//NoLogger* m_noLog;
 };
 
 

@@ -2,12 +2,23 @@
 #include "Application.h"
 #include "States/PlayState.h"
 #include "States/MenuState.h"
+#include <States/LevelEditState.h>
 #include <Networking/Client.h>
 #include <Networking/LocalServer.h>
 #include <Gui/Gui.h>
 #include <System/MemoryUsage.h>
+#include <States/SpellCreatorState.h>
+
+
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw_gl3.h>
+#include <imgui/imfilebrowser.h>
+
+
 #define AUTOSTART false;
 #define FULLSCREEN false;
+#define DISABLE_INPUT false; 
+
 float DeltaTime = 0.0f;
 unsigned int Framerate = 0;
 
@@ -17,6 +28,7 @@ Application::Application() {
 Application::~Application() {
 	delete m_input;
 	delete m_stateManager;
+	//delete m_noLog;
 	ShaderMap::getInstance()->destroy();
 	Renderer::getInstance()->destroy();
 	MaterialMap::getInstance()->destroy();
@@ -33,6 +45,10 @@ Application::~Application() {
 
 	Gui::getInstance()->destroy();
 	SoundHandler::getInstance()->destroy();
+	if (deleteImgui)
+	{
+		ImGui::DestroyContext();
+	}
 
 	glfwTerminate();
 
@@ -57,6 +73,7 @@ bool Application::init() {
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
+
 #if FULLSCREEN
 	m_window = glfwCreateWindow(1280, 720, "Night of the Wizardlings", glfwGetPrimaryMonitor(), NULL);// !!! FULLSCREEN!!!
 #else 
@@ -75,6 +92,10 @@ bool Application::init() {
 
 	// Opengl context
 	glfwMakeContextCurrent(m_window);
+	//-----Set up IMGUI-----//
+	ImGui::CreateContext();
+	ImGui_ImplGlfwGL3_Init(glfwGetCurrentContext(), true);
+	ImGui::StyleColorsDark();
 
 	GLenum status = glewInit();
 
@@ -87,26 +108,33 @@ bool Application::init() {
 	int VSync = GetPrivateProfileInt("DB_SETTINGS", "VSync", 1, "Assets/Settings/settings.ini");
 	glfwSwapInterval(VSync); // Turning this off will cause occasionally freezes, so don't!
 	
+#if DISABLE_INPUT
+	//m_input = new Input();
+#else
 	m_input = new Input();
 
+#endif
 	initGraphics();
 	initSound();
 
+
+	//m_noLog = new NoLogger();
 	Gui::getInstance()->init();
 	Gui::getInstance()->loadScheme(CEGUI_TYPE + ".scheme");
-	Gui::getInstance()->setFont("DejaVuSans-10");
+	Gui::getInstance()->setFont("DejaVuSans-10");	
 
 	m_stateManager = new StateManager();
+	//m_stateManager->pushState(new SpellCreatorState());
 
 #if AUTOSTART
-	m_stateManager->pushState(new PlayState(false));
+	m_stateManager->pushState(new SpellCreatorState());
 #else 
 	m_stateManager->pushState(new MenuState());	
 #endif
 
 	SoundHandler* shPtr = SoundHandler::getInstance();	
-	//shPtr->playSound(ThemeSong0);
-	//shPtr->setSourceLooping(true, ThemeSong0);
+	shPtr->playSound(ThemeSong0);
+	shPtr->setSourceLooping(true, ThemeSong0);
 
 	unsigned int _time = unsigned int(time(NULL));
 	srand(_time);
@@ -130,7 +158,14 @@ void Application::run()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
+
+		#if DISABLE_INPUT
+		//m_input->clearKeys();
+		#else
 		m_input->clearKeys();
+
+		#endif
+		
 		glfwPollEvents();
 
 		// Quick way to close the app
@@ -162,14 +197,25 @@ void Application::run()
 		currentTime += DeltaTime;
 		
 		calcFPS(DeltaTime);
-		
+	
 		m_stateManager->update(DeltaTime);
 		Gui::getInstance()->update(DeltaTime);
-		
+
 		m_stateManager->render();
+		
+		if (m_stateManager->getImGuiState())
+		{
+
+			ImGui_ImplGlfwGL3_NewFrame();
+			m_stateManager->getGuiInfo();
+			ImGui::Render();
+			ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
+			deleteImgui = false;
+		}
+
+
 		glActiveTexture(GL_TEXTURE0);
 		Gui::getInstance()->draw();
-
 
 		glfwSwapBuffers(m_window);
 	}

@@ -11,9 +11,10 @@ AttackSpell::AttackSpell(glm::vec3 pos, glm::vec3 direction, const SpellBase* sp
 	setTravelTime(spellBase->m_lifeTime);
 
 	Transform tempTransform;
+	tempTransform.position = pos;
 	tempTransform.scale = glm::vec3(spellBase->m_radius, spellBase->m_radius, spellBase->m_radius);
+	
 	setTransform(tempTransform);
-	setWorldPosition(pos);
 	setDirection(direction);
 }
 
@@ -23,9 +24,12 @@ AttackSpell::AttackSpell(glm::vec3 pos, OBJECT_TYPE type)
 	m_type = type;
 
 	Transform tempTransform;
-	tempTransform.scale = glm::vec3(0.2f, 0.2f, 0.2f);
+	mySpellLoader.LoadSpell("normalSpell.spell", NORMALATTACK);
+	tempTransform.scale = glm::vec3(mySpellLoader.m_projectile.radius, mySpellLoader.m_projectile.radius, mySpellLoader.m_projectile.radius);
+	//tempTransform.scale = glm::vec3(0.2f, 0.2f, 0.2f); // Hardcoded for networkd. Needs to change.
+	tempTransform.position = pos;
+
 	setTransform(tempTransform);
-	setWorldPosition(pos);
 }
 
 AttackSpell::~AttackSpell()
@@ -67,13 +71,11 @@ void AttackSpell::update(float deltaTime)
 		m_shouldAddBounce = true;
 	}
 
-	body->applyCentralImpulse(body->getLinearVelocity().normalized() * (1 + m_spellBase->m_acceleration * body->getMass() * deltaTime));
+	body->applyCentralImpulse(
+		body->getLinearVelocity().normalized() * (1.0f +
+			m_spellBase->m_acceleration * body->getMass() * deltaTime));
 	
-	glm::vec3 forceDirection = glm::vec3(
-		body->getLinearVelocity().getX(),
-		body->getLinearVelocity().getY(),
-		body->getLinearVelocity().getZ()
-	);
+	glm::vec3 forceDirection = glm::vec3(body->getLinearVelocity().getX(), body->getLinearVelocity().getY(), body->getLinearVelocity().getZ());
 	setDirection(forceDirection);
 	
 	setTransform(getRigidTransform());
@@ -87,4 +89,21 @@ const float AttackSpell::getDamage()
 const glm::vec3& AttackSpell::getPos() const
 {
 	return glm::vec3(0);
+}
+
+void AttackSpell::updateTool(float radius, float speed, float dt)
+{
+	updateScale = radius;
+	updateSpeed += speed * dt;
+	tempTransformTest.rotation = glm::vec3(0, 0, 0);
+	if (tempTransformTest.position.x > 10)
+	{
+		tempTransformTest.position = glm::vec3(-2, 3, -10);
+		updateSpeed = -2;
+	}
+	else
+		tempTransformTest.position = glm::vec3(updateSpeed, 3, -10);
+
+	tempTransformTest.scale = glm::vec3(m_spellBase->m_radius + updateScale, m_spellBase->m_radius + updateScale, m_spellBase->m_radius + updateScale);
+	setTransform(tempTransformTest);
 }

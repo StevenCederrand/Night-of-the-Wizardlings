@@ -19,7 +19,7 @@
 #define V_BLUR "VerticalBlur"
 #define H_BLUR "HorizontalBlur"
 //Rendering Options 
-#define FORWARDPLUS true;
+#define FORWARDPLUS false;
 #define SSAO false; 
 #define N_BLUR false; //Use naive blur?
 
@@ -48,6 +48,7 @@
 #include <GFX/Pointlight.h>
 #include <Particles/Particles.h>
 #include <Particles/ParticleBuffers.h>
+#include <Spells/SpellEditor.h>
 #pragma endregion
 
 #include <System/MemoryUsage.h>
@@ -101,6 +102,7 @@ private:
 	SkyBox* m_skyBox;
 	Timer m_timer;
 	SpellHandler* m_spellHandler;
+	SpellEditor* m_spellEditor;
 
 	
 
@@ -185,6 +187,7 @@ public:
 	void submitWorldHud(WorldHudObject* wHud);
 	void submitSkybox(SkyBox* skybox);
 	void submitSpellhandler(SpellHandler* spellhandler);
+	void submitSpellEditor(SpellEditor* SpellEditor);
 	void removeRenderObject(GameObject* gameObject, RENDER_TYPE objType); //Remove an object from the dynamic array
 	void renderSkybox();
 	void render();
@@ -198,6 +201,8 @@ public:
 	unsigned int getTextWidth(const std::string& text, const glm::vec3& scale);
 
 	void renderSpell(SpellHandler* spellHandler);
+	void renderSpell(SpellEditor* SpellEditor);
+
 	Camera* getMainCamera() const;
 
 	void initializeParticle();

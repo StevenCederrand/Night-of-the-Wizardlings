@@ -39,6 +39,8 @@ public:
 	
 	void addParticle(ParticleBuffers* particleBuffers);
 	void UpdateParticles(float dt);
+	void UpdateParticles(float dt, PSinfo psInfo);
+	void UpdateTexture(TextureInfo txtInfo);
 	void RenderParticles(Camera *camera);
 	void RemoveParticle();
 	bool ShouldDie();
@@ -56,11 +58,12 @@ public:
 	void setShouldRender(bool condition);
 	void setMaterial(Material* material, int meshIndex = 0);
 
+
 	//Get functions
 	Mesh* getMesh(const int& meshIndex = 0); //Get a mesh from the meshbox
 	Material* getMaterial(const int& meshIndex = 0); //Get a material from the meshbox
 
-	const Transform getTransform(int meshIndex) const;
+	const Transform getTransform(int meshIndex = 0) const;
 	const Transform getObjectTransform() const;
 	const Transform getLocalTransform(int meshIndex = 0) const;
 	const Transform getRigidTransform(int meshIndex = 0) const;

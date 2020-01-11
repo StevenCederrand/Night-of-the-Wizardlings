@@ -112,6 +112,8 @@
       <PrecompiledHeaderFile>Pch/Pch.h</PrecompiledHeaderFile>
       <PreprocessToFile>false</PreprocessToFile>
       <AdditionalIncludeDirectories>C:\Users\Nicolas Wallenskog\Documents\GitHub\DV1573---UD1448\dependencies\include\freetype;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
@@ -151,6 +153,8 @@
       <PrecompiledHeaderFile>Pch/Pch.h</PrecompiledHeaderFile>
       <PreprocessToFile>false</PreprocessToFile>
       <AdditionalIncludeDirectories>C:\Users\Nicolas Wallenskog\Documents\GitHub\DV1573---UD1448\dependencies\include\freetype;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
@@ -205,6 +209,11 @@
     <ClCompile Include="GFX\Pointlight.cpp" />
     <ClCompile Include="HUD\HudHandler.cpp" />
     <ClCompile Include="HUD\WorldHudObject.cpp" />
+    <ClCompile Include="LevelEditor\MousePicker.cpp" />
+    <ClCompile Include="imgui\imgui.cpp" />
+    <ClCompile Include="imgui\imgui_demo.cpp" />
+    <ClCompile Include="imgui\imgui_draw.cpp" />
+    <ClCompile Include="imgui\imgui_impl_glfw_gl3.cpp" />
     <ClCompile Include="Mesh\AnimationMap.cpp" />
     <ClCompile Include="Mesh\MeshMap.cpp" />
     <ClCompile Include="Networking\Client.cpp" />
@@ -245,6 +254,7 @@
     <ClCompile Include="Renderer\Shader.cpp" />
     <ClCompile Include="Renderer\ShaderMap.cpp" />
     <ClCompile Include="Renderer\TextRenderer.cpp" />
+    <ClCompile Include="SpellLoader\spellLoader.cpp" />
     <ClCompile Include="Spells\AOEAttack.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
@@ -263,9 +273,11 @@
     </ClCompile>
     <ClCompile Include="Spells\Spell.cpp" />
     <ClCompile Include="Renderer\SkyBox.cpp" />
+    <ClCompile Include="Spells\SpellEditor.cpp" />
     <ClCompile Include="Spells\SpellHandler.cpp" />
     <ClCompile Include="Mesh\SkeletonMap.cpp" />
     <ClCompile Include="States\FindServerState.cpp" />
+    <ClCompile Include="States\LevelEditState.cpp" />
     <ClCompile Include="States\LobbyState.cpp" />
     <ClCompile Include="States\MenuState.cpp" />
     <ClCompile Include="States\PlayState.cpp">
@@ -274,6 +286,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pch/Pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pch/Pch.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="States\SpellCreatorState.cpp" />
     <ClCompile Include="States\SettingState.cpp" />
     <ClCompile Include="System\Application.cpp" />
     <ClCompile Include="System\BulletPhysics.cpp" />
@@ -330,8 +343,19 @@
     <ClInclude Include="GameObject\DestructibleObject.h" />
     <ClInclude Include="GameObject\MapObject.h" />
     <ClInclude Include="GFX\Pointlight.h" />
+    <ClInclude Include="Gui\NoLogger.h" />
     <ClInclude Include="HUD\HudHandler.h" />
     <ClInclude Include="HUD\WorldHudObject.h" />
+    <ClInclude Include="LevelEditor\MousePicker.h" />
+    <ClInclude Include="imgui\imconfig.h" />
+    <ClInclude Include="imgui\imfilebrowser.h" />
+    <ClInclude Include="imgui\imgui.h" />
+    <ClInclude Include="imgui\imgui_impl_glfw_gl3.h" />
+    <ClInclude Include="imgui\imgui_internal.h" />
+    <ClInclude Include="imgui\loaderFormat.h" />
+    <ClInclude Include="imgui\stb_rect_pack.h" />
+    <ClInclude Include="imgui\stb_textedit.h" />
+    <ClInclude Include="imgui\stb_truetype.h" />
     <ClInclude Include="Mesh\AnimationMap.h" />
     <ClInclude Include="Mesh\MeshMap.h" />
     <ClInclude Include="Networking\Client.h" />
@@ -370,6 +394,8 @@
     </ClInclude>
     <ClInclude Include="Renderer\Shader.h" />
     <ClInclude Include="Renderer\ShaderMap.h" />
+    <ClInclude Include="SpellLoader\loaderFormat.h" />
+    <ClInclude Include="SpellLoader\spellLoader.h" />
     <ClInclude Include="Spells\AOEAttack.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
@@ -389,13 +415,16 @@
     <ClInclude Include="Spells\Spell.h" />
     <ClInclude Include="Renderer\SkyBox.h" />
     <ClInclude Include="Mesh\SkeletonMap.h" />
+    <ClInclude Include="Spells\SpellEditor.h" />
     <ClInclude Include="Spells\SpellHandler.h" />
     <ClInclude Include="GameObject\ObjectTypes.h" />
-    <ClInclude Include="Spells\Spells.h" />
+    <ClInclude Include="Spells\SpellFormat.h" />
     <ClInclude Include="States\FindServerState.h" />
+    <ClInclude Include="States\LevelEditState.h" />
     <ClInclude Include="States\LobbyState.h" />
     <ClInclude Include="States\MenuState.h" />
     <ClInclude Include="States\PlayState.h" />
+    <ClInclude Include="States\SpellCreatorState.h" />
     <ClInclude Include="States\SettingState.h" />
     <ClInclude Include="System\Application.h" />
     <ClInclude Include="System\BulletPhysics.h" />

@@ -3,6 +3,7 @@
 #include "LobbyState.h"
 #include "FindServerState.h"
 #include "PlayState.h"
+#include "LevelEditState.h"
 #include "SettingState.h"
 #include <System/StateManager.h>
 #include <System/MemoryUsage.h>
@@ -52,6 +53,9 @@ void MenuState::loadGui()
 	m_joinServerBtn->setText("Join Server");
 	m_joinServerBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&MenuState::onStartClientClicked, this));
 
+	m_startLevelEditorBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.05f, 0.75f, 0.1f, 0.05f), glm::vec4(0.0f), "LevelEditor"));
+	m_startLevelEditorBtn->setText("LevelEditor");
+	m_startLevelEditorBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&MenuState::onLevelEditClicked, this));
 	m_settingBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.05f, 0.75f, 0.1f, 0.05f), glm::vec4(0.0f), "SettingButton"));
 	m_settingBtn->setText("Settings");
 	m_settingBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&MenuState::onSettingClicked, this));
@@ -59,6 +63,14 @@ void MenuState::loadGui()
 	m_quitBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.05f, 0.85f, 0.1f, 0.05f), glm::vec4(0.0f), "ExitButton"));
 	m_quitBtn->setText("Exit");
 	m_quitBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&MenuState::onExitClicked, this));
+
+	m_startSpellEditorBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.05f, 0.95f, 0.1f, 0.05f), glm::vec4(0.0f), "SpellEditor"));
+	m_startSpellEditorBtn->setText("Spell Editor");
+	m_startSpellEditorBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&MenuState::onStartSpellEditor, this));
+
+	//m_quitBtn = static_cast<CEGUI::PushButton*>(Gui::getInstance()->createWidget(GUI_SECTION, CEGUI_TYPE + "/Button", glm::vec4(0.05f, 0.85f, 0.1f, 0.05f), glm::vec4(0.0f), "ExitButton"));
+	//m_quitBtn->setText("Exit");
+	//m_quitBtn->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&MenuState::onExitClicked, this));
 
 }
 
@@ -93,6 +105,17 @@ bool MenuState::onExitClicked(const CEGUI::EventArgs& e)
 	return true;
 }
 
+bool MenuState::onStartSpellEditor(const CEGUI::EventArgs& e)
+{
+	m_stateManager->clearAllAndSetState(new SpellCreatorState());
+	return true;
+}
+bool MenuState::onLevelEditClicked(const CEGUI::EventArgs& e)
+{
+	Renderer::getInstance()->clear();
+	m_stateManager->clearAllAndSetState(new LevelEditState());
+	return true;
+}
 bool MenuState::onSettingClicked(const CEGUI::EventArgs& e)
 {
 	Renderer::getInstance()->clear();

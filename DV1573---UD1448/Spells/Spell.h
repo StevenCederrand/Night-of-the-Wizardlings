@@ -1,7 +1,6 @@
 #pragma once
 #include <Pch/Pch.h>
 #include <GameObject/GameObject.h>
-#include "Spells.h"
 
 class Spell : public GameObject
 {
@@ -29,6 +28,7 @@ public:
 	virtual void hasCollided() = 0;
 	virtual void update(float dt) = 0;
 	virtual const float getDamage() = 0;
+	virtual void updateTool(float radius, float speed, float dt);
 
 	const SpellBase* getBase() const { return m_spellBase; }
 

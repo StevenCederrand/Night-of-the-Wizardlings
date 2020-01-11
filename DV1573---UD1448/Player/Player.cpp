@@ -28,6 +28,7 @@ Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera, Spell
 	m_client = Client::getInstance();
 	m_character = BulletPhysics::getInstance()->createCharacter(playerPosition);
 	m_character->getGhostObject()->setUserPointer(this);
+	m_character->getGhostObject()->setUserIndex(545);
 
 	// Often moving values 
 	m_playerPosition = playerPosition;
@@ -46,7 +47,7 @@ Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera, Spell
 	m_maxSpeed = 15.2f;
 	m_maxMana = 100.0f;
 	m_maxHealth = 100.0f;
-	m_manaRegen = 100.0f; 
+	m_manaRegen = 1.0f; 
 
 	
 	m_maxAttackCooldown = 1.0f;
@@ -174,11 +175,11 @@ void Player::move(float deltaTime)
 		return;
 
 	//can't move much in the air
-	if (m_character->onGround())
-	{
-		m_moveDir = glm::vec3(0.0f);
-		m_oldMoveDir = glm::vec3(0.0f);
-	}
+	//if (m_character->onGround())
+	//{
+	m_moveDir = glm::vec3(0.0f);
+	m_oldMoveDir = glm::vec3(0.0f);
+	//}
 
 
 	if (m_playerCamera->isFPEnabled() ) {

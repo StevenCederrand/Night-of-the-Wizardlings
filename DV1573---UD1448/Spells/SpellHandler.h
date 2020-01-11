@@ -1,6 +1,5 @@
 #pragma once
 #include <Pch/Pch.h>
-#include <Spells/Spells.h>
 #include <GameObject/GameObject.h>
 #include <Spells/AttackSpell.h>
 #include <Spells/EnhanceAttackSpell.h>
@@ -8,6 +7,8 @@
 #include <Spells/fire.h>
 #include <System/BulletPhysics.h>
 #include <GameObject/ObjectTypes.h>
+#include <Loader/LoaderFormat.h>
+#include <SpellLoader/spellLoader.h>
 
 
 //enum TYPE { NORMALATTACK, ENHANCEATTACK };
@@ -24,7 +25,6 @@ public:
 	void spellUpdate(float deltaTime);
 	void setSpawnerPosition(glm::vec3 position);
 	void setSpawnerDirection(glm::vec3 direction);
-	void setOnHitCallback(std::function<void()> func);
 
 	const Spell& getSpell(int index) const { return *spells[index]; }
 	const std::vector<Spell*>& getSpells() const { return spells; }
@@ -37,6 +37,7 @@ private:
 	void initEnhanceSpell();
 	void initFlamestrikeSpell();
 	void initFireSpell();
+	void initDynamicSpellBase();
 
 	const uint64_t getUniqueID();
 	bool m_setcharacter = false;
@@ -58,6 +59,9 @@ private:
 	SpellBase fireBase;
 	SpellBase death;
 
+	// Dynamic spell base (Spell Creator tool)
+	//SpellBase dynamicSpellBase;
+
 	void spellCollisionCheck();	
 	bool specificSpellCollision(glm::vec3 spellPos, glm::vec3 playerPos, std::vector<glm::vec3>& axis, float radius);
 	float OBBsqDist(glm::vec3& spherePos, std::vector<glm::vec3>& axis, glm::vec3& playerPos);
@@ -73,6 +77,10 @@ private:
 		OBJECT_TYPE type;
 	};
 
+	//SpellEditor
+	int activespell;
+
+	SpellLoader myLoader;
+
 	std::vector<deflectSpellData> m_deflectedSpells;
-	std::function<void()> m_onHitCallback;
 };

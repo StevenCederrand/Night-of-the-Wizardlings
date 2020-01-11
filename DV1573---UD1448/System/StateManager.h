@@ -15,6 +15,9 @@ public:
 	void pushState(State* newState);
 	void clearAllAndSetState(State* state);
 
+	bool getImGuiState();
+	void getGuiInfo();
+
 	void update(float dt);
 	void render();
 

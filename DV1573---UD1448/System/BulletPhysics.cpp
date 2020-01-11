@@ -185,7 +185,6 @@ btKinematicCharacterController* BulletPhysics::createCharacter(const glm::vec3& 
 	startTransform.setIdentity();
 	startTransform.setOrigin(btVector3(position.x, position.y, position.z));
 	m_ghostObject->setWorldTransform(startTransform);
-	
 
 	m_dynamicsWorld->getPairCache()->setInternalGhostPairCallback(m_ghostCallback);
 	m_ghostObject->setCollisionShape(m_playerShape);
@@ -199,7 +198,6 @@ btKinematicCharacterController* BulletPhysics::createCharacter(const glm::vec3& 
 	m_dynamicsWorld->addAction(m_character);
 	m_character->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 	m_character->setMaxPenetrationDepth(0.1f);
-	
 
 	return m_character;
 }
