@@ -6,8 +6,6 @@
 #include <streambuf>
 //#include <Particles/ParticleBuffers.h>
 
-//const int MaxParticles = 100000;
-
 class ParticleBuffers;
 
 

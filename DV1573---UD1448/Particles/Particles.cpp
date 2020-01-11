@@ -5,11 +5,6 @@
 
 ParticleSystem::ParticleSystem(ParticleBuffers* particleBuffers)
 {
-	//TextureInfo rings;
-	//rings.name = "Assets/Textures/Spell_1.png";
-	//rings.width = 64;
-	//rings.height = 64;
-
 	m_txtInfo = particleBuffers->getTxtInfo();//&rings;
 	m_psInfo = particleBuffers->getPSinfo();
 	m_position = glm::vec3(0, -1000.0f, -20.0f);
@@ -35,30 +30,6 @@ ParticleSystem::ParticleSystem(ParticleBuffers* particleBuffers)
 
 	Initialize();
 }
-
-//ParticleSystem::ParticleSystem()
-//{
-//	m_txtInfo = nullptr;
-//	m_psInfo = nullptr;
-//	m_position = glm::vec3(0, 0, 0);
-//	m_shader = 0;
-//	m_current = 0;
-//
-//	m_texture = 0;
-//	m_vertexBuffer = 0;
-//	m_directionalBuffer = 0;
-//	m_lifetimeBuffer = 0;
-//	m_vertexPosition = 0;
-//	m_vertexDirection = 0;
-//	m_vertexLife = 0;
-//
-//	m_cont = 0;
-//	m_direction = glm::vec3(0, 0, 0);
-//	m_isPlaying = true;
-//	m_nrOfActive = 0;
-//	m_quad = glm::mat4(0);
-//	m_lookAt = glm::mat4(0);
-//}
 
 ParticleSystem::~ParticleSystem()
 {
@@ -97,87 +68,7 @@ glm::mat4 ParticleSystem::GetQuad()
 
 bool ParticleSystem::Initialize()
 {
-	//random_device rd;
-	////////std::mt19937 gen(m_psInfo->seed);
-	////////std::uniform_real_distribution<double> dis(-1.0f, 1.0f);
-	////////for (int i = 0; i < m_psInfo->maxParticles; i++)
-	////////{
-	////////	float x = dis(gen);
-	////////	float y = dis(gen);
-	////////	float z = dis(gen);
-
-	////////	Particle particles;
-	////////	glm::vec3 v = m_position;
-
-	////////	particles.position = m_position;
-	////////	particles.distance = -1.0f;
-	////////	particles.isAlive = false;
-	////////	particles.startLoop = true;
-	////////	particles.rotation = glm::vec3(x, y, z);
-	////////	particles.time = m_psInfo->lifetime;
-	////////	particles.velocity = glm::vec3(0.0f, 0.0f, 0.0f);
-
-	////////	//Pushbacks
-	////////	m_vertex.push_back(v);
-	////////	m_particle.push_back(particles);
-	////////	m_directionVector.push_back(particles.rotation);
-	////////	m_lifetime.push_back(particles.time);
-	////////}
-
 	m_isPlaying = true;
-
-	//m_txtInfo->name = "Assets/Textures/Spell_1.png";
-	//m_txtInfo->height = 64;
-	//m_txtInfo->width = 64;
-
-
-	//This is done in the ParticleBuffers class instead!
-	//////////if (m_txtInfo != NULL)
-	//////////{
-	//////////	glGenTextures(1, &m_texture);
-	//////////	glBindTexture(GL_TEXTURE_2D, m_texture);
-	//////////	unsigned char* imageData = stbi_load(m_txtInfo->name.c_str(), &m_txtInfo->width, &m_txtInfo->height, &m_txtInfo->nrChannels, 0); //String to const char, might need a check if problemo
-	//////////	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_txtInfo->width, m_txtInfo->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
-	//////////	stbi_image_free(imageData);
-	//////////	glUniform1i(glGetUniformLocation(m_shader, "ps_texture"), 0);
-	//////////}
-
-	//////////glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//////////glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	//////////m_quad = glm::mat4(1.0f);
-
-	////////////gen vao
-	//////////glGenVertexArrays(1, &m_vao);
-	//////////glBindVertexArray(m_vao);
-	////////////bind vao
-	//////////glGenBuffers(1, &m_vertexBuffer);
-	//////////glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
-	//////////glBufferData(GL_ARRAY_BUFFER, m_vertex.size() * sizeof(glm::vec3), &m_vertex[0], GL_STATIC_DRAW);
-	//////////m_vertexPosition = glGetAttribLocation(m_shader, "vtxPos");
-	//////////glGenBuffers(1, &m_directionalBuffer);
-	//////////glBindBuffer(GL_ARRAY_BUFFER, m_directionalBuffer);
-	//////////glBufferData(GL_ARRAY_BUFFER, m_directionVector.size() * sizeof(glm::vec3), &m_direction[0], GL_STATIC_DRAW);
-	//////////m_vertexDirection = glGetAttribLocation(m_shader, "vtxDir");
-	//////////glGenBuffers(1, &m_lifetimeBuffer);
-	//////////glBindBuffer(GL_ARRAY_BUFFER, m_lifetimeBuffer);
-	//////////glBufferData(GL_ARRAY_BUFFER, m_lifetime.size() * sizeof(float), &m_lifetime[0], GL_STATIC_DRAW);
-	//////////m_vertexLife = glGetAttribLocation(m_shader, "vtxLifetime");
-	////////////unbind vao
-	//////////glBindVertexArray(0);
-
-	//TODO
-	//Here I can implement the code for randomizing the position in the flamestrike's circle
-
-	//auto rnd = rand() % 999 + 1; // random distance
-	//rnd /= 1000;
-	//auto offset = rnd * 10 * glm::sqrt(rnd); //circleRadius = 2?
-
-	//rnd = rand() % 999 + 1;
-	//rnd /= 1000;
-	//auto angle = 2.0f * glm::pi<float>() * rnd; // Random angle
-
-	//m_position.x += offset * glm::cos(angle);
-	//m_position.y += offset * glm::sin(angle);
 
 	return true;
 }
@@ -250,6 +141,24 @@ void ParticleSystem::Update(float time) //removed campos
 				{
 					m_directionVector.at(i) = glm::normalize(particles.direction);
 					particles.velocity = deltaTime * (m_psInfo.direction + (particles.rotation * m_psInfo.spread));
+
+					//float offsetX;
+					//float offsetY;
+					//float offsetZ;
+					////particles.position.x += static_cast<float>(rand()) / static_cast <float> (RAND_MAX) * 1 - 0.2;
+					//offsetX = rand() % 2000 + 1 - 1000;
+					//offsetX /= 1000;
+					//offsetX *= 4;
+					//particles.position.x += offsetX;
+					////particles.position.y += static_cast<float>(rand()) / static_cast <float> (RAND_MAX) * 1 - 0.2;
+					//offsetY = rand() % 2000 + 1 - 1000;
+					//offsetY /= 2000;
+					//particles.position.y += offsetY;
+					////particles.position.z += static_cast<float>(rand()) / static_cast <float> (RAND_MAX) * 1 - 0.2;
+					//offsetZ = rand() % 2000 + 1 - 1000;
+					//offsetZ /= 1000;
+					//offsetZ *= 4;
+					//particles.position.z += offsetZ;
 				}
 
 				else
@@ -301,6 +210,24 @@ void ParticleSystem::Update(float time) //removed campos
 				particles.position = m_position;
 
 				//---
+
+									//float offsetX;
+					//float offsetY;
+					//float offsetZ;
+					////particles.position.x += static_cast<float>(rand()) / static_cast <float> (RAND_MAX) * 1 - 0.2;
+					//offsetX = rand() % 2000 + 1 - 1000;
+					//offsetX /= 1000;
+					//offsetX *= 4;
+					//particles.position.x += offsetX;
+					////particles.position.y += static_cast<float>(rand()) / static_cast <float> (RAND_MAX) * 1 - 0.2;
+					//offsetY = rand() % 2000 + 1 - 1000;
+					//offsetY /= 2000;
+					//particles.position.y += offsetY;
+					////particles.position.z += static_cast<float>(rand()) / static_cast <float> (RAND_MAX) * 1 - 0.2;
+					//offsetZ = rand() % 2000 + 1 - 1000;
+					//offsetZ /= 1000;
+					//offsetZ *= 4;
+					//particles.position.z += offsetZ;
 
 				particles.direction = m_psInfo.direction;
 				m_vertex.at(i) = particles.position;
@@ -395,16 +322,11 @@ void ParticleSystem::TempInit(PSinfo psInfo)
 void ParticleSystem::Render(Camera* camera)
 {
 	ShaderMap::getInstance()->useByName(PARTICLES);
-	//glUseProgram(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
-	//glEnable(GL_DEPTH_TEST);
-	//glDepthFunc(GL_LESS);
-	//bindPS(PARTICLES);
 
 	m_camera = camera;
 	//glUseProgram(ShaderMap::getInstance()->getShader(PARTICLES)->getShaderID());
 
 	glm::mat4 VP = glm::mat4(1.0f);
-	//VP = m_camera->getViewMat() * m_camera->getProjMat();
 	VP = camera->getProjMat() * camera->getViewMat();
 
 	Shader* shader = ShaderMap::getInstance()->getShader(PARTICLES);
@@ -418,9 +340,6 @@ void ParticleSystem::Render(Camera* camera)
 	shader->setInt("fade", m_psInfo.fade);
 	shader->setVec3("color", m_psInfo.color);
 	shader->setVec3("blendColor", m_psInfo.blendColor);
-
-
-
 
 	//What does this do in reality
 	glUseProgram(m_shader);
