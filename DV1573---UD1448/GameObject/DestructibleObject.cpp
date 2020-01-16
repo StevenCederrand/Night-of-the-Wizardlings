@@ -79,25 +79,6 @@ void DestructibleObject::update(float dt)
 
 			m_dstrState = 2;
 		}
-
-		// Removes the object after time
-		//if (m_lifetime >= 17.0f && m_dstrState == 2)
-		//{
-		//	for (int i = 0; i < (int)m_meshes.size(); i++)
-		//	{
-		//		if (m_meshes[i].body)
-		//		{
-		//			removeBody(i);
-		//			if (i > 0)
-		//			{
-		//				m_meshes[i].mesh->Destroy();
-		//				MeshMap::getInstance()->removeMesh(m_meshes[i].mesh->getName());
-		//			}
-		//		}
-		//		setWorldPosition(glm::vec3(-999.0f));
-		//		m_dstrState = 3;
-		//	}
-		//}
 	}
 
 

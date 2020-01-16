@@ -55,7 +55,7 @@ private:
 	// Should probably be changed depending on how we want to handle different maps
 	// 0 is default
 	// 1 is debug
-	int m_map = 0;
+	int m_map = 1;
 
 	float m_rotVal;
 	bool m_GUIOpen;

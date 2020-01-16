@@ -135,6 +135,7 @@ void PlayState::loadMap()
 	case 1:
 		m_objects.push_back(new MapObject("Debug_Map"));
 		m_objects[m_objects.size() - 1]->loadMesh("Debug_Map.mesh");
+		m_objects.back()->setShouldRender(false);
 		renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
 		break;
 
@@ -406,8 +407,8 @@ void PlayState::loadDestructables()
 		case 1:
 			// Debug Destructibles
 			// Temporary variables to move later ---
-			breakPoints = 6;
-			breakRadius = 2.5f;
+			breakPoints = 25;
+			breakRadius = 1.5f;
 
 			gravityOnImpact = 0.0f;
 			timeToChange = 2.5f;
@@ -597,7 +598,7 @@ void PlayState::removeDeadObjects()
 		if (m_objects[i]->getType() == DESTRUCTIBLE)
 		{
 			DestructibleObject* obj = static_cast<DestructibleObject*>(m_objects[i]);
-			if (obj->is_destroyed() && obj->getLifetime() >= 20.0 )
+			if (obj->is_destroyed() && obj->getLifetime() >= 100.0 )	// Hardcoded lifetime untill removal of objects
 			{
 				renderer->removeRenderObject(m_objects[i], STATIC);
 				// Keeping gameobjects for now, desync in indexing with server
@@ -1072,7 +1073,6 @@ void PlayState::update_isPlaying(const float& dt)
 	}
 
 }
-
 
 void PlayState::update_isSpectating(const float& dt)
 {

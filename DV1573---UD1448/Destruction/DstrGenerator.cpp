@@ -177,7 +177,7 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 
 		if (m_clipped.size() > 0)
 		{
-			meshFromClipped(scale, polygon, uv,  normal);
+			meshFromClipped(scale, polygon, uv, normal);
 
 			glm::vec3 min = m_newVertices[0].position;
 			glm::vec3 max = m_newVertices[0].position;
@@ -193,6 +193,7 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			}
 
 			glm::vec3 center = glm::vec3((min + max) * 0.5f);
+			center.z = 0.0f;
 			for (size_t i = 0; i < m_newVertices.size(); i++)
 			{
 				m_newVertices[i].position -= center;
@@ -201,16 +202,19 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			object->initMesh(object->getMesh()->getName() + "_" + std::to_string(i), m_newVertices, m_newFace);
 
 			Transform newTransform = object->getRigidTransform(0);
-			newTransform.position += center * glm::inverse(newTransform.rotation);;
+
+			// Debug placement to show split parts
+			newTransform.position += glm::vec3(
+				m_diagram.sites[i].x * 0.04f,
+				m_diagram.sites[i].y * 0.04f,
+				0.0f) * glm::inverse(newTransform.rotation);
+
+			newTransform.position += center * glm::inverse(newTransform.rotation);
+
 			object->setMeshOffsetTransform(newTransform, mi);
 
-			// DEBUG PLACEMENT
-			//newTransform.position += glm::vec3(
-			//	m_diagram.sites[i].x * 0.2f,
-			//	m_diagram.sites[i].y * 0.2f,
-			//	0.0f);
-			//object->setMeshOffsetTransform(newTransform, mi);
 
+			// Remove this to not creat physics
 			object->createDynamic(CollisionObject::box, 100.0f * scale, mi, true);
 			
 			// Values for destroyed object
@@ -234,9 +238,10 @@ void DstrGenerator::Destroy(DestructibleObject* object, glm::vec2 hitPosition, g
 			btRigidBody* body = object->getRigidBody(mi);
 			if (body)
 			{
-				body->applyCentralImpulse(btVector3(force.x, force.y, force.z) * 1.4);
-				body->applyTorque(btVector3(force.x * dirRndX, force.y * dirRndY, force.z * dirRndZ) * 100);
+				//body->applyCentralImpulse(btVector3(force.x, force.y, force.z) * 1.4);
+				//body->applyTorque(btVector3(force.x * dirRndX, force.y * dirRndY, force.z * dirRndZ) * 100);
 				body->setGravity(m_settings.initGravity);
+				body->setGravity(btVector3(0, 0, 0));
 			}
 
 			mi++;

@@ -14,6 +14,7 @@ Player::Player(std::string name, glm::vec3 playerPosition, Camera *camera, Spell
 	m_firstPersonMesh->initAnimations("RunAnimation", 116.0f, 136.0f);
 	m_firstPersonMesh->initAnimations("IdleAnimation", 19.0f, 87.0f);
 	m_firstPersonMesh->initAnimations("DeflectAnimation", 154.0f, 169.0f);
+	m_firstPersonMesh->setShouldRender(false);
 	Renderer::getInstance()->submit(m_firstPersonMesh, ANIMATEDSTATIC);	
 
 	// Player shield
@@ -134,7 +135,7 @@ void Player::update(float deltaTime)
 	else
 	{
 		if (m_firstPersonMesh->getShouldRender() == false) 
-			m_firstPersonMesh->setShouldRender(true);
+			m_firstPersonMesh->setShouldRender(false);
 		
 		PlayAnimation(deltaTime);
 	}

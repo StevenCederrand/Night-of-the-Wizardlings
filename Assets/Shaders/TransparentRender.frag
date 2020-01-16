@@ -71,12 +71,14 @@ void main() {
     vec3 cameraHolder = CameraPosition;
     cameraHolder = Ambient_Color;
 	bool normalMapHolder = NormalMapping;
+
+    result += (Ambient_Color * 0.0001f);
     //-------------------------
 
     //Add light calculations for better effect
 
     vec3 viewDir = normalize(cameraHolder - f_position.xyz);
-    float fresnel = 1 - dot(viewDir,  f_normal);
+    float fresnel = 1 - dot(viewDir,  f_normal) * Ambient_Color.x;
   //  result += fresnel;
     if(alphaTexture.a < 0.6f)
       discard;

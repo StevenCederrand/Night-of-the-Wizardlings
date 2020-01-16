@@ -43,6 +43,8 @@ void main() {
     //HOLDERS (Values that we take in but not currently use: aka CLEAN UP)
     vec3 ambientHolder = Ambient_Color;
     vec3 cameraHolder = CameraPosition;
+
+    result += (Ambient_Color * 0.0001f);
     //-------------------------
 
     vec3 viewDir = normalize(cameraHolder - f_position.xyz);
