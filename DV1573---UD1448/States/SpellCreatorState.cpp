@@ -52,9 +52,9 @@ SpellCreatorState::SpellCreatorState()
         Client::getInstance()->assignSpellHandler(m_spellHandler);
 
 
-    fileDialog.SetTitle("Open file(.spell)");
+  /*  fileDialog.SetTitle("Open file(.spell)");
     fileDialog.SetTypeFilters({ ".spell" });
-    fileDialog.SetPwd("\Exports");
+    fileDialog.SetPwd("\Exports");*/
 
 }
 
@@ -121,44 +121,44 @@ void SpellCreatorState::update(float dt)
         isProjectile = false;
         editAOEAttackSpell();
     }
-    fileDialog.Display();
+    //fileDialog.Display();
 
-    if (fileDialog.HasSelected() && loadASpell == true && isAOE == true)
-    {
-        // LOAD AN AOESpell
-        const std::string path = fileDialog.GetSelected().string();
-        auto const pos = path.find_last_of('\\');
-        m_name = path.substr(pos + 1);
+    //if (fileDialog.HasSelected() && loadASpell == true && isAOE == true)
+    //{
+    //    // LOAD AN AOESpell
+    //    const std::string path = fileDialog.GetSelected().string();
+    //    auto const pos = path.find_last_of('\\');
+    //    m_name = path.substr(pos + 1);
 
-        myLoader.loadAOESpell(m_name);
+    //    myLoader.loadAOESpell(m_name);
 
-        //Set the tool values to match the loaded file
-        aoeSpell.m_damage = myLoader.m_AOESpell.m_damage;
-        aoeSpell.m_AOESpeed = myLoader.m_AOESpell.m_speed;
-        aoeSpell.m_AOECooldown = myLoader.m_AOESpell.m_coolDown;
-        aoeSpell.m_AOERadius = myLoader.m_AOESpell.m_radius;
-        aoeSpell.m_AOELifetime = myLoader.m_AOESpell.m_lifeTime;
-        aoeSpell.m_AOEMaxBounces = myLoader.m_AOESpell.m_maxBounces;
+    //    //Set the tool values to match the loaded file
+    //    aoeSpell.m_damage = myLoader.m_AOESpell.m_damage;
+    //    aoeSpell.m_AOESpeed = myLoader.m_AOESpell.m_speed;
+    //    aoeSpell.m_AOECooldown = myLoader.m_AOESpell.m_coolDown;
+    //    aoeSpell.m_AOERadius = myLoader.m_AOESpell.m_radius;
+    //    aoeSpell.m_AOELifetime = myLoader.m_AOESpell.m_lifeTime;
+    //    aoeSpell.m_AOEMaxBounces = myLoader.m_AOESpell.m_maxBounces;
   
-        fileDialog.ClearSelected();
-        loadASpell = false;
-    }
+    //    fileDialog.ClearSelected();
+    //    loadASpell = false;
+    //}
 
-    if (fileDialog.HasSelected() && loadASpell == true && isProjectile == true)
-    {
-        // LOAD AN ATTACKSPELL
-        const std::string path = fileDialog.GetSelected().string();
-        auto const pos = path.find_last_of('\\');
-        m_name = path.substr(pos + 1);
+    //if (fileDialog.HasSelected() && loadASpell == true && isProjectile == true)
+    //{
+    //    // LOAD AN ATTACKSPELL
+    //    const std::string path = fileDialog.GetSelected().string();
+    //    auto const pos = path.find_last_of('\\');
+    //    m_name = path.substr(pos + 1);
 
-        //myLoader.LoadSpell(m_name);
-        myLoader.LoadProjectileSpell(m_name);
+    //    //myLoader.LoadSpell(m_name);
+    //    myLoader.LoadProjectileSpell(m_name);
 
-        updateToolSettings();
-    
-        fileDialog.ClearSelected();
-        loadASpell = false;
-    }
+    //    updateToolSettings();
+    //
+    //    fileDialog.ClearSelected();
+    //    loadASpell = false;
+    //}
 
     if (ImGui::BeginMenuBar())
     {
@@ -168,7 +168,7 @@ void SpellCreatorState::update(float dt)
             {
                 loadASpell = true;
                 // open file dialog when user clicks this button
-                fileDialog.Open();
+                //fileDialog.Open();
             }
             if (ImGui::MenuItem("Save Spell...", "Ctrl+S"))
             {

@@ -17,7 +17,7 @@
 #include <Spells/AttackSpell.h>
 
 #include <imgui/imgui.h>
-#include <imgui/imfilebrowser.h>
+//#include <imgui/imfilebrowser.h>
 
 #include "SpellLoader/spellLoader.h"
 
@@ -87,7 +87,7 @@ public:
     AOE aoeSpell;
     SpellEvents spellEvents;
     //-----File opener/Path to Exports-----//
-    ImGui::FileBrowser fileDialog;
+   // ImGui::FileBrowser fileDialog;
 
     char m_spellName[NAME_SIZE];
 

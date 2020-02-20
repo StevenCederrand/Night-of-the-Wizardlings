@@ -188,7 +188,6 @@
     <ClInclude Include="Renderer\TextRenderer.h" />
     <ClInclude Include="BetterText\TextManager.h" />
     <ClInclude Include="imgui\imconfig.h" />
-    <ClInclude Include="imgui\imfilebrowser.h" />
     <ClInclude Include="imgui\imgui.h" />
     <ClInclude Include="imgui\imgui_impl_glfw_gl3.h" />
     <ClInclude Include="imgui\imgui_internal.h" />

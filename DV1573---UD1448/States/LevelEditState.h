@@ -20,7 +20,6 @@
 #include <LevelEditor/MousePicker.h>
 
 #include <imgui/imgui.h>
-#include <imgui/imfilebrowser.h>
 #include <imgui/ImGuizmo.h>
 
 #include <algorithm>
@@ -63,7 +62,7 @@ private:
 	std::vector<GameObject*> m_models;
 	std::vector<Pointlight*> m_pointlights;
 
-	std::vector<const char*> m_objectNames;
+	std::vector <const char*> m_objectNames;
 	std::vector<const char*> m_LightsNames;
 	std::vector<const char*> m_ParticlesNames;
 
@@ -90,7 +89,6 @@ private:
 	static const char * items[];
 	int selectedItem = 0;
 
-	ImGui::FileBrowser fileDialog;
 };
 
 

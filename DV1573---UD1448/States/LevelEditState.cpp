@@ -63,8 +63,8 @@ void LevelEditState::loadMesh(std::vector<GameObject*> objectVector, std::string
 
 	objectVector.push_back(new MapObject(editedName));
 	objectVector[objectVector.size() - 1]->loadMesh(filePath);
-	const char* objectName = objectVector[objectVector.size() - 1]->getObjectName();
-	m_objectNames.push_back();
+	const std::string objectName = objectVector[objectVector.size() - 1]->getObjectName();
+	m_objectNames.push_back(objectName.c_str());
 	renderer->submit(objectVector[objectVector.size() - 1], RENDER_TYPE::STATIC);
 }
 
