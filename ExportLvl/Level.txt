@@ -1,0 +1,10 @@
+testing...
+Mesh nr. : 0
+Mesh name : Academy_t
+==================
+Position : vec3(0.000000, 0.000000, 0.000000)
+Mesh nr. : 1
+Mesh name : ExteriorTest
+==================
+Position : vec3(0.000000, 0.000000, 0.000000)
+endend
