@@ -261,7 +261,7 @@ void LevelEditState::guiInfo()
 			}
 			if (ImGui::MenuItem("Exit", "Ctrl+Q"))
 			{
-				// Do Exit
+				glfwSetWindowShouldClose(glfwGetCurrentContext(), true);
 			}
 			ImGui::EndMenu();
 		}
