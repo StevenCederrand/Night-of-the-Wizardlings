@@ -298,9 +298,11 @@ void LevelEditState::guiInfo()
 
 	if (m_objectNames.size() > 0)
 	{
+		
+
 		const char* charPtr = "Test";
 		static int listBox_ActiveMeshes_Current = 0;
-		ImGui::ListBox("Meshes", &listBox_ActiveMeshes_Current, &m_objectNames[0], m_objectNames.size(), 15);
+		ListBox("Mesh", &listBox_ActiveMeshes_Current, m_objectNames);
 		ImGui::Separator();
 	}
 
@@ -398,4 +400,11 @@ void LevelEditState::updateState(const float& dt)
 bool LevelEditState::vecOfStrGet(void* data, int n, const char** out_text)
 {
 	return false;
+}
+
+bool LevelEditState::ListBox(const char* label, int* currIndex, std::vector<std::string>& values)
+{
+	if (values.empty()) { return false; }
+	return ImGui::ListBox(label, currIndex, vector_getter,
+		static_cast<void*>(&values), values.size());
 }
