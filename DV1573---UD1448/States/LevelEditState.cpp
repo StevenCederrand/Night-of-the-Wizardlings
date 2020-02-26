@@ -94,7 +94,7 @@ void LevelEditState::addInstance(std::vector<GameObject*> &objectVector, std::st
 
 	objectVector.push_back(new MapObject(editedName));
 	objectVector[objectVector.size() - 1]->loadMesh(filePath);
-	const std::string objectName = objectVector[objectVector.size() - 1]->getObjectName();
+	objectName = objectVector[objectVector.size() - 1]->getObjectName();
 	m_objectNames.push_back(objectName.c_str());
 	renderer->submit(objectVector[objectVector.size() - 1], RENDER_TYPE::STATIC);
 }
@@ -225,7 +225,7 @@ void LevelEditState::render()
 void LevelEditState::guiInfo()
 {
 	//This has to be moved to be class or be made vectors instead? variables to be accable by other imgui instances
-	const char* listBox_Meshes[] = { "Level1(Castle)", "Terrain(Forrest)", "Plane", "Tree" };
+	const char* listBox_Meshes[] = { "Cone", "Cube", "Cylinder", "Sphere" };
 	static int listBox_Meshes_Current = 1;
 
 	const char* listBox_Particles[] = { "Fire", "Torch", "Flies", "Smoke", "Rain" };
@@ -338,9 +338,11 @@ void LevelEditState::guiInfo()
 
 	if (m_objectNames.size() > 0)
 	{
+		
+
 		const char* charPtr = "Test";
 		static int listBox_ActiveMeshes_Current = 0;
-		ImGui::ListBox("Meshes", &listBox_ActiveMeshes_Current, &m_objectNames[0], m_objectNames.size(), 6);
+		ListBox("Mesh", &listBox_ActiveMeshes_Current, m_objectNames);
 		ImGui::Separator();
 	}
 
@@ -391,13 +393,13 @@ void LevelEditState::guiInfo()
 	if (ImGui::Button("Create", ImVec2(70, 25)))
 	{
 		if (listBox_Meshes_Current == 0)
-			addInstance(m_objects, "Towermap/Academy_t.mesh"); //File path cannot be hard coded in the future
+			loadMesh(m_objects, "LevelEditMeshList/ConeTest.mesh"); //File path cannot be hard coded in the future
 		else if (listBox_Meshes_Current == 1)
-			addInstance(m_objects, "ExteriorTest.mesh");
+			loadMesh(m_objects, "LevelEditMeshList/CubeTest.mesh");
 		else if (listBox_Meshes_Current == 2)
-			addInstance(m_models, "canvas.mesh");
+			loadMesh(m_models, "LevelEditMeshList/CylinderTest.mesh");
 		else if (listBox_Meshes_Current == 3)
-			addInstance(m_objects, "LevelEdit/TestCube.mesh");
+			loadMesh(m_objects, "LevelEditMeshList/SphereTest.mesh");
 	}
 	
 	//ImGui::Button("Create", ImVec2(50.f, 20.f));
@@ -438,4 +440,11 @@ void LevelEditState::updateState(const float& dt)
 bool LevelEditState::vecOfStrGet(void* data, int n, const char** out_text)
 {
 	return false;
+}
+
+bool LevelEditState::ListBox(const char* label, int* currIndex, std::vector<std::string>& values)
+{
+	if (values.empty()) { return false; }
+	return ImGui::ListBox(label, currIndex, vector_getter,
+		static_cast<void*>(&values), values.size());
 }

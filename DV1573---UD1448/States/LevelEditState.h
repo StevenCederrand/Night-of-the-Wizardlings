@@ -27,6 +27,16 @@
 #include <vector>
 #include <string>
 
+// Solution for handling std::vector<std::string> in list boxes
+// Based on https://eliasdaler.github.io/using-imgui-with-sfml-pt2/#combobox-listbox solution
+static auto vector_getter = [](void* vec, int idx, const char** out_text)
+{
+	auto& vector = *static_cast<std::vector<std::string>*>(vec);
+	if (idx < 0 || idx >= static_cast<int>(vector.size())) { return false; }
+	*out_text = vector.at(idx).c_str();
+	return true;
+};
+
 class LevelEditState : public State
 {
 public:
@@ -62,7 +72,7 @@ private:
 	std::vector<GameObject*> m_models;
 	std::vector<Pointlight*> m_pointlights;
 
-	std::vector <const char*> m_objectNames;
+	std::vector <std::string> m_objectNames;
 	std::vector<const char*> m_LightsNames;
 	std::vector<const char*> m_ParticlesNames;
 
@@ -80,6 +90,7 @@ private:
 	glm::vec3 m_focusPoint;
 
 	std::string objectName;
+	bool ListBox(const char* label, int* currIndex, std::vector<std::string>& values);
 
 	//Loaded Meshes
 
