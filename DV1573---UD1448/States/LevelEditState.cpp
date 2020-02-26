@@ -393,13 +393,13 @@ void LevelEditState::guiInfo()
 	if (ImGui::Button("Create", ImVec2(70, 25)))
 	{
 		if (listBox_Meshes_Current == 0)
-			loadMesh(m_objects, "LevelEditMeshList/ConeTest.mesh"); //File path cannot be hard coded in the future
+			addInstance(m_objects, "LevelEditMeshList/ConeTest.mesh"); //File path cannot be hard coded in the future
 		else if (listBox_Meshes_Current == 1)
-			loadMesh(m_objects, "LevelEditMeshList/CubeTest.mesh");
+			addInstance(m_objects, "LevelEditMeshList/CubeTest.mesh");
 		else if (listBox_Meshes_Current == 2)
-			loadMesh(m_models, "LevelEditMeshList/CylinderTest.mesh");
+			addInstance(m_objects, "LevelEditMeshList/CylinderTest.mesh");
 		else if (listBox_Meshes_Current == 3)
-			loadMesh(m_objects, "LevelEditMeshList/SphereTest.mesh");
+			addInstance(m_objects, "LevelEditMeshList/SphereTest.mesh");
 	}
 	
 	//ImGui::Button("Create", ImVec2(50.f, 20.f));

@@ -1,10 +1,18 @@
 testing...
 Mesh nr. : 0
-Mesh name : Academy_t
+Mesh name : ConeTest
 ==================
 Position : vec3(0.000000, 0.000000, 0.000000)
 Mesh nr. : 1
-Mesh name : ExteriorTest
+Mesh name : CubeTest
+==================
+Position : vec3(0.000000, 0.000000, 0.000000)
+Mesh nr. : 2
+Mesh name : CylinderTest
+==================
+Position : vec3(0.000000, 0.000000, 0.000000)
+Mesh nr. : 3
+Mesh name : SphereTest
 ==================
 Position : vec3(0.000000, 0.000000, 0.000000)
 endend
