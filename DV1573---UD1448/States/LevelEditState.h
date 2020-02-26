@@ -46,7 +46,6 @@ public:
 	std::string OpenFileDialog(const char* filter, HWND owner);
 	void saveLevel();
 	void loadBasicLight();
-	void deleteMesh();
 	void cleanScene();
 
 	/*bool GetVecToStr(void* data, int i, const char** out_text);*/
@@ -69,7 +68,6 @@ private:
 private:
 	//Any inherited GameObject class added to this vector will support basic rendering
 	std::vector<GameObject*> m_objects;
-	std::vector<GameObject*> m_models;
 	std::vector<Pointlight*> m_pointlights;
 
 	std::vector <std::string> m_objectNames;

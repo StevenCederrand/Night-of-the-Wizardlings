@@ -31,8 +31,6 @@ LevelEditState::~LevelEditState()
 {
 	for (GameObject* object : m_objects)
 		delete object;
-	for (GameObject* object : m_models)
-		delete object;
 	for (Pointlight* light : m_pointlights)
 		delete light; 
 
@@ -40,7 +38,6 @@ LevelEditState::~LevelEditState()
 
 	m_pointlights.clear();
 	m_objects.clear();
-	m_models.clear();
 
 	delete m_camera;
 	delete m_skybox;
@@ -172,27 +169,16 @@ void LevelEditState::loadBasicLight()
 		renderer->submit(p, RENDER_TYPE::POINTLIGHT_SOURCE);
 }
 
-void LevelEditState::deleteMesh()
-{
-	//This should change so that we can choose the selected object(s)
-	for (size_t i = 0; i < m_models.size(); i++)
-		delete m_models[i];
-
-	m_models.clear();
-}
 
 void LevelEditState::cleanScene()
 {
 	for (GameObject* object : m_objects)
-		delete object;
-	for (GameObject* object : m_models)
 		delete object;
 	for (Pointlight* light : m_pointlights)
 		delete light;
 
 	m_pointlights.clear();
 	m_objects.clear();
-	m_models.clear();
 }
 //bool LevelEditState::GetVecToStr(void* data, int i, const char** out_text)
 //{
@@ -291,7 +277,7 @@ void LevelEditState::guiInfo()
 			}
 			if (ImGui::MenuItem("Open Level", "Ctrl+O"))
 			{
-				addInstance(m_objects, OpenFileDialog());
+				//addInstance(m_objects, OpenFileDialog());
 			}
 			if (ImGui::MenuItem("Save Level", "Ctrl+S"))
 			{
