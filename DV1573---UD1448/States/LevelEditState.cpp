@@ -3,6 +3,7 @@
 #include <System/StateManager.h>
 #include "MenuState.h"
 #include <string>
+#include <commdlg.h>
 
 LevelEditState::LevelEditState()
 {
@@ -51,15 +52,45 @@ LevelEditState::~LevelEditState()
 	MeshMap::getInstance()->cleanUp();
 }
 
-void LevelEditState::loadMesh(std::vector<GameObject*> objectVector, std::string filePath)
+std::string LevelEditState::OpenFileDialog(const char* filter = "All Files (*.*)\0*.*\0", HWND owner = NULL)
+{
+
+	OPENFILENAME ofn;
+	char fileName[MAX_PATH] = "";
+	ZeroMemory(&ofn, sizeof(ofn));
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.hwndOwner = owner;
+	ofn.lpstrFilter = filter;
+	ofn.lpstrFile = fileName;
+	ofn.nMaxFile = MAX_PATH;
+	ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+	ofn.lpstrDefExt = "";
+	std::string fileNameStr;
+	
+	if (GetOpenFileName(&ofn))
+		fileNameStr = fileName;
+
+	return fileNameStr;
+}
+
+void LevelEditState::loadAsset(std::vector<GameObject*>& objectVector, std::string filePath)
+{
+
+}
+
+void LevelEditState::addInstance(std::vector<GameObject*> &objectVector, std::string filePath)
 {
 	Renderer* renderer = Renderer::getInstance();
 
 	std::string firstName = filePath;
-	std::size_t found = firstName.find_first_of("/\\");
+	std::size_t found = firstName.find_last_of("/\\");
 	std::string editedName = firstName.substr(found + 1);
 	std::size_t foundDot = editedName.find_first_of(".");
 	editedName = editedName.substr(0, foundDot);
+
+	//CHECK IF FILE IS .MESH
+	std::cout << filePath << std::endl;
+	std::cout << editedName << std::endl;
 
 	objectVector.push_back(new MapObject(editedName));
 	objectVector[objectVector.size() - 1]->loadMesh(filePath);
@@ -68,39 +99,42 @@ void LevelEditState::loadMesh(std::vector<GameObject*> objectVector, std::string
 	renderer->submit(objectVector[objectVector.size() - 1], RENDER_TYPE::STATIC);
 }
 
-void LevelEditState::loadMap()
+void LevelEditState::saveLevel()
 {
-	Renderer* renderer = Renderer::getInstance();
-	m_objects.push_back(new MapObject("AcademyMap"));
-	m_objects[m_objects.size() - 1]->loadMesh("Towermap/Academy_t.mesh");
-	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
+	std::string outputFilePath = "ExportLvl/";
+	std::string name = "Lights";
+	std::ofstream lightAscii;
+	lightAscii.open(outputFilePath + name + ".txt");
 
-	//const char* getListName = m_objects[m_objects.size() - 1]->getObjectName().c_str();
-	//m_objectNames.push_back("TEst");
-	m_nrOfObj++;
+	for (unsigned int i = 0; i < m_pointlights.size(); i++)
+	{
+		lightAscii << "Light nr. : " << i << std::endl;
+		lightAscii << "==================" << std::endl;
+		lightAscii << "Position : " << to_string(m_pointlights[i]->getLastPosition()) << std::endl;
+		lightAscii << "Color : " << to_string(m_pointlights[i]->getColor()) << std::endl;
+	}
 
-}
+	lightAscii << "I've now saved all lights!" << std::endl;
+	lightAscii.close();
 
-void LevelEditState::loadCanvas()
-{
-	Renderer* renderer = Renderer::getInstance();
-	m_models.push_back(new MapObject("Canvas"));
-	m_models[m_models.size() - 1]->loadMesh("canvas.mesh");
-	m_models[m_models.size() - 1]->setTransform(glm::vec3(0.f), glm::quat(glm::vec3(0.0f)), glm::vec3(4.0f));
-	renderer->submit(m_models[m_models.size() - 1], RENDER_TYPE::STATIC);
-}
+	std::ofstream meshAscii;
+	name = "Level";
+	meshAscii.open(outputFilePath + name + ".txt");
 
-void LevelEditState::loadDecor()
-{
-	Renderer* renderer = Renderer::getInstance();
-	m_objects.push_back(new MapObject("Academy_Outer"));
-	m_objects[m_objects.size() - 1]->loadMesh("ExteriorTest.mesh");
-	renderer->submit(m_objects[m_objects.size() - 1], RENDER_TYPE::STATIC);
+	meshAscii << "testing..." << std::endl;
 
-}
+	std::cout << m_objects.size() << std::endl;
 
-void LevelEditState::saveMap()
-{
+	for (unsigned int i = 0; i < m_objects.size(); i++) 
+	{
+		meshAscii << "Mesh nr. : " << i << std::endl;
+		meshAscii << "Mesh name : " << m_objects[i]->getObjectName() << std::endl;
+		meshAscii << "==================" << std::endl;
+		meshAscii << "Position : " << to_string(m_objects[i]->getLastPosition()) << std::endl;
+	}
+	meshAscii << "endend" << std::endl;
+
+	meshAscii.close();
 }
 
 void LevelEditState::loadBasicLight()
@@ -147,6 +181,19 @@ void LevelEditState::deleteMesh()
 	m_models.clear();
 }
 
+void LevelEditState::cleanScene()
+{
+	for (GameObject* object : m_objects)
+		delete object;
+	for (GameObject* object : m_models)
+		delete object;
+	for (Pointlight* light : m_pointlights)
+		delete light;
+
+	m_pointlights.clear();
+	m_objects.clear();
+	m_models.clear();
+}
 //bool LevelEditState::GetVecToStr(void* data, int i, const char** out_text)
 //{
 //
@@ -168,17 +215,6 @@ void LevelEditState::update(float dt)
 	static float t = 0.0f;
 	t += DeltaTime;
 	
-	//Check for input
-	if (Input::isKeyPressed(GLFW_KEY_M))
-		loadMap();
-	if (Input::isKeyPressed(GLFW_KEY_L))
-		loadBasicLight();
-	if (Input::isKeyPressed(GLFW_KEY_K))
-		loadDecor();
-	if (Input::isKeyPressed(GLFW_KEY_1))
-		loadCanvas();
-	if (Input::isKeyPressed(GLFW_KEY_2))
-		deleteMesh();
 }
 
 void LevelEditState::render()
@@ -250,14 +286,16 @@ void LevelEditState::guiInfo()
 			if (ImGui::MenuItem("New Level", "Ctrl+N"))
 			{
 				// Do Stuff
+				//saveLevel();
+				cleanScene();
 			}
 			if (ImGui::MenuItem("Open Level", "Ctrl+O"))
 			{
-				// Do Stuff
+				addInstance(m_objects, OpenFileDialog());
 			}
 			if (ImGui::MenuItem("Save Level", "Ctrl+S"))
 			{
-				// Do Stuff
+				saveLevel();
 			}
 			if (ImGui::MenuItem("Exit", "Ctrl+Q"))
 			{
@@ -286,6 +324,8 @@ void LevelEditState::guiInfo()
 			if (ImGui::MenuItem("Load Asset"))
 			{
 				// Do Stuff
+				loadAsset(m_objects, OpenFileDialog());
+
 			}
 			if (ImGui::MenuItem("Load Particles"))
 			{
@@ -353,13 +393,13 @@ void LevelEditState::guiInfo()
 	if (ImGui::Button("Create", ImVec2(70, 25)))
 	{
 		if (listBox_Meshes_Current == 0)
-			loadMesh(m_objects, "LevelEditMeshList/ConeTest.mesh"); //File path cannot be hard coded in the future
+			addInstance(m_objects, "LevelEditMeshList/ConeTest.mesh"); //File path cannot be hard coded in the future
 		else if (listBox_Meshes_Current == 1)
-			loadMesh(m_objects, "LevelEditMeshList/CubeTest.mesh");
+			addInstance(m_objects, "LevelEditMeshList/CubeTest.mesh");
 		else if (listBox_Meshes_Current == 2)
-			loadMesh(m_models, "LevelEditMeshList/CylinderTest.mesh");
+			addInstance(m_objects, "LevelEditMeshList/CylinderTest.mesh");
 		else if (listBox_Meshes_Current == 3)
-			loadMesh(m_objects, "LevelEditMeshList/SphereTest.mesh");
+			addInstance(m_objects, "LevelEditMeshList/SphereTest.mesh");
 	}
 	
 	//ImGui::Button("Create", ImVec2(50.f, 20.f));

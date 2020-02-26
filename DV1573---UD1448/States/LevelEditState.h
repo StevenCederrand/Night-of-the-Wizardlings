@@ -42,13 +42,12 @@ class LevelEditState : public State
 public:
 	LevelEditState();
 	~LevelEditState();
-
-	void loadMap(); 
-	void loadCanvas();
-	void loadDecor();
-	void saveMap();
+	
+	std::string OpenFileDialog(const char* filter, HWND owner);
+	void saveLevel();
 	void loadBasicLight();
 	void deleteMesh();
+	void cleanScene();
 
 	/*bool GetVecToStr(void* data, int i, const char** out_text);*/
 
@@ -61,7 +60,8 @@ public:
 		const btCollisionObjectWrapper* obj2, int id2, int index2);*/
 
 private:
-	void loadMesh(std::vector<GameObject*>, std::string);
+	void loadAsset(std::vector<GameObject*>&, std::string);
+	void addInstance(std::vector<GameObject*>&, std::string);
 	void updateState(const float& dt);
 
 	bool vecOfStrGet(void* data, int n, const char** out_text);
