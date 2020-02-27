@@ -16,14 +16,16 @@ void main()
 	if(texture.y > clip.y )
 		discard;
 
-	vec4 textureColor = texture(textureSampler, f_uv);
 
-	if(textureColor.a <= 0.01) {
-		discard;
-	}
-	else {
-		pixelColor = textureColor;
-	}
+// =====================NEED FIXING======================
+	//vec4 textureColor = texture(textureSampler, f_uv);
+
+//	if(textureColor.a <= 0.01) {
+//		discard;
+//	}
+//	else {
+//		pixelColor = textureColor;
+//	}
 
 	pixelColor.a *= alphaValue;
 
