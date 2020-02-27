@@ -80,6 +80,32 @@ std::string LevelEditState::OpenFileDialog(const char* filter = "All Files (*.*)
 void LevelEditState::loadAsset(std::vector<GameObject*>& objectVector, std::string filePath)
 {
 
+	std::size_t found = filePath.find_last_of("/\\");
+	std::string editedName = filePath.substr(found + 1);
+
+	std::cout << filePath << std::endl;
+	std::cout << editedName << std::endl;
+	std::size_t foundDot = editedName.find_first_of(".");
+	std::cout << foundDot << std::endl;
+	editedName = editedName.substr(foundDot, editedName.length());
+	std::cout << editedName << std::endl;
+
+	if (editedName == ".mesh")
+	{
+		try
+		{
+			copy(filePath, "C:/Users/BTH/Source/Repos/StevenCederrand/Night-of-the-Wizardlings/Assets/Meshes/LevelEditMeshList/" + editedName);
+		}
+		catch (std::exception & e)
+		{
+			std::cout << e.what();
+		}
+	}
+	else
+		std::cout << "This file is not a .mesh" << std::endl;
+
+	//Update list 
+
 }
 
 void LevelEditState::addInstance(std::vector<GameObject*> &objectVector, std::string filePath)
