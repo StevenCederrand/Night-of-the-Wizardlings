@@ -52,7 +52,7 @@ LevelEditState::~LevelEditState()
 	MeshMap::getInstance()->cleanUp();
 }
 
-std::string LevelEditState::OpenFileDialog(const char* filter = "All Files (*.*)\0*.*\0", HWND owner = NULL)
+std::string LevelEditState::OpenFileDialog(const char* filter = "All Files (*.*)\0*.mesh*\0", HWND owner = NULL)
 {
 
 	OPENFILENAME ofn;
@@ -83,10 +83,10 @@ void LevelEditState::loadAsset(std::vector<GameObject*>& objectVector, std::stri
 	std::cout << editedName << std::endl;
 	std::size_t foundDot = editedName.find_first_of(".");
 	std::cout << foundDot << std::endl;
-	editedName = editedName.substr(foundDot, editedName.length());
+	std::string fileType = editedName.substr(foundDot, editedName.length());
 	std::cout << editedName << std::endl;
 
-	if (editedName == ".mesh")
+	if (fileType == ".mesh")
 	{
 		try
 		{
@@ -127,6 +127,8 @@ void LevelEditState::addInstance(std::vector<GameObject*> &objectVector, std::st
 
 void LevelEditState::saveLevel()
 {
+	OpenFileDialog();
+
 	std::string outputFilePath = "ExportLvl/";
 	std::string name = "Lights";
 	std::ofstream lightAscii;
@@ -208,6 +210,8 @@ void LevelEditState::cleanScene()
 
 	m_pointlights.clear();
 	m_objects.clear();
+
+	std::cout << "Scene cleaned." << std::endl;
 }
 //bool LevelEditState::GetVecToStr(void* data, int i, const char** out_text)
 //{
@@ -301,7 +305,7 @@ void LevelEditState::guiInfo()
 			if (ImGui::MenuItem("New Level", "Ctrl+N"))
 			{
 				// Do Stuff
-				//saveLevel();
+				saveLevel();
 				cleanScene();
 			}
 			if (ImGui::MenuItem("Open Level", "Ctrl+O"))
