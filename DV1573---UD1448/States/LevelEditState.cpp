@@ -4,6 +4,9 @@
 #include "MenuState.h"
 #include <string>
 #include <commdlg.h>
+#include <filesystem>
+
+using namespace std::filesystem;
 
 LevelEditState::LevelEditState()
 {
@@ -299,7 +302,7 @@ void LevelEditState::guiInfo()
 			}
 			if (ImGui::MenuItem("Exit", "Ctrl+Q"))
 			{
-				glfwSetWindowShouldClose(glfwGetCurrentContext(), true);
+				quitEditor();
 			}
 			ImGui::EndMenu();
 		}
@@ -392,6 +395,7 @@ void LevelEditState::guiInfo()
 
 	if (ImGui::Button("Create", ImVec2(70, 25)))
 	{
+		//Make selection dynamic
 		if (listBox_Meshes_Current == 0)
 			addInstance(m_objects, "LevelEditMeshList/ConeTest.mesh"); //File path cannot be hard coded in the future
 		else if (listBox_Meshes_Current == 1)
@@ -435,6 +439,23 @@ void LevelEditState::updateState(const float& dt)
 	for (GameObject* object : m_objects)
 		object->update(dt);
 
+}
+
+void LevelEditState::quitEditor()
+{
+	Renderer::getInstance()->clear();
+	m_stateManager->clearAllAndSetState(new MenuState());
+	//glfwSetWindowShouldClose(glfwGetCurrentContext(), true); //<--- This option is for closing the whole program.
+}
+
+void LevelEditState::fileDir(char* files[])
+{
+	int i = 0;
+	const char* directoryToSearch = "C:/Users/BTH/source/repos/StevenCederrand/Night-of-the-Wizardlings/Assets/Meshes/LevelEditMeshList";
+	for (const auto& file : directory_iterator(directoryToSearch))
+	{
+		//Do stuff
+	}
 }
 
 bool LevelEditState::vecOfStrGet(void* data, int n, const char** out_text)

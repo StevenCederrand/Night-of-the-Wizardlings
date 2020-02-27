@@ -63,8 +63,10 @@ private:
 	void loadAsset(std::vector<GameObject*>&, std::string);
 	void addInstance(std::vector<GameObject*>&, std::string);
 	void updateState(const float& dt);
-
+	void quitEditor();
+	void fileDir(char* files[]);
 	bool vecOfStrGet(void* data, int n, const char** out_text);
+	
 
 private:
 	//Any inherited GameObject class added to this vector will support basic rendering
@@ -99,6 +101,8 @@ private:
 
 	static const char * items[];
 	int selectedItem = 0;
+
+	char* filesInDir[48] = {};
 
 };
 
