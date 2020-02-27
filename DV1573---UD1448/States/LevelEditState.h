@@ -63,8 +63,9 @@ private:
 	void addInstance(std::vector<GameObject*>&, std::string);
 	void updateState(const float& dt);
 	void quitEditor();
-	void fileDir(char* files[]);
+	void fileDir();
 	bool vecOfStrGet(void* data, int n, const char** out_text);
+	std::string fileNameFormat(std::string filePath);
 	
 
 private:
@@ -73,8 +74,11 @@ private:
 	std::vector<Pointlight*> m_pointlights;
 
 	std::vector <std::string> m_objectNames;
+	std::vector <std::string> m_files;
+	std::vector <std::string> m_fileNames;
 	std::vector<const char*> m_LightsNames;
 	std::vector<const char*> m_ParticlesNames;
+
 
 	int m_nrOfObj = 0;
 	int m_nrOfLight = 0;
@@ -99,8 +103,6 @@ private:
 
 	static const char * items[];
 	int selectedItem = 0;
-
-	char* filesInDir[48] = {};
 
 };
 

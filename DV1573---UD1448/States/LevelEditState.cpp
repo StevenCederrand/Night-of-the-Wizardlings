@@ -25,6 +25,10 @@ LevelEditState::LevelEditState()
 	m_skybox->prepareBuffers();
 	renderer->submitSkybox(m_skybox);
 	
+	//startup
+	fileDir();
+
+	//fileDir();
 	//the load map function might need tweaking in this regard
 	//We also need a save map func.
 	//loadMap();
@@ -244,8 +248,7 @@ void LevelEditState::render()
 void LevelEditState::guiInfo()
 {
 	//This has to be moved to be class or be made vectors instead? variables to be accable by other imgui instances
-	const char* listBox_Meshes[] = { "Cone", "Cube", "Cylinder", "Sphere" };
-	static int listBox_Meshes_Current = 1;
+	static int listBox_Meshes_Current = 0;
 
 	const char* listBox_Particles[] = { "Fire", "Torch", "Flies", "Smoke", "Rain" };
 	static int listBox_Particles_Current = 1;
@@ -357,9 +360,6 @@ void LevelEditState::guiInfo()
 
 	if (m_objectNames.size() > 0)
 	{
-		
-
-		const char* charPtr = "Test";
 		static int listBox_ActiveMeshes_Current = 0;
 		ListBox("Mesh", &listBox_ActiveMeshes_Current, m_objectNames);
 		ImGui::Separator();
@@ -399,7 +399,7 @@ void LevelEditState::guiInfo()
 	switch (assetTab)
 	{
 	case 0:
-		ImGui::ListBox("Meshes", &listBox_Meshes_Current, listBox_Meshes, IM_ARRAYSIZE(listBox_Meshes), 6);
+		ListBox("Meshes", &listBox_Meshes_Current, m_fileNames);
 		break;
 	case 1:
 		ImGui::ListBox("Particles", &listBox_Particles_Current, listBox_Particles, IM_ARRAYSIZE(listBox_Particles), 6);
@@ -421,6 +421,13 @@ void LevelEditState::guiInfo()
 		else if (listBox_Meshes_Current == 3)
 			addInstance(m_objects, "LevelEditMeshList/SphereTest.mesh");
 	}
+
+	if (ImGui::Button("Refresh", ImVec2(70, 25)))
+	{
+		fileDir();
+	}
+
+	ImGui::Separator();
 	
 	//ImGui::Button("Create", ImVec2(50.f, 20.f));
 
@@ -464,19 +471,34 @@ void LevelEditState::quitEditor()
 	//glfwSetWindowShouldClose(glfwGetCurrentContext(), true); //<--- This option is for closing the whole program.
 }
 
-void LevelEditState::fileDir(char* files[])
+void LevelEditState::fileDir()
 {
+	m_files.clear();
+	m_fileNames.clear();
 	int i = 0;
-	const char* directoryToSearch = "C:/Users/BTH/source/repos/StevenCederrand/Night-of-the-Wizardlings/Assets/Meshes/LevelEditMeshList";
-	for (const auto& file : directory_iterator(directoryToSearch))
+	for (const directory_entry dirEntry : recursive_directory_iterator("C:/Users/BTH/source/repos/StevenCederrand/Night-of-the-Wizardlings/Assets/Meshes/LevelEditMeshList"))
 	{
-		//Do stuff
+		std::cout << dirEntry.path().string() << std::endl;
+		m_files.push_back(dirEntry.path().string());
+		m_fileNames.push_back(fileNameFormat(m_files[i]));
+		i++;
 	}
 }
 
 bool LevelEditState::vecOfStrGet(void* data, int n, const char** out_text)
 {
 	return false;
+}
+
+std::string LevelEditState::fileNameFormat(std::string filePath)
+{
+	std::string firstName = filePath;
+	std::size_t found = firstName.find_last_of("/\\");
+	std::string editedName = firstName.substr(found + 1);
+	std::size_t foundDot = editedName.find_first_of(".");
+	editedName = editedName.substr(0, foundDot);
+
+	return editedName;
 }
 
 bool LevelEditState::ListBox(const char* label, int* currIndex, std::vector<std::string>& values)
