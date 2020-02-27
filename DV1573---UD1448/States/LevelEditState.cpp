@@ -105,7 +105,7 @@ void LevelEditState::loadAsset(std::vector<GameObject*>& objectVector, std::stri
 		std::cout << "This file is not a .mesh" << std::endl;
 
 	//Update list 
-
+	fileDir();
 }
 
 void LevelEditState::addInstance(std::vector<GameObject*> &objectVector, std::string filePath)
@@ -412,14 +412,16 @@ void LevelEditState::guiInfo()
 	if (ImGui::Button("Create", ImVec2(70, 25)))
 	{
 		//Make selection dynamic
-		if (listBox_Meshes_Current == 0)
-			addInstance(m_objects, "LevelEditMeshList/ConeTest.mesh"); //File path cannot be hard coded in the future
-		else if (listBox_Meshes_Current == 1)
-			addInstance(m_objects, "LevelEditMeshList/CubeTest.mesh");
-		else if (listBox_Meshes_Current == 2)
-			addInstance(m_objects, "LevelEditMeshList/CylinderTest.mesh");
-		else if (listBox_Meshes_Current == 3)
-			addInstance(m_objects, "LevelEditMeshList/SphereTest.mesh");
+		//if (listBox_Meshes_Current == 0)
+		//	addInstance(m_objects, "LevelEditMeshList/ConeTest.mesh"); //File path cannot be hard coded in the future
+		//else if (listBox_Meshes_Current == 1)
+		//	addInstance(m_objects, "LevelEditMeshList/CubeTest.mesh");
+		//else if (listBox_Meshes_Current == 2)
+		//	addInstance(m_objects, "LevelEditMeshList/CylinderTest.mesh");
+		//else if (listBox_Meshes_Current == 3)
+		//	addInstance(m_objects, "LevelEditMeshList/SphereTest.mesh");
+
+		addInstance(m_objects, m_files[listBox_Meshes_Current]);
 	}
 
 	if (ImGui::Button("Refresh", ImVec2(70, 25)))
