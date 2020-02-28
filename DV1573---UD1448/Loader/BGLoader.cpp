@@ -232,7 +232,7 @@ bool BGLoader::LoadMesh(std::string file)
 	std::ifstream binFile(fileName, std::ios::binary);
 	if (!binFile)
 	{
-		logError("Error! Could not find importer file: ", fileName);
+		logError("Error! Could not find imported file: " + fileName);
 		return false;
 	}
 	else

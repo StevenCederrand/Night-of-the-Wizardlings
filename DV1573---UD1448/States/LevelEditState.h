@@ -59,11 +59,11 @@ public:
 		const btCollisionObjectWrapper* obj2, int id2, int index2);*/
 
 private:
-	void loadAsset(std::vector<GameObject*>&, std::string);
+	void loadAsset(std::vector<GameObject*>&);
 	void addInstance(std::vector<GameObject*>&, std::string);
 	void updateState(const float& dt);
 	void quitEditor();
-	void fileDir();
+	void fileDirectoryUpdate();
 	bool vecOfStrGet(void* data, int n, const char** out_text);
 	std::string fileNameFormat(std::string filePath);
 	

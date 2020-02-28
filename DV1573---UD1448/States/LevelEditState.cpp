@@ -4,6 +4,8 @@
 #include "MenuState.h"
 #include <string>
 #include <commdlg.h>
+#include <iostream>
+#include <fstream>
 #include <filesystem>
 
 using namespace std::filesystem;
@@ -26,7 +28,7 @@ LevelEditState::LevelEditState()
 	renderer->submitSkybox(m_skybox);
 	
 	//startup
-	fileDir();
+	fileDirectoryUpdate();
 
 	//the load map function might need tweaking in this regard
 	//We also need a save map func.
@@ -70,15 +72,16 @@ std::string LevelEditState::OpenFileDialog(const char* filter = "All Files (*.*)
 	ofn.lpstrDefExt = "";
 	std::string fileNameStr;
 	
+	
 	if (GetOpenFileName(&ofn))
 		fileNameStr = fileName;
 
 	return fileNameStr;
 }
 
-void LevelEditState::loadAsset(std::vector<GameObject*>& objectVector, std::string filePath)
+void LevelEditState::loadAsset(std::vector<GameObject*>& objectVector)
 {
-
+	std::string filePath = OpenFileDialog();
 	std::size_t found = filePath.find_last_of("/\\");
 	std::string editedName = filePath.substr(found + 1);
 
@@ -88,23 +91,45 @@ void LevelEditState::loadAsset(std::vector<GameObject*>& objectVector, std::stri
 	std::cout << foundDot << std::endl;
 	std::string fileType = editedName.substr(foundDot, editedName.length());
 	std::cout << editedName << std::endl;
-
-	if (fileType == ".mesh")
+	
+	/*if (fileType == ".mesh")
 	{
 		try
-		{
-			copy(filePath, "C:/Users/BTH/Source/Repos/StevenCederrand/Night-of-the-Wizardlings/Assets/Meshes/LevelEditMeshList/" + editedName);
-		}
-		catch (std::exception & e)
+		{*/
+			//COPY FILE
+			//copy(filePath, "C:/Users/BTH/Source/Repos/StevenCederrand/Night-of-the-Wizardlings/Assets/Meshes/LevelEditMeshList/" + editedName);
+			std::ifstream source(filePath, std::ios::binary);
+			std::ofstream dest("C:/Users/BTH/Source/Repos/StevenCederrand/Night-of-the-Wizardlings/Assets/Meshes/LevelEditMeshList/" + editedName,
+				std::ios::binary);
+
+			//file size
+			source.seekg(0, std::ios::end);
+			std::ifstream::pos_type size = source.tellg();
+			source.seekg(0); 
+			//allocate memory for buffer
+			char* buffer = new char[size];
+
+			//copy file
+			source.read(buffer, size);
+			dest.write(buffer, size);
+
+			//Clean
+			delete[] buffer;
+			source.close();
+			dest.close();
+	//	}
+	/*	catch (std::exception & e)
 		{
 			std::cout << e.what();
-		}
-	}
-	else
-		std::cout << "This file is not a .mesh" << std::endl;
+		}*/
+	//}
+	//else
+	//	std::cout << "This file is not a .mesh" << std::endl;
 
+	if (directory_entry("C:/Users/BTH/Source/Repos/StevenCederrand/Night-of-the-Wizardlings/Assets/Meshes/LevelEditMeshList/").exists())
+		
 	//Update list 
-	fileDir();
+	fileDirectoryUpdate();
 }
 
 void LevelEditState::addInstance(std::vector<GameObject*> &objectVector, std::string filePath)
@@ -132,7 +157,7 @@ void LevelEditState::addInstance(std::vector<GameObject*> &objectVector, std::st
 	//CHECK IF FILE IS .MESH
 	std::cout << filePath << std::endl;
 	std::cout << editedName << std::endl;
-
+	fileDirectoryUpdate();
 	objectVector.push_back(new MapObject(editedName));
 	objectVector[objectVector.size() - 1]->loadMesh(editedPath);
 	objectName = objectVector[objectVector.size() - 1]->getObjectName();
@@ -356,7 +381,7 @@ void LevelEditState::guiInfo()
 			if (ImGui::MenuItem("Load Asset"))
 			{
 				// Do Stuff
-				loadAsset(m_objects, OpenFileDialog());
+				loadAsset(m_objects);
 
 			}
 			if (ImGui::MenuItem("Load Particles"))
@@ -436,7 +461,7 @@ void LevelEditState::guiInfo()
 
 	if (ImGui::Button("Refresh", ImVec2(70, 25)))
 	{
-		fileDir();
+		fileDirectoryUpdate();
 	}
 
 	ImGui::Separator();
@@ -483,7 +508,7 @@ void LevelEditState::quitEditor()
 	//glfwSetWindowShouldClose(glfwGetCurrentContext(), true); //<--- This option is for closing the whole program.
 }
 
-void LevelEditState::fileDir()
+void LevelEditState::fileDirectoryUpdate()
 {
 	m_files.clear();
 	m_fileNames.clear();
