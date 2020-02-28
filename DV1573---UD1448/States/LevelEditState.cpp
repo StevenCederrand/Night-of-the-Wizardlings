@@ -112,15 +112,17 @@ void LevelEditState::addInstance(std::vector<GameObject*> &objectVector, std::st
 	Renderer* renderer = Renderer::getInstance();
 
 	std::string firstName = filePath;
-	std::size_t found = firstName.find_last_of("/\\");
-	std::string newPath = firstName.substr(found - 1);
+	int found = firstName.find_last_of("/\\");
+	std::string newPath = firstName;
+
 	std::string editedName = firstName.substr(found + 1);
 
-	std::size_t found2 = newPath.find_last_of("/\\");
-	std::string editedPath = newPath.substr(found2 + 1);
+	newPath.erase(found, editedName.size()+1);
+	int secondFound = newPath.find_last_of("/\\");
+	std::string editedPath = newPath.substr(secondFound + 1);
+	editedPath = editedPath + "/" + editedName;
 
-	std::string gluedPath = editedPath + editedName;
-	std::cout << gluedPath << std::endl;
+	std::cout << editedPath << std::endl;
 
 	std::size_t foundDot = editedName.find_first_of(".");
 	editedName = editedName.substr(0, foundDot);
@@ -132,7 +134,7 @@ void LevelEditState::addInstance(std::vector<GameObject*> &objectVector, std::st
 	std::cout << editedName << std::endl;
 
 	objectVector.push_back(new MapObject(editedName));
-	objectVector[objectVector.size() - 1]->loadMesh(gluedPath);
+	objectVector[objectVector.size() - 1]->loadMesh(editedPath);
 	objectName = objectVector[objectVector.size() - 1]->getObjectName();
 	m_objectNames.push_back(objectName.c_str());
 	renderer->submit(objectVector[objectVector.size() - 1], RENDER_TYPE::STATIC);
@@ -234,7 +236,6 @@ void LevelEditState::cleanScene()
 void LevelEditState::update(float dt)
 {
 	updateState(dt);
-
 	//ImGui stuff
 	//ImGui::Begin("Level Editor", &tool_active, ImGuiWindowFlags_MenuBar);
 	//ImGui::TextColored(ImVec4(0.5f, 0.7f, 0.1f, 1.0f), "Select attribute");
