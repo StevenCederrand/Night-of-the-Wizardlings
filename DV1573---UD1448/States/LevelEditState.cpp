@@ -127,6 +127,18 @@ void LevelEditState::addInstance(std::vector<GameObject*> &objectVector, std::st
 	objectName = objectVector[objectVector.size() - 1]->getObjectName();
 	m_objectNames.push_back(objectName.c_str());
 	renderer->submit(objectVector[objectVector.size() - 1], RENDER_TYPE::STATIC);
+
+	std::cout << to_string(objectVector[0]->getLastPosition()) << std::endl;
+
+}
+
+void LevelEditState::createDuplicate(std::vector<GameObject*>& objectVector, int chosen)
+{
+	std::cout << chosen << std::endl;
+
+	objectVector[chosen];
+
+	objectVector.push_back(objectVector[chosen]);
 }
 
 void LevelEditState::saveLevel()
@@ -252,6 +264,7 @@ void LevelEditState::guiInfo()
 
 	const char* listBox_Particles[] = { "Fire", "Torch", "Flies", "Smoke", "Rain" };
 	static int listBox_Particles_Current = 1;
+	static int listBox_ActiveMeshes_Current = 0;
 
 	float* View;
 	float* Proj;
@@ -334,6 +347,7 @@ void LevelEditState::guiInfo()
 			if (ImGui::MenuItem("Duplicate", "Ctrl+D"))
 			{
 				// Do Stuff
+				createDuplicate(m_objects, listBox_ActiveMeshes_Current);
 			}
 			ImGui::EndMenu();
 		}
@@ -360,7 +374,6 @@ void LevelEditState::guiInfo()
 
 	if (m_objectNames.size() > 0)
 	{
-		static int listBox_ActiveMeshes_Current = 0;
 		ListBox("Mesh", &listBox_ActiveMeshes_Current, m_objectNames);
 		ImGui::Separator();
 	}
