@@ -1,6 +1,6 @@
 testing...
 Mesh nr. : 0
-Mesh name : Academy
+Mesh name : ConeTest
 ==================
 Position : vec3(0.000000, 0.000000, 0.000000)
 Mesh nr. : 1

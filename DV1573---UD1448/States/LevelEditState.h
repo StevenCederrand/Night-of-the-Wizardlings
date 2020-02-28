@@ -59,7 +59,7 @@ public:
 		const btCollisionObjectWrapper* obj2, int id2, int index2);*/
 
 private:
-	void loadAsset(std::vector<GameObject*>&, std::string);
+	void loadAsset(std::vector<GameObject*>&);
 	void addInstance(std::vector<GameObject*>&, std::string);
 	void createDuplicate(std::vector<GameObject*>&, int chosen);
 	void updateState(const float& dt);
