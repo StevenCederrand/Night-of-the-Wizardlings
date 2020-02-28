@@ -82,6 +82,7 @@ std::string LevelEditState::OpenFileDialog(const char* filter = "All Files (*.*)
 void LevelEditState::loadAsset(std::vector<GameObject*>& objectVector)
 {
 	std::string filePath = OpenFileDialog();
+
 	std::size_t found = filePath.find_last_of("/\\");
 	std::string editedName = filePath.substr(found + 1);
 
@@ -136,6 +137,8 @@ void LevelEditState::addInstance(std::vector<GameObject*> &objectVector, std::st
 {
 	Renderer* renderer = Renderer::getInstance();
 
+	std::cout << "<<<<<" << filePath  << "<<<<<<<<" << std::endl;
+
 	std::string firstName = filePath;
 	int found = firstName.find_last_of("/\\");
 	std::string newPath = firstName;
@@ -163,6 +166,42 @@ void LevelEditState::addInstance(std::vector<GameObject*> &objectVector, std::st
 	objectName = objectVector[objectVector.size() - 1]->getObjectName();
 	m_objectNames.push_back(objectName.c_str());
 	renderer->submit(objectVector[objectVector.size() - 1], RENDER_TYPE::STATIC);
+
+	std::cout << to_string(objectVector[0]->getLastPosition()) << std::endl;
+
+}
+
+void LevelEditState::createDuplicate(std::vector<GameObject*>& objectVector, int chosen)
+{
+	Renderer* renderer = Renderer::getInstance();
+
+	std::cout << chosen << std::endl;
+
+	std::string firstName = m_files[chosen];
+	int found = firstName.find_last_of("/\\");
+	std::string newPath = firstName;
+
+	std::string editedName = firstName.substr(found + 1);
+
+	newPath.erase(found, editedName.size() + 1);
+	int secondFound = newPath.find_last_of("/\\");
+	std::string editedPath = newPath.substr(secondFound + 1);
+	editedPath = editedPath + "/" + editedName;
+
+	std::cout << editedPath << std::endl;
+
+	std::size_t foundDot = editedName.find_first_of(".");
+	editedName = editedName.substr(0, foundDot);
+
+
+	objectVector.push_back(new MapObject(editedName));
+	objectVector[objectVector.size() - 1]->loadMesh(editedPath);
+	objectName = objectVector[objectVector.size() - 1]->getObjectName();
+	m_objectNames.push_back(objectName.c_str());
+	renderer->submit(objectVector[objectVector.size() - 1], RENDER_TYPE::STATIC);
+
+	//objectVector[chosen]->setTransform(glm::vec3(1.0), glm::vec3(1.0), glm::vec3(1.0));
+
 }
 
 void LevelEditState::saveLevel()
@@ -287,6 +326,7 @@ void LevelEditState::guiInfo()
 
 	const char* listBox_Particles[] = { "Fire", "Torch", "Flies", "Smoke", "Rain" };
 	static int listBox_Particles_Current = 1;
+	static int listBox_ActiveMeshes_Current = 0;
 
 	float* View;
 	float* Proj;
@@ -304,6 +344,7 @@ void LevelEditState::guiInfo()
 
 	float matrixT[3], matrixR[3], matrixS[3];
 
+	
 
 	ImGui::Begin("Level Editor");
 
@@ -366,9 +407,10 @@ void LevelEditState::guiInfo()
 			{
 				// Do Stuff
 			}
-			if (ImGui::MenuItem("Duplicate", "Ctrl+D"))
+			if (ImGui::MenuItem("Duplicate", "Ctrl+D") || (Input::isKeyPressed(GLFW_KEY_LEFT_CONTROL) && Input::isKeyPressed(GLFW_KEY_D)))
 			{
 				// Do Stuff
+				createDuplicate(m_objects, listBox_ActiveMeshes_Current);
 			}
 			ImGui::EndMenu();
 		}
@@ -395,7 +437,6 @@ void LevelEditState::guiInfo()
 
 	if (m_objectNames.size() > 0)
 	{
-		static int listBox_ActiveMeshes_Current = 0;
 		ListBox("Mesh", &listBox_ActiveMeshes_Current, m_objectNames);
 		ImGui::Separator();
 	}
