@@ -62,6 +62,7 @@ private:
 	void loadAsset(std::vector<GameObject*>&);
 	void addInstance(std::vector<GameObject*>&, std::string);
 	void createDuplicate(std::vector<GameObject*>&, int chosen);
+	void deleteObject(std::vector<GameObject*>&, int chosen);
 	void updateState(const float& dt);
 	void quitEditor();
 	void fileDirectoryUpdate();

@@ -124,9 +124,9 @@ void LevelEditState::loadAsset(std::vector<GameObject*>& objectVector)
 	}
 	else
 		std::cout << "This file is not a .mesh" << std::endl;
+	
+	//TODO:: Fetch info about texture, copy over to correct map.
 
-	if (directory_entry("C:/Users/BTH/Source/Repos/StevenCederrand/Night-of-the-Wizardlings/Assets/Meshes/LevelEditMeshList/").exists())
-		
 	//Update list 
 	fileDirectoryUpdate();
 }
@@ -194,6 +194,11 @@ void LevelEditState::createDuplicate(std::vector<GameObject*>& objectVector, int
 
 }
 
+void LevelEditState::deleteObject(std::vector<GameObject*>& objectVector, int chosen)
+{
+	objectVector.erase(objectVector.begin() + chosen);
+	m_objectNames.erase(m_objectNames.begin() + chosen);
+}
 void LevelEditState::saveLevel()
 {
 	OpenFileDialog();
@@ -304,7 +309,7 @@ void LevelEditState::guiInfo()
 
 	const char* listBox_Particles[] = { "Fire", "Torch", "Flies", "Smoke", "Rain" };
 	static int listBox_Particles_Current = 1;
-	static int listBox_ActiveMeshes_Current = 0;
+	static int listBox_ActiveMeshes_Current = -1;
 
 	float* View;
 	float* Proj;
@@ -391,13 +396,14 @@ void LevelEditState::guiInfo()
 			//DELETE MESH BUTTON
 			if (ImGui::MenuItem("Delete"))
 			{
-				// Do Stuff
+				//if (listBox_ActiveMeshes_Current != -1)
+					//deleteObject(m_objects, listBox_ActiveMeshes_Current);
 			}
 			//DUPLICATE BUTTON
-			if (ImGui::MenuItem("Duplicate", "Ctrl+D"))
+			if (ImGui::MenuItem("Duplicate", "Ctrl+D") || Input::isKeyHeldDown(GLFW_KEY_LEFT_CONTROL) && Input::isKeyPressed(GLFW_KEY_C))
 			{
-				// Do Stuff
-				createDuplicate(m_objects, listBox_ActiveMeshes_Current);
+				if (listBox_ActiveMeshes_Current != -1)
+					createDuplicate(m_objects, listBox_ActiveMeshes_Current);
 			}
 			ImGui::EndMenu();
 		}
@@ -478,6 +484,7 @@ void LevelEditState::guiInfo()
 	if (ImGui::Button("Create", ImVec2(70, 25)))
 	{
 		addInstance(m_objects, m_files[listBox_Meshes_Current]);
+		listBox_ActiveMeshes_Current = 0;
 	}
 
 	if (ImGui::Button("Refresh", ImVec2(70, 25)))
