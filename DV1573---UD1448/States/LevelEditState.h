@@ -66,7 +66,8 @@ private:
 	void quitEditor();
 	void fileDirectoryUpdate();
 	bool vecOfStrGet(void* data, int n, const char** out_text);
-	std::string fileNameFormat(std::string filePath);
+	std::string fileNameFormat(std::string filePath, bool isPath);
+
 	
 
 private:

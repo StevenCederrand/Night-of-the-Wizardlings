@@ -12,22 +12,26 @@ using namespace std::filesystem;
 
 LevelEditState::LevelEditState()
 {
+	//Pick shader
 	ShaderMap::getInstance()->getShader(BASIC_FORWARD)->setInt("albedoTexture", 0);
 
+	//Create the scenes camera
 	m_camera = new Camera(glm::vec3(57.f, 100.f, -78.f), -232.0f, -43.2);
-
+	//Instanciate a mouse picker
 	m_picker = new MousePicker(m_camera, m_camera->getProjMat());
-
+	
+	//Get the instance of the renderer
 	Renderer* renderer = Renderer::getInstance();
 	
-
+	//Prepare the camera
 	renderer->setupCamera(m_camera);
 
+	//Load skybo
 	m_skybox = new SkyBox();
 	m_skybox->prepareBuffers();
 	renderer->submitSkybox(m_skybox);
 	
-	//startup
+	//Check the file directory
 	fileDirectoryUpdate();
 
 	//the load map function might need tweaking in this regard
@@ -81,51 +85,47 @@ std::string LevelEditState::OpenFileDialog(const char* filter = "All Files (*.*)
 
 void LevelEditState::loadAsset(std::vector<GameObject*>& objectVector)
 {
+	//File dialog opens and returns a string that is desired filepath
 	std::string filePath = OpenFileDialog();
 
+	//Format the string to only be the name of the file
 	std::size_t found = filePath.find_last_of("/\\");
 	std::string editedName = filePath.substr(found + 1);
 
+	//Debug
 	std::cout << filePath << std::endl;
 	std::cout << editedName << std::endl;
+	
+	//Remove everything from the dot onwards to get a name without file prefix
 	std::size_t foundDot = editedName.find_first_of(".");
 	std::cout << foundDot << std::endl;
 	std::string fileType = editedName.substr(foundDot, editedName.length());
 	std::cout << editedName << std::endl;
 	
-	/*if (fileType == ".mesh")
+	if (fileType == ".mesh")
 	{
-		try
-		{*/
-			//COPY FILE
-			//copy(filePath, "C:/Users/BTH/Source/Repos/StevenCederrand/Night-of-the-Wizardlings/Assets/Meshes/LevelEditMeshList/" + editedName);
-			std::ifstream source(filePath, std::ios::binary);
-			std::ofstream dest("C:/Users/BTH/Source/Repos/StevenCederrand/Night-of-the-Wizardlings/Assets/Meshes/LevelEditMeshList/" + editedName,
-				std::ios::binary);
+		std::ifstream source(filePath, std::ios::binary);
+		std::ofstream dest("C:/Users/BTH/Source/Repos/StevenCederrand/Night-of-the-Wizardlings/Assets/Meshes/LevelEditMeshList/" + editedName,
+			std::ios::binary);
 
-			//file size
-			source.seekg(0, std::ios::end);
-			std::ifstream::pos_type size = source.tellg();
-			source.seekg(0); 
-			//allocate memory for buffer
-			char* buffer = new char[size];
+		//file size
+		source.seekg(0, std::ios::end);
+		std::ifstream::pos_type size = source.tellg();
+		source.seekg(0); 
+		//allocate memory for buffer
+		char* buffer = new char[size];
 
-			//copy file
-			source.read(buffer, size);
-			dest.write(buffer, size);
+		//copy file
+		source.read(buffer, size);
+		dest.write(buffer, size);
 
-			//Clean
-			delete[] buffer;
-			source.close();
-			dest.close();
-	//	}
-	/*	catch (std::exception & e)
-		{
-			std::cout << e.what();
-		}*/
-	//}
-	//else
-	//	std::cout << "This file is not a .mesh" << std::endl;
+		//Clean
+		delete[] buffer;
+		source.close();
+		dest.close();
+	}
+	else
+		std::cout << "This file is not a .mesh" << std::endl;
 
 	if (directory_entry("C:/Users/BTH/Source/Repos/StevenCederrand/Night-of-the-Wizardlings/Assets/Meshes/LevelEditMeshList/").exists())
 		
@@ -139,17 +139,12 @@ void LevelEditState::addInstance(std::vector<GameObject*> &objectVector, std::st
 
 	std::cout << "<<<<<" << filePath  << "<<<<<<<<" << std::endl;
 
-	std::string firstName = filePath;
-	int found = firstName.find_last_of("/\\");
-	std::string newPath = firstName;
+	//Call fileformat with false param. to get file name,
+	//call fileformat with true param. to get filePath.
+	std::string editedName = fileNameFormat(filePath, false);
+	std::string editedPath = fileNameFormat(filePath, true);
 
-	std::string editedName = firstName.substr(found + 1);
-
-	newPath.erase(found, editedName.size()+1);
-	int secondFound = newPath.find_last_of("/\\");
-	std::string editedPath = newPath.substr(secondFound + 1);
-	editedPath = editedPath + "/" + editedName;
-
+	std::cout << editedName << std::endl;
 	std::cout << editedPath << std::endl;
 
 	std::size_t foundDot = editedName.find_first_of(".");
@@ -159,7 +154,6 @@ void LevelEditState::addInstance(std::vector<GameObject*> &objectVector, std::st
 
 	//CHECK IF FILE IS .MESH
 	std::cout << filePath << std::endl;
-	std::cout << editedName << std::endl;
 	fileDirectoryUpdate();
 	objectVector.push_back(new MapObject(editedName));
 	objectVector[objectVector.size() - 1]->loadMesh(editedPath);
@@ -487,16 +481,6 @@ void LevelEditState::guiInfo()
 
 	if (ImGui::Button("Create", ImVec2(70, 25)))
 	{
-		//Make selection dynamic
-		//if (listBox_Meshes_Current == 0)
-		//	addInstance(m_objects, "LevelEditMeshList/ConeTest.mesh"); //File path cannot be hard coded in the future
-		//else if (listBox_Meshes_Current == 1)
-		//	addInstance(m_objects, "LevelEditMeshList/CubeTest.mesh");
-		//else if (listBox_Meshes_Current == 2)
-		//	addInstance(m_objects, "LevelEditMeshList/CylinderTest.mesh");
-		//else if (listBox_Meshes_Current == 3)
-		//	addInstance(m_objects, "LevelEditMeshList/SphereTest.mesh");
-
 		addInstance(m_objects, m_files[listBox_Meshes_Current]);
 	}
 
@@ -506,9 +490,6 @@ void LevelEditState::guiInfo()
 	}
 
 	ImGui::Separator();
-	
-	//ImGui::Button("Create", ImVec2(50.f, 20.f));
-
 	ImGui::End();
 
 #pragma endregion
@@ -558,7 +539,7 @@ void LevelEditState::fileDirectoryUpdate()
 	{
 		std::cout << dirEntry.path().string() << std::endl;
 		m_files.push_back(dirEntry.path().string());
-		m_fileNames.push_back(fileNameFormat(m_files[i]));
+		m_fileNames.push_back(fileNameFormat(m_files[i], false));
 		i++;
 	}
 }
@@ -568,15 +549,26 @@ bool LevelEditState::vecOfStrGet(void* data, int n, const char** out_text)
 	return false;
 }
 
-std::string LevelEditState::fileNameFormat(std::string filePath)
+std::string LevelEditState::fileNameFormat(std::string filePath, bool isPath)
 {
+	std::string finalString;
+
 	std::string firstName = filePath;
 	std::size_t found = firstName.find_last_of("/\\");
 	std::string editedName = firstName.substr(found + 1);
 	std::size_t foundDot = editedName.find_first_of(".");
-	editedName = editedName.substr(0, foundDot);
+	finalString = editedName.substr(0, foundDot);
+	
+	if (isPath)
+	{
+		std::string newPath = firstName;
+		newPath.erase(found, editedName.size() + 1);
+		std::size_t secondFound = newPath.find_last_of("/\\");
+		std::string editedPath = newPath.substr(secondFound + 1);
+		finalString = editedPath + "/" + editedName;
+	}
 
-	return editedName;
+	return finalString;
 }
 
 bool LevelEditState::ListBox(const char* label, int* currIndex, std::vector<std::string>& values)
