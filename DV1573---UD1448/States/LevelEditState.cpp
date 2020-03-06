@@ -180,6 +180,8 @@ void LevelEditState::createDuplicate(std::vector<GameObject*>& objectVector, int
 
 	std::cout << chosen << std::endl;
 
+	std::string firstName = m_objects[chosen]->getObjectName();
+	std::string object = firstName + ".mesh";
 	//Search list if there are objects with the same name 
 
 	firstName = firstName + "_Dup";

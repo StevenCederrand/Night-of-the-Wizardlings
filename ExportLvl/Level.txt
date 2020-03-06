@@ -1,70 +1,18 @@
 testing...
 Mesh nr. : 0
-Mesh name : canvas
+Mesh name : Academy_t
 ==================
-Position : vec3(0.000000, 0.000000, 0.000000)
+Position : vec3(0.000000, 0.000000, 7.390000)
 Mesh nr. : 1
 Mesh name : canvas
 ==================
 Position : vec3(0.000000, 0.000000, 0.000000)
 Mesh nr. : 2
-Mesh name : canvas
+Mesh name : DSTROutsideWalls
 ==================
 Position : vec3(0.000000, 0.000000, 0.000000)
 Mesh nr. : 3
-Mesh name : canvas
-==================
-Position : vec3(0.000000, 0.000000, 0.000000)
-Mesh nr. : 4
-Mesh name : canvas
-==================
-Position : vec3(0.000000, 0.000000, 0.000000)
-Mesh nr. : 5
-Mesh name : canvas
-==================
-Position : vec3(0.000000, 0.000000, 0.000000)
-Mesh nr. : 6
-Mesh name : canvas
-==================
-Position : vec3(0.000000, 0.000000, 0.000000)
-Mesh nr. : 7
-Mesh name : canvas
-==================
-Position : vec3(0.000000, 0.000000, 0.000000)
-Mesh nr. : 8
-Mesh name : canvas
-==================
-Position : vec3(0.000000, 0.000000, 0.000000)
-Mesh nr. : 9
-Mesh name : canvas
-==================
-Position : vec3(0.000000, 0.000000, 0.000000)
-Mesh nr. : 10
-Mesh name : canvas
-==================
-Position : vec3(0.000000, 0.000000, 0.000000)
-Mesh nr. : 11
-Mesh name : canvas
-==================
-Position : vec3(0.000000, 0.000000, 0.000000)
-Mesh nr. : 12
-Mesh name : canvas
-==================
-Position : vec3(0.000000, 0.000000, 0.000000)
-Mesh nr. : 13
-Mesh name : canvas
-==================
-Position : vec3(0.000000, 0.000000, 0.000000)
-Mesh nr. : 14
-Mesh name : canvas
-==================
-Position : vec3(0.000000, 0.000000, 0.000000)
-Mesh nr. : 15
-Mesh name : canvas
-==================
-Position : vec3(0.000000, 0.000000, 0.000000)
-Mesh nr. : 16
-Mesh name : canvas
+Mesh name : Academy_t_Dup
 ==================
 Position : vec3(0.000000, 0.000000, 0.000000)
 endend
