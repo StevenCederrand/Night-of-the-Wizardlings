@@ -289,29 +289,17 @@ void LevelEditState::cleanScene()
 
 	m_pointlights.clear();
 	m_objects.clear();
+	m_objectNames.clear();
 
 	std::cout << "Scene cleaned." << std::endl;
 }
-//bool LevelEditState::GetVecToStr(void* data, int i, const char** out_text)
-//{
-//
-//}
 
 void LevelEditState::update(float dt)
 {
 	updateState(dt);
-	//ImGui stuff
-	//ImGui::Begin("Level Editor", &tool_active, ImGuiWindowFlags_MenuBar);
-	//ImGui::TextColored(ImVec4(0.5f, 0.7f, 0.1f, 1.0f), "Select attribute");
-	//ImGui::Checkbox("Test box", &test);
-
-	//fileDialog.Display();
-
-	//ImGui::End();
 
 	static float t = 0.0f;
 	t += DeltaTime;
-	
 }
 
 void LevelEditState::render()
@@ -379,34 +367,43 @@ void LevelEditState::guiInfo()
 
 	if (ImGui::BeginMainMenuBar())
 	{
+		//====================FILE-TAB=======================
 		if (ImGui::BeginMenu("File"))
 		{
+			//NEW LEVEL BUTTON
 			if (ImGui::MenuItem("New Level", "Ctrl+N"))
 			{
 				// Do Stuff
 				saveLevel();
 				cleanScene();
 			}
+			//OPEN LEVEL BUTTON
 			if (ImGui::MenuItem("Open Level", "Ctrl+O"))
 			{
 				//addInstance(m_objects, OpenFileDialog());
 			}
+			//SAVE LEVEL BUTTON
 			if (ImGui::MenuItem("Save Level", "Ctrl+S"))
 			{
 				saveLevel();
 			}
+			//EXIT EDITOR BUTTON
 			if (ImGui::MenuItem("Exit", "Ctrl+Q"))
 			{
 				quitEditor();
 			}
 			ImGui::EndMenu();
 		}
+		//======================END=========================
+		//====================EDIT-TAB=======================
 		if (ImGui::BeginMenu("Edit"))
 		{
+			//DELETE MESH BUTTON
 			if (ImGui::MenuItem("Delete"))
 			{
 				// Do Stuff
 			}
+			//DUPLICATE BUTTON
 			if (ImGui::MenuItem("Duplicate", "Ctrl+D") || (Input::isKeyPressed(GLFW_KEY_LEFT_CONTROL) && Input::isKeyPressed(GLFW_KEY_D)))
 			{
 				// Do Stuff
@@ -414,6 +411,8 @@ void LevelEditState::guiInfo()
 			}
 			ImGui::EndMenu();
 		}
+		//======================END=========================
+		//====================CREATE-TAB=======================
 		if (ImGui::BeginMenu("Create"))
 		{
 			if (ImGui::MenuItem("Create PointLight"))
@@ -432,6 +431,7 @@ void LevelEditState::guiInfo()
 			}
 			ImGui::EndMenu();
 		}
+		//======================END=========================
 		ImGui::EndMainMenuBar();
 	}
 
