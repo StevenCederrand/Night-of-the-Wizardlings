@@ -1,10 +1,70 @@
 testing...
 Mesh nr. : 0
-Mesh name : AcademyOuter
+Mesh name : canvas
 ==================
 Position : vec3(0.000000, 0.000000, 0.000000)
 Mesh nr. : 1
-Mesh name : Academy_t
+Mesh name : canvas
+==================
+Position : vec3(0.000000, 0.000000, 0.000000)
+Mesh nr. : 2
+Mesh name : canvas
+==================
+Position : vec3(0.000000, 0.000000, 0.000000)
+Mesh nr. : 3
+Mesh name : canvas
+==================
+Position : vec3(0.000000, 0.000000, 0.000000)
+Mesh nr. : 4
+Mesh name : canvas
+==================
+Position : vec3(0.000000, 0.000000, 0.000000)
+Mesh nr. : 5
+Mesh name : canvas
+==================
+Position : vec3(0.000000, 0.000000, 0.000000)
+Mesh nr. : 6
+Mesh name : canvas
+==================
+Position : vec3(0.000000, 0.000000, 0.000000)
+Mesh nr. : 7
+Mesh name : canvas
+==================
+Position : vec3(0.000000, 0.000000, 0.000000)
+Mesh nr. : 8
+Mesh name : canvas
+==================
+Position : vec3(0.000000, 0.000000, 0.000000)
+Mesh nr. : 9
+Mesh name : canvas
+==================
+Position : vec3(0.000000, 0.000000, 0.000000)
+Mesh nr. : 10
+Mesh name : canvas
+==================
+Position : vec3(0.000000, 0.000000, 0.000000)
+Mesh nr. : 11
+Mesh name : canvas
+==================
+Position : vec3(0.000000, 0.000000, 0.000000)
+Mesh nr. : 12
+Mesh name : canvas
+==================
+Position : vec3(0.000000, 0.000000, 0.000000)
+Mesh nr. : 13
+Mesh name : canvas
+==================
+Position : vec3(0.000000, 0.000000, 0.000000)
+Mesh nr. : 14
+Mesh name : canvas
+==================
+Position : vec3(0.000000, 0.000000, 0.000000)
+Mesh nr. : 15
+Mesh name : canvas
+==================
+Position : vec3(0.000000, 0.000000, 0.000000)
+Mesh nr. : 16
+Mesh name : canvas
 ==================
 Position : vec3(0.000000, 0.000000, 0.000000)
 endend

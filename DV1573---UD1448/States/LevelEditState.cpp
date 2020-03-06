@@ -150,7 +150,16 @@ void LevelEditState::addInstance(std::vector<GameObject*> &objectVector, std::st
 	std::size_t foundDot = editedName.find_first_of(".");
 	editedName = editedName.substr(0, foundDot);
 
-
+	//Search list if there are objects with the same name 
+	int count = 0;
+	for (int i = 0; i < m_objects.size(); i++)
+	{
+		if (m_objects[i]->getObjectName().find(editedName) == 0)
+			count++;
+	}
+	
+	if(count != 0)
+		editedName = editedName + std::to_string(count);
 
 	//CHECK IF FILE IS .MESH
 	std::cout << filePath << std::endl;
@@ -170,31 +179,20 @@ void LevelEditState::createDuplicate(std::vector<GameObject*>& objectVector, int
 	Renderer* renderer = Renderer::getInstance();
 
 	std::cout << chosen << std::endl;
+	std::string firstName = m_objects[chosen]->getObjectName();
+	std::string object = firstName + ".mesh";
 
-	std::string firstName = m_files[chosen];
-	int found = firstName.find_last_of("/\\");
-	std::string newPath = firstName;
+	//Search list if there are objects with the same name 
 
-	std::string editedName = firstName.substr(found + 1);
+	firstName = firstName + "_Dup";
 
-	newPath.erase(found, editedName.size() + 1);
-	int secondFound = newPath.find_last_of("/\\");
-	std::string editedPath = newPath.substr(secondFound + 1);
-	editedPath = editedPath + "/" + editedName;
-
-	std::cout << editedPath << std::endl;
-
-	std::size_t foundDot = editedName.find_first_of(".");
-	editedName = editedName.substr(0, foundDot);
-
-
-	objectVector.push_back(new MapObject(editedName));
-	objectVector[objectVector.size() - 1]->loadMesh(editedPath);
+	objectVector.push_back(new MapObject(firstName));
+	objectVector[objectVector.size() - 1]->loadMesh(object);
 	objectName = objectVector[objectVector.size() - 1]->getObjectName();
 	m_objectNames.push_back(objectName.c_str());
 	renderer->submit(objectVector[objectVector.size() - 1], RENDER_TYPE::STATIC);
 
-	//objectVector[chosen]->setTransform(glm::vec3(1.0), glm::vec3(1.0), glm::vec3(1.0));
+	objectVector[chosen]->setTransform(glm::vec3(1.0), glm::vec3(1.0), glm::vec3(1.0));
 
 }
 
@@ -431,7 +429,7 @@ void LevelEditState::guiInfo()
 				// Do Stuff
 			}
 			//DUPLICATE BUTTON
-			if (ImGui::MenuItem("Duplicate", "Ctrl+D") || (Input::isKeyPressed(GLFW_KEY_LEFT_CONTROL) && Input::isKeyPressed(GLFW_KEY_D)))
+			if (ImGui::MenuItem("Duplicate", "Ctrl+D"))
 			{
 				// Do Stuff
 				createDuplicate(m_objects, listBox_ActiveMeshes_Current);
