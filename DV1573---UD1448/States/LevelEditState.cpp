@@ -76,7 +76,6 @@ std::string LevelEditState::OpenFileDialog(const char* filter = "All Files (*.*)
 	ofn.lpstrDefExt = "";
 	std::string fileNameStr;
 	
-	
 	if (GetOpenFileName(&ofn))
 		fileNameStr = fileName;
 
