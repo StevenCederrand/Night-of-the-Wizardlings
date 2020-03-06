@@ -63,7 +63,6 @@ LevelEditState::~LevelEditState()
 
 std::string LevelEditState::OpenFileDialog(const char* filter = "All Files (*.*)\0*.mesh*\0", HWND owner = NULL)
 {
-
 	OPENFILENAME ofn;
 	char fileName[MAX_PATH] = "";
 	ZeroMemory(&ofn, sizeof(ofn));
@@ -72,10 +71,9 @@ std::string LevelEditState::OpenFileDialog(const char* filter = "All Files (*.*)
 	ofn.lpstrFilter = filter;
 	ofn.lpstrFile = fileName;
 	ofn.nMaxFile = MAX_PATH;
-	ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+	ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR;
 	ofn.lpstrDefExt = "";
 	std::string fileNameStr;
-	
 	
 	if (GetOpenFileName(&ofn))
 		fileNameStr = fileName;
