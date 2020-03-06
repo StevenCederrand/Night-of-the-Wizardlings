@@ -422,6 +422,7 @@ void LevelEditState::guiInfo()
 		}
 		//======================END=========================
 		//====================EDIT-TAB=======================
+
 		if (ImGui::BeginMenu("Edit"))
 		{
 			//DELETE MESH BUTTON
@@ -431,11 +432,12 @@ void LevelEditState::guiInfo()
 					//deleteObject(m_objects, listBox_ActiveMeshes_Current);
 			}
 			//DUPLICATE BUTTON
-			if (ImGui::MenuItem("Duplicate", "Ctrl+D") || Input::isKeyHeldDown(GLFW_KEY_LEFT_CONTROL) && Input::isKeyPressed(GLFW_KEY_C))
+			if (ImGui::MenuItem("Duplicate", "Ctrl+D"))
 			{
 				if (listBox_ActiveMeshes_Current != -1)
 					createDuplicate(m_objects, listBox_ActiveMeshes_Current);
 			}
+
 			ImGui::EndMenu();
 		}
 		//======================END=========================
@@ -525,6 +527,26 @@ void LevelEditState::guiInfo()
 
 	ImGui::Separator();
 	ImGui::End();
+
+#pragma endregion
+
+#pragma region SHORTCUTS
+	//DUPLICATE
+	if (Input::isKeyHeldDown(GLFW_KEY_LEFT_CONTROL) && Input::isKeyPressed(GLFW_KEY_D))
+	{
+		if (listBox_ActiveMeshes_Current != -1)
+			createDuplicate(m_objects, listBox_ActiveMeshes_Current);
+	}
+
+	//DELETE 
+
+	//NEW LEVEL
+
+	//OPEN LEVEL
+
+	//SAVE LEVEL 
+
+	//EXIT
 
 #pragma endregion
 
