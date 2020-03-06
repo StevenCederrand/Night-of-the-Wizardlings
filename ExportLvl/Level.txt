@@ -4,15 +4,7 @@ Mesh name : AcademyOuter
 ==================
 Position : vec3(0.000000, 0.000000, 0.000000)
 Mesh nr. : 1
-Mesh name : ConeTest
-==================
-Position : vec3(0.000000, 0.000000, 0.000000)
-Mesh nr. : 2
-Mesh name : CylinderTest
-==================
-Position : vec3(0.000000, 0.000000, 0.000000)
-Mesh nr. : 3
-Mesh name : CubeTest
+Mesh name : Academy_t
 ==================
 Position : vec3(0.000000, 0.000000, 0.000000)
 endend

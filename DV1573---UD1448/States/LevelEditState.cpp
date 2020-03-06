@@ -34,6 +34,7 @@ LevelEditState::LevelEditState()
 	//Check the file directory
 	fileDirectoryUpdate();
 
+
 	//the load map function might need tweaking in this regard
 	//We also need a save map func.
 	//loadMap();
@@ -63,6 +64,7 @@ LevelEditState::~LevelEditState()
 
 std::string LevelEditState::OpenFileDialog(const char* filter = "All Files (*.*)\0*.mesh*\0", HWND owner = NULL)
 {
+
 	OPENFILENAME ofn;
 	char fileName[MAX_PATH] = "";
 	ZeroMemory(&ofn, sizeof(ofn));
@@ -312,6 +314,7 @@ void LevelEditState::guiInfo()
 	float* Proj;
 	float* ID;
 	float* gridSize;
+	
 
 	glm::mat4 m_viewMat = m_camera->getViewMat();
 	View = glm::value_ptr(m_viewMat);
@@ -344,9 +347,41 @@ void LevelEditState::guiInfo()
 	ImGui::Separator();
 
 	ImGuizmo::DecomposeMatrixToComponents(ID, matrixT, matrixR, matrixS);
-	ImGui::InputFloat3("Tr", matrixT, 3);
-	ImGui::InputFloat3("Ro", matrixR, 3);
-	ImGui::InputFloat3("Sc", matrixS, 3);
+	
+	glm::vec3 meshTransform = glm::vec3(0,0,0);
+	glm::quat meshRotation = glm::quat(0.0, 0.0, 0.0, 1.0);
+	float objectX, objectY, objectZ;
+	float objRotX, objRotY, objRotZ;
+	objectX = objectY = objectZ = 0.0;
+	objRotX = objRotY = objRotZ = 0.0;
+
+
+	//Check if the vector has content or not
+	if (m_objects.size() != 0)
+	{
+		meshTransform = m_objects[0]->getTransform(0).position;
+		objectX = meshTransform.x;
+		objectY = meshTransform.y;
+		objectZ = meshTransform.z;
+		meshRotation = m_objects[0]->getTransform(0).rotation;
+		objRotX = meshRotation.x;
+		objRotY = meshRotation.y;
+		objRotZ = meshRotation.z;
+	}
+
+	//The variables for the 
+	static float gTx[3] = { objectX, objectY, objectZ };
+	ImGui::DragFloat3("Position", gTx, 0.01f, -1000000, 1000000);
+	
+
+	static float gRx[3] = { objRotX, objRotY, objRotZ };
+	ImGui::DragFloat3("Rotation", gRx, 0.01f, -1000000, 1000000);
+
+	ImGui::InputFloat3("Scale", matrixS, 3);
+
+	if (m_objects.size() != 0)
+		m_objects[0]->setTransform(glm::vec3(gTx[0], gTx[1], gTx[2]), glm::quat(gRx[0], gRx[1], gRx[2], 1.0), glm::vec3(1.0));
+
 	ImGuizmo::RecomposeMatrixFromComponents(matrixT, matrixR, matrixS, ID);
 
 	ImGui::EndGroup();
