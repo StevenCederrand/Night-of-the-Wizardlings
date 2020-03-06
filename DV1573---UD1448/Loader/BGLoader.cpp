@@ -233,6 +233,7 @@ bool BGLoader::LoadMesh(std::string file)
 	if (!binFile)
 	{
 		logError("Error! Could not find imported file: " + fileName);
+		std::cout << "Error code: " << strerror(errno) << std::endl;
 		return false;
 	}
 	else
