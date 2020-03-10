@@ -332,60 +332,65 @@ void LevelEditState::guiInfo()
 
 	
 
-	ImGui::Begin("Level Editor");
+	//ImGui::Begin("Level Editor");
 
-#pragma region AttribCheck
-	ImGui::BeginGroup();
-	if (Input::isKeyPressed(GLFW_KEY_W))
-		changeAttrib = 1;
-	ImGui::RadioButton("Translate", &changeAttrib, 1);
-	ImGui::SameLine(0.0f, 10.f);
-	if (Input::isKeyPressed(GLFW_KEY_E))
-		changeAttrib = 2;
-	ImGui::RadioButton("Rotate", &changeAttrib, 2);
-	ImGui::SameLine(0.0f, 10.f);
-	if (Input::isKeyPressed(GLFW_KEY_R))
-		changeAttrib = 3;
-	ImGui::RadioButton("Scale", &changeAttrib, 3);
-	ImGui::Separator();
-	
-	glm::vec3 meshTransform = glm::vec3(0, 0, 0);
-	glm::quat meshRotation = glm::quat(0.0, 0.0, 0.0, 1.0);
-	glm::vec3 meshScale = glm::vec3(0, 0, 0);
-	float objectX, objectY, objectZ;
-	float objRotX, objRotY, objRotZ;
-	objectX = objectY = objectZ = 0.0;
-	objRotX = objRotY = objRotZ = 0.0;
-
-	int index = listBox_ActiveMeshes_Current;
-
-	//Check if the vector has content or not
-	if (m_objects.size() != 0)
-	{
-		meshTransform = m_objects[index]->getTransform(0).position;
-		meshRotation = m_objects[index]->getTransform(0).rotation;
-		meshScale = m_objects[index]->getTransform(0).scale;
-	}
-
-	//The variables for the 
-	static float gTx[3] = { meshTransform.x, meshTransform.y, meshTransform.z };
-	ImGui::DragFloat3("Position", gTx, 0.01f, -1000000, 1000000);
-	
-
-	static float gRx[3] = { 0, 0, 0 };
-	ImGui::DragFloat3("Rotation", gRx, 0.01f, -1000000, 1000000);
-
-	static float gSx[3] = { 1, -1, 1 };
-	ImGui::DragFloat3("Scale", gSx, 0.01f, -1000000, 1000000);
-
-	if (m_objects.size() != 0)
-		m_objects[index]->setTransform(glm::vec3(gTx[0], gTx[1], gTx[2]),
-			glm::quat(gRx[0], gRx[1], gRx[2], 1.0), glm::vec3(gSx[0], gSx[1], gSx[2]));
-
-
-	ImGui::EndGroup();
-	ImGui::End();
-#pragma endregion
+//#pragma region AttribCheck
+//	ImGui::BeginGroup();
+//	if (Input::isKeyPressed(GLFW_KEY_W))
+//		changeAttrib = 1;
+//	ImGui::RadioButton("Translate", &changeAttrib, 1);
+//	ImGui::SameLine(0.0f, 10.f);
+//	if (Input::isKeyPressed(GLFW_KEY_E))
+//		changeAttrib = 2;
+//	ImGui::RadioButton("Rotate", &changeAttrib, 2);
+//	ImGui::SameLine(0.0f, 10.f);
+//	if (Input::isKeyPressed(GLFW_KEY_R))
+//		changeAttrib = 3;
+//	ImGui::RadioButton("Scale", &changeAttrib, 3);
+//	ImGui::Separator();
+//	
+//	glm::vec3 meshTransform = glm::vec3(0, 0, 0);
+//	glm::quat meshRotation = glm::quat(0.0, 0.0, 0.0, 1.0);
+//	glm::vec3 meshScale = glm::vec3(0, 0, 0);
+//	float objectX, objectY, objectZ;
+//	float objRotX, objRotY, objRotZ;
+//	objectX = objectY = objectZ = 0.0;
+//	objRotX = objRotY = objRotZ = 0.0;
+//
+//	int index = listBox_ActiveMeshes_Current;
+//	
+//	if (index == lastMeshItem)
+//	{
+//
+//		//Check if the vector has content or not
+//		if (m_objects.size() != 0)
+//		{
+//			meshTransform = m_objects[index]->getTransform(0).position;
+//			meshRotation = m_objects[index]->getTransform(0).rotation;
+//			meshScale = m_objects[index]->getTransform(0).scale;
+//		}
+//
+//		//The variables for the 
+//		static float gTx[3] = { meshTransform.x, meshTransform.y, meshTransform.z };
+//		ImGui::DragFloat3("Position", gTx, 0.01f, -1000000, 1000000);
+//	
+//
+//		static float gRx[3] = { 0, 0, 0 };
+//		ImGui::DragFloat3("Rotation", gRx, 0.01f, -1000000, 1000000);
+//
+//		static float gSx[3] = { 1, -1, 1 };
+//		ImGui::DragFloat3("Scale", gSx, 0.01f, -1000000, 1000000);
+//
+//		if (m_objects.size() != 0)
+//			m_objects[index]->setTransform(glm::vec3(gTx[0], gTx[1], gTx[2]),
+//				glm::vec3(gRx[0], gRx[1], gRx[2]), glm::vec3(gSx[0], gSx[1], gSx[2]));
+//	
+//		lastMeshItem = listBox_ActiveMeshes_Current;
+//	}
+//
+//	ImGui::EndGroup();
+//	ImGui::End();
+//#pragma endregion
 
 
 #pragma region SceneList
@@ -488,7 +493,7 @@ void LevelEditState::guiInfo()
 #pragma endregion
 
 #pragma region MeshList
-	ImGui::Begin("Assets");	
+	ImGui::Begin("Assets");
 	ImGui::BeginGroup();
 	if (ImGui::Button("Meshes", ImVec2(120, 25)))
 	{
@@ -514,18 +519,80 @@ void LevelEditState::guiInfo()
 	}
 	ImGui::EndGroup();
 
+	ImGui::BeginGroup();
 	if (ImGui::Button("Create", ImVec2(70, 25)))
 	{
 		addInstance(m_objects, m_files[listBox_Meshes_Current]);
 		listBox_ActiveMeshes_Current = 0;
 	}
-
+	ImGui::SameLine();
 	if (ImGui::Button("Refresh", ImVec2(70, 25)))
 	{
 		fileDirectoryUpdate();
 	}
-
+	ImGui::EndGroup();
+	
 	ImGui::Separator();
+
+	ImGui::BeginGroup();
+
+	if (Input::isKeyPressed(GLFW_KEY_W))
+		changeAttrib = 1;
+	ImGui::RadioButton("Translate", &changeAttrib, 1);
+	ImGui::SameLine(0.0f, 10.0f);
+	if (Input::isKeyPressed(GLFW_KEY_E))
+		changeAttrib = 2;
+	ImGui::RadioButton("Rotate", &changeAttrib, 2);
+	ImGui::SameLine(0.0f, 10.0f);
+	if (Input::isKeyPressed(GLFW_KEY_R))
+		changeAttrib = 3;
+	ImGui::RadioButton("Scale", &changeAttrib, 3);
+	ImGui::Separator();
+
+	glm::vec3 meshTransform = glm::vec3(0, 0, 0);
+	glm::quat meshRotation = glm::quat(0.0, 0.0, 0.0, 1.0);
+	glm::vec3 meshScale = glm::vec3(0, 0, 0);
+	float objectX, objectY, objectZ;
+	float objRotX, objRotY, objRotZ;
+	objectX = objectY = objectZ = 0.0;
+	objRotX = objRotY = objRotZ = 0.0;
+
+	int index = listBox_ActiveMeshes_Current;
+	
+	ImGui::Text("Attribute");
+
+	if (index == lastMeshItem)
+	{
+
+		//Check if the vector has content or not
+		if (m_objects.size() != 0)
+		{
+			meshTransform = m_objects[index]->getTransform(0).position;
+			meshRotation = m_objects[index]->getTransform(0).rotation;
+			meshScale = m_objects[index]->getTransform(0).scale;
+		}
+
+
+		//The variables for the 
+		static float gTx[3] = { meshTransform.x, meshTransform.y, meshTransform.z };
+		ImGui::DragFloat3("Position", gTx, 0.01f, -1000000, 1000000);
+	
+
+		static float gRx[3] = { 0, 0, 0 };
+		ImGui::DragFloat3("Rotation", gRx, 0.01f, -1000000, 1000000);
+
+		static float gSx[3] = { 1, 1, 1 };
+		ImGui::DragFloat3("Scale", gSx, 0.01f, -1000000, 1000000);
+
+		if (m_objects.size() != 0)
+			m_objects[index]->setTransform(glm::vec3(gTx[0], gTx[1], gTx[2]),
+				glm::vec3(gRx[0], gRx[1], gRx[2]), glm::vec3(gSx[0], gSx[1], gSx[2]));
+	
+		lastMeshItem = listBox_ActiveMeshes_Current;
+	}
+
+	ImGui::EndGroup();
+
 	ImGui::End();
 
 #pragma endregion

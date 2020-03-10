@@ -1,18 +1,6 @@
 testing...
 Mesh nr. : 0
-Mesh name : Academy_t
-==================
-Position : vec3(0.000000, 0.000000, 7.390000)
-Mesh nr. : 1
 Mesh name : canvas
-==================
-Position : vec3(0.000000, 0.000000, 0.000000)
-Mesh nr. : 2
-Mesh name : DSTROutsideWalls
-==================
-Position : vec3(0.000000, 0.000000, 0.000000)
-Mesh nr. : 3
-Mesh name : Academy_t_Dup
 ==================
 Position : vec3(0.000000, 0.000000, 0.000000)
 endend

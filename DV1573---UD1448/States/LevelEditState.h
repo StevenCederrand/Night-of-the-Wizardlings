@@ -86,6 +86,7 @@ private:
 	int m_nrOfObj = 0;
 	int m_nrOfLight = 0;
 	int m_nrOfPartic = 0;
+	int lastMeshItem = 0;
 
 	Camera* m_camera;
 	SkyBox* m_skybox;
