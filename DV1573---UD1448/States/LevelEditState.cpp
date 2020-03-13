@@ -10,6 +10,8 @@
 
 using namespace std::filesystem;
 
+#define MESH_FILEPATH "C:/Users/timpa/source/repos/Impwing/DV1573---UD1448/Assets/Meshes/LevelEditMeshList"
+
 LevelEditState::LevelEditState()
 {
 	//Pick shader
@@ -105,7 +107,8 @@ void LevelEditState::loadAsset(std::vector<GameObject*>& objectVector)
 	if (fileType == ".mesh")
 	{
 		std::ifstream source(filePath, std::ios::binary);
-		std::ofstream dest("C:/Users/BTH/Source/Repos/StevenCederrand/Night-of-the-Wizardlings/Assets/Meshes/LevelEditMeshList/" + editedName,
+		//This can't be hardcoded in the final product :P
+		std::ofstream dest( MESH_FILEPATH + '/' + editedName,
 			std::ios::binary);
 
 		//file size
@@ -658,7 +661,7 @@ void LevelEditState::fileDirectoryUpdate()
 	m_files.clear();
 	m_fileNames.clear();
 	int i = 0;
-	for (const directory_entry dirEntry : recursive_directory_iterator("C:/Users/BTH/source/repos/StevenCederrand/Night-of-the-Wizardlings/Assets/Meshes/LevelEditMeshList"))
+	for (const directory_entry dirEntry : recursive_directory_iterator(MESH_FILEPATH))
 	{
 		std::cout << dirEntry.path().string() << std::endl;
 		m_files.push_back(dirEntry.path().string());
