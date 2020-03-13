@@ -42,7 +42,7 @@ class LevelEditState : public State
 public:
 	LevelEditState();
 	~LevelEditState();
-	
+
 	std::string OpenFileDialog(const char* filter, HWND owner);
 	void saveLevel();
 	void loadBasicLight();
@@ -58,6 +58,7 @@ public:
 	/*static bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1,
 		const btCollisionObjectWrapper* obj2, int id2, int index2);*/
 
+
 private:
 	void loadAsset(std::vector<GameObject*>&);
 	void addInstance(std::vector<GameObject*>&, std::string);
@@ -69,7 +70,6 @@ private:
 	bool vecOfStrGet(void* data, int n, const char** out_text);
 	std::string fileNameFormat(std::string filePath, bool isPath);
 
-	
 
 private:
 	//Any inherited GameObject class added to this vector will support basic rendering
@@ -82,17 +82,21 @@ private:
 	std::vector<const char*> m_LightsNames;
 	std::vector<const char*> m_ParticlesNames;
 
-
 	int m_nrOfObj = 0;
 	int m_nrOfLight = 0;
 	int m_nrOfPartic = 0;
 	int lastMeshItem = 0;
+
+	float m_MeshPos[3] = { 0,0,0 };
+	float m_MeshRot[3] = { 0,0,0 };
+	float m_MeshSca[3] = { 1,1,1 };
 
 	Camera* m_camera;
 	SkyBox* m_skybox;
 	MousePicker* m_picker;
 
 	float m_rotVal;
+
 	bool tool_active;
 	int changeAttrib = 1;
 	glm::vec3 m_focusPoint;

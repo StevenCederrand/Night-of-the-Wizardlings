@@ -36,6 +36,7 @@ LevelEditState::LevelEditState()
 	//Check the file directory
 	fileDirectoryUpdate();
 
+	
 
 	//the load map function might need tweaking in this regard
 	//We also need a save map func.
@@ -564,24 +565,31 @@ void LevelEditState::guiInfo()
 	
 	ImGui::Text("Attribute");
 
-	if (index == lastMeshItem)
-	{
+	//if (index == lastMeshItem)
+	//{
 
 		//Check if the vector has content or not
-		if (m_objects.size() != 0)
-		{
-			meshTransform = m_objects[index]->getTransform(0).position;
-			meshRotation = m_objects[index]->getTransform(0).rotation;
-			meshScale = m_objects[index]->getTransform(0).scale;
+	if (m_objects.size() != 0)
+	{
+			m_MeshPos[0] = m_objects[index]->getTransform(0).position.x;
+			m_MeshPos[1] = m_objects[index]->getTransform(0).position.y;
+			m_MeshPos[2] = m_objects[index]->getTransform(0).position.z;
+
+			m_MeshRot[0] = m_objects[index]->getTransform(0).rotation.x;
+			m_MeshRot[1] = m_objects[index]->getTransform(0).rotation.y;
+			m_MeshRot[2] = m_objects[index]->getTransform(0).rotation.z;
+			
+			m_MeshSca[0] = m_objects[index]->getTransform(0).scale.x;
+			m_MeshSca[1] = m_objects[index]->getTransform(0).scale.y;
+			m_MeshSca[2] = m_objects[index]->getTransform(0).scale.z;
 		}
 
 
 		//The variables for the 
-		static float gTx[3] = { meshTransform.x, meshTransform.y, meshTransform.z };
+		static float gTx[3] = { m_MeshPos[0], m_MeshPos[1], m_MeshPos[2] };
 		ImGui::DragFloat3("Position", gTx, 0.01f, -1000000, 1000000);
-	
 
-		static float gRx[3] = { 0, 0, 0 };
+		static float gRx[3] = { m_MeshRot[0], m_MeshRot[1], m_MeshRot[2] };
 		ImGui::DragFloat3("Rotation", gRx, 0.01f, -1000000, 1000000);
 
 		static float gSx[3] = { 1, 1, 1 };
@@ -592,7 +600,7 @@ void LevelEditState::guiInfo()
 				glm::vec3(gRx[0], gRx[1], gRx[2]), glm::vec3(gSx[0], gSx[1], gSx[2]));
 	
 		lastMeshItem = listBox_ActiveMeshes_Current;
-	}
+	//}
 
 	ImGui::EndGroup();
 
