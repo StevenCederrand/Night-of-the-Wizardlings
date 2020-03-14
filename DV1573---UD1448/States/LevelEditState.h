@@ -18,6 +18,7 @@
 #include <System/MemoryUsage.h>
 #include <HUD/WorldHudObject.h>
 #include <LevelEditor/MousePicker.h>
+#include <array>
 
 #include <imgui/imgui.h>
 #include <imgui/ImGuizmo.h>
@@ -81,15 +82,15 @@ private:
 	std::vector <std::string> m_fileNames;
 	std::vector<const char*> m_LightsNames;
 	std::vector<const char*> m_ParticlesNames;
+	std::vector<std::array<float, 9>> m_attributeVec; //<-- Vector of C++ style arrays
+	std::vector<int> m_indexList;
 
 	int m_nrOfObj = 0;
 	int m_nrOfLight = 0;
 	int m_nrOfPartic = 0;
 	int lastMeshItem = 0;
 
-	float m_MeshPos[3] = { 0,0,0 };
-	float m_MeshRot[3] = { 0,0,0 };
-	float m_MeshSca[3] = { 1,1,1 };
+	
 
 	Camera* m_camera;
 	SkyBox* m_skybox;
