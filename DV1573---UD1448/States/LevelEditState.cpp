@@ -10,7 +10,7 @@
 
 using namespace std::filesystem;
 
-#define MESH_FILEPATH "C:/Users/timpa/source/repos/Impwing/DV1573---UD1448/Assets/Meshes/LevelEditMeshList"
+#define MESH_FILEPATH "C:/Users/Ofelie/Source/Repos/StevenCederrand/Night-of-the-Wizardlings/Assets/Meshes/LevelEditMeshList"
 #define NR_OF_MESHES 512
 
 LevelEditState::LevelEditState()
@@ -262,7 +262,7 @@ void LevelEditState::loadBasicLight()
 	int count = 0;
 	for (int i = 0; i < m_LightsNames.size(); i++)
 	{
-		if (m_objects[i]->getObjectName().find(lightName) == 0)
+		if (m_LightsNames[i].find(lightName) == 0)
 			count++;
 	}
 
