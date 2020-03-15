@@ -79,7 +79,7 @@ private:
 	std::vector <std::string> m_objectNames;
 	std::vector <std::string> m_files;
 	std::vector <std::string> m_fileNames;
-	std::vector<const char*> m_LightsNames;
+	std::vector <std::string> m_LightsNames;
 	std::vector<const char*> m_ParticlesNames;
 
 
