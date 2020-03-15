@@ -10,7 +10,8 @@
 
 using namespace std::filesystem;
 
-#define MESH_FILEPATH "C:/Users/Ofelie/Source/Repos/StevenCederrand/Night-of-the-Wizardlings/Assets/Meshes/LevelEditMeshList"
+#define MESH_FILEPATH "C:/Users/timpa/source/repos/Impwing/DV1573---UD1448/Assets/Meshes/LevelEditMeshList"
+#define NR_OF_MESHES 512
 
 LevelEditState::LevelEditState()
 {
@@ -36,6 +37,7 @@ LevelEditState::LevelEditState()
 	//Check the file directory
 	fileDirectoryUpdate();
 
+	
 
 	//the load map function might need tweaking in this regard
 	//We also need a save map func.
@@ -551,40 +553,94 @@ void LevelEditState::guiInfo()
 	float objRotX, objRotY, objRotZ;
 	objectX = objectY = objectZ = 0.0;
 	objRotX = objRotY = objRotZ = 0.0;
-
+	
 	int index = listBox_ActiveMeshes_Current;
 	
 	ImGui::Text("Attribute");
 
-	if (index == lastMeshItem)
-	{
+	//if (index == lastMeshItem)
+	//{
 
-		//Check if the vector has content or not
-		if (m_objects.size() != 0)
-		{
-			meshTransform = m_objects[index]->getTransform(0).position;
-			meshRotation = m_objects[index]->getTransform(0).rotation;
-			meshScale = m_objects[index]->getTransform(0).scale;
-		}
-
-
-		//The variables for the 
-		static float gTx[3] = { meshTransform.x, meshTransform.y, meshTransform.z };
-		ImGui::DragFloat3("Position", gTx, 0.01f, -1000000, 1000000);
+	Transform m_meshTransform;
 	
+	//Check if the object vector has content or not
+	if (m_objects.size() != 0)
+	{
+		bool first = true;
+		//A temporary array to store the 9 attributes.
+		std::array<float, 9> tempAttribKeeper;
 
-		static float gRx[3] = { 0, 0, 0 };
+		//Position/Translation attribute is in the first three positions
+		m_meshTransform.position = m_objects[index]->getTransform(0).position;
+		tempAttribKeeper[0] = m_meshTransform.position.x;
+		tempAttribKeeper[1] = m_meshTransform.position.y;
+		tempAttribKeeper[2] = m_meshTransform.position.z;
+
+		m_meshTransform.rotation = m_objects[index]->getTransform(0).rotation;
+		tempAttribKeeper[3] = m_meshTransform.rotation.x;
+		tempAttribKeeper[4] = m_meshTransform.rotation.y;
+		tempAttribKeeper[5] = m_meshTransform.rotation.z;
+
+		m_meshTransform.scale = m_objects[index]->getTransform(0).scale;
+		tempAttribKeeper[6] = m_meshTransform.scale.x;
+		tempAttribKeeper[7] = m_meshTransform.scale.y;
+		tempAttribKeeper[8] = m_meshTransform.scale.z;
+		
+
+		//This spagetthi code first of checks if the current index is the same or not as the last clicked element
+		if (index != lastMeshItem)
+		{
+			//If it is it checks if the element clicked is new or not
+			if (std::find(m_indexList.begin(), m_indexList.end(), index) != m_indexList.end())
+			{
+				m_attributeVec.at(index) = tempAttribKeeper;
+			}
+			else
+			{
+				first = false;
+				m_attributeVec.push_back(tempAttribKeeper);
+			}
+		}
+		if(index == lastMeshItem)
+			m_attributeVec.at(index) = tempAttribKeeper;
+	}
+
+	if (m_attributeVec.size() != 0)
+	{
+		float gTx[3] = { m_attributeVec.at(index)[0], m_attributeVec.at(index)[1], m_attributeVec.at(index)[2] };
+		//A static float should not be needed in this case since we fetch the transforms every loop
+		ImGui::DragFloat3("Position", gTx, 0.01f, -1000000, 1000000);
+
+		static float gRx[3] = { m_attributeVec.at(index)[3], m_attributeVec.at(index)[4], m_attributeVec.at(index)[5] };
 		ImGui::DragFloat3("Rotation", gRx, 0.01f, -1000000, 1000000);
 
 		static float gSx[3] = { 1, 1, 1 };
 		ImGui::DragFloat3("Scale", gSx, 0.01f, -1000000, 1000000);
 
 		if (m_objects.size() != 0)
-			m_objects[index]->setTransform(glm::vec3(gTx[0], gTx[1], gTx[2]),
-				glm::vec3(gRx[0], gRx[1], gRx[2]), glm::vec3(gSx[0], gSx[1], gSx[2]));
-	
-		lastMeshItem = listBox_ActiveMeshes_Current;
+		{
+			m_objects[index]->setTransform(
+				//Position
+				glm::vec3(gTx[0], gTx[1], gTx[2]),
+				//Rotation
+				glm::vec3(gRx[0], gRx[1], gRx[2]), 
+				//Scale
+				glm::vec3(1, 1, 1)
+			);
+		}
 	}
+
+	
+	lastMeshItem = listBox_ActiveMeshes_Current;
+
+	//This if statement checks wether or not an index element already exists or not.
+	if (std::find(m_indexList.begin(), m_indexList.end(), lastMeshItem) != m_indexList.end())
+	{
+		std::cout << "Index has already been registered" << std::endl;
+	} 
+	else
+		m_indexList.push_back(lastMeshItem);
+	
 
 	ImGui::EndGroup();
 
