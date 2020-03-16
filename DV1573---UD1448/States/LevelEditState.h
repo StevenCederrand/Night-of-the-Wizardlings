@@ -46,7 +46,7 @@ public:
 
 	std::string OpenFileDialog(const char* filter, HWND owner);
 	void saveLevel();
-	void loadBasicLight();
+	void createPointLight();
 	void cleanScene();
 
 	/*bool GetVecToStr(void* data, int i, const char** out_text);*/
@@ -80,7 +80,7 @@ private:
 	std::vector <std::string> m_objectNames;
 	std::vector <std::string> m_files;
 	std::vector <std::string> m_fileNames;
-	std::vector<const char*> m_LightsNames;
+	std::vector <std::string> m_LightsNames;
 	std::vector<const char*> m_ParticlesNames;
 	std::vector<std::array<float, 9>> m_attributeVec; //<-- Vector of C++ style arrays
 	std::vector<int> m_indexList;
@@ -89,7 +89,9 @@ private:
 	int m_nrOfLight = 0;
 	int m_nrOfPartic = 0;
 	int lastMeshItem = 0;
-	
+
+	ImVec4 clear_Color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
 	Camera* m_camera;
 	SkyBox* m_skybox;
 	MousePicker* m_picker;
