@@ -10,7 +10,7 @@
 
 using namespace std::filesystem;
 
-#define MESH_FILEPATH "C:/Users/Ofelie/Source/Repos/StevenCederrand/Night-of-the-Wizardlings/Assets/Meshes/LevelEditMeshList"
+#define MESH_FILEPATH "C:/Users/BTH/source/repos/StevenCederrand/Night-of-the-Wizardlings/Assets/Meshes/LevelEditMeshList"
 #define NR_OF_MESHES 512
 #define MAX_NR_LIGHTS 40
 
@@ -498,16 +498,21 @@ void LevelEditState::guiInfo()
 
 	if (m_objects.size() != 0)
 	{
-		Transform m_meshTransform;
-		Transform m_meshLocalTransform;
-
-		m_meshTransform = m_objects[index]->getObjectTransform();
-		m_meshLocalTransform = m_objects[index]->getLocalTransform();
+		
+		if (std::find(m_indexList.begin(), m_indexList.end(), index) != m_indexList.end())
+		{
+			//If the index is registered in the index list.
+			if (index != lastMeshItem)
+				m_meshTransform = m_objects[index]->getObjectTransform();
+		}
+		else
+			m_meshTransform = m_objects[index]->getObjectTransform();
+	
 		
 		ImGui::DragFloat3("Position", &m_meshTransform.position.x, 0.01f, -1000000, 1000000);
 		ImGui::DragFloat3("Rotation", &m_meshTransform.rotation.x, 0.01f, -1000000, 1000000);
 
-		static float gSx[3] = { 1, 1, 1 };
+		float gSx[3] = { 1, 1, 1 };
 		ImGui::DragFloat3("Scale", gSx, 0.01f, -1000000, 1000000);
 
 		if (m_objects.size() != 0)
@@ -516,7 +521,7 @@ void LevelEditState::guiInfo()
 				//Position
 				glm::vec3(m_meshTransform.position),
 				//Rotation
-				glm::quat(m_meshTransform.rotation),
+				glm::quat(glm::vec3(m_meshTransform.rotation.x, m_meshTransform.rotation.y, m_meshTransform.rotation.z)),
 				//Scale
 				glm::vec3(1, 1, 1)
 			);
@@ -526,14 +531,17 @@ void LevelEditState::guiInfo()
 	
 	lastMeshItem = listBox_ActiveMeshes_Current;
 
-	//This if statement checks wether or not an index element already exists or not.
-	if (std::find(m_indexList.begin(), m_indexList.end(), lastMeshItem) != m_indexList.end())
-	{
-		std::cout << "Index has already been registered" << std::endl;
-	} 
-	else
-		m_indexList.push_back(lastMeshItem);
 	
+	//This if statement checks wether or not an index element already exists or not.
+	if (lastMeshItem != -1)
+	{
+		if (std::find(m_indexList.begin(), m_indexList.end(), lastMeshItem) != m_indexList.end())
+		{
+			std::cout << "Index has already been registered" << std::endl;
+		} 
+		else
+			m_indexList.push_back(lastMeshItem);
+	}
 
 	static float f = 0.0f;
 

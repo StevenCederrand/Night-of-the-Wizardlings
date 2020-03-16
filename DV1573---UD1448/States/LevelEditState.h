@@ -96,6 +96,9 @@ private:
 	SkyBox* m_skybox;
 	MousePicker* m_picker;
 
+	Transform m_meshTransform;
+	glm::vec3 EulerAngle;
+
 	float m_rotVal;
 
 	bool tool_active;
