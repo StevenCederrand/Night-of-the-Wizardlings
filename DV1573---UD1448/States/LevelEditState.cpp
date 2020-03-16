@@ -10,7 +10,7 @@
 
 using namespace std::filesystem;
 
-#define MESH_FILEPATH "C:/Users/Ofelie/Source/Repos/StevenCederrand/Night-of-the-Wizardlings/Assets/Meshes/LevelEditMeshList"
+#define MESH_FILEPATH "C:/Users/BTH/source/repos/StevenCederrand/Night-of-the-Wizardlings/Assets/Meshes/LevelEditMeshList"
 #define NR_OF_MESHES 512
 #define MAX_NR_LIGHTS 40
 
@@ -311,7 +311,7 @@ void LevelEditState::guiInfo()
 	static int listBox_Meshes_Current = 0;
 
 	const char* listBox_Particles[] = { "Fire", "Torch", "Flies", "Smoke", "Rain" };
-	static int listBox_Particles_Current = 1;
+	static int listBox_PointLight_Current = 1;
 	static int listBox_ActiveMeshes_Current = -1;
 
 	float* View;
@@ -451,9 +451,9 @@ void LevelEditState::guiInfo()
 	case 0:
 		ListBox("Meshes", &listBox_Meshes_Current, m_fileNames);
 		break;
-	case 1:
+	/*case 1:
 		ImGui::ListBox("Particles", &listBox_Particles_Current, listBox_Particles, IM_ARRAYSIZE(listBox_Particles), 6);
-		break;
+		break;*/
 	default:
 		break;
 	}
@@ -533,12 +533,39 @@ void LevelEditState::guiInfo()
 	} 
 	else
 		m_indexList.push_back(lastMeshItem);
-	
 
-	static float f = 0.0f;
 
-	ImGui::SliderFloat("Attenuation", &f, 0.0f, 1.0f);
-	ImGui::ColorEdit3("Color", (float*)& clear_Color);
+	int indexL = listBox_PointLight_Current;
+
+	if (m_pointlights.size() != 0)
+	{
+		static float f = 0.0f;
+
+		//Transform position = m_pointlights[indexL]->getLocalTransform(indexL);
+
+		//ImGui::DragFloat3("Light Position", &position.position.x, 0.01f, -1000000, 1000000);
+		ImGui::SliderFloat("Attenuation", &f, 0.0f, 1.0f);
+
+		glm::vec3 color = m_pointlights[0]->getColor();
+		clear_Color = ImVec4(color.x, color.y, color.z, 1);
+		ImGui::ColorEdit3("Color", (float*)&clear_Color);
+		m_pointlights[0]->setColor(glm::vec3(clear_Color.x, clear_Color.y, clear_Color.z));
+		std::cout << clear_Color.x << "|" << clear_Color.y << "|" << clear_Color.z << "|" << std::endl;
+
+		if (m_pointlights.size() != 0)
+		{
+		//	m_pointlights[indexL]->setTransform(
+		//		//Position
+		//		glm::vec3(position.position),
+		//		//Rotation
+		//		glm::quat(),
+		//		//Scale
+		//		glm::vec3(1, 1, 1)
+		//	);
+			//m_pointlights[indexL]->setAttenuationAndRadius(glm::vec4(f, f, f, 1));
+			m_pointlights[0]->setColor(glm::vec3(clear_Color.x, clear_Color.y, clear_Color.z));
+		}
+	}
 
 	ImGui::EndGroup();
 

@@ -25,6 +25,11 @@ void Pointlight::setAttenuationAndRadius(const glm::vec4 attenAndRadius)
 	m_attenAndRadius = attenAndRadius;
 }
 
+void Pointlight::setColor(glm::vec3 color)
+{
+	m_color = color;
+}
+
 void Pointlight::update(float dt) {
 
 }
