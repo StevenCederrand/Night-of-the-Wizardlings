@@ -322,7 +322,6 @@ void LevelEditState::guiInfo()
 	float* Proj;
 	float* ID;
 	float* gridSize;
-	
 
 	glm::mat4 m_viewMat = m_camera->getViewMat();
 	View = glm::value_ptr(m_viewMat);
@@ -334,69 +333,6 @@ void LevelEditState::guiInfo()
 	ID = glm::value_ptr(m_identity);
 
 	float matrixT[3], matrixR[3], matrixS[3];
-
-	
-
-	//ImGui::Begin("Level Editor");
-
-//#pragma region AttribCheck
-//	ImGui::BeginGroup();
-//	if (Input::isKeyPressed(GLFW_KEY_W))
-//		changeAttrib = 1;
-//	ImGui::RadioButton("Translate", &changeAttrib, 1);
-//	ImGui::SameLine(0.0f, 10.f);
-//	if (Input::isKeyPressed(GLFW_KEY_E))
-//		changeAttrib = 2;
-//	ImGui::RadioButton("Rotate", &changeAttrib, 2);
-//	ImGui::SameLine(0.0f, 10.f);
-//	if (Input::isKeyPressed(GLFW_KEY_R))
-//		changeAttrib = 3;
-//	ImGui::RadioButton("Scale", &changeAttrib, 3);
-//	ImGui::Separator();
-//	
-//	glm::vec3 meshTransform = glm::vec3(0, 0, 0);
-//	glm::quat meshRotation = glm::quat(0.0, 0.0, 0.0, 1.0);
-//	glm::vec3 meshScale = glm::vec3(0, 0, 0);
-//	float objectX, objectY, objectZ;
-//	float objRotX, objRotY, objRotZ;
-//	objectX = objectY = objectZ = 0.0;
-//	objRotX = objRotY = objRotZ = 0.0;
-//
-//	int index = listBox_ActiveMeshes_Current;
-//	
-//	if (index == lastMeshItem)
-//	{
-//
-//		//Check if the vector has content or not
-//		if (m_objects.size() != 0)
-//		{
-//			meshTransform = m_objects[index]->getTransform(0).position;
-//			meshRotation = m_objects[index]->getTransform(0).rotation;
-//			meshScale = m_objects[index]->getTransform(0).scale;
-//		}
-//
-//		//The variables for the 
-//		static float gTx[3] = { meshTransform.x, meshTransform.y, meshTransform.z };
-//		ImGui::DragFloat3("Position", gTx, 0.01f, -1000000, 1000000);
-//	
-//
-//		static float gRx[3] = { 0, 0, 0 };
-//		ImGui::DragFloat3("Rotation", gRx, 0.01f, -1000000, 1000000);
-//
-//		static float gSx[3] = { 1, -1, 1 };
-//		ImGui::DragFloat3("Scale", gSx, 0.01f, -1000000, 1000000);
-//
-//		if (m_objects.size() != 0)
-//			m_objects[index]->setTransform(glm::vec3(gTx[0], gTx[1], gTx[2]),
-//				glm::vec3(gRx[0], gRx[1], gRx[2]), glm::vec3(gSx[0], gSx[1], gSx[2]));
-//	
-//		lastMeshItem = listBox_ActiveMeshes_Current;
-//	}
-//
-//	ImGui::EndGroup();
-//	ImGui::End();
-//#pragma endregion
-
 
 #pragma region SceneList
 	ImGui::Begin("Scene");
@@ -554,73 +490,23 @@ void LevelEditState::guiInfo()
 	ImGui::RadioButton("Scale", &changeAttrib, 3);
 	ImGui::Separator();
 
-	glm::vec3 meshTransform = glm::vec3(0, 0, 0);
-	glm::quat meshRotation = glm::quat(0.0, 0.0, 0.0, 1.0);
-	glm::vec3 meshScale = glm::vec3(0, 0, 0);
-	float objectX, objectY, objectZ;
-	float objRotX, objRotY, objRotZ;
-	objectX = objectY = objectZ = 0.0;
-	objRotX = objRotY = objRotZ = 0.0;
-	
 	int index = listBox_ActiveMeshes_Current;
 	
 	ImGui::Text("Attribute");
 
-	//if (index == lastMeshItem)
-	//{
+		
+	ImGui::ShowDemoWindow();
 
-	Transform m_meshTransform;
-	
-	//Check if the object vector has content or not
 	if (m_objects.size() != 0)
 	{
-		bool first = true;
-		//A temporary array to store the 9 attributes.
-		std::array<float, 9> tempAttribKeeper;
+		Transform m_meshTransform;
+		Transform m_meshLocalTransform;
 
-		//Position/Translation attribute is in the first three positions
-		m_meshTransform.position = m_objects[index]->getTransform(0).position;
-		tempAttribKeeper[0] = m_meshTransform.position.x;
-		tempAttribKeeper[1] = m_meshTransform.position.y;
-		tempAttribKeeper[2] = m_meshTransform.position.z;
-
-		m_meshTransform.rotation = m_objects[index]->getTransform(0).rotation;
-		tempAttribKeeper[3] = m_meshTransform.rotation.x;
-		tempAttribKeeper[4] = m_meshTransform.rotation.y;
-		tempAttribKeeper[5] = m_meshTransform.rotation.z;
-
-		m_meshTransform.scale = m_objects[index]->getTransform(0).scale;
-		tempAttribKeeper[6] = m_meshTransform.scale.x;
-		tempAttribKeeper[7] = m_meshTransform.scale.y;
-		tempAttribKeeper[8] = m_meshTransform.scale.z;
+		m_meshTransform = m_objects[index]->getObjectTransform();
+		m_meshLocalTransform = m_objects[index]->getLocalTransform();
 		
-
-		//This spagetthi code first of checks if the current index is the same or not as the last clicked element
-		if (index != lastMeshItem)
-		{
-			//If it is it checks if the element clicked is new or not
-			if (std::find(m_indexList.begin(), m_indexList.end(), index) != m_indexList.end())
-			{
-				m_attributeVec.at(index) = tempAttribKeeper;
-			}
-			else
-			{
-				first = false;
-				m_attributeVec.push_back(tempAttribKeeper);
-			}
-		}
-		if(index == lastMeshItem)
-			m_attributeVec.at(index) = tempAttribKeeper;
-	}
-
-	if (m_attributeVec.size() != 0)
-	{
-		float gTx[3] = { m_attributeVec.at(index)[0], m_attributeVec.at(index)[1], m_attributeVec.at(index)[2] };
-		//A static float should not be needed in this case since we fetch the transforms every loop
-		ImGui::DragFloat3("Position", gTx, 0.01f, -1000000, 1000000);
-
-		static float gRx[3] = { m_attributeVec.at(index)[3], m_attributeVec.at(index)[4], m_attributeVec.at(index)[5] };
-		ImGui::DragFloat3("Rotation", gRx, 0.01f, -1000000, 1000000);
+		ImGui::DragFloat3("Position", &m_meshTransform.position.x, 0.01f, -1000000, 1000000);
+		ImGui::DragFloat3("Rotation", &m_meshTransform.rotation.x, 0.01f, -1000000, 1000000);
 
 		static float gSx[3] = { 1, 1, 1 };
 		ImGui::DragFloat3("Scale", gSx, 0.01f, -1000000, 1000000);
@@ -629,9 +515,9 @@ void LevelEditState::guiInfo()
 		{
 			m_objects[index]->setTransform(
 				//Position
-				glm::vec3(gTx[0], gTx[1], gTx[2]),
+				glm::vec3(m_meshTransform.position),
 				//Rotation
-				glm::vec3(gRx[0], gRx[1], gRx[2]), 
+				glm::quat(m_meshTransform.rotation),
 				//Scale
 				glm::vec3(1, 1, 1)
 			);
