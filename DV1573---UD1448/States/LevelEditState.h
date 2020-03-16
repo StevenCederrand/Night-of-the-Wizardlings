@@ -46,7 +46,7 @@ public:
 
 	std::string OpenFileDialog(const char* filter, HWND owner);
 	void saveLevel();
-	void loadBasicLight();
+	void createPointLight();
 	void cleanScene();
 
 	/*bool GetVecToStr(void* data, int i, const char** out_text);*/
@@ -90,7 +90,7 @@ private:
 	int m_nrOfPartic = 0;
 	int lastMeshItem = 0;
 
-	
+	ImVec4 clear_Color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	Camera* m_camera;
 	SkyBox* m_skybox;

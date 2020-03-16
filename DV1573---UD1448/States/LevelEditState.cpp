@@ -12,6 +12,7 @@ using namespace std::filesystem;
 
 #define MESH_FILEPATH "C:/Users/Ofelie/Source/Repos/StevenCederrand/Night-of-the-Wizardlings/Assets/Meshes/LevelEditMeshList"
 #define NR_OF_MESHES 512
+#define MAX_NR_LIGHTS 40
 
 LevelEditState::LevelEditState()
 {
@@ -246,31 +247,34 @@ void LevelEditState::saveLevel()
 	meshAscii.close();
 }
 
-void LevelEditState::loadBasicLight()
+void LevelEditState::createPointLight()
 {
-	Renderer* renderer = Renderer::getInstance();
-
-	m_pointlights.emplace_back(new Pointlight(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3, 0.85, 1.0)));
-	m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.07f, 0.017f, 65.0f));
-
-	for (Pointlight* p : m_pointlights)
-		renderer->submit(p, RENDER_TYPE::POINTLIGHT_SOURCE);
-
-
-	//Search list if there are objects with the same name 
-	std::string lightName = "PointLight";
-	int count = 0;
-	for (int i = 0; i < m_LightsNames.size(); i++)
+	if (m_nrOfLight != MAX_NR_LIGHTS)
 	{
-		if (m_LightsNames[i].find(lightName) == 0)
-			count++;
+		Renderer* renderer = Renderer::getInstance();
+
+		m_pointlights.emplace_back(new Pointlight(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.3, 0.85, 1.0)));
+		m_pointlights.back()->setAttenuationAndRadius(glm::vec4(1.0f, 0.07f, 0.017f, 65.0f));
+
+		for (Pointlight* p : m_pointlights)
+			renderer->submit(p, RENDER_TYPE::POINTLIGHT_SOURCE);
+
+
+		//Search list if there are objects with the same name 
+		std::string lightName = "PointLight";
+		int count = 0;
+		for (int i = 0; i < m_LightsNames.size(); i++)
+		{
+			if (m_LightsNames[i].find(lightName) == 0)
+				count++;
+		}
+
+		if (count != 0)
+			lightName = lightName + std::to_string(count);
+
+		m_LightsNames.push_back(lightName);
+		m_nrOfLight++;
 	}
-
-	if (count != 0)
-		lightName = lightName + std::to_string(count);
-
-	m_LightsNames.push_back(lightName);
-	m_nrOfLight++;
 }
 
 
@@ -448,7 +452,7 @@ void LevelEditState::guiInfo()
 		{
 			if (ImGui::MenuItem("Create PointLight"))
 			{
-				loadBasicLight();
+				createPointLight();
 			}
 			if (ImGui::MenuItem("Load Asset"))
 			{
@@ -474,6 +478,9 @@ void LevelEditState::guiInfo()
 
 	if (m_LightsNames.size() > 0)
 	{
+		std::string amount = std::to_string(m_nrOfLight) + "/" + std::to_string(MAX_NR_LIGHTS) + " Lights";
+
+		ImGui::Text(amount.c_str());
 		static int listBox_ActiveLights_Current = 1;
 		ListBox("Lights", &listBox_ActiveLights_Current, m_LightsNames);
 		ImGui::Separator();
@@ -641,6 +648,11 @@ void LevelEditState::guiInfo()
 	else
 		m_indexList.push_back(lastMeshItem);
 	
+
+	static float f = 0.0f;
+
+	ImGui::SliderFloat("Attenuation", &f, 0.0f, 1.0f);
+	ImGui::ColorEdit3("Color", (float*)& clear_Color);
 
 	ImGui::EndGroup();
 
