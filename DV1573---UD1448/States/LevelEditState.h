@@ -84,6 +84,7 @@ private:
 	std::vector<const char*> m_ParticlesNames;
 	std::vector<std::array<float, 9>> m_attributeVec; //<-- Vector of C++ style arrays
 	std::vector<int> m_indexList;
+	std::vector<Transform> m_transforms;
 
 	int m_nrOfObj = 0;
 	int m_nrOfLight = 0;
@@ -96,7 +97,7 @@ private:
 	SkyBox* m_skybox;
 	MousePicker* m_picker;
 
-	Transform m_meshTransform;
+	
 	glm::vec3 EulerAngle;
 
 	float m_rotVal;
