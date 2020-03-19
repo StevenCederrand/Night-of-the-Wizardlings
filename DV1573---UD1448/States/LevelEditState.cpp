@@ -334,6 +334,9 @@ void LevelEditState::guiInfo()
 	float matrixT[3], matrixR[3], matrixS[3];
 
 #pragma region SceneList
+	//Lock ImGui window in place
+	ImGui::SetNextWindowPos(ImVec2(SCREEN_WIDTH - 240, 18));
+	ImGui::SetNextWindowSize(ImVec2(240, SCREEN_HEIGHT - 18));
 	ImGui::Begin("Scene");
 
 	if (ImGui::BeginMainMenuBar())
@@ -430,13 +433,17 @@ void LevelEditState::guiInfo()
 		static int listBox_item_current3 = 1;
 		ImGui::ListBox("Particles", &listBox_item_current3, &m_ParticlesNames[0], m_ParticlesNames.size(), 6);
 	}
-
+	
 	ImGui::End();
 
 #pragma endregion
 
 #pragma region MeshList
+	//Lock ImGui window in place
+	ImGui::SetNextWindowPos(ImVec2(0, 18));
+	ImGui::SetNextWindowSize(ImVec2(258, SCREEN_HEIGHT - 18));
 	ImGui::Begin("Assets");
+	
 	ImGui::BeginGroup();
 	if (ImGui::Button("Meshes", ImVec2(120, 25)))
 	{
@@ -588,6 +595,8 @@ void LevelEditState::guiInfo()
 #pragma endregion
 
 	//ImGui::Render();
+
+	ImGuiIO& io = ImGui::GetIO();
 }
 
 
