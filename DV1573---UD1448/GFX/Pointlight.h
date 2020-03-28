@@ -12,6 +12,7 @@ public:
 	virtual ~Pointlight();
 
 	void setAttenuationAndRadius(const glm::vec4 attenAndRadius);
+	void setColor(glm::vec3 color);
 	void update(float dt);
 
 	const glm::vec4& getAttenuationAndRadius() const;

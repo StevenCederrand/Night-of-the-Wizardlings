@@ -71,6 +71,8 @@ private:
 	bool vecOfStrGet(void* data, int n, const char** out_text);
 	std::string fileNameFormat(std::string filePath, bool isPath);
 
+	void EditTransform(const float* cameraView, float* cameraProjection, float* objectMatrix);
+
 
 private:
 	//Any inherited GameObject class added to this vector will support basic rendering
@@ -84,6 +86,7 @@ private:
 	std::vector<const char*> m_ParticlesNames;
 	std::vector<std::array<float, 9>> m_attributeVec; //<-- Vector of C++ style arrays
 	std::vector<int> m_indexList;
+	std::vector<Transform> m_transforms;
 
 	int m_nrOfObj = 0;
 	int m_nrOfLight = 0;
@@ -95,6 +98,9 @@ private:
 	Camera* m_camera;
 	SkyBox* m_skybox;
 	MousePicker* m_picker;
+
+	
+	glm::vec3 EulerAngle;
 
 	float m_rotVal;
 

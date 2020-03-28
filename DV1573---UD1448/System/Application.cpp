@@ -14,6 +14,7 @@
 #include <imgui/imgui_impl_glfw_gl3.h>
 //#include <imgui/imfilebrowser.h>
 #include <imgui/ImGuizmo.h>
+#include <imgui/imgui_internal.h>
 
 
 #define AUTOSTART false;
@@ -187,6 +188,7 @@ void Application::run()
 		{
 			ImGui_ImplGlfwGL3_NewFrame();
 			ImGuizmo::BeginFrame();
+			ImGuiIO& io = ImGui::GetIO();
 			m_stateManager->getGuiInfo();
 			ImGui::Render();
 			ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
