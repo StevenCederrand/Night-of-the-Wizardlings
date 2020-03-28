@@ -338,7 +338,7 @@ void LevelEditState::guiInfo()
 	//IMGUIZMO
 	ImGuizmo::DrawGrid(View, Proj, ID, 30.f);
 
-	ImGuizmo::SetRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
 	
 	if (m_objects.size() != 0)
 	{
@@ -613,6 +613,7 @@ void LevelEditState::guiInfo()
 	//ImGui::Render();
 
 	ImGuiIO& io = ImGui::GetIO();
+	ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 }
 
 
@@ -686,6 +687,14 @@ void LevelEditState::EditTransform(const float* cameraView, float* cameraProject
 	static ImGuizmo::OPERATION mCurrentOperation(ImGuizmo::TRANSLATE);
 	static ImGuizmo::MODE mCurrentMode(ImGuizmo::LOCAL);
 
+	float matrixTranslation[3], matrixRotation[3], matrixScale[3];
+	ImGuizmo::DecomposeMatrixToComponents(objectMatrix, matrixTranslation, matrixRotation, matrixScale);
+	ImGui::InputFloat3("TestTr", matrixTranslation, 3);
+	ImGui::InputFloat3("TestRt", matrixRotation, 3);
+	ImGui::InputFloat3("TestSc", matrixScale, 3);
+	ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, objectMatrix);
+
+	ImGuiIO& io = ImGui::GetIO();
 	ImGuizmo::Manipulate(cameraView, cameraProjection, mCurrentOperation, mCurrentMode, objectMatrix, NULL, NULL, NULL, NULL);
 }
 
