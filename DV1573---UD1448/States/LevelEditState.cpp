@@ -10,7 +10,7 @@
 
 using namespace std::filesystem;
 
-#define MESH_FILEPATH "C:/Users/Ofelie/Source/Repos/StevenCederrand/Night-of-the-Wizardlings/Assets/Meshes/LevelEditMeshList"
+#define MESH_FILEPATH "C:/Users/timpa/source/repos/Impwing/DV1573---UD1448/Assets/Meshes/LevelEditMeshList"
 #define NR_OF_MESHES 512
 #define MAX_NR_LIGHTS 40
 
@@ -176,6 +176,9 @@ void LevelEditState::addInstance(std::vector<GameObject*> &objectVector, std::st
 	m_objectNames.push_back(objectName.c_str());
 	renderer->submit(objectVector[objectVector.size() - 1], RENDER_TYPE::STATIC);
 
+	//Update transform vector
+	m_transforms.push_back(objectVector.at(objectVector.size() - 1)->getObjectTransform());
+
 	std::cout << to_string(objectVector[0]->getLastPosition()) << std::endl;
 
 }
@@ -296,6 +299,7 @@ void LevelEditState::update(float dt)
 {
 	updateState(dt);
 
+	
 	static float t = 0.0f;
 	t += DeltaTime;
 }
@@ -311,13 +315,16 @@ void LevelEditState::guiInfo()
 	static int listBox_Meshes_Current = 0;
 
 	const char* listBox_Particles[] = { "Fire", "Torch", "Flies", "Smoke", "Rain" };
-	static int listBox_Particles_Current = 1;
+	static int listBox_PointLight_Current = 1;
 	static int listBox_ActiveMeshes_Current = -1;
 
 	float* View;
 	float* Proj;
 	float* ID;
 	float* gridSize;
+	float* objectMat;
+
+	
 
 	glm::mat4 m_viewMat = m_camera->getViewMat();
 	View = glm::value_ptr(m_viewMat);
@@ -328,9 +335,24 @@ void LevelEditState::guiInfo()
 	glm::mat4 m_identity = glm::mat4(1.0f);
 	ID = glm::value_ptr(m_identity);
 
+	//IMGUIZMO
+	ImGuizmo::DrawGrid(View, Proj, ID, 30.f);
+
+
+	
+	if (m_objects.size() != 0)
+	{
+		glm::mat4 m_objectMatrix = m_objects.at(listBox_ActiveMeshes_Current)->getMatrix();
+		objectMat = glm::value_ptr(m_objectMatrix);
+		EditTransform(View, Proj, objectMat);
+	}
+
 	float matrixT[3], matrixR[3], matrixS[3];
 
 #pragma region SceneList
+	//Lock ImGui window in place
+	ImGui::SetNextWindowPos(ImVec2(SCREEN_WIDTH - 240, 18));
+	ImGui::SetNextWindowSize(ImVec2(240, SCREEN_HEIGHT - 18));
 	ImGui::Begin("Scene");
 
 	if (ImGui::BeginMainMenuBar())
@@ -427,13 +449,17 @@ void LevelEditState::guiInfo()
 		static int listBox_item_current3 = 1;
 		ImGui::ListBox("Particles", &listBox_item_current3, &m_ParticlesNames[0], m_ParticlesNames.size(), 6);
 	}
-
+	
 	ImGui::End();
 
 #pragma endregion
 
 #pragma region MeshList
+	//Lock ImGui window in place
+	ImGui::SetNextWindowPos(ImVec2(0, 18));
+	ImGui::SetNextWindowSize(ImVec2(258, SCREEN_HEIGHT - 18));
 	ImGui::Begin("Assets");
+	
 	ImGui::BeginGroup();
 	if (ImGui::Button("Meshes", ImVec2(120, 25)))
 	{
@@ -451,9 +477,9 @@ void LevelEditState::guiInfo()
 	case 0:
 		ListBox("Meshes", &listBox_Meshes_Current, m_fileNames);
 		break;
-	case 1:
+	/*case 1:
 		ImGui::ListBox("Particles", &listBox_Particles_Current, listBox_Particles, IM_ARRAYSIZE(listBox_Particles), 6);
-		break;
+		break;*/
 	default:
 		break;
 	}
@@ -489,56 +515,66 @@ void LevelEditState::guiInfo()
 	ImGui::RadioButton("Scale", &changeAttrib, 3);
 	ImGui::Separator();
 
-	int index = listBox_ActiveMeshes_Current;
+	
 	
 	ImGui::Text("Attribute");
-
+	int index = listBox_ActiveMeshes_Current;
 		
-	ImGui::ShowDemoWindow();
+	//ImGui::ShowDemoWindow();
 
 	if (m_objects.size() != 0)
 	{
-		Transform m_meshTransform;
-		Transform m_meshLocalTransform;
-
-		m_meshTransform = m_objects[index]->getObjectTransform();
-		m_meshLocalTransform = m_objects[index]->getLocalTransform();
 		
-		ImGui::DragFloat3("Position", &m_meshTransform.position.x, 0.01f, -1000000, 1000000);
-		ImGui::DragFloat3("Rotation", &m_meshTransform.rotation.x, 0.01f, -1000000, 1000000);
+		ImGui::DragFloat3("Position", &m_transforms.at(index).position.x, 0.01f, -1000000, 1000000);
+		ImGui::DragFloat3("Rotation", &m_transforms.at(index).rotation.x, 0.01f, -1000000, 1000000);
 
-		static float gSx[3] = { 1, 1, 1 };
+		float gSx[3] = { 1, 1, 1 };
 		ImGui::DragFloat3("Scale", gSx, 0.01f, -1000000, 1000000);
 
 		if (m_objects.size() != 0)
 		{
 			m_objects[index]->setTransform(
 				//Position
-				glm::vec3(m_meshTransform.position),
+				glm::vec3(m_transforms.at(index).position),
 				//Rotation
-				glm::quat(m_meshTransform.rotation),
+				glm::quat(glm::vec3(m_transforms.at(index).rotation.x, m_transforms.at(index).rotation.y, m_transforms.at(index).rotation.z)),
 				//Scale
 				glm::vec3(1, 1, 1)
 			);
 		}
 	}
 
-	
-	lastMeshItem = listBox_ActiveMeshes_Current;
+	int indexL = listBox_PointLight_Current;
 
-	//This if statement checks wether or not an index element already exists or not.
-	if (std::find(m_indexList.begin(), m_indexList.end(), lastMeshItem) != m_indexList.end())
+	if (m_pointlights.size() != 0)
 	{
-		std::cout << "Index has already been registered" << std::endl;
-	} 
-	else
-		m_indexList.push_back(lastMeshItem);
-	
+		static float f = 0.0f;
 
-	static float f = 0.0f;
+		//Transform position = m_pointlights[indexL]->getLocalTransform(indexL);
 
-	ImGui::SliderFloat("Attenuation", &f, 0.0f, 1.0f);
-	ImGui::ColorEdit3("Color", (float*)& clear_Color);
+		//ImGui::DragFloat3("Light Position", &position.position.x, 0.01f, -1000000, 1000000);
+		ImGui::SliderFloat("Attenuation", &f, 0.0f, 1.0f);
+
+		glm::vec3 color = m_pointlights[0]->getColor();
+		clear_Color = ImVec4(color.x, color.y, color.z, 1);
+		ImGui::ColorEdit3("Color", (float*)&clear_Color);
+		m_pointlights[0]->setColor(glm::vec3(clear_Color.x, clear_Color.y, clear_Color.z));
+		std::cout << clear_Color.x << "|" << clear_Color.y << "|" << clear_Color.z << "|" << std::endl;
+
+		if (m_pointlights.size() != 0)
+		{
+		//	m_pointlights[indexL]->setTransform(
+		//		//Position
+		//		glm::vec3(position.position),
+		//		//Rotation
+		//		glm::quat(),
+		//		//Scale
+		//		glm::vec3(1, 1, 1)
+		//	);
+			//m_pointlights[indexL]->setAttenuationAndRadius(glm::vec4(f, f, f, 1));
+			m_pointlights[0]->setColor(glm::vec3(clear_Color.x, clear_Color.y, clear_Color.z));
+		}
+	}
 
 	ImGui::EndGroup();
 
@@ -575,6 +611,9 @@ void LevelEditState::guiInfo()
 #pragma endregion
 
 	//ImGui::Render();
+
+	ImGuiIO& io = ImGui::GetIO();
+	ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 }
 
 
@@ -641,6 +680,22 @@ std::string LevelEditState::fileNameFormat(std::string filePath, bool isPath)
 	}
 
 	return finalString;
+}
+
+void LevelEditState::EditTransform(const float* cameraView, float* cameraProjection, float* objectMatrix)
+{
+	static ImGuizmo::OPERATION mCurrentOperation(ImGuizmo::TRANSLATE);
+	static ImGuizmo::MODE mCurrentMode(ImGuizmo::LOCAL);
+
+	float matrixTranslation[3], matrixRotation[3], matrixScale[3];
+	ImGuizmo::DecomposeMatrixToComponents(objectMatrix, matrixTranslation, matrixRotation, matrixScale);
+	ImGui::InputFloat3("TestTr", matrixTranslation, 3);
+	ImGui::InputFloat3("TestRt", matrixRotation, 3);
+	ImGui::InputFloat3("TestSc", matrixScale, 3);
+	ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, objectMatrix);
+
+	ImGuiIO& io = ImGui::GetIO();
+	ImGuizmo::Manipulate(cameraView, cameraProjection, mCurrentOperation, mCurrentMode, objectMatrix, NULL, NULL, NULL, NULL);
 }
 
 bool LevelEditState::ListBox(const char* label, int* currIndex, std::vector<std::string>& values)
