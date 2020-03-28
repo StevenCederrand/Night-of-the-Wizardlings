@@ -299,6 +299,7 @@ void LevelEditState::update(float dt)
 {
 	updateState(dt);
 
+	
 	static float t = 0.0f;
 	t += DeltaTime;
 }
@@ -321,6 +322,9 @@ void LevelEditState::guiInfo()
 	float* Proj;
 	float* ID;
 	float* gridSize;
+	float* objectMat;
+
+	
 
 	glm::mat4 m_viewMat = m_camera->getViewMat();
 	View = glm::value_ptr(m_viewMat);
@@ -330,6 +334,18 @@ void LevelEditState::guiInfo()
 
 	glm::mat4 m_identity = glm::mat4(1.0f);
 	ID = glm::value_ptr(m_identity);
+
+	//IMGUIZMO
+	ImGuizmo::DrawGrid(View, Proj, ID, 30.f);
+
+	ImGuizmo::SetRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	
+	if (m_objects.size() != 0)
+	{
+		glm::mat4 m_objectMatrix = m_objects.at(listBox_ActiveMeshes_Current)->getMatrix();
+		objectMat = glm::value_ptr(m_objectMatrix);
+		EditTransform(View, Proj, objectMat);
+	}
 
 	float matrixT[3], matrixR[3], matrixS[3];
 
@@ -499,12 +515,12 @@ void LevelEditState::guiInfo()
 	ImGui::RadioButton("Scale", &changeAttrib, 3);
 	ImGui::Separator();
 
-	int index = listBox_ActiveMeshes_Current;
+	
 	
 	ImGui::Text("Attribute");
-
+	int index = listBox_ActiveMeshes_Current;
 		
-	ImGui::ShowDemoWindow();
+	//ImGui::ShowDemoWindow();
 
 	if (m_objects.size() != 0)
 	{
@@ -663,6 +679,14 @@ std::string LevelEditState::fileNameFormat(std::string filePath, bool isPath)
 	}
 
 	return finalString;
+}
+
+void LevelEditState::EditTransform(const float* cameraView, float* cameraProjection, float* objectMatrix)
+{
+	static ImGuizmo::OPERATION mCurrentOperation(ImGuizmo::TRANSLATE);
+	static ImGuizmo::MODE mCurrentMode(ImGuizmo::LOCAL);
+
+	ImGuizmo::Manipulate(cameraView, cameraProjection, mCurrentOperation, mCurrentMode, objectMatrix, NULL, NULL, NULL, NULL);
 }
 
 bool LevelEditState::ListBox(const char* label, int* currIndex, std::vector<std::string>& values)

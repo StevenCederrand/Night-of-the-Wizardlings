@@ -71,6 +71,8 @@ private:
 	bool vecOfStrGet(void* data, int n, const char** out_text);
 	std::string fileNameFormat(std::string filePath, bool isPath);
 
+	void EditTransform(const float* cameraView, float* cameraProjection, float* objectMatrix);
+
 
 private:
 	//Any inherited GameObject class added to this vector will support basic rendering

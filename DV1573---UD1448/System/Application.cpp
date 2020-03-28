@@ -187,8 +187,8 @@ void Application::run()
 		if (m_stateManager->getImGuiState())
 		{
 			ImGui_ImplGlfwGL3_NewFrame();
-			ImGuiIO& io = ImGui::GetIO();
 			ImGuizmo::BeginFrame();
+			ImGuiIO& io = ImGui::GetIO();
 			m_stateManager->getGuiInfo();
 			ImGui::Render();
 			ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
