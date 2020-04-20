@@ -210,6 +210,7 @@ void LevelEditState::deleteObject(std::vector<GameObject*>& objectVector, int ch
 	objectVector.erase(objectVector.begin() + chosen);
 	m_objectNames.erase(m_objectNames.begin() + chosen);
 }
+
 void LevelEditState::saveLevel()
 {
 	OpenFileDialog();
@@ -293,6 +294,14 @@ void LevelEditState::cleanScene()
 	m_objectNames.clear();
 
 	std::cout << "Scene cleaned." << std::endl;
+}
+
+void LevelEditState::deleteMesh(int index)
+{
+	//Delete element in both UI and object vector
+	delete m_objects[index];
+	m_objectNames.erase(m_objectNames.begin() + index);
+	m_objects.clear();
 }
 
 void LevelEditState::update(float dt)
@@ -385,8 +394,9 @@ void LevelEditState::guiInfo()
 			//DELETE MESH BUTTON
 			if (ImGui::MenuItem("Delete"))
 			{
-				//if (listBox_ActiveMeshes_Current != -1)
-					//deleteObject(m_objects, listBox_ActiveMeshes_Current);
+				int tempDeleteIndex = listBox_ActiveMeshes_Current;
+				listBox_ActiveMeshes_Current = 0;
+				deleteMesh(tempDeleteIndex);
 			}
 			//DUPLICATE BUTTON
 			if (ImGui::MenuItem("Duplicate", "Ctrl+D"))

@@ -49,6 +49,7 @@ public:
 	void saveLevel();
 	void createPointLight();
 	void cleanScene();
+	void deleteMesh(int index );
 
 	/*bool GetVecToStr(void* data, int i, const char** out_text);*/
 
