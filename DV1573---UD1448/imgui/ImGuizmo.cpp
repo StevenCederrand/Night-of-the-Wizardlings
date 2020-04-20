@@ -1645,7 +1645,7 @@ namespace ImGuizmo
 			ImGui::CaptureMouseFromApp();
 			const float len = fabsf(IntersectRayPlane(gContext.mRayOrigin, gContext.mRayVector, gContext.mTranslationPlan)); // near plan
 			vec_t newPos = gContext.mRayOrigin + gContext.mRayVector * len;
-
+			
 
 
 			// compute delta

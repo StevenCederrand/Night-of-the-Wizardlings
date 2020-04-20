@@ -17,11 +17,12 @@
 #include <GFX/Pointlight.h>
 #include <System/MemoryUsage.h>
 #include <HUD/WorldHudObject.h>
-#include <LevelEditor/MousePicker.h>
+//#include <LevelEditor/MousePicker.h>
 #include <array>
 
 #include <imgui/imgui.h>
 #include <imgui/ImGuizmo.h>
+#include <imgui/imgui_internal.h>
 
 #include <algorithm>
 #include <iostream>
@@ -71,8 +72,8 @@ private:
 	bool vecOfStrGet(void* data, int n, const char** out_text);
 	std::string fileNameFormat(std::string filePath, bool isPath);
 
-	void EditTransform(const float* cameraView, float* cameraProjection, float* objectMatrix);
-
+	void EditTransform(const float* cameraView, float* cameraProjection, float* objectMatrix, int index);
+	void setAttrib(glm::vec3 matrixTranslation, glm::quat matrixRotation, glm::vec3 matrixScale, int index);
 
 private:
 	//Any inherited GameObject class added to this vector will support basic rendering
@@ -97,7 +98,7 @@ private:
 
 	Camera* m_camera;
 	SkyBox* m_skybox;
-	MousePicker* m_picker;
+	//MousePicker* m_picker;
 
 	
 	glm::vec3 EulerAngle;

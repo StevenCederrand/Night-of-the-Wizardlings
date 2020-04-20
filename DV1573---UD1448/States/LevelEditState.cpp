@@ -22,7 +22,7 @@ LevelEditState::LevelEditState()
 	//Create the scenes camera
 	m_camera = new Camera(glm::vec3(57.f, 100.f, -78.f), -232.0f, -43.2);
 	//Instanciate a mouse picker
-	m_picker = new MousePicker(m_camera, m_camera->getProjMat());
+	//m_picker = new MousePicker(m_camera, m_camera->getProjMat());
 	
 	//Get the instance of the renderer
 	Renderer* renderer = Renderer::getInstance();
@@ -59,7 +59,7 @@ LevelEditState::~LevelEditState()
 
 	delete m_camera;
 	delete m_skybox;
-	delete m_picker;
+	//delete m_picker;
 	
 	ImGui::DestroyContext();
 
@@ -111,7 +111,7 @@ void LevelEditState::loadAsset(std::vector<GameObject*>& objectVector)
 	{
 		std::ifstream source(filePath, std::ios::binary);
 		//This can't be hardcoded in the final product :P
-		std::ofstream dest( MESH_FILEPATH + '/' + editedName,
+		std::ofstream dest(MESH_FILEPATH + '/' + editedName,
 			std::ios::binary);
 
 		//file size
@@ -336,16 +336,9 @@ void LevelEditState::guiInfo()
 	ID = glm::value_ptr(m_identity);
 
 	//IMGUIZMO
+	ImGuiIO& io = ImGui::GetIO();
+	ImGuiItemFlags_AllowKeyboardFocus;
 	ImGuizmo::DrawGrid(View, Proj, ID, 30.f);
-
-
-	
-	if (m_objects.size() != 0)
-	{
-		glm::mat4 m_objectMatrix = m_objects.at(listBox_ActiveMeshes_Current)->getMatrix();
-		objectMat = glm::value_ptr(m_objectMatrix);
-		EditTransform(View, Proj, objectMat);
-	}
 
 	float matrixT[3], matrixR[3], matrixS[3];
 
@@ -501,35 +494,22 @@ void LevelEditState::guiInfo()
 	ImGui::Separator();
 
 	ImGui::BeginGroup();
-
-	if (Input::isKeyPressed(GLFW_KEY_W))
-		changeAttrib = 1;
-	ImGui::RadioButton("Translate", &changeAttrib, 1);
-	ImGui::SameLine(0.0f, 10.0f);
-	if (Input::isKeyPressed(GLFW_KEY_E))
-		changeAttrib = 2;
-	ImGui::RadioButton("Rotate", &changeAttrib, 2);
-	ImGui::SameLine(0.0f, 10.0f);
-	if (Input::isKeyPressed(GLFW_KEY_R))
-		changeAttrib = 3;
-	ImGui::RadioButton("Scale", &changeAttrib, 3);
-	ImGui::Separator();
-
-	
 	
 	ImGui::Text("Attribute");
 	int index = listBox_ActiveMeshes_Current;
 		
-	//ImGui::ShowDemoWindow();
+	ImGui::ShowDemoWindow();
 
 	if (m_objects.size() != 0)
 	{
-		
+		io.WantCaptureKeyboard = true;  
+		glm::mat4 m_objectMatrix = m_objects.at(index)->getMatrix();
+		objectMat = glm::value_ptr(m_objectMatrix);
+		ImGui::Text("X: %f, Y: %f", io.MousePos.x, io.MousePos.y);
+		EditTransform(View, Proj, objectMat, index);
+
 		ImGui::DragFloat3("Position", &m_transforms.at(index).position.x, 0.01f, -1000000, 1000000);
 		ImGui::DragFloat3("Rotation", &m_transforms.at(index).rotation.x, 0.01f, -1000000, 1000000);
-
-		float gSx[3] = { 1, 1, 1 };
-		ImGui::DragFloat3("Scale", gSx, 0.01f, -1000000, 1000000);
 
 		if (m_objects.size() != 0)
 		{
@@ -602,17 +582,7 @@ void LevelEditState::guiInfo()
 
 #pragma endregion
 
-#pragma region GRID
-
-
-	/*ImGuizmo::DrawGrid(View, Proj, ID, 10.f);
-	ImGuizmo::DrawCube(View, Proj, ID);*/
-
-#pragma endregion
-
 	//ImGui::Render();
-
-	ImGuiIO& io = ImGui::GetIO();
 	ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 }
 
@@ -626,7 +596,7 @@ void LevelEditState::updateState(const float& dt)
 
 
 	m_camera->updateLevelEd();
-	m_picker->update();
+	//m_picker->update();
 	//logTrace("MousePicker: ({0}, {1}, {2})", std::to_string(m_picker->getCurrentRay().x), std::to_string(m_picker->getCurrentRay().y), std::to_string(m_picker->getCurrentRay().z));
 	Renderer::getInstance()->updateParticles(dt);
 	for (GameObject* object : m_objects)
@@ -682,21 +652,53 @@ std::string LevelEditState::fileNameFormat(std::string filePath, bool isPath)
 	return finalString;
 }
 
-void LevelEditState::EditTransform(const float* cameraView, float* cameraProjection, float* objectMatrix)
+void LevelEditState::EditTransform(const float* cameraView, float* cameraProjection, float* objectMatrix, int index)
 {
 	static ImGuizmo::OPERATION mCurrentOperation(ImGuizmo::TRANSLATE);
 	static ImGuizmo::MODE mCurrentMode(ImGuizmo::LOCAL);
 
+	if (ImGui::RadioButton("Translate", mCurrentOperation == ImGuizmo::TRANSLATE))
+		mCurrentOperation = ImGuizmo::TRANSLATE;
+	ImGui::SameLine();
+	if (ImGui::RadioButton("Rotation", mCurrentOperation == ImGuizmo::ROTATE))
+		mCurrentOperation = ImGuizmo::ROTATE;
+	ImGui::SameLine();
+	if (ImGui::RadioButton("Scale", mCurrentOperation == ImGuizmo::SCALE))
+		mCurrentOperation = ImGuizmo::SCALE;
+
 	float matrixTranslation[3], matrixRotation[3], matrixScale[3];
-	ImGuizmo::DecomposeMatrixToComponents(objectMatrix, matrixTranslation, matrixRotation, matrixScale);
+	//ImGuizmo::DecomposeMatrixToComponents(objectMatrix, matrixTranslation, matrixRotation, matrixScale);
 	ImGui::InputFloat3("TestTr", matrixTranslation, 3);
 	ImGui::InputFloat3("TestRt", matrixRotation, 3);
 	ImGui::InputFloat3("TestSc", matrixScale, 3);
-	ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, objectMatrix);
+	//ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, objectMatrix);
+
+
+	if (mCurrentOperation != ImGuizmo::SCALE)
+	{
+		if (ImGui::RadioButton("Local", mCurrentMode == ImGuizmo::LOCAL))
+			mCurrentMode = ImGuizmo::LOCAL;
+		ImGui::SameLine();
+		if (ImGui::RadioButton("World", mCurrentMode == ImGuizmo::WORLD))
+			mCurrentMode = ImGuizmo::WORLD;
+	}
 
 	ImGuiIO& io = ImGui::GetIO();
+	
 	ImGuizmo::Manipulate(cameraView, cameraProjection, mCurrentOperation, mCurrentMode, objectMatrix, NULL, NULL, NULL, NULL);
+	//setAttrib(m_transforms.at(index).position, m_transforms.at(index).rotation, m_transforms.at(index).scale, index);
 }
+
+void LevelEditState::setAttrib(glm::vec3 matrixTranslation, glm::quat matrixRotation, glm::vec3 matrixScale, int index)
+{
+	m_objects[index]->setTransform(
+		matrixTranslation,
+		glm::quat(glm::vec3(matrixRotation.x, matrixRotation.y, matrixRotation.z)),
+		matrixScale
+	);
+}
+
+
 
 bool LevelEditState::ListBox(const char* label, int* currIndex, std::vector<std::string>& values)
 {
