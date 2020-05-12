@@ -1385,8 +1385,8 @@ namespace ImGuizmo
 				ImVec2 midBound = worldToPos(midPoint, boundsMVP);
 				static const float AnchorBigRadius = 8.f;
 				static const float AnchorSmallRadius = 6.f;
-				bool overBigAnchor = ImLengthSqr(worldBound1 - io.MousePos) <= (AnchorBigRadius * AnchorBigRadius);
-				bool overSmallAnchor = ImLengthSqr(midBound - io.MousePos) <= (AnchorBigRadius * AnchorBigRadius);
+				bool overBigAnchor = ImLengthSqr(worldBound1 - ImVec2(Input::getMousePosition().x, Input::getMousePosition().y)) <= (AnchorBigRadius * AnchorBigRadius);
+				bool overSmallAnchor = ImLengthSqr(midBound - ImVec2(Input::getMousePosition().x, Input::getMousePosition().y)) <= (AnchorBigRadius * AnchorBigRadius);
 
 				int type = NONE;
 				vec_t gizmoHitProportion;
@@ -1581,7 +1581,7 @@ namespace ImGuizmo
 			ImVec2 idealPosOnCircleScreen = worldToPos(idealPosOnCircle * gContext.mScreenFactor, gContext.mMVP);
 
 			//gContext.mDrawList->AddCircle(idealPosOnCircleScreen, 5.f, 0xFFFFFFFF);
-			ImVec2 distanceOnScreen = idealPosOnCircleScreen - io.MousePos;
+			ImVec2 distanceOnScreen = idealPosOnCircleScreen - ImVec2(Input::getMousePosition().x, Input::getMousePosition().y);
 
 			float distance = makeVect(distanceOnScreen).Length();
 			if (distance < 8.f) // pixel size
@@ -1759,7 +1759,7 @@ namespace ImGuizmo
 				gContext.mScale.Set(1.f, 1.f, 1.f);
 				gContext.mRelativeOrigin = (gContext.mTranslationPlanOrigin - gContext.mModel.v.position) * (1.f / gContext.mScreenFactor);
 				gContext.mScaleValueOrigin = makeVect(gContext.mModelSource.v.right.Length(), gContext.mModelSource.v.up.Length(), gContext.mModelSource.v.dir.Length());
-				gContext.mSaveMousePosx = io.MousePos.x;
+				gContext.mSaveMousePosx = Input::getMousePosition().x;
 			}
 		}
 		// scale
