@@ -10,6 +10,7 @@ MousePicker::MousePicker(Camera* camera, glm::mat4 projMatrix)
 
 MousePicker::~MousePicker()
 {
+	//Trash
 }
 
 
